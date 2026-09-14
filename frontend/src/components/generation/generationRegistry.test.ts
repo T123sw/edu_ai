@@ -13,7 +13,14 @@ test("every generation resource has teacher-facing copy", () => {
   for (const item of generationRegistry) {
     assert.ok(item.label.trim());
     assert.ok(item.description.trim());
+    assert.ok(item.placeholder.trim());
+    assert.equal(item.actionHint, `generate.${item.canonicalType}`);
   }
+});
+
+test("mind map is the only UI resource with a different canonical type", () => {
+  assert.equal(generationRegistry.find((item) => item.resourceType === "mind_map")?.canonicalType, "graph");
+  assert.equal(new Set(generationRegistry.map((item) => item.actionHint)).size, 8);
 });
 
 test("rendered generation resources require an explicit allowlist", () => {

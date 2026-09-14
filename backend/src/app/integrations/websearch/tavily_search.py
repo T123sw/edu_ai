@@ -3,6 +3,7 @@ from __future__ import annotations
 from urllib.parse import urlsplit
 
 import httpx
+from collections.abc import Sequence
 
 from .models import WebSearchError, WebSearchHit
 
@@ -15,6 +16,7 @@ def search_tavily(
     base_url: str,
     timeout: float = 20.0,
     search_depth: str = "basic",
+    include_domains: Sequence[str] | None = None,
 ) -> list[WebSearchHit]:
     """Search Tavily using its HTTP API and normalize results for DeepSearch."""
     if not api_key:
@@ -29,6 +31,9 @@ def search_tavily(
         "include_raw_content": False,
         "include_images": False,
     }
+    normalized_domains = [str(item).strip() for item in include_domains or [] if str(item).strip()]
+    if normalized_domains:
+        payload["include_domains"] = normalized_domains
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -61,4 +66,3 @@ def search_tavily(
             )
         )
     return hits
-

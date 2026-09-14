@@ -190,6 +190,10 @@ export function AIWorkspacePage() {
                   courseId={selectedCourse?.id}
                   workspaceScope={workspaceScope}
                   onPreviewStateChange={setStudioPreviewOpen}
+                  onAgentQueued={() => {
+                    if (layoutMode === "drawer") setDrawerPanel(null);
+                    if (layoutMode === "compact") setRightCollapsed(true);
+                  }}
                 />
               </div>
             </div>

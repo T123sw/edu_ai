@@ -31,8 +31,8 @@ test("compact classroom keeps the curriculum directory in a usable drawer", asyn
     waitUntil: "domcontentloaded",
   });
 
-  await teacherPage.getByRole("button", { name: "课程目录", exact: true }).click();
-  const directory = teacherPage.locator(".course-classroom-catalog__directory");
+  await teacherPage.getByRole("button", { name: "打开课程目录", exact: true }).click();
+  const directory = teacherPage.locator(".course-classroom-workspace__directory");
   await expect(directory).toHaveClass(/is-open/);
   await expect(directory.getByRole("tree", { name: "课程目录" })).toBeVisible();
   await directory.getByRole("button", { name: "关闭课程目录" }).click();

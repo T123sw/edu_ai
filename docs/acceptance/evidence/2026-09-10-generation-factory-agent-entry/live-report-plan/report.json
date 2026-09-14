@@ -1,0 +1,1050 @@
+{
+  "kind": "report",
+  "conversation_id": "resource-e2e-report-ec6a32d2",
+  "turns": [
+    {
+      "question": "请生成一份面向大学初学者的“数组的实现”报告，介绍连续存储、地址计算与插入删除，先给报告大纲。资料使用通用知识即可，无需检索。",
+      "events": [
+        {
+          "type": "metadata",
+          "payload": {
+            "conversation_id": "resource-e2e-report-ec6a32d2",
+            "runtime": "deepseek-harness",
+            "trace": {
+              "path": "deepseek-harness"
+            }
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "thinking",
+            "label": "正在处理请求"
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "select_workspace",
+            "tool_name": "select_workspace",
+            "call_id": "2e5fa5c220a64a84a129bfe21b703617",
+            "args": {
+              "scope_type": "course",
+              "topic": "数组的实现：连续存储、地址计算与插入删除"
+            }
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "skill",
+            "label": "正在加载任务流程"
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "select_workspace",
+            "tool_name": "select_workspace",
+            "call_id": "2e5fa5c220a64a84a129bfe21b703617",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组的实现：连续存储、地址计算与插入删除"
+              }
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "organize_report_content",
+            "tool_name": "organize_report_content",
+            "call_id": "5550d20255b34685be243db54730ed0d",
+            "args": {
+              "subject": "数组的实现：连续存储、地址计算与插入删除",
+              "audience": "大学初学者（数据结构入门学习者）",
+              "requirements": "面向大学初学者的知识讲解型报告，重点讲清数组的连续存储布局、下标地址计算公式、插入与删除的操作过程及时间代价；使用通用基础知识讲解，不要求外部检索；先给出报告大纲。",
+              "resource_type": "report"
+            }
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "organize_report_content",
+            "tool_name": "organize_report_content",
+            "call_id": "5550d20255b34685be243db54730ed0d",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "organize_report_content",
+              "data": {
+                "scope": "本报告面向大学数据结构入门学习者，讲解一维数组的连续存储布局、下标地址计算公式、插入与删除操作的过程及时间代价。内容限于静态数组与动态数组的基本概念，不涉及多维数组的复杂映射、稀疏数组、内存对齐、缓存优化或具体编程语言实现细节。",
+                "prerequisites": [
+                  "基本变量与内存地址的概念",
+                  "简单的编程语言中数组声明与下标访问语法",
+                  "时间复杂度的初步概念（大O表示法）"
+                ],
+                "objectives": [
+                  "能够描述数组在内存中连续存储的布局特征",
+                  "能够使用下标地址计算公式计算任意元素的地址",
+                  "能够逐步说明在数组中间插入一个元素的过程",
+                  "能够逐步说明在数组中间删除一个元素的过程",
+                  "能够分析插入和删除操作的时间复杂度",
+                  "能够区分数组随机访问高效与插入删除低效的原因"
+                ],
+                "units": [
+                  {
+                    "title": "数组的连续存储布局",
+                    "explanation": "数组是一种线性数据结构，其所有元素在内存中占用一段连续的存储空间。每个元素占据相同大小的字节数，设起始地址为 base，每个元素占 size 字节，则第 i 个元素（下标从0开始）的地址为 base + i * size。这种连续布局使得通过下标可以直接计算出元素地址，从而实现随机访问。",
+                    "example": "假设一个整型数组起始地址为1000，每个整数占4字节，则下标0的地址是1000，下标1的地址是1004，下标2的地址是1008，依此类推。",
+                    "misconception": "常见误解是认为数组元素在内存中可以不连续存储，或者认为下标访问需要从头遍历。实际上连续存储正是数组随机访问的基础。",
+                    "check": "如果数组起始地址为2000，每个元素占8字节，那么下标为5的元素的地址是多少？",
+                    "objective_indices": [
+                      0,
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "下标地址计算公式",
+                    "explanation": "对于一维数组，若起始地址为 base，每个元素占 size 字节，下标从0开始，则下标为 i 的元素的地址为 base + i * size。该公式是数组随机访问的核心，使得访问任意元素的时间复杂度为 O(1)。公式成立的前提是数组元素类型相同且连续存储。",
+                    "example": "一个浮点数组起始地址为5000，每个浮点数占4字节，则下标为10的元素的地址为5000 + 10 * 4 = 5040。",
+                    "misconception": "有些初学者误以为下标从1开始，导致地址计算偏移一个元素。在大多数编程语言中，数组下标从0开始，公式中的 i 也相应从0开始。",
+                    "check": "若数组起始地址为3000，每个元素占2字节，下标从0开始，求下标为7的元素的地址。",
+                    "objective_indices": [
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "插入操作的过程与代价",
+                    "explanation": "在数组的指定位置插入一个元素时，需要将该位置及其之后的所有元素向后移动一位，以腾出空位，然后将新元素放入该位置，并更新数组长度。最坏情况下（在数组开头插入），需要移动所有 n 个元素，因此时间复杂度为 O(n)。",
+                    "example": "数组 [A, B, C, D] 在下标1处插入 X，需要将 B、C、D 依次后移，得到 [A, X, B, C, D]，共移动3个元素。",
+                    "misconception": "误以为插入操作可以像链表一样只修改指针，不需要移动元素。数组的连续存储特性决定了插入通常需要移动数据。",
+                    "check": "在一个长度为10的数组的下标0处插入一个元素，需要移动多少个元素？时间复杂度是多少？",
+                    "objective_indices": [
+                      2,
+                      4
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "删除操作的过程与代价",
+                    "explanation": "删除数组中指定位置的元素时，需要将该位置之后的所有元素向前移动一位，以填补被删除元素留下的空缺，并更新数组长度。最坏情况下（删除数组开头元素），需要移动 n-1 个元素，因此时间复杂度为 O(n)。",
+                    "example": "数组 [A, B, C, D] 删除下标1处的元素 B，需要将 C、D 依次前移，得到 [A, C, D]，共移动2个元素。",
+                    "misconception": "误以为删除元素后数组会自动压缩且不需要移动数据。实际上，为了保持连续性，必须移动后续元素。",
+                    "check": "在一个长度为8的数组中删除下标0处的元素，需要移动多少个元素？时间复杂度是多少？",
+                    "objective_indices": [
+                      3,
+                      4
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "随机访问与插入删除的对比",
+                    "explanation": "数组的连续存储使得通过下标计算地址可以在 O(1) 时间内访问任意元素，这是数组的最大优势。然而，插入和删除操作因为需要保持连续性，通常需要移动大量元素，时间复杂度为 O(n)。这种特性使得数组适合读多写少的场景。",
+                    "example": "对于包含1000个元素的数组，访问第500个元素只需一次地址计算，而删除第0个元素需要移动999个元素。",
+                    "misconception": "认为数组的所有操作都很快。实际上，数组仅在随机访问上高效，插入和删除可能很慢。",
+                    "check": "为什么数组的随机访问是 O(1)，而插入和删除是 O(n)？请简要解释。",
+                    "objective_indices": [
+                      5
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本报告未涉及多维数组的地址计算与存储布局。",
+                  "未讨论动态数组的扩容机制及其对插入操作摊还复杂度的影响。",
+                  "未考虑内存对齐、缓存局部性等底层细节对实际性能的影响。",
+                  "未提供具体编程语言的代码实现，仅从概念层面讲解。"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：报告面向大学初学者，先给出大纲，且不要求外部检索；内容限于静态数组与动态数组基本概念，未越界到多维数组、稀疏数组、内存对齐、缓存优化或具体语言实现。",
+                      "reason": "scope、prerequisites、objectives、units 与 limitations 一致：先列 scope/prerequisites/objectives，再给 units 大纲；limitations 明确排除多维数组、动态数组扩容、内存对齐、缓存局部性、具体语言实现。符合当前知识准备阶段，不因未展开完整正文而判错。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：地址公式 base + i * size 与各单元示例、检查题一致，且插入/删除的移动次数与时间复杂度推导一致。",
+                      "reason": "单元1：1000 + 2*4 = 1008；单元2：5000 + 10*4 = 5040；检查题 3000 + 7*2 = 3014。插入 [A,B,C,D] 在下标1插入 X，B、C、D 后移，移动3个元素，最坏 n 个，O(n)；删除 [A,B,C,D] 下标1的 B，C、D 前移，移动2个元素，最坏 n-1 个，O(n)。均一致。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子：插入与删除示例实际逐步追踪了元素移动和终止状态，未把循环条件或目标存在前提错误泛化。",
+                      "reason": "插入示例从 [A,B,C,D] 到 [A,X,B,C,D]，明确 B、C、D 依次后移；删除示例从 [A,B,C,D] 到 [A,C,D]，明确 C、D 依次前移。示例与说明不矛盾，且未涉及不存在值、空输入、末端索引等需要额外边界处理的场景。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：目标覆盖连续存储、地址计算、插入、删除、复杂度、随机访问与插入删除对比；边界案例在检查题中实际提供。",
+                      "reason": "objectives 六项分别对应 units 的 objective_indices：0/1 对应布局与公式，2/4 对应插入，3/4 对应删除，5 对应对比。检查题覆盖下标5、下标7、长度10下标0插入、长度8下标0删除，以及 O(1) 与 O(n) 对比，满足用户明确要求的边界案例。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_4e94e9bbaa7c415caf2549e0a8597645",
+                "resource_type": "report",
+                "subject": "数组的实现：连续存储、地址计算与插入删除",
+                "audience": "大学初学者（数据结构入门学习者）",
+                "requirements": "面向大学初学者的知识讲解型报告，重点讲清数组的连续存储布局、下标地址计算公式、插入与删除的操作过程及时间代价；使用通用基础知识讲解，不要求外部检索；先给出报告大纲。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "draft_report_outline",
+            "tool_name": "draft_report_outline",
+            "call_id": "4efb2c2dd5c34968bfdbe061f876cd73",
+            "args": {
+              "organization_id": "org_4e94e9bbaa7c415caf2549e0a8597645",
+              "subject": "数组的实现：连续存储、地址计算与插入删除",
+              "audience": "大学初学者（数据结构入门学习者）",
+              "requirements": "面向大学初学者的知识讲解型报告，重点讲清数组的连续存储布局、下标地址计算公式、插入与删除的操作过程及时间代价；使用通用基础知识讲解，不要求外部检索；先给出报告大纲。",
+              "section_count": 5,
+              "resource_type": "report"
+            }
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "draft_report_outline",
+            "tool_name": "draft_report_outline",
+            "call_id": "4efb2c2dd5c34968bfdbe061f876cd73",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "draft_report_outline",
+              "data": {
+                "outline_id": "outline_37a85ffa77a4491b95ac0f04f8258c90",
+                "revision": 1,
+                "created_request_id": "9b9c95562da94ee39206ff26e9587cad",
+                "resource_type": "report",
+                "subject": "数组的实现：连续存储、地址计算与插入删除",
+                "audience": "大学初学者（数据结构入门学习者）",
+                "requirements": "面向大学初学者的知识讲解型报告，重点讲清数组的连续存储布局、下标地址计算公式、插入与删除的操作过程及时间代价；使用通用基础知识讲解，不要求外部检索；先给出报告大纲。",
+                "workspace": {
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "organization_id": "org_4e94e9bbaa7c415caf2549e0a8597645",
+                "classroom_options": {},
+                "quality": {
+                  "structural": "pass",
+                  "objective_coverage": true,
+                  "coverage_method": "structural",
+                  "semantic_review": "not_performed",
+                  "review": null
+                },
+                "chapters": [
+                  {
+                    "title": "连续存储布局",
+                    "points": [
+                      "内存中的连续空间",
+                      "元素大小与起始地址",
+                      "随机访问的存储基础"
+                    ],
+                    "unit_indices": [
+                      0
+                    ]
+                  },
+                  {
+                    "title": "下标地址计算",
+                    "points": [
+                      "地址计算公式",
+                      "下标与偏移量",
+                      "O(1)访问的由来"
+                    ],
+                    "unit_indices": [
+                      1
+                    ]
+                  },
+                  {
+                    "title": "插入操作",
+                    "points": [
+                      "插入位置与元素后移",
+                      "长度更新",
+                      "最坏情况与时间复杂度"
+                    ],
+                    "unit_indices": [
+                      2
+                    ]
+                  },
+                  {
+                    "title": "删除操作",
+                    "points": [
+                      "删除位置与元素前移",
+                      "长度更新",
+                      "最坏情况与时间复杂度"
+                    ],
+                    "unit_indices": [
+                      3
+                    ]
+                  },
+                  {
+                    "title": "随机访问与插入删除对比",
+                    "points": [
+                      "访问效率对比",
+                      "插入删除代价",
+                      "适用场景"
+                    ],
+                    "unit_indices": [
+                      4
+                    ]
+                  }
+                ],
+                "markdown": "# 数组的实现：连续存储、地址计算与插入删除：报告大纲\n\n## 1. 连续存储布局\n### 1.1 内存中的连续空间\n### 1.2 元素大小与起始地址\n### 1.3 随机访问的存储基础\n\n## 2. 下标地址计算\n### 2.1 地址计算公式\n### 2.2 下标与偏移量\n### 2.3 O(1)访问的由来\n\n## 3. 插入操作\n### 3.1 插入位置与元素后移\n### 3.2 长度更新\n### 3.3 最坏情况与时间复杂度\n\n## 4. 删除操作\n### 4.1 删除位置与元素前移\n### 4.2 长度更新\n### 4.3 最坏情况与时间复杂度\n\n## 5. 随机访问与插入删除对比\n### 5.1 访问效率对比\n### 5.2 插入删除代价\n### 5.3 适用场景",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "status": "awaiting_approval",
+                "job_id": null
+              }
+            },
+            "outline_markdown": "# 数组的实现：连续存储、地址计算与插入删除：报告大纲\n\n## 1. 连续存储布局\n### 1.1 内存中的连续空间\n### 1.2 元素大小与起始地址\n### 1.3 随机访问的存储基础\n\n## 2. 下标地址计算\n### 2.1 地址计算公式\n### 2.2 下标与偏移量\n### 2.3 O(1)访问的由来\n\n## 3. 插入操作\n### 3.1 插入位置与元素后移\n### 3.2 长度更新\n### 3.3 最坏情况与时间复杂度\n\n## 4. 删除操作\n### 4.1 删除位置与元素前移\n### 4.2 长度更新\n### 4.3 最坏情况与时间复杂度\n\n## 5. 随机访问与插入删除对比\n### 5.1 访问效率对比\n### 5.2 插入删除代价\n### 5.3 适用场景",
+            "resource_type": "report",
+            "subject": "数组的实现：连续存储、地址计算与插入删除"
+          }
+        },
+        {
+          "type": "result",
+          "payload": {
+            "message": {
+              "role": "assistant",
+              "content": "# 数组的实现：连续存储、地址计算与插入删除：报告大纲\n\n## 1. 连续存储布局\n### 1.1 内存中的连续空间\n### 1.2 元素大小与起始地址\n### 1.3 随机访问的存储基础\n\n## 2. 下标地址计算\n### 2.1 地址计算公式\n### 2.2 下标与偏移量\n### 2.3 O(1)访问的由来\n\n## 3. 插入操作\n### 3.1 插入位置与元素后移\n### 3.2 长度更新\n### 3.3 最坏情况与时间复杂度\n\n## 4. 删除操作\n### 4.1 删除位置与元素前移\n### 4.2 长度更新\n### 4.3 最坏情况与时间复杂度\n\n## 5. 随机访问与插入删除对比\n### 5.1 访问效率对比\n### 5.2 插入删除代价\n### 5.3 适用场景\n\n大纲第 1 版。可以提出修改意见，或告诉我按此结构继续。"
+            },
+            "conversation": {
+              "conversation_id": "resource-e2e-report-ec6a32d2"
+            },
+            "action": {
+              "name": "generate.report"
+            },
+            "artifacts": [],
+            "workflow": {
+              "type": "report",
+              "status": "awaiting_confirm",
+              "stage": "outline"
+            },
+            "sources": [],
+            "trace": {
+              "path": "deepseek-harness",
+              "model_runtime": "dsh",
+              "request_id": "9b9c95562da94ee39206ff26e9587cad",
+              "tool_events": [
+                {
+                  "ok": true,
+                  "tool": "select_workspace",
+                  "data": {
+                    "course_id": "resource-e2e-course",
+                    "course_title": "数据结构验收课程",
+                    "scope_type": "course",
+                    "scope_id": null,
+                    "scope_title": "数据结构验收课程",
+                    "scope_path": [
+                      "数据结构验收课程"
+                    ],
+                    "resolution": "resolved",
+                    "explicit_course": true,
+                    "update_workspace": false,
+                    "topic": "数组的实现：连续存储、地址计算与插入删除"
+                  }
+                },
+                {
+                  "ok": true,
+                  "tool": "organize_report_content",
+                  "data": {
+                    "scope": "本报告面向大学数据结构入门学习者，讲解一维数组的连续存储布局、下标地址计算公式、插入与删除操作的过程及时间代价。内容限于静态数组与动态数组的基本概念，不涉及多维数组的复杂映射、稀疏数组、内存对齐、缓存优化或具体编程语言实现细节。",
+                    "prerequisites": [
+                      "基本变量与内存地址的概念",
+                      "简单的编程语言中数组声明与下标访问语法",
+                      "时间复杂度的初步概念（大O表示法）"
+                    ],
+                    "objectives": [
+                      "能够描述数组在内存中连续存储的布局特征",
+                      "能够使用下标地址计算公式计算任意元素的地址",
+                      "能够逐步说明在数组中间插入一个元素的过程",
+                      "能够逐步说明在数组中间删除一个元素的过程",
+                      "能够分析插入和删除操作的时间复杂度",
+                      "能够区分数组随机访问高效与插入删除低效的原因"
+                    ],
+                    "units": [
+                      {
+                        "title": "数组的连续存储布局",
+                        "explanation": "数组是一种线性数据结构，其所有元素在内存中占用一段连续的存储空间。每个元素占据相同大小的字节数，设起始地址为 base，每个元素占 size 字节，则第 i 个元素（下标从0开始）的地址为 base + i * size。这种连续布局使得通过下标可以直接计算出元素地址，从而实现随机访问。",
+                        "example": "假设一个整型数组起始地址为1000，每个整数占4字节，则下标0的地址是1000，下标1的地址是1004，下标2的地址是1008，依此类推。",
+                        "misconception": "常见误解是认为数组元素在内存中可以不连续存储，或者认为下标访问需要从头遍历。实际上连续存储正是数组随机访问的基础。",
+                        "check": "如果数组起始地址为2000，每个元素占8字节，那么下标为5的元素的地址是多少？",
+                        "objective_indices": [
+                          0,
+                          1
+                        ],
+                        "evidence_ids": []
+                      },
+                      {
+                        "title": "下标地址计算公式",
+                        "explanation": "对于一维数组，若起始地址为 base，每个元素占 size 字节，下标从0开始，则下标为 i 的元素的地址为 base + i * size。该公式是数组随机访问的核心，使得访问任意元素的时间复杂度为 O(1)。公式成立的前提是数组元素类型相同且连续存储。",
+                        "example": "一个浮点数组起始地址为5000，每个浮点数占4字节，则下标为10的元素的地址为5000 + 10 * 4 = 5040。",
+                        "misconception": "有些初学者误以为下标从1开始，导致地址计算偏移一个元素。在大多数编程语言中，数组下标从0开始，公式中的 i 也相应从0开始。",
+                        "check": "若数组起始地址为3000，每个元素占2字节，下标从0开始，求下标为7的元素的地址。",
+                        "objective_indices": [
+                          1
+                        ],
+                        "evidence_ids": []
+                      },
+                      {
+                        "title": "插入操作的过程与代价",
+                        "explanation": "在数组的指定位置插入一个元素时，需要将该位置及其之后的所有元素向后移动一位，以腾出空位，然后将新元素放入该位置，并更新数组长度。最坏情况下（在数组开头插入），需要移动所有 n 个元素，因此时间复杂度为 O(n)。",
+                        "example": "数组 [A, B, C, D] 在下标1处插入 X，需要将 B、C、D 依次后移，得到 [A, X, B, C, D]，共移动3个元素。",
+                        "misconception": "误以为插入操作可以像链表一样只修改指针，不需要移动元素。数组的连续存储特性决定了插入通常需要移动数据。",
+                        "check": "在一个长度为10的数组的下标0处插入一个元素，需要移动多少个元素？时间复杂度是多少？",
+                        "objective_indices": [
+                          2,
+                          4
+                        ],
+                        "evidence_ids": []
+                      },
+                      {
+                        "title": "删除操作的过程与代价",
+                        "explanation": "删除数组中指定位置的元素时，需要将该位置之后的所有元素向前移动一位，以填补被删除元素留下的空缺，并更新数组长度。最坏情况下（删除数组开头元素），需要移动 n-1 个元素，因此时间复杂度为 O(n)。",
+                        "example": "数组 [A, B, C, D] 删除下标1处的元素 B，需要将 C、D 依次前移，得到 [A, C, D]，共移动2个元素。",
+                        "misconception": "误以为删除元素后数组会自动压缩且不需要移动数据。实际上，为了保持连续性，必须移动后续元素。",
+                        "check": "在一个长度为8的数组中删除下标0处的元素，需要移动多少个元素？时间复杂度是多少？",
+                        "objective_indices": [
+                          3,
+                          4
+                        ],
+                        "evidence_ids": []
+                      },
+                      {
+                        "title": "随机访问与插入删除的对比",
+                        "explanation": "数组的连续存储使得通过下标计算地址可以在 O(1) 时间内访问任意元素，这是数组的最大优势。然而，插入和删除操作因为需要保持连续性，通常需要移动大量元素，时间复杂度为 O(n)。这种特性使得数组适合读多写少的场景。",
+                        "example": "对于包含1000个元素的数组，访问第500个元素只需一次地址计算，而删除第0个元素需要移动999个元素。",
+                        "misconception": "认为数组的所有操作都很快。实际上，数组仅在随机访问上高效，插入和删除可能很慢。",
+                        "check": "为什么数组的随机访问是 O(1)，而插入和删除是 O(n)？请简要解释。",
+                        "objective_indices": [
+                          5
+                        ],
+                        "evidence_ids": []
+                      }
+                    ],
+                    "limitations": [
+                      "本报告未涉及多维数组的地址计算与存储布局。",
+                      "未讨论动态数组的扩容机制及其对插入操作摊还复杂度的影响。",
+                      "未考虑内存对齐、缓存局部性等底层细节对实际性能的影响。",
+                      "未提供具体编程语言的代码实现，仅从概念层面讲解。"
+                    ],
+                    "model_review": {
+                      "passed": true,
+                      "checks": [
+                        {
+                          "claim": "前提适用性：报告面向大学初学者，先给出大纲，且不要求外部检索；内容限于静态数组与动态数组基本概念，未越界到多维数组、稀疏数组、内存对齐、缓存优化或具体语言实现。",
+                          "reason": "scope、prerequisites、objectives、units 与 limitations 一致：先列 scope/prerequisites/objectives，再给 units 大纲；limitations 明确排除多维数组、动态数组扩容、内存对齐、缓存局部性、具体语言实现。符合当前知识准备阶段，不因未展开完整正文而判错。",
+                          "passed": true
+                        },
+                        {
+                          "claim": "内部推理一致性：地址公式 base + i * size 与各单元示例、检查题一致，且插入/删除的移动次数与时间复杂度推导一致。",
+                          "reason": "单元1：1000 + 2*4 = 1008；单元2：5000 + 10*4 = 5040；检查题 3000 + 7*2 = 3014。插入 [A,B,C,D] 在下标1插入 X，B、C、D 后移，移动3个元素，最坏 n 个，O(n)；删除 [A,B,C,D] 下标1的 B，C、D 前移，移动2个元素，最坏 n-1 个，O(n)。均一致。",
+                          "passed": true
+                        },
+                        {
+                          "claim": "具体例子：插入与删除示例实际逐步追踪了元素移动和终止状态，未把循环条件或目标存在前提错误泛化。",
+                          "reason": "插入示例从 [A,B,C,D] 到 [A,X,B,C,D]，明确 B、C、D 依次后移；删除示例从 [A,B,C,D] 到 [A,C,D]，明确 C、D 依次前移。示例与说明不矛盾，且未涉及不存在值、空输入、末端索引等需要额外边界处理的场景。",
+                          "passed": true
+                        },
+                        {
+                          "claim": "边界与学习目标覆盖：目标覆盖连续存储、地址计算、插入、删除、复杂度、随机访问与插入删除对比；边界案例在检查题中实际提供。",
+                          "reason": "objectives 六项分别对应 units 的 objective_indices：0/1 对应布局与公式，2/4 对应插入，3/4 对应删除，5 对应对比。检查题覆盖下标5、下标7、长度10下标0插入、长度8下标0删除，以及 O(1) 与 O(n) 对比，满足用户明确要求的边界案例。",
+                          "passed": true
+                        }
+                      ],
+                      "issues": []
+                    },
+                    "organization_id": "org_4e94e9bbaa7c415caf2549e0a8597645",
+                    "resource_type": "report",
+                    "subject": "数组的实现：连续存储、地址计算与插入删除",
+                    "audience": "大学初学者（数据结构入门学习者）",
+                    "requirements": "面向大学初学者的知识讲解型报告，重点讲清数组的连续存储布局、下标地址计算公式、插入与删除的操作过程及时间代价；使用通用基础知识讲解，不要求外部检索；先给出报告大纲。",
+                    "evidence_ids": [],
+                    "source_policy": {
+                      "allow_rag": true,
+                      "allow_web": true,
+                      "selected_doc_ids": [],
+                      "scope_type": "course",
+                      "scope_id": null
+                    }
+                  }
+                },
+                {
+                  "ok": true,
+                  "tool": "draft_report_outline",
+                  "data": {
+                    "outline_id": "outline_37a85ffa77a4491b95ac0f04f8258c90",
+                    "revision": 1,
+                    "created_request_id": "9b9c95562da94ee39206ff26e9587cad",
+                    "resource_type": "report",
+                    "subject": "数组的实现：连续存储、地址计算与插入删除",
+                    "audience": "大学初学者（数据结构入门学习者）",
+                    "requirements": "面向大学初学者的知识讲解型报告，重点讲清数组的连续存储布局、下标地址计算公式、插入与删除的操作过程及时间代价；使用通用基础知识讲解，不要求外部检索；先给出报告大纲。",
+                    "workspace": {
+                      "scope_type": "course",
+                      "scope_id": null
+                    },
+                    "organization_id": "org_4e94e9bbaa7c415caf2549e0a8597645",
+                    "classroom_options": {},
+                    "quality": {
+                      "structural": "pass",
+                      "objective_coverage": true,
+                      "coverage_method": "structural",
+                      "semantic_review": "not_performed",
+                      "review": null
+                    },
+                    "chapters": [
+                      {
+                        "title": "连续存储布局",
+                        "points": [
+                          "内存中的连续空间",
+                          "元素大小与起始地址",
+                          "随机访问的存储基础"
+                        ],
+                        "unit_indices": [
+                          0
+                        ]
+                      },
+                      {
+                        "title": "下标地址计算",
+                        "points": [
+                          "地址计算公式",
+                          "下标与偏移量",
+                          "O(1)访问的由来"
+                        ],
+                        "unit_indices": [
+                          1
+                        ]
+                      },
+                      {
+                        "title": "插入操作",
+                        "points": [
+                          "插入位置与元素后移",
+                          "长度更新",
+                          "最坏情况与时间复杂度"
+                        ],
+                        "unit_indices": [
+                          2
+                        ]
+                      },
+                      {
+                        "title": "删除操作",
+                        "points": [
+                          "删除位置与元素前移",
+                          "长度更新",
+                          "最坏情况与时间复杂度"
+                        ],
+                        "unit_indices": [
+                          3
+                        ]
+                      },
+                      {
+                        "title": "随机访问与插入删除对比",
+                        "points": [
+                          "访问效率对比",
+                          "插入删除代价",
+                          "适用场景"
+                        ],
+                        "unit_indices": [
+                          4
+                        ]
+                      }
+                    ],
+                    "markdown": "# 数组的实现：连续存储、地址计算与插入删除：报告大纲\n\n## 1. 连续存储布局\n### 1.1 内存中的连续空间\n### 1.2 元素大小与起始地址\n### 1.3 随机访问的存储基础\n\n## 2. 下标地址计算\n### 2.1 地址计算公式\n### 2.2 下标与偏移量\n### 2.3 O(1)访问的由来\n\n## 3. 插入操作\n### 3.1 插入位置与元素后移\n### 3.2 长度更新\n### 3.3 最坏情况与时间复杂度\n\n## 4. 删除操作\n### 4.1 删除位置与元素前移\n### 4.2 长度更新\n### 4.3 最坏情况与时间复杂度\n\n## 5. 随机访问与插入删除对比\n### 5.1 访问效率对比\n### 5.2 插入删除代价\n### 5.3 适用场景",
+                    "evidence_ids": [],
+                    "source_policy": {
+                      "allow_rag": true,
+                      "allow_web": true,
+                      "selected_doc_ids": [],
+                      "scope_type": "course",
+                      "scope_id": null
+                    },
+                    "status": "awaiting_approval",
+                    "job_id": null,
+                    "presented_revision": 1,
+                    "presented_request_id": "9b9c95562da94ee39206ff26e9587cad"
+                  }
+                }
+              ],
+              "agent_memory_write": {
+                "candidate_count": 0,
+                "accepted_count": 0,
+                "written_count": 0,
+                "rejected_count": 0,
+                "shadow_candidate_count": 0,
+                "provider": "rules",
+                "provider_status": "disabled",
+                "memory_ids": []
+              }
+            },
+            "harness_outline": {
+              "outline_id": "outline_37a85ffa77a4491b95ac0f04f8258c90",
+              "revision": 1,
+              "subject": "数组的实现：连续存储、地址计算与插入删除"
+            },
+            "workspace_context": {
+              "course_id": "resource-e2e-course",
+              "course_title": "数据结构验收课程",
+              "scope_type": "course",
+              "scope_id": null,
+              "scope_title": "数据结构验收课程",
+              "scope_path": [
+                "数据结构验收课程"
+              ],
+              "resolution": "resolved",
+              "explicit_course": true,
+              "update_workspace": false
+            },
+            "interaction_state": {
+              "version": 1,
+              "foreground": "plan:outline_37a85ffa77a4491b95ac0f04f8258c90",
+              "tasks": {
+                "plan:outline_37a85ffa77a4491b95ac0f04f8258c90": {
+                  "id": "plan:outline_37a85ffa77a4491b95ac0f04f8258c90",
+                  "kind": "report",
+                  "revision": 1,
+                  "status": "awaiting_confirm"
+                }
+              }
+            },
+            "status_card": {
+              "mode": "workflow",
+              "status_label": "等待你确认报告大纲",
+              "workflow_label": "报告",
+              "topics": [
+                "请生成一份"
+              ],
+              "goal": "生成报告",
+              "issues": [],
+              "confirmed_facts": [
+                "先给报告大纲",
+                "资料使用通用知识即可"
+              ],
+              "student_signals": [],
+              "evidence_points": [
+                "### 4.1 删除位置与元素前移"
+              ],
+              "evidence_details": [
+                {
+                  "content": "### 4.1 删除位置与元素前移",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                }
+              ],
+              "extra_constraints": [],
+              "source_labels": [
+                "当前会话",
+                "当前课程"
+              ],
+              "waiting_label": "等待你确认报告大纲",
+              "suggested_actions": [
+                "确认并继续",
+                "调整要求"
+              ],
+              "audience": "大学初学者的“数组的实现”报告",
+              "allow_rag": true,
+              "allow_web": true,
+              "summary_hint": "当前围绕请生成一份继续讨论"
+            }
+          }
+        },
+        {
+          "type": "done",
+          "payload": {
+            "conversation_id": "resource-e2e-report-ec6a32d2"
+          }
+        }
+      ],
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "# 数组的实现：连续存储、地址计算与插入删除：报告大纲\n\n## 1. 连续存储布局\n### 1.1 内存中的连续空间\n### 1.2 元素大小与起始地址\n### 1.3 随机访问的存储基础\n\n## 2. 下标地址计算\n### 2.1 地址计算公式\n### 2.2 下标与偏移量\n### 2.3 O(1)访问的由来\n\n## 3. 插入操作\n### 3.1 插入位置与元素后移\n### 3.2 长度更新\n### 3.3 最坏情况与时间复杂度\n\n## 4. 删除操作\n### 4.1 删除位置与元素前移\n### 4.2 长度更新\n### 4.3 最坏情况与时间复杂度\n\n## 5. 随机访问与插入删除对比\n### 5.1 访问效率对比\n### 5.2 插入删除代价\n### 5.3 适用场景\n\n大纲第 1 版。可以提出修改意见，或告诉我按此结构继续。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-report-ec6a32d2"
+        },
+        "action": {
+          "name": "generate.report"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "report",
+          "status": "awaiting_confirm",
+          "stage": "outline"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "9b9c95562da94ee39206ff26e9587cad",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组的实现：连续存储、地址计算与插入删除"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "organize_report_content",
+              "data": {
+                "scope": "本报告面向大学数据结构入门学习者，讲解一维数组的连续存储布局、下标地址计算公式、插入与删除操作的过程及时间代价。内容限于静态数组与动态数组的基本概念，不涉及多维数组的复杂映射、稀疏数组、内存对齐、缓存优化或具体编程语言实现细节。",
+                "prerequisites": [
+                  "基本变量与内存地址的概念",
+                  "简单的编程语言中数组声明与下标访问语法",
+                  "时间复杂度的初步概念（大O表示法）"
+                ],
+                "objectives": [
+                  "能够描述数组在内存中连续存储的布局特征",
+                  "能够使用下标地址计算公式计算任意元素的地址",
+                  "能够逐步说明在数组中间插入一个元素的过程",
+                  "能够逐步说明在数组中间删除一个元素的过程",
+                  "能够分析插入和删除操作的时间复杂度",
+                  "能够区分数组随机访问高效与插入删除低效的原因"
+                ],
+                "units": [
+                  {
+                    "title": "数组的连续存储布局",
+                    "explanation": "数组是一种线性数据结构，其所有元素在内存中占用一段连续的存储空间。每个元素占据相同大小的字节数，设起始地址为 base，每个元素占 size 字节，则第 i 个元素（下标从0开始）的地址为 base + i * size。这种连续布局使得通过下标可以直接计算出元素地址，从而实现随机访问。",
+                    "example": "假设一个整型数组起始地址为1000，每个整数占4字节，则下标0的地址是1000，下标1的地址是1004，下标2的地址是1008，依此类推。",
+                    "misconception": "常见误解是认为数组元素在内存中可以不连续存储，或者认为下标访问需要从头遍历。实际上连续存储正是数组随机访问的基础。",
+                    "check": "如果数组起始地址为2000，每个元素占8字节，那么下标为5的元素的地址是多少？",
+                    "objective_indices": [
+                      0,
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "下标地址计算公式",
+                    "explanation": "对于一维数组，若起始地址为 base，每个元素占 size 字节，下标从0开始，则下标为 i 的元素的地址为 base + i * size。该公式是数组随机访问的核心，使得访问任意元素的时间复杂度为 O(1)。公式成立的前提是数组元素类型相同且连续存储。",
+                    "example": "一个浮点数组起始地址为5000，每个浮点数占4字节，则下标为10的元素的地址为5000 + 10 * 4 = 5040。",
+                    "misconception": "有些初学者误以为下标从1开始，导致地址计算偏移一个元素。在大多数编程语言中，数组下标从0开始，公式中的 i 也相应从0开始。",
+                    "check": "若数组起始地址为3000，每个元素占2字节，下标从0开始，求下标为7的元素的地址。",
+                    "objective_indices": [
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "插入操作的过程与代价",
+                    "explanation": "在数组的指定位置插入一个元素时，需要将该位置及其之后的所有元素向后移动一位，以腾出空位，然后将新元素放入该位置，并更新数组长度。最坏情况下（在数组开头插入），需要移动所有 n 个元素，因此时间复杂度为 O(n)。",
+                    "example": "数组 [A, B, C, D] 在下标1处插入 X，需要将 B、C、D 依次后移，得到 [A, X, B, C, D]，共移动3个元素。",
+                    "misconception": "误以为插入操作可以像链表一样只修改指针，不需要移动元素。数组的连续存储特性决定了插入通常需要移动数据。",
+                    "check": "在一个长度为10的数组的下标0处插入一个元素，需要移动多少个元素？时间复杂度是多少？",
+                    "objective_indices": [
+                      2,
+                      4
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "删除操作的过程与代价",
+                    "explanation": "删除数组中指定位置的元素时，需要将该位置之后的所有元素向前移动一位，以填补被删除元素留下的空缺，并更新数组长度。最坏情况下（删除数组开头元素），需要移动 n-1 个元素，因此时间复杂度为 O(n)。",
+                    "example": "数组 [A, B, C, D] 删除下标1处的元素 B，需要将 C、D 依次前移，得到 [A, C, D]，共移动2个元素。",
+                    "misconception": "误以为删除元素后数组会自动压缩且不需要移动数据。实际上，为了保持连续性，必须移动后续元素。",
+                    "check": "在一个长度为8的数组中删除下标0处的元素，需要移动多少个元素？时间复杂度是多少？",
+                    "objective_indices": [
+                      3,
+                      4
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "随机访问与插入删除的对比",
+                    "explanation": "数组的连续存储使得通过下标计算地址可以在 O(1) 时间内访问任意元素，这是数组的最大优势。然而，插入和删除操作因为需要保持连续性，通常需要移动大量元素，时间复杂度为 O(n)。这种特性使得数组适合读多写少的场景。",
+                    "example": "对于包含1000个元素的数组，访问第500个元素只需一次地址计算，而删除第0个元素需要移动999个元素。",
+                    "misconception": "认为数组的所有操作都很快。实际上，数组仅在随机访问上高效，插入和删除可能很慢。",
+                    "check": "为什么数组的随机访问是 O(1)，而插入和删除是 O(n)？请简要解释。",
+                    "objective_indices": [
+                      5
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本报告未涉及多维数组的地址计算与存储布局。",
+                  "未讨论动态数组的扩容机制及其对插入操作摊还复杂度的影响。",
+                  "未考虑内存对齐、缓存局部性等底层细节对实际性能的影响。",
+                  "未提供具体编程语言的代码实现，仅从概念层面讲解。"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：报告面向大学初学者，先给出大纲，且不要求外部检索；内容限于静态数组与动态数组基本概念，未越界到多维数组、稀疏数组、内存对齐、缓存优化或具体语言实现。",
+                      "reason": "scope、prerequisites、objectives、units 与 limitations 一致：先列 scope/prerequisites/objectives，再给 units 大纲；limitations 明确排除多维数组、动态数组扩容、内存对齐、缓存局部性、具体语言实现。符合当前知识准备阶段，不因未展开完整正文而判错。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：地址公式 base + i * size 与各单元示例、检查题一致，且插入/删除的移动次数与时间复杂度推导一致。",
+                      "reason": "单元1：1000 + 2*4 = 1008；单元2：5000 + 10*4 = 5040；检查题 3000 + 7*2 = 3014。插入 [A,B,C,D] 在下标1插入 X，B、C、D 后移，移动3个元素，最坏 n 个，O(n)；删除 [A,B,C,D] 下标1的 B，C、D 前移，移动2个元素，最坏 n-1 个，O(n)。均一致。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子：插入与删除示例实际逐步追踪了元素移动和终止状态，未把循环条件或目标存在前提错误泛化。",
+                      "reason": "插入示例从 [A,B,C,D] 到 [A,X,B,C,D]，明确 B、C、D 依次后移；删除示例从 [A,B,C,D] 到 [A,C,D]，明确 C、D 依次前移。示例与说明不矛盾，且未涉及不存在值、空输入、末端索引等需要额外边界处理的场景。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：目标覆盖连续存储、地址计算、插入、删除、复杂度、随机访问与插入删除对比；边界案例在检查题中实际提供。",
+                      "reason": "objectives 六项分别对应 units 的 objective_indices：0/1 对应布局与公式，2/4 对应插入，3/4 对应删除，5 对应对比。检查题覆盖下标5、下标7、长度10下标0插入、长度8下标0删除，以及 O(1) 与 O(n) 对比，满足用户明确要求的边界案例。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_4e94e9bbaa7c415caf2549e0a8597645",
+                "resource_type": "report",
+                "subject": "数组的实现：连续存储、地址计算与插入删除",
+                "audience": "大学初学者（数据结构入门学习者）",
+                "requirements": "面向大学初学者的知识讲解型报告，重点讲清数组的连续存储布局、下标地址计算公式、插入与删除的操作过程及时间代价；使用通用基础知识讲解，不要求外部检索；先给出报告大纲。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "draft_report_outline",
+              "data": {
+                "outline_id": "outline_37a85ffa77a4491b95ac0f04f8258c90",
+                "revision": 1,
+                "created_request_id": "9b9c95562da94ee39206ff26e9587cad",
+                "resource_type": "report",
+                "subject": "数组的实现：连续存储、地址计算与插入删除",
+                "audience": "大学初学者（数据结构入门学习者）",
+                "requirements": "面向大学初学者的知识讲解型报告，重点讲清数组的连续存储布局、下标地址计算公式、插入与删除的操作过程及时间代价；使用通用基础知识讲解，不要求外部检索；先给出报告大纲。",
+                "workspace": {
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "organization_id": "org_4e94e9bbaa7c415caf2549e0a8597645",
+                "classroom_options": {},
+                "quality": {
+                  "structural": "pass",
+                  "objective_coverage": true,
+                  "coverage_method": "structural",
+                  "semantic_review": "not_performed",
+                  "review": null
+                },
+                "chapters": [
+                  {
+                    "title": "连续存储布局",
+                    "points": [
+                      "内存中的连续空间",
+                      "元素大小与起始地址",
+                      "随机访问的存储基础"
+                    ],
+                    "unit_indices": [
+                      0
+                    ]
+                  },
+                  {
+                    "title": "下标地址计算",
+                    "points": [
+                      "地址计算公式",
+                      "下标与偏移量",
+                      "O(1)访问的由来"
+                    ],
+                    "unit_indices": [
+                      1
+                    ]
+                  },
+                  {
+                    "title": "插入操作",
+                    "points": [
+                      "插入位置与元素后移",
+                      "长度更新",
+                      "最坏情况与时间复杂度"
+                    ],
+                    "unit_indices": [
+                      2
+                    ]
+                  },
+                  {
+                    "title": "删除操作",
+                    "points": [
+                      "删除位置与元素前移",
+                      "长度更新",
+                      "最坏情况与时间复杂度"
+                    ],
+                    "unit_indices": [
+                      3
+                    ]
+                  },
+                  {
+                    "title": "随机访问与插入删除对比",
+                    "points": [
+                      "访问效率对比",
+                      "插入删除代价",
+                      "适用场景"
+                    ],
+                    "unit_indices": [
+                      4
+                    ]
+                  }
+                ],
+                "markdown": "# 数组的实现：连续存储、地址计算与插入删除：报告大纲\n\n## 1. 连续存储布局\n### 1.1 内存中的连续空间\n### 1.2 元素大小与起始地址\n### 1.3 随机访问的存储基础\n\n## 2. 下标地址计算\n### 2.1 地址计算公式\n### 2.2 下标与偏移量\n### 2.3 O(1)访问的由来\n\n## 3. 插入操作\n### 3.1 插入位置与元素后移\n### 3.2 长度更新\n### 3.3 最坏情况与时间复杂度\n\n## 4. 删除操作\n### 4.1 删除位置与元素前移\n### 4.2 长度更新\n### 4.3 最坏情况与时间复杂度\n\n## 5. 随机访问与插入删除对比\n### 5.1 访问效率对比\n### 5.2 插入删除代价\n### 5.3 适用场景",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "status": "awaiting_approval",
+                "job_id": null,
+                "presented_revision": 1,
+                "presented_request_id": "9b9c95562da94ee39206ff26e9587cad"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "harness_outline": {
+          "outline_id": "outline_37a85ffa77a4491b95ac0f04f8258c90",
+          "revision": 1,
+          "subject": "数组的实现：连续存储、地址计算与插入删除"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "interaction_state": {
+          "version": 1,
+          "foreground": "plan:outline_37a85ffa77a4491b95ac0f04f8258c90",
+          "tasks": {
+            "plan:outline_37a85ffa77a4491b95ac0f04f8258c90": {
+              "id": "plan:outline_37a85ffa77a4491b95ac0f04f8258c90",
+              "kind": "report",
+              "revision": 1,
+              "status": "awaiting_confirm"
+            }
+          }
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "等待你确认报告大纲",
+          "workflow_label": "报告",
+          "topics": [
+            "请生成一份"
+          ],
+          "goal": "生成报告",
+          "issues": [],
+          "confirmed_facts": [
+            "先给报告大纲",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [
+            "### 4.1 删除位置与元素前移"
+          ],
+          "evidence_details": [
+            {
+              "content": "### 4.1 删除位置与元素前移",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            }
+          ],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "等待你确认报告大纲",
+          "suggested_actions": [
+            "确认并继续",
+            "调整要求"
+          ],
+          "audience": "大学初学者的“数组的实现”报告",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕请生成一份继续讨论"
+        }
+      },
+      "elapsed_seconds": 25.891,
+      "task_submitted_seconds": null
+    }
+  ],
+  "passed": true,
+  "plan_only_verified": true
+}

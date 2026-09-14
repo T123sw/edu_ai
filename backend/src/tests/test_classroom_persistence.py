@@ -62,7 +62,12 @@ def test_persist_valid_result_returns_result_ref_and_saves_material():
         result=_valid_result(),
     )
 
-    assert result_ref == {"classroom_id": "stage-1", "course_id": "course-1", "scenes_count": 1}
+    assert result_ref["classroom_id"] == "stage-1"
+    assert result_ref["course_id"] == "course-1"
+    assert result_ref["scenes_count"] == 1
+    assert result_ref["version"] >= 1
+    assert result_ref["content_hash"]
+    assert result_ref["generation_batch_id"] is None
 
     saved = manager.get_generated_material(
         "course-1", "classroom", "stage-1", owner_user_id="teacher-a"

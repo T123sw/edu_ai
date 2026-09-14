@@ -1,0 +1,1607 @@
+{
+  "build_id": "kb-8cc2c8640cfd4a28b31fee3782c5eb82",
+  "library_id": "course-44310c15c8dd4acd8d021649462b6527",
+  "status": "draft",
+  "phase": "graph_review",
+  "progress": 0,
+  "revision": 3,
+  "graph_confirmed_at": null,
+  "confirmed_graph_revision": null,
+  "confirmed_by": null,
+  "metrics": {},
+  "quality_score": null,
+  "error": null,
+  "created_at": "2026-09-11T14:33:02.668384+00:00",
+  "updated_at": "2026-09-11T14:33:07.848521+00:00",
+  "quality_checks": [],
+  "config": {
+    "preset": "standard",
+    "graph_depth": 3,
+    "update_strategy": "incremental",
+    "content_language": "zh-CN",
+    "target_module_count": 4,
+    "max_online_textbooks": 2,
+    "ai_supplement_enabled": true,
+    "target_points_per_module": 4,
+    "prefer_complete_textbooks": true,
+    "target_materials_per_leaf": 3,
+    "max_search_rounds_per_leaf": 2,
+    "max_search_results_per_leaf": 8,
+    "maximum_ai_materials_per_leaf": 1,
+    "minimum_web_materials_per_leaf": 1,
+    "minimum_authoritative_sources_per_leaf": 1
+  },
+  "topics": [],
+  "warnings": [],
+  "course_id": "course-44310c15c8dd4acd8d021649462b6527",
+  "textbooks": [],
+  "graph_draft": {
+    "id": "os-course",
+    "data": {
+      "type": "course",
+      "summary": "面向大二计算机专业学生的操作系统基础课程，8 课时覆盖进程、调度、同步、死锁与虚拟内存。",
+      "node_count": 27,
+      "document_count": 39,
+      "builder_version": "course-kb-plan-v2",
+      "source_build_id": "kb-b6dbacce7ef6462a971a4b752b3619b8",
+      "publication_status": "published",
+      "rolled_back_from_version": 1
+    },
+    "label": "操作系统",
+    "children": [
+      {
+        "id": "process-thread",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "从程序到进程、线程与系统调用，建立并发执行的基本认识。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "process-concept",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "进程状态、PCB 与系统调用接口，理解用户态到内核态的切换。"
+            },
+            "label": "进程与系统调用的核心机制",
+            "children": [
+              {
+                "id": "process-state-pcb",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "五状态模型、状态转换条件与 PCB 保存的上下文信息。",
+                  "document_ids": [
+                    "doc-d40793aa46174976bd25f9df7a992233",
+                    "doc-02fc687f298a40bf8d52a8f99e179863",
+                    "doc-28e7ea7bf2f543e7b5dacbe502a4e5ad"
+                  ]
+                },
+                "label": "进程状态与 PCB"
+              },
+              {
+                "id": "syscall-mechanism",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "系统调用号、陷入指令、参数传递与返回值的执行流程。",
+                  "document_ids": [
+                    "doc-da10493118f14305bf226b39ce364550",
+                    "doc-f90b811907c7427fbddf30e041a6cd72",
+                    "doc-5e1cfb966cb443cc921d9f6865b4b8c1"
+                  ]
+                },
+                "label": "系统调用的核心机制"
+              }
+            ]
+          },
+          {
+            "id": "thread-model",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "线程共享与私有资源，用户级与内核级线程的差异。"
+            },
+            "label": "线程与并发执行",
+            "children": [
+              {
+                "id": "thread-vs-process",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "从地址空间、资源拥有和切换代价比较进程与线程。",
+                  "document_ids": [
+                    "doc-4a0040df75db49cb89817fe74e05336e",
+                    "doc-8af10b1a990b425c8a16092d9c1b2baf",
+                    "doc-4f2decf452254843b4fb3f031138c3c5",
+                    "doc-bc7d6f092afe41b3bcd233c5cc48cd66"
+                  ]
+                },
+                "label": "线程与进程的区别"
+              }
+            ]
+          },
+          {
+            "id": "kp_ed8f3bc857ef4c6ab90141ec135a55e5",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "教师明确要求新增该知识点，现有目录与文档均无容器资源隔离内容，属真实缺口。挂到“进程与线程”模块下，与进程资源管理主题衔接。依据为教师原话，未引用已有文档全文。"
+            },
+            "label": "Linux cgroups 与容器资源隔离",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "cpu-scheduling",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "调度准则与常见算法，重点掌握等待时间的计算方法。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "sched-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "调度时机、抢占方式与周转时间、等待时间等指标。"
+            },
+            "label": "调度基础与评价指标",
+            "children": [
+              {
+                "id": "sched-criteria",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "CPU 利用率、吞吐量、周转时间、等待时间与响应时间。",
+                  "document_ids": [
+                    "doc-d8eba63c4b8c4976a169e9e69ef7e1f3",
+                    "doc-e7f438c507184658ba0948b824c1b162",
+                    "doc-330579decc334e528ba86485050e68fb"
+                  ]
+                },
+                "label": "CPU 调度准则与指标"
+              }
+            ]
+          },
+          {
+            "id": "sched-algorithms",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "FCFS、SJF、RR 与优先级调度的规则和对比。"
+            },
+            "label": "常见 CPU 调度算法",
+            "children": [
+              {
+                "id": "fcfs-sjf",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "先来先服务与短作业优先的规则、优缺点及等待时间计算。",
+                  "document_ids": [
+                    "doc-c1e507287aeb48ad819c1906aec67751",
+                    "doc-68ab06dc58984ece90de15d4d4daa10c",
+                    "doc-1b430d1da9894a12a159ae1c247b5a81"
+                  ]
+                },
+                "label": "FCFS 与 SJF 调度算法"
+              },
+              {
+                "id": "rr-priority",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "时间片轮转与优先级调度的执行过程及饥饿问题。",
+                  "document_ids": [
+                    "doc-edda2958547c4774913d3e065b50ee6e",
+                    "doc-f58df50ef468488ba50d00048568db03",
+                    "doc-7d7fc2159b6541f6a097d1b1d7c1fcfc"
+                  ]
+                },
+                "label": "时间片轮转与优先级调度"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "process-sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "临界区问题与信号量机制，能分析并解决典型同步问题。"
+        },
+        "label": "进程同步",
+        "children": [
+          {
+            "id": "sync-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "竞态条件、临界区三条件与软件同步方法。"
+            },
+            "label": "同步基础与临界区",
+            "children": [
+              {
+                "id": "race-critical",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "并发访问共享变量导致结果不确定，临界区需互斥进入。",
+                  "document_ids": [
+                    "doc-f8e8f165cf944b4ba8fd8ceb4ee10c2a",
+                    "doc-0704c0754df146c187dd9789cb9993b7",
+                    "doc-fcaba0426abb46cc9b469b966f537fe8"
+                  ]
+                },
+                "label": "竞态条件与临界区"
+              }
+            ]
+          },
+          {
+            "id": "semaphore",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "P/V 操作语义及生产者消费者、读者写者问题分析。"
+            },
+            "label": "信号量机制与应用",
+            "children": [
+              {
+                "id": "semaphore-pv",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "整型与记录型信号量的定义、P/V 原子操作与阻塞唤醒。",
+                  "document_ids": [
+                    "doc-7fc105127271426a871ac503adba8201",
+                    "doc-482a83f643db4fe1b4cc1f140d012161",
+                    "doc-fa57dab15d3c4e8a9656c2220eea4717"
+                  ]
+                },
+                "label": "信号量 P/V 操作"
+              },
+              {
+                "id": "producer-consumer",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "用信号量解决有界缓冲区同步，分析互斥与同步信号量顺序。",
+                  "document_ids": [
+                    "doc-cb89ce4c8dbe4e8d8409d6747f9aaf02",
+                    "doc-d4edbeed19dc40d7b7970dc905fbcd47",
+                    "doc-6a077f0421784ee8996d8f843546b8b5"
+                  ]
+                },
+                "label": "生产者消费者问题"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "死锁产生条件、预防避免检测与恢复策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "deadlock-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "四个必要条件与资源分配图的环路判定。"
+            },
+            "label": "死锁条件与资源分配图",
+            "children": [
+              {
+                "id": "deadlock-conditions",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "互斥、占有并等待、非抢占与循环等待的含义。",
+                  "document_ids": [
+                    "doc-033e898a4312436393ba93b5972b7a6f",
+                    "doc-ff339f947ba84b24ab2921638f745979",
+                    "doc-0d0bb84d48464e55a6ea38fbf2b31b72"
+                  ]
+                },
+                "label": "死锁四个必要条件"
+              }
+            ]
+          },
+          {
+            "id": "deadlock-strategies",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "预防、避免、检测与恢复策略及银行家算法。"
+            },
+            "label": "死锁处理策略",
+            "children": [
+              {
+                "id": "prevent-avoid",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "破坏必要条件与安全状态、银行家算法的基本思想。",
+                  "document_ids": [
+                    "doc-1e96cd1c532e4aefb8014e99ff850aad",
+                    "doc-b8cfc100782649cdbdcc664719c6bbe0",
+                    "doc-88fa45f0aabf4398818c79c7fc88ac8b"
+                  ]
+                },
+                "label": "死锁预防与避免"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "virtual-memory",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "分页、缺页处理与页面置换算法，理解地址转换全过程。"
+        },
+        "label": "虚拟内存",
+        "children": [
+          {
+            "id": "paging",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "页表、地址划分与 TLB 加速的地址转换。"
+            },
+            "label": "分页与地址转换",
+            "children": [
+              {
+                "id": "paging-address",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "逻辑地址划分为页号与页内偏移，经页表映射到物理地址。",
+                  "document_ids": [
+                    "doc-548cc56da61140bba830599ba95c3c08",
+                    "doc-ea2225c133d14e49a936ea0e307092d3",
+                    "doc-f7b820a25efd40368db30f0cb396c80d"
+                  ]
+                },
+                "label": "分页与地址转换"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "baseline_graph": {
+    "id": "os-course",
+    "data": {
+      "type": "course",
+      "summary": "面向大二计算机专业学生的操作系统基础课程，8 课时覆盖进程、调度、同步、死锁与虚拟内存。",
+      "node_count": 27,
+      "document_count": 39,
+      "builder_version": "course-kb-plan-v2",
+      "source_build_id": "kb-b6dbacce7ef6462a971a4b752b3619b8",
+      "publication_status": "published",
+      "rolled_back_from_version": 1
+    },
+    "label": "操作系统",
+    "children": [
+      {
+        "id": "process-thread",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "从程序到进程、线程与系统调用，建立并发执行的基本认识。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "process-concept",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "进程状态、PCB 与系统调用接口，理解用户态到内核态的切换。"
+            },
+            "label": "进程与系统调用的核心机制",
+            "children": [
+              {
+                "id": "process-state-pcb",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "五状态模型、状态转换条件与 PCB 保存的上下文信息。",
+                  "document_ids": [
+                    "doc-d40793aa46174976bd25f9df7a992233",
+                    "doc-02fc687f298a40bf8d52a8f99e179863",
+                    "doc-28e7ea7bf2f543e7b5dacbe502a4e5ad"
+                  ]
+                },
+                "label": "进程状态与 PCB"
+              },
+              {
+                "id": "syscall-mechanism",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "系统调用号、陷入指令、参数传递与返回值的执行流程。",
+                  "document_ids": [
+                    "doc-da10493118f14305bf226b39ce364550",
+                    "doc-f90b811907c7427fbddf30e041a6cd72",
+                    "doc-5e1cfb966cb443cc921d9f6865b4b8c1"
+                  ]
+                },
+                "label": "系统调用的核心机制"
+              }
+            ]
+          },
+          {
+            "id": "thread-model",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "线程共享与私有资源，用户级与内核级线程的差异。"
+            },
+            "label": "线程与并发执行",
+            "children": [
+              {
+                "id": "thread-vs-process",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "从地址空间、资源拥有和切换代价比较进程与线程。",
+                  "document_ids": [
+                    "doc-4a0040df75db49cb89817fe74e05336e",
+                    "doc-8af10b1a990b425c8a16092d9c1b2baf",
+                    "doc-4f2decf452254843b4fb3f031138c3c5",
+                    "doc-bc7d6f092afe41b3bcd233c5cc48cd66"
+                  ]
+                },
+                "label": "线程与进程的区别"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "cpu-scheduling",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "调度准则与常见算法，重点掌握等待时间的计算方法。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "sched-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "调度时机、抢占方式与周转时间、等待时间等指标。"
+            },
+            "label": "调度基础与评价指标",
+            "children": [
+              {
+                "id": "sched-criteria",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "CPU 利用率、吞吐量、周转时间、等待时间与响应时间。",
+                  "document_ids": [
+                    "doc-d8eba63c4b8c4976a169e9e69ef7e1f3",
+                    "doc-e7f438c507184658ba0948b824c1b162",
+                    "doc-330579decc334e528ba86485050e68fb"
+                  ]
+                },
+                "label": "CPU 调度准则与指标"
+              }
+            ]
+          },
+          {
+            "id": "sched-algorithms",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "FCFS、SJF、RR 与优先级调度的规则和对比。"
+            },
+            "label": "常见 CPU 调度算法",
+            "children": [
+              {
+                "id": "fcfs-sjf",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "先来先服务与短作业优先的规则、优缺点及等待时间计算。",
+                  "document_ids": [
+                    "doc-c1e507287aeb48ad819c1906aec67751",
+                    "doc-68ab06dc58984ece90de15d4d4daa10c",
+                    "doc-1b430d1da9894a12a159ae1c247b5a81"
+                  ]
+                },
+                "label": "FCFS 与 SJF 调度算法"
+              },
+              {
+                "id": "rr-priority",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "时间片轮转与优先级调度的执行过程及饥饿问题。",
+                  "document_ids": [
+                    "doc-edda2958547c4774913d3e065b50ee6e",
+                    "doc-f58df50ef468488ba50d00048568db03",
+                    "doc-7d7fc2159b6541f6a097d1b1d7c1fcfc"
+                  ]
+                },
+                "label": "时间片轮转与优先级调度"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "process-sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "临界区问题与信号量机制，能分析并解决典型同步问题。"
+        },
+        "label": "进程同步",
+        "children": [
+          {
+            "id": "sync-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "竞态条件、临界区三条件与软件同步方法。"
+            },
+            "label": "同步基础与临界区",
+            "children": [
+              {
+                "id": "race-critical",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "并发访问共享变量导致结果不确定，临界区需互斥进入。",
+                  "document_ids": [
+                    "doc-f8e8f165cf944b4ba8fd8ceb4ee10c2a",
+                    "doc-0704c0754df146c187dd9789cb9993b7",
+                    "doc-fcaba0426abb46cc9b469b966f537fe8"
+                  ]
+                },
+                "label": "竞态条件与临界区"
+              }
+            ]
+          },
+          {
+            "id": "semaphore",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "P/V 操作语义及生产者消费者、读者写者问题分析。"
+            },
+            "label": "信号量机制与应用",
+            "children": [
+              {
+                "id": "semaphore-pv",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "整型与记录型信号量的定义、P/V 原子操作与阻塞唤醒。",
+                  "document_ids": [
+                    "doc-7fc105127271426a871ac503adba8201",
+                    "doc-482a83f643db4fe1b4cc1f140d012161",
+                    "doc-fa57dab15d3c4e8a9656c2220eea4717"
+                  ]
+                },
+                "label": "信号量 P/V 操作"
+              },
+              {
+                "id": "producer-consumer",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "用信号量解决有界缓冲区同步，分析互斥与同步信号量顺序。",
+                  "document_ids": [
+                    "doc-cb89ce4c8dbe4e8d8409d6747f9aaf02",
+                    "doc-d4edbeed19dc40d7b7970dc905fbcd47",
+                    "doc-6a077f0421784ee8996d8f843546b8b5"
+                  ]
+                },
+                "label": "生产者消费者问题"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "死锁产生条件、预防避免检测与恢复策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "deadlock-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "四个必要条件与资源分配图的环路判定。"
+            },
+            "label": "死锁条件与资源分配图",
+            "children": [
+              {
+                "id": "deadlock-conditions",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "互斥、占有并等待、非抢占与循环等待的含义。",
+                  "document_ids": [
+                    "doc-033e898a4312436393ba93b5972b7a6f",
+                    "doc-ff339f947ba84b24ab2921638f745979",
+                    "doc-0d0bb84d48464e55a6ea38fbf2b31b72"
+                  ]
+                },
+                "label": "死锁四个必要条件"
+              }
+            ]
+          },
+          {
+            "id": "deadlock-strategies",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "预防、避免、检测与恢复策略及银行家算法。"
+            },
+            "label": "死锁处理策略",
+            "children": [
+              {
+                "id": "prevent-avoid",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "破坏必要条件与安全状态、银行家算法的基本思想。",
+                  "document_ids": [
+                    "doc-1e96cd1c532e4aefb8014e99ff850aad",
+                    "doc-b8cfc100782649cdbdcc664719c6bbe0",
+                    "doc-88fa45f0aabf4398818c79c7fc88ac8b"
+                  ]
+                },
+                "label": "死锁预防与避免"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "virtual-memory",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "分页、缺页处理与页面置换算法，理解地址转换全过程。"
+        },
+        "label": "虚拟内存",
+        "children": [
+          {
+            "id": "paging",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "页表、地址划分与 TLB 加速的地址转换。"
+            },
+            "label": "分页与地址转换",
+            "children": [
+              {
+                "id": "paging-address",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "逻辑地址划分为页号与页内偏移，经页表映射到物理地址。",
+                  "document_ids": [
+                    "doc-548cc56da61140bba830599ba95c3c08",
+                    "doc-ea2225c133d14e49a936ea0e307092d3",
+                    "doc-f7b820a25efd40368db30f0cb396c80d"
+                  ]
+                },
+                "label": "分页与地址转换"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "course_snapshot": {
+    "id": "course-44310c15c8dd4acd8d021649462b6527",
+    "icon": "menu_book",
+    "color": "#3157d5",
+    "title": "操作系统（真实E2E-2026-09-11-os-v2-fi）",
+    "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+    "language": "zh-CN",
+    "revision": 0,
+    "course_id": "course-44310c15c8dd4acd8d021649462b6527",
+    "created_at": "2026-09-11T13:33:24.425080+00:00",
+    "created_by": "teacher",
+    "difficulty": "introductory",
+    "objectives": [
+      "能解释进程、线程和系统调用的核心机制",
+      "能比较常见 CPU 调度算法并计算等待时间",
+      "能使用信号量分析并解决典型同步问题",
+      "能解释分页、缺页和页面置换算法"
+    ],
+    "updated_at": "2026-09-11T13:33:24.425080+00:00",
+    "course_code": "MR27KW8A",
+    "description": "面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存。",
+    "knowledgeGraph": "",
+    "cover_image_ref": null
+  },
+  "intent_contract": {
+    "mode": "supplement",
+    "scope": {
+      "exclude_topics": [],
+      "include_topics": [
+        "Linux cgroups 与容器资源隔离"
+      ],
+      "preserve_existing_graph": true,
+      "preserve_existing_documents": true
+    },
+    "status": "ready_for_review",
+    "assumptions": [
+      "课时长度未换算为分钟，课程内容预算按课时数校验。"
+    ],
+    "deliverables": [
+      {
+        "type": "worked_case",
+        "count": 1,
+        "hardness": "hard",
+        "application": "build",
+        "description": "1 个案例",
+        "requirement_id": "req_2b6fe8f3e842df07"
+      },
+      {
+        "type": "exercise_with_solution",
+        "count": 3,
+        "hardness": "hard",
+        "application": "build",
+        "description": "3 个带答案和解析的练习",
+        "requirement_id": "req_cdb6fd297231df6c"
+      }
+    ],
+    "requirements": [
+      {
+        "kind": "duration",
+        "hardness": "hard",
+        "statement": "8 课时",
+        "verification": "course_time_budget",
+        "requirement_id": "req_3a87a6d70bb72353",
+        "normalized_value": {
+          "lessons": 8,
+          "minutes": null
+        }
+      },
+      {
+        "kind": "audience",
+        "hardness": "hard",
+        "statement": "掌握 C 语言和数据结构的计算机专业大二学生",
+        "verification": "pedagogical_fit_review",
+        "requirement_id": "req_e64cc0435672019a",
+        "normalized_value": "掌握 C 语言和数据结构的计算机专业大二学生"
+      },
+      {
+        "kind": "scope",
+        "hardness": "hard",
+        "statement": "Linux cgroups 与容器资源隔离",
+        "verification": "graph_scope_check",
+        "requirement_id": "req_a20eda8358843839",
+        "normalized_value": [
+          "Linux cgroups 与容器资源隔离"
+        ]
+      },
+      {
+        "kind": "preservation",
+        "hardness": "hard",
+        "statement": "保留现有目录和资料",
+        "verification": "incremental_baseline_check",
+        "requirement_id": "req_e8fd13ad288168f6",
+        "normalized_value": {
+          "graph": true,
+          "documents": true
+        }
+      },
+      {
+        "kind": "source",
+        "hardness": "preference",
+        "statement": "本次新增知识点“Linux cgroups 与容器资源隔离” 补充内容：CPU、内存和 I/O 资源限制机制，1 个 Docker 配置案例，3 道带解析练习 保留范围：保留现有目录和全部已有资料，不修改其他章节 资料偏好：优先检索 Linux Kernel 与 Docker 官方资料，资料不足时允许 AI 补充",
+        "verification": "source_domain_and_authority_check",
+        "requirement_id": "req_99f0c8c527b50d7c",
+        "normalized_value": {
+          "domains": [
+            "docs.docker.com",
+            "docs.kernel.org"
+          ],
+          "organizations": [
+            "Docker",
+            "Linux Kernel"
+          ]
+        }
+      },
+      {
+        "kind": "deliverable",
+        "hardness": "hard",
+        "statement": "1 个 Docker 配置案例",
+        "verification": "learning_artifact_schema_and_count",
+        "requirement_id": "req_2b6fe8f3e842df07",
+        "normalized_value": {
+          "type": "worked_case",
+          "count": 1
+        }
+      },
+      {
+        "kind": "deliverable",
+        "hardness": "hard",
+        "statement": "3 道带解析练习",
+        "verification": "learning_artifact_schema_and_count",
+        "requirement_id": "req_cdb6fd297231df6c",
+        "normalized_value": {
+          "type": "exercise_with_solution",
+          "count": 3
+        }
+      },
+      {
+        "kind": "depth",
+        "hardness": "hard",
+        "statement": "introductory",
+        "verification": "pedagogical_depth_review",
+        "requirement_id": "req_1854f5714174ce11",
+        "normalized_value": {
+          "conceptual_rigor": "introductory",
+          "example_complexity": "可执行并可验证",
+          "target_bloom_levels": [
+            "apply"
+          ],
+          "math_or_code_expectation": "包含步骤、参数解释和验证结果"
+        }
+      }
+    ],
+    "depth_profile": {
+      "conceptual_rigor": "introductory",
+      "example_complexity": "可执行并可验证",
+      "target_bloom_levels": [
+        "apply"
+      ],
+      "math_or_code_expectation": "包含步骤、参数解释和验证结果"
+    },
+    "original_text": "本次新增知识点“Linux cgroups 与容器资源隔离”\n补充内容：CPU、内存和 I/O 资源限制机制，1 个 Docker 配置案例，3 道带解析练习\n保留范围：保留现有目录和全部已有资料，不修改其他章节\n资料偏好：优先检索 Linux Kernel 与 Docker 官方资料，资料不足时允许 AI 补充",
+    "source_policy": {
+      "freshness": null,
+      "required_domains": [],
+      "allow_ai_fallback": true,
+      "allowed_languages": [
+        "zh-CN"
+      ],
+      "preferred_domains": [
+        "docs.docker.com",
+        "docs.kernel.org"
+      ],
+      "preferred_organizations": [
+        "Docker",
+        "Linux Kernel"
+      ],
+      "allow_community_fallback": true,
+      "minimum_authoritative_sources_per_topic": 1
+    },
+    "course_profile": {
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "language": "zh-CN",
+      "difficulty": "introductory",
+      "prerequisites": [
+        "C 语言",
+        "数据结构"
+      ],
+      "duration_lessons": 8,
+      "duration_minutes": null,
+      "learning_outcomes": [
+        "能解释进程、线程和系统调用的核心机制",
+        "能比较常见 CPU 调度算法并计算等待时间",
+        "能使用信号量分析并解决典型同步问题",
+        "能解释分页、缺页和页面置换算法"
+      ]
+    },
+    "schema_version": "2.0",
+    "clarification_questions": []
+  },
+  "source_candidates": [],
+  "existing_materials": [],
+  "knowledge_proposal": {
+    "mode": "supplement",
+    "items": [
+      {
+        "id": "0eebdaf03e3e447dbced730eebd8dea6",
+        "kind": "add_node",
+        "title": "Linux cgroups 与容器资源隔离",
+        "reason": "教师明确要求新增该知识点，现有目录与文档均无容器资源隔离内容，属真实缺口。挂到“进程与线程”模块下，与进程资源管理主题衔接。依据为教师原话，未引用已有文档全文。",
+        "materials": [
+          "Linux Kernel 官方文档 cgroups v2 章节（docs.kernel.org）：CPU、内存、I/O 控制器与资源限制机制说明",
+          "Docker 官方文档（docs.docker.com）：--cpus、--memory、--device-read-bps 等资源限制参数与配置示例",
+          "1 个可执行的 Docker 配置案例：为容器设置 CPU 配额、内存上限与 I/O 限速，并给出验证命令与预期输出",
+          "3 道带答案与解析的练习：cgroups 控制器作用辨析、Docker 资源限制参数配置、限制生效验证与排错",
+          "若官方资料不足，允许 AI 补充入门级讲解与图示，需标注为 AI 生成"
+        ],
+        "target_id": "process-thread",
+        "evidence_document_ids": []
+      }
+    ],
+    "intent": {
+      "mode": "supplement",
+      "scope": {
+        "exclude_topics": [],
+        "include_topics": [
+          "Linux cgroups 与容器资源隔离"
+        ],
+        "preserve_existing_graph": true,
+        "preserve_existing_documents": true
+      },
+      "status": "ready_for_review",
+      "assumptions": [
+        "课时长度未换算为分钟，课程内容预算按课时数校验。"
+      ],
+      "deliverables": [
+        {
+          "type": "worked_case",
+          "count": 1,
+          "hardness": "hard",
+          "application": "build",
+          "description": "1 个案例",
+          "requirement_id": "req_2b6fe8f3e842df07"
+        },
+        {
+          "type": "exercise_with_solution",
+          "count": 3,
+          "hardness": "hard",
+          "application": "build",
+          "description": "3 个带答案和解析的练习",
+          "requirement_id": "req_cdb6fd297231df6c"
+        }
+      ],
+      "requirements": [
+        {
+          "kind": "duration",
+          "hardness": "hard",
+          "statement": "8 课时",
+          "verification": "course_time_budget",
+          "requirement_id": "req_3a87a6d70bb72353",
+          "normalized_value": {
+            "lessons": 8,
+            "minutes": null
+          }
+        },
+        {
+          "kind": "audience",
+          "hardness": "hard",
+          "statement": "掌握 C 语言和数据结构的计算机专业大二学生",
+          "verification": "pedagogical_fit_review",
+          "requirement_id": "req_e64cc0435672019a",
+          "normalized_value": "掌握 C 语言和数据结构的计算机专业大二学生"
+        },
+        {
+          "kind": "scope",
+          "hardness": "hard",
+          "statement": "Linux cgroups 与容器资源隔离",
+          "verification": "graph_scope_check",
+          "requirement_id": "req_a20eda8358843839",
+          "normalized_value": [
+            "Linux cgroups 与容器资源隔离"
+          ]
+        },
+        {
+          "kind": "preservation",
+          "hardness": "hard",
+          "statement": "保留现有目录和资料",
+          "verification": "incremental_baseline_check",
+          "requirement_id": "req_e8fd13ad288168f6",
+          "normalized_value": {
+            "graph": true,
+            "documents": true
+          }
+        },
+        {
+          "kind": "source",
+          "hardness": "preference",
+          "statement": "本次新增知识点“Linux cgroups 与容器资源隔离” 补充内容：CPU、内存和 I/O 资源限制机制，1 个 Docker 配置案例，3 道带解析练习 保留范围：保留现有目录和全部已有资料，不修改其他章节 资料偏好：优先检索 Linux Kernel 与 Docker 官方资料，资料不足时允许 AI 补充",
+          "verification": "source_domain_and_authority_check",
+          "requirement_id": "req_99f0c8c527b50d7c",
+          "normalized_value": {
+            "domains": [
+              "docs.docker.com",
+              "docs.kernel.org"
+            ],
+            "organizations": [
+              "Docker",
+              "Linux Kernel"
+            ]
+          }
+        },
+        {
+          "kind": "deliverable",
+          "hardness": "hard",
+          "statement": "1 个 Docker 配置案例",
+          "verification": "learning_artifact_schema_and_count",
+          "requirement_id": "req_2b6fe8f3e842df07",
+          "normalized_value": {
+            "type": "worked_case",
+            "count": 1
+          }
+        },
+        {
+          "kind": "deliverable",
+          "hardness": "hard",
+          "statement": "3 道带解析练习",
+          "verification": "learning_artifact_schema_and_count",
+          "requirement_id": "req_cdb6fd297231df6c",
+          "normalized_value": {
+            "type": "exercise_with_solution",
+            "count": 3
+          }
+        },
+        {
+          "kind": "depth",
+          "hardness": "hard",
+          "statement": "introductory",
+          "verification": "pedagogical_depth_review",
+          "requirement_id": "req_1854f5714174ce11",
+          "normalized_value": {
+            "conceptual_rigor": "introductory",
+            "example_complexity": "可执行并可验证",
+            "target_bloom_levels": [
+              "apply"
+            ],
+            "math_or_code_expectation": "包含步骤、参数解释和验证结果"
+          }
+        }
+      ],
+      "depth_profile": {
+        "conceptual_rigor": "introductory",
+        "example_complexity": "可执行并可验证",
+        "target_bloom_levels": [
+          "apply"
+        ],
+        "math_or_code_expectation": "包含步骤、参数解释和验证结果"
+      },
+      "original_text": "本次新增知识点“Linux cgroups 与容器资源隔离”\n补充内容：CPU、内存和 I/O 资源限制机制，1 个 Docker 配置案例，3 道带解析练习\n保留范围：保留现有目录和全部已有资料，不修改其他章节\n资料偏好：优先检索 Linux Kernel 与 Docker 官方资料，资料不足时允许 AI 补充",
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": true,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [
+          "docs.docker.com",
+          "docs.kernel.org"
+        ],
+        "preferred_organizations": [
+          "Docker",
+          "Linux Kernel"
+        ],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 1
+      },
+      "course_profile": {
+        "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+        "language": "zh-CN",
+        "difficulty": "introductory",
+        "prerequisites": [
+          "C 语言",
+          "数据结构"
+        ],
+        "duration_lessons": 8,
+        "duration_minutes": null,
+        "learning_outcomes": [
+          "能解释进程、线程和系统调用的核心机制",
+          "能比较常见 CPU 调度算法并计算等待时间",
+          "能使用信号量分析并解决典型同步问题",
+          "能解释分页、缺页和页面置换算法"
+        ]
+      },
+      "schema_version": "2.0",
+      "clarification_questions": []
+    },
+    "review": {
+      "method": "model_review",
+      "approved": true
+    },
+    "options": [],
+    "summary": "教师明确要求新增“Linux cgroups 与容器资源隔离”一个知识点，含 CPU/内存/IO 限制机制、1 个 Docker 配置案例与 3 道带解析练习。现有目录无容器相关章节，故挂到进程与线程模块下，资料合并到该新增项。",
+    "requirements": "本次新增知识点“Linux cgroups 与容器资源隔离”\n补充内容：CPU、内存和 I/O 资源限制机制，1 个 Docker 配置案例，3 道带解析练习\n保留范围：保留现有目录和全部已有资料，不修改其他章节\n资料偏好：优先检索 Linux Kernel 与 Docker 官方资料，资料不足时允许 AI 补充",
+    "document_snapshot": [
+      {
+        "id": "doc-da10493118f14305bf226b39ce364550",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "syscall-mechanism",
+        "updated_at": null,
+        "content_hash": "b9bad1cf079f6420013e91e05dfcc745b8b3dc4d9b6adea57301d0b27af21508"
+      },
+      {
+        "id": "doc-d40793aa46174976bd25f9df7a992233",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "process-state-pcb",
+        "updated_at": null,
+        "content_hash": "1a24b591f03ec2e95ccc2eb0968870815e47344ce8364d1a20a3cd1b1a8a24ab"
+      },
+      {
+        "id": "doc-548cc56da61140bba830599ba95c3c08",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "paging-address",
+        "updated_at": null,
+        "content_hash": "d5df323b2d5e1b8ddf8c85e36fcf0405ae3b1d90e855006cedfb3eb054790d3f"
+      },
+      {
+        "id": "doc-edda2958547c4774913d3e065b50ee6e",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "rr-priority",
+        "updated_at": null,
+        "content_hash": "bf0e44404afb6efe6a50f5b7e434ebce1ed7233b7bd299c6abb4d13e4420e0f5"
+      },
+      {
+        "id": "doc-4a0040df75db49cb89817fe74e05336e",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "thread-vs-process",
+        "updated_at": null,
+        "content_hash": "b25f9d8ed74948a23ae904ff0674bc1ef91830f84061665951af07b3b8134911"
+      },
+      {
+        "id": "doc-f8e8f165cf944b4ba8fd8ceb4ee10c2a",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "race-critical",
+        "updated_at": null,
+        "content_hash": "2a50f6173c9fdcafd1584152b40090c59610de66de507f6d8b7bbe426cb5b056"
+      },
+      {
+        "id": "doc-7fc105127271426a871ac503adba8201",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "semaphore-pv",
+        "updated_at": null,
+        "content_hash": "313721160ac5a901fa9881099e3c5b9d8ad2135f5d983cc43ca6210105b07de1"
+      },
+      {
+        "id": "doc-033e898a4312436393ba93b5972b7a6f",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "deadlock-conditions",
+        "updated_at": null,
+        "content_hash": "178a363da157d9541f60495ee71003df1d8b86c8fb76f16fbe436722530a629c"
+      },
+      {
+        "id": "doc-1e96cd1c532e4aefb8014e99ff850aad",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "prevent-avoid",
+        "updated_at": null,
+        "content_hash": "63f3e540574c9d1a1fbb6a56d22c6d407e4333dd31234ba977d32255e5d47141"
+      },
+      {
+        "id": "doc-f90b811907c7427fbddf30e041a6cd72",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "syscall-mechanism",
+        "updated_at": null,
+        "content_hash": "7a1933a016527b9e1e2a4311db3177e2eaa5a40504013ea5a5dbc2ef0031e34a"
+      },
+      {
+        "id": "doc-ff339f947ba84b24ab2921638f745979",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "deadlock-conditions",
+        "updated_at": null,
+        "content_hash": "51622e0ea5e4df26dfab0c7bcf2edf9f430cea5d5d8143e542fd33312d57884c"
+      },
+      {
+        "id": "doc-ea2225c133d14e49a936ea0e307092d3",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "paging-address",
+        "updated_at": null,
+        "content_hash": "39ef5afabc4771803bd8eb73a9964f2cd221b871085d2648e72f81078f6873e4"
+      },
+      {
+        "id": "doc-02fc687f298a40bf8d52a8f99e179863",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "process-state-pcb",
+        "updated_at": null,
+        "content_hash": "0c9effaa4616af85da895567562feae6307af739dfd19ad3ee84de66a4c66a89"
+      },
+      {
+        "id": "doc-8af10b1a990b425c8a16092d9c1b2baf",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "thread-vs-process",
+        "updated_at": null,
+        "content_hash": "e1afb2f92ec0bdededdf30ec8992d37545e35c6bc7d87fdf2b41fbba541ee3f9"
+      },
+      {
+        "id": "doc-0704c0754df146c187dd9789cb9993b7",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "race-critical",
+        "updated_at": null,
+        "content_hash": "9c1147f087637268ab2aabb142992880f6e7a4a3c25bc367f694d58891779262"
+      },
+      {
+        "id": "doc-482a83f643db4fe1b4cc1f140d012161",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "semaphore-pv",
+        "updated_at": null,
+        "content_hash": "3cd6eb12578ce6524ddd54123ef5202eeb7a80d3deb22cdb599440a228df6a51"
+      },
+      {
+        "id": "doc-f58df50ef468488ba50d00048568db03",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "rr-priority",
+        "updated_at": null,
+        "content_hash": "31efed036466a0f495df2339da18e74b5cacb4bb83845e33d1fec8d5c40aaa17"
+      },
+      {
+        "id": "doc-b8cfc100782649cdbdcc664719c6bbe0",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "prevent-avoid",
+        "updated_at": null,
+        "content_hash": "10d2fc4307ef245488f2f7f621740ae658214b40a9b84d804f053846e24b3e9e"
+      },
+      {
+        "id": "doc-e791a8d378ad49f6bd6516f0c1233cde",
+        "name": null,
+        "status": "received",
+        "summary": "",
+        "scope_id": "sched-criteria",
+        "updated_at": null,
+        "content_hash": "afd9a0b10103fd5b8e617050b75854d94ee138868425c10af35a2572be20460a"
+      },
+      {
+        "id": "doc-1b430d1da9894a12a159ae1c247b5a81",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "fcfs-sjf",
+        "updated_at": null,
+        "content_hash": "77654e81a704af88ee6f961c8a4ff4714d39d9dd1d99cd73d100f38ca6039556"
+      },
+      {
+        "id": "doc-330579decc334e528ba86485050e68fb",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "sched-criteria",
+        "updated_at": null,
+        "content_hash": "095ad5d6a18c98b772e55bd28dec4edb54cc015d77c858bb467b6077029afcf9"
+      },
+      {
+        "id": "doc-6a077f0421784ee8996d8f843546b8b5",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "producer-consumer",
+        "updated_at": null,
+        "content_hash": "fee62dbad6491eaa6ed341c5ca0c710c442543b36ddb3faa771ad05be6549b7a"
+      },
+      {
+        "id": "doc-5e1cfb966cb443cc921d9f6865b4b8c1",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "syscall-mechanism",
+        "updated_at": null,
+        "content_hash": "4e3fef64435602152b63aefa43a94dea8fc254f01172b640e05903807520df5d"
+      },
+      {
+        "id": "doc-28e7ea7bf2f543e7b5dacbe502a4e5ad",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "process-state-pcb",
+        "updated_at": null,
+        "content_hash": "d039e593a8066c72e9cd90af262564532dfc1ad9cbd7ec542b21c1f501996d21"
+      },
+      {
+        "id": "doc-7d7fc2159b6541f6a097d1b1d7c1fcfc",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "rr-priority",
+        "updated_at": null,
+        "content_hash": "eff0ec2246a3994be34119f58fc42555efb68abc905a74748860eee394a5b2bb"
+      },
+      {
+        "id": "doc-bc7d6f092afe41b3bcd233c5cc48cd66",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "thread-vs-process",
+        "updated_at": null,
+        "content_hash": "59c44bf97a5545f27f50e4e06dbcaa90a45852cafa425e7829adec2533c3f1e6"
+      },
+      {
+        "id": "doc-fcaba0426abb46cc9b469b966f537fe8",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "race-critical",
+        "updated_at": null,
+        "content_hash": "56408696c80fd9ef066f0c46d40d03851210b46c5cb4421e2713742d3f54db60"
+      },
+      {
+        "id": "doc-0d0bb84d48464e55a6ea38fbf2b31b72",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "deadlock-conditions",
+        "updated_at": null,
+        "content_hash": "10fd128236d62bd0220ce0d36376c84c1ce5840c6f1470aac84658e739d1f672"
+      },
+      {
+        "id": "doc-88fa45f0aabf4398818c79c7fc88ac8b",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "prevent-avoid",
+        "updated_at": null,
+        "content_hash": "dd044b1fb011c52d45da023c5c6de5cb4de0424fc8ee15153c1d592aedf41eff"
+      },
+      {
+        "id": "doc-f7b820a25efd40368db30f0cb396c80d",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "paging-address",
+        "updated_at": null,
+        "content_hash": "67d0ce1d78a27b8750b5a43deda326509df00af1d949c719f659858b4c29ae6b"
+      },
+      {
+        "id": "doc-d8eba63c4b8c4976a169e9e69ef7e1f3",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "sched-criteria",
+        "updated_at": null,
+        "content_hash": "81485b5b6e1137e0d7bdb3014148d25fe0af9ddf4776bd204ea24d12e35a9cac"
+      },
+      {
+        "id": "doc-c1e507287aeb48ad819c1906aec67751",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "fcfs-sjf",
+        "updated_at": null,
+        "content_hash": "45c70213ad056cc9f14da94262d7d8d7ffea4be40e21ef13dee72f51a088aef1"
+      },
+      {
+        "id": "doc-cb89ce4c8dbe4e8d8409d6747f9aaf02",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "producer-consumer",
+        "updated_at": null,
+        "content_hash": "8aad693125b3efb1544143c1cdb5772b225c34aa5a2b4128af88734ed7b1e194"
+      },
+      {
+        "id": "doc-e7f438c507184658ba0948b824c1b162",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "sched-criteria",
+        "updated_at": null,
+        "content_hash": "50380a8e59e8a46644a938d6abcf68cd611441ac9de5f7b2e30e1c1a3d4c4d0f"
+      },
+      {
+        "id": "doc-68ab06dc58984ece90de15d4d4daa10c",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "fcfs-sjf",
+        "updated_at": null,
+        "content_hash": "966f4f81f619350b0f7fa62a1b1adf3cf0a4067dcf2bcc8e28a38e6a6c8a1ee6"
+      },
+      {
+        "id": "doc-d4edbeed19dc40d7b7970dc905fbcd47",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "producer-consumer",
+        "updated_at": null,
+        "content_hash": "82996922976a8787985a175b940623bead056096de31683bb817a216214a1bb5"
+      },
+      {
+        "id": "doc-4f2decf452254843b4fb3f031138c3c5",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "thread-vs-process",
+        "updated_at": null,
+        "content_hash": "86ab224b0a1cd25fdddf5b056d153ce36a30f978871e59b26a2731343c3ec5a2"
+      },
+      {
+        "id": "doc-fa57dab15d3c4e8a9656c2220eea4717",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "semaphore-pv",
+        "updated_at": null,
+        "content_hash": "d722bd29fafa359f2c74bbd3ca224bc994caa62d765a40bdef3c92b686c91159"
+      },
+      {
+        "id": "doc-5b712b47d6f84463be7a03d8a61da79b",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": null,
+        "updated_at": null,
+        "content_hash": "120eb97411ed20f2c159062b175cf68886183b07d31dd161d365e7436cdb455c"
+      },
+      {
+        "id": "doc-e3b714a075e9409a91d1b06d87d16422",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": null,
+        "updated_at": null,
+        "content_hash": "bb5b1406420614d6d51543281c9ff9b77e45bf5384330ca00cbf449957f47b4f"
+      },
+      {
+        "id": "doc-efb1216c7a924fa59381e6ceff4cd852",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp_142c19aa15de4294b5e138b87eda32b8",
+        "updated_at": null,
+        "content_hash": "651e7a41bd6c895e8c9b477f7b9fbec273f855c678bb90c946c1c3aa4052d1d4"
+      },
+      {
+        "id": "doc-a98631844f0b4bd1a03a89b63ed2f67f",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp_142c19aa15de4294b5e138b87eda32b8",
+        "updated_at": null,
+        "content_hash": "24ccffdd92f36c516da729f713292ffc795da842e7a56056dd58571bf1e11c64"
+      },
+      {
+        "id": "doc-23d02286abb045a0b70a8ee034ba6c61",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp_142c19aa15de4294b5e138b87eda32b8",
+        "updated_at": null,
+        "content_hash": "820c4225996b9daa8a860c2845912a9352baf281a62f277a61e0acae2b56f6fa"
+      },
+      {
+        "id": "doc-b712a7fdabc1415796f9cb5d75367f3c",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp_142c19aa15de4294b5e138b87eda32b8",
+        "updated_at": null,
+        "content_hash": "6a6f6b1948de1fd30cc85b68f4fc219d4ea247d2aa17bb12d134c72628abbd1f"
+      },
+      {
+        "id": "doc-e8a73d8cf8d64f15a06f6da9dd05576d",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp_142c19aa15de4294b5e138b87eda32b8",
+        "updated_at": null,
+        "content_hash": "f5b3d7d7676a77f689c04d39af37d76553b479f2063aea4967c6445eebfef664"
+      },
+      {
+        "id": "doc-cf9366fede5347afac14bf6ae40cbfd9",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp_142c19aa15de4294b5e138b87eda32b8",
+        "updated_at": null,
+        "content_hash": "cabb09913bfa99d93c3b760a6fa9326043a6080673691e23c4ed4bbb903cb6a2"
+      }
+    ]
+  },
+  "proposal_selection": {
+    "item_ids": [
+      "0eebdaf03e3e447dbced730eebd8dea6"
+    ],
+    "option_id": null,
+    "expected_revision": 2
+  },
+  "selected_topic_ids": [
+    "kp_ed8f3bc857ef4c6ab90141ec135a55e5"
+  ],
+  "topic_requirements": {
+    "kp_ed8f3bc857ef4c6ab90141ec135a55e5": {
+      "ai_limit": 1,
+      "deliverables": [
+        {
+          "type": "worked_case",
+          "count": 1,
+          "hardness": "hard",
+          "application": "build",
+          "description": "1 个案例",
+          "requirement_id": "req_2b6fe8f3e842df07"
+        },
+        {
+          "type": "exercise_with_solution",
+          "count": 3,
+          "hardness": "hard",
+          "application": "build",
+          "description": "3 个带答案和解析的练习",
+          "requirement_id": "req_cdb6fd297231df6c"
+        }
+      ],
+      "target_units": 5,
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": true,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [
+          "docs.docker.com",
+          "docs.kernel.org"
+        ],
+        "preferred_organizations": [
+          "Docker",
+          "Linux Kernel"
+        ],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 1
+      },
+      "requirement_ids": [
+        "req_2b6fe8f3e842df07",
+        "req_cdb6fd297231df6c"
+      ],
+      "requested_materials": "Linux Kernel 官方文档 cgroups v2 章节（docs.kernel.org）：CPU、内存、I/O 控制器与资源限制机制说明；Docker 官方文档（docs.docker.com）：--cpus、--memory、--device-read-bps 等资源限制参数与配置示例；1 个可执行的 Docker 配置案例：为容器设置 CPU 配额、内存上限与 I/O 限速，并给出验证命令与预期输出；3 道带答案与解析的练习：cgroups 控制器作用辨析、Docker 资源限制参数配置、限制生效验证与排错；若官方资料不足，允许 AI 补充入门级讲解与图示，需标注为 AI 生成"
+    }
+  },
+  "current_graph_summary": {
+    "modules": [
+      {
+        "id": "process-thread",
+        "label": "进程与线程",
+        "child_count": 2
+      },
+      {
+        "id": "cpu-scheduling",
+        "label": "CPU 调度",
+        "child_count": 2
+      },
+      {
+        "id": "process-sync",
+        "label": "进程同步",
+        "child_count": 2
+      },
+      {
+        "id": "deadlock",
+        "label": "死锁",
+        "child_count": 2
+      },
+      {
+        "id": "virtual-memory",
+        "label": "虚拟内存",
+        "child_count": 1
+      }
+    ],
+    "root_id": "os-course",
+    "leaf_count": 12,
+    "node_count": 27,
+    "root_label": "操作系统"
+  },
+  "baseline_graph_version": 3
+}

@@ -5,10 +5,11 @@ const e2eBaseUrl = `http://127.0.0.1:${e2ePort}`;
 
 const viewports = {
   desktop1366: { width: 1366, height: 768 },
-  desktop1440: { width: 1440, height: 900 },
+  desktop1440: { width: 1440, height: 1000 },
   desktop1920: { width: 1920, height: 1080 },
-  compact1280: { width: 1280, height: 720 },
+  compact1280: { width: 1280, height: 800 },
   compact1024: { width: 1024, height: 768 },
+  mobile390: { width: 390, height: 844 },
 } as const;
 
 export default defineConfig({
@@ -29,6 +30,7 @@ export default defineConfig({
   },
   projects: Object.entries(viewports).map(([name, viewport]) => ({
     name,
+    testMatch: name === "mobile390" ? /generation-factory-shell\.spec\.ts/ : undefined,
     use: { viewport },
   })),
   webServer: {

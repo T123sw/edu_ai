@@ -1,0 +1,101 @@
+[
+  {
+    "observed_at": "2026-09-11T08:57:44.295Z",
+    "status": "queued",
+    "phase": "queued",
+    "progress": 0,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:57:50.331Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:57:56.379Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:01.462Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:06.550Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:11.639Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:16.727Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:21.815Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:26.905Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:31.992Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:37.089Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T08:58:42.193Z",
+    "status": "failed",
+    "phase": "failed",
+    "progress": 100,
+    "quality_score": null,
+    "error": {
+      "code": "COURSE_KB_PLAN_BUILD_FAILED",
+      "message": "(psycopg.errors.UniqueViolation) duplicate key value violates unique constraint \"uq_knowledge_source_candidates_url\"\nDETAIL:  Key (build_id, url)=(kb-58337c7bfba945988551f09bb86f9f9c, https://cs.neepu.edu.cn/jxdg/6.caozuoxitong.pdf) already exists.\n[SQL: INSERT INTO knowledge_source_candidates (candidate_id, build_id, topic_id, url, title, domain, source_type, language, authority_tier, license_info, review_status, review_reason, selected, relevance_score, metadata_payload, created_at) VALUES (%(candidate_id)s::VARCHAR, %(build_id)s::VARCHAR, %(topic_id)s::VARCHAR, %(url)s::VARCHAR, %(title)s::VARCHAR, %(domain)s::VARCHAR, %(source_type)s::VARCHAR, %(language)s::VARCHAR, %(authority_tier)s::VARCHAR, %(license_info)s::JSONB, %(review_status)s::VARCHAR, %(review_reason)s::VARCHAR, %(selected)s, %(relevance_score)s, %(metadata_payload)s::JSONB, %(created_at)s::TIMESTAMP WITH TIME ZONE)]\n[parameters: [{'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-2037eb2b4323f1b1b486', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://www.jd.com/zxnews/8eb1b6b6efd180ba.html', 'title': '计算机操作系统(第2版)简介,目录书摘 - 京东', 'domain': 'www.jd.com', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'textbook_candidate', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'relevant', 'review_reason': '已通过 HTTPS 与课程相关性预筛，等待正文抓取', 'selected': True, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': '操作系统 掌握 C 语言和数据结构的计算机专业大 ... (957 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-b960864f1b4d75a47a04', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://www.bistu.edu.cn/docs/2024-03/W020230920631388693464.pdf', 'title': '[PDF] 目录 - 北京信息科技大学', 'domain': 'www.bistu.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'relevant', 'review_reason': '已通过 HTTPS 与课程相关性预筛，等待正文抓取', 'selected': True, 'relevance_score': 0.5, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (1849 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-0930b46ac04d5a80429f', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://blog.csdn.net/weixin_30495795/article/details/118621950', 'title': '计算机操作系统双语教程,计算机操作系统双语教程-CSDN博客', 'domain': 'blog.csdn.net', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'textbook_candidate', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '已达到在线教材候选上限', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': '操作系统 掌握 C 语言和数据结构的计算机专业大 ... (1011 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-44729436c4357ed58f55', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://cs.neepu.edu.cn/jxdg/6.caozuoxitong.pdf', 'title': '操作系统教学大纲', 'domain': 'cs.neepu.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源是课程简介或教学大纲，不足以作为知识点正文', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (1811 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-c19f8b9a4b52aebb10fc', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://ist.nenu.edu.cn/fjkcjj.pdf', 'title': '[PDF] 《线性代数》课程简介', 'domain': 'ist.nenu.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源是课程简介或教学大纲，不足以作为知识点正文', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (1787 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-18bbec1b9a1412ccbbff', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://www.gkd.edu.cn/2025kcsz/upload/files/2025/8/6efbd9c9ca8cc2d9.pdf', 'title': '《数据结构及算法设计》课程标准', 'domain': 'www.gkd.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '课程级教材发现只保留完整教材或课程讲义', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (1867 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-1440253192229009cb96', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://www.qau.edu.cn/userfiles/files/zhuye/2019/03/20190320110156.pdf', 'title': '计算机科学与技术专业（软件外包方向）课程体系框架图 - 青岛农业大学', 'domain': 'www.qau.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '课程级教材发现只保留完整教材或课程讲义', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (949 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-22b89da3117670921141', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://download.csdn.net/download/strawqqhat/11234476', 'title': '操作系统讲义.pdf资源-CSDN文库', 'domain': 'download.csdn.net', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'textbook_candidate', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源属于低质量文档镜像或下载站，已在抓取前拒绝', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': '操作系统 掌握 C 语言和数据结构的计算机专业大 ... (950 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}  ... displaying 10 of 66 total bound parameter sets ...  {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-f381cd3ac67904d2433e', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': 'kp-os-brief-process-thread', 'url': 'https://wlkc.zcst.edu.cn/meol/common/script/preview/download_preview.jsp?fileid=1851938&lid=42194&preview=preview&resid=352342', 'title': '《操作系统》教学大纲（2021.3） - 珠海科技学院', 'domain': 'wlkc.zcst.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源是课程简介或教学大纲，不足以作为知识点正文', 'selected': False, 'relevance_score': 0.102, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 线程与进程的区 ... (1192 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-b763371416e9e1defe8f', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': 'kp-os-brief-sync-semaphore', 'url': 'http://cc.bjtu.edu.cn:81/meol/data/convert/2024/7/9/a291b587-ec84-4623-92c3-01c99832852f_689432.html', 'title': '如果信号量已存在，返回一个错误。', 'domain': 'cc.bjtu.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源 URL 非 HTTPS，或与课程主题没有可识别的语义重合', 'selected': False, 'relevance_score': 0.0638, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 信号量与典型同 ... (1053 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}]]\n(Background on this error at: https://sqlalche.me/e/20/gkpj)"
+    }
+  }
+]

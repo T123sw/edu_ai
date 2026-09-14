@@ -267,7 +267,11 @@ def test_model_invalid_path_repair_before_only_one_save(manager):
 
 @pytest.mark.parametrize("stream", [False, True])
 @pytest.mark.parametrize("button", [False, True])
-def test_shared_reply_entry_reads_and_saves_for_both_modes(manager, stream, button):
+def test_shared_reply_entry_reads_and_saves_for_both_modes(manager, stream, button, monkeypatch):
+    # Legacy service-only path; model-led routing is covered below with a
+    # concrete handoff, rather than relying on the removed keyword gate.
+    from core.config import Config
+    monkeypatch.setattr(Config, 'USE_DEEPSEEK_HARNESS', False)
     from app.chat.application.reply_service_v2 import ReplyServiceV2
     from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
     from tests.chat.test_reply_service_v2_artifact_reference import DummyStorage
@@ -447,3 +451,156 @@ def test_explicit_reference_hash_reads_without_target_confirmation(manager):
     mismatch = run(service, {**ref, "content_hash": "wrong"}, question="《数组报告》解释案例", operation_id="op-2")
     assert mismatch["status"] == "conflict", mismatch
     assert len(model.prompts) == 1
+
+
+@pytest.mark.parametrize('stream', [False, True])
+@pytest.mark.parametrize('has_pending', [False, True])
+@pytest.mark.parametrize('target_kind', ['lesson_plan', 'report'])
+def test_new_resource_leaves_reference_edit_mode_without_changing_original(manager, stream, has_pending, target_kind, monkeypatch):
+    from app.chat.application.reply_service_v2 import ReplyServiceV2
+    from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
+    from tests.chat.test_reply_service_v2_artifact_reference import DummyStorage
+    monkeypatch.setattr(Config, 'USE_DEEPSEEK_HARNESS', True)
+    ref = seed(manager)
+    model = Model({'new_resource': {'resource_type': target_kind, 'subject': '数组的实现'}})
+    revision = ArtifactRevisionService(manager, model)
+    storage = DummyStorage()
+    if has_pending:
+        preview_service = ArtifactRevisionService(manager, Model(edit()))
+        prior = run(preview_service, ref, execution_plan=None)
+        storage.state['pending_operation'] = {'id': 'op-1', 'kind': 'artifact_revision', 'revision_pending': prior['pending']}
+    storage.state['latest_revision_outcome'] = {'status': 'preview', 'message': '旧修改稿'}
+    old_pending = storage.state.get('pending_operation')
+    seen = []
+    def dispatch(request):
+        seen.append(request)
+        assert request.artifact_reference is None and request.action_hint is None
+        assert request.resource_source_context['reference']['artifact_id'] == 'one'
+        assert request.resource_source_context['creation_intent'] == {'resource_type': target_kind, 'subject': '数组的实现'}
+        return {'message': {'role': 'assistant', 'content': '教案方案'}, 'conversation': {'conversation_id': 'conversation'},
+            'workflow': {'type': target_kind, 'status': 'awaiting_confirm', 'stage': 'outline'}, 'trace': {'path': 'deepseek-harness'}}
+    service = ReplyServiceV2(artifact_revision_service=revision, conversation_store=ConversationStoreAdapter(storage=storage),
+        course_storage_manager=manager, orchestrator=SimpleNamespace(dispatch=dispatch,
+            dispatch_stream=lambda request, **kwargs: iter([{'type': 'result', 'payload': dispatch(request)}])))
+    payload = SimpleNamespace(question='帮我生成数组的实现的' + ('报告' if target_kind == 'report' else '教案'), conversation_id='conversation', owner='teacher', course_id='course', artifact_reference=ref)
+    result = list(service.reply_stream(payload))[0]['payload'] if stream else service.reply(payload)
+    supplied = json.loads(model.prompts[0][1]['content'])
+    assert supplied['current_question'] == payload.question and 'instruction' not in supplied
+    assert supplied['previous_edit_request'] == (old_pending['revision_pending']['question'] if has_pending else None)
+    assert result['resource_creation_handoff'] and result['workflow']['type'] == target_kind
+    assert 'artifact_revision' not in result and len(seen) == 1
+    assert storage.state.get('pending_operation') is None
+    assert storage.state.get('latest_revision_outcome') is None
+    if has_pending:
+        assert storage.state['suspended_artifact_revision'] == old_pending
+        # Explicitly selecting the original document resumes its retained draft.
+        from app.chat.application.request_normalizer import normalize_chat_request
+        revision.llm = Model({'resume_draft': {k: old_pending['revision_pending']['draft'][k] for k in ('draft_id', 'revision')}})
+        resumed = service._run_artifact_edit(request=normalize_chat_request(SimpleNamespace(
+            question='继续调整原修改稿的案例', conversation_id='conversation', owner='teacher', course_id='course', artifact_reference=ref)), snapshot=None)
+        assert resumed['artifact_revision']['draft']['revision'] == 2
+        assert resumed['artifact_revision']['draft']['draft_id'] == old_pending['revision_pending']['draft']['draft_id']
+        assert storage.state.get('suspended_artifact_revision') is None
+    assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['content'].endswith('原始案例')
+
+
+@pytest.mark.parametrize('stream', [False, True])
+def test_harness_handoff_enters_existing_revision_preview_without_saving(manager, stream, monkeypatch):
+    from core.config import Config
+    from app.chat.application.reply_service_v2 import ReplyServiceV2
+    from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
+    from tests.chat.test_reply_service_v2_artifact_reference import DummyStorage
+    monkeypatch.setattr(Config, 'USE_DEEPSEEK_HARNESS', True)
+    ref = seed(manager)
+    result = {'resource_revision_reference': ref, 'trace': {'path': 'deepseek-harness'},
+        'message': {'role': 'assistant', 'content': '准备修改'}, 'conversation': {'conversation_id': 'conversation'}}
+    service = ReplyServiceV2(artifact_revision_service=ArtifactRevisionService(manager, Model(edit())),
+        conversation_store=ConversationStoreAdapter(storage=DummyStorage()), course_storage_manager=manager,
+        orchestrator=SimpleNamespace(dispatch=lambda request: result,
+            dispatch_stream=lambda request, **kwargs: iter([{'type': 'result', 'payload': result}])))
+    payload = SimpleNamespace(question='请给上次报告增加案例，先给我修改稿', conversation_id='conversation', owner='teacher', course_id='course')
+    reply = list(service.reply_stream(payload))[0]['payload'] if stream else service.reply(payload)
+    assert reply['artifact_revision']['status'] == 'preview', reply
+    assert reply['artifact_revision']['artifact_reference']['artifact_id'] == ref['artifact_id']
+    assert manager.get_generated_material('course', 'report', 'one', owner_user_id='teacher')['version'] == 1
+
+
+def test_plan_confirmation_with_stale_reference_uses_current_workflow_and_preserves_old_draft(manager, monkeypatch):
+    from app.chat.application.reply_service_v2 import ReplyServiceV2
+    from app.chat.persistence.conversation_store_adapter import ConversationStoreAdapter
+    from tests.chat.test_reply_service_v2_artifact_reference import DummyStorage
+    monkeypatch.setattr(Config, 'USE_DEEPSEEK_HARNESS', True)
+    ref = seed(manager)
+    prior = run(ArtifactRevisionService(manager, Model(edit())), ref, execution_plan=None)
+    archive = {'id': 'op-1', 'kind': 'artifact_revision', 'revision_pending': prior['pending']}
+    class TaskStorage(DummyStorage):
+        def append_message(self, *args, **kwargs):
+            super().append_message(*args, **kwargs)
+            self.messages[-1]['message_id'] = str(len(self.messages))
+    storage = TaskStorage()
+    workflow = {'workflow_type': 'lesson_plan', 'status': 'awaiting_confirm', 'stage': 'outline'}
+    storage.state.update(workflow_state=workflow, pending_operation=None,
+        suspended_artifact_revision=archive, latest_revision_outcome={'status': 'preview'})
+    model = Model({'new_resource': {'resource_type': 'lesson_plan', 'subject': '数组'}})
+    seen = []
+    def dispatch(request):
+        seen.append(request)
+        return {'message': {'role': 'assistant', 'content': '教案已开始生成'},
+            'conversation': {'conversation_id': 'conversation'}, 'task_id': 'lesson-job',
+            'workflow': {'type': 'lesson_plan', 'status': 'running'}, 'trace': {'path': 'deepseek-harness'}}
+    service = ReplyServiceV2(artifact_revision_service=ArtifactRevisionService(manager, model),
+        conversation_store=ConversationStoreAdapter(storage=storage), course_storage_manager=manager,
+        orchestrator=SimpleNamespace(dispatch=dispatch))
+    result = service.reply(SimpleNamespace(question='可以', conversation_id='conversation', owner='teacher', course_id='course', artifact_reference=ref))
+    assert result['task_id'] == 'lesson-job'
+    assert seen[0].artifact_reference is None
+    assert json.loads(model.prompts[0][1]['content'])['active_resource_workflow'] == workflow
+    assert storage.state['suspended_artifact_revision'] == archive
+    assert storage.state.get('latest_revision_outcome') is None
+    assert storage.state.get('pending_operation') is None
+    assert len(manager.list_generated_materials('course', owner_user_id='teacher')) == 1
+
+
+def test_suspended_draft_cannot_be_saved_even_when_model_returns_save(manager):
+    ref = seed(manager)
+    prior = run(ArtifactRevisionService(manager, Model(edit())), ref, execution_plan=None)
+    service = ArtifactRevisionService(manager, Model({'save': True}))
+    result = service.run(owner_user_id='teacher', conversation_id='conversation', course_id='course',
+        question='可以', operation_id='new-turn', artifact_reference=ref, pending=None,
+        suspended_pending=prior['pending'])
+    assert result['status'] in {'failed', 'conflict'}
+    assert len(manager.list_generated_materials('course', owner_user_id='teacher')) == 1
+
+
+def test_old_save_button_cannot_resume_suspended_draft(manager):
+    from app.chat.domain.contracts import ArtifactDraftAction
+    ref = seed(manager)
+    prior = run(ArtifactRevisionService(manager, Model(edit())), ref, execution_plan=None)
+    result = ArtifactRevisionService(manager, Model({'save': True})).run(
+        owner_user_id='teacher', conversation_id='conversation', course_id='course',
+        question='保存', operation_id='new-turn', artifact_reference=ref, pending=None,
+        suspended_pending=prior['pending'], draft_action=ArtifactDraftAction(action='save',
+            draft_id=prior['draft']['draft_id'], revision=prior['draft']['revision']))
+    assert result['status'] == 'conflict'
+    assert len(manager.list_generated_materials('course', owner_user_id='teacher')) == 1
+
+
+@pytest.mark.parametrize('invalid', ['revision', 'owner', 'conversation', 'draft_id'])
+def test_resume_rejects_stale_or_unowned_checkpoint(manager, invalid):
+    from copy import deepcopy
+    ref = seed(manager)
+    prior = run(ArtifactRevisionService(manager, Model(edit())), ref, execution_plan=None)
+    archive = deepcopy(prior['pending'])
+    selection = {k: archive['draft'][k] for k in ('draft_id', 'revision')}
+    if invalid == 'revision':
+        selection['revision'] += 1
+    elif invalid == 'draft_id':
+        selection['draft_id'] = 'another-task'
+    else:
+        archive['owner_user_id' if invalid == 'owner' else 'conversation_id'] = 'another'
+    result = ArtifactRevisionService(manager, Model({'resume_draft': selection})).run(
+        owner_user_id='teacher', conversation_id='conversation', course_id='course',
+        question='恢复旧稿', operation_id='resume-turn', artifact_reference=ref,
+        pending=None, suspended_pending=[archive])
+    assert result['status'] in {'failed', 'conflict'}
+    assert len(manager.list_generated_materials('course', owner_user_id='teacher')) == 1

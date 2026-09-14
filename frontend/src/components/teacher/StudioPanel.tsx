@@ -1,5 +1,5 @@
 import { DraftDocumentPreview, useDraftPreview } from "../../stitch/artifactRevision/draftPreview";
-import { lazy, Suspense, useEffect, useState, type FC } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type FC } from "react";
 
 import type { WorkspaceScope } from "../../services/teacher/workspaceScope";
 import { GenerationFactory, type GenerationResultTarget } from "../generation/GenerationFactory";
@@ -26,9 +26,10 @@ type Props = {
   courseId?: string;
   workspaceScope?: WorkspaceScope;
   onPreviewStateChange?: (open: boolean) => void;
+  onAgentQueued?: () => void;
 };
 
-const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, workspaceScope, onPreviewStateChange }) => {
+const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, workspaceScope, onPreviewStateChange, onAgentQueued }) => {
   const { user } = useAuthSession();
   const draftEntry = useDraftPreview(state => state.entry);
   const conversationId = useStore(state => state.currentConversationId);
@@ -43,15 +44,26 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, worksp
   const [material, setMaterial] = useState<CourseMaterial | null>(null);
   const [previewError, setPreviewError] = useState(false);
   const [previewRetry, setPreviewRetry] = useState(0);
+  const draftPreviewTarget = useRef<GenerationResultTarget | null>(null);
   const activePreview = preview?.courseId === courseId ? preview : null;
   const previewOpen = Boolean(activePreview) && !collapsed;
 
   useEffect(() => { setPreview(null); }, [courseId, user?.username]);
   useEffect(() => {
+    if (!draftEntry && draftPreviewTarget.current) {
+      const previous = draftPreviewTarget.current;
+      setPreview(current => current?.courseId === previous.courseId && current.materialId === previous.materialId ? null : current);
+      draftPreviewTarget.current = null;
+      return;
+    }
     if (!draftEntry?.autoOpen) return;
     const ref = draft?.reference || (outcome?.status === 'completed' || outcome?.status === 'discarded' ? outcome.artifact_reference : null);
-    if (ref) setPreview({courseId: ref.source_course_id, materialType: ref.artifact_type, materialId: ref.artifact_id, title: ref.title || '文档'});
-  }, [draft, outcome, draftEntry?.autoOpen]);
+    if (ref) {
+      const target = {courseId: ref.source_course_id, materialType: ref.artifact_type, materialId: ref.artifact_id, title: ref.title || '文档'};
+      draftPreviewTarget.current = target;
+      setPreview(target);
+    }
+  }, [draft, outcome, draftEntry]);
   useEffect(() => {
     onPreviewStateChange?.(previewOpen);
     return () => onPreviewStateChange?.(false);
@@ -116,6 +128,7 @@ const StudioPanel: FC<Props> = ({ collapsed, onToggleCollapsed, courseId, worksp
       allowedTools={allowedTools}
       selectedDocumentIds={selectedDocs}
       sourceLibraries={["course", "personal"]}
+      onAgentQueued={onAgentQueued}
       onOpenResult={setPreview}
       resultHref={({ courseId: targetCourseId, materialType, materialId }) => buildRoleCourseHash(user?.role, "resources", targetCourseId, { material_type: materialType, material_id: materialId })}
     />

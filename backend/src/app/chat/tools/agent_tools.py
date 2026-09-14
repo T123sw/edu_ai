@@ -220,14 +220,18 @@ def web_search_tool(*, query: str, owner: Optional[str] = None) -> ToolResult:
 def revise_outline_with_feedback(*, outline: List[Dict[str, Any]], feedback: str) -> ToolResult:
     try:
         model_cfg = Config.get_deep_model()
+        api_base = str(model_cfg.get("api_base") or Config.DEEP_MODEL_API_BASE)
         api_key = str(model_cfg.get("api_key") or "").strip()
+        from app.services.deepseek_key_failover import completion_endpoint
+
+        api_base, api_key = completion_endpoint(api_base, api_key)
         if not api_key:
             return _err("revise_outline_with_feedback", "missing_answer_llm_api_key")
 
         llm = ChatOpenAI(
             model=str(model_cfg.get("model_name") or Config.LLM_MODEL_DEEP),
             openai_api_key=api_key,
-            openai_api_base=str(model_cfg.get("api_base") or Config.DEEP_MODEL_API_BASE),
+            openai_api_base=api_base,
             temperature=0,
         )
         prompt = (

@@ -1,0 +1,101 @@
+[WebServer] (node:91995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:92008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 30 tests using 1 worker
+
+(node:92039) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:42:5 › all generation buttons open the same concise Agent prompt (7.4s)
+  ✓   2 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:85:5 › all factory buttons submit their canonical hint through the Agent stream (10.1s)
+  ✓   3 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:127:5 › factory submission enters the Agent stream with the exact brief and action hint (6.1s)
+  ✓   4 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:166:5 › personal documents checked on the left become the optional Agent source (5.8s)
+  ✓   5 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:186:5 › generation prompt keeps an unfinished brief for the same workspace (5.8s)
+(node:92529) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:42:5 › all generation buttons open the same concise Agent prompt (6.9s)
+  ✓   7 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:85:5 › all factory buttons submit their canonical hint through the Agent stream (11.2s)
+  ✓   8 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:127:5 › factory submission enters the Agent stream with the exact brief and action hint (6.1s)
+  ✓   9 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:166:5 › personal documents checked on the left become the optional Agent source (6.2s)
+  ✓  10 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:186:5 › generation prompt keeps an unfinished brief for the same workspace (6.2s)
+(node:93223) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:42:5 › all generation buttons open the same concise Agent prompt (7.6s)
+  ✓  12 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:85:5 › all factory buttons submit their canonical hint through the Agent stream (9.6s)
+  ✓  13 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:127:5 › factory submission enters the Agent stream with the exact brief and action hint (6.1s)
+  ✘  14 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:166:5 › personal documents checked on the left become the optional Agent source (2.0m)
+(node:95479) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:186:5 › generation prompt keeps an unfinished brief for the same workspace (5.9s)
+(node:95640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:42:5 › all generation buttons open the same concise Agent prompt (7.0s)
+  ✓  17 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:85:5 › all factory buttons submit their canonical hint through the Agent stream (8.8s)
+  ✓  18 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:127:5 › factory submission enters the Agent stream with the exact brief and action hint (5.8s)
+  ✓  19 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:166:5 › personal documents checked on the left become the optional Agent source (5.7s)
+  ✓  20 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:186:5 › generation prompt keeps an unfinished brief for the same workspace (6.0s)
+(node:95904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:42:5 › all generation buttons open the same concise Agent prompt (6.5s)
+  ✓  22 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:85:5 › all factory buttons submit their canonical hint through the Agent stream (8.3s)
+  ✓  23 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:127:5 › factory submission enters the Agent stream with the exact brief and action hint (6.0s)
+  ✓  24 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:166:5 › personal documents checked on the left become the optional Agent source (5.4s)
+  ✓  25 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:186:5 › generation prompt keeps an unfinished brief for the same workspace (5.1s)
+(node:96613) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:42:5 › all generation buttons open the same concise Agent prompt (7.0s)
+  ✓  27 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:85:5 › all factory buttons submit their canonical hint through the Agent stream (8.9s)
+  ✓  28 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:127:5 › factory submission enters the Agent stream with the exact brief and action hint (5.9s)
+  ✓  29 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:166:5 › personal documents checked on the left become the optional Agent source (5.5s)
+  ✓  30 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:186:5 › generation prompt keeps an unfinished brief for the same workspace (4.9s)
+
+
+  1) [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:166:5 › personal documents checked on the left become the optional Agent source 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '展开知识库', exact: true })
+
+
+      22 |     return;
+      23 |   }
+    > 24 |   await page.getByRole("button", { name: "展开知识库", exact: true }).click();
+         |                                                                  ^
+      25 | }
+      26 |
+      27 | async function fulfillAgentStream(route: Route) {
+        at openKnowledge (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/generation-factory-shell.spec.ts:24:66)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/generation-factory-shell.spec.ts:171:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/generation-factory-shell-p-0ea37-e-the-optional-Agent-source-desktop1920/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/generation-factory-shell-p-0ea37-e-the-optional-Agent-source-desktop1920/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/generation-factory-shell-p-0ea37-e-the-optional-Agent-source-desktop1920/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/generation-factory-shell-p-0ea37-e-the-optional-Agent-source-desktop1920/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:166:5 › personal documents checked on the left become the optional Agent source 
+  29 passed (5.5m)
+[WebServer] (node:97512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:97561) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:171:5 › personal documents checked on the left become the optional Agent source (6.5s)
+
+  1 passed (10.5s)

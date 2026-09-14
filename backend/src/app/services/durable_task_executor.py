@@ -21,6 +21,7 @@ from app.services.runtime_config_resolver import (
     reset_runtime_config_context,
     set_runtime_config_context,
 )
+from app.chat.model_gateway import ModelUnavailableError
 from core.course_storage import (
     reset_generation_persistence_context,
     set_generation_persistence_context,
@@ -275,6 +276,14 @@ class DurableTaskExecutor:
                 task,
                 lease_owner=self.worker_id,
                 error_code=exc.code,
+                error=str(exc),
+            )
+        except ModelUnavailableError as exc:
+            log.warning("Durable task %s could not reach a model provider", task.task_id)
+            self.completion_service.fail(
+                task,
+                lease_owner=self.worker_id,
+                error_code="PROVIDER_UNAVAILABLE",
                 error=str(exc),
             )
         except Exception as exc:

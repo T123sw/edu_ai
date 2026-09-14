@@ -25,6 +25,8 @@ class StandardResourceReviewService:
         reviewer_id: str,
         decision: str,
         reason: str = "",
+        expected_version: int,
+        expected_content_hash: str,
     ) -> dict:
         material = next(
             (
@@ -88,6 +90,8 @@ class StandardResourceReviewService:
             decision=decision,
             reason=reason,
             manifest=manifest,
+            expected_version=expected_version,
+            expected_content_hash=expected_content_hash,
         )
 
     def approve_pending_in_batch(
@@ -96,11 +100,13 @@ class StandardResourceReviewService:
         return [
             self.review(
                 course_id=course_id,
-                material_id=material_id,
+                material_id=target["material_id"],
                 reviewer_id=reviewer_id,
                 decision="approved",
+                expected_version=int(target["version"]),
+                expected_content_hash=str(target["content_hash"]),
             )
-            for material_id in self.repository.list_pending_material_ids_in_batch(
+            for target in self.repository.list_pending_targets_in_batch(
                 course_id=course_id, batch_id=batch_id
             )
         ]

@@ -1,0 +1,5086 @@
+{
+  "kind": "graph",
+  "conversation_id": "resource-e2e-graph-15f673c6",
+  "turns": [
+    {
+      "question": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。",
+      "events": [
+        {
+          "type": "metadata",
+          "payload": {
+            "conversation_id": "resource-e2e-graph-15f673c6",
+            "runtime": "deepseek-harness",
+            "trace": {
+              "path": "deepseek-harness"
+            }
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "thinking",
+            "label": "正在处理请求"
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "select_workspace",
+            "tool_name": "select_workspace",
+            "call_id": "40f4953c2e404c508fb0e0883bddcb69",
+            "args": {
+              "scope_type": "course",
+              "topic": "数组随机访问"
+            }
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "skill",
+            "label": "正在加载任务流程"
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "select_workspace",
+            "tool_name": "select_workspace",
+            "call_id": "40f4953c2e404c508fb0e0883bddcb69",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "organize_resource_content",
+            "tool_name": "organize_resource_content",
+            "call_id": "466095b68aab4f339fcf4d41da3b8e8f",
+            "args": {
+              "subject": "数组随机访问",
+              "audience": "大学初学者",
+              "resource_type": "graph",
+              "requirements": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。"
+            }
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "organize_resource_content",
+            "tool_name": "organize_resource_content",
+            "call_id": "466095b68aab4f339fcf4d41da3b8e8f",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "本知识材料面向大学初学者，围绕“数组随机访问”这一主题，为后续制作思维导图准备核心知识。内容限定为三个分支：内存布局、地址计算、适用条件。重点解释数组为什么能通过下标在常数时间内定位元素，以及这一结论依赖哪些前提。不展开动态数组扩容、多维数组的多种存储顺序、缓存与分页对实际耗时的影响、语言间负索引差异等扩展内容。",
+                "prerequisites": [
+                  "变量与基本数据类型的概念",
+                  "下标或索引的基本含义",
+                  "内存地址的初步概念",
+                  "常数时间与线性时间的基本区别"
+                ],
+                "objectives": [
+                  "能用自己的话说明数组元素在内存中连续存放的含义，并指出连续的是抽象地址而非物理页",
+                  "能写出并解释一维数组随机访问的地址计算公式",
+                  "能根据首地址、下标和元素大小计算指定元素的地址",
+                  "能说明数组随机访问为常数时间所依赖的前提条件",
+                  "能区分数组随机访问与按值查找、链表定位等不同操作的时间代价"
+                ],
+                "units": [
+                  {
+                    "title": "内存布局：连续存放的含义",
+                    "explanation": "数组的随机访问能力首先来自其内存布局：数组元素按顺序存放在一段连续的地址区间中，相邻元素之间相隔固定步长。这里的“连续”指程序可见的抽象地址连续，即下标 i 与 i+1 的元素地址相差一个元素大小；它不要求底层物理内存页连续，因为虚拟地址到物理地址的映射可以是不连续的。元素大小指一个完整元素占用的字节数，包括结构体等类型中的对齐填充。",
+                    "example": "设 int 占 4 字节，数组 int a[5] 的首元素地址为 1000，则 a[0] 在 1000，a[1] 在 1004，a[2] 在 1008，依此类推，相邻元素地址差恒为 4。",
+                    "misconception": "把“地址连续”误解为“物理内存连续”；或认为结构体有填充就不能使用地址公式。实际上公式中的元素大小取完整元素占用空间，C/C++ 中 sizeof(元素类型) 已包含填充，相邻结构体元素的步长就是 sizeof(元素类型)。",
+                    "check": "若某类型 sizeof 为 12 字节，首元素地址为 2000，则第 4 个元素（下标 3）的地址是多少？连续的是抽象地址还是物理地址？",
+                    "objective_indices": [
+                      0,
+                      3
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "地址计算：由下标直接定位",
+                    "explanation": "在一维数组中，若首元素地址为 base，元素大小为 size，下标为 i，则元素地址为 base + i × size。这个式子只涉及一次乘法和一次加法，与数组长度无关，因此按下标访问元素是常数时间操作。公式成立的前提是：下标从 0 开始计数、元素大小固定、数组占用一段连续地址区间。",
+                    "example": "double 占 8 字节，数组 double d[10] 首地址为 5000，则 d[6] 的地址为 5000 + 6 × 8 = 5048。",
+                    "misconception": "把下标当作从 1 开始，导致地址偏移多算一个元素；或把元素大小误当成“数据部分大小”而忽略对齐填充。",
+                    "check": "首地址 3000、元素大小 4 字节、下标 5，元素地址是多少？若下标改为从 1 开始计数，公式需要怎样调整？",
+                    "objective_indices": [
+                      1,
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "适用条件：常数时间访问依赖什么",
+                    "explanation": "数组随机访问的常数时间结论有明确前提：已知首地址、元素大小固定、下标合法且可直接计算地址。它描述的是按已知下标定位元素这一操作，不等于按值查找。按值查找通常需要逐个检查元素，最坏情况下要检查全部元素，其代价随元素个数增长。此外，常数时间指抽象操作次数不随数组长度增长，不意味着真实系统耗时绝对恒定；缓存命中、分页、内存层级等会使实际耗时随访问模式变化。",
+                    "example": "在长度为 n 的数组中读取 a[k]（k 已知且合法）只需一次地址计算；而查找值等于 x 的元素，最坏需要比较 n 次。两者不是同一种操作。",
+                    "misconception": "把“随机访问是 O(1)”推广为“数组的一切操作都很快”，或推广为“实际耗时恒定”。另一个常见错误是把数组随机访问与链表定位混为一谈：链表即使知道要访问第 k 个位置，通常也需要从头遍历，除非额外保存了节点位置。",
+                    "check": "为什么“按下标读取 a[k]”是常数时间，而“查找值等于 x 的元素”通常不是？常数时间是否保证真实运行时间完全不变？",
+                    "objective_indices": [
+                      3,
+                      4
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本材料不检索外部资料，仅使用通用知识组织，未引用具体教材或标准。",
+                  "未展开多维数组的行优先/列优先存储差异，地址公式仅针对一维数组。",
+                  "未讨论动态数组扩容、越界访问后果、不同语言负索引语义等扩展话题。",
+                  "常数时间仅指抽象操作次数不随数组长度增长，未量化缓存、分页等真实系统因素。",
+                  "元素大小与内存语义依赖具体语言和实现假设，不能无条件推广到所有环境。"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：材料把“连续”限定为程序可见的抽象地址连续，并明确不要求底层物理页连续，同时说明元素大小取完整元素占用空间（含对齐填充）。",
+                      "reason": "该限定与虚拟内存模型一致：虚拟地址连续即可满足 base + i×size 的推导，物理页可由页表映射到不连续帧。结构体数组的步长在 C/C++ 中为 sizeof(元素类型)，已包含填充，因此“有填充就不能用公式”确为误解。前提未被错误泛化。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：地址公式 base + i×size 与“常数时间”结论的推导一致，且未把抽象操作次数等同于真实系统耗时。",
+                      "reason": "公式只含一次乘法与一次加法，操作数与数组长度 n 无关，故抽象操作次数为 O(1)。材料同时指出缓存、分页会使实际耗时随访问模式变化，未将 O(1) 泛化为真实耗时恒定。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子：int a[5] 首地址 1000、int 占 4 字节时 a[0..2] 为 1000/1004/1008；double d[10] 首地址 5000 时 d[6] 为 5048。",
+                      "reason": "逐步追踪：1000 + 0×4 = 1000，1000 + 1×4 = 1004，1000 + 2×4 = 1008，步长恒为 4。5000 + 6×8 = 5000 + 48 = 5048，计算正确。check 中 2000 + 3×12 = 2036、3000 + 5×4 = 3020 亦正确。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：材料覆盖了内存布局、地址计算、适用条件三个分支，并区分了按下标访问与按值查找、链表定位的代价。",
+                      "reason": "objectives 中“说明连续含义”“写出并解释公式”“计算地址”“说明前提”“区分不同操作代价”分别由三个 unit 的 explanation/example/check 支撑。按下标访问 O(1) 与按值查找最坏 O(n) 的对比正确；链表定位需从头遍历的说明在“除非额外保存节点位置”限定下成立，未把某种实现代价说成所有实现的必然结果。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界处理：材料未展开越界访问、负索引、多维数组存储顺序等，并在 limitations 中声明。",
+                      "reason": "resource_contract 允许当前阶段只准备支持目标的知识与前提，不要求完整成品栏目。材料明确限定为一维数组、下标从 0 开始且合法，未对未覆盖边界作错误断言，因此不构成失败。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_cc160c060e024e48925a2db66cf5e7cb",
+                "resource_type": "graph",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "submit_resource_direct",
+            "tool_name": "submit_resource_direct",
+            "call_id": "45f70f8b707c44ecad6e48dc5b06949b",
+            "args": {
+              "organization_id": "org_cc160c060e024e48925a2db66cf5e7cb"
+            }
+          }
+        },
+        {
+          "type": "task_submitted",
+          "payload": {
+            "task_id": "job_f1e9c8b6b8bb4c41",
+            "status": "submitted",
+            "workflow_type": "graph",
+            "outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+            "revision": 1,
+            "conversation_id": "resource-e2e-graph-15f673c6",
+            "resource_creation_handoff": false
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "submit_resource_direct",
+            "tool_name": "submit_resource_direct",
+            "call_id": "45f70f8b707c44ecad6e48dc5b06949b",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "submit_resource_direct",
+              "data": {
+                "task_id": "job_f1e9c8b6b8bb4c41",
+                "status": "submitted",
+                "workflow_type": "graph",
+                "outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+                "revision": 1,
+                "conversation_id": "resource-e2e-graph-15f673c6",
+                "resource_creation_handoff": false
+              }
+            }
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "思维"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "导"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "图"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "已"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "开始"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "生成"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "围绕"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "“"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "数组"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "随机"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "访问"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "”"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "按"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "三个"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "分支"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "展开"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "内存"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "布局"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "（"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "连续"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "存放"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "的是"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "抽象"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "相邻"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "步"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "长"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "等于"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "完整"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "大小"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "）、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "计算"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "（"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "base"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " +"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "下标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " ×"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "大小"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "与"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "数组"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "长度"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "无关"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "）、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "适用"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "条件"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "（"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "已知"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "首"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "与"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "合法"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "下标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "下的"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "按"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "已知"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "下标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "定位"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "是"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "常数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "时间"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "不等于"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "按"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "值"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "查找"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "也不"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "保证"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "真实"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "耗时"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "恒定"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "）。"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "完成后"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "会"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "在这里"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "显示"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。"
+          }
+        },
+        {
+          "type": "result",
+          "payload": {
+            "message": {
+              "role": "assistant",
+              "content": "正在生成思维导图，完成后会在这里显示。"
+            },
+            "conversation": {
+              "conversation_id": "resource-e2e-graph-15f673c6"
+            },
+            "action": {
+              "name": "generate.graph"
+            },
+            "artifacts": [],
+            "workflow": {
+              "type": "graph",
+              "status": "running",
+              "stage": "generating"
+            },
+            "sources": [],
+            "trace": {
+              "path": "deepseek-harness",
+              "model_runtime": "dsh",
+              "request_id": "3472486d6a9c4da18adea24bc62e73b7",
+              "tool_events": [
+                {
+                  "ok": true,
+                  "tool": "select_workspace",
+                  "data": {
+                    "course_id": "resource-e2e-course",
+                    "course_title": "数据结构验收课程",
+                    "scope_type": "course",
+                    "scope_id": null,
+                    "scope_title": "数据结构验收课程",
+                    "scope_path": [
+                      "数据结构验收课程"
+                    ],
+                    "resolution": "resolved",
+                    "explicit_course": true,
+                    "update_workspace": false,
+                    "topic": "数组随机访问"
+                  }
+                },
+                {
+                  "ok": true,
+                  "tool": "organize_resource_content",
+                  "data": {
+                    "scope": "本知识材料面向大学初学者，围绕“数组随机访问”这一主题，为后续制作思维导图准备核心知识。内容限定为三个分支：内存布局、地址计算、适用条件。重点解释数组为什么能通过下标在常数时间内定位元素，以及这一结论依赖哪些前提。不展开动态数组扩容、多维数组的多种存储顺序、缓存与分页对实际耗时的影响、语言间负索引差异等扩展内容。",
+                    "prerequisites": [
+                      "变量与基本数据类型的概念",
+                      "下标或索引的基本含义",
+                      "内存地址的初步概念",
+                      "常数时间与线性时间的基本区别"
+                    ],
+                    "objectives": [
+                      "能用自己的话说明数组元素在内存中连续存放的含义，并指出连续的是抽象地址而非物理页",
+                      "能写出并解释一维数组随机访问的地址计算公式",
+                      "能根据首地址、下标和元素大小计算指定元素的地址",
+                      "能说明数组随机访问为常数时间所依赖的前提条件",
+                      "能区分数组随机访问与按值查找、链表定位等不同操作的时间代价"
+                    ],
+                    "units": [
+                      {
+                        "title": "内存布局：连续存放的含义",
+                        "explanation": "数组的随机访问能力首先来自其内存布局：数组元素按顺序存放在一段连续的地址区间中，相邻元素之间相隔固定步长。这里的“连续”指程序可见的抽象地址连续，即下标 i 与 i+1 的元素地址相差一个元素大小；它不要求底层物理内存页连续，因为虚拟地址到物理地址的映射可以是不连续的。元素大小指一个完整元素占用的字节数，包括结构体等类型中的对齐填充。",
+                        "example": "设 int 占 4 字节，数组 int a[5] 的首元素地址为 1000，则 a[0] 在 1000，a[1] 在 1004，a[2] 在 1008，依此类推，相邻元素地址差恒为 4。",
+                        "misconception": "把“地址连续”误解为“物理内存连续”；或认为结构体有填充就不能使用地址公式。实际上公式中的元素大小取完整元素占用空间，C/C++ 中 sizeof(元素类型) 已包含填充，相邻结构体元素的步长就是 sizeof(元素类型)。",
+                        "check": "若某类型 sizeof 为 12 字节，首元素地址为 2000，则第 4 个元素（下标 3）的地址是多少？连续的是抽象地址还是物理地址？",
+                        "objective_indices": [
+                          0,
+                          3
+                        ],
+                        "evidence_ids": []
+                      },
+                      {
+                        "title": "地址计算：由下标直接定位",
+                        "explanation": "在一维数组中，若首元素地址为 base，元素大小为 size，下标为 i，则元素地址为 base + i × size。这个式子只涉及一次乘法和一次加法，与数组长度无关，因此按下标访问元素是常数时间操作。公式成立的前提是：下标从 0 开始计数、元素大小固定、数组占用一段连续地址区间。",
+                        "example": "double 占 8 字节，数组 double d[10] 首地址为 5000，则 d[6] 的地址为 5000 + 6 × 8 = 5048。",
+                        "misconception": "把下标当作从 1 开始，导致地址偏移多算一个元素；或把元素大小误当成“数据部分大小”而忽略对齐填充。",
+                        "check": "首地址 3000、元素大小 4 字节、下标 5，元素地址是多少？若下标改为从 1 开始计数，公式需要怎样调整？",
+                        "objective_indices": [
+                          1,
+                          2
+                        ],
+                        "evidence_ids": []
+                      },
+                      {
+                        "title": "适用条件：常数时间访问依赖什么",
+                        "explanation": "数组随机访问的常数时间结论有明确前提：已知首地址、元素大小固定、下标合法且可直接计算地址。它描述的是按已知下标定位元素这一操作，不等于按值查找。按值查找通常需要逐个检查元素，最坏情况下要检查全部元素，其代价随元素个数增长。此外，常数时间指抽象操作次数不随数组长度增长，不意味着真实系统耗时绝对恒定；缓存命中、分页、内存层级等会使实际耗时随访问模式变化。",
+                        "example": "在长度为 n 的数组中读取 a[k]（k 已知且合法）只需一次地址计算；而查找值等于 x 的元素，最坏需要比较 n 次。两者不是同一种操作。",
+                        "misconception": "把“随机访问是 O(1)”推广为“数组的一切操作都很快”，或推广为“实际耗时恒定”。另一个常见错误是把数组随机访问与链表定位混为一谈：链表即使知道要访问第 k 个位置，通常也需要从头遍历，除非额外保存了节点位置。",
+                        "check": "为什么“按下标读取 a[k]”是常数时间，而“查找值等于 x 的元素”通常不是？常数时间是否保证真实运行时间完全不变？",
+                        "objective_indices": [
+                          3,
+                          4
+                        ],
+                        "evidence_ids": []
+                      }
+                    ],
+                    "limitations": [
+                      "本材料不检索外部资料，仅使用通用知识组织，未引用具体教材或标准。",
+                      "未展开多维数组的行优先/列优先存储差异，地址公式仅针对一维数组。",
+                      "未讨论动态数组扩容、越界访问后果、不同语言负索引语义等扩展话题。",
+                      "常数时间仅指抽象操作次数不随数组长度增长，未量化缓存、分页等真实系统因素。",
+                      "元素大小与内存语义依赖具体语言和实现假设，不能无条件推广到所有环境。"
+                    ],
+                    "model_review": {
+                      "passed": true,
+                      "checks": [
+                        {
+                          "claim": "前提适用性：材料把“连续”限定为程序可见的抽象地址连续，并明确不要求底层物理页连续，同时说明元素大小取完整元素占用空间（含对齐填充）。",
+                          "reason": "该限定与虚拟内存模型一致：虚拟地址连续即可满足 base + i×size 的推导，物理页可由页表映射到不连续帧。结构体数组的步长在 C/C++ 中为 sizeof(元素类型)，已包含填充，因此“有填充就不能用公式”确为误解。前提未被错误泛化。",
+                          "passed": true
+                        },
+                        {
+                          "claim": "内部推理一致性：地址公式 base + i×size 与“常数时间”结论的推导一致，且未把抽象操作次数等同于真实系统耗时。",
+                          "reason": "公式只含一次乘法与一次加法，操作数与数组长度 n 无关，故抽象操作次数为 O(1)。材料同时指出缓存、分页会使实际耗时随访问模式变化，未将 O(1) 泛化为真实耗时恒定。",
+                          "passed": true
+                        },
+                        {
+                          "claim": "具体例子：int a[5] 首地址 1000、int 占 4 字节时 a[0..2] 为 1000/1004/1008；double d[10] 首地址 5000 时 d[6] 为 5048。",
+                          "reason": "逐步追踪：1000 + 0×4 = 1000，1000 + 1×4 = 1004，1000 + 2×4 = 1008，步长恒为 4。5000 + 6×8 = 5000 + 48 = 5048，计算正确。check 中 2000 + 3×12 = 2036、3000 + 5×4 = 3020 亦正确。",
+                          "passed": true
+                        },
+                        {
+                          "claim": "边界与学习目标覆盖：材料覆盖了内存布局、地址计算、适用条件三个分支，并区分了按下标访问与按值查找、链表定位的代价。",
+                          "reason": "objectives 中“说明连续含义”“写出并解释公式”“计算地址”“说明前提”“区分不同操作代价”分别由三个 unit 的 explanation/example/check 支撑。按下标访问 O(1) 与按值查找最坏 O(n) 的对比正确；链表定位需从头遍历的说明在“除非额外保存节点位置”限定下成立，未把某种实现代价说成所有实现的必然结果。",
+                          "passed": true
+                        },
+                        {
+                          "claim": "边界处理：材料未展开越界访问、负索引、多维数组存储顺序等，并在 limitations 中声明。",
+                          "reason": "resource_contract 允许当前阶段只准备支持目标的知识与前提，不要求完整成品栏目。材料明确限定为一维数组、下标从 0 开始且合法，未对未覆盖边界作错误断言，因此不构成失败。",
+                          "passed": true
+                        }
+                      ],
+                      "issues": []
+                    },
+                    "organization_id": "org_cc160c060e024e48925a2db66cf5e7cb",
+                    "resource_type": "graph",
+                    "subject": "数组随机访问",
+                    "audience": "大学初学者",
+                    "requirements": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+                    "evidence_ids": [],
+                    "source_policy": {
+                      "allow_rag": true,
+                      "allow_web": true,
+                      "selected_doc_ids": [],
+                      "scope_type": "course",
+                      "scope_id": null
+                    }
+                  }
+                },
+                {
+                  "ok": true,
+                  "tool": "submit_resource_direct",
+                  "data": {
+                    "task_id": "job_f1e9c8b6b8bb4c41",
+                    "status": "submitted",
+                    "workflow_type": "graph",
+                    "outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+                    "revision": 1,
+                    "conversation_id": "resource-e2e-graph-15f673c6",
+                    "resource_creation_handoff": false
+                  }
+                }
+              ],
+              "agent_memory_write": {
+                "candidate_count": 0,
+                "accepted_count": 0,
+                "written_count": 0,
+                "rejected_count": 0,
+                "shadow_candidate_count": 0,
+                "provider": "rules",
+                "provider_status": "disabled",
+                "memory_ids": []
+              }
+            },
+            "task_id": "job_f1e9c8b6b8bb4c41",
+            "workspace_context": {
+              "course_id": "resource-e2e-course",
+              "course_title": "数据结构验收课程",
+              "scope_type": "course",
+              "scope_id": null,
+              "scope_title": "数据结构验收课程",
+              "scope_path": [
+                "数据结构验收课程"
+              ],
+              "resolution": "resolved",
+              "explicit_course": true,
+              "update_workspace": false
+            },
+            "interaction_state": {
+              "version": 1,
+              "foreground": "job:job_f1e9c8b6b8bb4c41",
+              "tasks": {
+                "job:job_f1e9c8b6b8bb4c41": {
+                  "id": "job:job_f1e9c8b6b8bb4c41",
+                  "kind": "graph",
+                  "revision": 1,
+                  "status": "running"
+                }
+              }
+            },
+            "status_card": {
+              "mode": "workflow",
+              "status_label": "正在生成graph",
+              "workflow_label": "graph",
+              "topics": [
+                "请生成一份"
+              ],
+              "issues": [],
+              "confirmed_facts": [
+                "包含内存布局、地址计算和适用条件三个分支",
+                "资料使用通用知识即可"
+              ],
+              "student_signals": [],
+              "evidence_points": [],
+              "evidence_details": [],
+              "extra_constraints": [],
+              "source_labels": [
+                "当前会话",
+                "当前课程"
+              ],
+              "suggested_actions": [
+                "继续生成"
+              ],
+              "audience": "大学初学者的“数组随机访问”思维导图",
+              "allow_rag": true,
+              "allow_web": true,
+              "summary_hint": "当前围绕请生成一份继续讨论"
+            }
+          }
+        },
+        {
+          "type": "done",
+          "payload": {
+            "conversation_id": "resource-e2e-graph-15f673c6"
+          }
+        }
+      ],
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "正在生成思维导图，完成后会在这里显示。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-graph-15f673c6"
+        },
+        "action": {
+          "name": "generate.graph"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "graph",
+          "status": "running",
+          "stage": "generating"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "3472486d6a9c4da18adea24bc62e73b7",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "本知识材料面向大学初学者，围绕“数组随机访问”这一主题，为后续制作思维导图准备核心知识。内容限定为三个分支：内存布局、地址计算、适用条件。重点解释数组为什么能通过下标在常数时间内定位元素，以及这一结论依赖哪些前提。不展开动态数组扩容、多维数组的多种存储顺序、缓存与分页对实际耗时的影响、语言间负索引差异等扩展内容。",
+                "prerequisites": [
+                  "变量与基本数据类型的概念",
+                  "下标或索引的基本含义",
+                  "内存地址的初步概念",
+                  "常数时间与线性时间的基本区别"
+                ],
+                "objectives": [
+                  "能用自己的话说明数组元素在内存中连续存放的含义，并指出连续的是抽象地址而非物理页",
+                  "能写出并解释一维数组随机访问的地址计算公式",
+                  "能根据首地址、下标和元素大小计算指定元素的地址",
+                  "能说明数组随机访问为常数时间所依赖的前提条件",
+                  "能区分数组随机访问与按值查找、链表定位等不同操作的时间代价"
+                ],
+                "units": [
+                  {
+                    "title": "内存布局：连续存放的含义",
+                    "explanation": "数组的随机访问能力首先来自其内存布局：数组元素按顺序存放在一段连续的地址区间中，相邻元素之间相隔固定步长。这里的“连续”指程序可见的抽象地址连续，即下标 i 与 i+1 的元素地址相差一个元素大小；它不要求底层物理内存页连续，因为虚拟地址到物理地址的映射可以是不连续的。元素大小指一个完整元素占用的字节数，包括结构体等类型中的对齐填充。",
+                    "example": "设 int 占 4 字节，数组 int a[5] 的首元素地址为 1000，则 a[0] 在 1000，a[1] 在 1004，a[2] 在 1008，依此类推，相邻元素地址差恒为 4。",
+                    "misconception": "把“地址连续”误解为“物理内存连续”；或认为结构体有填充就不能使用地址公式。实际上公式中的元素大小取完整元素占用空间，C/C++ 中 sizeof(元素类型) 已包含填充，相邻结构体元素的步长就是 sizeof(元素类型)。",
+                    "check": "若某类型 sizeof 为 12 字节，首元素地址为 2000，则第 4 个元素（下标 3）的地址是多少？连续的是抽象地址还是物理地址？",
+                    "objective_indices": [
+                      0,
+                      3
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "地址计算：由下标直接定位",
+                    "explanation": "在一维数组中，若首元素地址为 base，元素大小为 size，下标为 i，则元素地址为 base + i × size。这个式子只涉及一次乘法和一次加法，与数组长度无关，因此按下标访问元素是常数时间操作。公式成立的前提是：下标从 0 开始计数、元素大小固定、数组占用一段连续地址区间。",
+                    "example": "double 占 8 字节，数组 double d[10] 首地址为 5000，则 d[6] 的地址为 5000 + 6 × 8 = 5048。",
+                    "misconception": "把下标当作从 1 开始，导致地址偏移多算一个元素；或把元素大小误当成“数据部分大小”而忽略对齐填充。",
+                    "check": "首地址 3000、元素大小 4 字节、下标 5，元素地址是多少？若下标改为从 1 开始计数，公式需要怎样调整？",
+                    "objective_indices": [
+                      1,
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "适用条件：常数时间访问依赖什么",
+                    "explanation": "数组随机访问的常数时间结论有明确前提：已知首地址、元素大小固定、下标合法且可直接计算地址。它描述的是按已知下标定位元素这一操作，不等于按值查找。按值查找通常需要逐个检查元素，最坏情况下要检查全部元素，其代价随元素个数增长。此外，常数时间指抽象操作次数不随数组长度增长，不意味着真实系统耗时绝对恒定；缓存命中、分页、内存层级等会使实际耗时随访问模式变化。",
+                    "example": "在长度为 n 的数组中读取 a[k]（k 已知且合法）只需一次地址计算；而查找值等于 x 的元素，最坏需要比较 n 次。两者不是同一种操作。",
+                    "misconception": "把“随机访问是 O(1)”推广为“数组的一切操作都很快”，或推广为“实际耗时恒定”。另一个常见错误是把数组随机访问与链表定位混为一谈：链表即使知道要访问第 k 个位置，通常也需要从头遍历，除非额外保存了节点位置。",
+                    "check": "为什么“按下标读取 a[k]”是常数时间，而“查找值等于 x 的元素”通常不是？常数时间是否保证真实运行时间完全不变？",
+                    "objective_indices": [
+                      3,
+                      4
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本材料不检索外部资料，仅使用通用知识组织，未引用具体教材或标准。",
+                  "未展开多维数组的行优先/列优先存储差异，地址公式仅针对一维数组。",
+                  "未讨论动态数组扩容、越界访问后果、不同语言负索引语义等扩展话题。",
+                  "常数时间仅指抽象操作次数不随数组长度增长，未量化缓存、分页等真实系统因素。",
+                  "元素大小与内存语义依赖具体语言和实现假设，不能无条件推广到所有环境。"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：材料把“连续”限定为程序可见的抽象地址连续，并明确不要求底层物理页连续，同时说明元素大小取完整元素占用空间（含对齐填充）。",
+                      "reason": "该限定与虚拟内存模型一致：虚拟地址连续即可满足 base + i×size 的推导，物理页可由页表映射到不连续帧。结构体数组的步长在 C/C++ 中为 sizeof(元素类型)，已包含填充，因此“有填充就不能用公式”确为误解。前提未被错误泛化。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：地址公式 base + i×size 与“常数时间”结论的推导一致，且未把抽象操作次数等同于真实系统耗时。",
+                      "reason": "公式只含一次乘法与一次加法，操作数与数组长度 n 无关，故抽象操作次数为 O(1)。材料同时指出缓存、分页会使实际耗时随访问模式变化，未将 O(1) 泛化为真实耗时恒定。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子：int a[5] 首地址 1000、int 占 4 字节时 a[0..2] 为 1000/1004/1008；double d[10] 首地址 5000 时 d[6] 为 5048。",
+                      "reason": "逐步追踪：1000 + 0×4 = 1000，1000 + 1×4 = 1004，1000 + 2×4 = 1008，步长恒为 4。5000 + 6×8 = 5000 + 48 = 5048，计算正确。check 中 2000 + 3×12 = 2036、3000 + 5×4 = 3020 亦正确。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：材料覆盖了内存布局、地址计算、适用条件三个分支，并区分了按下标访问与按值查找、链表定位的代价。",
+                      "reason": "objectives 中“说明连续含义”“写出并解释公式”“计算地址”“说明前提”“区分不同操作代价”分别由三个 unit 的 explanation/example/check 支撑。按下标访问 O(1) 与按值查找最坏 O(n) 的对比正确；链表定位需从头遍历的说明在“除非额外保存节点位置”限定下成立，未把某种实现代价说成所有实现的必然结果。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界处理：材料未展开越界访问、负索引、多维数组存储顺序等，并在 limitations 中声明。",
+                      "reason": "resource_contract 允许当前阶段只准备支持目标的知识与前提，不要求完整成品栏目。材料明确限定为一维数组、下标从 0 开始且合法，未对未覆盖边界作错误断言，因此不构成失败。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_cc160c060e024e48925a2db66cf5e7cb",
+                "resource_type": "graph",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "submit_resource_direct",
+              "data": {
+                "task_id": "job_f1e9c8b6b8bb4c41",
+                "status": "submitted",
+                "workflow_type": "graph",
+                "outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+                "revision": 1,
+                "conversation_id": "resource-e2e-graph-15f673c6",
+                "resource_creation_handoff": false
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "task_id": "job_f1e9c8b6b8bb4c41",
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "interaction_state": {
+          "version": 1,
+          "foreground": "job:job_f1e9c8b6b8bb4c41",
+          "tasks": {
+            "job:job_f1e9c8b6b8bb4c41": {
+              "id": "job:job_f1e9c8b6b8bb4c41",
+              "kind": "graph",
+              "revision": 1,
+              "status": "running"
+            }
+          }
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成graph",
+          "workflow_label": "graph",
+          "topics": [
+            "请生成一份"
+          ],
+          "issues": [],
+          "confirmed_facts": [
+            "包含内存布局、地址计算和适用条件三个分支",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”思维导图",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕请生成一份继续讨论"
+        }
+      },
+      "elapsed_seconds": 21.287,
+      "task_submitted_seconds": 18.027
+    },
+    {
+      "question": "刚才生成的资源完成了吗？请读取它并概括内容。",
+      "events": [
+        {
+          "type": "metadata",
+          "payload": {
+            "conversation_id": "resource-e2e-graph-15f673c6",
+            "runtime": "deepseek-harness",
+            "trace": {
+              "path": "deepseek-harness"
+            }
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "thinking",
+            "label": "正在处理请求"
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "query_resource_job",
+            "tool_name": "query_resource_job",
+            "call_id": "64a60216dcf54f289ca7f7a69fd591e4",
+            "args": {
+              "task_id": "job_f1e9c8b6b8bb4c41"
+            }
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "query_resource_job",
+            "tool_name": "query_resource_job",
+            "call_id": "64a60216dcf54f289ca7f7a69fd591e4",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "query_resource_job",
+              "data": {
+                "task_id": "job_f1e9c8b6b8bb4c41",
+                "resource_type": "graph",
+                "status": "succeeded",
+                "progress": 100,
+                "title": "数组随机访问",
+                "result_ref": {
+                  "resource_type": "course_material",
+                  "course_id": "resource-e2e-course",
+                  "material_type": "graph",
+                  "material_id": "graph-95fe0a63a975a5a2"
+                },
+                "verification": {
+                  "decision": "pass",
+                  "checks": "version_bound_resource_review"
+                },
+                "failure_reason": null,
+                "artifact": {
+                  "artifact_id": "graph-95fe0a63a975a5a2",
+                  "artifact_type": "graph",
+                  "title": "数组随机访问",
+                  "content": {
+                    "root": {
+                      "id": "root",
+                      "title": "数组随机访问",
+                      "summary": "数组通过下标在常数时间内定位元素，其原理、计算与前提条件。",
+                      "children": [
+                        {
+                          "id": "layout",
+                          "title": "内存布局",
+                          "summary": "元素按顺序存放在一段连续的抽象地址区间中，相邻元素相隔固定步长。",
+                          "children": [
+                            {
+                              "id": "layout_contiguous",
+                              "title": "连续存放的含义",
+                              "summary": "下标 i 与 i+1 的元素地址相差一个元素大小，这是随机访问的物理基础。",
+                              "children": []
+                            },
+                            {
+                              "id": "layout_abstract",
+                              "title": "连续指抽象地址",
+                              "summary": "程序可见的虚拟地址连续即可，不要求底层物理内存页连续。",
+                              "children": []
+                            },
+                            {
+                              "id": "layout_size",
+                              "title": "元素大小",
+                              "summary": "指一个完整元素占用的字节数，包含结构体等类型的对齐填充。",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "address",
+                          "title": "地址计算",
+                          "summary": "由首地址、下标和元素大小直接算出元素地址，操作次数与数组长度无关。",
+                          "children": [
+                            {
+                              "id": "address_formula",
+                              "title": "地址公式",
+                              "summary": "元素地址 = base + i × size，其中 base 为首元素地址，size 为元素大小。",
+                              "children": []
+                            },
+                            {
+                              "id": "address_constant",
+                              "title": "常数时间",
+                              "summary": "公式只含一次乘法和一次加法，操作次数不随数组长度增长。",
+                              "children": []
+                            },
+                            {
+                              "id": "address_example",
+                              "title": "计算示例",
+                              "summary": "如 int 占 4 字节、首地址 1000 时，a[0..2] 依次为 1000、1004、1008。",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "conditions",
+                          "title": "适用条件",
+                          "summary": "常数时间访问依赖明确前提，且不等于按值查找或链表定位的代价。",
+                          "children": [
+                            {
+                              "id": "cond_prerequisites",
+                              "title": "前提条件",
+                              "summary": "下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间。",
+                              "children": []
+                            },
+                            {
+                              "id": "cond_vs_search",
+                              "title": "与按值查找的区别",
+                              "summary": "按下标访问是常数时间；按值查找最坏需检查全部元素，代价随元素个数增长。",
+                              "children": []
+                            },
+                            {
+                              "id": "cond_real_time",
+                              "title": "抽象操作与真实耗时",
+                              "summary": "常数时间指抽象操作次数不随长度增长，缓存、分页等会使实际耗时随访问模式变化。",
+                              "children": []
+                            },
+                            {
+                              "id": "cond_vs_list",
+                              "title": "与链表定位的区别",
+                              "summary": "链表即使知道目标位置通常也需从头遍历，除非额外保存了节点位置。",
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "完成了"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "这份"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "“"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "数组"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "随机"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "访问"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "”"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "思维"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "导"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "图"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "可以"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "查看了"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "它"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "以一个"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "根"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "节点"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "带"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "三个"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "分支"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "内容"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "大致"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "如下"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "**"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "根"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "节点"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "数组"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "随机"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "访问"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "**\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "核心"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "命题"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "数组"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "通过"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "下标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "在"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "常数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "时间内"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "定位"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "导"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "图"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "围绕"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "它的"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "原理"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "计算"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "方式和"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "前提"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "条件"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "展开"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "**"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "分支"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "一"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "内存"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "布局"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "**\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "连续"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "存放"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "的含义"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "下标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " i"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "与"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " i"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "+"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "1"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "的元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "相差"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "一个"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "大小"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "这是"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "随机"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "访问"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "的"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "物理"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "基础"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " “"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "连续"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "”"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "指"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "抽象"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "程序"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "可见"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "的"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "虚拟"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "连续"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "即可"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "不"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "要求"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "底层"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "物理"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "内存"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "页"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "也"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "连续"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "大小"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "一个"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "完整"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "占"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "用的"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "字节"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "结构"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "体"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "等"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "类型"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "还要"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "计入"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "对齐"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "填充"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "**"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "分支"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "二"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "计算"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "**\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "公式"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " ="
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " base"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " +"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " i"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " ×"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " size"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "base"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "为首"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "size"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "为"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "大小"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "常数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "时间"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "公式"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "只"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "含"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "一次"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "乘"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "法和"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "一次"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "加法"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "操作"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "次数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "不"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "随"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "数组"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "长度"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "增长"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "计算"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "示例"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "int"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "占"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "4"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "字节"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "首"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "为"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "100"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "0"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "时"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "a"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "["
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "0"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "]、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "a"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "["
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "1"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "]、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "a"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "["
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "2"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "]"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "依次"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "是"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "100"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "0"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "100"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "4"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "100"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "8"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "**"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "分支"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "三"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "适用"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "条件"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "**\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "前提"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "条件"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "下标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "从"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "0"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "开始"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "大小"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "固定"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "下标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "合法"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "数组"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "占用"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "连续"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "区间"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "与"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "按"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "值"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "查找"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "的区别"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "按下"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "访问"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "是"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "常数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "时间"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "；"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "按"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "值"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "查找"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "最"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "坏"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "要"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "检查"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "全部"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "代价"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "随"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "元素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "个数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "增长"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "抽象"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "操作"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "与"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "真实"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "耗时"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "常数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "时间"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "说的是"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "抽象"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "操作"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "次数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "不"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "随"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "长度"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "增长"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "缓存"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "分"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "页"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "等因素"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "会让"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "实际"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "耗时"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "随"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "访问"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "模式"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "变化"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "-"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "与"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "链表"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "定位"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "的区别"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "："
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "链表"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "即使"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "已知"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "目标"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "位置"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "通常"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "也"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "需"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "从头"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "遍历"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "除非"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "额外"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "保存"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "了"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "节点"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "位置"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。\n\n"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "整体"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "上"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "这份"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "导"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "图"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "适合"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "初学者"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "建立"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "“"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "连续"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "布局"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " →"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "地址"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "公式"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " →"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "常数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "时间"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " →"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": " "
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "成立"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "条件"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "”"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "这条"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "主线"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "第三"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "分支"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "也"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "特意"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "澄清"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "了"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "常数"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "时间"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "不等于"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "按"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "值"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "查找"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "、"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "也不"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "等于"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "链表"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "定位"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "，"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "是"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "常见的"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "理解"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "误区"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "所在"
+          }
+        },
+        {
+          "type": "delta",
+          "payload": {
+            "content": "。"
+          }
+        },
+        {
+          "type": "result",
+          "payload": {
+            "message": {
+              "role": "assistant",
+              "content": "完成了，这份“数组随机访问”思维导图可以查看了。它以一个根节点带三个分支，内容大致如下。\n\n**根节点：数组随机访问**\n核心命题：数组通过下标在常数时间内定位元素，导图围绕它的原理、计算方式和前提条件展开。\n\n**分支一：内存布局**\n- 连续存放的含义：下标 i 与 i+1 的元素地址相差一个元素大小，这是随机访问的物理基础。\n- “连续”指抽象地址：程序可见的虚拟地址连续即可，不要求底层物理内存页也连续。\n- 元素大小：一个完整元素占用的字节数，结构体等类型还要计入对齐填充。\n\n**分支二：地址计算**\n- 地址公式：元素地址 = base + i × size，base 为首元素地址，size 为元素大小。\n- 常数时间：公式只含一次乘法和一次加法，操作次数不随数组长度增长。\n- 计算示例：int 占 4 字节、首地址为 1000 时，a[0]、a[1]、a[2] 依次是 1000、1004、1008。\n\n**分支三：适用条件**\n- 前提条件：下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间。\n- 与按值查找的区别：按下标访问是常数时间；按值查找最坏要检查全部元素，代价随元素个数增长。\n- 抽象操作与真实耗时：常数时间说的是抽象操作次数不随长度增长，缓存、分页等因素会让实际耗时随访问模式变化。\n- 与链表定位的区别：链表即使已知目标位置，通常也需从头遍历，除非额外保存了节点位置。\n\n整体上，这份导图适合初学者建立“连续布局 → 地址公式 → 常数时间 → 成立条件”这条主线，第三分支也特意澄清了常数时间不等于按值查找、也不等于链表定位，是常见的理解误区所在。"
+            },
+            "conversation": {
+              "conversation_id": "resource-e2e-graph-15f673c6"
+            },
+            "action": {
+              "name": "chat.reply"
+            },
+            "artifacts": [
+              {
+                "artifact_id": "graph-95fe0a63a975a5a2",
+                "artifact_type": "graph",
+                "title": "数组随机访问",
+                "content": {
+                  "root": {
+                    "id": "root",
+                    "title": "数组随机访问",
+                    "summary": "数组通过下标在常数时间内定位元素，其原理、计算与前提条件。",
+                    "children": [
+                      {
+                        "id": "layout",
+                        "title": "内存布局",
+                        "summary": "元素按顺序存放在一段连续的抽象地址区间中，相邻元素相隔固定步长。",
+                        "children": [
+                          {
+                            "id": "layout_contiguous",
+                            "title": "连续存放的含义",
+                            "summary": "下标 i 与 i+1 的元素地址相差一个元素大小，这是随机访问的物理基础。",
+                            "children": []
+                          },
+                          {
+                            "id": "layout_abstract",
+                            "title": "连续指抽象地址",
+                            "summary": "程序可见的虚拟地址连续即可，不要求底层物理内存页连续。",
+                            "children": []
+                          },
+                          {
+                            "id": "layout_size",
+                            "title": "元素大小",
+                            "summary": "指一个完整元素占用的字节数，包含结构体等类型的对齐填充。",
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "id": "address",
+                        "title": "地址计算",
+                        "summary": "由首地址、下标和元素大小直接算出元素地址，操作次数与数组长度无关。",
+                        "children": [
+                          {
+                            "id": "address_formula",
+                            "title": "地址公式",
+                            "summary": "元素地址 = base + i × size，其中 base 为首元素地址，size 为元素大小。",
+                            "children": []
+                          },
+                          {
+                            "id": "address_constant",
+                            "title": "常数时间",
+                            "summary": "公式只含一次乘法和一次加法，操作次数不随数组长度增长。",
+                            "children": []
+                          },
+                          {
+                            "id": "address_example",
+                            "title": "计算示例",
+                            "summary": "如 int 占 4 字节、首地址 1000 时，a[0..2] 依次为 1000、1004、1008。",
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "id": "conditions",
+                        "title": "适用条件",
+                        "summary": "常数时间访问依赖明确前提，且不等于按值查找或链表定位的代价。",
+                        "children": [
+                          {
+                            "id": "cond_prerequisites",
+                            "title": "前提条件",
+                            "summary": "下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间。",
+                            "children": []
+                          },
+                          {
+                            "id": "cond_vs_search",
+                            "title": "与按值查找的区别",
+                            "summary": "按下标访问是常数时间；按值查找最坏需检查全部元素，代价随元素个数增长。",
+                            "children": []
+                          },
+                          {
+                            "id": "cond_real_time",
+                            "title": "抽象操作与真实耗时",
+                            "summary": "常数时间指抽象操作次数不随长度增长，缓存、分页等会使实际耗时随访问模式变化。",
+                            "children": []
+                          },
+                          {
+                            "id": "cond_vs_list",
+                            "title": "与链表定位的区别",
+                            "summary": "链表即使知道目标位置通常也需从头遍历，除非额外保存了节点位置。",
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "workflow": null,
+            "sources": [],
+            "trace": {
+              "path": "deepseek-harness",
+              "model_runtime": "dsh",
+              "request_id": "f39940725eee4c96b274be94c120a457",
+              "tool_events": [
+                {
+                  "ok": true,
+                  "tool": "query_resource_job",
+                  "data": {
+                    "task_id": "job_f1e9c8b6b8bb4c41",
+                    "resource_type": "graph",
+                    "status": "succeeded",
+                    "progress": 100,
+                    "title": "数组随机访问",
+                    "result_ref": {
+                      "resource_type": "course_material",
+                      "course_id": "resource-e2e-course",
+                      "material_type": "graph",
+                      "material_id": "graph-95fe0a63a975a5a2"
+                    },
+                    "verification": {
+                      "decision": "pass",
+                      "checks": "version_bound_resource_review"
+                    },
+                    "failure_reason": null,
+                    "artifact": {
+                      "artifact_id": "graph-95fe0a63a975a5a2",
+                      "artifact_type": "graph",
+                      "title": "数组随机访问",
+                      "content": {
+                        "root": {
+                          "id": "root",
+                          "title": "数组随机访问",
+                          "summary": "数组通过下标在常数时间内定位元素，其原理、计算与前提条件。",
+                          "children": [
+                            {
+                              "id": "layout",
+                              "title": "内存布局",
+                              "summary": "元素按顺序存放在一段连续的抽象地址区间中，相邻元素相隔固定步长。",
+                              "children": [
+                                {
+                                  "id": "layout_contiguous",
+                                  "title": "连续存放的含义",
+                                  "summary": "下标 i 与 i+1 的元素地址相差一个元素大小，这是随机访问的物理基础。",
+                                  "children": []
+                                },
+                                {
+                                  "id": "layout_abstract",
+                                  "title": "连续指抽象地址",
+                                  "summary": "程序可见的虚拟地址连续即可，不要求底层物理内存页连续。",
+                                  "children": []
+                                },
+                                {
+                                  "id": "layout_size",
+                                  "title": "元素大小",
+                                  "summary": "指一个完整元素占用的字节数，包含结构体等类型的对齐填充。",
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "id": "address",
+                              "title": "地址计算",
+                              "summary": "由首地址、下标和元素大小直接算出元素地址，操作次数与数组长度无关。",
+                              "children": [
+                                {
+                                  "id": "address_formula",
+                                  "title": "地址公式",
+                                  "summary": "元素地址 = base + i × size，其中 base 为首元素地址，size 为元素大小。",
+                                  "children": []
+                                },
+                                {
+                                  "id": "address_constant",
+                                  "title": "常数时间",
+                                  "summary": "公式只含一次乘法和一次加法，操作次数不随数组长度增长。",
+                                  "children": []
+                                },
+                                {
+                                  "id": "address_example",
+                                  "title": "计算示例",
+                                  "summary": "如 int 占 4 字节、首地址 1000 时，a[0..2] 依次为 1000、1004、1008。",
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "id": "conditions",
+                              "title": "适用条件",
+                              "summary": "常数时间访问依赖明确前提，且不等于按值查找或链表定位的代价。",
+                              "children": [
+                                {
+                                  "id": "cond_prerequisites",
+                                  "title": "前提条件",
+                                  "summary": "下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间。",
+                                  "children": []
+                                },
+                                {
+                                  "id": "cond_vs_search",
+                                  "title": "与按值查找的区别",
+                                  "summary": "按下标访问是常数时间；按值查找最坏需检查全部元素，代价随元素个数增长。",
+                                  "children": []
+                                },
+                                {
+                                  "id": "cond_real_time",
+                                  "title": "抽象操作与真实耗时",
+                                  "summary": "常数时间指抽象操作次数不随长度增长，缓存、分页等会使实际耗时随访问模式变化。",
+                                  "children": []
+                                },
+                                {
+                                  "id": "cond_vs_list",
+                                  "title": "与链表定位的区别",
+                                  "summary": "链表即使知道目标位置通常也需从头遍历，除非额外保存了节点位置。",
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "agent_memory_write": {
+                "candidate_count": 0,
+                "accepted_count": 0,
+                "written_count": 0,
+                "rejected_count": 0,
+                "shadow_candidate_count": 0,
+                "provider": "rules",
+                "provider_status": "disabled",
+                "memory_ids": []
+              }
+            },
+            "verification": {
+              "decision": "pass",
+              "checks": "version_bound_resource_review"
+            },
+            "workspace_context": {
+              "course_id": "resource-e2e-course",
+              "course_title": "数据结构验收课程",
+              "scope_type": "course",
+              "scope_id": null,
+              "scope_title": "数据结构验收课程",
+              "scope_path": [
+                "数据结构验收课程"
+              ],
+              "resolution": "resolved",
+              "explicit_course": true,
+              "update_workspace": false
+            },
+            "interaction_state": {
+              "version": 2,
+              "foreground": "job:job_f1e9c8b6b8bb4c41",
+              "tasks": {
+                "job:job_f1e9c8b6b8bb4c41": {
+                  "id": "job:job_f1e9c8b6b8bb4c41",
+                  "kind": "graph",
+                  "revision": 1,
+                  "status": "succeeded"
+                }
+              }
+            },
+            "status_card": {
+              "mode": "workflow",
+              "status_label": "正在生成graph",
+              "workflow_label": "graph",
+              "topics": [
+                "刚才生成的资源完成了吗",
+                "请读取它并概括内容",
+                "请生成一份"
+              ],
+              "goal": "总结内容",
+              "issues": [],
+              "confirmed_facts": [
+                "包含内存布局、地址计算和适用条件三个分支",
+                "资料使用通用知识即可"
+              ],
+              "student_signals": [],
+              "evidence_points": [
+                "导图围绕它的原理、计算方式和前提条件展开",
+                "前提条件：下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间"
+              ],
+              "evidence_details": [
+                {
+                  "content": "导图围绕它的原理、计算方式和前提条件展开",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                },
+                {
+                  "content": "前提条件：下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                }
+              ],
+              "extra_constraints": [],
+              "source_labels": [
+                "当前会话",
+                "当前课程"
+              ],
+              "active_artifact_label": "当前产物：graph",
+              "suggested_actions": [
+                "继续生成"
+              ],
+              "audience": "大学初学者的“数组随机访问”思维导图",
+              "allow_rag": true,
+              "allow_web": true,
+              "summary_hint": "当前围绕刚才生成的资源完成了吗、请读取它并概括内容进行总结"
+            }
+          }
+        },
+        {
+          "type": "done",
+          "payload": {
+            "conversation_id": "resource-e2e-graph-15f673c6"
+          }
+        }
+      ],
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "完成了，这份“数组随机访问”思维导图可以查看了。它以一个根节点带三个分支，内容大致如下。\n\n**根节点：数组随机访问**\n核心命题：数组通过下标在常数时间内定位元素，导图围绕它的原理、计算方式和前提条件展开。\n\n**分支一：内存布局**\n- 连续存放的含义：下标 i 与 i+1 的元素地址相差一个元素大小，这是随机访问的物理基础。\n- “连续”指抽象地址：程序可见的虚拟地址连续即可，不要求底层物理内存页也连续。\n- 元素大小：一个完整元素占用的字节数，结构体等类型还要计入对齐填充。\n\n**分支二：地址计算**\n- 地址公式：元素地址 = base + i × size，base 为首元素地址，size 为元素大小。\n- 常数时间：公式只含一次乘法和一次加法，操作次数不随数组长度增长。\n- 计算示例：int 占 4 字节、首地址为 1000 时，a[0]、a[1]、a[2] 依次是 1000、1004、1008。\n\n**分支三：适用条件**\n- 前提条件：下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间。\n- 与按值查找的区别：按下标访问是常数时间；按值查找最坏要检查全部元素，代价随元素个数增长。\n- 抽象操作与真实耗时：常数时间说的是抽象操作次数不随长度增长，缓存、分页等因素会让实际耗时随访问模式变化。\n- 与链表定位的区别：链表即使已知目标位置，通常也需从头遍历，除非额外保存了节点位置。\n\n整体上，这份导图适合初学者建立“连续布局 → 地址公式 → 常数时间 → 成立条件”这条主线，第三分支也特意澄清了常数时间不等于按值查找、也不等于链表定位，是常见的理解误区所在。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-graph-15f673c6"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [
+          {
+            "artifact_id": "graph-95fe0a63a975a5a2",
+            "artifact_type": "graph",
+            "title": "数组随机访问",
+            "content": {
+              "root": {
+                "id": "root",
+                "title": "数组随机访问",
+                "summary": "数组通过下标在常数时间内定位元素，其原理、计算与前提条件。",
+                "children": [
+                  {
+                    "id": "layout",
+                    "title": "内存布局",
+                    "summary": "元素按顺序存放在一段连续的抽象地址区间中，相邻元素相隔固定步长。",
+                    "children": [
+                      {
+                        "id": "layout_contiguous",
+                        "title": "连续存放的含义",
+                        "summary": "下标 i 与 i+1 的元素地址相差一个元素大小，这是随机访问的物理基础。",
+                        "children": []
+                      },
+                      {
+                        "id": "layout_abstract",
+                        "title": "连续指抽象地址",
+                        "summary": "程序可见的虚拟地址连续即可，不要求底层物理内存页连续。",
+                        "children": []
+                      },
+                      {
+                        "id": "layout_size",
+                        "title": "元素大小",
+                        "summary": "指一个完整元素占用的字节数，包含结构体等类型的对齐填充。",
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "id": "address",
+                    "title": "地址计算",
+                    "summary": "由首地址、下标和元素大小直接算出元素地址，操作次数与数组长度无关。",
+                    "children": [
+                      {
+                        "id": "address_formula",
+                        "title": "地址公式",
+                        "summary": "元素地址 = base + i × size，其中 base 为首元素地址，size 为元素大小。",
+                        "children": []
+                      },
+                      {
+                        "id": "address_constant",
+                        "title": "常数时间",
+                        "summary": "公式只含一次乘法和一次加法，操作次数不随数组长度增长。",
+                        "children": []
+                      },
+                      {
+                        "id": "address_example",
+                        "title": "计算示例",
+                        "summary": "如 int 占 4 字节、首地址 1000 时，a[0..2] 依次为 1000、1004、1008。",
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "id": "conditions",
+                    "title": "适用条件",
+                    "summary": "常数时间访问依赖明确前提，且不等于按值查找或链表定位的代价。",
+                    "children": [
+                      {
+                        "id": "cond_prerequisites",
+                        "title": "前提条件",
+                        "summary": "下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间。",
+                        "children": []
+                      },
+                      {
+                        "id": "cond_vs_search",
+                        "title": "与按值查找的区别",
+                        "summary": "按下标访问是常数时间；按值查找最坏需检查全部元素，代价随元素个数增长。",
+                        "children": []
+                      },
+                      {
+                        "id": "cond_real_time",
+                        "title": "抽象操作与真实耗时",
+                        "summary": "常数时间指抽象操作次数不随长度增长，缓存、分页等会使实际耗时随访问模式变化。",
+                        "children": []
+                      },
+                      {
+                        "id": "cond_vs_list",
+                        "title": "与链表定位的区别",
+                        "summary": "链表即使知道目标位置通常也需从头遍历，除非额外保存了节点位置。",
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "f39940725eee4c96b274be94c120a457",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "query_resource_job",
+              "data": {
+                "task_id": "job_f1e9c8b6b8bb4c41",
+                "resource_type": "graph",
+                "status": "succeeded",
+                "progress": 100,
+                "title": "数组随机访问",
+                "result_ref": {
+                  "resource_type": "course_material",
+                  "course_id": "resource-e2e-course",
+                  "material_type": "graph",
+                  "material_id": "graph-95fe0a63a975a5a2"
+                },
+                "verification": {
+                  "decision": "pass",
+                  "checks": "version_bound_resource_review"
+                },
+                "failure_reason": null,
+                "artifact": {
+                  "artifact_id": "graph-95fe0a63a975a5a2",
+                  "artifact_type": "graph",
+                  "title": "数组随机访问",
+                  "content": {
+                    "root": {
+                      "id": "root",
+                      "title": "数组随机访问",
+                      "summary": "数组通过下标在常数时间内定位元素，其原理、计算与前提条件。",
+                      "children": [
+                        {
+                          "id": "layout",
+                          "title": "内存布局",
+                          "summary": "元素按顺序存放在一段连续的抽象地址区间中，相邻元素相隔固定步长。",
+                          "children": [
+                            {
+                              "id": "layout_contiguous",
+                              "title": "连续存放的含义",
+                              "summary": "下标 i 与 i+1 的元素地址相差一个元素大小，这是随机访问的物理基础。",
+                              "children": []
+                            },
+                            {
+                              "id": "layout_abstract",
+                              "title": "连续指抽象地址",
+                              "summary": "程序可见的虚拟地址连续即可，不要求底层物理内存页连续。",
+                              "children": []
+                            },
+                            {
+                              "id": "layout_size",
+                              "title": "元素大小",
+                              "summary": "指一个完整元素占用的字节数，包含结构体等类型的对齐填充。",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "address",
+                          "title": "地址计算",
+                          "summary": "由首地址、下标和元素大小直接算出元素地址，操作次数与数组长度无关。",
+                          "children": [
+                            {
+                              "id": "address_formula",
+                              "title": "地址公式",
+                              "summary": "元素地址 = base + i × size，其中 base 为首元素地址，size 为元素大小。",
+                              "children": []
+                            },
+                            {
+                              "id": "address_constant",
+                              "title": "常数时间",
+                              "summary": "公式只含一次乘法和一次加法，操作次数不随数组长度增长。",
+                              "children": []
+                            },
+                            {
+                              "id": "address_example",
+                              "title": "计算示例",
+                              "summary": "如 int 占 4 字节、首地址 1000 时，a[0..2] 依次为 1000、1004、1008。",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "conditions",
+                          "title": "适用条件",
+                          "summary": "常数时间访问依赖明确前提，且不等于按值查找或链表定位的代价。",
+                          "children": [
+                            {
+                              "id": "cond_prerequisites",
+                              "title": "前提条件",
+                              "summary": "下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间。",
+                              "children": []
+                            },
+                            {
+                              "id": "cond_vs_search",
+                              "title": "与按值查找的区别",
+                              "summary": "按下标访问是常数时间；按值查找最坏需检查全部元素，代价随元素个数增长。",
+                              "children": []
+                            },
+                            {
+                              "id": "cond_real_time",
+                              "title": "抽象操作与真实耗时",
+                              "summary": "常数时间指抽象操作次数不随长度增长，缓存、分页等会使实际耗时随访问模式变化。",
+                              "children": []
+                            },
+                            {
+                              "id": "cond_vs_list",
+                              "title": "与链表定位的区别",
+                              "summary": "链表即使知道目标位置通常也需从头遍历，除非额外保存了节点位置。",
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "verification": {
+          "decision": "pass",
+          "checks": "version_bound_resource_review"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "interaction_state": {
+          "version": 2,
+          "foreground": "job:job_f1e9c8b6b8bb4c41",
+          "tasks": {
+            "job:job_f1e9c8b6b8bb4c41": {
+              "id": "job:job_f1e9c8b6b8bb4c41",
+              "kind": "graph",
+              "revision": 1,
+              "status": "succeeded"
+            }
+          }
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成graph",
+          "workflow_label": "graph",
+          "topics": [
+            "刚才生成的资源完成了吗",
+            "请读取它并概括内容",
+            "请生成一份"
+          ],
+          "goal": "总结内容",
+          "issues": [],
+          "confirmed_facts": [
+            "包含内存布局、地址计算和适用条件三个分支",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [
+            "导图围绕它的原理、计算方式和前提条件展开",
+            "前提条件：下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间"
+          ],
+          "evidence_details": [
+            {
+              "content": "导图围绕它的原理、计算方式和前提条件展开",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            },
+            {
+              "content": "前提条件：下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            }
+          ],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "active_artifact_label": "当前产物：graph",
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”思维导图",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕刚才生成的资源完成了吗、请读取它并概括内容进行总结"
+        }
+      },
+      "elapsed_seconds": 7.054,
+      "task_submitted_seconds": null
+    }
+  ],
+  "direct_generation_verified": true,
+  "job": {
+    "schema_version": 2,
+    "version": 6,
+    "edu_job_id": "job_f1e9c8b6b8bb4c41",
+    "kind": "generate_graph",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "生成完成，已保存到“我的资源”，仅你可见。",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "graph",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "graph",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "",
+        "focus": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+        "length_hint": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-graph-15f673c6",
+        "harness_chapters": [],
+        "classroom_options": {},
+        "harness_organization": {
+          "scope": "本知识材料面向大学初学者，围绕“数组随机访问”这一主题，为后续制作思维导图准备核心知识。内容限定为三个分支：内存布局、地址计算、适用条件。重点解释数组为什么能通过下标在常数时间内定位元素，以及这一结论依赖哪些前提。不展开动态数组扩容、多维数组的多种存储顺序、缓存与分页对实际耗时的影响、语言间负索引差异等扩展内容。",
+          "prerequisites": [
+            "变量与基本数据类型的概念",
+            "下标或索引的基本含义",
+            "内存地址的初步概念",
+            "常数时间与线性时间的基本区别"
+          ],
+          "objectives": [
+            "能用自己的话说明数组元素在内存中连续存放的含义，并指出连续的是抽象地址而非物理页",
+            "能写出并解释一维数组随机访问的地址计算公式",
+            "能根据首地址、下标和元素大小计算指定元素的地址",
+            "能说明数组随机访问为常数时间所依赖的前提条件",
+            "能区分数组随机访问与按值查找、链表定位等不同操作的时间代价"
+          ],
+          "units": [
+            {
+              "title": "内存布局：连续存放的含义",
+              "explanation": "数组的随机访问能力首先来自其内存布局：数组元素按顺序存放在一段连续的地址区间中，相邻元素之间相隔固定步长。这里的“连续”指程序可见的抽象地址连续，即下标 i 与 i+1 的元素地址相差一个元素大小；它不要求底层物理内存页连续，因为虚拟地址到物理地址的映射可以是不连续的。元素大小指一个完整元素占用的字节数，包括结构体等类型中的对齐填充。",
+              "example": "设 int 占 4 字节，数组 int a[5] 的首元素地址为 1000，则 a[0] 在 1000，a[1] 在 1004，a[2] 在 1008，依此类推，相邻元素地址差恒为 4。",
+              "misconception": "把“地址连续”误解为“物理内存连续”；或认为结构体有填充就不能使用地址公式。实际上公式中的元素大小取完整元素占用空间，C/C++ 中 sizeof(元素类型) 已包含填充，相邻结构体元素的步长就是 sizeof(元素类型)。",
+              "check": "若某类型 sizeof 为 12 字节，首元素地址为 2000，则第 4 个元素（下标 3）的地址是多少？连续的是抽象地址还是物理地址？",
+              "objective_indices": [
+                0,
+                3
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "地址计算：由下标直接定位",
+              "explanation": "在一维数组中，若首元素地址为 base，元素大小为 size，下标为 i，则元素地址为 base + i × size。这个式子只涉及一次乘法和一次加法，与数组长度无关，因此按下标访问元素是常数时间操作。公式成立的前提是：下标从 0 开始计数、元素大小固定、数组占用一段连续地址区间。",
+              "example": "double 占 8 字节，数组 double d[10] 首地址为 5000，则 d[6] 的地址为 5000 + 6 × 8 = 5048。",
+              "misconception": "把下标当作从 1 开始，导致地址偏移多算一个元素；或把元素大小误当成“数据部分大小”而忽略对齐填充。",
+              "check": "首地址 3000、元素大小 4 字节、下标 5，元素地址是多少？若下标改为从 1 开始计数，公式需要怎样调整？",
+              "objective_indices": [
+                1,
+                2
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "适用条件：常数时间访问依赖什么",
+              "explanation": "数组随机访问的常数时间结论有明确前提：已知首地址、元素大小固定、下标合法且可直接计算地址。它描述的是按已知下标定位元素这一操作，不等于按值查找。按值查找通常需要逐个检查元素，最坏情况下要检查全部元素，其代价随元素个数增长。此外，常数时间指抽象操作次数不随数组长度增长，不意味着真实系统耗时绝对恒定；缓存命中、分页、内存层级等会使实际耗时随访问模式变化。",
+              "example": "在长度为 n 的数组中读取 a[k]（k 已知且合法）只需一次地址计算；而查找值等于 x 的元素，最坏需要比较 n 次。两者不是同一种操作。",
+              "misconception": "把“随机访问是 O(1)”推广为“数组的一切操作都很快”，或推广为“实际耗时恒定”。另一个常见错误是把数组随机访问与链表定位混为一谈：链表即使知道要访问第 k 个位置，通常也需要从头遍历，除非额外保存了节点位置。",
+              "check": "为什么“按下标读取 a[k]”是常数时间，而“查找值等于 x 的元素”通常不是？常数时间是否保证真实运行时间完全不变？",
+              "objective_indices": [
+                3,
+                4
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "本材料不检索外部资料，仅使用通用知识组织，未引用具体教材或标准。",
+            "未展开多维数组的行优先/列优先存储差异，地址公式仅针对一维数组。",
+            "未讨论动态数组扩容、越界访问后果、不同语言负索引语义等扩展话题。",
+            "常数时间仅指抽象操作次数不随数组长度增长，未量化缓存、分页等真实系统因素。",
+            "元素大小与内存语义依赖具体语言和实现假设，不能无条件推广到所有环境。"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "前提适用性：材料把“连续”限定为程序可见的抽象地址连续，并明确不要求底层物理页连续，同时说明元素大小取完整元素占用空间（含对齐填充）。",
+                "reason": "该限定与虚拟内存模型一致：虚拟地址连续即可满足 base + i×size 的推导，物理页可由页表映射到不连续帧。结构体数组的步长在 C/C++ 中为 sizeof(元素类型)，已包含填充，因此“有填充就不能用公式”确为误解。前提未被错误泛化。",
+                "passed": true
+              },
+              {
+                "claim": "内部推理一致性：地址公式 base + i×size 与“常数时间”结论的推导一致，且未把抽象操作次数等同于真实系统耗时。",
+                "reason": "公式只含一次乘法与一次加法，操作数与数组长度 n 无关，故抽象操作次数为 O(1)。材料同时指出缓存、分页会使实际耗时随访问模式变化，未将 O(1) 泛化为真实耗时恒定。",
+                "passed": true
+              },
+              {
+                "claim": "具体例子：int a[5] 首地址 1000、int 占 4 字节时 a[0..2] 为 1000/1004/1008；double d[10] 首地址 5000 时 d[6] 为 5048。",
+                "reason": "逐步追踪：1000 + 0×4 = 1000，1000 + 1×4 = 1004，1000 + 2×4 = 1008，步长恒为 4。5000 + 6×8 = 5000 + 48 = 5048，计算正确。check 中 2000 + 3×12 = 2036、3000 + 5×4 = 3020 亦正确。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖：材料覆盖了内存布局、地址计算、适用条件三个分支，并区分了按下标访问与按值查找、链表定位的代价。",
+                "reason": "objectives 中“说明连续含义”“写出并解释公式”“计算地址”“说明前提”“区分不同操作代价”分别由三个 unit 的 explanation/example/check 支撑。按下标访问 O(1) 与按值查找最坏 O(n) 的对比正确；链表定位需从头遍历的说明在“除非额外保存节点位置”限定下成立，未把某种实现代价说成所有实现的必然结果。",
+                "passed": true
+              },
+              {
+                "claim": "边界处理：材料未展开越界访问、负索引、多维数组存储顺序等，并在 limitations 中声明。",
+                "reason": "resource_contract 允许当前阶段只准备支持目标的知识与前提，不要求完整成品栏目。材料明确限定为一维数组、下标从 0 开始且合法，未对未覆盖边界作错误断言，因此不构成失败。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_cc160c060e024e48925a2db66cf5e7cb",
+          "resource_type": "graph",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "direct",
+        "harness_execution_context": {
+          "stage": "write_and_review_graph",
+          "decision": {
+            "request_id": "3472486d6a9c4da18adea24bc62e73b7",
+            "user_message": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。",
+            "outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "3472486d6a9c4da18adea24bc62e73b7",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_17831672b63f140b",
+      "idempotency_key": "dsh:ac6c468c2aeccb415da4126746ec99a12e35d0f2a52462b34ffd454dd985705e",
+      "review_policy": "required",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": {
+      "resource_type": "course_material",
+      "course_id": "resource-e2e-course",
+      "material_type": "graph",
+      "material_id": "graph-95fe0a63a975a5a2"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-09-10T06:18:36.181828+00:00",
+    "started_at": "2026-09-10T06:18:36.423104+00:00",
+    "finished_at": "2026-09-10T06:20:28.658540+00:00",
+    "updated_at": "2026-09-10T06:20:28.658540+00:00"
+  },
+  "material": {
+    "title": "数组随机访问",
+    "content": {
+      "root": {
+        "id": "root",
+        "title": "数组随机访问",
+        "summary": "数组通过下标在常数时间内定位元素，其原理、计算与前提条件。",
+        "children": [
+          {
+            "id": "layout",
+            "title": "内存布局",
+            "summary": "元素按顺序存放在一段连续的抽象地址区间中，相邻元素相隔固定步长。",
+            "children": [
+              {
+                "id": "layout_contiguous",
+                "title": "连续存放的含义",
+                "summary": "下标 i 与 i+1 的元素地址相差一个元素大小，这是随机访问的物理基础。",
+                "children": []
+              },
+              {
+                "id": "layout_abstract",
+                "title": "连续指抽象地址",
+                "summary": "程序可见的虚拟地址连续即可，不要求底层物理内存页连续。",
+                "children": []
+              },
+              {
+                "id": "layout_size",
+                "title": "元素大小",
+                "summary": "指一个完整元素占用的字节数，包含结构体等类型的对齐填充。",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "address",
+            "title": "地址计算",
+            "summary": "由首地址、下标和元素大小直接算出元素地址，操作次数与数组长度无关。",
+            "children": [
+              {
+                "id": "address_formula",
+                "title": "地址公式",
+                "summary": "元素地址 = base + i × size，其中 base 为首元素地址，size 为元素大小。",
+                "children": []
+              },
+              {
+                "id": "address_constant",
+                "title": "常数时间",
+                "summary": "公式只含一次乘法和一次加法，操作次数不随数组长度增长。",
+                "children": []
+              },
+              {
+                "id": "address_example",
+                "title": "计算示例",
+                "summary": "如 int 占 4 字节、首地址 1000 时，a[0..2] 依次为 1000、1004、1008。",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "conditions",
+            "title": "适用条件",
+            "summary": "常数时间访问依赖明确前提，且不等于按值查找或链表定位的代价。",
+            "children": [
+              {
+                "id": "cond_prerequisites",
+                "title": "前提条件",
+                "summary": "下标从 0 开始、元素大小固定、下标合法、数组占用连续地址区间。",
+                "children": []
+              },
+              {
+                "id": "cond_vs_search",
+                "title": "与按值查找的区别",
+                "summary": "按下标访问是常数时间；按值查找最坏需检查全部元素，代价随元素个数增长。",
+                "children": []
+              },
+              {
+                "id": "cond_real_time",
+                "title": "抽象操作与真实耗时",
+                "summary": "常数时间指抽象操作次数不随长度增长，缓存、分页等会使实际耗时随访问模式变化。",
+                "children": []
+              },
+              {
+                "id": "cond_vs_list",
+                "title": "与链表定位的区别",
+                "summary": "链表即使知道目标位置通常也需从头遍历，除非额外保存了节点位置。",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "graph",
+        "content_sha256": "24cd263c36faeceb496e2595e1d4a20e68e0860f87dd808bad2e861731a4e168",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "根节点为“数组随机访问”，包含内存布局、地址计算、适用条件三个一级分支，面向大学初学者，使用通用知识且未引用外部检索资料，符合用户对思维导图结构和范围的要求。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "逐一核验节点摘要：地址公式 base + i×size 在 i 为从0开始下标、元素大小固定时成立；int 占4字节、首地址1000时 a[0..2] 为 1000/1004/1008，计算正确；抽象地址连续不要求物理页连续、元素大小含对齐填充、按值查找最坏比较 n 次、链表定位通常需遍历等断言均成立且限定充分。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "导图关系核验：三个分支维度一致，各子节点归属正确，无明显同义重复、循环或虚假因果；address_example 的数值推导 1000+0×4、1000+1×4、1000+2×4 均正确。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "导图层次清晰，节点标题短小，summary 为简短说明而非正文段落，未出现报告式章节堆积，适合初学者快速建立概念框架。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "规格明确要求使用通用知识、无需检索，内容未引用外部资料，不涉及来源核验；资源契约也未要求列出参考来源。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "三个指定分支均已覆盖：内存布局解释了连续含义、抽象地址和元素大小；地址计算包含公式、常数时间和计算示例；适用条件包含前提及与按值查找、链表、真实耗时的区别，满足要求。"
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "24cd263c36faeceb496e2595e1d4a20e68e0860f87dd808bad2e861731a4e168",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "根节点为“数组随机访问”，包含内存布局、地址计算、适用条件三个一级分支，面向大学初学者，使用通用知识且未引用外部检索资料，符合用户对思维导图结构和范围的要求。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "逐一核验节点摘要：地址公式 base + i×size 在 i 为从0开始下标、元素大小固定时成立；int 占4字节、首地址1000时 a[0..2] 为 1000/1004/1008，计算正确；抽象地址连续不要求物理页连续、元素大小含对齐填充、按值查找最坏比较 n 次、链表定位通常需遍历等断言均成立且限定充分。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "导图关系核验：三个分支维度一致，各子节点归属正确，无明显同义重复、循环或虚假因果；address_example 的数值推导 1000+0×4、1000+1×4、1000+2×4 均正确。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "导图层次清晰，节点标题短小，summary 为简短说明而非正文段落，未出现报告式章节堆积，适合初学者快速建立概念框架。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "规格明确要求使用通用知识、无需检索，内容未引用外部资料，不涉及来源核验；资源契约也未要求列出参考来源。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "三个指定分支均已覆盖：内存布局解释了连续含义、抽象地址和元素大小；地址计算包含公式、常数时间和计算示例；适用条件包含前提及与按值查找、链表、真实耗时的区别，满足要求。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "layout_contiguous 的摘要中“物理基础”易与“物理内存连续”混淆，建议改为“内存布局基础”或“寻址基础”，以与同分支中“连续指抽象地址”的限定保持一致。",
+                "address_formula 的摘要可加最小限定“i 为从 0 开始的下标”，使公式在脱离 cond_prerequisites 节点单独阅读时仍不产生误解。",
+                "可在根节点或地址计算分支摘要中注明当前公式针对一维数组，避免初学者将其直接套用到多维数组。"
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "layout_contiguous 的摘要中“物理基础”易与“物理内存连续”混淆，建议改为“内存布局基础”或“寻址基础”，以与同分支中“连续指抽象地址”的限定保持一致。",
+          "address_formula 的摘要可加最小限定“i 为从 0 开始的下标”，使公式在脱离 cond_prerequisites 节点单独阅读时仍不产生误解。",
+          "可在根节点或地址计算分支摘要中注明当前公式针对一维数组，避免初学者将其直接套用到多维数组。"
+        ]
+      }
+    },
+    "source": {
+      "selected_doc_ids": [],
+      "rag_index_keys": []
+    },
+    "schema_version": 2,
+    "version": 1,
+    "material_type": "graph",
+    "material_id": "graph-95fe0a63a975a5a2",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "owner_user_id": "resource-e2e-admin",
+    "created_by": "resource-e2e-admin",
+    "visibility": "private",
+    "source_job_id": "job_f1e9c8b6b8bb4c41",
+    "config_snapshot_id": "cfg_17831672b63f140b",
+    "source_snapshot": {
+      "mode": "none",
+      "requested_document_ids": [],
+      "documents": [],
+      "resolved_at": "2026-09-10T06:18:36.456071+00:00"
+    },
+    "config_snapshot": {
+      "allow_rag": true,
+      "audience": "大学初学者",
+      "classroom_options": {},
+      "confirmed_outline": "",
+      "entrypoint": "agent",
+      "focus": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+      "harness_approval_request_id": "3472486d6a9c4da18adea24bc62e73b7",
+      "harness_chapters": [],
+      "harness_conversation_id": "resource-e2e-graph-15f673c6",
+      "harness_evidence_ids": [],
+      "harness_execution_context": {
+        "decision": {
+          "interpreted_by": "model",
+          "outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+          "request_id": "3472486d6a9c4da18adea24bc62e73b7",
+          "revision": 1,
+          "user_message": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。"
+        },
+        "stage": "write_and_review_graph",
+        "working_memory": {}
+      },
+      "harness_interaction_mode": "direct",
+      "harness_organization": {
+        "audience": "大学初学者",
+        "evidence_ids": [],
+        "limitations": [
+          "本材料不检索外部资料，仅使用通用知识组织，未引用具体教材或标准。",
+          "未展开多维数组的行优先/列优先存储差异，地址公式仅针对一维数组。",
+          "未讨论动态数组扩容、越界访问后果、不同语言负索引语义等扩展话题。",
+          "常数时间仅指抽象操作次数不随数组长度增长，未量化缓存、分页等真实系统因素。",
+          "元素大小与内存语义依赖具体语言和实现假设，不能无条件推广到所有环境。"
+        ],
+        "model_review": {
+          "checks": [
+            {
+              "claim": "前提适用性：材料把“连续”限定为程序可见的抽象地址连续，并明确不要求底层物理页连续，同时说明元素大小取完整元素占用空间（含对齐填充）。",
+              "passed": true,
+              "reason": "该限定与虚拟内存模型一致：虚拟地址连续即可满足 base + i×size 的推导，物理页可由页表映射到不连续帧。结构体数组的步长在 C/C++ 中为 sizeof(元素类型)，已包含填充，因此“有填充就不能用公式”确为误解。前提未被错误泛化。"
+            },
+            {
+              "claim": "内部推理一致性：地址公式 base + i×size 与“常数时间”结论的推导一致，且未把抽象操作次数等同于真实系统耗时。",
+              "passed": true,
+              "reason": "公式只含一次乘法与一次加法，操作数与数组长度 n 无关，故抽象操作次数为 O(1)。材料同时指出缓存、分页会使实际耗时随访问模式变化，未将 O(1) 泛化为真实耗时恒定。"
+            },
+            {
+              "claim": "具体例子：int a[5] 首地址 1000、int 占 4 字节时 a[0..2] 为 1000/1004/1008；double d[10] 首地址 5000 时 d[6] 为 5048。",
+              "passed": true,
+              "reason": "逐步追踪：1000 + 0×4 = 1000，1000 + 1×4 = 1004，1000 + 2×4 = 1008，步长恒为 4。5000 + 6×8 = 5000 + 48 = 5048，计算正确。check 中 2000 + 3×12 = 2036、3000 + 5×4 = 3020 亦正确。"
+            },
+            {
+              "claim": "边界与学习目标覆盖：材料覆盖了内存布局、地址计算、适用条件三个分支，并区分了按下标访问与按值查找、链表定位的代价。",
+              "passed": true,
+              "reason": "objectives 中“说明连续含义”“写出并解释公式”“计算地址”“说明前提”“区分不同操作代价”分别由三个 unit 的 explanation/example/check 支撑。按下标访问 O(1) 与按值查找最坏 O(n) 的对比正确；链表定位需从头遍历的说明在“除非额外保存节点位置”限定下成立，未把某种实现代价说成所有实现的必然结果。"
+            },
+            {
+              "claim": "边界处理：材料未展开越界访问、负索引、多维数组存储顺序等，并在 limitations 中声明。",
+              "passed": true,
+              "reason": "resource_contract 允许当前阶段只准备支持目标的知识与前提，不要求完整成品栏目。材料明确限定为一维数组、下标从 0 开始且合法，未对未覆盖边界作错误断言，因此不构成失败。"
+            }
+          ],
+          "issues": [],
+          "passed": true
+        },
+        "objectives": [
+          "能用自己的话说明数组元素在内存中连续存放的含义，并指出连续的是抽象地址而非物理页",
+          "能写出并解释一维数组随机访问的地址计算公式",
+          "能根据首地址、下标和元素大小计算指定元素的地址",
+          "能说明数组随机访问为常数时间所依赖的前提条件",
+          "能区分数组随机访问与按值查找、链表定位等不同操作的时间代价"
+        ],
+        "organization_id": "org_cc160c060e024e48925a2db66cf5e7cb",
+        "prerequisites": [
+          "变量与基本数据类型的概念",
+          "下标或索引的基本含义",
+          "内存地址的初步概念",
+          "常数时间与线性时间的基本区别"
+        ],
+        "requirements": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+        "resource_type": "graph",
+        "scope": "本知识材料面向大学初学者，围绕“数组随机访问”这一主题，为后续制作思维导图准备核心知识。内容限定为三个分支：内存布局、地址计算、适用条件。重点解释数组为什么能通过下标在常数时间内定位元素，以及这一结论依赖哪些前提。不展开动态数组扩容、多维数组的多种存储顺序、缓存与分页对实际耗时的影响、语言间负索引差异等扩展内容。",
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "scope_id": null,
+          "scope_type": "course",
+          "selected_doc_ids": []
+        },
+        "subject": "数组随机访问",
+        "units": [
+          {
+            "check": "若某类型 sizeof 为 12 字节，首元素地址为 2000，则第 4 个元素（下标 3）的地址是多少？连续的是抽象地址还是物理地址？",
+            "evidence_ids": [],
+            "example": "设 int 占 4 字节，数组 int a[5] 的首元素地址为 1000，则 a[0] 在 1000，a[1] 在 1004，a[2] 在 1008，依此类推，相邻元素地址差恒为 4。",
+            "explanation": "数组的随机访问能力首先来自其内存布局：数组元素按顺序存放在一段连续的地址区间中，相邻元素之间相隔固定步长。这里的“连续”指程序可见的抽象地址连续，即下标 i 与 i+1 的元素地址相差一个元素大小；它不要求底层物理内存页连续，因为虚拟地址到物理地址的映射可以是不连续的。元素大小指一个完整元素占用的字节数，包括结构体等类型中的对齐填充。",
+            "misconception": "把“地址连续”误解为“物理内存连续”；或认为结构体有填充就不能使用地址公式。实际上公式中的元素大小取完整元素占用空间，C/C++ 中 sizeof(元素类型) 已包含填充，相邻结构体元素的步长就是 sizeof(元素类型)。",
+            "objective_indices": [
+              0,
+              3
+            ],
+            "title": "内存布局：连续存放的含义"
+          },
+          {
+            "check": "首地址 3000、元素大小 4 字节、下标 5，元素地址是多少？若下标改为从 1 开始计数，公式需要怎样调整？",
+            "evidence_ids": [],
+            "example": "double 占 8 字节，数组 double d[10] 首地址为 5000，则 d[6] 的地址为 5000 + 6 × 8 = 5048。",
+            "explanation": "在一维数组中，若首元素地址为 base，元素大小为 size，下标为 i，则元素地址为 base + i × size。这个式子只涉及一次乘法和一次加法，与数组长度无关，因此按下标访问元素是常数时间操作。公式成立的前提是：下标从 0 开始计数、元素大小固定、数组占用一段连续地址区间。",
+            "misconception": "把下标当作从 1 开始，导致地址偏移多算一个元素；或把元素大小误当成“数据部分大小”而忽略对齐填充。",
+            "objective_indices": [
+              1,
+              2
+            ],
+            "title": "地址计算：由下标直接定位"
+          },
+          {
+            "check": "为什么“按下标读取 a[k]”是常数时间，而“查找值等于 x 的元素”通常不是？常数时间是否保证真实运行时间完全不变？",
+            "evidence_ids": [],
+            "example": "在长度为 n 的数组中读取 a[k]（k 已知且合法）只需一次地址计算；而查找值等于 x 的元素，最坏需要比较 n 次。两者不是同一种操作。",
+            "explanation": "数组随机访问的常数时间结论有明确前提：已知首地址、元素大小固定、下标合法且可直接计算地址。它描述的是按已知下标定位元素这一操作，不等于按值查找。按值查找通常需要逐个检查元素，最坏情况下要检查全部元素，其代价随元素个数增长。此外，常数时间指抽象操作次数不随数组长度增长，不意味着真实系统耗时绝对恒定；缓存命中、分页、内存层级等会使实际耗时随访问模式变化。",
+            "misconception": "把“随机访问是 O(1)”推广为“数组的一切操作都很快”，或推广为“实际耗时恒定”。另一个常见错误是把数组随机访问与链表定位混为一谈：链表即使知道要访问第 k 个位置，通常也需要从头遍历，除非额外保存了节点位置。",
+            "objective_indices": [
+              3,
+              4
+            ],
+            "title": "适用条件：常数时间访问依赖什么"
+          }
+        ]
+      },
+      "harness_outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+      "harness_outline_revision": 1,
+      "harness_review_required": true,
+      "length_hint": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+      "research_context": "",
+      "research_sources": [],
+      "resource_type": "graph",
+      "subject": "数组随机访问",
+      "title": "数组随机访问"
+    },
+    "status": "ready",
+    "created_at": "2026-09-10T06:20:28.608373",
+    "updated_at": "2026-09-10T06:20:28.608373",
+    "is_pinned": false,
+    "pinned_at": null,
+    "content_hash": "11aafb117cfe1ac4c7810065eaeabd8035896de6c8257b5419f4153e6700a1da",
+    "artifact_paths": []
+  },
+  "passed": true
+}

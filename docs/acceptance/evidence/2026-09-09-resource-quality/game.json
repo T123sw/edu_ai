@@ -1,0 +1,879 @@
+{
+  "kind": "game",
+  "conversation_id": "resource-e2e-game-b5e2d3db",
+  "turns": [
+    {
+      "question": "请生成面向大学初学者的“数组随机访问”拖拽配对互动游戏，包含4对概念与解释。资料使用通用知识即可，无需检索。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "正在生成互动游戏，完成后会在这里显示。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-game-b5e2d3db"
+        },
+        "action": {
+          "name": "generate.game"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "game",
+          "status": "running",
+          "stage": "generating"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "8528428397df40c6af20209a0bf92b6a",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "本资源面向大学初学者，主题为数组的随机访问。内容限定在数组作为抽象数据结构的随机访问特性，包括其定义、时间复杂度、与顺序访问的对比、以及数组下标从0开始的原因。不涉及具体编程语言的语法细节、内存管理或缓存优化。",
+                "prerequisites": [
+                  "基本编程概念（变量、赋值）",
+                  "数组的基本定义（连续存储的相同类型元素集合）"
+                ],
+                "objectives": [
+                  "能够解释数组随机访问的含义，即通过下标直接访问任意元素",
+                  "能够说明数组随机访问的时间复杂度为O(1)，并区分其与顺序访问的差异",
+                  "能够识别数组下标从0开始的原因，并解释其与内存地址计算的关联",
+                  "能够举例说明随机访问在实际编程中的应用场景"
+                ],
+                "units": [
+                  {
+                    "title": "数组随机访问的定义与机制",
+                    "explanation": "数组的随机访问是指通过下标（索引）直接访问数组中任意位置的元素，无需从头遍历。其底层机制基于数组元素在内存中连续存储的特性：数组首地址加上下标与元素大小的乘积即可计算出目标元素的地址。这一机制使得访问时间与数组长度无关。",
+                    "example": "假设数组A的首地址为1000，每个元素占4字节，则A[3]的地址为1000 + 3*4 = 1012，可直接读取该地址处的数据。",
+                    "misconception": "随机访问意味着访问顺序是随机的。实际上，'随机'指任意位置均可直接访问，而非访问顺序随机。",
+                    "check": "给定数组首地址和元素大小，能否计算指定下标的元素地址？",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "时间复杂度O(1)及其与顺序访问的对比",
+                    "explanation": "数组随机访问的时间复杂度为O(1)，即无论数组多大，访问单个元素所需的基本操作次数恒定（一次地址计算加一次读取）。相比之下，顺序访问（如链表）需要从头遍历，时间复杂度为O(n)。需注意，O(1)描述的是抽象模型中的操作次数，不代表真实系统耗时恒定，缓存、内存层次等因素可能影响实际耗时。",
+                    "example": "访问长度为100和10000的数组的最后一个元素，理论上都需要一次地址计算和一次读取，操作次数相同。",
+                    "misconception": "O(1)意味着实际运行时间完全相同。实际上，O(1)仅指操作次数与输入规模无关，真实耗时受硬件影响。",
+                    "check": "为什么链表不支持O(1)随机访问？",
+                    "objective_indices": [
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "下标从0开始的原因",
+                    "explanation": "数组下标从0开始是C语言等编程语言的常见设计，其根本原因与地址计算相关：若数组首地址为base，元素大小为size，则下标i的地址为base + i*size。当下标从0开始时，首元素的地址恰好等于base，无需额外偏移，简化了地址计算。这一设计也符合'偏移量'的语义，即下标表示相对于首地址的偏移元素个数。",
+                    "example": "在C语言中，int a[5]的地址为&a[0]，a[3]的地址为&a[0] + 3*sizeof(int)。若下标从1开始，则a[1]的地址需计算为base + (1-1)*size，增加了一次减法。",
+                    "misconception": "下标从0开始是随意的约定。实际上，它与地址计算的简化直接相关，且被多数主流语言（如C、Java、Python）采用。",
+                    "check": "若数组下标从1开始，地址计算公式应如何修改？",
+                    "objective_indices": [
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "随机访问的应用场景",
+                    "explanation": "随机访问适用于需要频繁按位置读取元素的场景，如查找第k个元素、二分查找（需通过下标快速定位中间元素）、实现哈希表（通过哈希值直接索引桶）等。这些场景依赖O(1)访问特性来保证整体效率。",
+                    "example": "二分查找中，每次需访问数组中间元素，若用链表实现则每次查找需O(n)遍历，导致总复杂度退化为O(n log n)，而数组实现保持O(log n)。",
+                    "misconception": "所有需要查找的场景都应使用数组。实际上，若频繁插入删除，数组的O(n)移动成本可能超过随机访问收益，需权衡选择。",
+                    "check": "为什么二分查找通常基于数组而非链表实现？",
+                    "objective_indices": [
+                      3
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本资源不涉及具体编程语言的数组实现差异（如Python列表的混合类型存储）",
+                  "不讨论动态数组（如C++ vector）的扩容机制及其对随机访问的影响",
+                  "未覆盖多维数组的地址计算方式",
+                  "时间复杂度分析基于抽象模型，未深入讨论缓存局部性等硬件因素对实际性能的影响"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：数组随机访问的O(1)时间复杂度适用于抽象模型中的直接地址计算，且原文明确区分了抽象模型与真实系统耗时。",
+                      "reason": "原文在unit2中说明'O(1)描述的是抽象模型中的操作次数，不代表真实系统耗时恒定'，并提及缓存等因素，符合resource_contract中'区分抽象模型中的操作次数、渐近量级与真实系统耗时'的要求。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：地址计算公式base + i*size与下标从0开始的原因一致，且示例计算正确。",
+                      "reason": "unit1示例：首地址1000，元素大小4，A[3]地址=1000+3*4=1012，计算正确。unit3解释下标从0开始可避免额外减法，与公式一致。未发现矛盾。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子：二分查找基于数组而非链表的例子正确，且未错误泛化。",
+                      "reason": "unit4说明数组实现二分查找为O(log n)，链表若每次需O(n)遍历则总复杂度O(n log n)。但原文未说明链表实现的具体方式，可能被误解为所有链表二分查找必然O(n log n)。然而原文表述为'若用链表实现则每次查找需O(n)遍历'，这是基于未保留位置指针的常见实现，且resource_contract要求说明实现前提。原文未明确该前提，但作为内部知识材料，该表述可能不够严谨。但检查项要求'来源示例的前提是否被错误泛化'，此处未泛化到所有链表实现，且后续有'需权衡选择'的说明，因此不构成实质错误。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：四个学习目标均有对应unit，且未超出范围。",
+                      "reason": "objectives包含4项，units分别对应：定义与机制（目标0）、时间复杂度对比（目标1）、下标从0开始（目标2）、应用场景（目标3）。覆盖完整。边界案例如空数组、末端索引未涉及，但本主题为概念配对游戏，不要求处理这些边界，且resource_contract允许不因未展开而判错。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_53e673909bb7457a9d261210b6a09142",
+                "resource_type": "game",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "拖拽配对（配对/连线）互动游戏，包含4对概念与解释。左右项一一对应且无歧义。主题：数组的随机访问。使用通用知识即可，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "submit_resource_direct",
+              "data": {
+                "task_id": "job_0e99e557e34a4023",
+                "status": "submitted",
+                "workflow_type": "game"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "task_id": "job_0e99e557e34a4023",
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成game",
+          "workflow_label": "game",
+          "topics": [],
+          "goal": "解释原因",
+          "issues": [
+            "请生成面向大学初学者的“数组随机访问”拖拽配对互动游戏",
+            "正在生成互动游戏"
+          ],
+          "confirmed_facts": [
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [
+            "请生成面向大学初学者的“数组随机访问”拖拽配对互动游戏",
+            "正在生成互动游戏"
+          ],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”拖拽配对互动游戏",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "正在生成互动游戏，完成后会在这里显示。"
+        }
+      }
+    },
+    {
+      "question": "刚才生成的资源完成了吗？请读取它并概括内容。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "完成了。刚才生成的《数组随机访问：概念配对》拖拽配对游戏已经可以查看。内容是 4 对“概念—解释”的左右匹配：\n\n1. **数组随机访问的含义** ↔ 通过下标直接访问任意元素，无需从头遍历\n2. **数组随机访问的时间复杂度** ↔ O(1)，一次地址计算加一次读取，与数组长度无关\n3. **数组下标从 0 开始的原因** ↔ 首元素地址等于数组首地址，省去额外减法，简化地址计算\n4. **随机访问的典型应用场景** ↔ 二分查找中通过下标快速定位中间元素\n\n玩法是拖拽配对，左右项一一对应、无歧义，适合大学初学者在学完数组基础后巩固“为什么数组能随机访问”这一核心概念，也为后续讲解复杂度与二分查找做了铺垫。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-game-b5e2d3db"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [
+          {
+            "artifact_id": "game-73fee30354924720",
+            "artifact_type": "game",
+            "title": "数组随机访问",
+            "content": {
+              "game_type": "drag_match",
+              "template_id": "drag-match",
+              "game_data": {
+                "title": "数组随机访问：概念配对",
+                "pairs": [
+                  {
+                    "id": "pair1",
+                    "left": "数组随机访问的含义",
+                    "right": "通过下标直接访问任意元素，无需从头遍历"
+                  },
+                  {
+                    "id": "pair2",
+                    "left": "数组随机访问的时间复杂度",
+                    "right": "O(1)，一次地址计算加一次读取，与数组长度无关"
+                  },
+                  {
+                    "id": "pair3",
+                    "left": "数组下标从0开始的原因",
+                    "right": "首元素地址等于数组首地址，省去额外减法，简化地址计算"
+                  },
+                  {
+                    "id": "pair4",
+                    "left": "随机访问的典型应用场景",
+                    "right": "二分查找中通过下标快速定位中间元素"
+                  }
+                ]
+              },
+              "html_path": "resource-e2e-admin/resource-e2e-course/game-73fee30354924720/index.html",
+              "html_url": "/api/chat/v2/games/html?path=resource-e2e-admin%2Fresource-e2e-course%2Fgame-73fee30354924720%2Findex.html"
+            }
+          }
+        ],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "138180ddfe4a4c909b293c610aad68c0",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "query_resource_job",
+              "data": {
+                "task_id": "job_0e99e557e34a4023",
+                "resource_type": "game",
+                "status": "succeeded",
+                "progress": 100,
+                "title": "数组随机访问",
+                "result_ref": {
+                  "resource_type": "course_material",
+                  "course_id": "resource-e2e-course",
+                  "material_type": "game",
+                  "material_id": "game-73fee30354924720"
+                },
+                "verification": {
+                  "decision": "pass",
+                  "checks": "version_bound_resource_review"
+                },
+                "failure_reason": null,
+                "artifact": {
+                  "artifact_id": "game-73fee30354924720",
+                  "artifact_type": "game",
+                  "title": "数组随机访问",
+                  "content": {
+                    "game_type": "drag_match",
+                    "template_id": "drag-match",
+                    "game_data": {
+                      "title": "数组随机访问：概念配对",
+                      "pairs": [
+                        {
+                          "id": "pair1",
+                          "left": "数组随机访问的含义",
+                          "right": "通过下标直接访问任意元素，无需从头遍历"
+                        },
+                        {
+                          "id": "pair2",
+                          "left": "数组随机访问的时间复杂度",
+                          "right": "O(1)，一次地址计算加一次读取，与数组长度无关"
+                        },
+                        {
+                          "id": "pair3",
+                          "left": "数组下标从0开始的原因",
+                          "right": "首元素地址等于数组首地址，省去额外减法，简化地址计算"
+                        },
+                        {
+                          "id": "pair4",
+                          "left": "随机访问的典型应用场景",
+                          "right": "二分查找中通过下标快速定位中间元素"
+                        }
+                      ]
+                    },
+                    "html_path": "resource-e2e-admin/resource-e2e-course/game-73fee30354924720/index.html",
+                    "html_url": "/api/chat/v2/games/html?path=resource-e2e-admin%2Fresource-e2e-course%2Fgame-73fee30354924720%2Findex.html"
+                  }
+                }
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "verification": {
+          "decision": "pass",
+          "checks": "version_bound_resource_review"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "",
+          "scope_path": [],
+          "resolution": "needs_clarification",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成game",
+          "workflow_label": "game",
+          "topics": [
+            "刚才生成的资源完成了吗",
+            "请读取它并概括内容"
+          ],
+          "goal": "总结内容",
+          "issues": [
+            "请生成面向大学初学者的“数组随机访问”拖拽配对互动游戏",
+            "正在生成互动游戏"
+          ],
+          "confirmed_facts": [
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [
+            "请生成面向大学初学者的“数组随机访问”拖拽配对互动游戏",
+            "正在生成互动游戏"
+          ],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "active_artifact_label": "当前产物：game",
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”拖拽配对互动游戏",
+          "allow_rag": true,
+          "allow_web": true
+        }
+      }
+    }
+  ],
+  "direct_generation_verified": true,
+  "job": {
+    "schema_version": 2,
+    "version": 6,
+    "edu_job_id": "job_0e99e557e34a4023",
+    "kind": "generate_game",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "生成完成，已保存到“我的资源”，仅你可见。",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "game",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "game",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "",
+        "focus": "拖拽配对（配对/连线）互动游戏，包含4对概念与解释。左右项一一对应且无歧义。主题：数组的随机访问。使用通用知识即可，无需检索。",
+        "length_hint": "拖拽配对（配对/连线）互动游戏，包含4对概念与解释。左右项一一对应且无歧义。主题：数组的随机访问。使用通用知识即可，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "direct_org_53e673909bb7457a9d261210b6a09142",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-game-b5e2d3db",
+        "harness_chapters": [],
+        "classroom_options": {},
+        "harness_organization": {
+          "scope": "本资源面向大学初学者，主题为数组的随机访问。内容限定在数组作为抽象数据结构的随机访问特性，包括其定义、时间复杂度、与顺序访问的对比、以及数组下标从0开始的原因。不涉及具体编程语言的语法细节、内存管理或缓存优化。",
+          "prerequisites": [
+            "基本编程概念（变量、赋值）",
+            "数组的基本定义（连续存储的相同类型元素集合）"
+          ],
+          "objectives": [
+            "能够解释数组随机访问的含义，即通过下标直接访问任意元素",
+            "能够说明数组随机访问的时间复杂度为O(1)，并区分其与顺序访问的差异",
+            "能够识别数组下标从0开始的原因，并解释其与内存地址计算的关联",
+            "能够举例说明随机访问在实际编程中的应用场景"
+          ],
+          "units": [
+            {
+              "title": "数组随机访问的定义与机制",
+              "explanation": "数组的随机访问是指通过下标（索引）直接访问数组中任意位置的元素，无需从头遍历。其底层机制基于数组元素在内存中连续存储的特性：数组首地址加上下标与元素大小的乘积即可计算出目标元素的地址。这一机制使得访问时间与数组长度无关。",
+              "example": "假设数组A的首地址为1000，每个元素占4字节，则A[3]的地址为1000 + 3*4 = 1012，可直接读取该地址处的数据。",
+              "misconception": "随机访问意味着访问顺序是随机的。实际上，'随机'指任意位置均可直接访问，而非访问顺序随机。",
+              "check": "给定数组首地址和元素大小，能否计算指定下标的元素地址？",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "时间复杂度O(1)及其与顺序访问的对比",
+              "explanation": "数组随机访问的时间复杂度为O(1)，即无论数组多大，访问单个元素所需的基本操作次数恒定（一次地址计算加一次读取）。相比之下，顺序访问（如链表）需要从头遍历，时间复杂度为O(n)。需注意，O(1)描述的是抽象模型中的操作次数，不代表真实系统耗时恒定，缓存、内存层次等因素可能影响实际耗时。",
+              "example": "访问长度为100和10000的数组的最后一个元素，理论上都需要一次地址计算和一次读取，操作次数相同。",
+              "misconception": "O(1)意味着实际运行时间完全相同。实际上，O(1)仅指操作次数与输入规模无关，真实耗时受硬件影响。",
+              "check": "为什么链表不支持O(1)随机访问？",
+              "objective_indices": [
+                1
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "下标从0开始的原因",
+              "explanation": "数组下标从0开始是C语言等编程语言的常见设计，其根本原因与地址计算相关：若数组首地址为base，元素大小为size，则下标i的地址为base + i*size。当下标从0开始时，首元素的地址恰好等于base，无需额外偏移，简化了地址计算。这一设计也符合'偏移量'的语义，即下标表示相对于首地址的偏移元素个数。",
+              "example": "在C语言中，int a[5]的地址为&a[0]，a[3]的地址为&a[0] + 3*sizeof(int)。若下标从1开始，则a[1]的地址需计算为base + (1-1)*size，增加了一次减法。",
+              "misconception": "下标从0开始是随意的约定。实际上，它与地址计算的简化直接相关，且被多数主流语言（如C、Java、Python）采用。",
+              "check": "若数组下标从1开始，地址计算公式应如何修改？",
+              "objective_indices": [
+                2
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "随机访问的应用场景",
+              "explanation": "随机访问适用于需要频繁按位置读取元素的场景，如查找第k个元素、二分查找（需通过下标快速定位中间元素）、实现哈希表（通过哈希值直接索引桶）等。这些场景依赖O(1)访问特性来保证整体效率。",
+              "example": "二分查找中，每次需访问数组中间元素，若用链表实现则每次查找需O(n)遍历，导致总复杂度退化为O(n log n)，而数组实现保持O(log n)。",
+              "misconception": "所有需要查找的场景都应使用数组。实际上，若频繁插入删除，数组的O(n)移动成本可能超过随机访问收益，需权衡选择。",
+              "check": "为什么二分查找通常基于数组而非链表实现？",
+              "objective_indices": [
+                3
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "本资源不涉及具体编程语言的数组实现差异（如Python列表的混合类型存储）",
+            "不讨论动态数组（如C++ vector）的扩容机制及其对随机访问的影响",
+            "未覆盖多维数组的地址计算方式",
+            "时间复杂度分析基于抽象模型，未深入讨论缓存局部性等硬件因素对实际性能的影响"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "前提适用性：数组随机访问的O(1)时间复杂度适用于抽象模型中的直接地址计算，且原文明确区分了抽象模型与真实系统耗时。",
+                "reason": "原文在unit2中说明'O(1)描述的是抽象模型中的操作次数，不代表真实系统耗时恒定'，并提及缓存等因素，符合resource_contract中'区分抽象模型中的操作次数、渐近量级与真实系统耗时'的要求。",
+                "passed": true
+              },
+              {
+                "claim": "内部推理一致性：地址计算公式base + i*size与下标从0开始的原因一致，且示例计算正确。",
+                "reason": "unit1示例：首地址1000，元素大小4，A[3]地址=1000+3*4=1012，计算正确。unit3解释下标从0开始可避免额外减法，与公式一致。未发现矛盾。",
+                "passed": true
+              },
+              {
+                "claim": "具体例子：二分查找基于数组而非链表的例子正确，且未错误泛化。",
+                "reason": "unit4说明数组实现二分查找为O(log n)，链表若每次需O(n)遍历则总复杂度O(n log n)。但原文未说明链表实现的具体方式，可能被误解为所有链表二分查找必然O(n log n)。然而原文表述为'若用链表实现则每次查找需O(n)遍历'，这是基于未保留位置指针的常见实现，且resource_contract要求说明实现前提。原文未明确该前提，但作为内部知识材料，该表述可能不够严谨。但检查项要求'来源示例的前提是否被错误泛化'，此处未泛化到所有链表实现，且后续有'需权衡选择'的说明，因此不构成实质错误。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖：四个学习目标均有对应unit，且未超出范围。",
+                "reason": "objectives包含4项，units分别对应：定义与机制（目标0）、时间复杂度对比（目标1）、下标从0开始（目标2）、应用场景（目标3）。覆盖完整。边界案例如空数组、末端索引未涉及，但本主题为概念配对游戏，不要求处理这些边界，且resource_contract允许不因未展开而判错。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_53e673909bb7457a9d261210b6a09142",
+          "resource_type": "game",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "拖拽配对（配对/连线）互动游戏，包含4对概念与解释。左右项一一对应且无歧义。主题：数组的随机访问。使用通用知识即可，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "direct",
+        "harness_execution_context": {
+          "stage": "write_and_review_game",
+          "decision": {
+            "request_id": "8528428397df40c6af20209a0bf92b6a",
+            "user_message": "请生成面向大学初学者的“数组随机访问”拖拽配对互动游戏，包含4对概念与解释。资料使用通用知识即可，无需检索。",
+            "outline_id": "direct_org_53e673909bb7457a9d261210b6a09142",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "8528428397df40c6af20209a0bf92b6a",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_c7f33c2c30e86673",
+      "idempotency_key": "dsh:e5ac643a5e75107ef6822837e17eab21621c7da1459e0a713739810f11d77c68",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": {
+      "resource_type": "course_material",
+      "course_id": "resource-e2e-course",
+      "material_type": "game",
+      "material_id": "game-73fee30354924720"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-09-09T04:26:35.960506+00:00",
+    "started_at": "2026-09-09T04:26:36.508411+00:00",
+    "finished_at": "2026-09-09T04:28:01.648222+00:00",
+    "updated_at": "2026-09-09T04:28:01.648222+00:00"
+  },
+  "material": {
+    "title": "数组随机访问",
+    "content": {
+      "game_type": "drag_match",
+      "template_id": "drag-match",
+      "game_data": {
+        "title": "数组随机访问：概念配对",
+        "pairs": [
+          {
+            "id": "pair1",
+            "left": "数组随机访问的含义",
+            "right": "通过下标直接访问任意元素，无需从头遍历"
+          },
+          {
+            "id": "pair2",
+            "left": "数组随机访问的时间复杂度",
+            "right": "O(1)，一次地址计算加一次读取，与数组长度无关"
+          },
+          {
+            "id": "pair3",
+            "left": "数组下标从0开始的原因",
+            "right": "首元素地址等于数组首地址，省去额外减法，简化地址计算"
+          },
+          {
+            "id": "pair4",
+            "left": "随机访问的典型应用场景",
+            "right": "二分查找中通过下标快速定位中间元素"
+          }
+        ]
+      },
+      "html_path": "resource-e2e-admin/resource-e2e-course/game-73fee30354924720/index.html",
+      "html_url": "/api/chat/v2/games/html?path=resource-e2e-admin%2Fresource-e2e-course%2Fgame-73fee30354924720%2Findex.html"
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "game",
+        "content_sha256": "b93dd6e34c566ed502d869b2393d417cc85eb794e8c7ae038c5b173f3c6b2c9e",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "game_type 为 drag_match，template_id 为 drag-match，符合“拖拽配对”的指定玩法；pairs 数组恰好包含 4 对，每项的 id、left、right 均为非空字符串，且 id 不重复。四个左项分别是“随机访问含义、时间复杂度、下标从0开始的原因、典型应用场景”，四个右项均为对应解释；左右语义互斥，没有出现一个右项可同时满足多个左项的歧义。内容面向大学初学者，未引入具体编程语言语法，符合 specification。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "逐对核验事实与前提：pair1“通过下标直接访问任意元素，无需从头遍历”符合数组随机访问定义，且与单元说明中的“无需从头遍历”一致；pair2“O(1)，一次地址计算加一次读取，与数组长度无关”表述的是抽象模型中的常量操作次数，未断言真实系统耗时恒定，符合 resource_contract 对 O(1) 的限定；pair3“首元素地址等于数组首地址，省去额外减法，简化地址计算”与 base + i*size 的 0-based 地址公式一致，若从 1 开始则需 base + (i-1)*size，会多一次减法；pair4“二分查找中通过下标快速定位中间元素”是随机访问的典型应用，未错误泛化为所有查找场景都必须用数组。未发现事实、计算或因果错误。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "本资源为拖拽配对游戏，按 resource_contract 核验任务与答案路径。4 对配对本身就是完整通关路径：玩家需将左侧概念拖到右侧解释，pair1 对应“含义”，pair2 对应“时间复杂度 O(1)”，pair3 对应“下标从 0 开始的原因”，pair4 对应“二分查找应用”。pairs 数组同时提供正确答案和判分依据，且 drag-match 原生模板会渲染拖拽交互。逐对求解核验均能唯一匹配，不存在需要额外解析的习题或误区选项。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "游戏共 4 对概念，题量小而明确，适合课堂或自测中的短时互动，预计 2 至 4 分钟可完成。每对只覆盖一个学习点：随机访问定义、O(1) 复杂度、0-based 下标原因、应用场景，认知负荷对大学初学者合理。4 对内容分别对应四个学习目标，且没有加入动态数组扩容、多维地址计算等超纲内容，符合难度和范围设定。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "主题是数组随机访问的通用计算机科学知识，specification 明确“使用通用知识即可，无需检索”。当前内容来自常规抽象数组模型，未依赖外部文档或来源。source_policy 虽允许 rag/web，但 selected_doc_ids 为空且未使用检索，不构成问题，也未出现无证据引用。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "resource_contract 要求的 game_type、template_id、game_data 均已提供；drag-match schema 所需 title 和 pairs 满足要求。四对配对覆盖已确认方案的全部四个单元：pair1 对应目标 0，pair2 对应目标 1，pair3 对应目标 2，pair4 对应目标 3。游戏数据提供完整正确答案，原生模板负责交互渲染，不存在缺失通关路径或无法判定对错的情况。"
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "b93dd6e34c566ed502d869b2393d417cc85eb794e8c7ae038c5b173f3c6b2c9e",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "game_type 为 drag_match，template_id 为 drag-match，符合“拖拽配对”的指定玩法；pairs 数组恰好包含 4 对，每项的 id、left、right 均为非空字符串，且 id 不重复。四个左项分别是“随机访问含义、时间复杂度、下标从0开始的原因、典型应用场景”，四个右项均为对应解释；左右语义互斥，没有出现一个右项可同时满足多个左项的歧义。内容面向大学初学者，未引入具体编程语言语法，符合 specification。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "逐对核验事实与前提：pair1“通过下标直接访问任意元素，无需从头遍历”符合数组随机访问定义，且与单元说明中的“无需从头遍历”一致；pair2“O(1)，一次地址计算加一次读取，与数组长度无关”表述的是抽象模型中的常量操作次数，未断言真实系统耗时恒定，符合 resource_contract 对 O(1) 的限定；pair3“首元素地址等于数组首地址，省去额外减法，简化地址计算”与 base + i*size 的 0-based 地址公式一致，若从 1 开始则需 base + (i-1)*size，会多一次减法；pair4“二分查找中通过下标快速定位中间元素”是随机访问的典型应用，未错误泛化为所有查找场景都必须用数组。未发现事实、计算或因果错误。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "本资源为拖拽配对游戏，按 resource_contract 核验任务与答案路径。4 对配对本身就是完整通关路径：玩家需将左侧概念拖到右侧解释，pair1 对应“含义”，pair2 对应“时间复杂度 O(1)”，pair3 对应“下标从 0 开始的原因”，pair4 对应“二分查找应用”。pairs 数组同时提供正确答案和判分依据，且 drag-match 原生模板会渲染拖拽交互。逐对求解核验均能唯一匹配，不存在需要额外解析的习题或误区选项。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "游戏共 4 对概念，题量小而明确，适合课堂或自测中的短时互动，预计 2 至 4 分钟可完成。每对只覆盖一个学习点：随机访问定义、O(1) 复杂度、0-based 下标原因、应用场景，认知负荷对大学初学者合理。4 对内容分别对应四个学习目标，且没有加入动态数组扩容、多维地址计算等超纲内容，符合难度和范围设定。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "主题是数组随机访问的通用计算机科学知识，specification 明确“使用通用知识即可，无需检索”。当前内容来自常规抽象数组模型，未依赖外部文档或来源。source_policy 虽允许 rag/web，但 selected_doc_ids 为空且未使用检索，不构成问题，也未出现无证据引用。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "resource_contract 要求的 game_type、template_id、game_data 均已提供；drag-match schema 所需 title 和 pairs 满足要求。四对配对覆盖已确认方案的全部四个单元：pair1 对应目标 0，pair2 对应目标 1，pair3 对应目标 2，pair4 对应目标 3。游戏数据提供完整正确答案，原生模板负责交互渲染，不存在缺失通关路径或无法判定对错的情况。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "如后续模板允许扩展反馈文案，可在配对错误时提示对应概念的反例或“再想想它和时间复杂度/地址计算的区别”，但当前数据结构下不构成缺陷。",
+                "pair4 目前以二分查找作为典型应用已足够；若未来希望强化迁移，可考虑补充第 k 个元素或哈希表桶定位等第二应用，但不属于当前 4 对结构的要求。"
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "如后续模板允许扩展反馈文案，可在配对错误时提示对应概念的反例或“再想想它和时间复杂度/地址计算的区别”，但当前数据结构下不构成缺陷。",
+          "pair4 目前以二分查找作为典型应用已足够；若未来希望强化迁移，可考虑补充第 k 个元素或哈希表桶定位等第二应用，但不属于当前 4 对结构的要求。"
+        ]
+      }
+    },
+    "source": {
+      "selected_doc_ids": [],
+      "rag_index_keys": []
+    },
+    "schema_version": 2,
+    "version": 1,
+    "material_type": "game",
+    "material_id": "game-73fee30354924720",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "owner_user_id": "resource-e2e-admin",
+    "created_by": "resource-e2e-admin",
+    "visibility": "private",
+    "source_job_id": "job_0e99e557e34a4023",
+    "config_snapshot_id": "cfg_c7f33c2c30e86673",
+    "source_snapshot": {
+      "mode": "none",
+      "requested_document_ids": [],
+      "documents": [],
+      "resolved_at": "2026-09-09T04:26:36.540612+00:00"
+    },
+    "config_snapshot": {
+      "allow_rag": true,
+      "audience": "大学初学者",
+      "classroom_options": {},
+      "confirmed_outline": "",
+      "entrypoint": "agent",
+      "focus": "拖拽配对（配对/连线）互动游戏，包含4对概念与解释。左右项一一对应且无歧义。主题：数组的随机访问。使用通用知识即可，无需检索。",
+      "harness_approval_request_id": "8528428397df40c6af20209a0bf92b6a",
+      "harness_chapters": [],
+      "harness_conversation_id": "resource-e2e-game-b5e2d3db",
+      "harness_evidence_ids": [],
+      "harness_execution_context": {
+        "decision": {
+          "interpreted_by": "model",
+          "outline_id": "direct_org_53e673909bb7457a9d261210b6a09142",
+          "request_id": "8528428397df40c6af20209a0bf92b6a",
+          "revision": 1,
+          "user_message": "请生成面向大学初学者的“数组随机访问”拖拽配对互动游戏，包含4对概念与解释。资料使用通用知识即可，无需检索。"
+        },
+        "stage": "write_and_review_game",
+        "working_memory": {}
+      },
+      "harness_interaction_mode": "direct",
+      "harness_organization": {
+        "audience": "大学初学者",
+        "evidence_ids": [],
+        "limitations": [
+          "本资源不涉及具体编程语言的数组实现差异（如Python列表的混合类型存储）",
+          "不讨论动态数组（如C++ vector）的扩容机制及其对随机访问的影响",
+          "未覆盖多维数组的地址计算方式",
+          "时间复杂度分析基于抽象模型，未深入讨论缓存局部性等硬件因素对实际性能的影响"
+        ],
+        "model_review": {
+          "checks": [
+            {
+              "claim": "前提适用性：数组随机访问的O(1)时间复杂度适用于抽象模型中的直接地址计算，且原文明确区分了抽象模型与真实系统耗时。",
+              "passed": true,
+              "reason": "原文在unit2中说明'O(1)描述的是抽象模型中的操作次数，不代表真实系统耗时恒定'，并提及缓存等因素，符合resource_contract中'区分抽象模型中的操作次数、渐近量级与真实系统耗时'的要求。"
+            },
+            {
+              "claim": "内部推理一致性：地址计算公式base + i*size与下标从0开始的原因一致，且示例计算正确。",
+              "passed": true,
+              "reason": "unit1示例：首地址1000，元素大小4，A[3]地址=1000+3*4=1012，计算正确。unit3解释下标从0开始可避免额外减法，与公式一致。未发现矛盾。"
+            },
+            {
+              "claim": "具体例子：二分查找基于数组而非链表的例子正确，且未错误泛化。",
+              "passed": true,
+              "reason": "unit4说明数组实现二分查找为O(log n)，链表若每次需O(n)遍历则总复杂度O(n log n)。但原文未说明链表实现的具体方式，可能被误解为所有链表二分查找必然O(n log n)。然而原文表述为'若用链表实现则每次查找需O(n)遍历'，这是基于未保留位置指针的常见实现，且resource_contract要求说明实现前提。原文未明确该前提，但作为内部知识材料，该表述可能不够严谨。但检查项要求'来源示例的前提是否被错误泛化'，此处未泛化到所有链表实现，且后续有'需权衡选择'的说明，因此不构成实质错误。"
+            },
+            {
+              "claim": "边界与学习目标覆盖：四个学习目标均有对应unit，且未超出范围。",
+              "passed": true,
+              "reason": "objectives包含4项，units分别对应：定义与机制（目标0）、时间复杂度对比（目标1）、下标从0开始（目标2）、应用场景（目标3）。覆盖完整。边界案例如空数组、末端索引未涉及，但本主题为概念配对游戏，不要求处理这些边界，且resource_contract允许不因未展开而判错。"
+            }
+          ],
+          "issues": [],
+          "passed": true
+        },
+        "objectives": [
+          "能够解释数组随机访问的含义，即通过下标直接访问任意元素",
+          "能够说明数组随机访问的时间复杂度为O(1)，并区分其与顺序访问的差异",
+          "能够识别数组下标从0开始的原因，并解释其与内存地址计算的关联",
+          "能够举例说明随机访问在实际编程中的应用场景"
+        ],
+        "organization_id": "org_53e673909bb7457a9d261210b6a09142",
+        "prerequisites": [
+          "基本编程概念（变量、赋值）",
+          "数组的基本定义（连续存储的相同类型元素集合）"
+        ],
+        "requirements": "拖拽配对（配对/连线）互动游戏，包含4对概念与解释。左右项一一对应且无歧义。主题：数组的随机访问。使用通用知识即可，无需检索。",
+        "resource_type": "game",
+        "scope": "本资源面向大学初学者，主题为数组的随机访问。内容限定在数组作为抽象数据结构的随机访问特性，包括其定义、时间复杂度、与顺序访问的对比、以及数组下标从0开始的原因。不涉及具体编程语言的语法细节、内存管理或缓存优化。",
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "scope_id": null,
+          "scope_type": "course",
+          "selected_doc_ids": []
+        },
+        "subject": "数组随机访问",
+        "units": [
+          {
+            "check": "给定数组首地址和元素大小，能否计算指定下标的元素地址？",
+            "evidence_ids": [],
+            "example": "假设数组A的首地址为1000，每个元素占4字节，则A[3]的地址为1000 + 3*4 = 1012，可直接读取该地址处的数据。",
+            "explanation": "数组的随机访问是指通过下标（索引）直接访问数组中任意位置的元素，无需从头遍历。其底层机制基于数组元素在内存中连续存储的特性：数组首地址加上下标与元素大小的乘积即可计算出目标元素的地址。这一机制使得访问时间与数组长度无关。",
+            "misconception": "随机访问意味着访问顺序是随机的。实际上，'随机'指任意位置均可直接访问，而非访问顺序随机。",
+            "objective_indices": [
+              0
+            ],
+            "title": "数组随机访问的定义与机制"
+          },
+          {
+            "check": "为什么链表不支持O(1)随机访问？",
+            "evidence_ids": [],
+            "example": "访问长度为100和10000的数组的最后一个元素，理论上都需要一次地址计算和一次读取，操作次数相同。",
+            "explanation": "数组随机访问的时间复杂度为O(1)，即无论数组多大，访问单个元素所需的基本操作次数恒定（一次地址计算加一次读取）。相比之下，顺序访问（如链表）需要从头遍历，时间复杂度为O(n)。需注意，O(1)描述的是抽象模型中的操作次数，不代表真实系统耗时恒定，缓存、内存层次等因素可能影响实际耗时。",
+            "misconception": "O(1)意味着实际运行时间完全相同。实际上，O(1)仅指操作次数与输入规模无关，真实耗时受硬件影响。",
+            "objective_indices": [
+              1
+            ],
+            "title": "时间复杂度O(1)及其与顺序访问的对比"
+          },
+          {
+            "check": "若数组下标从1开始，地址计算公式应如何修改？",
+            "evidence_ids": [],
+            "example": "在C语言中，int a[5]的地址为&a[0]，a[3]的地址为&a[0] + 3*sizeof(int)。若下标从1开始，则a[1]的地址需计算为base + (1-1)*size，增加了一次减法。",
+            "explanation": "数组下标从0开始是C语言等编程语言的常见设计，其根本原因与地址计算相关：若数组首地址为base，元素大小为size，则下标i的地址为base + i*size。当下标从0开始时，首元素的地址恰好等于base，无需额外偏移，简化了地址计算。这一设计也符合'偏移量'的语义，即下标表示相对于首地址的偏移元素个数。",
+            "misconception": "下标从0开始是随意的约定。实际上，它与地址计算的简化直接相关，且被多数主流语言（如C、Java、Python）采用。",
+            "objective_indices": [
+              2
+            ],
+            "title": "下标从0开始的原因"
+          },
+          {
+            "check": "为什么二分查找通常基于数组而非链表实现？",
+            "evidence_ids": [],
+            "example": "二分查找中，每次需访问数组中间元素，若用链表实现则每次查找需O(n)遍历，导致总复杂度退化为O(n log n)，而数组实现保持O(log n)。",
+            "explanation": "随机访问适用于需要频繁按位置读取元素的场景，如查找第k个元素、二分查找（需通过下标快速定位中间元素）、实现哈希表（通过哈希值直接索引桶）等。这些场景依赖O(1)访问特性来保证整体效率。",
+            "misconception": "所有需要查找的场景都应使用数组。实际上，若频繁插入删除，数组的O(n)移动成本可能超过随机访问收益，需权衡选择。",
+            "objective_indices": [
+              3
+            ],
+            "title": "随机访问的应用场景"
+          }
+        ]
+      },
+      "harness_outline_id": "direct_org_53e673909bb7457a9d261210b6a09142",
+      "harness_outline_revision": 1,
+      "harness_review_required": true,
+      "length_hint": "拖拽配对（配对/连线）互动游戏，包含4对概念与解释。左右项一一对应且无歧义。主题：数组的随机访问。使用通用知识即可，无需检索。",
+      "research_context": "",
+      "research_sources": [],
+      "resource_type": "game",
+      "subject": "数组随机访问",
+      "title": "数组随机访问"
+    },
+    "status": "ready",
+    "created_at": "2026-09-09T04:28:01.584322",
+    "updated_at": "2026-09-09T04:28:01.584322",
+    "is_pinned": false,
+    "pinned_at": null,
+    "content_hash": "4b8cd249e049d964fb6df5c1b4e279d1670ec63c776a8c6785139dba9c37c844",
+    "artifact_paths": []
+  },
+  "passed": true,
+  "game_interaction_verified": true,
+  "browser_preview": true,
+  "accepted_by_manual_audit": true
+}

@@ -1,0 +1,16 @@
+........................................................................ [ 29%]
+........................................................................ [ 58%]
+........................................................................ [ 87%]
+...............................                                          [100%]
+=============================== warnings summary ===============================
+../miniforge3/envs/edu-ai/lib/python3.12/site-packages/_pytest/config/__init__.py:1345
+  /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/_pytest/config/__init__.py:1345: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+tests/chat/test_artifact_revision.py::test_json_separate_processes_do_not_overwrite
+tests/chat/test_artifact_revision.py::test_json_separate_processes_do_not_overwrite
+  /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=1701221) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+247 passed, 3 warnings in 53.75s

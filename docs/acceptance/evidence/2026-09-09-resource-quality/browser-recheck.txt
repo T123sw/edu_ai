@@ -1,0 +1,20 @@
+
+Running 5 tests using 5 workers
+
+(node:1679540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1679541) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1679542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1679543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1679539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [compact1024] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (6.3s)
+  ✓  3 [desktop1366] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (6.4s)
+  ✓  1 [desktop1920] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (6.7s)
+  ✓  5 [compact1280] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (6.7s)
+  ✓  4 [desktop1440] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (6.7s)
+
+  5 passed (8.2s)

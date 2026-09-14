@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class WorkspaceSelection(BaseModel):
     model_config = ConfigDict(extra='forbid')
     scope_type: Literal['course', 'knowledge_point']
-    scope_id: str | None = None
+    scope_id: str | None = Field(default=None, description="scope_type=knowledge_point 时传目录知识点 ID；scope_type=course 时必须省略或传 null，不能传课程 ID。")
     topic: str = Field(min_length=1, max_length=300)
 
 
@@ -27,18 +27,44 @@ PLANNING_TOOLS = {
 
 
 class PlanningToolsMixin:
+    def restore_selected_workspace(self):
+        """Reuse a model-selected workspace only when the incoming scope still matches.
+
+        Revalidate catalog membership and authorization; never infer a new topic
+        or override a scope the user has changed in the UI.
+        """
+        saved = self.session.data.get('discussion_workspace') or {}
+        context = self.request.workspace_context
+        if not context or not self.course_storage or not saved.get('topic'):
+            return
+        if (saved.get('course_id'), saved.get('scope_type'), saved.get('scope_id')) != (
+                self.request.course_id, self.request.scope_type or 'course', self.request.scope_id):
+            return
+        if context.resolution == 'resolved' and (context.scope_type != 'course' or context.explicit_course):
+            return
+        self.authorize(self.request)
+        try:
+            self.select_workspace(WorkspaceSelection(scope_type=saved['scope_type'],
+                scope_id=saved.get('scope_id'), topic=saved['topic']))
+        except ValueError:
+            # A removed catalog node still requires a new model selection.
+            return
+
     def planning_context(self):
         from app.chat.application.knowledge_context import knowledge_candidates
         catalog = knowledge_candidates(self.course_storage.get_knowledge_graph(self.request.course_id)) if self.course_storage and self.request.course_id else []
         states = []
         for item in self.session.data['outlines'].values():
-            state = {k: item.get(k) for k in ('outline_id', 'revision', 'subject', 'workspace', 'status', 'confirmation', 'job_id', 'last_submission_error')}
+            state = {k: item.get(k) for k in ('outline_id', 'revision', 'resource_type', 'subject', 'workspace', 'status', 'confirmation', 'job_id', 'last_submission_error')}
             if item.get('job_id'):
                 job = self.get_job(item['job_id'])
                 if job and job.owner_user_id == self.request.owner and job.course_id == self.request.course_id:
                     state['task_status'] = str(getattr(job.status, 'value', job.status))
             states.append(state)
-        return {'course_catalog': [item.model_dump() for item in catalog],
+        organizations = [{k: item.get(k) for k in ('organization_id', 'resource_type', 'subject', 'audience', 'requirements', 'evidence_ids')}
+                         for item in list(self.session.data.get('organizations', {}).values())[-10:]
+                         if self._policy_matches(item.get('source_policy') or {})]
+        return {'resource_organizations': organizations, 'course_catalog': [item.model_dump() for item in catalog],
                 'working_memory': self.session.data.get('working_memory', {}),
                 'discussion_workspace': self.session.data.get('discussion_workspace'),
                 'report_states': states}
@@ -59,7 +85,7 @@ class PlanningToolsMixin:
                 raise ValueError('knowledge_point_not_in_course')
             context.scope_title, context.scope_path = node.scope_title, node.scope_path
         elif args.scope_id:
-            raise ValueError('course_scope_has_no_node_id')
+            raise ValueError('course_scope_has_no_node_id: 课程归档的 scope_id 必须省略或传 null；课程 ID 已在请求上下文中，无需重复。请修正参数重试，不是课程不存在。')
         context.update_workspace = (args.scope_type, args.scope_id) != (self.request.scope_type or 'course', self.request.scope_id)
         # Keep a prior change signal when the model selects the same node twice.
         context.update_workspace |= bool(self.request.workspace_context and self.request.workspace_context.update_workspace)

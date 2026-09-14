@@ -644,7 +644,7 @@ class PostgresKnowledgeRepository:
                 update(KnowledgeBuild)
                 .where(
                     KnowledgeBuild.build_id == build_id,
-                    KnowledgeBuild.status.in_({"blocked", "failed"}),
+                    KnowledgeBuild.status.in_({"blocked", "failed", "canceled"}),
                     KnowledgeBuild.graph_confirmed_at.is_not(None),
                     KnowledgeBuild.confirmed_graph_revision == KnowledgeBuild.revision,
                 )
@@ -658,7 +658,7 @@ class PostgresKnowledgeRepository:
                 )
             )
             if result.rowcount != 1:
-                raise ValueError("只有已确认且失败或阻塞的构建可以重试")
+                raise ValueError("只有已确认且失败、阻塞或已取消的构建可以重试")
 
     def record_quality_check(
         self,

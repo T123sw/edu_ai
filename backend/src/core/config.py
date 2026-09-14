@@ -46,6 +46,8 @@ class Config:
     # 2. 深度纯文本模型（中脑）
     DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
     DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+    # Domestic DeepSeek endpoint does not need the proxy used by other providers.
+    DEEPSEEK_TRUST_ENV_PROXY = os.getenv("DEEPSEEK_TRUST_ENV_PROXY", "false").lower() == "true"
     DEEPSEEK_API_KEY_BACKUP = os.getenv("DEEPSEEK_API_KEY_BACKUP", "")
     DEEP_MODEL_API_BASE = os.getenv("ANSWER_LLM_API_BASE", os.getenv("QWEN_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1"))
     DEEP_MODEL_API_KEY = os.getenv("ANSWER_LLM_API_KEY", os.getenv("QWEN_API_KEY", ""))
@@ -265,6 +267,38 @@ class Config:
                 if model.get("id") == model_id:
                     return model
         return cls.LLM_MODELS[0]
+
+    @classmethod
+    def is_deepseek_endpoint(cls, api_base: str | None) -> bool:
+        def normalize(value: str | None) -> str:
+            return (
+                str(value or "")
+                .strip()
+                .rstrip("/")
+                .removesuffix("/v1")
+                .rstrip("/")
+            )
+
+        return bool(normalize(api_base)) and normalize(api_base) == normalize(
+            cls.DEEPSEEK_BASE_URL
+        )
+
+    @classmethod
+    def resolve_llm_api_key(
+        cls,
+        api_base: str | None,
+        configured_api_key: str | None,
+    ) -> str:
+        """Return the configured primary credential for a model endpoint.
+
+        DEEPSEEK_API_KEY is authoritative for the configured DeepSeek endpoint.
+        DEEPSEEK_API_KEY_BACKUP is intentionally excluded here; the transport
+        may use it only after an HTTP 402 response from the primary key.
+        """
+        configured = str(configured_api_key or "").strip()
+        if cls.is_deepseek_endpoint(api_base):
+            return str(cls.DEEPSEEK_API_KEY or "").strip() or configured
+        return configured
 
     @classmethod
     def get_planner_model(cls) -> Dict[str, Any]:

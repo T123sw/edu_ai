@@ -1,0 +1,20 @@
+[WebServer] (node:1716213) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1716238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:1716289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 教案 uses the appropriate interaction and submission progress (5.7s)
+  ✓  2 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 博客 uses the appropriate interaction and submission progress (5.3s)
+  ✓  3 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 习题 uses the appropriate interaction and submission progress (5.1s)
+  ✓  4 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 闪卡 uses the appropriate interaction and submission progress (5.1s)
+  ✓  5 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 思维导图 uses the appropriate interaction and submission progress (4.8s)
+  ✓  6 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 互动游戏 uses the appropriate interaction and submission progress (4.8s)
+  ✓  7 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › AI 课堂 uses the appropriate interaction and submission progress (5.4s)
+  ✓  8 [desktop1440] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives late-result (7.1s)
+  ✓  9 [desktop1440] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives disconnect (6.9s)
+
+  9 passed (55.3s)

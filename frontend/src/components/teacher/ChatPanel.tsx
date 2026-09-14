@@ -53,6 +53,8 @@ import { loadPreviewMediaUrl, revokePreviewMediaUrl, type RAGSource } from '../.
 import { requestJobRefresh, useJobStore } from '../../jobs/jobStore';
 import { isTerminalJob } from '../../jobs/types';
 import { buildGenerationSavedMessage, resolveGenerationReply } from './generationSavedMessage';
+import type { QueuedAgentRequest } from '../generation/generationAgentRequest';
+import { restoreQueuedAgentPromptDraft, validateQueuedAgentWorkspace } from './generationAgentHandoff';
 import {
   applyConversationRecoveryFailure,
   createConversationAsyncGuard,
@@ -161,6 +163,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     setCurrentConversationId,
     queuedMessage,
     setQueuedMessage,
+    consumeQueuedMessage,
+    queuedAgentRequest,
+    consumeAgentRequest,
+    clearQueuedAgentRequest,
     artifactReference,
     conversationReference,
     setArtifactReference,
@@ -178,6 +184,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   const jobsById = useJobStore((state) => state.jobs);
 
   const initializedWorkspaceRef = useRef<string | null>(null);
+  const [initializedWorkspace, setInitializedWorkspace] = useState<string | null>(null);
   const initializationEpochRef = useRef(0);
   const previousOwnerRef = useRef(authenticatedUser?.username);
   const pendingOperationRef = useRef<{ conversationId: string; operationId: string } | null>(null);
@@ -214,6 +221,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   }
   const conversationAsyncGuard = conversationAsyncGuardRef.current;
   const backgroundTaskTokenRef = useRef<BackgroundTaskToken | null>(null);
+  const factoryRequestInFlightRef = useRef<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -582,12 +590,14 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       agentWorkspaceTransitionRef.current = null;
       setIsLoading(false);
       initializedWorkspaceRef.current = workspaceIdentity;
+      setInitializedWorkspace(workspaceIdentity);
       void loadHistoryPage({ offset: 0, append: false }, () =>
         initializationEpoch === initializationEpochRef.current && workspaceIdentityRef.current === workspaceIdentity,
       ).catch((error) => console.error('刷新历史对话失败:', error));
       return;
     }
     initializedWorkspaceRef.current = null;
+    setInitializedWorkspace(null);
     if (previousOwnerRef.current !== authenticatedUser?.username) {
       pendingRevisionIntent.current = null;
       clearRevisionIntent();
@@ -656,6 +666,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       } finally {
         if (initializationEpoch === initializationEpochRef.current && workspaceIdentityRef.current === workspaceIdentity) {
           initializedWorkspaceRef.current = workspaceIdentity;
+          setInitializedWorkspace(workspaceIdentity);
           setHistoryLoading(false);
           const pending = pendingRevisionIntent.current;
           if (pending && courseId === pending.source_course_id) {
@@ -1129,9 +1140,115 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     clearArtifactReference();
   };
 
-  const handleSendMessage = async (overrideText?: string, forceSend = false, draftAction?: ArtifactDraftAction) => {
-    const draft = (overrideText ?? inputValue).trim();
+  const handleFactoryAgentRequest = async (request: QueuedAgentRequest) => {
+    if (factoryRequestInFlightRef.current) return;
+    const workspaceError = validateQueuedAgentWorkspace(request, {
+      ownerUserId: authenticatedUser?.username || '',
+      courseId: courseId || '',
+      scopeType: normalizedWorkspaceScope.scopeType,
+      scopeId: normalizedWorkspaceScope.scopeId,
+    });
+    if (workspaceError) {
+      clearQueuedAgentRequest(request.requestId);
+      restoreQueuedAgentPromptDraft(request);
+      message.warning(workspaceError);
+      return;
+    }
+
+    factoryRequestInFlightRef.current = request.requestId;
+    consumeAgentRequest(request.requestId);
+    let submittedTaskId: string | null = null;
+    let finalResponse: ChatResponseV2 | null = null;
+    try {
+      const payload = buildChatReplyPayload({
+        question: request.text,
+        conversationId: undefined,
+        courseId: request.courseId,
+        scopeType: request.scopeType,
+        scopeId: request.scopeId,
+        allowRag: request.allowRag,
+        allowWeb: request.allowWeb,
+        selectedDocIds: [...request.selectedDocumentIds],
+        actionHint: request.actionHint,
+        entryMode: request.entryMode,
+      });
+      payload.request_id = request.requestId;
+      await sendChatReplyV2Stream(payload, {
+        onTaskSubmitted: (taskId) => {
+          submittedTaskId = taskId;
+          requestJobRefresh(taskId);
+        },
+        onResult: (response) => {
+          finalResponse = response;
+        },
+      });
+
+      const response = finalResponse as ChatResponseV2 | null;
+      const resultTaskId = submittedTaskId || response?.task_id || null;
+      if (response?.action?.name === 'agent.failed') {
+        throw new Error(response.message?.content || '生成任务未能启动，请重试。');
+      }
+      if (resultTaskId) {
+        requestJobRefresh(resultTaskId);
+        return;
+      }
+      if (!response) {
+        throw new Error(response?.message?.content || '生成任务未能启动，请重试。');
+      }
+
+      const generatedFiles = extractGeneratedFilesFromV2Response(response).map((file) => ({
+        ...file,
+        meta: { ...(file.meta || {}), origin: 'generation_factory' },
+      }));
+      generatedFiles.forEach((file) => addGeneratedFile(file));
+      generatedFiles.forEach((file) => addMaterial({
+        id: file.id,
+        name: file.name,
+        type: file.type,
+        content: file.content,
+        addedAt: String(file.meta?.addedAt || new Date().toISOString()),
+        courseId: request.courseId,
+        isPinned: Boolean(file.meta?.isPinned),
+        pinnedAt: typeof file.meta?.pinnedAt === 'string' ? file.meta.pinnedAt : undefined,
+      } as any));
+      if (generatedFiles.length > 0) {
+        setViewingFile(generatedFiles[generatedFiles.length - 1]);
+      } else {
+        throw new Error('未能直接启动生成，请补充要求后重试。');
+      }
+    } catch (error: any) {
+      restoreQueuedAgentPromptDraft(request);
+      message.error(error?.message || '生成任务未能启动，请重试。');
+    } finally {
+      if (factoryRequestInFlightRef.current === request.requestId) {
+        factoryRequestInFlightRef.current = null;
+      }
+      const nextRequest = useStore.getState().queuedAgentRequest;
+      if (nextRequest) {
+        void handleFactoryAgentRequest(nextRequest);
+      }
+    }
+  };
+
+  const handleSendMessage = async (overrideText?: string | QueuedAgentRequest, forceSend = false, draftAction?: ArtifactDraftAction) => {
+    const queuedRequest = typeof overrideText === 'object' ? overrideText : null;
+    const overrideString = typeof overrideText === 'string' ? overrideText : undefined;
+    const draft = (queuedRequest?.text ?? overrideString ?? inputValue).trim();
     if ((draft === '' && pendingImages.length === 0 && pendingVideos.length === 0) || (isLoading && !forceSend)) return;
+    if (queuedRequest) {
+      const workspaceError = validateQueuedAgentWorkspace(queuedRequest, {
+        ownerUserId: authenticatedUser?.username || '',
+        courseId: courseId || '',
+        scopeType: normalizedWorkspaceScope.scopeType,
+        scopeId: normalizedWorkspaceScope.scopeId,
+      });
+      if (workspaceError) {
+        clearQueuedAgentRequest(queuedRequest.requestId);
+        restoreQueuedAgentPromptDraft(queuedRequest);
+        message.warning(workspaceError);
+        return;
+      }
+    }
     const activeConversationIdAtSend = useStore.getState().currentConversationId;
     conversationAsyncGuard.invalidateLoads(activeConversationIdAtSend);
     const sendToken = conversationAsyncGuard.captureSend(activeConversationIdAtSend);
@@ -1146,8 +1263,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     );
     setLoadingConversationId(null);
 
-    const inputImages = pendingImages.map(({ previewUrl: _previewUrl, ...image }) => image);
-    const inputVideos = pendingVideos.map(({ previewUrl: _previewUrl, ...video }) => video);
+    const inputImages = queuedRequest ? [] : pendingImages.map(({ previewUrl: _previewUrl, ...image }) => image);
+    const inputVideos = queuedRequest ? [] : pendingVideos.map(({ previewUrl: _previewUrl, ...video }) => video);
 
     const userMessage: Message = { user: 'You', text: draft || '已发送附件' };
     userMessage.inputImages = inputImages;
@@ -1160,42 +1277,53 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
     const aiResponse: Message = { user: 'AI', text: '', statusText: '正在分析请求...' };
     addMessage(aiResponse);
+    let handedOffTaskId: string | null = null;
+    let queuedRequestStarted = false;
+    const markQueuedRequestStarted = () => {
+      if (!queuedRequest || queuedRequestStarted) return;
+      queuedRequestStarted = true;
+      consumeAgentRequest(queuedRequest.requestId);
+    };
 
     try {
       // Read capability toggles from the store at send time. This avoids a
       // same-frame toggle + send interaction using the previous render value.
       const currentCapabilityState = useStore.getState();
-      const currentAllowRag = currentCapabilityState.allowRag;
-      const currentAllowWeb = currentCapabilityState.allowWeb;
+      const currentAllowRag = queuedRequest?.allowRag ?? currentCapabilityState.allowRag;
+      const currentAllowWeb = queuedRequest?.allowWeb ?? currentCapabilityState.allowWeb;
       // Personal selections are explicit sources. Without selections the RAG
       // toggle enables automatic retrieval within the current course scope.
-      const effectiveSelectedDocIds = resolveChatRetrievalDocIds({
-        mountFullKnowledgeBase: currentAllowRag,
-        selectedDocIds: selectedDocs,
-        scopedDocIds: scopedSourceDocIds,
-      });
+      const effectiveSelectedDocIds = queuedRequest
+        ? [...queuedRequest.selectedDocumentIds]
+        : resolveChatRetrievalDocIds({
+          mountFullKnowledgeBase: currentAllowRag,
+          selectedDocIds: selectedDocs,
+          scopedDocIds: scopedSourceDocIds,
+        });
       const payload = buildChatReplyPayload({
         question: userMessage.text,
         conversationId: activeConversationIdAtSend,
-        courseId,
-        scopeType: workspaceScopeApiParams.scopeType,
-        scopeId: workspaceScopeApiParams.scopeId,
+        courseId: queuedRequest?.courseId ?? courseId,
+        scopeType: queuedRequest?.scopeType ?? workspaceScopeApiParams.scopeType,
+        scopeId: queuedRequest?.scopeId ?? workspaceScopeApiParams.scopeId,
         allowRag: currentAllowRag,
         allowWeb: currentAllowWeb,
         selectedDocIds: effectiveSelectedDocIds,
+        actionHint: queuedRequest?.actionHint,
         inputImages,
         inputVideos,
-        artifactReference,
-        conversationReference,
+        artifactReference: queuedRequest ? null : artifactReference,
+        conversationReference: queuedRequest ? null : conversationReference,
       });
       if (draftAction) payload.artifact_draft_action = draftAction;
       let streamedText = '';
       let awaitingSavedOutline = false;
-      payload.request_id = crypto.randomUUID();
+      payload.request_id = queuedRequest?.requestId ?? crypto.randomUUID();
       const responseHolder: { value: ChatResponseV2 | null } = { value: null };
       let pendingTaskId: string | null = null;
       const agentActivity: AgentActivityState = emptyAgentActivity();
       const flushAgentActivity = (statusText?: string) => {
+        if (handedOffTaskId) return;
         // Shallow copy so React detects a change
         updateLastMessage({
           ...(statusText ? { statusText } : {}),
@@ -1211,6 +1339,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
 
       await sendChatReplyV2Stream(payload, {
         onMetadata: (payload) => {
+          markQueuedRequestStarted();
+          if (handedOffTaskId) return;
           commitSend(() => {
             const nextConversationId = String(payload.conversation_id || '').trim();
             if (nextConversationId && nextConversationId !== useStore.getState().currentConversationId) {
@@ -1229,6 +1359,8 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           });
         },
         onStatus: (payload) => {
+          markQueuedRequestStarted();
+          if (handedOffTaskId) return;
           commitSend(() => {
             updateLastMessage({
               statusText: String(payload.label || payload.stage || '正在处理...'),
@@ -1241,6 +1373,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           });
         },
         onDelta: (content) => {
+          markQueuedRequestStarted();
           if (pendingTaskId || awaitingSavedOutline) return;
           commitSend(() => {
             streamedText += content;
@@ -1251,14 +1384,42 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           });
         },
         onResult: (finalResponse) => {
+          markQueuedRequestStarted();
           commitSend(() => { responseHolder.value = finalResponse; });
         },
-        onTaskSubmitted: (taskId) => {
+        onTaskSubmitted: (taskId, workflowType, taskPayload) => {
+          markQueuedRequestStarted();
           commitSend(() => {
+            if (handedOffTaskId) return;
+            const conversationId = String(taskPayload.conversation_id || useStore.getState().currentConversationId || '').trim();
+            if (conversationId && conversationId !== useStore.getState().currentConversationId) {
+              conversationAsyncGuard.adoptConversation(conversationId);
+              setCurrentConversationId(conversationId);
+            }
+            const taskToken = conversationAsyncGuard.bindBackgroundTaskForSend(sendToken, taskId, conversationId);
+            if (!taskToken) return;
             pendingTaskId = taskId;
+            handedOffTaskId = taskId;
+            setWorkflowType(workflowType || null);
+            setWorkflowStatus('running');
+            if (taskPayload.resource_creation_handoff) {
+              setArtifactReference(null);
+              setRevisionOutcome(null);
+              pendingOperationRef.current = null;
+              useDraftPreview.getState().setEntry(null);
+            }
+            const label = ({ report: '报告', lesson_plan: '教案', blog: '博客', quiz: '习题', flashcard: '闪卡',
+              graph: '思维导图', game: '互动游戏', classroom: 'AI 课堂' } as Record<string, string>)[workflowType] || '内容';
+            updateLastMessage({ id: taskId, text: `正在生成${label}，完成后会在这里显示。`,
+              statusText: '可以继续交流，任务会在后台完成。', agentActivity: finalizeRunningAgentActivity(agentActivity, 'done') });
+            backgroundTaskTokenRef.current = taskToken;
+            setBackgroundTaskId(taskId);
             requestJobRefresh(taskId);
-            // Tag the AI message with the task ID so the background poller can find and update it
-            updateLastMessage({ id: taskId, text: '任务正在进行，完成后会在这里显示。', statusText: '' });
+            if (!queuedRequest) {
+              clearPendingImages();
+              clearPendingVideos();
+            }
+            setIsLoading(false);
           });
         },
         onPlan: (plan) => {
@@ -1275,8 +1436,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           });
         },
         onToolCall: (call) => {
+          if (handedOffTaskId) return;
           commitSend(() => {
-            if (call.tool === 'draft_report_outline') {
+            if (['draft_report_outline', 'draft_resource_outline', 'show_resource_outline'].includes(call.tool)) {
               awaitingSavedOutline = true;
               streamedText = '';
               updateLastMessage({ text: '', statusText: '正在整理大纲...' });
@@ -1301,12 +1463,19 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           commitSend(() => { throw error; });
         },
       });
+      markQueuedRequestStarted();
 
       if (!sendStillCurrent()) {
         return;
       }
 
       const response = responseHolder.value;
+      if (response?.resource_creation_handoff && !handedOffTaskId) {
+        setArtifactReference(null);
+        setRevisionOutcome(null);
+        pendingOperationRef.current = null;
+        useDraftPreview.getState().setEntry(null);
+      }
       // Replays and result-only transports may omit task_submitted.
       if (!pendingTaskId && response?.task_id && response.workflow?.status === 'running') {
         pendingTaskId = response.task_id;
@@ -1327,7 +1496,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
         onWorkspaceScopeChange?.({ scopeType: context.scope_type, scopeId: context.scope_id || undefined, scopeLabel: context.scope_path.join(' › ') });
       }
 
-      // Background task path: hand off to useEffect poller and release the UI immediately
+      // The durable task event already released the UI; late reply text cannot overwrite its progress or result.
+      if (handedOffTaskId) return;
+
+      // Result-only transports and replay still need to hand off here.
       if (pendingTaskId) {
         const taskToken = conversationAsyncGuard.bindBackgroundTaskForSend(
           sendToken,
@@ -1338,7 +1510,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
           return;
         }
         updateLastMessage({
-          text: String(response?.message?.content || '正在生成报告，完成后会在这里显示。'),
+          text: String(response?.message?.content || '任务已开始，完成后会在这里显示。'),
           statusText: '',
           agentActivity: finalizeRunningAgentActivity(agentActivity, 'done'),
         });
@@ -1409,10 +1581,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
       if (!sendStillCurrent()) {
         return;
       }
-      clearPendingImages();
-      clearPendingVideos();
+      if (!queuedRequest) {
+        clearPendingImages();
+        clearPendingVideos();
+      }
     } catch (error: any) {
+      // A disconnected reply stream does not cancel an already persisted job.
+      if (handedOffTaskId) return;
       console.error('v2 reply error:', error);
+      if (queuedRequest && !queuedRequestStarted) {
+        clearQueuedAgentRequest(queuedRequest.requestId);
+        setInputValue(queuedRequest.text);
+      }
       commitSend(() => {
         updateLastMessage({
           text: error?.message || 'Request failed. Please try again.',
@@ -1435,9 +1615,22 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
   }));
 
   useEffect(() => {
-    if (!queuedMessage || isLoading) return;
-    void handleSendMessage(queuedMessage, true);
-  }, [queuedMessage, isLoading, pendingImages, pendingVideos]);
+    if (
+      !queuedMessage
+      || queuedAgentRequest
+      || isLoading
+      || historyLoading
+      || initializedWorkspace !== workspaceIdentity
+    ) return;
+    const consumedMessage = consumeQueuedMessage(queuedMessage, courseId);
+    if (!consumedMessage) return;
+    void handleSendMessage(consumedMessage, true);
+  }, [queuedMessage, queuedAgentRequest, isLoading, historyLoading, initializedWorkspace, workspaceIdentity, courseId, pendingImages, pendingVideos, consumeQueuedMessage]);
+
+  useEffect(() => {
+    if (!queuedAgentRequest) return;
+    void handleFactoryAgentRequest(queuedAgentRequest);
+  }, [queuedAgentRequest]);
 
   // Consume the result once the global task manager observes a terminal state.
   useEffect(() => {
@@ -1446,7 +1639,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     const taskId = backgroundTaskId;
     const taskToken = backgroundTaskTokenRef.current;
     const globalJob = jobsById[taskId];
-    if (!globalJob || !isTerminalJob(globalJob)) return undefined;
+    if (!globalJob) return undefined;
     if (!taskToken || taskToken.taskId !== taskId) {
       setBackgroundTaskId(null);
       return undefined;
@@ -1464,6 +1657,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ courseId, workspaceScope, onWorks
     if (!taskStillCurrent()) {
       backgroundTaskTokenRef.current = null;
       setBackgroundTaskId(null);
+      return undefined;
+    }
+    if (!isTerminalJob(globalJob)) {
+      commitTask(() => updateMessageById(taskId, {
+        statusText: `${globalJob.message || '正在整理内容'} · 可以继续交流，完成后自动显示。`,
+      }));
       return undefined;
     }
     const terminalActivity = (status: 'done' | 'failed') => {

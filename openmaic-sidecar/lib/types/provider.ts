@@ -173,6 +173,7 @@ export interface ModelConfig {
   providerId: ProviderId;
   modelId: string;
   apiKey: string;
+  backupApiKey?: string;
   baseUrl?: string;
   proxy?: string; // Optional: HTTP proxy URL for this provider
   providerType?: ProviderType; // Optional: for custom providers on server-side

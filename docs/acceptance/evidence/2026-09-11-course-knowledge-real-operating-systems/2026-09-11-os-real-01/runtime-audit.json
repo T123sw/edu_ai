@@ -1,0 +1,71 @@
+{
+  "run_id": "2026-09-11-os-real-01",
+  "course_id": "course-91205880c651486aabef002a9c330617",
+  "course_title": "操作系统（真实E2E-2026-09-11-os-real-）",
+  "dependencies": {
+    "backend": "real FastAPI service on 127.0.0.1:8001",
+    "model": "real configured model",
+    "web_search_and_download": "real external network",
+    "database": "real configured PostgreSQL",
+    "api_or_sse_mocked": false
+  },
+  "initial_build": {
+    "build_id": "kb-716b212c73724a6cbac74c232f3479bf",
+    "status": "succeeded",
+    "created_at": "2026-09-11T06:22:14.051986Z",
+    "started_at": "2026-09-11T06:29:57.562513Z",
+    "finished_at": "2026-09-11T06:48:55.623260Z",
+    "build_duration_seconds": 1138.060747,
+    "quality_score": 100,
+    "node_count": 22,
+    "leaf_count": 16,
+    "persisted_document_count": 49,
+    "selected_source_count": 123,
+    "failure_count": 18,
+    "textbook_candidates": 2,
+    "textbook_ingested": 0,
+    "non_ai_coverage_rate": 1.0,
+    "ai_material_ratio": 0.0
+  },
+  "incremental_build": {
+    "build_id": "kb-31de16bb46264788904fc74e40b777ed",
+    "status": "succeeded",
+    "created_at": "2026-09-11T06:49:02.616327Z",
+    "started_at": "2026-09-11T06:54:16.985854Z",
+    "finished_at": "2026-09-11T06:56:38.591074Z",
+    "build_duration_seconds": 141.60522,
+    "quality_score": 100,
+    "target_topic_count": 1,
+    "node_count_before": 22,
+    "node_count_after": 23,
+    "preserved_node_count": 22,
+    "all_existing_nodes_preserved": true,
+    "documents_before": 49,
+    "documents_after": 53,
+    "persisted_document_count": 4,
+    "selected_source_count": 9,
+    "failure_count": 4,
+    "published_version_before": 1,
+    "published_version_after": 2,
+    "added_topic_id": "kp_618be1caef254d29b5f6973081e00486",
+    "added_topic_label": "Linux cgroups 与容器资源隔离",
+    "persisted_source_domains": [
+      "juejin.cn",
+      "blog.csdn.net",
+      "blog.csdn.net",
+      "www.jianshu.com"
+    ],
+    "official_linux_or_docker_sources_persisted": 0,
+    "explicit_three_exercises_with_solutions_found": false
+  },
+  "observed_recovery": {
+    "first_incremental_proposal_status": 422,
+    "first_incremental_proposal_reason": "scope review rejected a plan that did not add the requested node and did not independently cover I/O limits",
+    "same_draft_retry_succeeded": true
+  },
+  "observed_anomalies": {
+    "agent_stream_did_not_close_after_initial_proposal_was_persisted": true,
+    "extra_empty_initial_draft_id": "kb-03fd639bde5446f18264ee5abbfb68ba",
+    "transient_api_connection_reset_during_initial_build_polling": true
+  }
+}

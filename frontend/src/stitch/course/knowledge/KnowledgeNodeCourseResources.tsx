@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getStandardResources, reviewStandardResource } from "../../api/standardResources";
+import { ApiError } from "../../api/client";
 import type { StandardResourceLeaf, StandardResourceSlot } from "../../api/types";
 import { MaterialIcon } from "../../shared";
 import { KnowledgeNodeResourceDialog } from "./KnowledgeNodeResourceDialog";
@@ -79,11 +80,15 @@ export function KnowledgeNodeCourseResources({
     setWorking(true);
     setError("");
     try {
-      await reviewStandardResource(courseId, slot.material_id, "approved");
+      const contentHash = String(slot.resource?.content_hash || "");
+      if (!slot.current_version || !contentHash) throw new Error("资源版本信息不完整，请刷新后重试");
+      await reviewStandardResource(courseId, slot.material_id, "approved", slot.current_version, contentHash);
       setSelectedResource(null);
       await loadCatalog();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "审核操作失败，请稍后重试");
+      const message = reason instanceof Error ? reason.message : "审核操作失败，请稍后重试";
+      if (reason instanceof ApiError && reason.status === 409) await loadCatalog();
+      setError(message);
     } finally {
       setWorking(false);
     }

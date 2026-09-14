@@ -252,3 +252,28 @@ async def test_sidecar_success_but_post_process_failure_marks_job_failed_persist
     assert job.status == JobStatus.FAILED
     assert job.error_code == "PERSIST_FAILED"
     assert "validation failed" in job.error
+
+
+@pytest.mark.parametrize('failure_code', ['PERSIST_FAILED', 'VALIDATION_FAILED', 'GENERATION_DEADLINE_EXCEEDED', 'WORKER_LOST'])
+async def test_retry_reuses_completed_sidecar_and_keeps_progress_below_complete_until_publication(failure_code):
+    from types import SimpleNamespace
+    from app.services.job_store import retry_job
+    from app.services.classroom_job_service import run_generate_classroom_job
+    original = create_job(kind=JobKind.GENERATE_CLASSROOM, owner_user_id='teacher-a', course_id='course-1', input_summary={'requirement': '课堂'})
+    update_job(original.edu_job_id, status=JobStatus.FAILED, error_code=failure_code, sidecar_job_id='sidecar-job-1')
+    retried = retry_job(original.edu_job_id, owner_user_id='teacher-a')
+    class CompletedClient(FakeClient):
+        config = SimpleNamespace(base_url='http://sidecar-test:3000')
+        async def generate_classroom(self, **kwargs):
+            pytest.fail('completed sidecar must not be generated again')
+        async def poll_job(self, url):
+            assert url.endswith('/sidecar-job-1')
+            return self.final_envelope
+    async def publish(result):
+        current = get_job(retried.edu_job_id)
+        assert current.status == JobStatus.RUNNING and current.progress <= 90
+        return {'material_id': 'native-classroom'}
+    done = await run_generate_classroom_job(retried, requirement='课堂', client=CompletedClient(), on_sidecar_succeeded=publish)
+    assert done.status == JobStatus.SUCCEEDED and done.progress == 100
+    assert done.sidecar_job_id == 'sidecar-job-1'
+    assert get_job(original.edu_job_id).status == JobStatus.FAILED

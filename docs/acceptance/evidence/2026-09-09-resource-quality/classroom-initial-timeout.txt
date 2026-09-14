@@ -1,0 +1,21 @@
+[MinerU] 已启用 MinerU Cloud（直连远程 API）用于 PDF 解析
+[CTX] context 加载 0ms | cid=9a3a1191
+[CTX] context 加载 0ms | cid=9a3a1191
+[LLM] ok deepseek-v4-flash 同步调用 10473ms | 2488 字符
+[LLM] ok deepseek-v4-flash 同步调用 3983ms | 1118 字符
+[LLM] ok deepseek-v4-flash 同步调用 5285ms | 1583 字符
+[LLM] ok deepseek-v4-flash 同步调用 4056ms | 846 字符
+[CTX] context 加载 0ms | cid=9a3a1191
+{"kind": "classroom", "stage": "turn", "action": {"name": "generate.classroom"}, "workflow": {"type": "classroom", "status": "awaiting_confirm", "stage": "outline"}}
+[CTX] context 加载 0ms | cid=9a3a1191
+[CTX] context 加载 0ms | cid=9a3a1191
+[CTX] context 加载 0ms | cid=9a3a1191
+{"kind": "classroom", "stage": "turn", "action": {"name": "generate.classroom"}, "workflow": {"type": "classroom", "status": "running", "stage": "generating"}}
+{"kind": "classroom", "passed": false, "error": "{'schema_version': 2, 'version': 207, 'edu_job_id': 'job_8e8793b90c7b473f', 'kind': 'generate_classroom', 'status': 'running', 'step': 'reviewing', 'progress': 90, 'message': '正在核对并保存课堂内容', 'owner_user_id': 'resource-e2e-admin', 'course_id': 'resourc"}
+Traceback (most recent call last):
+  File "/home/zxqs_ep/Edu_AI/scripts/verify-harness-resources.py", line 376, in <module>
+    main()
+  File "/home/zxqs_ep/Edu_AI/scripts/verify-harness-resources.py", line 372, in main
+    assert all(results.values()), results
+           ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'classroom': False}

@@ -1,0 +1,634 @@
+[
+  {
+    "observed_at": "2026-09-11T14:33:08.919Z",
+    "status": "queued",
+    "phase": "queued",
+    "progress": 0,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:15.037Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:21.097Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:26.182Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:31.268Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:36.453Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:41.563Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:46.648Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:51.826Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:33:56.945Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:02.029Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:07.113Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:12.199Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:17.288Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:22.368Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:27.452Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:32.574Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:37.654Z",
+    "status": "running",
+    "phase": "textbook_ingestion",
+    "progress": 10,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:42.903Z",
+    "status": "running",
+    "phase": "textbook_mapping",
+    "progress": 25,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:48.972Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:34:55.027Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:00.137Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:05.223Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:10.311Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:15.388Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:20.470Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:25.560Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:30.651Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:35.739Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:40.832Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:45.921Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:51.008Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:35:57.994Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:03.093Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:09.149Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:14.238Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:19.373Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:24.496Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:29.589Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:34.691Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:39.778Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:44.861Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:49.955Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:36:55.046Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:00.765Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:05.871Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:10.984Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:16.104Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:21.204Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:26.307Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:32.388Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:37.487Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:42.584Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:47.687Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:52.778Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:37:57.870Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:02.987Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:08.078Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:13.167Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:18.255Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:23.343Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:28.419Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:33.501Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:38.594Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:43.674Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:48.757Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:53.844Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:38:58.926Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:04.020Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:09.128Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:14.220Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:19.314Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:24.428Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:29.525Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:34.621Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:39.721Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:44.822Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:49.920Z",
+    "status": "running",
+    "phase": "ai_fallback",
+    "progress": 72,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T14:39:55.112Z",
+    "status": "succeeded",
+    "phase": "published",
+    "progress": 100,
+    "quality_score": 100,
+    "error": null
+  }
+]

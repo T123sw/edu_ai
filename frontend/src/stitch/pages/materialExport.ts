@@ -13,10 +13,12 @@ export function materialExportFile(material: CourseMaterial, markdown: string) {
       mimeType: "text/markdown;charset=utf-8",
     };
   }
+  const native = material.content && typeof material.content === "object" && !Array.isArray(material.content)
+    ? material.content as Record<string, unknown> : {};
   const content = material.material_type === "quiz"
-    ? { questions: material.questions ?? [] }
+    ? { ...native, questions: material.questions ?? native.questions ?? [] }
     : material.material_type === "flashcard"
-      ? { cards: material.flashcards ?? [] }
+      ? { ...native, cards: material.flashcards ?? native.cards ?? [] }
       : material.content ?? {};
   return {
     filename: `${title}.json`,

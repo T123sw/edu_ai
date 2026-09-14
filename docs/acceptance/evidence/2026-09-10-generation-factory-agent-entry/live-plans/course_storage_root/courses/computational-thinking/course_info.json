@@ -1,0 +1,17 @@
+{
+  "id": "computational-thinking",
+  "title": "计算思维",
+  "description": "培养计算思维，学习问题分解、模式识别、抽象和算法设计",
+  "icon": "CommentOutlined",
+  "color": "#1890ff",
+  "objectives": [
+    "理解计算思维的核心概念和方法",
+    "掌握问题分解和模式识别技巧",
+    "培养抽象思维和算法设计能力",
+    "通过实践项目提升计算思维能力"
+  ],
+  "knowledgeGraph": "",
+  "revision": 0,
+  "created_at": "2026-09-10T06:14:44.820793",
+  "updated_at": "2026-09-10T06:14:44.857139"
+}

@@ -179,3 +179,31 @@ test("presentJobDetail replaces legacy English worker messages", () => {
   assert.equal(presentJobDetail(succeeded), "生成完成，结果已保存到课程资源。");
   assert.equal(presentJobDetail(queued), "任务已提交，正在等待后台处理。");
 });
+
+test("generation preparation and provider failures have actionable details", () => {
+  const preparing = {
+    ...terminalJob(
+      "factory-preparing",
+      "queued",
+      "2026-09-11T05:00:00.000Z",
+      "2026-09-11T05:00:01.000Z",
+    ),
+    step: "preparing",
+  };
+  const unavailable = {
+    ...terminalJob(
+      "factory-provider-failed",
+      "failed",
+      "2026-09-11T05:00:00.000Z",
+      "2026-09-11T05:00:01.000Z",
+    ),
+    error_code: "PROVIDER_UNAVAILABLE",
+  };
+
+  assert.equal(
+    presentJobDetail(preparing),
+    "Agent 正在整理生成要求，完成后将自动进入生成队列。",
+  );
+  assert.match(presentJobDetail(unavailable), /任务中心重试/);
+  assert.match(presentJobDetail(unavailable), /模型服务额度或配置/);
+});

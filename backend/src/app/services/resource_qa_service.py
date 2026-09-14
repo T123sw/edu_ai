@@ -207,7 +207,7 @@ class ResourceQaService:
                 filename=filename,
                 resource_version=resource_version,
             )
-        except (OpenMaicError, OSError, ValueError) as exc:
+        except (OpenMaicError, OSError, ValueError, RuntimeError) as exc:
             log.warning("resource_qa_tts_failed turn_id=%s error=%r", turn_id, exc)
             filename, mime_type, tts_status, audio_url = None, None, "failed", None
 

@@ -1,8 +1,83 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 
 from app.services import course_knowledge_plan_builder as builder
+
+
+def test_ingest_online_textbook_expands_audited_linked_pdf_bundle(monkeypatch):
+    fetched_urls: list[str] = []
+
+    def fake_fetch(_client, candidate, **_kwargs):
+        url = candidate["url"]
+        fetched_urls.append(url)
+        is_pdf = url.endswith(".pdf")
+        return SimpleNamespace(
+            title=candidate.get("title", url),
+            original_url=url,
+            final_url=url,
+            content_format="pdf" if is_pdf else "html",
+            content_hash=("pdf-" if is_pdf else "html-") + str(len(fetched_urls)),
+            payload=b"%PDF-test" if is_pdf else b"<html><body></body></html>",
+            content_type="application/pdf" if is_pdf else "text/html",
+            retrieved_at="2026-09-11T00:00:00+00:00",
+        )
+
+    monkeypatch.setattr(builder, "fetch_source", fake_fetch)
+    monkeypatch.setattr(
+        builder,
+        "parse_html_source",
+        lambda _fetched: {"parser": "structured-html", "chunks": [], "outline": [], "warnings": []},
+    )
+
+    def fake_parse_pdf(fetched, *, pdf_parser=None):
+        del pdf_parser
+        slug = fetched.final_url.rsplit("/", 1)[-1]
+        return {
+            "parser": "mineru",
+            "parser_metadata": {},
+            "summary": slug,
+            "outline": [{"id": slug, "title": slug, "level": 1, "order": 1}],
+            "chunks": [{
+                "chunk_id": slug,
+                "chapter_id": slug,
+                "chapter_title": slug,
+                "content": f"content for {slug}",
+                "content_hash": f"hash-{slug}",
+                "order": 1,
+            }],
+            "char_count": 100,
+            "chapter_count": 1,
+            "chunk_count": 1,
+            "warnings": [],
+            "parsed_at": "2026-09-11T00:00:00+00:00",
+        }
+
+    monkeypatch.setattr(builder, "parse_pdf_source", fake_parse_pdf)
+    candidate = {
+        "candidate_id": "ostep",
+        "title": "Operating Systems: Three Easy Pieces",
+        "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+        "domain": "pages.cs.wisc.edu",
+        "authority_tier": "authoritative_source",
+        "metadata": {
+            "linked_chapter_urls": [
+                "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched.pdf",
+                "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-sema.pdf",
+            ],
+        },
+    }
+
+    textbook = builder._ingest_online_textbook_candidate(candidate)
+
+    assert fetched_urls == [candidate["url"], *candidate["metadata"]["linked_chapter_urls"]]
+    assert textbook["parse_result"]["parser"] == "linked-pdf-bundle"
+    assert textbook["parse_result"]["chunk_count"] == 2
+    assert {item["source_url"] for item in textbook["parse_result"]["chunks"]} == set(
+        candidate["metadata"]["linked_chapter_urls"]
+    )
 
 
 def _build_record():
@@ -18,6 +93,7 @@ def _build_record():
             "target_points_per_module": 2,
             "target_materials_per_leaf": 3,
             "minimum_web_materials_per_leaf": 1,
+            "minimum_authoritative_sources_per_leaf": 0,
             "maximum_ai_materials_per_leaf": 2,
             "ai_supplement_enabled": True,
         },
@@ -164,6 +240,156 @@ class FakeManager:
     def save_knowledge_graph(self, course_id, graph):
         self.graphs.append((course_id, graph))
         return True
+
+
+def test_missing_preferred_domains_checks_each_domain_for_the_topic():
+    topic = {
+        "topic_id": "topic-1",
+        "source_policy": {
+            "preferred_domains": ["docs.docker.com", "docs.kernel.org"]
+        },
+    }
+    persisted = [
+        {
+            "scope_id": "topic-1",
+            "source_url": "https://docs.docker.com/engine/containers/resource_constraints/",
+        }
+    ]
+
+    assert builder._missing_preferred_domains(topic, persisted) == ["docs.kernel.org"]
+    assert builder._candidate_fills_preferred_gap(
+        {"url": "https://docs.kernel.org/admin-guide/cgroup-v2.html"},
+        ["docs.kernel.org"],
+    )
+    assert not builder._candidate_fills_preferred_gap(
+        {"url": "https://docs.docker.com/engine/containers/run"},
+        ["docs.kernel.org"],
+    )
+
+
+def test_candidate_merge_deduplicates_url_and_retains_all_topic_hits():
+    merged = builder._merge_source_candidates(
+        [{
+            "candidate_id": "course-source",
+            "topic_id": None,
+            "url": "https://example.edu/os.pdf?utm_source=search",
+            "selected": True,
+            "review_status": "relevant",
+            "metadata": {"matched_topic_ids": []},
+        }],
+        [{
+            "candidate_id": "leaf-source",
+            "topic_id": "processes",
+            "url": "https://example.edu/os.pdf",
+            "selected": True,
+            "review_status": "relevant",
+            "metadata": {"matched_topic_ids": ["processes"]},
+        }],
+    )
+
+    assert len(merged) == 1
+    assert merged[0]["metadata"]["matched_topic_ids"] == ["processes"]
+
+    ready = builder._merge_source_candidates(
+        [{**merged[0], "review_status": "ready"}],
+        [{
+            "candidate_id": "another-leaf-hit",
+            "topic_id": "threads",
+            "url": "https://example.edu/os.pdf",
+            "selected": True,
+            "review_status": "relevant",
+            "metadata": {"matched_topic_ids": ["threads"]},
+        }],
+    )
+    assert ready[0]["review_status"] == "ready"
+    assert ready[0]["metadata"]["matched_topic_ids"] == ["processes", "threads"]
+
+
+def test_source_semantic_evidence_rejects_navigation_noise():
+    candidate = {
+        "metadata": {
+            "topic_title": "进程状态与转换",
+            "topic_objective": "理解就绪、运行、阻塞状态及其转换条件",
+        }
+    }
+
+    rejected, rejected_score = builder._source_semantic_evidence(
+        candidate,
+        "网站导航包含操作系统和进程栏目，但正文是教师讲课比赛新闻。",
+    )
+    accepted, accepted_score = builder._source_semantic_evidence(
+        candidate,
+        "进程状态与转换包括就绪、运行和阻塞。\n\n"
+        "创建后的进程先进入就绪状态，获得处理器后转换为运行状态。" * 8
+        + "\n\n等待 I/O 时会进入阻塞状态，事件完成后重新回到就绪队列。" * 8,
+    )
+
+    assert rejected is False
+    assert accepted is True
+    assert accepted_score > rejected_score
+
+
+def test_intent_contract_controls_ai_fallback_over_legacy_default():
+    assert builder._effective_build_config({
+        "config": {"ai_supplement_enabled": True},
+        "intent_contract": {"source_policy": {"allow_ai_fallback": False}},
+    })["ai_supplement_enabled"] is False
+    assert builder._effective_build_config({
+        "config": {"ai_supplement_enabled": False},
+        "intent_contract": {"source_policy": {"allow_ai_fallback": True}},
+    })["ai_supplement_enabled"] is True
+
+
+def test_source_semantic_evidence_rejects_short_news_mention():
+    candidate = {
+        "metadata": {
+            "topic_title": "FCFS 与 SJF 调度",
+            "topic_objective": "比较先来先服务和短作业优先并计算等待时间",
+        }
+    }
+
+    passed, _ = builder._source_semantic_evidence(
+        candidate,
+        "学院举办教师讲课比赛。某教师围绕操作系统介绍了 FCFS 与 SJF 调度，"
+        "比较了公平性和效率，随后评委为参赛教师颁奖。",
+    )
+
+    assert passed is False
+
+
+def test_source_semantic_evidence_rejects_broad_course_page_for_specific_leaf():
+    candidate = {
+        "metadata": {
+            "topic_title": "线程的概念与进程/线程区别",
+            "topic_objective": "说明线程共享资源和独立执行上下文",
+        }
+    }
+
+    passed, _ = builder._source_semantic_evidence(
+        candidate,
+        "操作系统由内核、系统程序和系统库构成。\n\n本文介绍 Linux 发行版、文件系统和软件包管理。" * 20,
+    )
+
+    assert passed is False
+
+
+def test_source_semantic_evidence_accepts_english_official_cgroup_document():
+    candidate = {
+        "metadata": {
+            "topic_title": "Linux cgroups 与容器资源隔离",
+            "topic_objective": "理解 CPU、内存和 I/O 资源限制机制",
+        }
+    }
+    content = (
+        "Control Group v2 organizes processes into a hierarchy. Linux exposes cgroup controllers.\n\n"
+        "The cpu controller distributes processor cycles and the memory controller enforces limits. "
+        "The io controller controls access to block devices.\n\n"
+        "Containers use these resource controls for isolation and administrators can verify limits. "
+    ) * 8
+
+    passed, _ = builder._source_semantic_evidence(candidate, content)
+
+    assert passed is True
 
 
 def test_plan_build_publishes_only_after_quality_gate(monkeypatch):
@@ -496,7 +722,7 @@ def test_textbook_first_build_searches_only_gap_and_retries_before_ai(monkeypatc
         "title": "线性代数完整教材",
         "selected": True,
         "review_status": "relevant",
-        "metadata": {"content_format_hint": "pdf"},
+        "metadata": {"content_format_hint": "pdf", "institutional_authority": True},
     }
     monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
     monkeypatch.setattr(
@@ -706,6 +932,13 @@ def test_reviewed_staged_documents_are_resumed_and_promoted():
                     "scope_id": "topic-1",
                     "source_type": "model_generated",
                     "generation_review_score": 93,
+                    "learning_artifacts": [{
+                        "requirement_id": "req-case",
+                        "topic_id": "topic-1",
+                        "type": "worked_case",
+                        "count": 1,
+                        "validation_status": "passed",
+                    }],
                     "status": "received",
                 },
                 {
@@ -730,13 +963,260 @@ def test_reviewed_staged_documents_are_resumed_and_promoted():
             "resumed": True,
             "source_type": "model_generated",
             "review_score": 93,
+            "learning_artifacts": [{
+                "requirement_id": "req-case",
+                "topic_id": "topic-1",
+                "type": "worked_case",
+                "count": 1,
+                "validation_status": "passed",
+            }],
         }
     ]
+
+
+def test_retry_only_resumes_generated_documents_from_the_same_build():
+    class ManagerWithTwoBuilds:
+        def get_knowledge_base_index(self, _course_id):
+            return [
+                {
+                    "id": "older",
+                    "scope_id": "topic-1",
+                    "source_type": "model_generated",
+                    "generation_review_score": 95,
+                    "generation_audit": {"build_id": "kb-old"},
+                    "status": "received",
+                },
+                {
+                    "id": "current",
+                    "scope_id": "topic-1",
+                    "source_type": "model_generated",
+                    "generation_review_score": 92,
+                    "generation_audit": {"build_id": "kb-current"},
+                    "status": "received",
+                },
+            ]
+
+    resumed = builder._reviewed_generated_documents(
+        ManagerWithTwoBuilds(),
+        course_id="course-1",
+        scope_id="topic-1",
+        limit=2,
+        build_id="kb-current",
+    )
+
+    assert [item["document_id"] for item in resumed] == ["current"]
+
+
+def test_required_artifacts_schedule_one_reviewed_generation_when_ai_is_allowed():
+    topic = {
+        "topic_id": "cgroups",
+        "deliverables": [
+            {
+                "requirement_id": "req-exercises",
+                "type": "exercise_with_solution",
+                "count": 3,
+                "hardness": "hard",
+            }
+        ],
+        "source_policy": {"allow_ai_fallback": True},
+    }
+    deficits = []
+
+    builder._ensure_required_artifact_generation(
+        deficits,
+        topics=[topic],
+        persisted=[{
+            "learning_artifacts": [{
+                "requirement_id": "req-exercises",
+                "type": "exercise_with_solution",
+                "count": 1,
+                "validation_status": "passed",
+            }]
+        }],
+        ai_enabled=True,
+        maximum_ai=1,
+    )
+
+    assert len(deficits) == 1
+    assert deficits[0][0]["artifact_generation_only"] is True
+    assert deficits[0][1] == 1
+
+
+def test_topic_scoped_artifacts_schedule_each_uncovered_topic():
+    topics = [
+        {
+            "topic_id": topic_id,
+            "deliverables": [{
+                "requirement_id": "req-case",
+                "type": "worked_case",
+                "count": 1,
+                "hardness": "hard",
+                "application": "topic",
+            }],
+            "source_policy": {"allow_ai_fallback": True},
+        }
+        for topic_id in ("process", "memory")
+    ]
+    deficits = []
+
+    builder._ensure_required_artifact_generation(
+        deficits,
+        topics=topics,
+        persisted=[],
+        ai_enabled=True,
+        maximum_ai=1,
+    )
+
+    assert [item[0]["topic_id"] for item in deficits] == ["process", "memory"]
+
+
+def test_builder_publishes_requested_artifacts_only_after_requirement_ids_pass(monkeypatch):
+    repository = FakeRepository()
+    repository.build["config"].update(
+        target_materials_per_leaf=1,
+        minimum_web_materials_per_leaf=1,
+        maximum_ai_materials_per_leaf=1,
+    )
+    repository.build["intent_contract"] = {
+        "source_policy": {"allow_ai_fallback": True},
+        "deliverables": [{
+            "requirement_id": "req-case",
+            "type": "worked_case",
+            "count": 1,
+            "hardness": "hard",
+        }],
+    }
+    monkeypatch.setattr(builder, "get_postgres_knowledge_repository", lambda: repository)
+    monkeypatch.setattr(
+        builder,
+        "discover_course_knowledge_sources",
+        lambda build: {
+            "topics": builder.execution_topics(build),
+            "source_candidates": [
+                {
+                    **item,
+                    "review_status": "relevant",
+                    "metadata": {"query": "official source"},
+                }
+                for item in repository.build["source_candidates"]
+            ],
+            "warnings": [],
+            "metrics": {"leaf_count": 2, "candidate_count": 2},
+        },
+    )
+    monkeypatch.setattr(
+        builder,
+        "_persist_candidate",
+        lambda **kwargs: {
+            "document_id": kwargs["candidate"]["candidate_id"],
+            "scope_id": kwargs["candidate"]["topic_id"],
+            "source_url": kwargs["candidate"]["url"],
+            "content_hash": kwargs["candidate"]["candidate_id"],
+            "content_chars": 1200,
+            "chunk_count": 2,
+            "final_url": kwargs["candidate"]["url"],
+            "source_type": "web",
+        },
+    )
+    generated = []
+
+    def generate(**kwargs):
+        generated.append(kwargs)
+        return {
+            "document_id": "artifact-doc",
+            "scope_id": kwargs["topic"]["topic_id"],
+            "source_url": "",
+            "source_type": "model_generated",
+            "content_hash": "artifact-hash",
+            "content_chars": 1400,
+            "chunk_count": 2,
+            "review_score": 94,
+            "learning_artifacts": [{
+                "requirement_id": "req-case",
+                "type": "worked_case",
+                "count": 1,
+                "validation_status": "passed",
+            }],
+        }
+
+    monkeypatch.setattr(builder, "_generate_and_persist_supplement", generate)
+    monkeypatch.setattr(builder, "update_job", lambda *args, **kwargs: None)
+
+    result = builder.run_course_knowledge_plan_build_job(
+        job_id="job-1",
+        manager=FakeManager(),
+        rag_system=object(),
+        course_id="course-1",
+        owner_user_id="teacher-1",
+        build_id="kb-1",
+    )
+
+    assert repository.build["status"] == "succeeded"
+    assert result["quality_score"] == 100
+    assert len(generated) == 1
+    assert generated[0]["sequence"] == 1
+    assert generated[0]["topic"]["deliverables"][0]["requirement_id"] == "req-case"
+
+
+def test_satisfied_artifact_requirement_does_not_schedule_duplicate_generation():
+    topic = {
+        "topic_id": "cgroups",
+        "deliverables": [
+            {
+                "requirement_id": "req-exercises",
+                "type": "exercise_with_solution",
+                "count": 3,
+                "hardness": "hard",
+            }
+        ],
+        "source_policy": {"allow_ai_fallback": True},
+    }
+    deficits = []
+
+    builder._ensure_required_artifact_generation(
+        deficits,
+        topics=[topic],
+        persisted=[{
+            "learning_artifacts": [{
+                "requirement_id": "req-exercises",
+                "type": "exercise_with_solution",
+                "count": 3,
+                "validation_status": "passed",
+            }]
+        }],
+        ai_enabled=True,
+        maximum_ai=1,
+    )
+
+    assert deficits == []
+
+
+def test_reviewed_artifact_is_resumed_after_textbooks_fill_numeric_deficit():
+    topic = {
+        "topic_id": "scheduling",
+        "deliverables": [{
+            "requirement_id": "req-case",
+            "type": "worked_case",
+            "count": 1,
+            "hardness": "hard",
+            "application": "topic",
+        }],
+        "source_policy": {"allow_ai_fallback": True},
+    }
+
+    assert builder._reviewed_generation_resume_limit(
+        topic,
+        ai_budget=0,
+        ai_enabled=True,
+        maximum_ai=1,
+    ) == 1
 
 
 def test_extract_page_accepts_missing_license_and_uses_linked_section(monkeypatch):
     class Response:
         headers = {"content-type": "text/html; charset=utf-8"}
+        url = "https://docs.python.org/zh-cn/3/tutorial/controlflow.html#if-statements"
+        encoding = "utf-8"
         text = """
         <html><head><title>Python manual</title></head><body><main>
           <section id="unrelated"><h2>Unrelated</h2><p>{unrelated}</p></section>
@@ -747,8 +1227,17 @@ def test_extract_page_accepts_missing_license_and_uses_linked_section(monkeypatc
         def raise_for_status(self):
             return None
 
+        def iter_bytes(self):
+            yield self.text.encode("utf-8")
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
     class Client:
-        def get(self, _url):
+        def stream(self, _method, _url):
             return Response()
 
     monkeypatch.setattr(builder, "_robots_allows", lambda _client, _url: True)

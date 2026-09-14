@@ -1,0 +1,284 @@
+{
+  "title": "数组随机访问",
+  "content": {
+    "title": "数组随机访问：4张问答闪卡",
+    "cards": [
+      {
+        "id": "c1",
+        "front": "数组的“随机访问”是什么意思？为什么给定下标就能直接定位元素？",
+        "back": "随机访问指给定下标后可以直接定位到对应元素，不需要从头逐个经过前面的元素。“随机”不是指访问位置随机，而是指访问位置可以任意指定。例如 A=[10,20,30,40]，访问 A[2] 可直接得到 30，不必先读取 A[0] 和 A[1]。"
+      },
+      {
+        "id": "c2",
+        "front": "一维数组中，若首元素地址为 base、每个元素占用 size 字节、下标从 0 开始，下标 i 的元素地址如何计算？各符号含义是什么？",
+        "back": "地址 = base + i × size。base 是首元素（下标 0）的地址，size 是完整元素占用的字节数，i 是下标。例如 base=1000、size=4 时，A[3] 的地址为 1000+3×4=1012。注意 size 指完整元素占用空间，结构体数组的填充已包含在 size 中，相邻元素步长就是 sizeof(元素类型)。"
+      },
+      {
+        "id": "c3",
+        "front": "为什么说数组随机访问在抽象模型下是 O(1)？这个结论的适用前提是什么？",
+        "back": "在抽象模型下，地址计算只涉及一次乘法和一次加法，与数组长度 n 无关，因此计为常数时间 O(1)。但这是对操作次数的分析，不保证真实机器上耗时恒定；缓存、分页、内存层次等会影响实际时间。例如访问 A[0] 和 A[999999] 在抽象计数上都算一次访问，真实耗时可能因缓存命中不同而不同。"
+      },
+      {
+        "id": "c4",
+        "front": "长度为 n 的数组，合法下标范围是什么？关于负索引和地址连续，初学者常有哪些误区？",
+        "back": "下标通常从 0 开始，合法范围是 0 到 n-1。例如长度为 4 的数组，合法下标是 0、1、2、3，A[4] 越界。误区包括：认为所有语言都支持负索引（某些语言允许负索引表示从末尾计数，但并非通用规则）；认为数组地址连续就等于物理内存连续（连续地址是抽象模型中的地址连续，不要求底层物理页连续）；认为越界访问仍属于正常随机访问。"
+      }
+    ]
+  },
+  "generation_state": {
+    "resource_review": {
+      "decision": "pass",
+      "method": "model_review",
+      "resource_type": "flashcard",
+      "content_sha256": "fd956f6fc0330735906656c425484c5238d5b756e9c9239ddf15b94bfcbc29dc",
+      "checks": [
+        {
+          "criterion": "requirements",
+          "passed": true,
+          "reason": "按要求生成 4 张闪卡，卡片 id 为 c1-c4；每张正面是独立可理解的问题，未在题干中泄露答案；背面先给简洁答案，并附解释或示例；语言面向大学初学者，通俗易懂；未使用需要外部检索的资料。"
+        },
+        {
+          "criterion": "correctness",
+          "passed": true,
+          "reason": "逐卡核验：c1 对随机访问的界定正确；c2 地址公式 base+i×size、符号含义和 A[3]=1012 计算正确；c3 正确区分抽象 O(1) 与系统耗时非恒定；c4 下标范围 0 到 n-1、A[4] 越界、负索引非通用、地址连续不等于物理连续等判断均准确。"
+        },
+        {
+          "criterion": "examples",
+          "passed": true,
+          "reason": "闪卡中的问答一一对应：c1 的 A[2] 可直接得到 30；c2 示例 base=1000、size=4 时 A[3]=1012；c3 用 A[0] 与 A[999999] 对比抽象次数与真实耗时；c4 用长度 4 说明合法下标 0、1、2、3 及 A[4] 越界，数值和前提均成立。"
+        },
+        {
+          "criterion": "teaching_structure",
+          "passed": true,
+          "reason": "四张卡分别聚焦随机访问含义、地址公式、复杂度前提、边界与误区，互相独立，不依赖前卡；每卡保持问答形式，没有长段教材替代，符合闪卡的学习结构。"
+        },
+        {
+          "criterion": "sources",
+          "passed": true,
+          "reason": "本资源按约定使用通用计算机科学知识，未引用外部资料；因此不需要来源核验，未发现无依据的事实断言。"
+        },
+        {
+          "criterion": "completeness",
+          "passed": true,
+          "reason": "已覆盖要求的 4 张闪卡，且覆盖随机访问含义、地址计算、O(1) 适用前提及常见边界误区，未扩展到多维数组、动态扩容、语言实现细节等范围之外内容。"
+        }
+      ],
+      "version": 1,
+      "history": [
+        {
+          "version": 1,
+          "content_sha256": "fd956f6fc0330735906656c425484c5238d5b756e9c9239ddf15b94bfcbc29dc",
+          "decision": "pass",
+          "review": {
+            "checks": [
+              {
+                "criterion": "requirements",
+                "passed": true,
+                "reason": "按要求生成 4 张闪卡，卡片 id 为 c1-c4；每张正面是独立可理解的问题，未在题干中泄露答案；背面先给简洁答案，并附解释或示例；语言面向大学初学者，通俗易懂；未使用需要外部检索的资料。"
+              },
+              {
+                "criterion": "correctness",
+                "passed": true,
+                "reason": "逐卡核验：c1 对随机访问的界定正确；c2 地址公式 base+i×size、符号含义和 A[3]=1012 计算正确；c3 正确区分抽象 O(1) 与系统耗时非恒定；c4 下标范围 0 到 n-1、A[4] 越界、负索引非通用、地址连续不等于物理连续等判断均准确。"
+              },
+              {
+                "criterion": "examples",
+                "passed": true,
+                "reason": "闪卡中的问答一一对应：c1 的 A[2] 可直接得到 30；c2 示例 base=1000、size=4 时 A[3]=1012；c3 用 A[0] 与 A[999999] 对比抽象次数与真实耗时；c4 用长度 4 说明合法下标 0、1、2、3 及 A[4] 越界，数值和前提均成立。"
+              },
+              {
+                "criterion": "teaching_structure",
+                "passed": true,
+                "reason": "四张卡分别聚焦随机访问含义、地址公式、复杂度前提、边界与误区，互相独立，不依赖前卡；每卡保持问答形式，没有长段教材替代，符合闪卡的学习结构。"
+              },
+              {
+                "criterion": "sources",
+                "passed": true,
+                "reason": "本资源按约定使用通用计算机科学知识，未引用外部资料；因此不需要来源核验，未发现无依据的事实断言。"
+              },
+              {
+                "criterion": "completeness",
+                "passed": true,
+                "reason": "已覆盖要求的 4 张闪卡，且覆盖随机访问含义、地址计算、O(1) 适用前提及常见边界误区，未扩展到多维数组、动态扩容、语言实现细节等范围之外内容。"
+              }
+            ],
+            "blocking_issues": [],
+            "suggestions": []
+          }
+        }
+      ],
+      "suggestions": []
+    }
+  },
+  "source": {
+    "selected_doc_ids": [],
+    "rag_index_keys": []
+  },
+  "schema_version": 2,
+  "version": 1,
+  "material_type": "flashcard",
+  "material_id": "flashcard-8a09a62aa6e0791a",
+  "course_id": "resource-e2e-course",
+  "scope_type": "course",
+  "scope_id": null,
+  "owner_user_id": "resource-e2e-admin",
+  "created_by": "resource-e2e-admin",
+  "visibility": "private",
+  "source_job_id": "job_41f01188b61a4979",
+  "config_snapshot_id": "cfg_3c6b209a1c1bb288",
+  "source_snapshot": {
+    "mode": "none",
+    "requested_document_ids": [],
+    "documents": [],
+    "resolved_at": "2026-09-10T06:16:15.251177+00:00"
+  },
+  "config_snapshot": {
+    "allow_rag": true,
+    "audience": "大学初学者（数据结构课程）",
+    "classroom_options": {},
+    "confirmed_outline": "",
+    "entrypoint": "agent",
+    "focus": "生成4张问答闪卡，主题为数组随机访问；每张正面一个能独立理解的问题（不泄露答案），背面给简洁准确的答案并附一句解释或示例；面向大学初学者，语言通俗；使用通用知识，无需检索外部资料；卡片之间不重复、不互相依赖；输出 JSON：title、cards（每卡 id、front、back）。",
+    "harness_approval_request_id": "d494ce9b58724244ac49040330a9cd7d",
+    "harness_chapters": [],
+    "harness_conversation_id": "resource-e2e-flashcard-b1a1c071",
+    "harness_evidence_ids": [],
+    "harness_execution_context": {
+      "decision": {
+        "interpreted_by": "model",
+        "outline_id": "direct_org_3cc33e28911d41e48c35e733dccc52dc",
+        "request_id": "d494ce9b58724244ac49040330a9cd7d",
+        "revision": 1,
+        "user_message": "请生成4张面向大学初学者的“数组随机访问”问答闪卡，每张正面一个问题，背面答案与解释。资料使用通用知识即可，无需检索。"
+      },
+      "stage": "write_and_review_flashcard",
+      "working_memory": {}
+    },
+    "harness_interaction_mode": "direct",
+    "harness_organization": {
+      "audience": "大学初学者（数据结构课程）",
+      "evidence_ids": [],
+      "limitations": [
+        "本材料只讨论一维数组随机访问的抽象模型，不覆盖多维数组、动态数组扩容、链表等其他结构。",
+        "未检索外部资料，结论基于通用计算机科学知识。",
+        "真实系统性能受缓存、分页、编译器优化等影响，本材料只区分抽象复杂度与真实耗时，不展开具体性能分析。",
+        "不同编程语言对数组、下标范围、负索引和越界行为的语义可能不同，本材料只作一般性提醒，不逐一列举语言规范。"
+      ],
+      "model_review": {
+        "checks": [
+          {
+            "claim": "前提适用性：材料把数组随机访问限定在一维数组、下标从0开始、抽象地址模型下讨论，并明确不展开多维数组、动态扩容和真实系统性能。",
+            "passed": true,
+            "reason": "scope、prerequisites 和 limitations 均给出该边界；地址公式明确假设首元素地址 base、元素大小 size、下标从0开始，未把结论无条件推广到所有语言或所有实现。"
+          },
+          {
+            "claim": "内部推理一致性：地址公式 base + i × size 与示例 base=1000、size=4、A[3] 地址 1012 一致；常数时间解释与“只涉及一次乘法和一次加法、与 n 无关”一致。",
+            "passed": true,
+            "reason": "逐步追踪：A[0]=1000+0×4=1000；A[3]=1000+3×4=1012。O(1) 被限定为抽象操作次数，并明确不保证真实耗时恒定，未把抽象复杂度与真实系统性能混同。"
+          },
+          {
+            "claim": "具体例子：A=[10,20,30,40] 访问 A[2] 得到 30，不需要先读取 A[0]、A[1]；长度4的数组合法下标为0、1、2、3，A[4]越界。",
+            "passed": true,
+            "reason": "下标从0开始，A[2] 是第三个元素 30；长度4时最后一个合法下标是 3，A[4] 越界。例子与说明一致，未出现末端索引或越界处理矛盾。"
+          },
+          {
+            "claim": "边界与学习目标覆盖：材料覆盖随机访问含义、地址计算、O(1) 适用前提、越界、元素大小、连续地址与物理连续的区别，并对应四个 objectives。",
+            "passed": true,
+            "reason": "四个 units 分别对应 objective_indices 0 到 3；边界单元明确合法范围 0 到 n-1、负索引并非所有语言通用、连续地址不要求物理页连续。结构体数组填充问题也正确说明 size 是完整元素占用空间，sizeof 已包含填充，相邻元素步长就是 sizeof(元素类型)。"
+          },
+          {
+            "claim": "来源示例的前提是否被错误泛化：材料没有把“随机访问 O(1)”泛化为真实机器耗时恒定，也没有把“地址连续”泛化为物理内存连续。",
+            "passed": true,
+            "reason": "常数时间单元明确区分抽象计数与真实系统耗时；边界单元明确连续地址是抽象模型中的地址连续，不要求底层物理页连续。未发现把特定语言负索引语义泛化为所有语言的情况。"
+          }
+        ],
+        "issues": [],
+        "passed": true
+      },
+      "objectives": [
+        "能用自己的话说明数组随机访问的含义，并解释为什么可通过下标直接定位元素",
+        "能写出并解释一维数组元素地址计算公式，说明各符号含义",
+        "能说明数组随机访问在抽象模型下为常数时间，并指出该结论的适用前提",
+        "能识别数组随机访问的常见边界与误区，如越界、元素大小、连续地址与物理连续的区别"
+      ],
+      "organization_id": "org_3cc33e28911d41e48c35e733dccc52dc",
+      "prerequisites": [
+        "知道变量、内存地址和基本数据类型的概念",
+        "了解下标从0开始的基本计数方式",
+        "能区分抽象操作次数与真实运行时间"
+      ],
+      "requirements": "生成4张问答闪卡，主题为数组随机访问；每张正面一个能独立理解的问题（不泄露答案），背面给简洁准确的答案并附一句解释或示例；面向大学初学者，语言通俗；使用通用知识，无需检索外部资料；卡片之间不重复、不互相依赖；输出 JSON：title、cards（每卡 id、front、back）。",
+      "resource_type": "flashcard",
+      "scope": "面向大学初学者的数组随机访问知识准备，聚焦一维数组按下标访问的抽象模型、地址计算、时间复杂度含义、适用前提与常见边界。不展开多维数组、动态数组扩容、语言实现细节或真实系统性能分析。",
+      "source_policy": {
+        "allow_rag": true,
+        "allow_web": true,
+        "scope_id": null,
+        "scope_type": "course",
+        "selected_doc_ids": []
+      },
+      "subject": "数组随机访问",
+      "units": [
+        {
+          "check": "若数组有 n 个元素，访问 A[n-1] 是否必须先访问前 n-1 个元素？",
+          "evidence_ids": [],
+          "example": "对于数组 A = [10, 20, 30, 40]，访问 A[2] 可直接得到 30，不必先读取 A[0] 和 A[1]。",
+          "explanation": "数组随机访问指给定下标后，可以直接定位到对应元素，不需要像顺序访问那样从头逐个经过前面的元素。这里的“随机”不是指随机数，而是指访问位置可以任意指定。",
+          "misconception": "把“随机访问”误解为每次访问位置随机，或误解为访问时间在真实机器上绝对恒定。",
+          "objective_indices": [
+            0
+          ],
+          "title": "随机访问的含义"
+        },
+        {
+          "check": "若 base = 2000，size = 8，A[5] 的地址是多少？",
+          "evidence_ids": [],
+          "example": "若 base = 1000，size = 4，则 A[0] 地址为 1000，A[3] 地址为 1000 + 3×4 = 1012。",
+          "explanation": "在一维数组中，若首元素地址为 base，每个元素占用 size 字节，下标从0开始，则下标 i 的元素地址为 base + i × size。这里 size 指完整元素占用的空间，包括结构体对齐填充等实现相关部分。",
+          "misconception": "认为公式只适用于基本类型，结构体数组不能使用；实际上结构体数组相邻元素的步长就是 sizeof(元素类型)，填充已包含在 size 中。",
+          "objective_indices": [
+            1
+          ],
+          "title": "地址计算公式"
+        },
+        {
+          "check": "数组随机访问为 O(1) 时，是否意味着访问任意下标在真实机器上耗时完全相同？",
+          "evidence_ids": [],
+          "example": "访问 A[0] 和 A[999999] 在抽象计数上都算一次访问，但真实机器上可能因缓存命中不同而耗时不同。",
+          "explanation": "在抽象模型下，数组随机访问被计为常数时间 O(1)，因为地址计算只涉及一次乘法和一次加法，与数组长度 n 无关。但这是对操作次数的分析，不保证真实系统耗时恒定；缓存、分页、内存层次等会影响实际时间。",
+          "misconception": "把 O(1) 理解为任何情况下实际耗时完全一样，或把抽象模型结论直接当作真实系统性能保证。",
+          "objective_indices": [
+            2
+          ],
+          "title": "常数时间的适用前提"
+        },
+        {
+          "check": "长度为 n 的数组，最后一个元素的下标是多少？负索引在所有语言中语义相同吗？",
+          "evidence_ids": [],
+          "example": "长度为 4 的数组 A，合法下标是 0、1、2、3；A[4] 越界。某些语言允许负索引表示从末尾计数，但这不是所有语言的通用规则。",
+          "explanation": "数组下标通常从0开始，合法范围是 0 到 n-1。越界访问不属于数组随机访问的正确使用。连续地址是抽象模型中的地址连续，不要求底层物理页连续。不同语言对负索引、越界检查等语义可能不同，不能一概而论。",
+          "misconception": "认为数组地址连续就等于物理内存连续；或认为所有语言都支持负索引；或认为越界访问仍属于正常随机访问。",
+          "objective_indices": [
+            3
+          ],
+          "title": "边界与常见误区"
+        }
+      ]
+    },
+    "harness_outline_id": "direct_org_3cc33e28911d41e48c35e733dccc52dc",
+    "harness_outline_revision": 1,
+    "harness_review_required": true,
+    "length_hint": "生成4张问答闪卡，主题为数组随机访问；每张正面一个能独立理解的问题（不泄露答案），背面给简洁准确的答案并附一句解释或示例；面向大学初学者，语言通俗；使用通用知识，无需检索外部资料；卡片之间不重复、不互相依赖；输出 JSON：title、cards（每卡 id、front、back）。",
+    "research_context": "",
+    "research_sources": [],
+    "resource_type": "flashcard",
+    "subject": "数组随机访问",
+    "title": "数组随机访问"
+  },
+  "status": "ready",
+  "created_at": "2026-09-10T06:18:08.774824",
+  "updated_at": "2026-09-10T06:18:08.774824",
+  "is_pinned": false,
+  "pinned_at": null,
+  "content_hash": "b779232aa2ac08ef0bc5c9980d1d90b4a0b6f469a296990fcd91aae1b901c9cd"
+}

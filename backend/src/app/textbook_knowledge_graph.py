@@ -271,6 +271,29 @@ def _resolve_openai_compatible_config(explicit_env_path: Optional[str] = None) -
     raise TextbookKnowledgeGraphError(f"No usable OpenAI-compatible config found in {env_path}")
 
 
+def _post_chat_completion(
+    config: Dict[str, str],
+    payload: Dict[str, Any],
+    *,
+    timeout: float,
+) -> requests.Response:
+    from app.services.deepseek_key_failover import completion_endpoint
+
+    api_base, api_key = completion_endpoint(
+        config["api_base"],
+        config["api_key"],
+    )
+    return requests.post(
+        f"{api_base.rstrip('/')}/chat/completions",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
+        timeout=timeout,
+    )
+
+
 def _extract_json_object(raw_text: str) -> Dict[str, Any]:
     text = str(raw_text or "").strip()
     if not text:
@@ -343,13 +366,9 @@ def _invoke_outline_model(*, payload: Dict[str, Any], explicit_env_path: Optiona
         f"Parsed textbook input:\n{json.dumps(payload, ensure_ascii=False)}"
     )
 
-    response = requests.post(
-        f"{config['api_base']}/chat/completions",
-        headers={
-            "Authorization": f"Bearer {config['api_key']}",
-            "Content-Type": "application/json",
-        },
-        json={
+    response = _post_chat_completion(
+        config,
+        {
             "model": config["model"],
             "temperature": 0.1,
             "messages": [
@@ -1092,13 +1111,9 @@ def _invoke_chapter_outline_model(
         f"Input:\n{json.dumps(payload, ensure_ascii=False)}"
     )
 
-    response = requests.post(
-        f"{config['api_base']}/chat/completions",
-        headers={
-            "Authorization": f"Bearer {config['api_key']}",
-            "Content-Type": "application/json",
-        },
-        json={
+    response = _post_chat_completion(
+        config,
+        {
             "model": config["model"],
             "temperature": 0.1,
             "messages": [

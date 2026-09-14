@@ -3520,9 +3520,13 @@ class RAGSystem:
         if not api_base.endswith("/v1"):
             api_base = api_base + "/v1"
 
+        from app.services.deepseek_key_failover import completion_endpoint
+
+        api_key = api_key_override or self.api_key
+        api_base, api_key = completion_endpoint(api_base, api_key)
+
         url = f"{api_base}/chat/completions"
         headers = {"Content-Type": "application/json"}
-        api_key = api_key_override or self.api_key
         # 设置Authorization header（如果提供了API key）
         if api_key and api_key != "dummy-key":
             headers["Authorization"] = f"Bearer {api_key}"
@@ -3536,13 +3540,18 @@ class RAGSystem:
         else:
             raise ValueError("必须提供 prompt 或 messages")
 
+        configured_max_tokens = int((llm_config or {}).get("max_tokens") or 4096)
+        max_tokens = max(256, min(32768, configured_max_tokens))
         payload = {
             "model": model_name,
             "messages": final_messages,
             "temperature": 0.4,
-            "max_tokens": 4096,
+            "max_tokens": max_tokens,
             "stream": stream,
         }
+        thinking_mode = str((llm_config or {}).get("thinking") or "").strip().lower()
+        if thinking_mode in {"enabled", "disabled"}:
+            payload["thinking"] = {"type": thinking_mode}
         if str(model_name or "").lower().startswith("qwen3"):
             payload["enable_thinking"] = False
         print(

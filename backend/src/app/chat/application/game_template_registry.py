@@ -41,7 +41,13 @@ _GAME_TEMPLATES: dict[str, GameTemplateSpec] = {
 
 
 def get_game_template_spec(game_type: str) -> GameTemplateSpec:
+    requested = str(game_type or "").strip()
+    canonical = requested.replace("-", "_")
     try:
-        return _GAME_TEMPLATES[str(game_type or "").strip()]
+        return _GAME_TEMPLATES[canonical]
     except KeyError as exc:
-        raise ValueError("unsupported_game_type") from exc
+        for template in _GAME_TEMPLATES.values():
+            if requested == template.template_id:
+                return template
+        allowed = ", ".join(_GAME_TEMPLATES)
+        raise ValueError(f"unsupported_game_type: game_type must be exactly one of {allowed}") from exc

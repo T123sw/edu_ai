@@ -1,0 +1,181 @@
+[
+  {
+    "observed_at": "2026-09-11T10:10:56.707Z",
+    "status": "running",
+    "phase": "textbook_mapping",
+    "progress": 25,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:02.829Z",
+    "status": "running",
+    "phase": "textbook_mapping",
+    "progress": 25,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:07.958Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:14.033Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:19.174Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:24.344Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:29.470Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:34.585Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:39.749Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:44.875Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:50.003Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 35,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:11:55.158Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:01.279Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:06.421Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:11.535Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:16.670Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:21.805Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:26.947Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:32.077Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:37.246Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:42.380Z",
+    "status": "running",
+    "phase": "gap_search",
+    "progress": 50,
+    "quality_score": null,
+    "error": null
+  },
+  {
+    "observed_at": "2026-09-11T10:12:47.548Z",
+    "status": "blocked",
+    "phase": "quality_blocked",
+    "progress": 100,
+    "quality_score": 70,
+    "error": {
+      "code": "QUALITY_GATE_FAILED",
+      "message": "质量门禁未通过：non_ai_coverage, content_sufficiency, authoritative_source_coverage"
+    }
+  }
+]

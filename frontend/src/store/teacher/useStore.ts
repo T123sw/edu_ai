@@ -15,6 +15,7 @@ import {
   replaceConversationGeneratedFiles,
   upsertGeneratedFileInList,
 } from '../../services/teacher/materials.helpers';
+import type { QueuedAgentRequest } from '../../components/generation/generationAgentRequest';
 
 interface Document {
   id: string;
@@ -66,6 +67,8 @@ interface AppState {
   viewingFile: GeneratedFile | null;
   highlightRequest: HighlightRequest | null;
   queuedMessage: string | null;
+  queuedMessageCourseId: string | null;
+  queuedAgentRequest: QueuedAgentRequest | null;
   statusCard: StatusCardV2 | null;
   addDocument: (doc: Document) => void;
   removeDocument: (id: string) => void;
@@ -93,6 +96,11 @@ interface AppState {
   setViewingFile: (file: GeneratedFile | null) => void;
   setHighlightRequest: (req: Omit<HighlightRequest, 'requestId'> | null) => void;
   setQueuedMessage: (message: string | null) => void;
+  enqueueCourseMessage: (courseId: string, message: string) => void;
+  consumeQueuedMessage: (expectedMessage: string, courseId?: string | null) => string | null;
+  enqueueAgentRequest: (request: QueuedAgentRequest) => 'enqueued' | 'conflict';
+  consumeAgentRequest: (requestId: string) => QueuedAgentRequest | null;
+  clearQueuedAgentRequest: (requestId?: string) => void;
   setStatusCard: (card: StatusCardV2 | null) => void;
 }
 
@@ -116,6 +124,8 @@ export const useStore = create<AppState>()(
       viewingFile: null,
       highlightRequest: null,
       queuedMessage: null,
+      queuedMessageCourseId: null,
+      queuedAgentRequest: null,
       statusCard: null,
 
       addDocument: (doc) => set((state) => ({ documents: [...state.documents, doc] })),
@@ -252,7 +262,45 @@ export const useStore = create<AppState>()(
         });
       },
 
-      setQueuedMessage: (message) => set({ queuedMessage: message }),
+      setQueuedMessage: (message) => set({ queuedMessage: message, queuedMessageCourseId: null }),
+      enqueueCourseMessage: (courseId, message) => set({
+        queuedMessage: message,
+        queuedMessageCourseId: courseId,
+      }),
+      consumeQueuedMessage: (expectedMessage, courseId) => {
+        let consumed: string | null = null;
+        set((state) => {
+          if (
+            state.queuedMessage !== expectedMessage
+            || (state.queuedMessageCourseId && state.queuedMessageCourseId !== courseId)
+          ) return state;
+          consumed = state.queuedMessage;
+          return { queuedMessage: null, queuedMessageCourseId: null };
+        });
+        return consumed;
+      },
+      enqueueAgentRequest: (request) => {
+        let result: 'enqueued' | 'conflict' = 'conflict';
+        set((state) => {
+          if (state.queuedAgentRequest) return state;
+          result = 'enqueued';
+          return { queuedAgentRequest: request };
+        });
+        return result;
+      },
+      consumeAgentRequest: (requestId) => {
+        let consumed: QueuedAgentRequest | null = null;
+        set((state) => {
+          if (state.queuedAgentRequest?.requestId !== requestId) return state;
+          consumed = state.queuedAgentRequest;
+          return { queuedAgentRequest: null };
+        });
+        return consumed;
+      },
+      clearQueuedAgentRequest: (requestId) => set((state) => {
+        if (requestId && state.queuedAgentRequest?.requestId !== requestId) return state;
+        return { queuedAgentRequest: null };
+      }),
       setStatusCard: (card) => set({ statusCard: card }),
     }),
     {

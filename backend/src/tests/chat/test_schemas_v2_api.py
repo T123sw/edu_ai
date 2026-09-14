@@ -14,6 +14,17 @@ def test_reply_request_v2_defaults_disable_capabilities():
     assert payload.allow_rag is False
     assert payload.allow_web is False
     assert payload.selected_doc_ids == []
+    assert payload.entry_mode == "conversation"
+
+
+def test_reply_request_v2_accepts_generation_factory_mode():
+    payload = ChatReplyRequestV2(
+        question="直接生成报告",
+        action_hint="generate.report",
+        entry_mode="generation_factory",
+    )
+
+    assert payload.entry_mode == "generation_factory"
 
 
 def test_report_request_v2_allows_nullable_report_config():

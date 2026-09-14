@@ -37,6 +37,18 @@ from .lesson_plan_service_v2 import build_default_lesson_plan_engine
 from .report_service_v2 import build_default_report_engine, finalize_report_result
 
 
+_FACTORY_RESOURCE_BY_HINT = {
+    "generate.report": "report",
+    "generate.lesson_plan": "lesson_plan",
+    "generate.blog": "blog",
+    "generate.quiz": "quiz",
+    "generate.flashcard": "flashcard",
+    "generate.graph": "graph",
+    "generate.game": "game",
+    "generate.classroom": "classroom",
+}
+
+
 def _persist_quiz_course_material(*, payload, result: dict, course_storage_manager=None) -> None:
     course_id = str(getattr(payload, "course_id", "") or "").strip()
     if not course_id or course_storage_manager is None:
@@ -88,6 +100,7 @@ class ReplyServiceV2:
         memory_writer=None,
         knowledge_context_service=None,
         artifact_revision_service=None,
+        generation_command_service=None,
     ):
         self.orchestrator = orchestrator
         self.orchestrator_factory = orchestrator_factory
@@ -99,8 +112,59 @@ class ReplyServiceV2:
         self.memory_writer = memory_writer
         self.knowledge_context_service = knowledge_context_service
         self.artifact_revision_service = artifact_revision_service
+        self.generation_command_service = generation_command_service
+
+    def _reserve_factory_job(self, request):
+        if (
+            self.generation_command_service is None
+            or getattr(request, "entry_mode", "conversation") != "generation_factory"
+        ):
+            return None
+        resource_type = _FACTORY_RESOURCE_BY_HINT.get(str(request.action_hint or ""))
+        owner = str(request.owner or "").strip()
+        course_id = str(request.course_id or "").strip()
+        if not resource_type or not owner or not course_id:
+            return None
+        request.request_id = str(request.request_id or uuid4().hex)
+        job = self.generation_command_service.reserve_factory_request(
+            resource_type=resource_type,
+            owner_user_id=owner,
+            course_id=course_id,
+            scope_type=str(request.scope_type or "course"),
+            scope_id=request.scope_id,
+            request_id=request.request_id,
+            title=request.question,
+        )
+        request.factory_job_id = job.edu_job_id
+        return job
+
+    def _fail_factory_job(self, request, *, result=None, error=None):
+        job_id = str(getattr(request, "factory_job_id", "") or "").strip()
+        if not job_id or self.generation_command_service is None:
+            return None
+        trace_error = str(((result or {}).get("trace") or {}).get("error") or "")
+        if trace_error == "provider_unavailable":
+            code = "PROVIDER_UNAVAILABLE"
+        elif trace_error == "harness_timeout":
+            code = "FACTORY_PREPARATION_TIMEOUT"
+        else:
+            code = "FACTORY_PREPARATION_FAILED"
+        message = str(error or ((result or {}).get("message") or {}).get("content") or "生成任务未能启动，请重试。")
+        return self.generation_command_service.fail_factory_reservation(
+            job_id,
+            error_code=code,
+            error_message=message,
+        )
 
     def _finalize_result(self, *, payload, request, result: dict) -> dict:
+        if result.get('resource_revision_reference'):
+            # The Harness model selected a concrete authorized artifact; do not
+            # classify the user's language again at the routing boundary.
+            from app.chat.domain.artifact_reference import ArtifactReferencePayload
+            request = request.model_copy(update={'artifact_reference': ArtifactReferencePayload.model_validate(result['resource_revision_reference'])})
+            edit = self._run_artifact_edit(request=request, snapshot=None)
+            if edit is not None:
+                result = edit
         if (result.get("trace") or {}).get("response_replayed"):
             return result
         if request.workspace_context is not None:
@@ -122,7 +186,7 @@ class ReplyServiceV2:
 
         conversation_id = str(((result.get("conversation") or {}).get("conversation_id")) or request.conversation_id or "").strip()
         result.setdefault("conversation", {"conversation_id": conversation_id})
-        if conversation_id:
+        if conversation_id and getattr(request, "entry_mode", "conversation") != "generation_factory":
             self.conversation_store.write_v2_result(conversation_id, request, result)
             if self.memory_writer is not None:
                 try:
@@ -167,6 +231,16 @@ class ReplyServiceV2:
             storage = self.conversation_store.storage
             state = storage.get_state(request.conversation_id)
             pending = state.get("pending_operation") or {}
+            checkpoint = state.get('interaction_state') or {}
+            active = (checkpoint.get('tasks') or {}).get(checkpoint.get('foreground'))
+            active_workflow = ({**active, 'type': active.get('kind')} if active else state.get('workflow_state'))
+            archived = state.get('suspended_artifact_revision') or {}
+            archives = dict(state.get('suspended_artifact_revisions') or {})
+            legacy_id = ((archived.get('revision_pending') or {}).get('draft') or {}).get('draft_id')
+            if legacy_id:
+                archives.setdefault(legacy_id, archived)
+            # References never resume work. The model must select a checkpoint
+            # by draft ID and revision, then the application re-presents it.
             revision_pending = pending.get("revision_pending") if pending.get("kind") == "artifact_revision" else None
             incoming = request.artifact_reference
             old_reference = (revision_pending or {}).get("reference") or {}
@@ -183,10 +257,34 @@ class ReplyServiceV2:
                 operation_id=operation_id, artifact_reference=request.artifact_reference,
                 pending=revision_pending, scope_id=request.scope_id, actor_role=request.actor_role,
                 draft_action=request.artifact_draft_action,
+                active_resource_workflow=active_workflow,
+                suspended_pending=[item["revision_pending"] for item in archives.values() if item.get("revision_pending")] if not pending else None,
                 session_artifacts=[state.get("active_artifact") or {}],
             )
             if outcome["status"] == "not_applicable":
                 return None
+            if outcome['status'] == 'new_resource':
+                # Model-selected handoff; retain the old draft without keeping
+                # its edit mode active during the new resource's confirmation.
+                if pending.get('kind') == 'artifact_revision':
+                    draft_id = ((pending.get('revision_pending') or {}).get('draft') or {}).get('draft_id')
+                    if draft_id:
+                        archives[draft_id] = pending
+                    storage.update_state(request.conversation_id, {'suspended_artifact_revision': pending,
+                        'suspended_artifact_revisions': archives})
+                storage.update_state(request.conversation_id, {'pending_operation': None, 'artifact_reference': None, 'latest_revision_outcome': None})
+                request.artifact_reference = None
+                request.resource_source_context = outcome.get('source_context')
+                request.artifact_id = None
+                request.action_hint = None
+                from .request_normalizer import configure_harness_capabilities
+                configure_harness_capabilities(request)
+                return None
+            if outcome.get('resumed_draft'):
+                resumed_id = outcome['resumed_draft_id']
+                archives.pop(resumed_id, None)
+                storage.update_state(request.conversation_id, {'suspended_artifact_revisions': archives,
+                    'suspended_artifact_revision': None if resumed_id == legacy_id else archived})
             outcome["operation_id"] = operation_id
             if outcome.get("pending"):
                 storage.update_state(request.conversation_id, {"pending_operation": {
@@ -205,7 +303,12 @@ class ReplyServiceV2:
                 "message": {"role": "assistant", "content": outcome.get("message", "")},
                 "conversation": {"conversation_id": request.conversation_id},
                 "action": {"name": "artifact.read" if outcome["status"] == "answered" else "artifact.revise"}, "artifacts": artifacts, "sources": [],
-                "artifact_revision": outcome, "trace": {"path": "fast"},
+                "artifact_revision": outcome,
+                "workflow": ({"type": "artifact_revision", "status": "awaiting_confirm", "stage": "draft",
+                    "task_id": operation_id, "revision": (outcome.get("draft") or {}).get("revision")}
+                    if outcome.get("draft") else {"type": "artifact_revision", "status": "completed", "stage": outcome["status"]}
+                    if outcome["status"] in {"completed", "discarded"} else None),
+                "trace": {"path": "fast"},
             }
         artifact_reference = getattr(request, "artifact_reference", None)
         if artifact_reference is None:
@@ -233,11 +336,11 @@ class ReplyServiceV2:
         state = state or {}
         if (state.get("pending_operation") or {}).get("kind") == "artifact_revision":
             return False
-        if self.artifact_revision_service is not None and re.search(r"修改|改写|重写|调整|简化|改一下|删掉", request.question) and re.search(r"报告|文档|教案|习题|闪卡|博客|导图|游戏|课堂", request.question) and "大纲" not in request.question:
-            return False
         return bool(Config.USE_DEEPSEEK_HARNESS and HarnessRuntime.supports(request))
 
     def _prepare_workspace(self, request):
+        # Always read the authoritative cursor for this authenticated conversation.
+        request.interaction_state = (self.conversation_store.storage.get_state(request.conversation_id) or {}).get('interaction_state')
         if not self.knowledge_context_service:
             return None
         if self._model_plans(request):
@@ -245,6 +348,11 @@ class ReplyServiceV2:
         return self.knowledge_context_service.prepare(request)
 
     def reply(self, payload):
+        from app.chat.persistence.interaction_state import conversation_turn
+        with conversation_turn(payload):
+            return self._reply_locked(payload)
+
+    def _reply_locked(self, payload):
         request = normalize_chat_request(payload)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
@@ -253,14 +361,26 @@ class ReplyServiceV2:
         if scope_result is not None:
             return self._finalize_result(payload=payload, request=request, result=scope_result)
 
+        self._reserve_factory_job(request)
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
         result = None if self._model_plans(request) else self._run_artifact_edit(request=request, snapshot=snapshot)
         if result is None:
             orchestrator = self.orchestrator_factory(request) if self.orchestrator_factory is not None else self.orchestrator
             result = orchestrator.dispatch(request)
+        if request.resource_source_context is not None:
+            result['resource_creation_handoff'] = True
+        if getattr(request, "factory_job_id", None) and (
+            result.get("action", {}).get("name") == "agent.failed" or not result.get("task_id")
+        ):
+            self._fail_factory_job(request, result=result)
         return self._finalize_result(payload=payload, request=request, result=result)
 
     def reply_stream(self, payload):
+        from app.chat.persistence.interaction_state import conversation_turn
+        with conversation_turn(payload):
+            yield from self._reply_stream_locked(payload)
+
+    def _reply_stream_locked(self, payload):
         request = normalize_chat_request(payload)
         if not getattr(request, "conversation_id", None):
             request.conversation_id = f"conv-{uuid4().hex[:12]}"
@@ -270,6 +390,18 @@ class ReplyServiceV2:
             yield {"type": "result", "payload": self._finalize_result(payload=payload, request=request, result=scope_result)}
             yield {"type": "done", "payload": {"conversation_id": request.conversation_id}}
             return
+
+        reserved_job = self._reserve_factory_job(request)
+        if reserved_job is not None:
+            yield {
+                "type": "task_submitted",
+                "payload": {
+                    "task_id": reserved_job.edu_job_id,
+                    "workflow_type": str(reserved_job.kind.value).removeprefix("generate_"),
+                    "conversation_id": request.conversation_id,
+                    "stage": str(reserved_job.step or "preparing"),
+                },
+            }
 
         snapshot = self.context_builder.build(request) if self.context_builder is not None else None
         edit_result = None if self._model_plans(request) else self._run_artifact_edit(request=request, snapshot=snapshot)
@@ -295,16 +427,30 @@ class ReplyServiceV2:
             service_ref._finalize_result(payload=payload, request=request, result=result)
 
         final_result = None
-        for event in orchestrator.dispatch_stream(request, on_workflow_complete=_on_workflow_complete):
-            if event.get("type") == "result":
-                final_result = self._finalize_result(
-                    payload=payload,
-                    request=request,
-                    result=dict(event.get("payload") or {}),
-                )
-                yield {"type": "result", "payload": final_result}
-            else:
-                yield event
+        try:
+            for event in orchestrator.dispatch_stream(request, on_workflow_complete=_on_workflow_complete):
+                if event.get("type") == "result":
+                    if request.resource_source_context is not None:
+                        event['payload']['resource_creation_handoff'] = True
+                    final_result = self._finalize_result(
+                        payload=payload,
+                        request=request,
+                        result=dict(event.get("payload") or {}),
+                    )
+                    if getattr(request, "factory_job_id", None) and (
+                        final_result.get("action", {}).get("name") == "agent.failed"
+                        or not final_result.get("task_id")
+                    ):
+                        self._fail_factory_job(request, result=final_result)
+                    yield {"type": "result", "payload": final_result}
+                else:
+                    yield event
+        except Exception as exc:
+            self._fail_factory_job(request, error=exc)
+            raise
+
+        if getattr(request, "factory_job_id", None) and final_result is None:
+            self._fail_factory_job(request, error="生成任务未返回结果，请重试。")
 
         conversation_id = str(((final_result or {}).get("conversation") or {}).get("conversation_id") or request.conversation_id or "")
         yield {"type": "done", "payload": {"conversation_id": conversation_id}}
@@ -401,6 +547,7 @@ def build_default_reply_service_v2():
     from app.artifact_revision.service import ArtifactRevisionService
     from app.artifact_revision.jobs import ArtifactRevisionCommandService
     from app.chat.application.knowledge_context import KnowledgeContextService, authorize_workspace
+    from app.services.generation_command import generation_command_service
 
     return ReplyServiceV2(
         orchestrator_factory=build_orchestrator,
@@ -410,6 +557,7 @@ def build_default_reply_service_v2():
         course_storage_manager=default_course_storage_manager,
         report_edit_runtime=ReportEditRuntime(llm=get_fallback_llm()),
         memory_writer=memory_service,
+        generation_command_service=generation_command_service,
         artifact_revision_service=ArtifactRevisionService(default_course_storage_manager, submitter=ArtifactRevisionCommandService().submit),
         knowledge_context_service=KnowledgeContextService(
             course_storage=default_course_storage_manager,

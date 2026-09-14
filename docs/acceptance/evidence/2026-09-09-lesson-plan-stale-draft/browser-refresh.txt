@@ -1,0 +1,64 @@
+[WebServer] (node:1729657) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1729670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:1729772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop1366] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (5.5s)
+(node:1729969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop1440] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (4.9s)
+(node:1730112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [desktop1920] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (5.1s)
+(node:1730277) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [compact1280] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (4.7s)
+(node:1730432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 [compact1024] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (16.3s)
+
+
+  1) [compact1024] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '刷新最近生成资源' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('button', { name: '刷新最近生成资源' })
+
+
+      75 |   ] : [] }));
+      76 |   await page.goto('/#ai?course_id=course-physics');
+    > 77 |   await expect(page.getByRole('button', { name: '刷新最近生成资源' })).toBeVisible({ timeout: 15000 });
+         |                                                                ^
+      78 |   await expect(page.getByText('暂无生成记录', { exact: true })).toBeVisible();
+      79 |   saved = true;
+      80 |   await page.getByRole('button', { name: '刷新最近生成资源' }).click();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:77:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1024/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1024/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [compact1024] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+  4 passed (45.5s)

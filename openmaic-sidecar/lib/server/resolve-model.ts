@@ -11,6 +11,7 @@ import type { ThinkingConfig } from '@/lib/types/provider';
 import {
   isServerConfiguredProvider,
   resolveApiKey,
+  resolveBackupApiKey,
   resolveBaseUrl,
   resolveProxy,
 } from '@/lib/server/provider-config';
@@ -93,12 +94,14 @@ export async function resolveModel(params: {
   }
 
   const apiKey = resolveApiKey(providerId, clientApiKey || '');
+  const backupApiKey = managed ? resolveBackupApiKey(providerId) : '';
   const baseUrl = resolveBaseUrl(providerId, clientBaseUrl);
   const proxy = resolveProxy(providerId);
   const { model, modelInfo } = getModel({
     providerId,
     modelId,
     apiKey,
+    backupApiKey,
     baseUrl,
     proxy,
     providerType: clientProviderType as 'openai' | 'anthropic' | 'google' | undefined,

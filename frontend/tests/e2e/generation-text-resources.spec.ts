@@ -1,53 +1,54 @@
 import { expect, test } from "./fixtures/teacherApp";
-import type { Page } from "playwright/test";
+import type { Page, Route } from "playwright/test";
 
-async function enterConfig(page: Page, resourceName: string) {
-  await page.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await page.evaluate(() => window.localStorage.removeItem("edu-ai:generation-draft:course-physics"));
-  await page.reload({ waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "生成工厂", exact: true }).click();
-  await page.getByRole("button", { name: resourceName, exact: false }).click();
-  await page.getByText(/资料范围（/).click();
-  await page.getByRole("radio", { name: "不使用资料", exact: false }).check();
+async function openFactory(page: Page) {
+  const factory = page.getByTestId("generation-factory");
+  const switcher = page.getByRole("button", { name: /^(生成工厂|打开生成工厂)$/ });
+  await expect.poll(async () => {
+    if (await factory.isVisible()) return true;
+    if (await switcher.isVisible()) await switcher.click({ timeout: 1_000 }).catch(() => undefined);
+    return factory.isVisible();
+  }, { timeout: 20_000 }).toBe(true);
+  await expect(factory).toBeVisible();
 }
 
-test("long-form fields stay reachable and reach their exact requests", async ({ teacherPage }) => {
-  const requests: Array<{ url: string; body: Record<string, unknown> }> = [];
-  teacherPage.on("request", (request) => {
-    if (/\/(report|lesson-plan|blog)\/direct$/u.test(request.url())) {
-      requests.push({ url: request.url(), body: request.postDataJSON() as Record<string, unknown> });
-    }
+async function fulfillAgentStream(route: Route) {
+  const payload = {
+    message: { role: "assistant", content: "已收到生成要求。" },
+    conversation: { conversation_id: "text-agent-conversation" },
+    action: { name: "generate.resource" }, artifacts: [], sources: [], trace: { path: "deepseek-harness" },
+  };
+  await route.fulfill({
+    contentType: "text/event-stream; charset=utf-8",
+    body: `data: ${JSON.stringify({ type: "result", payload })}\n\ndata: ${JSON.stringify({ type: "done", payload: {} })}\n\n`,
   });
+}
 
-  await enterConfig(teacherPage, "教学报告");
-  await teacherPage.getByLabel("报告主题 *").fill("学习行为分析");
-  await teacherPage.getByLabel("分析深度").selectOption("deep");
-  await teacherPage.getByText("更多设置").click();
-  await teacherPage.getByLabel("补充要求（选填）").fill("列出三项建议");
-  await teacherPage.getByRole("button", { name: "开始后台生成" }).click();
+test("long-form resources send complete natural-language requirements to the Agent", async ({ teacherPage: page }) => {
+  const requests: Array<Record<string, unknown>> = [];
+  await page.route("**/api/chat/v2/stream", async (route) => {
+    requests.push(route.request().postDataJSON());
+    await fulfillAgentStream(route);
+  });
+  await page.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
 
-  await enterConfig(teacherPage, "教案",);
-  await teacherPage.getByLabel("教学主题 *").fill("牛顿第二定律");
-  await teacherPage.getByText("更多设置").click();
-  await teacherPage.getByLabel("教学过程").fill("导入—探究—应用");
-  await teacherPage.getByRole("button", { name: "开始后台生成" }).click();
+  const resources = [
+    ["教学报告", "生成学习行为分析报告，进行深度分析，并列出三项建议。", "generate.report"],
+    ["教案", "生成牛顿第二定律教案，教学过程为导入—探究—应用。", "generate.lesson_plan"],
+    ["教学博客", "生成量子隧穿教学博客，学术语气、长篇，并加入生活类比。", "generate.blog"],
+  ] as const;
 
-  await enterConfig(teacherPage, "教学博客");
-  await teacherPage.getByLabel("博客主题 *").fill("量子隧穿");
-  await teacherPage.getByLabel("表达语气").selectOption("academic");
-  await teacherPage.getByLabel("文章长度").selectOption("long");
-  await teacherPage.getByText("更多设置").click();
-  await teacherPage.getByLabel("补充要求").fill("加入生活类比");
-  const submit = teacherPage.getByRole("button", { name: "开始后台生成" });
-  await expect(submit).toBeInViewport();
-  await submit.click();
-
-  await expect.poll(() => requests.length).toBe(3);
-  const report = requests[0].body.report_config as Record<string, unknown>;
-  expect(report.depth).toBe("deep");
-  expect(report.special_requirements).toBe("列出三项建议");
-  expect(requests[1].body.teaching_process).toBe("导入—探究—应用");
-  expect(requests[2].body.tone).toBe("academic");
-  expect(requests[2].body.length).toBe("long");
-  expect(requests[2].body.special_requirements).toBe("加入生活类比");
+  for (const [index, [label, brief, hint]] of resources.entries()) {
+    await openFactory(page);
+    await page.getByRole("button", { name: label, exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: `创建${label}` });
+    await expect(dialog.getByRole("textbox")).toHaveCount(1);
+    await dialog.getByRole("textbox", { name: "描述你想生成的内容" }).fill(brief);
+    const submit = dialog.getByRole("button", { name: "交给 AI" });
+    await expect(submit).toBeInViewport();
+    await submit.click();
+    await expect.poll(() => requests.length).toBe(index + 1);
+    expect(requests[index].question).toBe(brief);
+    expect(requests[index].action_hint).toBe(hint);
+  }
 });

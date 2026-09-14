@@ -1,0 +1,220 @@
+TAP version 13
+# Subtest: builds immutable Agent requests for every generation resource
+ok 1 - builds immutable Agent requests for every generation resource
+  ---
+  duration_ms: 1.91859
+  type: 'test'
+  ...
+# Subtest: selected sources are normalized without changing the user text
+ok 2 - selected sources are normalized without changing the user text
+  ---
+  duration_ms: 1.969764
+  type: 'test'
+  ...
+# Subtest: rejects empty requirements and invalid workspace or source snapshots
+ok 3 - rejects empty requirements and invalid workspace or source snapshots
+  ---
+  duration_ms: 0.765066
+  type: 'test'
+  ...
+# Subtest: normalization only trims and never substitutes examples
+ok 4 - normalization only trims and never substitutes examples
+  ---
+  duration_ms: 0.180098
+  type: 'test'
+  ...
+# Subtest: renders one empty natural-language field with a non-submitted placeholder
+ok 5 - renders one empty natural-language field with a non-submitted placeholder
+  ---
+  duration_ms: 10.56884
+  type: 'test'
+  ...
+# Subtest: source summaries remain concise
+ok 6 - source summaries remain concise
+  ---
+  duration_ms: 0.235811
+  type: 'test'
+  ...
+# Subtest: draft keys isolate owner, course, scope, and resource type
+ok 7 - draft keys isolate owner, course, scope, and resource type
+  ---
+  duration_ms: 1.539406
+  type: 'test'
+  ...
+# Subtest: registry contains exactly eight distinct resources
+ok 8 - registry contains exactly eight distinct resources
+  ---
+  duration_ms: 3.024277
+  type: 'test'
+  ...
+# Subtest: every generation resource has teacher-facing copy
+ok 9 - every generation resource has teacher-facing copy
+  ---
+  duration_ms: 0.333537
+  type: 'test'
+  ...
+# Subtest: mind map is the only UI resource with a different canonical type
+ok 10 - mind map is the only UI resource with a different canonical type
+  ---
+  duration_ms: 0.211753
+  type: 'test'
+  ...
+# Subtest: rendered generation resources require an explicit allowlist
+ok 11 - rendered generation resources require an explicit allowlist
+  ---
+  duration_ms: 0.301305
+  type: 'test'
+  ...
+# Subtest: switching away from selected documents clears stale IDs
+ok 12 - switching away from selected documents clears stale IDs
+  ---
+  duration_ms: 3.24218
+  type: 'test'
+  ...
+# Subtest: selected-document mode preserves only explicit ready selections
+ok 13 - selected-document mode preserves only explicit ready selections
+  ---
+  duration_ms: 0.226849
+  type: 'test'
+  ...
+# Subtest: opening generation uses the documents selected in the left knowledge panel
+ok 14 - opening generation uses the documents selected in the left knowledge panel
+  ---
+  duration_ms: 1.55064
+  type: 'test'
+  ...
+# Subtest: opening generation without selected documents does not use knowledge by default
+ok 15 - opening generation without selected documents does not use knowledge by default
+  ---
+  duration_ms: 0.227102
+  type: 'test'
+  ...
+# Subtest: opening generation inherits automatic course retrieval when enabled
+ok 16 - opening generation inherits automatic course retrieval when enabled
+  ---
+  duration_ms: 0.404509
+  type: 'test'
+  ...
+# Subtest: accepts only the original owner, course, and workspace scope
+ok 17 - accepts only the original owner, course, and workspace scope
+  ---
+  duration_ms: 1.603546
+  type: 'test'
+  ...
+# Subtest: recovery keeps the original account and maps graph back to its UI draft key
+ok 18 - recovery keeps the original account and maps graph back to its UI draft key
+  ---
+  duration_ms: 0.380048
+  type: 'test'
+  ...
+# Subtest: checked documents remain the retrieval scope without the full knowledge-base toggle
+ok 19 - checked documents remain the retrieval scope without the full knowledge-base toggle
+  ---
+  duration_ms: 3.015028
+  type: 'test'
+  ...
+# Subtest: checked documents remain authoritative when knowledge retrieval is enabled
+ok 20 - checked documents remain authoritative when knowledge retrieval is enabled
+  ---
+  duration_ms: 0.227539
+  type: 'test'
+  ...
+# Subtest: checked documents enable selected-document retrieval in the chat payload
+ok 21 - checked documents enable selected-document retrieval in the chat payload
+  ---
+  duration_ms: 0.36086
+  type: 'test'
+  ...
+# Subtest: knowledge retrieval without checked documents uses course-auto mode
+ok 22 - knowledge retrieval without checked documents uses course-auto mode
+  ---
+  duration_ms: 0.175039
+  type: 'test'
+  ...
+# Subtest: chat does not use knowledge when neither selection nor retrieval is enabled
+ok 23 - chat does not use knowledge when neither selection nor retrieval is enabled
+  ---
+  duration_ms: 0.174581
+  type: 'test'
+  ...
+# Subtest: generation factory action hints stay separate from the user message
+ok 24 - generation factory action hints stay separate from the user message
+  ---
+  duration_ms: 0.301064
+  type: 'test'
+  ...
+# Subtest: does not expose the AI lecturer video player route
+ok 25 - does not expose the AI lecturer video player route
+  ---
+  duration_ms: 1.694585
+  type: 'test'
+  ...
+# Subtest: course navigation has one knowledge destination and graph is redirect-only
+ok 26 - course navigation has one knowledge destination and graph is redirect-only
+  ---
+  duration_ms: 0.685263
+  type: 'test'
+  ...
+# Subtest: course knowledge renders only the document library
+ok 27 - course knowledge renders only the document library
+  ---
+  duration_ms: 0.398023
+  type: 'test'
+  ...
+# Subtest: knowledge structure cannot restore a second upload workflow
+ok 28 - knowledge structure cannot restore a second upload workflow
+  ---
+  duration_ms: 0.435841
+  type: 'test'
+  ...
+# Subtest: generation factory uses one Agent prompt instead of resource-specific forms
+ok 29 - generation factory uses one Agent prompt instead of resource-specific forms
+  ---
+  duration_ms: 0.656888
+  type: 'test'
+  ...
+# Subtest: course identity never falls back to local storage on a course page
+ok 30 - course identity never falls back to local storage on a course page
+  ---
+  duration_ms: 0.284201
+  type: 'test'
+  ...
+# Subtest: course cards contain no random or decorative progress calculation
+ok 31 - course cards contain no random or decorative progress calculation
+  ---
+  duration_ms: 0.342882
+  type: 'test'
+  ...
+# Subtest: theme controls live in profile instead of a floating app control
+ok 32 - theme controls live in profile instead of a floating app control
+  ---
+  duration_ms: 0.401856
+  type: 'test'
+  ...
+# Subtest: queue keeps the first pending request instead of overwriting it
+ok 33 - queue keeps the first pending request instead of overwriting it
+  ---
+  duration_ms: 25.289824
+  type: 'test'
+  ...
+# Subtest: consume is idempotent and only removes the matching request
+ok 34 - consume is idempotent and only removes the matching request
+  ---
+  duration_ms: 0.595395
+  type: 'test'
+  ...
+# Subtest: explicit clear can guard against clearing a newer request
+ok 35 - explicit clear can guard against clearing a newer request
+  ---
+  duration_ms: 0.466835
+  type: 'test'
+  ...
+1..35
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 541.754482

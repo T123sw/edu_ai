@@ -1,0 +1,17 @@
+{
+  "course_id": "course-cc3c258431bf49b688d0eac830004176",
+  "course_title": "操作系统（真实E2E-2026-09-11-os-v2-op）",
+  "first_build_id": "kb-b6f3d22cd83f4a58a40b2977e96c769c",
+  "increment_build_id": "kb-7015ac21342246a7bcb94311ad090d07",
+  "first_status": "succeeded",
+  "increment_status": "succeeded",
+  "first_quality_score": 100,
+  "increment_quality_score": 100,
+  "first_node_count": 26,
+  "increment_node_count": 27,
+  "preserved_node_count": 26,
+  "all_first_nodes_preserved": true,
+  "version_count_after_create": 1,
+  "version_count_after_increment": 2,
+  "console_errors": []
+}

@@ -80,6 +80,13 @@ export function CourseResourcesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [resourceLocation, setResourceLocation] = useState(() => typeof window === "undefined" ? "" : window.location.hash);
+  useEffect(() => {
+    const sync = () => setResourceLocation(window.location.hash);
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [pinnedOnly, setPinnedOnly] = useState(false);
@@ -115,7 +122,7 @@ export function CourseResourcesPage() {
           sort: sort === "recent" ? "updated_desc" : "name_asc",
         });
         const requestedTarget = readCourseMaterialTarget(
-          typeof window === "undefined" ? "" : window.location.hash,
+          resourceLocation,
         );
         let nextPersonal = personalData;
         let requestedKey: string | null = null;
@@ -188,7 +195,7 @@ export function CourseResourcesPage() {
     return () => {
       cancelled = true;
     };
-  }, [course.id, reloadToken, sort]);
+  }, [course.id, reloadToken, sort, resourceLocation]);
 
   const filteredMaterials = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();

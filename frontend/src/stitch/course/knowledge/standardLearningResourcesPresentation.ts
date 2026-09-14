@@ -104,13 +104,13 @@ export function canApproveStandardResource(
   return canManage && slot.review_status === "pending" && Boolean(slot.resource);
 }
 
-export function standardSelectionSummary(selectedLeafCount: number) {
+export function standardSelectionSummary(selectedLeafCount: number, selectedKindCount = 3) {
   const leafCount = Math.max(0, selectedLeafCount);
-  const resourceCount = leafCount * 3;
+  const resourceCount = leafCount * Math.max(0, selectedKindCount);
   return {
     leafCount,
     resourceCount,
-    label: `已选择 ${leafCount} 个知识点，将生成 ${resourceCount} 项资源`,
+    label: `已选择 ${leafCount} 个知识点，涉及 ${resourceCount} 个资源槽位`,
   };
 }
 

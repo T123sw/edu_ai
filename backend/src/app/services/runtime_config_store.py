@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import ipaddress
 import json
 import os
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -99,11 +101,29 @@ def _mask_secret(value: str) -> str:
     return f"{value[:3]}••••••{value[-3:]}"
 
 
+def _is_loopback_url(value: Any) -> bool:
+    hostname = (urlsplit(_clean(value)).hostname or "").strip().lower()
+    if hostname == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(hostname).is_loopback
+    except ValueError:
+        return False
+
+
 class RuntimeConfigStore:
     _lock = threading.RLock()
 
     def __init__(self, root: Path | None = None, master_key: str | None = None):
         self.root = Path(root or Config.RUNTIME_CONFIG_ROOT)
+        # An explicit root is an isolated file-backed store (tests, migration
+        # tools, and local recovery). Only the process-wide default store
+        # follows APP_STATE_PERSISTENCE_MODE.
+        self._persistence_mode = (
+            "json"
+            if root is not None
+            else str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower()
+        )
         source_key = (
             master_key
             or os.getenv("RUNTIME_CONFIG_MASTER_KEY")
@@ -330,7 +350,9 @@ class RuntimeConfigStore:
         }
         if not _clean(normalized.get("base_url")):
             raise ValueError("base_url is required")
-        if not _clean(normalized.get("api_key")):
+        if not _clean(normalized.get("api_key")) and not (
+            provider == "tts" and _is_loopback_url(normalized.get("base_url"))
+        ):
             raise ValueError("api_key is required")
         if provider in {"llm", "embedding", "tts"} and not _clean(normalized.get("model")):
             raise ValueError("model is required")
@@ -429,9 +451,8 @@ class RuntimeConfigStore:
             if temporary.exists():
                 temporary.unlink(missing_ok=True)
 
-    @staticmethod
-    def _uses_postgres() -> bool:
-        return str(os.getenv("APP_STATE_PERSISTENCE_MODE", "json")).strip().lower() == "postgres"
+    def _uses_postgres(self) -> bool:
+        return self._persistence_mode == "postgres"
 
     @staticmethod
     def _repository():

@@ -1,0 +1,23 @@
+{
+  "course_id": "course-91205880c651486aabef002a9c330617",
+  "course_title": "操作系统（真实E2E-2026-09-11-os-real-）",
+  "first_build_id": "kb-716b212c73724a6cbac74c232f3479bf",
+  "increment_build_id": "kb-6cb52e024c58439ab5c734fdcc3e00a2",
+  "first_status": "succeeded",
+  "increment_status": "succeeded",
+  "first_quality_score": 100,
+  "increment_quality_score": 100,
+  "first_node_count": 22,
+  "increment_node_count": 23,
+  "preserved_node_count": 22,
+  "all_first_nodes_preserved": true,
+  "version_count_after_create": 4,
+  "version_count_after_increment": 5,
+  "console_errors": [
+    "Failed to load resource: net::ERR_CONNECTION_CLOSED",
+    "Failed to load resource: net::ERR_CONNECTION_CLOSED",
+    "Failed to load resource: net::ERR_CONNECTION_CLOSED",
+    "Failed to load resource: net::ERR_CONNECTION_CLOSED",
+    "Failed to load resource: net::ERR_CONNECTION_CLOSED"
+  ]
+}

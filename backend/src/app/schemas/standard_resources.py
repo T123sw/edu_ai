@@ -33,6 +33,47 @@ class StandardResourceCatalogResponse(BaseModel):
 
 class StandardResourceBatchCreateRequest(BaseModel):
     leaf_ids: list[str] = Field(default_factory=list, max_length=200)
+    standard_kinds: list[Literal["classroom", "study_guide", "practice"]] = Field(
+        default_factory=lambda: ["classroom", "study_guide", "practice"]
+    )
+    mode: Literal["fill_missing", "repair_rejected", "regenerate_all"] = "fill_missing"
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=160)
+    graph_version: str | None = Field(default=None, max_length=128)
+
+
+class StandardResourceBatchPreviewRequest(BaseModel):
+    leaf_ids: list[str] = Field(default_factory=list, max_length=200)
+    standard_kinds: list[Literal["classroom", "study_guide", "practice"]] = Field(
+        default_factory=lambda: ["classroom", "study_guide", "practice"]
+    )
+    mode: Literal["fill_missing", "repair_rejected", "regenerate_all"] = "fill_missing"
+
+
+class StandardResourcePlanItemResponse(BaseModel):
+    leaf_id: str
+    leaf_title: str
+    standard_kind: str
+    material_type: str
+    material_id: str
+    action: str
+    reason: str
+    current_version: int | None = None
+    approved_version: int | None = None
+    content_hash: str | None = None
+
+
+class StandardResourceBatchPreviewResponse(BaseModel):
+    course_id: str
+    graph_version: str
+    mode: str
+    standard_kinds: list[str]
+    generate_items: int
+    repair_items: int
+    regenerate_items: int
+    kept_items: int
+    blocked_items: int
+    actionable_items: int
+    items: list[StandardResourcePlanItemResponse]
 
 
 class StandardResourceBatchItemResponse(BaseModel):
@@ -43,6 +84,10 @@ class StandardResourceBatchItemResponse(BaseModel):
     standard_kind: str
     material_type: str
     material_id: str
+    action: str = "generate"
+    base_version: int | None = None
+    material_version: int | None = None
+    content_hash: str | None = None
     status: str
     job_id: str | None = None
     attempt_count: int
@@ -56,6 +101,9 @@ class StandardResourceBatchResponse(BaseModel):
     batch_id: str
     course_id: str
     created_by: str
+    idempotency_key: str
+    graph_version: str
+    generation_mode: str
     status: str
     total_items: int
     queued_items: int
@@ -70,6 +118,8 @@ class StandardResourceBatchResponse(BaseModel):
 
 class StandardResourceReviewRequest(BaseModel):
     decision: Literal["approved", "rejected"]
+    expected_version: int = Field(ge=1)
+    expected_content_hash: str = Field(min_length=1, max_length=128)
     reason: str = Field(default="", max_length=2000)
 
 

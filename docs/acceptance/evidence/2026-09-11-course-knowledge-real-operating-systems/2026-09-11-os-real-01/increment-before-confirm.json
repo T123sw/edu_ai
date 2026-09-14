@@ -1,0 +1,1172 @@
+{
+  "build_id": "kb-31de16bb46264788904fc74e40b777ed",
+  "library_id": "course-91205880c651486aabef002a9c330617",
+  "status": "draft",
+  "phase": "graph_review",
+  "progress": 0,
+  "revision": 3,
+  "graph_confirmed_at": null,
+  "confirmed_graph_revision": null,
+  "confirmed_by": null,
+  "metrics": {},
+  "quality_score": null,
+  "error": null,
+  "created_at": "2026-09-11T06:49:02.616327+00:00",
+  "updated_at": "2026-09-11T06:54:16.013375+00:00",
+  "quality_checks": [],
+  "config": {
+    "preset": "standard",
+    "graph_depth": 3,
+    "update_strategy": "incremental",
+    "content_language": "zh-CN",
+    "target_module_count": 4,
+    "max_online_textbooks": 2,
+    "ai_supplement_enabled": true,
+    "target_points_per_module": 4,
+    "prefer_complete_textbooks": true,
+    "target_materials_per_leaf": 3,
+    "max_search_rounds_per_leaf": 2,
+    "max_search_results_per_leaf": 8,
+    "maximum_ai_materials_per_leaf": 1,
+    "minimum_web_materials_per_leaf": 1
+  },
+  "topics": [],
+  "warnings": [],
+  "course_id": "course-91205880c651486aabef002a9c330617",
+  "textbooks": [],
+  "graph_draft": {
+    "id": "course-os-brief",
+    "data": {
+      "type": "course",
+      "summary": "8 课时操作系统基础课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存五大核心模块。",
+      "node_count": 22,
+      "document_count": 49,
+      "builder_version": "course-kb-plan-v2",
+      "source_build_id": "kb-716b212c73724a6cbac74c232f3479bf",
+      "publication_status": "published"
+    },
+    "label": "操作系统（简明）",
+    "children": [
+      {
+        "id": "mod-os-brief-process",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "进程与线程的基本概念、状态转换与调度基础。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "kp-os-brief-process-concept",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程定义、进程控制块与三态模型。",
+              "document_ids": [
+                "doc-b95182d5fbc2495f893a9ef67efd5773",
+                "doc-904599101b8e452f83e4b114b0387d48",
+                "doc-4c5c6f5a1434479483f910ff77c3ab09"
+              ]
+            },
+            "label": "进程的概念与状态",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-thread",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "线程的概念及其与进程的区别。",
+              "document_ids": [
+                "doc-a55ffbc0fc7f4a9b8af17b20499d6d33",
+                "doc-91690698e97e42408ec3ab9c944072d4",
+                "doc-f8f6ab142d82438b9a939e9114e14afb"
+              ]
+            },
+            "label": "线程",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-context",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程上下文切换的基本过程与开销来源。",
+              "document_ids": [
+                "doc-c5bea0a604234bc2af851b9a53656dce",
+                "doc-69c472f3f88a4b96b8aa2c49af5d1c55",
+                "doc-1735020f598d4bc1ba8f1d9e455f123e"
+              ]
+            },
+            "label": "上下文切换",
+            "children": []
+          },
+          {
+            "id": "kp_618be1caef254d29b5f6973081e00486",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "教师明确要求新增该知识点。现有“进程与线程”模块仅覆盖进程概念、线程与上下文切换，未涉及操作系统对进程组的资源限制与隔离机制；cgroups 是进程资源管理在 Linux 中的典型实现，与课程“进程”主线衔接自然。已有文档均无标题与摘要，无法确认是否已覆盖该内容，此判断为待教师核对的推断。"
+            },
+            "label": "Linux cgroups 与容器资源隔离",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sched",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "常见 CPU 调度算法及其性能指标计算。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "kp-os-brief-sched-metrics",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "周转时间、等待时间与响应时间的定义与计算。",
+              "document_ids": [
+                "doc-58df032b5007475e8e69f1e079ea0f1a",
+                "doc-3390c623016b489e85de7b81d3aaef08",
+                "doc-8e2a41d4ed4e49dd948732afbebfdaca"
+              ]
+            },
+            "label": "调度性能指标",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-fcfs",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FCFS 算法思想与等待时间计算。",
+              "document_ids": [
+                "doc-6f7223662d9c40fb9026e2a53d6b00cf",
+                "doc-46d4966d2d70419e9e28144cc10674ac",
+                "doc-6908241f351c400eb30b643c4a25d4b8"
+              ]
+            },
+            "label": "先来先服务调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-sjf",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "SJF 算法思想与等待时间计算。",
+              "document_ids": [
+                "doc-f720f0d76fcb4a32a63c953f807f8dde",
+                "doc-8ae748d5f7ef48a89f81da379867cece",
+                "doc-9d13f8606f7a495b905500e1ae5a9259"
+              ]
+            },
+            "label": "短作业优先调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-rr",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "RR 算法思想与时间片对性能的影响。",
+              "document_ids": [
+                "doc-582ca39cb3fb480eabb23bbc2cec92c0",
+                "doc-cb80869849ac47ba80ac54aefb596b58",
+                "doc-5d96904639df42ca9d8d74f3a0f00100"
+              ]
+            },
+            "label": "时间片轮转调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-priority",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "优先级调度思想与饥饿问题。",
+              "document_ids": [
+                "doc-14e2207dc638403781f23ed243cb16e5",
+                "doc-3ae69e29b1cf40038e659b86fc0d9911",
+                "doc-a4a71e3093124f18a19c7a11da9b2f2b"
+              ]
+            },
+            "label": "优先级调度",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "临界区问题与信号量机制解决典型同步问题。"
+        },
+        "label": "进程同步",
+        "children": [
+          {
+            "id": "kp-os-brief-sync-critical",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "临界区、互斥与同步的基本概念。",
+              "document_ids": [
+                "doc-c3ad1ffde71d4e8f8546acdd7598d098",
+                "doc-41d1e540063e45e09cd50d6c23c731f2",
+                "doc-0711f67fd93641c18cf160875264100f"
+              ]
+            },
+            "label": "临界区问题",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-semaphore",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "信号量的定义与 P、V 操作语义。",
+              "document_ids": [
+                "doc-d8c5a3697e68424e819b159f7d8dd587",
+                "doc-31ff60489d6c4e5984a7bdd74992736b",
+                "doc-3fe61fd071e3450e9425f9f2c65d50a6"
+              ]
+            },
+            "label": "信号量",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-producer-consumer",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "用信号量解决生产者-消费者问题的基本方法。",
+              "document_ids": [
+                "doc-f68a136c20f4412483bcce8fb2b68742",
+                "doc-51dd8b9306fb4024b62eec287fc62310",
+                "doc-c640a914aa3f4081adc0ea0a035ade1d"
+              ]
+            },
+            "label": "生产者-消费者问题",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "死锁的产生条件与基本处理策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "kp-os-brief-deadlock-conditions",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "互斥、占有并等待、非抢占与循环等待四个条件。",
+              "document_ids": [
+                "doc-3a47538159f5433088eee40b38fdd3e5",
+                "doc-daeddb8006944cbe8abde1eb01aed512",
+                "doc-135d75349ea345e1b537bf41ee97b36e"
+              ]
+            },
+            "label": "死锁产生的必要条件",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-deadlock-handling",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "预防、避免、检测与恢复的基本思路。",
+              "document_ids": [
+                "doc-3ae2d5658d0f40b983f6e4da2d9a9eb9",
+                "doc-9cc548d4022247669c6f623695a04251",
+                "doc-f1356628f8ac4ddba30b3b8fa55d376b"
+              ]
+            },
+            "label": "死锁处理策略",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-vm",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "分页、缺页与页面置换算法的基本原理。"
+        },
+        "label": "虚拟内存",
+        "children": [
+          {
+            "id": "kp-os-brief-vm-paging",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "页、页框与页表的基本概念及地址转换。",
+              "document_ids": [
+                "doc-2546807387fa484d9e27c117e75e0a19",
+                "doc-2e91069cfc38475a97690576caf0f000",
+                "doc-1b9f695dd65f4d25a1740efd50b2fddf"
+              ]
+            },
+            "label": "分页",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-pagefault",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "缺页中断的处理流程。",
+              "document_ids": [
+                "doc-370095ab54b04c4780c7f3bfd6a14578",
+                "doc-9b20cc0739be43c5ae26fcdcf416b38f",
+                "doc-fdb165f8f1dd46e79d859ad4c177bc77"
+              ]
+            },
+            "label": "缺页",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-replacement",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FIFO、LRU 与 OPT 的基本思想与缺页次数计算。",
+              "document_ids": [
+                "doc-9d962726b9684b5fa2f1d4e7db2aeb55",
+                "doc-aa821010249d4ebfad2c351ff57be28c",
+                "doc-5e19c491c70144baa109bb24d79ca16a",
+                "doc-5e83c2b7dd4a418ead3660827ef93a33"
+              ]
+            },
+            "label": "页面置换算法",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "baseline_graph": {
+    "id": "course-os-brief",
+    "data": {
+      "type": "course",
+      "summary": "8 课时操作系统基础课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存五大核心模块。",
+      "node_count": 22,
+      "document_count": 49,
+      "builder_version": "course-kb-plan-v2",
+      "source_build_id": "kb-716b212c73724a6cbac74c232f3479bf",
+      "publication_status": "published"
+    },
+    "label": "操作系统（简明）",
+    "children": [
+      {
+        "id": "mod-os-brief-process",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "进程与线程的基本概念、状态转换与调度基础。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "kp-os-brief-process-concept",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程定义、进程控制块与三态模型。",
+              "document_ids": [
+                "doc-b95182d5fbc2495f893a9ef67efd5773",
+                "doc-904599101b8e452f83e4b114b0387d48",
+                "doc-4c5c6f5a1434479483f910ff77c3ab09"
+              ]
+            },
+            "label": "进程的概念与状态",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-thread",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "线程的概念及其与进程的区别。",
+              "document_ids": [
+                "doc-a55ffbc0fc7f4a9b8af17b20499d6d33",
+                "doc-91690698e97e42408ec3ab9c944072d4",
+                "doc-f8f6ab142d82438b9a939e9114e14afb"
+              ]
+            },
+            "label": "线程",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-context",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程上下文切换的基本过程与开销来源。",
+              "document_ids": [
+                "doc-c5bea0a604234bc2af851b9a53656dce",
+                "doc-69c472f3f88a4b96b8aa2c49af5d1c55",
+                "doc-1735020f598d4bc1ba8f1d9e455f123e"
+              ]
+            },
+            "label": "上下文切换",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sched",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "常见 CPU 调度算法及其性能指标计算。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "kp-os-brief-sched-metrics",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "周转时间、等待时间与响应时间的定义与计算。",
+              "document_ids": [
+                "doc-58df032b5007475e8e69f1e079ea0f1a",
+                "doc-3390c623016b489e85de7b81d3aaef08",
+                "doc-8e2a41d4ed4e49dd948732afbebfdaca"
+              ]
+            },
+            "label": "调度性能指标",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-fcfs",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FCFS 算法思想与等待时间计算。",
+              "document_ids": [
+                "doc-6f7223662d9c40fb9026e2a53d6b00cf",
+                "doc-46d4966d2d70419e9e28144cc10674ac",
+                "doc-6908241f351c400eb30b643c4a25d4b8"
+              ]
+            },
+            "label": "先来先服务调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-sjf",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "SJF 算法思想与等待时间计算。",
+              "document_ids": [
+                "doc-f720f0d76fcb4a32a63c953f807f8dde",
+                "doc-8ae748d5f7ef48a89f81da379867cece",
+                "doc-9d13f8606f7a495b905500e1ae5a9259"
+              ]
+            },
+            "label": "短作业优先调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-rr",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "RR 算法思想与时间片对性能的影响。",
+              "document_ids": [
+                "doc-582ca39cb3fb480eabb23bbc2cec92c0",
+                "doc-cb80869849ac47ba80ac54aefb596b58",
+                "doc-5d96904639df42ca9d8d74f3a0f00100"
+              ]
+            },
+            "label": "时间片轮转调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-priority",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "优先级调度思想与饥饿问题。",
+              "document_ids": [
+                "doc-14e2207dc638403781f23ed243cb16e5",
+                "doc-3ae69e29b1cf40038e659b86fc0d9911",
+                "doc-a4a71e3093124f18a19c7a11da9b2f2b"
+              ]
+            },
+            "label": "优先级调度",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "临界区问题与信号量机制解决典型同步问题。"
+        },
+        "label": "进程同步",
+        "children": [
+          {
+            "id": "kp-os-brief-sync-critical",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "临界区、互斥与同步的基本概念。",
+              "document_ids": [
+                "doc-c3ad1ffde71d4e8f8546acdd7598d098",
+                "doc-41d1e540063e45e09cd50d6c23c731f2",
+                "doc-0711f67fd93641c18cf160875264100f"
+              ]
+            },
+            "label": "临界区问题",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-semaphore",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "信号量的定义与 P、V 操作语义。",
+              "document_ids": [
+                "doc-d8c5a3697e68424e819b159f7d8dd587",
+                "doc-31ff60489d6c4e5984a7bdd74992736b",
+                "doc-3fe61fd071e3450e9425f9f2c65d50a6"
+              ]
+            },
+            "label": "信号量",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-producer-consumer",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "用信号量解决生产者-消费者问题的基本方法。",
+              "document_ids": [
+                "doc-f68a136c20f4412483bcce8fb2b68742",
+                "doc-51dd8b9306fb4024b62eec287fc62310",
+                "doc-c640a914aa3f4081adc0ea0a035ade1d"
+              ]
+            },
+            "label": "生产者-消费者问题",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "死锁的产生条件与基本处理策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "kp-os-brief-deadlock-conditions",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "互斥、占有并等待、非抢占与循环等待四个条件。",
+              "document_ids": [
+                "doc-3a47538159f5433088eee40b38fdd3e5",
+                "doc-daeddb8006944cbe8abde1eb01aed512",
+                "doc-135d75349ea345e1b537bf41ee97b36e"
+              ]
+            },
+            "label": "死锁产生的必要条件",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-deadlock-handling",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "预防、避免、检测与恢复的基本思路。",
+              "document_ids": [
+                "doc-3ae2d5658d0f40b983f6e4da2d9a9eb9",
+                "doc-9cc548d4022247669c6f623695a04251",
+                "doc-f1356628f8ac4ddba30b3b8fa55d376b"
+              ]
+            },
+            "label": "死锁处理策略",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-vm",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "分页、缺页与页面置换算法的基本原理。"
+        },
+        "label": "虚拟内存",
+        "children": [
+          {
+            "id": "kp-os-brief-vm-paging",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "页、页框与页表的基本概念及地址转换。",
+              "document_ids": [
+                "doc-2546807387fa484d9e27c117e75e0a19",
+                "doc-2e91069cfc38475a97690576caf0f000",
+                "doc-1b9f695dd65f4d25a1740efd50b2fddf"
+              ]
+            },
+            "label": "分页",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-pagefault",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "缺页中断的处理流程。",
+              "document_ids": [
+                "doc-370095ab54b04c4780c7f3bfd6a14578",
+                "doc-9b20cc0739be43c5ae26fcdcf416b38f",
+                "doc-fdb165f8f1dd46e79d859ad4c177bc77"
+              ]
+            },
+            "label": "缺页",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-replacement",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FIFO、LRU 与 OPT 的基本思想与缺页次数计算。",
+              "document_ids": [
+                "doc-9d962726b9684b5fa2f1d4e7db2aeb55",
+                "doc-aa821010249d4ebfad2c351ff57be28c",
+                "doc-5e19c491c70144baa109bb24d79ca16a",
+                "doc-5e83c2b7dd4a418ead3660827ef93a33"
+              ]
+            },
+            "label": "页面置换算法",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "course_snapshot": {
+    "id": "course-91205880c651486aabef002a9c330617",
+    "icon": "menu_book",
+    "color": "#3157d5",
+    "title": "操作系统（真实E2E-2026-09-11-os-real-）",
+    "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+    "language": "zh-CN",
+    "revision": 0,
+    "course_id": "course-91205880c651486aabef002a9c330617",
+    "created_at": "2026-09-11T06:21:11.081409+00:00",
+    "created_by": "teacher",
+    "difficulty": "introductory",
+    "objectives": [
+      "能解释进程、线程和系统调用的核心机制",
+      "能比较常见 CPU 调度算法并计算等待时间",
+      "能使用信号量分析并解决典型同步问题",
+      "能解释分页、缺页和页面置换算法"
+    ],
+    "updated_at": "2026-09-11T06:21:11.081409+00:00",
+    "course_code": "VAQATF7T",
+    "description": "面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存。",
+    "knowledgeGraph": "",
+    "cover_image_ref": null
+  },
+  "source_candidates": [],
+  "existing_materials": [],
+  "knowledge_proposal": {
+    "mode": "supplement",
+    "items": [
+      {
+        "id": "31b97bd422984532a32f03fc4a2d5694",
+        "kind": "add_node",
+        "title": "Linux cgroups 与容器资源隔离",
+        "reason": "教师明确要求新增该知识点。现有“进程与线程”模块仅覆盖进程概念、线程与上下文切换，未涉及操作系统对进程组的资源限制与隔离机制；cgroups 是进程资源管理在 Linux 中的典型实现，与课程“进程”主线衔接自然。已有文档均无标题与摘要，无法确认是否已覆盖该内容，此判断为待教师核对的推断。",
+        "materials": [
+          "Linux Kernel 官方文档中 cgroups v1/v2 的 CPU、memory、blkio 子系统说明",
+          "Docker 官方文档中 --cpus、--memory、--device-read-bps 等资源限制参数说明",
+          "1 个 Docker 容器 CPU/内存/IO 限制配置案例（含 docker run 命令与验证步骤）",
+          "3 道带解析练习：cgroups 资源限制计算、Docker 参数配置、容器资源隔离场景分析"
+        ],
+        "target_id": "mod-os-brief-process",
+        "evidence_document_ids": []
+      }
+    ],
+    "review": {
+      "method": "model_review",
+      "approved": true
+    },
+    "options": [],
+    "summary": "教师要求在保留现有目录与全部已有资料的前提下，新增知识点“Linux cgroups 与容器资源隔离”，并补充 CPU、内存、I/O 资源限制机制、1 个 Docker 配置案例和 3 道带解析练习。现有目录中“进程与线程”模块已覆盖进程概念、线程与上下文切换，但未涉及操作系统层面的资源隔离与限制机制，因此将该知识点挂接到“进程与线程”模块下，作为进程资源管理视角的延伸。已有 49 份文档均无标题与摘要，无法判断其是否已覆盖 cgroups 内容，故新增节点与资料建议均为基于课程目标与教师要求的推断，需教师核对。",
+    "requirements": "本次新增知识点“Linux cgroups 与容器资源隔离”\n补充内容：CPU、内存和 I/O 资源限制机制，1 个 Docker 配置案例，3 道带解析练习\n保留范围：保留现有目录和全部已有资料，不修改其他章节\n资料偏好：优先检索 Linux Kernel 与 Docker 官方资料，资料不足时允许 AI 补充",
+    "document_snapshot": [
+      {
+        "id": "doc-f720f0d76fcb4a32a63c953f807f8dde",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-sjf",
+        "updated_at": null,
+        "content_hash": "d5d46adf606433560762853e102299f74c882d17b1fc673dab57a8560001895d"
+      },
+      {
+        "id": "doc-8ae748d5f7ef48a89f81da379867cece",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-sjf",
+        "updated_at": null,
+        "content_hash": "0b69544ec944f4c8dc67de6e036ab7c3046d626203d3be716d8eb3bc11c40d53"
+      },
+      {
+        "id": "doc-b95182d5fbc2495f893a9ef67efd5773",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-concept",
+        "updated_at": null,
+        "content_hash": "c71670e49dd212fa58e9c2bc88dbcea9526fde7b5b502fc5f0e6e20d5283f1a7"
+      },
+      {
+        "id": "doc-a55ffbc0fc7f4a9b8af17b20499d6d33",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-thread",
+        "updated_at": null,
+        "content_hash": "bfd558b263447376bfc232119986ecd87b6a23dba9cc452d39f87ae9ca28a7c2"
+      },
+      {
+        "id": "doc-c5bea0a604234bc2af851b9a53656dce",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-context",
+        "updated_at": null,
+        "content_hash": "635061b73f520940aa7ec4fa7abab87ea4e5065fdaddde538a72f009a39413d1"
+      },
+      {
+        "id": "doc-14e2207dc638403781f23ed243cb16e5",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-priority",
+        "updated_at": null,
+        "content_hash": "ed8268d864f454a119f7fb3173ec72fd46b06ad6cfe5dd4d1a50cb53edbdc4a5"
+      },
+      {
+        "id": "doc-3a47538159f5433088eee40b38fdd3e5",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-deadlock-conditions",
+        "updated_at": null,
+        "content_hash": "9f1fcf4ea1a5f8b2c754a3ec1233db86e042e3084be29b9d2a8421367d494305"
+      },
+      {
+        "id": "doc-d8c5a3697e68424e819b159f7d8dd587",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-semaphore",
+        "updated_at": null,
+        "content_hash": "4f878f9954e29d3499062f4d15631e1ac50f7b8de41e59a520b6ca7b66c6e5d9"
+      },
+      {
+        "id": "doc-f68a136c20f4412483bcce8fb2b68742",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-producer-consumer",
+        "updated_at": null,
+        "content_hash": "0627514d55574254a971f515d864e6351225e8e79ac0a56f1272f2f1ba0e13f3"
+      },
+      {
+        "id": "doc-3ae69e29b1cf40038e659b86fc0d9911",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-priority",
+        "updated_at": null,
+        "content_hash": "32a7347d73806ad82741400be72f09dfdb1084e624b0db372ba50cf8fde499b7"
+      },
+      {
+        "id": "doc-58df032b5007475e8e69f1e079ea0f1a",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-metrics",
+        "updated_at": null,
+        "content_hash": "1d540071adfe33c221355c7b403d42d1cd50766c0280db7d6d0ee2f893d479e9"
+      },
+      {
+        "id": "doc-9d962726b9684b5fa2f1d4e7db2aeb55",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-replacement",
+        "updated_at": null,
+        "content_hash": "ce9ea1459eae6ba0be5f232e84112e39ab361025c2883f11071ab76052dedcf2"
+      },
+      {
+        "id": "doc-370095ab54b04c4780c7f3bfd6a14578",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-pagefault",
+        "updated_at": null,
+        "content_hash": "fb5c320e8979dac68c87686592d0c7e307ee7404544f4b0d53f9ff4e37d15835"
+      },
+      {
+        "id": "doc-582ca39cb3fb480eabb23bbc2cec92c0",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-rr",
+        "updated_at": null,
+        "content_hash": "fac1b228520293b9ef718b4802a7dd0e44c725547a9d3d3b0f3b902ac05be0a5"
+      },
+      {
+        "id": "doc-3ae2d5658d0f40b983f6e4da2d9a9eb9",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-deadlock-handling",
+        "updated_at": null,
+        "content_hash": "36195381a4390aa34a4547125c98619be5be2dc922ae7cddf4009567bf332850"
+      },
+      {
+        "id": "doc-aa821010249d4ebfad2c351ff57be28c",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-replacement",
+        "updated_at": null,
+        "content_hash": "6fd84819562b57d5d9fd4c9c5766630d1699f971d12f66c1bdc514a111cd0335"
+      },
+      {
+        "id": "doc-5e19c491c70144baa109bb24d79ca16a",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-replacement",
+        "updated_at": null,
+        "content_hash": "b1dab80215815a7712895081f16b1c1d78be80a3561e1272170f547f8e17e5ae"
+      },
+      {
+        "id": "doc-5e83c2b7dd4a418ead3660827ef93a33",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-replacement",
+        "updated_at": null,
+        "content_hash": "07f4603d1f1207c5e99ea90850f88272057971aaa889f7d4e4dee449225278b5"
+      },
+      {
+        "id": "doc-3390c623016b489e85de7b81d3aaef08",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-metrics",
+        "updated_at": null,
+        "content_hash": "c2b04df2e3cd0afe473fb920db45c3631223d97f926566e9c9203987d22b68e1"
+      },
+      {
+        "id": "doc-9cc548d4022247669c6f623695a04251",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-deadlock-handling",
+        "updated_at": null,
+        "content_hash": "89ffca05ae1410f0146ee9163680b07157cc5f8e829bd60415fb113bf3935ac3"
+      },
+      {
+        "id": "doc-9d13f8606f7a495b905500e1ae5a9259",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-sjf",
+        "updated_at": null,
+        "content_hash": "a6680cd77de85ad00064c372e79ddae7f473f3e090a62eafda63998d8e05ce4b"
+      },
+      {
+        "id": "doc-51dd8b9306fb4024b62eec287fc62310",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-producer-consumer",
+        "updated_at": null,
+        "content_hash": "1ef4f7b8048ace4db58dd1cf0584f8d29c439bf816cebd4d3d674ec4b98e78f4"
+      },
+      {
+        "id": "doc-904599101b8e452f83e4b114b0387d48",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-concept",
+        "updated_at": null,
+        "content_hash": "3795072a8edeac55145433bb3018a35c134471253a67e6495e3b516cf240872f"
+      },
+      {
+        "id": "doc-69c472f3f88a4b96b8aa2c49af5d1c55",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-context",
+        "updated_at": null,
+        "content_hash": "96b274b7b3f4371f049209aa1adb94e2f94a77cb022f1307328c76cca2dea371"
+      },
+      {
+        "id": "doc-2546807387fa484d9e27c117e75e0a19",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-paging",
+        "updated_at": null,
+        "content_hash": "6ab64ea270be6d49f21bc282031ca91e4e5bf1370b80460d534aa3f720e54472"
+      },
+      {
+        "id": "doc-c640a914aa3f4081adc0ea0a035ade1d",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-producer-consumer",
+        "updated_at": null,
+        "content_hash": "07ac6cabdd6f051b9ae812634447e5e5f7cb9e02b672a6f0adef43fb11dea12e"
+      },
+      {
+        "id": "doc-daeddb8006944cbe8abde1eb01aed512",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-deadlock-conditions",
+        "updated_at": null,
+        "content_hash": "52a288478975d609c11fc81ae76b187f92b208fef74f67f65aea04194292e173"
+      },
+      {
+        "id": "doc-6f7223662d9c40fb9026e2a53d6b00cf",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-fcfs",
+        "updated_at": null,
+        "content_hash": "7b228be6e12ff5f759df18a536042afcaa948f1c82a81f7a51e6e8111f6f4da3"
+      },
+      {
+        "id": "doc-2e91069cfc38475a97690576caf0f000",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-paging",
+        "updated_at": null,
+        "content_hash": "30a6a75b379fba79442cca17b0ac36e1792a940117c2ca7fb8bb823d34c13c63"
+      },
+      {
+        "id": "doc-c3ad1ffde71d4e8f8546acdd7598d098",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-critical",
+        "updated_at": null,
+        "content_hash": "9bb60d19c14a864e171eb09f5ae9c8c97665033874dc3bc5afc115ddcd73d15d"
+      },
+      {
+        "id": "doc-f1356628f8ac4ddba30b3b8fa55d376b",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-deadlock-handling",
+        "updated_at": null,
+        "content_hash": "294b64fcc9a948ac30baad01fdc72923af67ae1f72e0d78c53b56153542573ec"
+      },
+      {
+        "id": "doc-1735020f598d4bc1ba8f1d9e455f123e",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-context",
+        "updated_at": null,
+        "content_hash": "da09fbe06c356d3439c523aa28149f0869263b95000d42ec2ba0dfd0b66b2e8c"
+      },
+      {
+        "id": "doc-135d75349ea345e1b537bf41ee97b36e",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-deadlock-conditions",
+        "updated_at": null,
+        "content_hash": "aa3c82d01e520198855264009ebf5255acf2779d0cd77119c7d28cb3fa4f0d98"
+      },
+      {
+        "id": "doc-8e2a41d4ed4e49dd948732afbebfdaca",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-metrics",
+        "updated_at": null,
+        "content_hash": "8720f775e3b6b0254487c252bfcfb0c24cf5dbae287b00e9ff17fb949b54df80"
+      },
+      {
+        "id": "doc-46d4966d2d70419e9e28144cc10674ac",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-fcfs",
+        "updated_at": null,
+        "content_hash": "4229dbeb84df1c312744733c947a317ac3e270879d4cd1ab6dd6c1b148072fa0"
+      },
+      {
+        "id": "doc-91690698e97e42408ec3ab9c944072d4",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-thread",
+        "updated_at": null,
+        "content_hash": "f00514440b609db71bdfe5afd9792ad2e79b5684da485324bf078e1ba5c37743"
+      },
+      {
+        "id": "doc-9b20cc0739be43c5ae26fcdcf416b38f",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-pagefault",
+        "updated_at": null,
+        "content_hash": "3c0e6680046304e223b982d5fc6d57afcf05d9bfb9aa415eff8d63cadd5d2763"
+      },
+      {
+        "id": "doc-1b9f695dd65f4d25a1740efd50b2fddf",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-paging",
+        "updated_at": null,
+        "content_hash": "1eab62da0acde9f9adb672caf45a0d9a5957e13c1bc389c232ae5db433105128"
+      },
+      {
+        "id": "doc-6908241f351c400eb30b643c4a25d4b8",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-fcfs",
+        "updated_at": null,
+        "content_hash": "b9d5f49efe630ee31ab8fd7046f4058f8dc2b58abdd0408bbefd1b2dd9194712"
+      },
+      {
+        "id": "doc-4c5c6f5a1434479483f910ff77c3ab09",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-concept",
+        "updated_at": null,
+        "content_hash": "6c03b6ae6a15f423eba6963f837a0a59370a40a7627dd695585e59ee04133497"
+      },
+      {
+        "id": "doc-f8f6ab142d82438b9a939e9114e14afb",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-process-thread",
+        "updated_at": null,
+        "content_hash": "d5c0346f0b637b42e93534debf281439cbc47311b3a8ac06079cb11523203ac1"
+      },
+      {
+        "id": "doc-31ff60489d6c4e5984a7bdd74992736b",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-semaphore",
+        "updated_at": null,
+        "content_hash": "4f6194afcff33a5ed41bae837d844ce792052a5f1d75b78c735b8f1f07b8ef82"
+      },
+      {
+        "id": "doc-3fe61fd071e3450e9425f9f2c65d50a6",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-semaphore",
+        "updated_at": null,
+        "content_hash": "8d555a49f51b314b45e490765e88b6355fa06a82d9b902238f13c88bb9369e98"
+      },
+      {
+        "id": "doc-fdb165f8f1dd46e79d859ad4c177bc77",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-vm-pagefault",
+        "updated_at": null,
+        "content_hash": "31377cf678b14d47c9977f46b313344b77911635ffb792d46ddd50ecf385449a"
+      },
+      {
+        "id": "doc-a4a71e3093124f18a19c7a11da9b2f2b",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-priority",
+        "updated_at": null,
+        "content_hash": "a4e8cc883830b66089eeffc96cdc74ccacae38d43fa4033fe305b15c1f6c4e0a"
+      },
+      {
+        "id": "doc-cb80869849ac47ba80ac54aefb596b58",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-rr",
+        "updated_at": null,
+        "content_hash": "aef351d5b7aeeea557c90c37ddd7c1f6dd0c91b411a47bca1b6e9fe9098a96c6"
+      },
+      {
+        "id": "doc-41d1e540063e45e09cd50d6c23c731f2",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-critical",
+        "updated_at": null,
+        "content_hash": "e0da22a71fc5f83ac88e9bcef2a31ba21db013c93d729d5c81fba837918b7b20"
+      },
+      {
+        "id": "doc-0711f67fd93641c18cf160875264100f",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sync-critical",
+        "updated_at": null,
+        "content_hash": "5dc115f4252ed3fec650f30b8fefd91be9652cce887a67d66da600bffb051cfc"
+      },
+      {
+        "id": "doc-5d96904639df42ca9d8d74f3a0f00100",
+        "name": null,
+        "status": "ready",
+        "summary": "",
+        "scope_id": "kp-os-brief-sched-rr",
+        "updated_at": null,
+        "content_hash": "52a34bffe512b612a805b9cebdd1a5052f651f480deeee9bc8b6841ca62d1175"
+      }
+    ]
+  },
+  "proposal_selection": {
+    "item_ids": [
+      "31b97bd422984532a32f03fc4a2d5694"
+    ],
+    "option_id": null,
+    "expected_revision": 2
+  },
+  "selected_topic_ids": [
+    "kp_618be1caef254d29b5f6973081e00486"
+  ],
+  "topic_requirements": {
+    "kp_618be1caef254d29b5f6973081e00486": {
+      "ai_limit": 1,
+      "target_units": 4,
+      "requested_materials": "Linux Kernel 官方文档中 cgroups v1/v2 的 CPU、memory、blkio 子系统说明；Docker 官方文档中 --cpus、--memory、--device-read-bps 等资源限制参数说明；1 个 Docker 容器 CPU/内存/IO 限制配置案例（含 docker run 命令与验证步骤）；3 道带解析练习：cgroups 资源限制计算、Docker 参数配置、容器资源隔离场景分析"
+    }
+  },
+  "current_graph_summary": {
+    "modules": [
+      {
+        "id": "mod-os-brief-process",
+        "label": "进程与线程",
+        "child_count": 3
+      },
+      {
+        "id": "mod-os-brief-sched",
+        "label": "CPU 调度",
+        "child_count": 5
+      },
+      {
+        "id": "mod-os-brief-sync",
+        "label": "进程同步",
+        "child_count": 3
+      },
+      {
+        "id": "mod-os-brief-deadlock",
+        "label": "死锁",
+        "child_count": 2
+      },
+      {
+        "id": "mod-os-brief-vm",
+        "label": "虚拟内存",
+        "child_count": 3
+      }
+    ],
+    "root_id": "course-os-brief",
+    "leaf_count": 16,
+    "node_count": 22,
+    "root_label": "操作系统（简明）"
+  },
+  "baseline_graph_version": 1
+}

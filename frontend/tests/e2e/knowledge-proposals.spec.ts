@@ -32,6 +32,10 @@ for (const supplement of [false, true]) {
     await page.getByRole('button', { name: '更新知识库', exact: true }).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByRole('radiogroup')).toHaveCount(0);
+    await expect(dialog.locator('textarea')).toHaveAttribute('placeholder', supplement
+      ? /本次只补充“牛顿定律”知识点[\s\S]*保留现有目录，不重建其他章节/
+      : /大学物理面向仅具备入门基础的本专业一年级学生[\s\S]*每个知识点配 1 个案例和 2 道练习/);
+    await page.screenshot({ path: testInfo.outputPath('requirements-placeholder.png'), fullPage: true });
     await dialog.locator('textarea').fill('面向一年级学生，重点补充练习');
     await dialog.getByRole('button', { name: supplement ? '分析补充建议' : '生成三份大纲', exact: true }).click();
     await expect(dialog.getByRole('heading', { name: supplement ? '确认本次补充内容' : '比较课程大纲' })).toBeVisible();

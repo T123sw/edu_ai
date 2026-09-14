@@ -1,0 +1,84 @@
+[
+  {
+    "case": "same_type_new_report",
+    "question": "帮我生成一份数组实现的报告",
+    "previous_edit_request": null,
+    "status": "new_resource",
+    "intent": {
+      "resource_type": "report",
+      "subject": "数组实现"
+    },
+    "passed": true,
+    "seconds": 45.8,
+    "message": ""
+  },
+  {
+    "case": "report_after_lesson_edit",
+    "question": "现在请生成一份报告，主题是数组的实现",
+    "previous_edit_request": "把报告改成教案",
+    "status": "new_resource",
+    "intent": {
+      "resource_type": "report",
+      "subject": "数组的实现"
+    },
+    "passed": true,
+    "seconds": 22.8,
+    "message": ""
+  },
+  {
+    "case": "lesson_after_report_edit",
+    "question": "帮我生成数组的实现的教案",
+    "previous_edit_request": "给旧报告补一个例子",
+    "status": "new_resource",
+    "intent": {
+      "resource_type": "lesson_plan",
+      "subject": "数组的实现"
+    },
+    "passed": true,
+    "seconds": 15.4,
+    "message": ""
+  },
+  {
+    "case": "report_from_lesson",
+    "question": "根据这份教案生成一份报告",
+    "previous_edit_request": null,
+    "status": "new_resource",
+    "intent": {
+      "resource_type": "report",
+      "subject": "数组"
+    },
+    "passed": true,
+    "seconds": 9.9,
+    "message": ""
+  },
+  {
+    "case": "edit_example",
+    "question": "给这份报告的课堂示例增加一个具体例子，其他部分不变",
+    "previous_edit_request": null,
+    "status": "preview",
+    "intent": null,
+    "passed": true,
+    "seconds": 8.5,
+    "message": "在保留原有“原始案例”和其他章节不变的前提下，为课堂示例补充一个具体的下标访问例子。\n\n将“按下标访问”落到具体数组元素上，便于学生理解下标从 0 开始及 O(1) 读取的含义。\n\n修改稿已在右侧标出，尚未保存。要保存当前修改稿，还是继续调整？"
+  },
+  {
+    "case": "regenerate_section",
+    "question": "重新生成这份报告中的课堂示例，保留其余正文",
+    "previous_edit_request": null,
+    "status": "preview",
+    "intent": null,
+    "passed": true,
+    "seconds": 20.8,
+    "message": "重新生成课堂示例，替换原先占位性的“原始案例”，用具体数组演示按下标访问和内存偏移的关系。\n\n学生能直观看到下标从 0 开始、按下标访问数组元素以及越界访问的概念，比占位表述更适合课堂讲解。\n\n修改稿已在右侧标出，尚未保存。要保存当前修改稿，还是继续调整？"
+  },
+  {
+    "case": "read_only",
+    "question": "先别修改，解释一下这份报告在讲什么",
+    "previous_edit_request": "把报告改成教案",
+    "status": "answered",
+    "intent": null,
+    "passed": true,
+    "seconds": 6.4,
+    "message": "这份报告的主题是“数组”，目前内容比较简略，分为两个部分：\n\n1. 内存布局：说明数组的主要访问方式是“按下标访问”。\n2. 课堂示例：目前只有一个占位内容“原始案例”，还没有展开具体示例。\n\n整体上，它是一份关于数组基础概念的简短报告，重点提到了数组的下标访问特性。"
+  }
+]

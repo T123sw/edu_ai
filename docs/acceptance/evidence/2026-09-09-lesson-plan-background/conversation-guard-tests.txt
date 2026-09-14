@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: failed active history is detached before a new agent turn
+ok 1 - failed active history is detached before a new agent turn
+  ---
+  duration_ms: 3.658873
+  type: 'test'
+  ...
+# Subtest: failure for a non-active history does not clear current chat
+ok 2 - failure for a non-active history does not clear current chat
+  ---
+  duration_ms: 0.239095
+  type: 'test'
+  ...
+# Subtest: active recovery failure clears injected store state and detaches the id
+ok 3 - active recovery failure clears injected store state and detaches the id
+  ---
+  duration_ms: 0.410087
+  type: 'test'
+  ...
+# Subtest: non-active recovery failure leaves injected current chat state untouched
+ok 4 - non-active recovery failure leaves injected current chat state untouched
+  ---
+  duration_ms: 0.393233
+  type: 'test'
+  ...
+# Subtest: dismiss clears the local error and retry targets its failed conversation
+ok 5 - dismiss clears the local error and retry targets its failed conversation
+  ---
+  duration_ms: 0.273226
+  type: 'test'
+  ...
+# Subtest: conversation detail errors expose stable user messages
+ok 6 - conversation detail errors expose stable user messages
+  ---
+  duration_ms: 0.539697
+  type: 'test'
+  ...
+# Subtest: conversation detail request hides network and HTTP diagnostics
+ok 7 - conversation detail request hides network and HTTP diagnostics
+  ---
+  duration_ms: 52.541395
+  type: 'test'
+  ...
+# Subtest: slow A cannot overwrite fast B or clear B loading state
+ok 8 - slow A cannot overwrite fast B or clear B loading state
+  ---
+  duration_ms: 0.583211
+  type: 'test'
+  ...
+# Subtest: A failure cannot replace B success with a stale local error
+ok 9 - A failure cannot replace B success with a stale local error
+  ---
+  duration_ms: 0.531028
+  type: 'test'
+  ...
+# Subtest: newer same-conversation failure rejects an older success
+ok 10 - newer same-conversation failure rejects an older success
+  ---
+  duration_ms: 0.75931
+  type: 'test'
+  ...
+# Subtest: new conversation invalidates an in-flight history response
+ok 11 - new conversation invalidates an in-flight history response
+  ---
+  duration_ms: 0.274141
+  type: 'test'
+  ...
+# Subtest: clearing active recovery prevents an already-started background poll write
+ok 12 - clearing active recovery prevents an already-started background poll write
+  ---
+  duration_ms: 0.39648
+  type: 'test'
+  ...
+# Subtest: new conversation and switch invalidate an in-flight background poll
+ok 13 - new conversation and switch invalidate an in-flight background poll
+  ---
+  duration_ms: 0.348176
+  type: 'test'
+  ...
+# Subtest: a newer task in the same conversation invalidates an older poll
+ok 14 - a newer task in the same conversation invalidates an older poll
+  ---
+  duration_ms: 0.23431
+  type: 'test'
+  ...
+# Subtest: late pending task cannot bind after its send context is invalidated
+ok 15 - late pending task cannot bind after its send context is invalidated
+  ---
+  duration_ms: 0.492978
+  type: 'test'
+  ...
+# Subtest: late pending task binds while its original send context is current
+ok 16 - late pending task binds while its original send context is current
+  ---
+  duration_ms: 0.236644
+  type: 'test'
+  ...
+# Subtest: a history initialization that resolves after a send cannot clear the new messages
+ok 17 - a history initialization that resolves after a send cannot clear the new messages
+  ---
+  duration_ms: 0.345084
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 604.533984

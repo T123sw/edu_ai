@@ -1,0 +1,143 @@
+
+Running 50 tests using 5 workers
+
+(node:1674937) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1674939) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1674938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1674936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1674940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 [compact1280] › tests/e2e/harness-resources.spec.ts:3:5 › mind map starts with an overview and preserves hidden nodes in export (7.6s)
+  ✓   1 [compact1024] › tests/e2e/harness-resources.spec.ts:3:5 › mind map starts with an overview and preserves hidden nodes in export (7.7s)
+  ✓   5 [desktop1366] › tests/e2e/harness-resources.spec.ts:3:5 › mind map starts with an overview and preserves hidden nodes in export (7.7s)
+  ✓   2 [desktop1440] › tests/e2e/harness-resources.spec.ts:3:5 › mind map starts with an overview and preserves hidden nodes in export (7.8s)
+  ✓   3 [desktop1920] › tests/e2e/harness-resources.spec.ts:3:5 › mind map starts with an overview and preserves hidden nodes in export (8.2s)
+  ✓   8 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 教案 uses the appropriate interaction and submission progress (6.3s)
+  ✓   6 [compact1280] › tests/e2e/harness-resources.spec.ts:40:7 › 教案 uses the appropriate interaction and submission progress (6.5s)
+  ✓   7 [compact1024] › tests/e2e/harness-resources.spec.ts:40:7 › 教案 uses the appropriate interaction and submission progress (6.6s)
+  ✓   9 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 教案 uses the appropriate interaction and submission progress (6.6s)
+  ✓  10 [desktop1920] › tests/e2e/harness-resources.spec.ts:40:7 › 教案 uses the appropriate interaction and submission progress (7.0s)
+  ✓  11 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 博客 uses the appropriate interaction and submission progress (6.1s)
+  ✓  13 [compact1024] › tests/e2e/harness-resources.spec.ts:40:7 › 博客 uses the appropriate interaction and submission progress (6.3s)
+  ✓  12 [compact1280] › tests/e2e/harness-resources.spec.ts:40:7 › 博客 uses the appropriate interaction and submission progress (6.4s)
+  ✓  14 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 博客 uses the appropriate interaction and submission progress (6.2s)
+  ✓  15 [desktop1920] › tests/e2e/harness-resources.spec.ts:40:7 › 博客 uses the appropriate interaction and submission progress (6.5s)
+  ✓  16 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 习题 uses the appropriate interaction and submission progress (5.9s)
+  ✓  17 [compact1024] › tests/e2e/harness-resources.spec.ts:40:7 › 习题 uses the appropriate interaction and submission progress (6.1s)
+  ✓  18 [compact1280] › tests/e2e/harness-resources.spec.ts:40:7 › 习题 uses the appropriate interaction and submission progress (6.2s)
+  ✓  19 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 习题 uses the appropriate interaction and submission progress (6.3s)
+  ✓  20 [desktop1920] › tests/e2e/harness-resources.spec.ts:40:7 › 习题 uses the appropriate interaction and submission progress (6.3s)
+  ✓  21 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 闪卡 uses the appropriate interaction and submission progress (6.0s)
+  ✓  22 [compact1024] › tests/e2e/harness-resources.spec.ts:40:7 › 闪卡 uses the appropriate interaction and submission progress (6.2s)
+  ✓  23 [compact1280] › tests/e2e/harness-resources.spec.ts:40:7 › 闪卡 uses the appropriate interaction and submission progress (6.3s)
+  ✓  24 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 闪卡 uses the appropriate interaction and submission progress (6.3s)
+  ✓  25 [desktop1920] › tests/e2e/harness-resources.spec.ts:40:7 › 闪卡 uses the appropriate interaction and submission progress (6.3s)
+  ✓  26 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 思维导图 uses the appropriate interaction and submission progress (6.1s)
+  ✓  27 [compact1024] › tests/e2e/harness-resources.spec.ts:40:7 › 思维导图 uses the appropriate interaction and submission progress (6.1s)
+  ✓  28 [compact1280] › tests/e2e/harness-resources.spec.ts:40:7 › 思维导图 uses the appropriate interaction and submission progress (6.3s)
+  ✓  29 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 思维导图 uses the appropriate interaction and submission progress (6.4s)
+  ✓  30 [desktop1920] › tests/e2e/harness-resources.spec.ts:40:7 › 思维导图 uses the appropriate interaction and submission progress (6.3s)
+  ✓  31 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 互动游戏 uses the appropriate interaction and submission progress (5.7s)
+  ✓  32 [compact1024] › tests/e2e/harness-resources.spec.ts:40:7 › 互动游戏 uses the appropriate interaction and submission progress (6.1s)
+  ✓  33 [compact1280] › tests/e2e/harness-resources.spec.ts:40:7 › 互动游戏 uses the appropriate interaction and submission progress (6.0s)
+  ✓  34 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › 互动游戏 uses the appropriate interaction and submission progress (6.0s)
+  ✓  35 [desktop1920] › tests/e2e/harness-resources.spec.ts:40:7 › 互动游戏 uses the appropriate interaction and submission progress (6.0s)
+  ✓  36 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › AI 课堂 uses the appropriate interaction and submission progress (6.2s)
+  ✓  37 [compact1024] › tests/e2e/harness-resources.spec.ts:40:7 › AI 课堂 uses the appropriate interaction and submission progress (6.1s)
+  ✓  38 [compact1280] › tests/e2e/harness-resources.spec.ts:40:7 › AI 课堂 uses the appropriate interaction and submission progress (6.3s)
+  ✓  39 [desktop1440] › tests/e2e/harness-resources.spec.ts:40:7 › AI 课堂 uses the appropriate interaction and submission progress (6.5s)
+  ✓  40 [desktop1920] › tests/e2e/harness-resources.spec.ts:40:7 › AI 课堂 uses the appropriate interaction and submission progress (6.4s)
+  ✓  41 [desktop1366] › tests/e2e/harness-resources.spec.ts:81:5 › switching resource links in the same course opens the requested result (5.5s)
+  ✓  42 [compact1024] › tests/e2e/harness-resources.spec.ts:81:5 › switching resource links in the same course opens the requested result (5.7s)
+  ✓  43 [compact1280] › tests/e2e/harness-resources.spec.ts:81:5 › switching resource links in the same course opens the requested result (5.8s)
+  ✓  44 [desktop1440] › tests/e2e/harness-resources.spec.ts:81:5 › switching resource links in the same course opens the requested result (5.8s)
+  ✓  45 [desktop1920] › tests/e2e/harness-resources.spec.ts:81:5 › switching resource links in the same course opens the requested result (6.0s)
+  ✓  46 [desktop1366] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (5.9s)
+  ✘  47 [compact1024] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (6.0s)
+  ✘  48 [compact1280] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (6.0s)
+  ✓  49 [desktop1440] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (6.1s)
+  ✓  50 [desktop1920] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (5.7s)
+
+
+  1) [compact1280] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front 
+
+    Error: expect(locator).toHaveCSS(expected) failed
+
+    Locator: locator('.resource-quiz-preview ol')
+    Expected: "upper-alpha"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveCSS" with timeout 5000ms
+      - waiting for locator('.resource-quiz-preview ol')
+
+
+      115 |   });
+      116 |   await page.goto('/#resources?course_id=course-physics&material_type=quiz&material_id=quiz-native');
+    > 117 |   await expect(page.locator('.resource-quiz-preview ol')).toHaveCSS('list-style-type', 'upper-alpha');
+          |                                                           ^
+      118 |   await expect(page.locator('.resource-quiz-preview details')).not.toHaveAttribute('open');
+      119 |   const download = page.waitForEvent('download');
+      120 |   await page.getByRole('button', { name: '导出', exact: true }).click();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/harness-resources.spec.ts:117:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/harness-resources-native-q-b8e25-ashcards-start-on-the-front-compact1280/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/harness-resources-native-q-b8e25-ashcards-start-on-the-front-compact1280/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/harness-resources-native-q-b8e25-ashcards-start-on-the-front-compact1280/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/harness-resources-native-q-b8e25-ashcards-start-on-the-front-compact1280/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [compact1024] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front 
+
+    Error: expect(locator).toHaveCSS(expected) failed
+
+    Locator: locator('.resource-quiz-preview ol')
+    Expected: "upper-alpha"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveCSS" with timeout 5000ms
+      - waiting for locator('.resource-quiz-preview ol')
+
+
+      115 |   });
+      116 |   await page.goto('/#resources?course_id=course-physics&material_type=quiz&material_id=quiz-native');
+    > 117 |   await expect(page.locator('.resource-quiz-preview ol')).toHaveCSS('list-style-type', 'upper-alpha');
+          |                                                           ^
+      118 |   await expect(page.locator('.resource-quiz-preview details')).not.toHaveAttribute('open');
+      119 |   const download = page.waitForEvent('download');
+      120 |   await page.getByRole('button', { name: '导出', exact: true }).click();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/harness-resources.spec.ts:117:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/harness-resources-native-q-b8e25-ashcards-start-on-the-front-compact1024/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/harness-resources-native-q-b8e25-ashcards-start-on-the-front-compact1024/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/harness-resources-native-q-b8e25-ashcards-start-on-the-front-compact1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/harness-resources-native-q-b8e25-ashcards-start-on-the-front-compact1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [compact1280] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front 
+    [compact1024] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front 
+  48 passed (1.1m)

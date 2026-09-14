@@ -1,0 +1,8 @@
+........                                                                 [100%]
+=============================== warnings summary ===============================
+../miniforge3/envs/edu-ai/lib/python3.12/site-packages/_pytest/config/__init__.py:1345
+  /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/_pytest/config/__init__.py:1345: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+8 passed, 81 deselected, 1 warning in 4.03s

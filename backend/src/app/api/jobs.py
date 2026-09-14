@@ -146,6 +146,26 @@ def cancel_user_job(
                 )
                 or canceled
             )
+        build_id = str((job.input_summary or {}).get("build_id") or "")
+        if job.kind == JobKind.BUILD_KNOWLEDGE_INDEX and build_id:
+            repository = courses_api.get_postgres_knowledge_repository()
+            build = repository.get_build(build_id)
+            if build is not None and build.get("status") not in {
+                "succeeded",
+                "failed",
+                "blocked",
+                "canceled",
+            }:
+                repository.update_build(
+                    build_id,
+                    status="canceled",
+                    phase="canceled",
+                    progress=int(build.get("progress") or 0),
+                    error={
+                        "code": "GENERATION_CANCELLED",
+                        "message": "课程知识库构建已取消",
+                    },
+                )
         return _public_job(canceled)
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc

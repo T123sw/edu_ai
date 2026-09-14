@@ -39,7 +39,7 @@ class ArtifactRevisionService:
 
     def run(self, *, owner_user_id: str, conversation_id: str, course_id: str | None,
             question: str, operation_id: str, artifact_reference=None, pending=None,
-            scope_id: str | None = None, session_artifacts=None, frozen_target=False, current_question=None, actor_role="teacher", execution_plan=None, draft_action=None) -> dict:
+            scope_id: str | None = None, session_artifacts=None, frozen_target=False, current_question=None, actor_role="teacher", execution_plan=None, draft_action=None, active_resource_workflow=None, suspended_pending=None) -> dict:
         if draft_action is not None and not pending:
             return {"status": "conflict", "message": "没有当前修改稿，请先打开修改预览"}
         if not artifact_reference and not pending and not re.search(r"修改|改写|重写|调整|简化|改一下|删掉", question):
@@ -145,7 +145,7 @@ class ArtifactRevisionService:
                 from .drafts import run_draft_turn
                 return run_draft_turn(self, state=state, source=source, original=content, kind=kind,
                                       question=current_question or question, pending=pending,
-                                      fingerprint=fingerprint, draft_action=draft_action)
+                                      fingerprint=fingerprint, draft_action=draft_action, active_resource_workflow=active_resource_workflow, suspended_pending=suspended_pending)
             state["approved_plan"] = deepcopy(execution_plan)
             if self.submitter is not None:
                 return self.submitter(state=state, source=source, current_question=question, prior_pending=pending)

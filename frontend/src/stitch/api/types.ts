@@ -475,7 +475,7 @@ export type CourseKnowledgeSourceCandidate = {
 
 export type CourseKnowledgeQualityCheck = {
   check_type: string;
-  status: "passed" | "failed";
+  status: "passed" | "failed" | "needs_teacher_decision";
   score?: number | null;
   threshold?: number | null;
   details: Record<string, unknown>;
@@ -531,6 +531,7 @@ export type CourseKnowledgeTextbookInput = {
 
 export type CourseKnowledgeBuild = {
   knowledge_proposal?: CourseKnowledgeProposal | null;
+  intent_contract?: CourseKnowledgeIntent | null;
   build_id: string;
   library_id?: string;
   course_id: string;
@@ -684,6 +685,10 @@ export type StandardResourceBatchItem = {
   standard_kind: StandardResourceKind;
   material_type: string;
   material_id: string;
+  action: "generate" | "repair" | "regenerate";
+  base_version?: number | null;
+  material_version?: number | null;
+  content_hash?: string | null;
   status: "queued" | "running" | "succeeded" | "failed";
   job_id?: string | null;
   attempt_count: number;
@@ -697,6 +702,9 @@ export type StandardResourceBatch = {
   batch_id: string;
   course_id: string;
   created_by: string;
+  idempotency_key: string;
+  graph_version: string;
+  generation_mode: StandardResourceGenerationMode;
   status: "queued" | "running" | "partial" | "completed" | "failed";
   total_items: number;
   queued_items: number;
@@ -707,6 +715,35 @@ export type StandardResourceBatch = {
   updated_at: string;
   finished_at?: string | null;
   items: StandardResourceBatchItem[];
+};
+
+export type StandardResourceGenerationMode = "fill_missing" | "repair_rejected" | "regenerate_all";
+
+export type StandardResourcePlanItem = {
+  leaf_id: string;
+  leaf_title: string;
+  standard_kind: StandardResourceKind;
+  material_type: string;
+  material_id: string;
+  action: "generate" | "repair" | "regenerate" | "keep" | "blocked";
+  reason: string;
+  current_version?: number | null;
+  approved_version?: number | null;
+  content_hash?: string | null;
+};
+
+export type StandardResourceBatchPreview = {
+  course_id: string;
+  graph_version: string;
+  mode: StandardResourceGenerationMode;
+  standard_kinds: StandardResourceKind[];
+  generate_items: number;
+  repair_items: number;
+  regenerate_items: number;
+  kept_items: number;
+  blocked_items: number;
+  actionable_items: number;
+  items: StandardResourcePlanItem[];
 };
 
 export type KnowledgeGraphSplitDocument = {
@@ -759,6 +796,7 @@ export type ChatResponseV2 = {
   };
   artifacts?: Array<Record<string, unknown>>;
   action?: Record<string, unknown>;
+  knowledge_plan?: Record<string, unknown> | null;
   answer?: string;
 };
 
@@ -1112,8 +1150,64 @@ export type ResourceQaTurnSubmission = {
 
 export type CourseKnowledgeProposal = {
   mode: 'create' | 'supplement'; summary: string; requirements: string;
+  intent?: CourseKnowledgeIntent;
   core_topics?: string[];
   options: Array<{ id: string; level: 'brief' | 'standard' | 'complete'; description: string; root: KnowledgeGraphNode; metrics: { leaf_count: number } }>;
   items: Array<{ id: string; kind: 'materials' | 'add_node'; target_id: string; title: string; reason: string; materials: string[]; evidence_document_ids: string[] }>;
   document_snapshot?: Array<{ id: string; name: string }>;
+};
+
+export type CourseKnowledgeIntent = {
+  schema_version: '2.0';
+  mode: 'create' | 'supplement';
+  status: 'ready_for_review' | 'needs_clarification';
+  course_profile: {
+    audience: string;
+    prerequisites: string[];
+    language: string;
+    difficulty: string;
+    duration_minutes?: number | null;
+    duration_lessons?: number | null;
+    learning_outcomes: string[];
+  };
+  scope: {
+    include_topics: string[];
+    exclude_topics: string[];
+    preserve_existing_graph: boolean;
+    preserve_existing_documents: boolean;
+  };
+  depth_profile: {
+    target_bloom_levels: string[];
+    conceptual_rigor: string;
+    example_complexity: string;
+    math_or_code_expectation: string;
+  };
+  source_policy: {
+    preferred_organizations: string[];
+    preferred_domains: string[];
+    required_domains: string[];
+    minimum_authoritative_sources_per_topic: number;
+    allow_community_fallback: boolean;
+    allow_ai_fallback: boolean;
+    allowed_languages: string[];
+    freshness?: string | null;
+  };
+  deliverables: Array<{
+    requirement_id: string;
+    type: 'concept_explanation' | 'worked_case' | 'exercise_with_solution' | 'lab' | 'comparison' | 'glossary';
+    count: number;
+    hardness: 'hard' | 'preference';
+    description: string;
+  }>;
+  requirements: Array<{
+    requirement_id: string;
+    kind: string;
+    statement: string;
+    normalized_value: unknown;
+    hardness: 'hard' | 'preference';
+    verification: string;
+  }>;
+  assumptions: string[];
+  clarification_questions: string[];
+  original_text: string;
 };

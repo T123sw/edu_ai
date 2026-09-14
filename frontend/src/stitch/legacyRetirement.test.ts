@@ -36,7 +36,7 @@ test('knowledge structure cannot restore a second upload workflow', () => {
   assert.doesNotMatch(structure, /textbook-import|上传教材并解析|上传节点文件/u);
 });
 
-test('legacy generation modals and the retired PPT generator stay removed', () => {
+test('generation factory uses one Agent prompt instead of resource-specific forms', () => {
   for (const relativePath of [
     '../components/teacher/ReportEntryModal.tsx',
     '../components/teacher/LessonPlanEntryModal.tsx',
@@ -51,8 +51,9 @@ test('legacy generation modals and the retired PPT generator stay removed', () =
     assert.equal(existsSync(fileURLToPath(new URL(relativePath, import.meta.url))), false, relativePath);
   }
   const factory = source('../components/generation/GenerationFactory.tsx');
-  assert.equal((factory.match(/<QuizForm\b/gu) || []).length, 1);
-  assert.doesNotMatch(factory, /PptForm|resourceType:\s*["']ppt["']/u);
+  assert.match(factory, /<GenerationPromptDialog\b/u);
+  assert.match(factory, /buildQueuedAgentRequest/u);
+  assert.doesNotMatch(factory, /useGenerationSubmission|<\w+Form\b|\/direct|PptForm|resourceType:\s*["']ppt["']/u);
 });
 
 test('course identity never falls back to local storage on a course page', () => {

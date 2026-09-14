@@ -353,6 +353,10 @@ class ConversationStoreAdapter:
         recent_messages = self.storage.get_messages(conversation_id, limit=8)
 
         state_patch = {}
+        from .interaction_state import project_interaction
+        interaction = project_interaction(existing_state.get('interaction_state'), result)
+        state_patch['interaction_state'] = interaction
+        result['interaction_state'] = interaction
         from .task_status_projection import is_report_read_result
         if result.get("task_id") and answer and recent_messages and not is_report_read_result(result):
             task_messages = dict(existing_state.get("task_messages") or {})

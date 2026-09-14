@@ -65,11 +65,17 @@ class LangMemAdapter:
         from langmem import create_memory_manager
 
         from core.config import Config
+        from app.services.deepseek_key_failover import completion_endpoint
+
+        base_url, api_key = completion_endpoint(
+            Config.DEEP_MODEL_API_BASE,
+            Config.DEEP_MODEL_API_KEY,
+        )
 
         model = ChatOpenAI(
             model=Config.LLM_MODEL_DEEP,
-            api_key=Config.DEEP_MODEL_API_KEY,
-            base_url=Config.DEEP_MODEL_API_BASE,
+            api_key=api_key,
+            base_url=base_url,
             timeout=max(1.0, self.settings.langmem_timeout_ms / 1000),
             max_retries=0,
             temperature=0,

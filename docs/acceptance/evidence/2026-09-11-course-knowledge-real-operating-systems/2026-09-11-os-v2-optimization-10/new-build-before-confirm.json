@@ -1,0 +1,1688 @@
+{
+  "build_id": "kb-b6f3d22cd83f4a58a40b2977e96c769c",
+  "library_id": "course-cc3c258431bf49b688d0eac830004176",
+  "status": "draft",
+  "phase": "graph_review",
+  "progress": 0,
+  "revision": 3,
+  "graph_confirmed_at": null,
+  "confirmed_graph_revision": null,
+  "confirmed_by": null,
+  "metrics": {},
+  "quality_score": null,
+  "error": null,
+  "created_at": "2026-09-11T12:05:56.461171+00:00",
+  "updated_at": "2026-09-11T12:17:49.236585+00:00",
+  "quality_checks": [],
+  "config": {
+    "preset": "custom",
+    "graph_depth": 3,
+    "update_strategy": "incremental",
+    "content_language": "zh-CN",
+    "target_module_count": 5,
+    "max_online_textbooks": 2,
+    "ai_supplement_enabled": true,
+    "target_points_per_module": 3,
+    "prefer_complete_textbooks": true,
+    "target_materials_per_leaf": 3,
+    "max_search_rounds_per_leaf": 2,
+    "max_search_results_per_leaf": 8,
+    "maximum_ai_materials_per_leaf": 1,
+    "minimum_web_materials_per_leaf": 1,
+    "minimum_authoritative_sources_per_leaf": 1
+  },
+  "topics": [],
+  "warnings": [],
+  "course_id": "course-cc3c258431bf49b688d0eac830004176",
+  "textbooks": [],
+  "graph_draft": {
+    "id": "os-course",
+    "data": {
+      "type": "course",
+      "summary": "8 课时操作系统基础课，覆盖进程与线程、CPU 调度、进程同步、死锁与虚拟内存。"
+    },
+    "label": "操作系统",
+    "children": [
+      {
+        "id": "proc-thread",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "从进程抽象到线程与系统调用，建立并发执行的基本模型。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "proc-concept",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "进程与线程的概念、状态与区别，是后续调度与同步的基础。"
+            },
+            "label": "进程与线程",
+            "children": [
+              {
+                "id": "proc-model",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "讲解进程状态转换、线程共享资源及系统调用陷入内核的完整过程。"
+                },
+                "label": "进程、线程和系统调用的核心机制"
+              },
+              {
+                "id": "proc-impl",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "以 PCB 字段和切换步骤说明进程切换的开销与触发时机。"
+                },
+                "label": "进程控制块与上下文切换"
+              }
+            ]
+          },
+          {
+            "id": "proc-ipc",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "进程间交换数据的典型方式及其适用场景。"
+            },
+            "label": "进程间通信",
+            "children": [
+              {
+                "id": "ipc-basic",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "用管道和共享内存示例说明数据传递与同步配合方式。"
+                },
+                "label": "管道与共享内存通信"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "cpu-sched",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "调度准则与常见算法，重点是可计算等待时间的比较分析。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "sched-basic",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "调度时机、准则与评价指标，为算法比较提供统一框架。"
+            },
+            "label": "调度基础",
+            "children": [
+              {
+                "id": "sched-criteria",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "用甘特图计算 FCFS、SJF、RR 的等待时间与周转时间。"
+                },
+                "label": "常见 CPU 调度算法与等待时间计算"
+              },
+              {
+                "id": "sched-priority",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "说明优先级设置、老化机制与多级队列的调度过程。"
+                },
+                "label": "优先级调度与多级反馈队列"
+              }
+            ]
+          },
+          {
+            "id": "sched-case",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "通过可验证算例巩固调度算法的计算与应用。"
+            },
+            "label": "调度案例分析",
+            "children": [
+              {
+                "id": "sched-calc",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "给定进程到达与执行时间，逐步计算各算法等待时间并比较。"
+                },
+                "label": "调度算法等待时间计算实例"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "以信号量为核心工具，分析并解决典型同步与互斥问题。"
+        },
+        "label": "进程同步",
+        "children": [
+          {
+            "id": "sync-tool",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "临界区问题与信号量操作，是解决同步问题的基本手段。"
+            },
+            "label": "同步机制",
+            "children": [
+              {
+                "id": "sync-sem",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "用 P、V 操作分析生产者消费者与读者写者问题并给出解法。"
+                },
+                "label": "使用信号量分析并解决典型同步问题"
+              },
+              {
+                "id": "sync-monitor",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "介绍管程封装互斥与同步的机制及其与信号量的对比。"
+                },
+                "label": "管程与条件变量"
+              }
+            ]
+          },
+          {
+            "id": "sync-lab",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "通过编程实验观察并发错误并验证同步方案。"
+            },
+            "label": "同步实验",
+            "children": [
+              {
+                "id": "sync-race",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "编写多线程程序复现竞态，再用信号量修复并验证结果。"
+                },
+                "label": "竞态条件复现与信号量修复"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "死锁产生条件、预防避免检测与恢复策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "deadlock-basic",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "死锁定义、产生条件与资源分配图分析方法。"
+            },
+            "label": "死锁基础",
+            "children": [
+              {
+                "id": "deadlock-cond",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "用资源分配图判断死锁，说明四个必要条件的作用。"
+                },
+                "label": "死锁产生条件与资源分配图"
+              },
+              {
+                "id": "deadlock-handle",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "比较预防、避免、检测与恢复策略的代价与适用场景。"
+                },
+                "label": "死锁预防、避免与检测"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "vm",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "分页、缺页处理与页面置换算法，理解虚拟地址到物理地址的转换。"
+        },
+        "label": "虚拟内存",
+        "children": [
+          {
+            "id": "vm-basic",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "分页机制与地址转换，是缺页和置换的前提。"
+            },
+            "label": "虚拟内存基础",
+            "children": [
+              {
+                "id": "vm-paging",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "讲解页表地址转换、缺页中断处理及 FIFO、LRU 置换过程。"
+                },
+                "label": "分页、缺页和页面置换算法"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "baseline_graph": null,
+  "course_snapshot": {
+    "id": "course-cc3c258431bf49b688d0eac830004176",
+    "icon": "menu_book",
+    "color": "#3157d5",
+    "title": "操作系统（真实E2E-2026-09-11-os-v2-op）",
+    "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+    "language": "zh-CN",
+    "revision": 0,
+    "course_id": "course-cc3c258431bf49b688d0eac830004176",
+    "created_at": "2026-09-11T12:05:26.588670+00:00",
+    "created_by": "teacher",
+    "difficulty": "introductory",
+    "objectives": [
+      "能解释进程、线程和系统调用的核心机制",
+      "能比较常见 CPU 调度算法并计算等待时间",
+      "能使用信号量分析并解决典型同步问题",
+      "能解释分页、缺页和页面置换算法"
+    ],
+    "updated_at": "2026-09-11T12:05:26.588670+00:00",
+    "course_code": "6ATVVAPC",
+    "description": "面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存。",
+    "knowledgeGraph": "",
+    "cover_image_ref": null
+  },
+  "intent_contract": {
+    "mode": "create",
+    "scope": {
+      "exclude_topics": [],
+      "include_topics": [
+        "进程与线程",
+        "CPU 调度",
+        "进程同步",
+        "死锁",
+        "虚拟内存"
+      ],
+      "preserve_existing_graph": false,
+      "preserve_existing_documents": false
+    },
+    "status": "ready_for_review",
+    "assumptions": [
+      "课时长度未换算为分钟，课程内容预算按课时数校验。"
+    ],
+    "deliverables": [
+      {
+        "type": "concept_explanation",
+        "count": 1,
+        "hardness": "hard",
+        "application": "topic",
+        "description": "每个主题至少 1 个机制讲解",
+        "requirement_id": "req_c6a3fae51453b37b"
+      },
+      {
+        "type": "worked_case",
+        "count": 1,
+        "hardness": "hard",
+        "application": "topic",
+        "description": "每个主题至少 1 个可验证案例",
+        "requirement_id": "req_bdcb33d8f057553a"
+      },
+      {
+        "type": "exercise_with_solution",
+        "count": 1,
+        "hardness": "hard",
+        "application": "topic",
+        "description": "每个主题至少 1 个带答案和解析的练习",
+        "requirement_id": "req_9968602881e3c799"
+      },
+      {
+        "type": "lab",
+        "count": 1,
+        "hardness": "hard",
+        "application": "topic",
+        "description": "每个主题至少 1 个实验建议",
+        "requirement_id": "req_c8a4c76a15088ae8"
+      }
+    ],
+    "requirements": [
+      {
+        "kind": "duration",
+        "hardness": "hard",
+        "statement": "8 课时",
+        "verification": "course_time_budget",
+        "requirement_id": "req_3a87a6d70bb72353",
+        "normalized_value": {
+          "lessons": 8,
+          "minutes": null
+        }
+      },
+      {
+        "kind": "audience",
+        "hardness": "hard",
+        "statement": "掌握 C 语言和数据结构的计算机专业大二学生",
+        "verification": "pedagogical_fit_review",
+        "requirement_id": "req_e64cc0435672019a",
+        "normalized_value": "掌握 C 语言和数据结构的计算机专业大二学生"
+      },
+      {
+        "kind": "scope",
+        "hardness": "hard",
+        "statement": "进程与线程；CPU 调度；进程同步；死锁；虚拟内存",
+        "verification": "graph_scope_check",
+        "requirement_id": "req_018624459304f328",
+        "normalized_value": [
+          "进程与线程",
+          "CPU 调度",
+          "进程同步",
+          "死锁",
+          "虚拟内存"
+        ]
+      },
+      {
+        "kind": "source",
+        "hardness": "preference",
+        "statement": "共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存，达到本科基础到应用深度；优先使用大学课程和公认开放教材，资料不足时允许 AI 基于权威来源补充；每个主题需要机制讲解、可验证例子、练习和实验建议。",
+        "verification": "source_domain_and_authority_check",
+        "requirement_id": "req_5d2cab06d713b4d9",
+        "normalized_value": {
+          "domains": [],
+          "organizations": [
+            "公认开放教材",
+            "大学课程"
+          ]
+        }
+      },
+      {
+        "kind": "deliverable",
+        "hardness": "hard",
+        "statement": "机制讲解",
+        "verification": "learning_artifact_schema_and_count",
+        "requirement_id": "req_c6a3fae51453b37b",
+        "normalized_value": {
+          "type": "concept_explanation",
+          "count": 1,
+          "application": "topic"
+        }
+      },
+      {
+        "kind": "deliverable",
+        "hardness": "hard",
+        "statement": "可验证例子",
+        "verification": "learning_artifact_schema_and_count",
+        "requirement_id": "req_bdcb33d8f057553a",
+        "normalized_value": {
+          "type": "worked_case",
+          "count": 1,
+          "application": "topic"
+        }
+      },
+      {
+        "kind": "deliverable",
+        "hardness": "hard",
+        "statement": "练习",
+        "verification": "learning_artifact_schema_and_count",
+        "requirement_id": "req_9968602881e3c799",
+        "normalized_value": {
+          "type": "exercise_with_solution",
+          "count": 1,
+          "application": "topic"
+        }
+      },
+      {
+        "kind": "deliverable",
+        "hardness": "hard",
+        "statement": "实验建议",
+        "verification": "learning_artifact_schema_and_count",
+        "requirement_id": "req_c8a4c76a15088ae8",
+        "normalized_value": {
+          "type": "lab",
+          "count": 1,
+          "application": "topic"
+        }
+      },
+      {
+        "kind": "depth",
+        "hardness": "hard",
+        "statement": "本科基础",
+        "verification": "pedagogical_depth_review",
+        "requirement_id": "req_98da5497df5e1d3c",
+        "normalized_value": {
+          "conceptual_rigor": "本科基础",
+          "example_complexity": "可执行并可验证",
+          "target_bloom_levels": [
+            "apply"
+          ],
+          "math_or_code_expectation": "包含步骤、参数解释和验证结果"
+        }
+      }
+    ],
+    "depth_profile": {
+      "conceptual_rigor": "本科基础",
+      "example_complexity": "可执行并可验证",
+      "target_bloom_levels": [
+        "apply"
+      ],
+      "math_or_code_expectation": "包含步骤、参数解释和验证结果"
+    },
+    "original_text": "共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存，达到本科基础到应用深度；优先使用大学课程和公认开放教材，资料不足时允许 AI 基于权威来源补充；每个主题需要机制讲解、可验证例子、练习和实验建议。",
+    "source_policy": {
+      "freshness": null,
+      "required_domains": [],
+      "allow_ai_fallback": true,
+      "allowed_languages": [
+        "zh-CN"
+      ],
+      "preferred_domains": [],
+      "preferred_organizations": [
+        "公认开放教材",
+        "大学课程"
+      ],
+      "allow_community_fallback": true,
+      "minimum_authoritative_sources_per_topic": 1
+    },
+    "course_profile": {
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "language": "zh-CN",
+      "difficulty": "introductory",
+      "prerequisites": [
+        "C 语言",
+        "数据结构"
+      ],
+      "duration_lessons": 8,
+      "duration_minutes": null,
+      "learning_outcomes": [
+        "能解释进程、线程和系统调用的核心机制",
+        "能比较常见 CPU 调度算法并计算等待时间",
+        "能使用信号量分析并解决典型同步问题",
+        "能解释分页、缺页和页面置换算法"
+      ]
+    },
+    "schema_version": "2.0",
+    "clarification_questions": []
+  },
+  "source_candidates": [],
+  "existing_materials": [],
+  "knowledge_proposal": {
+    "mode": "create",
+    "items": [],
+    "intent": {
+      "mode": "create",
+      "scope": {
+        "exclude_topics": [],
+        "include_topics": [
+          "进程与线程",
+          "CPU 调度",
+          "进程同步",
+          "死锁",
+          "虚拟内存"
+        ],
+        "preserve_existing_graph": false,
+        "preserve_existing_documents": false
+      },
+      "status": "ready_for_review",
+      "assumptions": [
+        "课时长度未换算为分钟，课程内容预算按课时数校验。"
+      ],
+      "deliverables": [
+        {
+          "type": "concept_explanation",
+          "count": 1,
+          "hardness": "hard",
+          "application": "topic",
+          "description": "每个主题至少 1 个机制讲解",
+          "requirement_id": "req_c6a3fae51453b37b"
+        },
+        {
+          "type": "worked_case",
+          "count": 1,
+          "hardness": "hard",
+          "application": "topic",
+          "description": "每个主题至少 1 个可验证案例",
+          "requirement_id": "req_bdcb33d8f057553a"
+        },
+        {
+          "type": "exercise_with_solution",
+          "count": 1,
+          "hardness": "hard",
+          "application": "topic",
+          "description": "每个主题至少 1 个带答案和解析的练习",
+          "requirement_id": "req_9968602881e3c799"
+        },
+        {
+          "type": "lab",
+          "count": 1,
+          "hardness": "hard",
+          "application": "topic",
+          "description": "每个主题至少 1 个实验建议",
+          "requirement_id": "req_c8a4c76a15088ae8"
+        }
+      ],
+      "requirements": [
+        {
+          "kind": "duration",
+          "hardness": "hard",
+          "statement": "8 课时",
+          "verification": "course_time_budget",
+          "requirement_id": "req_3a87a6d70bb72353",
+          "normalized_value": {
+            "lessons": 8,
+            "minutes": null
+          }
+        },
+        {
+          "kind": "audience",
+          "hardness": "hard",
+          "statement": "掌握 C 语言和数据结构的计算机专业大二学生",
+          "verification": "pedagogical_fit_review",
+          "requirement_id": "req_e64cc0435672019a",
+          "normalized_value": "掌握 C 语言和数据结构的计算机专业大二学生"
+        },
+        {
+          "kind": "scope",
+          "hardness": "hard",
+          "statement": "进程与线程；CPU 调度；进程同步；死锁；虚拟内存",
+          "verification": "graph_scope_check",
+          "requirement_id": "req_018624459304f328",
+          "normalized_value": [
+            "进程与线程",
+            "CPU 调度",
+            "进程同步",
+            "死锁",
+            "虚拟内存"
+          ]
+        },
+        {
+          "kind": "source",
+          "hardness": "preference",
+          "statement": "共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存，达到本科基础到应用深度；优先使用大学课程和公认开放教材，资料不足时允许 AI 基于权威来源补充；每个主题需要机制讲解、可验证例子、练习和实验建议。",
+          "verification": "source_domain_and_authority_check",
+          "requirement_id": "req_5d2cab06d713b4d9",
+          "normalized_value": {
+            "domains": [],
+            "organizations": [
+              "公认开放教材",
+              "大学课程"
+            ]
+          }
+        },
+        {
+          "kind": "deliverable",
+          "hardness": "hard",
+          "statement": "机制讲解",
+          "verification": "learning_artifact_schema_and_count",
+          "requirement_id": "req_c6a3fae51453b37b",
+          "normalized_value": {
+            "type": "concept_explanation",
+            "count": 1,
+            "application": "topic"
+          }
+        },
+        {
+          "kind": "deliverable",
+          "hardness": "hard",
+          "statement": "可验证例子",
+          "verification": "learning_artifact_schema_and_count",
+          "requirement_id": "req_bdcb33d8f057553a",
+          "normalized_value": {
+            "type": "worked_case",
+            "count": 1,
+            "application": "topic"
+          }
+        },
+        {
+          "kind": "deliverable",
+          "hardness": "hard",
+          "statement": "练习",
+          "verification": "learning_artifact_schema_and_count",
+          "requirement_id": "req_9968602881e3c799",
+          "normalized_value": {
+            "type": "exercise_with_solution",
+            "count": 1,
+            "application": "topic"
+          }
+        },
+        {
+          "kind": "deliverable",
+          "hardness": "hard",
+          "statement": "实验建议",
+          "verification": "learning_artifact_schema_and_count",
+          "requirement_id": "req_c8a4c76a15088ae8",
+          "normalized_value": {
+            "type": "lab",
+            "count": 1,
+            "application": "topic"
+          }
+        },
+        {
+          "kind": "depth",
+          "hardness": "hard",
+          "statement": "本科基础",
+          "verification": "pedagogical_depth_review",
+          "requirement_id": "req_98da5497df5e1d3c",
+          "normalized_value": {
+            "conceptual_rigor": "本科基础",
+            "example_complexity": "可执行并可验证",
+            "target_bloom_levels": [
+              "apply"
+            ],
+            "math_or_code_expectation": "包含步骤、参数解释和验证结果"
+          }
+        }
+      ],
+      "depth_profile": {
+        "conceptual_rigor": "本科基础",
+        "example_complexity": "可执行并可验证",
+        "target_bloom_levels": [
+          "apply"
+        ],
+        "math_or_code_expectation": "包含步骤、参数解释和验证结果"
+      },
+      "original_text": "共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存，达到本科基础到应用深度；优先使用大学课程和公认开放教材，资料不足时允许 AI 基于权威来源补充；每个主题需要机制讲解、可验证例子、练习和实验建议。",
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": true,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [
+          "公认开放教材",
+          "大学课程"
+        ],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 1
+      },
+      "course_profile": {
+        "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+        "language": "zh-CN",
+        "difficulty": "introductory",
+        "prerequisites": [
+          "C 语言",
+          "数据结构"
+        ],
+        "duration_lessons": 8,
+        "duration_minutes": null,
+        "learning_outcomes": [
+          "能解释进程、线程和系统调用的核心机制",
+          "能比较常见 CPU 调度算法并计算等待时间",
+          "能使用信号量分析并解决典型同步问题",
+          "能解释分页、缺页和页面置换算法"
+        ]
+      },
+      "schema_version": "2.0",
+      "clarification_questions": []
+    },
+    "review": {
+      "method": "model_review",
+      "approved": true
+    },
+    "options": [
+      {
+        "id": "brief",
+        "root": {
+          "id": "os-course",
+          "data": {
+            "type": "course",
+            "summary": "8 课时操作系统基础课，覆盖进程与线程、CPU 调度、进程同步、死锁与虚拟内存。"
+          },
+          "label": "操作系统",
+          "children": [
+            {
+              "id": "proc-thread",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "从进程抽象到线程与系统调用，建立并发执行的基本模型。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "proc-concept",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "进程与线程的概念、状态与区别，是后续调度与同步的基础。"
+                  },
+                  "label": "进程与线程",
+                  "children": [
+                    {
+                      "id": "proc-model",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "讲解进程状态转换、线程共享资源及系统调用陷入内核的完整过程。"
+                      },
+                      "label": "进程、线程和系统调用的核心机制"
+                    },
+                    {
+                      "id": "proc-impl",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "以 PCB 字段和切换步骤说明进程切换的开销与触发时机。"
+                      },
+                      "label": "进程控制块与上下文切换"
+                    }
+                  ]
+                },
+                {
+                  "id": "proc-ipc",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "进程间交换数据的典型方式及其适用场景。"
+                  },
+                  "label": "进程间通信",
+                  "children": [
+                    {
+                      "id": "ipc-basic",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用管道和共享内存示例说明数据传递与同步配合方式。"
+                      },
+                      "label": "管道与共享内存通信"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "cpu-sched",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "调度准则与常见算法，重点是可计算等待时间的比较分析。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "sched-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "调度时机、准则与评价指标，为算法比较提供统一框架。"
+                  },
+                  "label": "调度基础",
+                  "children": [
+                    {
+                      "id": "sched-criteria",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用甘特图计算 FCFS、SJF、RR 的等待时间与周转时间。"
+                      },
+                      "label": "常见 CPU 调度算法与等待时间计算"
+                    },
+                    {
+                      "id": "sched-priority",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "说明优先级设置、老化机制与多级队列的调度过程。"
+                      },
+                      "label": "优先级调度与多级反馈队列"
+                    }
+                  ]
+                },
+                {
+                  "id": "sched-case",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过可验证算例巩固调度算法的计算与应用。"
+                  },
+                  "label": "调度案例分析",
+                  "children": [
+                    {
+                      "id": "sched-calc",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "给定进程到达与执行时间，逐步计算各算法等待时间并比较。"
+                      },
+                      "label": "调度算法等待时间计算实例"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "以信号量为核心工具，分析并解决典型同步与互斥问题。"
+              },
+              "label": "进程同步",
+              "children": [
+                {
+                  "id": "sync-tool",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "临界区问题与信号量操作，是解决同步问题的基本手段。"
+                  },
+                  "label": "同步机制",
+                  "children": [
+                    {
+                      "id": "sync-sem",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用 P、V 操作分析生产者消费者与读者写者问题并给出解法。"
+                      },
+                      "label": "使用信号量分析并解决典型同步问题"
+                    },
+                    {
+                      "id": "sync-monitor",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "介绍管程封装互斥与同步的机制及其与信号量的对比。"
+                      },
+                      "label": "管程与条件变量"
+                    }
+                  ]
+                },
+                {
+                  "id": "sync-lab",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过编程实验观察并发错误并验证同步方案。"
+                  },
+                  "label": "同步实验",
+                  "children": [
+                    {
+                      "id": "sync-race",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "编写多线程程序复现竞态，再用信号量修复并验证结果。"
+                      },
+                      "label": "竞态条件复现与信号量修复"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "死锁产生条件、预防避免检测与恢复策略。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "deadlock-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "死锁定义、产生条件与资源分配图分析方法。"
+                  },
+                  "label": "死锁基础",
+                  "children": [
+                    {
+                      "id": "deadlock-cond",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用资源分配图判断死锁，说明四个必要条件的作用。"
+                      },
+                      "label": "死锁产生条件与资源分配图"
+                    },
+                    {
+                      "id": "deadlock-handle",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "比较预防、避免、检测与恢复策略的代价与适用场景。"
+                      },
+                      "label": "死锁预防、避免与检测"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "分页、缺页处理与页面置换算法，理解虚拟地址到物理地址的转换。"
+              },
+              "label": "虚拟内存",
+              "children": [
+                {
+                  "id": "vm-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "分页机制与地址转换，是缺页和置换的前提。"
+                  },
+                  "label": "虚拟内存基础",
+                  "children": [
+                    {
+                      "id": "vm-paging",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "讲解页表地址转换、缺页中断处理及 FIFO、LRU 置换过程。"
+                      },
+                      "label": "分页、缺页和页面置换算法"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "level": "brief",
+        "metrics": {
+          "max_depth": 4,
+          "leaf_count": 12,
+          "node_count": 26,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "brief 分层方案，共 12 个知识点"
+      },
+      {
+        "id": "standard",
+        "root": {
+          "id": "os-course",
+          "data": {
+            "type": "course",
+            "summary": "8 课时操作系统基础课，覆盖进程与线程、CPU 调度、进程同步、死锁与虚拟内存。"
+          },
+          "label": "操作系统",
+          "children": [
+            {
+              "id": "proc-thread",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "从进程抽象到线程与系统调用，建立并发执行的基本模型。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "proc-concept",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "进程与线程的概念、状态与区别，是后续调度与同步的基础。"
+                  },
+                  "label": "进程与线程",
+                  "children": [
+                    {
+                      "id": "proc-model",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "讲解进程状态转换、线程共享资源及系统调用陷入内核的完整过程。"
+                      },
+                      "label": "进程、线程和系统调用的核心机制"
+                    },
+                    {
+                      "id": "proc-impl",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "以 PCB 字段和切换步骤说明进程切换的开销与触发时机。"
+                      },
+                      "label": "进程控制块与上下文切换"
+                    }
+                  ]
+                },
+                {
+                  "id": "proc-ipc",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "进程间交换数据的典型方式及其适用场景。"
+                  },
+                  "label": "进程间通信",
+                  "children": [
+                    {
+                      "id": "ipc-basic",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用管道和共享内存示例说明数据传递与同步配合方式。"
+                      },
+                      "label": "管道与共享内存通信"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "cpu-sched",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "调度准则与常见算法，重点是可计算等待时间的比较分析。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "sched-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "调度时机、准则与评价指标，为算法比较提供统一框架。"
+                  },
+                  "label": "调度基础",
+                  "children": [
+                    {
+                      "id": "sched-criteria",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用甘特图计算 FCFS、SJF、RR 的等待时间与周转时间。"
+                      },
+                      "label": "常见 CPU 调度算法与等待时间计算"
+                    },
+                    {
+                      "id": "sched-priority",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "说明优先级设置、老化机制与多级队列的调度过程。"
+                      },
+                      "label": "优先级调度与多级反馈队列"
+                    }
+                  ]
+                },
+                {
+                  "id": "sched-case",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过可验证算例巩固调度算法的计算与应用。"
+                  },
+                  "label": "调度案例分析",
+                  "children": [
+                    {
+                      "id": "sched-calc",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "给定进程到达与执行时间，逐步计算各算法等待时间并比较。"
+                      },
+                      "label": "调度算法等待时间计算实例"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "以信号量为核心工具，分析并解决典型同步与互斥问题。"
+              },
+              "label": "进程同步",
+              "children": [
+                {
+                  "id": "sync-tool",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "临界区问题与信号量操作，是解决同步问题的基本手段。"
+                  },
+                  "label": "同步机制",
+                  "children": [
+                    {
+                      "id": "sync-sem",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用 P、V 操作分析生产者消费者与读者写者问题并给出解法。"
+                      },
+                      "label": "使用信号量分析并解决典型同步问题"
+                    },
+                    {
+                      "id": "sync-monitor",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "介绍管程封装互斥与同步的机制及其与信号量的对比。"
+                      },
+                      "label": "管程与条件变量"
+                    }
+                  ]
+                },
+                {
+                  "id": "sync-lab",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过编程实验观察并发错误并验证同步方案。"
+                  },
+                  "label": "同步实验",
+                  "children": [
+                    {
+                      "id": "sync-race",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "编写多线程程序复现竞态，再用信号量修复并验证结果。"
+                      },
+                      "label": "竞态条件复现与信号量修复"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "死锁产生条件、预防避免检测与恢复策略。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "deadlock-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "死锁定义、产生条件与资源分配图分析方法。"
+                  },
+                  "label": "死锁基础",
+                  "children": [
+                    {
+                      "id": "deadlock-cond",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用资源分配图判断死锁，说明四个必要条件的作用。"
+                      },
+                      "label": "死锁产生条件与资源分配图"
+                    },
+                    {
+                      "id": "deadlock-handle",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "比较预防、避免、检测与恢复策略的代价与适用场景。"
+                      },
+                      "label": "死锁预防、避免与检测"
+                    }
+                  ]
+                },
+                {
+                  "id": "deadlock-case",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过实例识别死锁并设计处理方案。"
+                  },
+                  "label": "死锁案例分析",
+                  "children": [
+                    {
+                      "id": "deadlock-detect",
+                      "data": {
+                        "tier": "standard",
+                        "type": "knowledge_point",
+                        "summary": "给定资源分配状态，检测死锁并给出恢复步骤。"
+                      },
+                      "label": "死锁检测与恢复实例"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "分页、缺页处理与页面置换算法，理解虚拟地址到物理地址的转换。"
+              },
+              "label": "虚拟内存",
+              "children": [
+                {
+                  "id": "vm-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "分页机制与地址转换，是缺页和置换的前提。"
+                  },
+                  "label": "虚拟内存基础",
+                  "children": [
+                    {
+                      "id": "vm-paging",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "讲解页表地址转换、缺页中断处理及 FIFO、LRU 置换过程。"
+                      },
+                      "label": "分页、缺页和页面置换算法"
+                    },
+                    {
+                      "id": "vm-tlb",
+                      "data": {
+                        "tier": "standard",
+                        "type": "knowledge_point",
+                        "summary": "说明 TLB 命中路径与多级页表如何节省页表空间。"
+                      },
+                      "label": "快表与多级页表"
+                    }
+                  ]
+                },
+                {
+                  "id": "vm-case",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过访问序列计算缺页率并比较置换算法。"
+                  },
+                  "label": "虚拟内存案例分析",
+                  "children": [
+                    {
+                      "id": "vm-replace-calc",
+                      "data": {
+                        "tier": "standard",
+                        "type": "knowledge_point",
+                        "summary": "给定页面访问序列，逐步计算 FIFO、LRU、OPT 的缺页次数。"
+                      },
+                      "label": "页面置换算法缺页率计算"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "level": "standard",
+        "metrics": {
+          "max_depth": 4,
+          "leaf_count": 15,
+          "node_count": 31,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "standard 分层方案，共 15 个知识点"
+      },
+      {
+        "id": "complete",
+        "root": {
+          "id": "os-course",
+          "data": {
+            "type": "course",
+            "summary": "8 课时操作系统基础课，覆盖进程与线程、CPU 调度、进程同步、死锁与虚拟内存。"
+          },
+          "label": "操作系统",
+          "children": [
+            {
+              "id": "proc-thread",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "从进程抽象到线程与系统调用，建立并发执行的基本模型。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "proc-concept",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "进程与线程的概念、状态与区别，是后续调度与同步的基础。"
+                  },
+                  "label": "进程与线程",
+                  "children": [
+                    {
+                      "id": "proc-model",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "讲解进程状态转换、线程共享资源及系统调用陷入内核的完整过程。"
+                      },
+                      "label": "进程、线程和系统调用的核心机制"
+                    },
+                    {
+                      "id": "proc-impl",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "以 PCB 字段和切换步骤说明进程切换的开销与触发时机。"
+                      },
+                      "label": "进程控制块与上下文切换"
+                    },
+                    {
+                      "id": "thread-model",
+                      "data": {
+                        "tier": "complete",
+                        "type": "knowledge_point",
+                        "summary": "比较多对一、一对一、多对多模型及其并发能力差异。"
+                      },
+                      "label": "用户级与内核级线程模型"
+                    }
+                  ]
+                },
+                {
+                  "id": "proc-ipc",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "进程间交换数据的典型方式及其适用场景。"
+                  },
+                  "label": "进程间通信",
+                  "children": [
+                    {
+                      "id": "ipc-basic",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用管道和共享内存示例说明数据传递与同步配合方式。"
+                      },
+                      "label": "管道与共享内存通信"
+                    },
+                    {
+                      "id": "ipc-msg",
+                      "data": {
+                        "tier": "complete",
+                        "type": "knowledge_point",
+                        "summary": "介绍消息队列与套接字在分布式场景下的通信模型。"
+                      },
+                      "label": "消息传递与客户服务器通信"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "cpu-sched",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "调度准则与常见算法，重点是可计算等待时间的比较分析。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "sched-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "调度时机、准则与评价指标，为算法比较提供统一框架。"
+                  },
+                  "label": "调度基础",
+                  "children": [
+                    {
+                      "id": "sched-criteria",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用甘特图计算 FCFS、SJF、RR 的等待时间与周转时间。"
+                      },
+                      "label": "常见 CPU 调度算法与等待时间计算"
+                    },
+                    {
+                      "id": "sched-priority",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "说明优先级设置、老化机制与多级队列的调度过程。"
+                      },
+                      "label": "优先级调度与多级反馈队列"
+                    },
+                    {
+                      "id": "sched-multicore",
+                      "data": {
+                        "tier": "complete",
+                        "type": "knowledge_point",
+                        "summary": "介绍负载均衡、处理器亲和性与实时调度基本约束。"
+                      },
+                      "label": "多处理器与实时调度"
+                    }
+                  ]
+                },
+                {
+                  "id": "sched-case",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过可验证算例巩固调度算法的计算与应用。"
+                  },
+                  "label": "调度案例分析",
+                  "children": [
+                    {
+                      "id": "sched-calc",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "给定进程到达与执行时间，逐步计算各算法等待时间并比较。"
+                      },
+                      "label": "调度算法等待时间计算实例"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "以信号量为核心工具，分析并解决典型同步与互斥问题。"
+              },
+              "label": "进程同步",
+              "children": [
+                {
+                  "id": "sync-tool",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "临界区问题与信号量操作，是解决同步问题的基本手段。"
+                  },
+                  "label": "同步机制",
+                  "children": [
+                    {
+                      "id": "sync-sem",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用 P、V 操作分析生产者消费者与读者写者问题并给出解法。"
+                      },
+                      "label": "使用信号量分析并解决典型同步问题"
+                    },
+                    {
+                      "id": "sync-monitor",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "介绍管程封装互斥与同步的机制及其与信号量的对比。"
+                      },
+                      "label": "管程与条件变量"
+                    }
+                  ]
+                },
+                {
+                  "id": "sync-lab",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过编程实验观察并发错误并验证同步方案。"
+                  },
+                  "label": "同步实验",
+                  "children": [
+                    {
+                      "id": "sync-race",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "编写多线程程序复现竞态，再用信号量修复并验证结果。"
+                      },
+                      "label": "竞态条件复现与信号量修复"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "死锁产生条件、预防避免检测与恢复策略。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "deadlock-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "死锁定义、产生条件与资源分配图分析方法。"
+                  },
+                  "label": "死锁基础",
+                  "children": [
+                    {
+                      "id": "deadlock-cond",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "用资源分配图判断死锁，说明四个必要条件的作用。"
+                      },
+                      "label": "死锁产生条件与资源分配图"
+                    },
+                    {
+                      "id": "deadlock-handle",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "比较预防、避免、检测与恢复策略的代价与适用场景。"
+                      },
+                      "label": "死锁预防、避免与检测"
+                    }
+                  ]
+                },
+                {
+                  "id": "deadlock-case",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过实例识别死锁并设计处理方案。"
+                  },
+                  "label": "死锁案例分析",
+                  "children": [
+                    {
+                      "id": "deadlock-detect",
+                      "data": {
+                        "tier": "standard",
+                        "type": "knowledge_point",
+                        "summary": "给定资源分配状态，检测死锁并给出恢复步骤。"
+                      },
+                      "label": "死锁检测与恢复实例"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "分页、缺页处理与页面置换算法，理解虚拟地址到物理地址的转换。"
+              },
+              "label": "虚拟内存",
+              "children": [
+                {
+                  "id": "vm-basic",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "分页机制与地址转换，是缺页和置换的前提。"
+                  },
+                  "label": "虚拟内存基础",
+                  "children": [
+                    {
+                      "id": "vm-paging",
+                      "data": {
+                        "tier": "brief",
+                        "type": "knowledge_point",
+                        "summary": "讲解页表地址转换、缺页中断处理及 FIFO、LRU 置换过程。"
+                      },
+                      "label": "分页、缺页和页面置换算法"
+                    },
+                    {
+                      "id": "vm-tlb",
+                      "data": {
+                        "tier": "standard",
+                        "type": "knowledge_point",
+                        "summary": "说明 TLB 命中路径与多级页表如何节省页表空间。"
+                      },
+                      "label": "快表与多级页表"
+                    }
+                  ]
+                },
+                {
+                  "id": "vm-case",
+                  "data": {
+                    "type": "knowledge_unit",
+                    "summary": "通过访问序列计算缺页率并比较置换算法。"
+                  },
+                  "label": "虚拟内存案例分析",
+                  "children": [
+                    {
+                      "id": "vm-replace-calc",
+                      "data": {
+                        "tier": "standard",
+                        "type": "knowledge_point",
+                        "summary": "给定页面访问序列，逐步计算 FIFO、LRU、OPT 的缺页次数。"
+                      },
+                      "label": "页面置换算法缺页率计算"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "level": "complete",
+        "metrics": {
+          "max_depth": 4,
+          "leaf_count": 18,
+          "node_count": 34,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "complete 分层方案，共 18 个知识点。完整档属于超出既定课时的按需选学资源，不代表课内全部掌握。"
+      }
+    ],
+    "summary": "无 baseline，按 5 个一级模块、3 层深度构建一棵分层目录：brief 叶覆盖全部课程目标与五个必含主题，standard 叶补充机制展开与算法比较，complete 叶提供进阶与综合应用；三档共用同一棵树，仅叶节点 tier 不同。完整档属于超出既定课时的按需选学资源，不代表课内全部掌握。",
+    "core_topics": [
+      "优先级调度与多级反馈队列",
+      "使用信号量分析并解决典型同步问题",
+      "分页、缺页和页面置换算法",
+      "常见 CPU 调度算法与等待时间计算",
+      "死锁产生条件与资源分配图",
+      "死锁预防、避免与检测",
+      "竞态条件复现与信号量修复",
+      "管程与条件变量",
+      "管道与共享内存通信",
+      "调度算法等待时间计算实例",
+      "进程、线程和系统调用的核心机制",
+      "进程控制块与上下文切换"
+    ],
+    "requirements": "共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存，达到本科基础到应用深度；优先使用大学课程和公认开放教材，资料不足时允许 AI 基于权威来源补充；每个主题需要机制讲解、可验证例子、练习和实验建议。",
+    "document_snapshot": []
+  },
+  "proposal_selection": {
+    "item_ids": [],
+    "option_id": "brief",
+    "expected_revision": 2
+  },
+  "selected_topic_ids": [
+    "proc-model",
+    "proc-impl",
+    "ipc-basic",
+    "sched-criteria",
+    "sched-priority",
+    "sched-calc",
+    "sync-sem",
+    "sync-monitor",
+    "sync-race",
+    "deadlock-cond",
+    "deadlock-handle",
+    "vm-paging"
+  ],
+  "topic_requirements": {},
+  "current_graph_summary": null,
+  "baseline_graph_version": null
+}

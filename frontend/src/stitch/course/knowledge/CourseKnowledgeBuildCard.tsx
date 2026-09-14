@@ -31,6 +31,34 @@ const PHASE_LABELS: Record<string, string> = {
   completed: "更新完成",
 };
 
+const QUALITY_LABELS: Record<string, string> = {
+  graph_schema: "目录结构",
+  graph_scale: "课程规模",
+  textbook_mapping_quality: "教材映射",
+  non_ai_coverage: "外部资料覆盖",
+  content_sufficiency: "内容充足度",
+  ai_fallback_policy: "AI 补充策略",
+  provenance_integrity: "来源追溯",
+  index_integrity: "索引完整性",
+  publication_atomicity: "发布完整性",
+  required_source_policy: "限定来源",
+  preferred_source_policy: "优先来源",
+  intent_adherence: "教师交付要求",
+};
+
+function qualityDetail(check: NonNullable<CourseKnowledgeBuild["quality_checks"]>[number]) {
+  if (check.status === "passed") return "已满足";
+  const decision = String(check.details?.decision || "").trim();
+  if (decision) return decision;
+  const missing = Array.isArray(check.details?.missing_deliverables)
+    ? check.details.missing_deliverables as Array<{ type?: string; required?: number; actual?: number }>
+    : [];
+  if (missing.length) {
+    return missing.map(item => `${item.type || "交付物"}：需要 ${item.required || 0}，已有 ${item.actual || 0}`).join("；");
+  }
+  return "未满足，需调整需求或补齐内容";
+}
+
 type Props = {
   courseId: string;
   documentCount: number;
@@ -179,6 +207,17 @@ export function CourseKnowledgeBuildCard({ courseId, documentCount, canBuild, re
           <MaterialIcon name="error" />
           <div><strong>本次更新未完成</strong><span>{status?.error_message || status?.error || "请稍后重试。"}</span></div>
         </div>
+      ) : null}
+
+      {plan?.quality_checks?.length ? (
+        <section className="course-kb-builder__quality" aria-label="知识库质量检查">
+          <h3>本次构建质量检查{plan.quality_score != null ? ` · ${plan.quality_score} 分` : ""}</h3>
+          <ul>{plan.quality_checks.map(check => <li key={check.check_type} className={check.status === "passed" ? "is-passed" : check.status === "needs_teacher_decision" ? "is-decision" : "is-failed"}>
+            <MaterialIcon name={check.status === "passed" ? "check_circle" : check.status === "needs_teacher_decision" ? "help" : "error"} />
+            <strong>{QUALITY_LABELS[check.check_type] || check.check_type}</strong>
+            <span>{qualityDetail(check)}</span>
+          </li>)}</ul>
+        </section>
       ) : null}
 
       <div className="course-kb-builder__actions">

@@ -1,0 +1,68 @@
+{
+  "kind": "lesson_plan",
+  "reference_handoff_verified": true,
+  "pause_and_revision_verified": true,
+  "passed": true,
+  "source_unchanged_verified": true,
+  "browser_preview": true,
+  "material_type": "lesson_plan",
+  "review_decisions": [
+    "revise",
+    "revise",
+    "pass"
+  ],
+  "turns": [
+    {
+      "question": "请生成一份面向大学初学者、15分钟的“数组随机访问”教案，包含具体课堂活动和评价。资料使用通用知识即可，无需检索。",
+      "action": {
+        "name": "generate.lesson_plan"
+      },
+      "workflow": {
+        "type": "lesson_plan",
+        "status": "awaiting_confirm",
+        "stage": "outline"
+      },
+      "reference_handoff": true
+    },
+    {
+      "question": "先不要生成，解释一下你如何检查学生学会了。",
+      "action": {
+        "name": "chat.reply"
+      },
+      "workflow": null,
+      "reference_handoff": false
+    },
+    {
+      "question": "请把教案课时改成12分钟，先给我修改后的教学方案。",
+      "action": {
+        "name": "generate.lesson_plan"
+      },
+      "workflow": {
+        "type": "lesson_plan",
+        "status": "awaiting_confirm",
+        "stage": "outline"
+      },
+      "reference_handoff": false
+    },
+    {
+      "question": "Go ahead with this plan.",
+      "action": {
+        "name": "generate.lesson_plan"
+      },
+      "workflow": {
+        "type": "lesson_plan",
+        "status": "running",
+        "stage": "generating"
+      },
+      "reference_handoff": false
+    },
+    {
+      "question": "刚才生成的资源完成了吗？请读取它并概括内容。",
+      "action": {
+        "name": "chat.reply"
+      },
+      "workflow": null,
+      "reference_handoff": false
+    }
+  ]
+}

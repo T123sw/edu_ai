@@ -33,3 +33,10 @@ test("opening generation without selected documents does not use knowledge by de
     selectedDocumentIds: [],
   });
 });
+
+test("opening generation inherits automatic course retrieval when enabled", () => {
+  assert.deepEqual(initialGenerationSource([], true), {
+    mode: "course_auto",
+    selectedDocumentIds: [],
+  });
+});

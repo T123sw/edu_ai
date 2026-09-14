@@ -169,6 +169,8 @@ def test_import_to_knowledge_base_creates_personal_documents(monkeypatch):
 
 
 def test_run_deepsearch_returns_error_when_bocha_search_fails(monkeypatch):
+    monkeypatch.delenv("TAVILY_API_KEY", raising=False)
+
     def fail_search(*args, **kwargs):
         raise RuntimeError("bocha timeout")
 
@@ -216,6 +218,39 @@ def test_run_deepsearch_falls_back_to_tavily_search_when_bocha_fails(monkeypatch
     assert result["ok"] is True
     assert result["links"] == ["https://docs.python.org/3/tutorial/controlflow.html"]
     assert fallback_calls[0][1]["count"] == 3
+
+
+def test_domain_constrained_search_uses_tavily_advanced_before_bocha(monkeypatch):
+    calls = []
+    monkeypatch.setenv("TAVILY_API_KEY", "tvly-test")
+    monkeypatch.setattr(
+        deepsearch_service,
+        "search_tavily",
+        lambda query, **kwargs: calls.append((query, kwargs)) or [
+            WebSearchHit(
+                url="https://docs.kernel.org/admin-guide/cgroup-v2.html",
+                title="Control Group v2",
+                content="cpu.max memory.max io.max",
+                site="docs.kernel.org",
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        deepsearch_service,
+        "search_bocha",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("domain-constrained query should use Tavily first")
+        ),
+    )
+
+    hits = deepsearch_service.search_web_sources(
+        "site:docs.kernel.org cgroup v2 cpu.max memory.max io.max", 3
+    )
+
+    assert hits[0].url == "https://docs.kernel.org/admin-guide/cgroup-v2.html"
+    assert calls[0][1]["search_depth"] == "advanced"
+    assert calls[0][1]["count"] == 3
+    assert calls[0][1]["include_domains"] == ["docs.kernel.org"]
 
 
 def test_run_deepsearch_full_falls_back_to_bocha_basic_when_tavily_fails(monkeypatch):

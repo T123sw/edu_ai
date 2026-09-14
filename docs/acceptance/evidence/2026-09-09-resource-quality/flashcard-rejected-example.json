@@ -1,0 +1,830 @@
+{
+  "kind": "flashcard",
+  "conversation_id": "resource-e2e-flashcard-fcf03d23",
+  "turns": [
+    {
+      "question": "请生成4张面向大学初学者的“数组随机访问”问答闪卡，每张正面一个问题，背面答案与解释。资料使用通用知识即可，无需检索。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "正在生成闪卡，完成后会在这里显示。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-flashcard-fcf03d23"
+        },
+        "action": {
+          "name": "generate.flashcard"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "flashcard",
+          "status": "running",
+          "stage": "generating"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "b3759bf2d6ec4d1d8ccb7de7778087eb",
+          "tool_events": [
+            {
+              "ok": false,
+              "tool": "organize_resource_content",
+              "error": "needs_clarification: 请先明确知识点或整门课程范围",
+              "retryable": false
+            },
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": false,
+              "tool": "organize_resource_content",
+              "error": "outline_model_response_invalid",
+              "retryable": true,
+              "issues": "JSON、字段长度、章节数量或索引覆盖不符合工具 schema；请缩短内容并保留完整 JSON。"
+            },
+            {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "数组随机访问的基本概念、时间复杂度、与顺序访问的对比，以及适用场景。不涉及具体编程语言实现或内存地址计算细节。",
+                "prerequisites": [
+                  "了解数组的基本定义和元素存储方式",
+                  "理解时间复杂度的基本概念（如O(1)、O(n)）"
+                ],
+                "objectives": [
+                  "能解释数组随机访问的含义及其时间复杂度",
+                  "能对比随机访问与顺序访问的差异",
+                  "能识别数组随机访问的适用场景"
+                ],
+                "units": [
+                  {
+                    "title": "随机访问的定义与时间复杂度",
+                    "explanation": "数组支持通过索引直接访问任意位置的元素，无需从头遍历，因此时间复杂度为O(1)。",
+                    "example": "",
+                    "misconception": "",
+                    "check": "",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "随机访问与顺序访问的对比",
+                    "explanation": "随机访问按索引直接定位，顺序访问需逐个遍历；数组适合随机访问，链表适合顺序访问。",
+                    "example": "",
+                    "misconception": "",
+                    "check": "",
+                    "objective_indices": [
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "适用场景",
+                    "explanation": "当需要频繁按位置读取元素（如二分查找、矩阵操作）时，数组的随机访问优势明显。",
+                    "example": "",
+                    "misconception": "",
+                    "check": "",
+                    "objective_indices": [
+                      2
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "未涉及动态数组扩容或内存碎片问题",
+                  "未讨论多维数组的随机访问细节"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：内容假设学习者了解数组基本定义和O(1)/O(n)时间复杂度，符合大学初学者受众，且未引入超出范围的具体语言或内存细节。",
+                      "reason": "前提与受众匹配，范围声明明确排除实现细节，无错误泛化。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：随机访问定义为O(1)，顺序访问为O(n)，对比和适用场景描述一致，无矛盾。",
+                      "reason": "各单元解释相互支持，二分查找和矩阵操作作为随机访问场景合理。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子：二分查找和矩阵操作是数组随机访问的典型例子，正确体现按索引直接定位的优势。",
+                      "reason": "例子虽简短但准确，未展开不影响正确性。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：三个单元分别对应三个目标，覆盖定义、对比和场景，无缺失；限制条件合理。",
+                      "reason": "目标索引0、1、2均被引用，限制声明未遗漏关键边界。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_6cb4d58821394e66896e5a5f5057c294",
+                "resource_type": "flashcard",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "4张问答闪卡；每卡正面一个问题，背面答案加一句解释；主题为数组随机访问；使用通用知识，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "submit_resource_direct",
+              "data": {
+                "task_id": "job_4fea2717ed814874",
+                "status": "submitted",
+                "workflow_type": "flashcard"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "task_id": "job_4fea2717ed814874",
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成闪卡",
+          "workflow_label": "闪卡",
+          "topics": [
+            "请生成4张"
+          ],
+          "goal": "生成闪卡",
+          "issues": [
+            "每张正面一个问题"
+          ],
+          "confirmed_facts": [
+            "每张正面一个问题",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”问答闪卡",
+          "allow_rag": true,
+          "allow_web": true
+        }
+      }
+    },
+    {
+      "question": "刚才生成的资源完成了吗？请读取它并概括内容。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "已经完成了。刚才那组「数组随机访问」闪卡共 4 张，面向大学初学者，每张正面一个问题、背面答案与解释，内容如下：\n\n1. **什么是数组的随机访问？时间复杂度是多少？** —— 通过索引直接定位并访问任意元素，时间 O(1)；因数组元素连续存储，知道起始地址和索引即可立刻算出目标位置，无需遍历。\n\n2. **随机访问与顺序访问（如链表查找）的主要区别？** —— 随机访问按索引直接跳转、耗时恒定；顺序访问必须从头逐个遍历，耗时随位置增长。所以数组适合随机访问，链表适合顺序访问。\n\n3. **为什么二分查找能高效运行在数组上？** —— 二分查找每次要直接访问中间元素，数组 O(1) 随机访问让这一步瞬间完成；若用链表实现，每次取中间都要遍历，总复杂度会退化到 O(n log n)。\n\n4. **举一个适合利用数组随机访问优势的实际场景。** —— 矩阵操作，如按行列号读取图像像素或二维表格数据，任意坐标的 O(1) 定位让这类操作很高效。\n\n整体设计围绕“随机访问”这一核心概念展开：先讲定义与复杂度，再做与顺序访问的对比，再落到二分查找这样的典型应用，最后用实例帮助巩固理解。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-flashcard-fcf03d23"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [
+          {
+            "artifact_id": "flashcard-f714c40d8485c063",
+            "artifact_type": "flashcard",
+            "title": "数组随机访问",
+            "content": {
+              "title": "数组随机访问",
+              "cards": [
+                {
+                  "id": "c1",
+                  "front": "什么是数组的随机访问？它的时间复杂度是多少？",
+                  "back": "随机访问指通过索引直接定位并访问数组中的任意元素，时间复杂度为O(1)。因为数组元素在内存中连续存储，知道起始地址和索引就能立即算出目标位置，无需遍历。"
+                },
+                {
+                  "id": "c2",
+                  "front": "随机访问与顺序访问（如链表查找）的主要区别是什么？",
+                  "back": "随机访问按索引直接跳转到目标位置，耗时恒定；顺序访问必须从头逐个遍历到目标，耗时随位置增长。因此数组适合随机访问，链表适合顺序访问。"
+                },
+                {
+                  "id": "c3",
+                  "front": "为什么二分查找能高效运行在数组上？",
+                  "back": "因为二分查找每次需要直接访问中间位置的元素，数组的O(1)随机访问让这一步瞬间完成。若用链表实现，每次取中间都要遍历，总复杂度会退化到O(n log n)。"
+                },
+                {
+                  "id": "c4",
+                  "front": "举一个适合利用数组随机访问优势的实际场景。",
+                  "back": "矩阵操作（如按行列号读取元素）是典型场景。例如处理图像像素或二维表格数据时，经常要随机读取任意坐标的值，数组的O(1)定位让这类操作非常高效。"
+                }
+              ]
+            }
+          }
+        ],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "1bfeaf7f4d864ef2a09ce00bdbd774d8",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "query_resource_job",
+              "data": {
+                "task_id": "job_4fea2717ed814874",
+                "resource_type": "flashcard",
+                "status": "succeeded",
+                "progress": 100,
+                "title": "数组随机访问",
+                "result_ref": {
+                  "resource_type": "course_material",
+                  "course_id": "resource-e2e-course",
+                  "material_type": "flashcard",
+                  "material_id": "flashcard-f714c40d8485c063"
+                },
+                "verification": {
+                  "decision": "pass",
+                  "checks": "version_bound_resource_review"
+                },
+                "failure_reason": null,
+                "artifact": {
+                  "artifact_id": "flashcard-f714c40d8485c063",
+                  "artifact_type": "flashcard",
+                  "title": "数组随机访问",
+                  "content": {
+                    "title": "数组随机访问",
+                    "cards": [
+                      {
+                        "id": "c1",
+                        "front": "什么是数组的随机访问？它的时间复杂度是多少？",
+                        "back": "随机访问指通过索引直接定位并访问数组中的任意元素，时间复杂度为O(1)。因为数组元素在内存中连续存储，知道起始地址和索引就能立即算出目标位置，无需遍历。"
+                      },
+                      {
+                        "id": "c2",
+                        "front": "随机访问与顺序访问（如链表查找）的主要区别是什么？",
+                        "back": "随机访问按索引直接跳转到目标位置，耗时恒定；顺序访问必须从头逐个遍历到目标，耗时随位置增长。因此数组适合随机访问，链表适合顺序访问。"
+                      },
+                      {
+                        "id": "c3",
+                        "front": "为什么二分查找能高效运行在数组上？",
+                        "back": "因为二分查找每次需要直接访问中间位置的元素，数组的O(1)随机访问让这一步瞬间完成。若用链表实现，每次取中间都要遍历，总复杂度会退化到O(n log n)。"
+                      },
+                      {
+                        "id": "c4",
+                        "front": "举一个适合利用数组随机访问优势的实际场景。",
+                        "back": "矩阵操作（如按行列号读取元素）是典型场景。例如处理图像像素或二维表格数据时，经常要随机读取任意坐标的值，数组的O(1)定位让这类操作非常高效。"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "verification": {
+          "decision": "pass",
+          "checks": "version_bound_resource_review"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "",
+          "scope_path": [],
+          "resolution": "needs_clarification",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成闪卡",
+          "workflow_label": "闪卡",
+          "topics": [
+            "刚才生成的资源完成了吗",
+            "请读取它并概括内容",
+            "请生成4张"
+          ],
+          "goal": "生成闪卡",
+          "issues": [
+            "每张正面一个问题、背面答案与解释",
+            "每张正面一个问题"
+          ],
+          "confirmed_facts": [
+            "每张正面一个问题",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "active_artifact_label": "当前产物：闪卡",
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”问答闪卡",
+          "allow_rag": true,
+          "allow_web": true
+        }
+      }
+    }
+  ],
+  "direct_generation_verified": true,
+  "job": {
+    "schema_version": 2,
+    "version": 4,
+    "edu_job_id": "job_4fea2717ed814874",
+    "kind": "generate_flashcard",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "生成完成，已保存到“我的资源”，仅你可见。",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "flashcard",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "flashcard",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "",
+        "focus": "4张问答闪卡；每卡正面一个问题，背面答案加一句解释；主题为数组随机访问；使用通用知识，无需检索。",
+        "length_hint": "4张问答闪卡；每卡正面一个问题，背面答案加一句解释；主题为数组随机访问；使用通用知识，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "direct_org_6cb4d58821394e66896e5a5f5057c294",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-flashcard-fcf03d23",
+        "harness_chapters": [],
+        "classroom_options": {},
+        "harness_organization": {
+          "scope": "数组随机访问的基本概念、时间复杂度、与顺序访问的对比，以及适用场景。不涉及具体编程语言实现或内存地址计算细节。",
+          "prerequisites": [
+            "了解数组的基本定义和元素存储方式",
+            "理解时间复杂度的基本概念（如O(1)、O(n)）"
+          ],
+          "objectives": [
+            "能解释数组随机访问的含义及其时间复杂度",
+            "能对比随机访问与顺序访问的差异",
+            "能识别数组随机访问的适用场景"
+          ],
+          "units": [
+            {
+              "title": "随机访问的定义与时间复杂度",
+              "explanation": "数组支持通过索引直接访问任意位置的元素，无需从头遍历，因此时间复杂度为O(1)。",
+              "example": "",
+              "misconception": "",
+              "check": "",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "随机访问与顺序访问的对比",
+              "explanation": "随机访问按索引直接定位，顺序访问需逐个遍历；数组适合随机访问，链表适合顺序访问。",
+              "example": "",
+              "misconception": "",
+              "check": "",
+              "objective_indices": [
+                1
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "适用场景",
+              "explanation": "当需要频繁按位置读取元素（如二分查找、矩阵操作）时，数组的随机访问优势明显。",
+              "example": "",
+              "misconception": "",
+              "check": "",
+              "objective_indices": [
+                2
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "未涉及动态数组扩容或内存碎片问题",
+            "未讨论多维数组的随机访问细节"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "前提适用性：内容假设学习者了解数组基本定义和O(1)/O(n)时间复杂度，符合大学初学者受众，且未引入超出范围的具体语言或内存细节。",
+                "reason": "前提与受众匹配，范围声明明确排除实现细节，无错误泛化。",
+                "passed": true
+              },
+              {
+                "claim": "内部推理一致性：随机访问定义为O(1)，顺序访问为O(n)，对比和适用场景描述一致，无矛盾。",
+                "reason": "各单元解释相互支持，二分查找和矩阵操作作为随机访问场景合理。",
+                "passed": true
+              },
+              {
+                "claim": "具体例子：二分查找和矩阵操作是数组随机访问的典型例子，正确体现按索引直接定位的优势。",
+                "reason": "例子虽简短但准确，未展开不影响正确性。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖：三个单元分别对应三个目标，覆盖定义、对比和场景，无缺失；限制条件合理。",
+                "reason": "目标索引0、1、2均被引用，限制声明未遗漏关键边界。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_6cb4d58821394e66896e5a5f5057c294",
+          "resource_type": "flashcard",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "4张问答闪卡；每卡正面一个问题，背面答案加一句解释；主题为数组随机访问；使用通用知识，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "direct",
+        "harness_execution_context": {
+          "stage": "write_and_review_flashcard",
+          "decision": {
+            "request_id": "b3759bf2d6ec4d1d8ccb7de7778087eb",
+            "user_message": "请生成4张面向大学初学者的“数组随机访问”问答闪卡，每张正面一个问题，背面答案与解释。资料使用通用知识即可，无需检索。",
+            "outline_id": "direct_org_6cb4d58821394e66896e5a5f5057c294",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "b3759bf2d6ec4d1d8ccb7de7778087eb",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_0b36ad0e8be07c57",
+      "idempotency_key": "dsh:b5e7aae24baef063f5a4f7ca55c3c90dac1c68b45b1fe0092077b94d8742b5af",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": {
+      "resource_type": "course_material",
+      "course_id": "resource-e2e-course",
+      "material_type": "flashcard",
+      "material_id": "flashcard-f714c40d8485c063"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-09-09T02:45:15.718537+00:00",
+    "started_at": "2026-09-09T02:45:16.186437+00:00",
+    "finished_at": "2026-09-09T02:45:36.547482+00:00",
+    "updated_at": "2026-09-09T02:45:36.547482+00:00"
+  },
+  "material": {
+    "title": "数组随机访问",
+    "content": {
+      "title": "数组随机访问",
+      "cards": [
+        {
+          "id": "c1",
+          "front": "什么是数组的随机访问？它的时间复杂度是多少？",
+          "back": "随机访问指通过索引直接定位并访问数组中的任意元素，时间复杂度为O(1)。因为数组元素在内存中连续存储，知道起始地址和索引就能立即算出目标位置，无需遍历。"
+        },
+        {
+          "id": "c2",
+          "front": "随机访问与顺序访问（如链表查找）的主要区别是什么？",
+          "back": "随机访问按索引直接跳转到目标位置，耗时恒定；顺序访问必须从头逐个遍历到目标，耗时随位置增长。因此数组适合随机访问，链表适合顺序访问。"
+        },
+        {
+          "id": "c3",
+          "front": "为什么二分查找能高效运行在数组上？",
+          "back": "因为二分查找每次需要直接访问中间位置的元素，数组的O(1)随机访问让这一步瞬间完成。若用链表实现，每次取中间都要遍历，总复杂度会退化到O(n log n)。"
+        },
+        {
+          "id": "c4",
+          "front": "举一个适合利用数组随机访问优势的实际场景。",
+          "back": "矩阵操作（如按行列号读取元素）是典型场景。例如处理图像像素或二维表格数据时，经常要随机读取任意坐标的值，数组的O(1)定位让这类操作非常高效。"
+        }
+      ]
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "flashcard",
+        "content_sha256": "41041779ec832cfd74f1ba14a37ca78f649757ab2869c84f65330f71aad65608",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "内容包含4张问答闪卡，主题为数组随机访问，每卡正面问题、背面答案加解释，符合用户要求。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "各卡片内容技术准确：数组随机访问为O(1)；顺序访问/链表查找为O(n)；二分查找在数组上整体为O(log n)，链表实现会退化为O(n log n)；矩阵按坐标读取是典型场景。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "闪卡的examples核验问答对应：每张正面问题均能在背面得到直接答案；c3、c4中的二分查找与矩阵操作示例准确且足以支撑要点。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "4张卡片从定义与复杂度、与顺序访问的对比，到二分查找和矩阵场景逐层递进，每卡聚焦单一记忆点，不依赖前一张即可独立理解。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "用户明确要求使用通用知识、无需检索。卡片内容属于计算机科学基础常识，无外部引用需求，本项通过。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "数量恰为4张、面向大学初学者，内容覆盖随机访问定义与时间复杂度、与顺序访问的对比及适用场景；未涉及多维数组随机访问细节和动态数组扩容属于合理范围限制。"
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "41041779ec832cfd74f1ba14a37ca78f649757ab2869c84f65330f71aad65608",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "内容包含4张问答闪卡，主题为数组随机访问，每卡正面问题、背面答案加解释，符合用户要求。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "各卡片内容技术准确：数组随机访问为O(1)；顺序访问/链表查找为O(n)；二分查找在数组上整体为O(log n)，链表实现会退化为O(n log n)；矩阵按坐标读取是典型场景。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "闪卡的examples核验问答对应：每张正面问题均能在背面得到直接答案；c3、c4中的二分查找与矩阵操作示例准确且足以支撑要点。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "4张卡片从定义与复杂度、与顺序访问的对比，到二分查找和矩阵场景逐层递进，每卡聚焦单一记忆点，不依赖前一张即可独立理解。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "用户明确要求使用通用知识、无需检索。卡片内容属于计算机科学基础常识，无外部引用需求，本项通过。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "数量恰为4张、面向大学初学者，内容覆盖随机访问定义与时间复杂度、与顺序访问的对比及适用场景；未涉及多维数组随机访问细节和动态数组扩容属于合理范围限制。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "c3背面可补充说明整体复杂度：数组实现二分查找总复杂度为O(log n)，且每次取中间位置都是O(1)。当前表述已准确，但补充会让记忆点更完整。",
+                "可在c4背面顺带说明反向场景（如需频繁插入删除更适合链表），但当前作为闪卡已满足问题检索要求，非必需。"
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "c3背面可补充说明整体复杂度：数组实现二分查找总复杂度为O(log n)，且每次取中间位置都是O(1)。当前表述已准确，但补充会让记忆点更完整。",
+          "可在c4背面顺带说明反向场景（如需频繁插入删除更适合链表），但当前作为闪卡已满足问题检索要求，非必需。"
+        ]
+      }
+    },
+    "source": {
+      "selected_doc_ids": [],
+      "rag_index_keys": []
+    },
+    "schema_version": 2,
+    "version": 1,
+    "material_type": "flashcard",
+    "material_id": "flashcard-f714c40d8485c063",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "owner_user_id": "resource-e2e-admin",
+    "created_by": "resource-e2e-admin",
+    "visibility": "private",
+    "source_job_id": "job_4fea2717ed814874",
+    "config_snapshot_id": "cfg_0b36ad0e8be07c57",
+    "source_snapshot": {
+      "mode": "none",
+      "requested_document_ids": [],
+      "documents": [],
+      "resolved_at": "2026-09-09T02:45:16.219037+00:00"
+    },
+    "config_snapshot": {
+      "allow_rag": true,
+      "audience": "大学初学者",
+      "classroom_options": {},
+      "confirmed_outline": "",
+      "entrypoint": "agent",
+      "focus": "4张问答闪卡；每卡正面一个问题，背面答案加一句解释；主题为数组随机访问；使用通用知识，无需检索。",
+      "harness_approval_request_id": "b3759bf2d6ec4d1d8ccb7de7778087eb",
+      "harness_chapters": [],
+      "harness_conversation_id": "resource-e2e-flashcard-fcf03d23",
+      "harness_evidence_ids": [],
+      "harness_execution_context": {
+        "decision": {
+          "interpreted_by": "model",
+          "outline_id": "direct_org_6cb4d58821394e66896e5a5f5057c294",
+          "request_id": "b3759bf2d6ec4d1d8ccb7de7778087eb",
+          "revision": 1,
+          "user_message": "请生成4张面向大学初学者的“数组随机访问”问答闪卡，每张正面一个问题，背面答案与解释。资料使用通用知识即可，无需检索。"
+        },
+        "stage": "write_and_review_flashcard",
+        "working_memory": {}
+      },
+      "harness_interaction_mode": "direct",
+      "harness_organization": {
+        "audience": "大学初学者",
+        "evidence_ids": [],
+        "limitations": [
+          "未涉及动态数组扩容或内存碎片问题",
+          "未讨论多维数组的随机访问细节"
+        ],
+        "model_review": {
+          "checks": [
+            {
+              "claim": "前提适用性：内容假设学习者了解数组基本定义和O(1)/O(n)时间复杂度，符合大学初学者受众，且未引入超出范围的具体语言或内存细节。",
+              "passed": true,
+              "reason": "前提与受众匹配，范围声明明确排除实现细节，无错误泛化。"
+            },
+            {
+              "claim": "内部推理一致性：随机访问定义为O(1)，顺序访问为O(n)，对比和适用场景描述一致，无矛盾。",
+              "passed": true,
+              "reason": "各单元解释相互支持，二分查找和矩阵操作作为随机访问场景合理。"
+            },
+            {
+              "claim": "具体例子：二分查找和矩阵操作是数组随机访问的典型例子，正确体现按索引直接定位的优势。",
+              "passed": true,
+              "reason": "例子虽简短但准确，未展开不影响正确性。"
+            },
+            {
+              "claim": "边界与学习目标覆盖：三个单元分别对应三个目标，覆盖定义、对比和场景，无缺失；限制条件合理。",
+              "passed": true,
+              "reason": "目标索引0、1、2均被引用，限制声明未遗漏关键边界。"
+            }
+          ],
+          "issues": [],
+          "passed": true
+        },
+        "objectives": [
+          "能解释数组随机访问的含义及其时间复杂度",
+          "能对比随机访问与顺序访问的差异",
+          "能识别数组随机访问的适用场景"
+        ],
+        "organization_id": "org_6cb4d58821394e66896e5a5f5057c294",
+        "prerequisites": [
+          "了解数组的基本定义和元素存储方式",
+          "理解时间复杂度的基本概念（如O(1)、O(n)）"
+        ],
+        "requirements": "4张问答闪卡；每卡正面一个问题，背面答案加一句解释；主题为数组随机访问；使用通用知识，无需检索。",
+        "resource_type": "flashcard",
+        "scope": "数组随机访问的基本概念、时间复杂度、与顺序访问的对比，以及适用场景。不涉及具体编程语言实现或内存地址计算细节。",
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "scope_id": null,
+          "scope_type": "course",
+          "selected_doc_ids": []
+        },
+        "subject": "数组随机访问",
+        "units": [
+          {
+            "check": "",
+            "evidence_ids": [],
+            "example": "",
+            "explanation": "数组支持通过索引直接访问任意位置的元素，无需从头遍历，因此时间复杂度为O(1)。",
+            "misconception": "",
+            "objective_indices": [
+              0
+            ],
+            "title": "随机访问的定义与时间复杂度"
+          },
+          {
+            "check": "",
+            "evidence_ids": [],
+            "example": "",
+            "explanation": "随机访问按索引直接定位，顺序访问需逐个遍历；数组适合随机访问，链表适合顺序访问。",
+            "misconception": "",
+            "objective_indices": [
+              1
+            ],
+            "title": "随机访问与顺序访问的对比"
+          },
+          {
+            "check": "",
+            "evidence_ids": [],
+            "example": "",
+            "explanation": "当需要频繁按位置读取元素（如二分查找、矩阵操作）时，数组的随机访问优势明显。",
+            "misconception": "",
+            "objective_indices": [
+              2
+            ],
+            "title": "适用场景"
+          }
+        ]
+      },
+      "harness_outline_id": "direct_org_6cb4d58821394e66896e5a5f5057c294",
+      "harness_outline_revision": 1,
+      "harness_review_required": true,
+      "length_hint": "4张问答闪卡；每卡正面一个问题，背面答案加一句解释；主题为数组随机访问；使用通用知识，无需检索。",
+      "research_context": "",
+      "research_sources": [],
+      "resource_type": "flashcard",
+      "subject": "数组随机访问",
+      "title": "数组随机访问"
+    },
+    "status": "ready",
+    "created_at": "2026-09-09T02:45:36.472790",
+    "updated_at": "2026-09-09T02:45:36.472790",
+    "is_pinned": false,
+    "pinned_at": null,
+    "content_hash": "b38b50272cb7e7c2a0654a700ec3daed453c5643e75bd4422ca7c2fb093b8918",
+    "artifact_paths": []
+  },
+  "passed": true,
+  "browser_preview": true,
+  "export_content_verified": true,
+  "accepted_by_manual_audit": false,
+  "manual_audit_issue": "链表二分查找的 O(n log n) 表述没有限定实现，不能作为普遍结论。"
+}

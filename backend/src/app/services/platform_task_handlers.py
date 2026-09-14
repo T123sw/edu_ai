@@ -214,6 +214,7 @@ class PlatformTaskHandlers:
                     rag_top_k=int(command.get("rag_top_k") or 5),
                     rag_system=None,
                     resolved_source=resolved_source,
+                    include_knowledge_graph=not bool((command.get("material_metadata") or {}).get("harness_config")),
                 )
                 selected_visuals = list(visual_snapshot.get("selected") or [])
                 if selected_visuals:
@@ -366,7 +367,10 @@ class PlatformTaskHandlers:
             owner_user_id=context.owner_user_id,
             build_id=str(command.get("build_id") or ""),
             progress=context.progress,
+            is_cancel_requested=context.is_cancel_requested,
         )
+        if context.is_cancel_requested():
+            return {"saved": False, "error": "task canceled", "result_ref": {}}
         return self._completed_public_result(context.task_id)
 
     def course_knowledge_graph_generate(

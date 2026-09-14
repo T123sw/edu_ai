@@ -62,6 +62,32 @@ def test_fetch_source_rejects_html_disguised_as_pdf():
     assert error.value.code == "PDF_SIGNATURE_INVALID"
 
 
+def test_fetch_source_accepts_real_html_payload():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            headers={"content-type": "text/html; charset=utf-8"},
+            content=b"<!doctype html><html><body><h1>Course</h1></body></html>",
+            request=request,
+        )
+
+    with _client(handler) as client:
+        fetched = fetch_source(
+            client,
+            {"url": "https://example.edu/course", "title": "课程讲义"},
+            resolve_host=lambda _host: PUBLIC_IP,
+        )
+
+    assert fetched.content_format == "html"
+
+
+def test_public_url_validation_preserves_directory_trailing_slash():
+    assert validate_public_source_url(
+        "https://example.edu/OSTEP/",
+        resolve_host=lambda _host: PUBLIC_IP,
+    ) == "https://example.edu/OSTEP/"
+
+
 def test_public_url_policy_rejects_private_addresses_and_pdf_size_limit():
     with pytest.raises(SourceIngestionError) as unsafe:
         validate_public_source_url(

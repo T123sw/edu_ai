@@ -810,6 +810,9 @@ def translate_markdown_to_chinese(markdown: str, *, explicit_env_path: str | Non
     model = str(config.get("model") or "").strip()
     if not api_base or not api_key or not model:
         raise RuntimeError("中文教材翻译所需的 LLM 配置不完整")
+    from app.services.deepseek_key_failover import completion_endpoint
+
+    api_base, api_key = completion_endpoint(api_base, api_key)
     translated_chunks: list[str] = []
     for chunk in _split_translation_chunks(text):
         payload = {

@@ -1,0 +1,44 @@
+{
+  "resources": {
+    "lesson_plan": {
+      "http_end_to_end": true,
+      "browser_preview": true
+    },
+    "flashcard": {
+      "http_end_to_end": true,
+      "browser_preview": true,
+      "card_count": 4,
+      "flip": true
+    },
+    "blog": {
+      "http_end_to_end": true,
+      "browser_preview": true
+    },
+    "quiz": {
+      "http_end_to_end": true,
+      "browser_preview": true,
+      "question_count": 3,
+      "negative_turn_did_not_submit": true
+    },
+    "graph": {
+      "http_end_to_end": true,
+      "browser_preview": true
+    },
+    "game": {
+      "http_end_to_end": true,
+      "browser_preview": true,
+      "interaction": true
+    },
+    "classroom": {
+      "http_end_to_end": true,
+      "browser_preview": true,
+      "no_tts": true,
+      "navigation": true,
+      "scenes": 3
+    }
+  },
+  "backend_tests_passed": 121,
+  "browser_tests_passed": 8,
+  "frontend_build": "passed",
+  "main_system_runtime": "deepseek-harness"
+}

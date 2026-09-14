@@ -1,0 +1,13 @@
+{
+  "id": "resource-e2e-course",
+  "title": "数据结构验收课程",
+  "name": "数据结构验收课程",
+  "description": "合成测试课程",
+  "icon": "school",
+  "color": "#2563eb",
+  "created_by": "resource-e2e-admin",
+  "owner": "resource-e2e-admin",
+  "revision": 0,
+  "created_at": "2026-09-10T06:39:36.495817",
+  "updated_at": "2026-09-10T06:39:36.528576"
+}

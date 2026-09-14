@@ -1,0 +1,751 @@
+{
+  "title": "数组随机访问",
+  "content": {
+    "title": "数组随机访问基础练习",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single_choice",
+        "stem": "关于数组的“随机访问”，下列哪种说法最准确？",
+        "options": [
+          "每次访问都从数组开头逐个比较，直到找到目标元素",
+          "给定一个合法下标后，直接计算该元素的位置并读取，不需要依次访问前面的元素",
+          "随机挑选一个下标进行访问，因此结果不可预测",
+          "只有访问第一个元素时才能直接定位，访问其他元素都需要遍历"
+        ],
+        "answer": "B",
+        "explanation": "随机访问指给定合法下标后，可通过地址计算直接定位并读取该元素，访问某个元素不需要先读取它前面的所有元素。例如 a=[10,20,30,40]，访问 a[2] 可直接得到 30。选项 A 描述的是顺序查找；选项 C 把“随机”误解为随机数；选项 D 错误地认为只有首元素能直接定位。",
+        "difficulty": "easy"
+      },
+      {
+        "id": "q2",
+        "type": "single_choice",
+        "stem": "在一维数组中，设基地址 base=2000，每个元素占 8 字节，下标从 0 开始，且元素连续存放。按公式 base + i × size 计算，a[5] 的地址是多少？",
+        "options": [
+          "2045",
+          "2005",
+          "2040",
+          "2048"
+        ],
+        "answer": "C",
+        "explanation": "代入公式：base + i × size = 2000 + 5 × 8 = 2000 + 40 = 2040。选项 A 是 2000 + 5 × 9 = 2045，相当于把元素大小误当成 9 字节；选项 B 是 2000 + 5 = 2005，相当于漏乘元素大小；选项 D 是 2000 + 6 × 8 = 2048，相当于把第 6 个元素的序数 6 直接当作零基下标使用，未减 1。",
+        "difficulty": "easy"
+      },
+      {
+        "id": "q3",
+        "type": "single_choice",
+        "stem": "一个长度为 n 的一维数组，在常见约定下标从 0 开始的情况下，下列哪项正确描述了合法下标范围以及访问 a[n] 的后果？",
+        "options": [
+          "合法下标是 1 到 n；a[n] 是最后一个元素，可以安全访问",
+          "合法下标是 0 到 n；a[n] 是数组的结束标记，访问它总是返回 0",
+          "合法下标是 -n 到 n；a[n] 与 a[-n] 在所有语言中都表示同一个元素",
+          "合法下标是 0 到 n-1；a[n] 越界，可能读到无关数据、引发运行时错误或未定义行为"
+        ],
+        "answer": "D",
+        "explanation": "长度为 n 且下标从 0 开始的数组，合法下标为 0 到 n-1，共 n 个元素。a[n] 已超出最后一个合法下标 n-1，属于越界，后果可能是读到无关数据、运行时错误或未定义行为，并不保证立即报错。选项 A 把范围写成 1 到 n，且误认为 a[n] 合法；选项 B 把范围扩大到 0 到 n，并虚构“结束标记返回 0”；选项 C 错误地假设所有语言都支持负下标且语义相同，例如 Python 中 -1 表示最后一个元素，而 C/C++ 中负下标通常不合法。",
+        "difficulty": "medium"
+      }
+    ]
+  },
+  "generation_state": {
+    "resource_review": {
+      "decision": "pass",
+      "method": "model_review",
+      "resource_type": "quiz",
+      "content_sha256": "fb4ec98cd7be2910237ec266ee202e96825395f5c2af310f4ca5b0133c0f8fdc",
+      "checks": [
+        {
+          "criterion": "requirements",
+          "passed": true,
+          "reason": "资源类型为 quiz，共 3 道 single_choice 单选题，每题 4 个选项，均给出大写字母答案和解析；难度为 easy/easy/medium，面向大学初学者；使用通用知识且未引入检索资料。符合用户对数量、题型、答案、解析和难度的要求。"
+        },
+        {
+          "criterion": "correctness",
+          "passed": true,
+          "reason": "逐题核验：Q1 正确项 B 准确描述随机访问；Q2 计算 2000+5×8=2040，2045/2005/2048 均可由具体错误计算解释；Q3 合法下标 0 到 n-1、a[n] 越界后果表述有跨语言限定，无事实错误。"
+        },
+        {
+          "criterion": "examples",
+          "passed": true,
+          "reason": "本资源为 quiz，按 resource_contract 对习题逐题独立求解并核对答案；三题答案均与解析和正确选项一致，每个干扰项的解析也给出了可核验的具体错误原因，详见 question_checks。"
+        },
+        {
+          "criterion": "teaching_structure",
+          "passed": true,
+          "reason": "三题由定义理解、地址公式计算到边界与越界后果递进，easy/easy/medium 难度适合大学初学者；答案位置为 B、C、D，不全部集中；题干自足，选项无 A./B. 前缀；解析逐步说明关键错项。"
+        },
+        {
+          "criterion": "sources",
+          "passed": true,
+          "reason": "题目明确要求使用通用知识且无需检索，资源未引用外部来源或证据编号，因此本维度不适用外部来源核验；未发现与来源相关的缺陷。"
+        },
+        {
+          "criterion": "completeness",
+          "passed": true,
+          "reason": "覆盖随机访问定义、地址计算公式、合法下标与越界后果三个核心考点；用户仅要求 3 道题，未强制覆盖全部 objectives，故现有覆盖完整。未发现遗漏的必要知识点或重要边界。"
+        }
+      ],
+      "version": 3,
+      "history": [
+        {
+          "version": 1,
+          "content_sha256": "885e5ea69ceb087eae477c78d9027e389f882103f2bede8c3a6b7e62a393cacc",
+          "decision": "revise",
+          "review": {
+            "checks": [
+              {
+                "criterion": "requirements",
+                "passed": false,
+                "reason": "资源类型为 quiz，生成了 3 道单选题，每题 4 个选项并附正确答案与解析，语言为中文，受众为大学初学者，未使用检索资料，这些均符合要求；但三道题的正确答案均为 A，违反了资源合同中“选择题组应调整选项顺序，避免正确答案全部位于同一位置”的明确要求。"
+              },
+              {
+                "criterion": "correctness",
+                "passed": true,
+                "reason": "逐题核验：q1 对随机访问的定义与选项判定正确；q2 按 base + i × size 计算，2000 + 5 × 8 = 2040，推理和数值正确，干扰项 2045、2005、2048 均能对应可解释的错误算式；q3 对合法下标范围 0 到 n-1、a[n] 越界后果以及不同语言负索引差异的说明准确。未发现事实、数值、前提或因果错误。"
+              },
+              {
+                "criterion": "examples",
+                "passed": true,
+                "reason": "作为 quiz，已逐题独立求解并核对答案与解析：三道题的答案均匹配，解析逐步给出计算或错误原因。各选项解析对干扰项均给出了真实错误来源或明确错误原因，未发现模糊猜测或无法验证的干扰项解释。"
+              },
+              {
+                "criterion": "teaching_structure",
+                "passed": true,
+                "reason": "题目覆盖随机访问定义、地址计算公式、下标范围与越界三个不同目标，难度由 easy 到 medium，适合大学初学者；干扰项代表常见误区，如把随机访问误解为随机数、漏乘元素大小、把下标与序号混淆、认为所有语言负索引语义相同。答案位置规律问题已在 requirements 项标记。"
+              },
+              {
+                "criterion": "sources",
+                "passed": true,
+                "reason": "资源明确使用通用知识、无需检索资料，内容中未引用外部来源，不存在来源可靠性或引用准确性问题。"
+              },
+              {
+                "criterion": "completeness",
+                "passed": true,
+                "reason": "已完整生成 3 道单选题，每题 4 个选项，附正确答案与解析，覆盖随机访问定义、地址计算公式、下标范围与越界后果，符合指定范围和数量要求。"
+              }
+            ],
+            "blocking_issues": [
+              "三道单选题的正确答案均为 A，违反资源合同中“选择题组应调整选项顺序，避免正确答案全部位于同一位置”的要求，容易让学生凭答案位置规律猜测，需要调整至少一题的选项顺序或答案分布。"
+            ],
+            "suggestions": [
+              "建议将至少一题的正确答案调整到 B、C 或 D，避免三题答案全为 A 的规律。",
+              "q2 选项 D 的解析可更精确地表述为“使用元素序号 6（从 1 开始计数）而非 0 基下标 5 代入公式”，以避免与“a[5] 本身是第 6 个元素”这一事实产生表述歧义。",
+              "q2 选项 B 将 2045 解释为把元素大小误当成 9 字节，虽然算式可解释，但 9 字节作为常见错误来源略显不自然；如需强化干扰项代表性，可考虑让它对应更典型的混淆，如使用 4 字节或其他常见元素大小。"
+            ],
+            "question_checks": [
+              {
+                "question_index": 0,
+                "independent_solution": "随机访问指给定合法下标后，通过基地址加下标乘元素大小直接定位元素，不需要依次访问前面的元素。因此 A 正确；B 描述的是顺序查找或遍历；C 将“随机”误解为随机数；D 错误地认为只有第一个元素可以直接定位。",
+                "answer_matches": true,
+                "explanation_valid": true,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "选项 A 是对数组随机访问定义的准确表述：给定合法下标后直接计算位置并读取，无需顺序访问前面的元素。它是唯一正确选项。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "选项 B 描述从数组开头逐个比较，直到找到目标元素，这是顺序查找而非随机访问，因此错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "选项 C 将“随机访问”中的“随机”误解为随机数或随机选取，因此认为结果不可预测，这是错误理解。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "选项 D 声称只有第一个元素可以直接定位，其他元素都要遍历，这否认了数组通过下标直接定位任意元素的能力，因此错误。",
+                    "explanation_valid": true
+                  }
+                ]
+              },
+              {
+                "question_index": 1,
+                "independent_solution": "题目给出 base=2000，size=8，i=5，使用公式 base + i × size 得 2000 + 5 × 8 = 2040。其他选项分别可由 2000 + 5 × 9 = 2045、2000 + 5 = 2005、2000 + 6 × 8 = 2048 得到。",
+                "answer_matches": true,
+                "explanation_valid": true,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "选项 A 为 2040，代入公式 2000 + 5 × 8 = 2040，计算正确。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "选项 B 为 2045，可解释为 2000 + 5 × 9，也就是把元素大小误当作 9 字节；解析给出了明确错误算式，准确。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "选项 C 为 2005，可解释为 2000 + 5，漏乘了元素大小 8；解析说明漏乘元素大小，准确。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "选项 D 为 2048，可解释为 2000 + 6 × 8，即用元素序号 6 而不是 0 基下标 5 代入公式；解析称“把下标 5 当成第 6 个元素来算”可以对应这一错误来源。",
+                    "explanation_valid": true
+                  }
+                ]
+              },
+              {
+                "question_index": 2,
+                "independent_solution": "长度为 n 且下标从 0 开始的数组，合法下标为 0 到 n-1；a[n] 超出最后一个合法下标 n-1，属于越界访问，后果可能包括读到无关数据、运行时错误或未定义行为，不能保证一定立即报错。因此 A 正确；B、C、D 中的下标范围或语言语义描述均错误。",
+                "answer_matches": true,
+                "explanation_valid": true,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "选项 A 正确描述了合法下标 0 到 n-1，并说明 a[n] 越界且后果可能是读到无关数据、运行时错误或未定义行为。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "选项 B 把合法范围误写为 1 到 n，并将 a[n] 当作最后一个元素，这与常见 0 基下标约定不符，因此错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "选项 C 把合法范围扩大到 0 到 n，并虚构 a[n] 是结束标记且总返回 0；数组没有这种通用结束标记语义，因此错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "选项 D 错误地把合法范围写成 -n 到 n，并假设所有语言中 a[n] 与 a[-n] 语义相同；实际上不同语言负索引语义不同，如 Python 的 -1 表示最后元素，而 C/C++ 中负下标通常不合法。",
+                    "explanation_valid": true
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "version": 2,
+          "content_sha256": "23166d82672c4b14dcd00290e861c3b2c652f79e7628d530058f1b78f2c99a77",
+          "decision": "revise",
+          "review": {
+            "checks": [
+              {
+                "criterion": "requirements",
+                "passed": true,
+                "reason": "资源为 3 道单选题，每题 4 个选项，均附正确答案与解析；难度为 easy/medium，面向大学初学者；内容为通用知识，未额外检索资料，符合用户要求。"
+              },
+              {
+                "criterion": "correctness",
+                "passed": false,
+                "reason": "第 1、3 题的答案与解析正确；第 2 题答案和计算正确，但其选项 D 的解析对错误来源的描述不准确：2048 来自 2000+6×8，即把第 6 个元素的序数 6 直接当作零基下标使用，未减 1，而不是‘把下标 5 当成第 6 个元素来算’。"
+              },
+              {
+                "criterion": "examples",
+                "passed": true,
+                "reason": "对三道题均独立求解并核对答案：第 1 题选 B，第 2 题计算为 2000+5×8=2040 选 C，第 3 题合法下标为 0 到 n-1 且 a[n] 越界选 D。答案均匹配；第 2 题仅干扰项解析表述有误，已在 correctness 中单独指出。"
+              },
+              {
+                "criterion": "teaching_structure",
+                "passed": true,
+                "reason": "题目按随机访问定义、地址计算公式、下标范围与越界后果递进；单选正确答案唯一；答案位置为 B、C、D，无规律化集中；题干未泄露答案。"
+              },
+              {
+                "criterion": "sources",
+                "passed": true,
+                "reason": "用户明确要求使用通用知识、无需检索资料；资源未引用外部来源，不存在需要核验的引用或来源越界问题。"
+              },
+              {
+                "criterion": "completeness",
+                "passed": true,
+                "reason": "已覆盖数组随机访问的核心点：定义、地址公式、越界范围；输出字段完整，题目数量、选项数量、答案和解析均齐全。"
+              }
+            ],
+            "blocking_issues": [
+              "第 2 题选项 D 的解析表述有误：2048 的实际来源是 2000 + 6 × 8，即使用了 i=6，应解释为‘把第 6 个元素的序数 6 直接当成零基下标，少减 1’，而不是‘把下标 5 当成第 6 个元素来算’。因为零基下标下 a[5] 本身就是第 6 个元素，原表述容易让人误以为 a[5] 不是第 6 个元素，或误以为序号 6 可以直接作为下标使用。"
+            ],
+            "suggestions": [
+              "第 1 题选项 C 的解析可把‘随机数’改为‘随机选取下标’，以更贴合选项原文。"
+            ],
+            "question_checks": [
+              {
+                "question_index": 0,
+                "independent_solution": "正确答案为 B。数组随机访问指给定合法下标后，通过地址计算直接定位并读取元素，不需要依次访问前面的元素。A 描述的是顺序查找；C 把‘随机访问’误解为随机挑选下标；D 错误地认为只有首元素能直接定位。",
+                "answer_matches": true,
+                "explanation_valid": true,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "该选项描述的是从数组开头逐个比较的线性访问或顺序查找，不是随机访问，因此错误。解析将其描述为顺序查找是准确的。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "该选项准确说明给定合法下标后直接计算位置并读取，不需要依次访问前面的元素，符合数组随机访问定义，是正确项。解析准确。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "该选项将‘随机访问’中的‘随机’误解为随机挑选下标，并错误推出结果不可预测；解析方向正确。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "该选项错误地声称只有访问第一个元素才能直接定位，其他元素都需要遍历，与随机访问定义相反；解析正确指出这是错误限制。",
+                    "explanation_valid": true
+                  }
+                ]
+              },
+              {
+                "question_index": 1,
+                "independent_solution": "使用公式 base + i × size 计算：2000 + 5 × 8 = 2000 + 40 = 2040。因此正确选项为 C。",
+                "answer_matches": true,
+                "explanation_valid": false,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "2045 可由 2000 + 5 × 9 得到，确实等于把元素大小误算成 9 字节；解析给出了具体且可核对的算式来源。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "2005 可由 2000 + 5 得到，即只加下标、漏乘元素大小；解析对该错误原因说明准确。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "2040 来自 2000 + 5 × 8，计算正确，是本题正确项；解析中的代入过程准确。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "2048 来自 2000 + 6 × 8，即错误地使用了 i=6 而非 i=5。更准确的说法是‘把第 6 个元素的序数 6 直接当作零基下标，未减 1’；原解析说‘把下标 5 当成第 6 个元素来算’不准确，因为 a[5] 在零基下标下本来就是第 6 个元素。",
+                    "explanation_valid": false
+                  }
+                ]
+              },
+              {
+                "question_index": 2,
+                "independent_solution": "零基下标下，长度为 n 的数组合法下标是 0 到 n-1。a[n] 超过最后一个合法下标 n-1，属于越界，可能读到无关数据、引发运行时错误或未定义行为。因此正确选项为 D。",
+                "answer_matches": true,
+                "explanation_valid": true,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "该选项将合法下标写成 1 到 n，并称 a[n] 可安全访问，违反零基下标约定；解析正确指出范围错误和 a[n] 误判。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "该选项将合法范围扩大到 0 到 n，并虚构 a[n] 是结束标记且总是返回 0；解析正确指出这是虚构的普遍规则。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "该选项错误地假设所有语言都支持负下标且 a[n] 与 a[-n] 语义相同；解析指出负下标语义因语言而异，这是准确的，足以反驳该选项。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "该选项正确给出合法下标范围 0 到 n-1，并说明 a[n] 越界且后果可能是无关数据、运行时错误或未定义行为；解析准确。",
+                    "explanation_valid": true
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "version": 3,
+          "content_sha256": "fb4ec98cd7be2910237ec266ee202e96825395f5c2af310f4ca5b0133c0f8fdc",
+          "decision": "pass",
+          "review": {
+            "checks": [
+              {
+                "criterion": "requirements",
+                "passed": true,
+                "reason": "资源类型为 quiz，共 3 道 single_choice 单选题，每题 4 个选项，均给出大写字母答案和解析；难度为 easy/easy/medium，面向大学初学者；使用通用知识且未引入检索资料。符合用户对数量、题型、答案、解析和难度的要求。"
+              },
+              {
+                "criterion": "correctness",
+                "passed": true,
+                "reason": "逐题核验：Q1 正确项 B 准确描述随机访问；Q2 计算 2000+5×8=2040，2045/2005/2048 均可由具体错误计算解释；Q3 合法下标 0 到 n-1、a[n] 越界后果表述有跨语言限定，无事实错误。"
+              },
+              {
+                "criterion": "examples",
+                "passed": true,
+                "reason": "本资源为 quiz，按 resource_contract 对习题逐题独立求解并核对答案；三题答案均与解析和正确选项一致，每个干扰项的解析也给出了可核验的具体错误原因，详见 question_checks。"
+              },
+              {
+                "criterion": "teaching_structure",
+                "passed": true,
+                "reason": "三题由定义理解、地址公式计算到边界与越界后果递进，easy/easy/medium 难度适合大学初学者；答案位置为 B、C、D，不全部集中；题干自足，选项无 A./B. 前缀；解析逐步说明关键错项。"
+              },
+              {
+                "criterion": "sources",
+                "passed": true,
+                "reason": "题目明确要求使用通用知识且无需检索，资源未引用外部来源或证据编号，因此本维度不适用外部来源核验；未发现与来源相关的缺陷。"
+              },
+              {
+                "criterion": "completeness",
+                "passed": true,
+                "reason": "覆盖随机访问定义、地址计算公式、合法下标与越界后果三个核心考点；用户仅要求 3 道题，未强制覆盖全部 objectives，故现有覆盖完整。未发现遗漏的必要知识点或重要边界。"
+              }
+            ],
+            "blocking_issues": [],
+            "suggestions": [
+              "Q2 选项 D 的解析可改为“把第 6 个元素的序数 6 直接当作下标使用，未减去 1 转换为零基下标”，以避免“零基下标”与“序数 6”并列时的轻微歧义。"
+            ],
+            "question_checks": [
+              {
+                "question_index": 0,
+                "independent_solution": "随机访问指通过下标直接定位元素，不需要顺序遍历前面元素；因此最准确的是选项 B。A 是顺序查找，C 把随机误解为随机数，D 只认为首元素可直接定位，均错误。",
+                "answer_matches": true,
+                "explanation_valid": true,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "选项 A 描述的是从头逐个比较查找，属于顺序查找/线性查找，不是随机访问，故错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "选项 B 准确说明给定合法下标后直接计算位置并读取，不需访问前面元素，符合随机访问定义，是正确项。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "选项 C 将“随机访问”中的 random 误解为随机挑选，访问结果不可预测；这不是数组随机访问的含义，故错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "选项 D 声称只有首元素可直接定位，其他元素都需遍历，违反任何合法下标都可直接定位的事实，故错误。",
+                    "explanation_valid": true
+                  }
+                ]
+              },
+              {
+                "question_index": 1,
+                "independent_solution": "按公式 base+i×size，base=2000，i=5，size=8，地址=2000+5×8=2000+40=2040。A 的 2045 可由 2000+5×9 得到，B 的 2005 可由 2000+5 得到，D 的 2048 可由 2000+6×8 得到；正确项为 C。",
+                "answer_matches": true,
+                "explanation_valid": true,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "2045=2000+5×9，说明若把元素大小误当 9 字节会得到此项；不是按 size=8 正确计算的结果，故错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "2005=2000+5，漏乘元素大小 8 会得到此项；不是 base+i×size 的正确结果，故错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "2040=2000+5×8，符合 base+i×size，是 a[5] 的正确地址。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "2048=2000+6×8，对应下标 6/第 6 个元素的序号而未转换为下标 5；解释给出的“未减 1”含义正确，故该选项错误。",
+                    "explanation_valid": true
+                  }
+                ]
+              },
+              {
+                "question_index": 2,
+                "independent_solution": "长度为 n 且下标从 0 开始的数组，合法下标为 0,1,...,n-1；a[n] 超出末元素后一个位置，属于越界。不同语言后果可能为运行时错误、未定义行为或读到无关数据，不保证立即报错或返回固定值；负索引语义也未统一。因此 D 为正确项。",
+                "answer_matches": true,
+                "explanation_valid": true,
+                "option_checks": [
+                  {
+                    "option_index": 0,
+                    "reasoning": "选项 A 将合法范围误写成 1 到 n，并把 a[n] 当作安全的最后元素；但最后元素是 a[n-1]，故错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 1,
+                    "reasoning": "选项 B 将合法范围扩到 0 到 n，并虚构 a[n] 是结束标记且总返回 0；数组没有这种通用约定，故错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 2,
+                    "reasoning": "选项 C 声称合法下标为 -n 到 n 且所有语言中 a[n] 与 a[-n] 表示同一元素，这忽略了 Python、C/C++ 等语言的负索引差异，故错误。",
+                    "explanation_valid": true
+                  },
+                  {
+                    "option_index": 3,
+                    "reasoning": "选项 D 正确给出合法下标 0 到 n-1，并说明 a[n] 越界后可能读到无关数据、引发运行时错误或未定义行为，措辞有跨语言限定，是正确项。",
+                    "explanation_valid": true
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "suggestions": [
+        "Q2 选项 D 的解析可改为“把第 6 个元素的序数 6 直接当作下标使用，未减去 1 转换为零基下标”，以避免“零基下标”与“序数 6”并列时的轻微歧义。"
+      ],
+      "question_checks": [
+        {
+          "question_index": 0,
+          "independent_solution": "随机访问指通过下标直接定位元素，不需要顺序遍历前面元素；因此最准确的是选项 B。A 是顺序查找，C 把随机误解为随机数，D 只认为首元素可直接定位，均错误。",
+          "answer_matches": true,
+          "explanation_valid": true,
+          "option_checks": [
+            {
+              "option_index": 0,
+              "reasoning": "选项 A 描述的是从头逐个比较查找，属于顺序查找/线性查找，不是随机访问，故错误。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 1,
+              "reasoning": "选项 B 准确说明给定合法下标后直接计算位置并读取，不需访问前面元素，符合随机访问定义，是正确项。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 2,
+              "reasoning": "选项 C 将“随机访问”中的 random 误解为随机挑选，访问结果不可预测；这不是数组随机访问的含义，故错误。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 3,
+              "reasoning": "选项 D 声称只有首元素可直接定位，其他元素都需遍历，违反任何合法下标都可直接定位的事实，故错误。",
+              "explanation_valid": true
+            }
+          ]
+        },
+        {
+          "question_index": 1,
+          "independent_solution": "按公式 base+i×size，base=2000，i=5，size=8，地址=2000+5×8=2000+40=2040。A 的 2045 可由 2000+5×9 得到，B 的 2005 可由 2000+5 得到，D 的 2048 可由 2000+6×8 得到；正确项为 C。",
+          "answer_matches": true,
+          "explanation_valid": true,
+          "option_checks": [
+            {
+              "option_index": 0,
+              "reasoning": "2045=2000+5×9，说明若把元素大小误当 9 字节会得到此项；不是按 size=8 正确计算的结果，故错误。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 1,
+              "reasoning": "2005=2000+5，漏乘元素大小 8 会得到此项；不是 base+i×size 的正确结果，故错误。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 2,
+              "reasoning": "2040=2000+5×8，符合 base+i×size，是 a[5] 的正确地址。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 3,
+              "reasoning": "2048=2000+6×8，对应下标 6/第 6 个元素的序号而未转换为下标 5；解释给出的“未减 1”含义正确，故该选项错误。",
+              "explanation_valid": true
+            }
+          ]
+        },
+        {
+          "question_index": 2,
+          "independent_solution": "长度为 n 且下标从 0 开始的数组，合法下标为 0,1,...,n-1；a[n] 超出末元素后一个位置，属于越界。不同语言后果可能为运行时错误、未定义行为或读到无关数据，不保证立即报错或返回固定值；负索引语义也未统一。因此 D 为正确项。",
+          "answer_matches": true,
+          "explanation_valid": true,
+          "option_checks": [
+            {
+              "option_index": 0,
+              "reasoning": "选项 A 将合法范围误写成 1 到 n，并把 a[n] 当作安全的最后元素；但最后元素是 a[n-1]，故错误。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 1,
+              "reasoning": "选项 B 将合法范围扩到 0 到 n，并虚构 a[n] 是结束标记且总返回 0；数组没有这种通用约定，故错误。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 2,
+              "reasoning": "选项 C 声称合法下标为 -n 到 n 且所有语言中 a[n] 与 a[-n] 表示同一元素，这忽略了 Python、C/C++ 等语言的负索引差异，故错误。",
+              "explanation_valid": true
+            },
+            {
+              "option_index": 3,
+              "reasoning": "选项 D 正确给出合法下标 0 到 n-1，并说明 a[n] 越界后可能读到无关数据、引发运行时错误或未定义行为，措辞有跨语言限定，是正确项。",
+              "explanation_valid": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "source": {
+    "selected_doc_ids": [],
+    "rag_index_keys": []
+  },
+  "schema_version": 2,
+  "version": 1,
+  "material_type": "quiz",
+  "material_id": "quiz-6139501d57007661",
+  "course_id": "resource-e2e-course",
+  "scope_type": "course",
+  "scope_id": null,
+  "owner_user_id": "resource-e2e-admin",
+  "created_by": "resource-e2e-admin",
+  "visibility": "private",
+  "source_job_id": "job_c8de69dba9a847e0",
+  "config_snapshot_id": "cfg_09b6bf8a1271d601",
+  "source_snapshot": {
+    "mode": "none",
+    "requested_document_ids": [],
+    "documents": [],
+    "resolved_at": "2026-09-10T06:16:14.737586+00:00"
+  },
+  "config_snapshot": {
+    "allow_rag": true,
+    "audience": "大学初学者",
+    "classroom_options": {},
+    "confirmed_outline": "",
+    "entrypoint": "agent",
+    "focus": "生成3道关于“数组随机访问”的单选题；每题4个选项；附正确答案与解析；难度面向大学初学者；使用通用知识，无需检索资料。",
+    "harness_approval_request_id": "102861dabffc423fba692a3a0d84b903",
+    "harness_chapters": [],
+    "harness_conversation_id": "resource-e2e-quiz-a243af06",
+    "harness_evidence_ids": [],
+    "harness_execution_context": {
+      "decision": {
+        "interpreted_by": "model",
+        "outline_id": "direct_org_c21edab0a70e40dcaaeb72742ab3c006",
+        "request_id": "102861dabffc423fba692a3a0d84b903",
+        "revision": 1,
+        "user_message": "请生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。"
+      },
+      "stage": "write_and_review_quiz",
+      "working_memory": {}
+    },
+    "harness_interaction_mode": "direct",
+    "harness_organization": {
+      "audience": "大学初学者",
+      "evidence_ids": [],
+      "limitations": [
+        "本知识准备不包含具体编程语言的完整语法、标准库实现或编译器优化细节。",
+        "地址计算公式以抽象连续内存模型为前提，不保证底层物理页连续。",
+        "不同语言对负索引、越界检查和数组对象表示可能不同，使用时需结合具体语言环境。",
+        "未检索外部资料，仅使用通用知识组织。"
+      ],
+      "model_review": {
+        "checks": [
+          {
+            "claim": "前提适用性：地址公式 base + i × size 的前提（元素类型相同、连续存放、下标从0开始）被明确限定，且未把抽象连续地址泛化为物理页连续。",
+            "passed": true,
+            "reason": "unit 2 明确写出该公式成立前提，并在 misconception 中区分抽象连续地址与物理页连续；limitations 也重申不保证物理页连续。未发现把来源示例前提错误泛化到所有语言或所有内存实现。"
+          },
+          {
+            "claim": "内部推理一致性：随机访问定义、地址计算、越界判断、O(1) 含义之间无矛盾。",
+            "passed": true,
+            "reason": "unit 1 说直接计算位置读取，unit 2 给出地址公式，unit 3 给出合法下标 0 到 n-1，unit 4 说明 O(1) 是抽象操作次数不随 n 增长而非真实耗时恒定。四者相互支持，无冲突。"
+          },
+          {
+            "claim": "具体例子：a=[10,20,30,40] 访问 a[2] 得 30；base=1000,size=4 时 a[0]=1000,a[1]=1004,a[3]=1012；a=[5,6,7] 合法下标 0,1,2，a[3] 越界。",
+            "passed": true,
+            "reason": "逐步追踪：a[2] 是第三个元素 30，正确；1000+1×4=1004，1000+3×4=1012，正确；长度3的合法下标为0,1,2，a[3] 越界，正确。例子与说明一致。"
+          },
+          {
+            "claim": "边界与学习目标覆盖：覆盖下标 0 与 n-1、越界 n 和负数、不同语言负索引差异、O(1) 与真实耗时差异。",
+            "passed": true,
+            "reason": "unit 1 的 check 涉及 a[n-1]；unit 3 明确合法范围 0 到 n-1、a[n] 越界、Python -1 与 C/C++ 负下标差异；unit 4 区分抽象 O(1) 与缓存/分页导致的真实耗时差异。四个 objectives 均有对应 unit 的 objective_indices 覆盖。"
+          },
+          {
+            "claim": "结构体数组元素大小与对齐填充：不能说结构体有填充便不能套用地址公式。",
+            "passed": true,
+            "reason": "unit 2 正确说明元素大小指完整元素占用空间，C/C++ 中结构体数组步长通常就是 sizeof(元素类型)，已包含对齐填充。该限定避免了常见误解。"
+          },
+          {
+            "claim": "复杂度表述：O(1) 不表示真实系统耗时绝对恒定，且复杂度需说明实现和计数方式。",
+            "passed": true,
+            "reason": "unit 4 明确 O(1) 是抽象模型下访问时间不随数组长度增长，并列出缓存、分页、内存层级等影响因素；limitations 也说明不包含编译器优化细节。未把 O(1) 泛化为所有实现耗时相同。"
+          }
+        ],
+        "issues": [],
+        "passed": true
+      },
+      "objectives": [
+        "能说明数组随机访问的含义：通过下标直接定位元素，而非从头逐个查找",
+        "能写出并解释一维数组元素地址计算公式：基地址 + 下标 × 元素大小",
+        "能判断给定下标是否在合法范围内，并说明越界访问的后果",
+        "能区分随机访问的常数时间复杂度与真实系统耗时，不将O(1)等同于绝对耗时恒定"
+      ],
+      "organization_id": "org_c21edab0a70e40dcaaeb72742ab3c006",
+      "prerequisites": [
+        "了解变量、数据类型和内存地址的基本概念",
+        "知道数组是相同类型元素的连续集合",
+        "能理解下标从0开始的常见约定"
+      ],
+      "requirements": "生成3道关于“数组随机访问”的单选题；每题4个选项；附正确答案与解析；难度面向大学初学者；使用通用知识，无需检索资料。",
+      "resource_type": "quiz",
+      "scope": "面向大学初学者的数组随机访问知识准备，聚焦一维数组按下标访问元素的抽象模型、地址计算公式、时间复杂度含义及常见边界条件；不涉及多维数组、动态数组扩容、链表、哈希表或具体语言标准库实现细节。",
+      "source_policy": {
+        "allow_rag": true,
+        "allow_web": true,
+        "scope_id": null,
+        "scope_type": "course",
+        "selected_doc_ids": []
+      },
+      "subject": "数组随机访问",
+      "units": [
+        {
+          "check": "若数组有 n 个元素，访问 a[n-1] 是否需要先访问前 n-1 个元素？",
+          "evidence_ids": [],
+          "example": "对于数组 a = [10, 20, 30, 40]，访问 a[2] 可直接得到 30，不必先读取 a[0] 和 a[1]。",
+          "explanation": "数组随机访问指给定下标后，直接计算该元素在内存中的位置并读取，不需要依次检查前面的元素。这里的“随机”不是指随机数，而是指可以按任意合法下标访问。",
+          "misconception": "把“随机访问”误解为随机选取一个元素，或认为访问任意下标都需要从头遍历。",
+          "objective_indices": [
+            0
+          ],
+          "title": "随机访问的定义"
+        },
+        {
+          "check": "若 base = 2000，size = 8，a[5] 的地址是多少？",
+          "evidence_ids": [],
+          "example": "设 base = 1000，size = 4，则 a[0] 地址为 1000，a[1] 为 1004，a[3] 为 1012。",
+          "explanation": "在一维数组中，若基地址为 base，每个元素占用 size 字节，下标为 i，则元素地址通常为 base + i × size。该公式成立的前提是元素类型相同、连续存放，且下标从0开始计数。元素大小指完整元素占用的空间；在 C/C++ 中，结构体数组的步长通常就是 sizeof(元素类型)，已包含对齐填充。",
+          "misconception": "认为数组地址公式要求底层物理内存页连续；实际上抽象连续地址不保证物理页连续。也不要把元素大小误解为仅指基本字段大小而忽略结构体填充。",
+          "objective_indices": [
+            1
+          ],
+          "title": "地址计算公式"
+        },
+        {
+          "check": "长度为 10 的数组，合法下标范围是什么？a[10] 是否合法？",
+          "evidence_ids": [],
+          "example": "数组 a = [5, 6, 7]，长度为3，合法下标是0、1、2；a[3] 越界。",
+          "explanation": "长度为 n 的一维数组，合法下标通常为 0 到 n-1。访问 n 或负数下标属于越界，可能读到无关数据、引发运行时错误或未定义行为。不同语言对负索引语义不同，例如 Python 中 -1 表示最后一个元素，而 C/C++ 中负下标通常不合法。",
+          "misconception": "认为所有语言中 a[-1] 都表示最后一个元素，或认为越界访问一定会立即报错。",
+          "objective_indices": [
+            2
+          ],
+          "title": "下标范围与越界"
+        },
+        {
+          "check": "O(1) 是否意味着访问数组首元素和末元素在真实机器上的耗时绝对相等？",
+          "evidence_ids": [],
+          "example": "访问 a[0] 和 a[999999] 在抽象操作次数上都是一次地址计算加一次读取，但真实运行时间可能因缓存不同而有差异。",
+          "explanation": "在抽象模型下，数组随机访问通常计为 O(1)，即访问时间不随数组长度增长而增长。但这不表示真实系统耗时绝对恒定；缓存命中、分页、内存层级和具体实现都会影响实际耗时。复杂度必须说明所分析的实现和计数方式。",
+          "misconception": "把 O(1) 理解为任何情况下耗时完全相同，或把某种低效实现的复杂度说成所有实现的必然结果。",
+          "objective_indices": [
+            3
+          ],
+          "title": "常数时间复杂度的含义"
+        }
+      ]
+    },
+    "harness_outline_id": "direct_org_c21edab0a70e40dcaaeb72742ab3c006",
+    "harness_outline_revision": 1,
+    "harness_review_required": true,
+    "length_hint": "生成3道关于“数组随机访问”的单选题；每题4个选项；附正确答案与解析；难度面向大学初学者；使用通用知识，无需检索资料。",
+    "research_context": "",
+    "research_sources": [],
+    "resource_type": "quiz",
+    "subject": "数组随机访问",
+    "title": "数组随机访问"
+  },
+  "status": "ready",
+  "created_at": "2026-09-10T06:26:02.454897",
+  "updated_at": "2026-09-10T06:26:02.454897",
+  "is_pinned": false,
+  "pinned_at": null,
+  "content_hash": "9ca491a76e4fdd36aa8d59dd0c00a64222d21d57a63893feaf7ecdccc94028c1"
+}

@@ -20,6 +20,9 @@ def upstream(monkeypatch):
             body = self.rfile.read(int(self.headers['Content-Length']))
             calls.append((key, body))
             status = settings[key]
+            if status == 'disconnect':
+                self.connection.close()
+                return
             self.send_response(status)
             self.send_header('Content-Type', 'text/event-stream' if settings['stream'] and status == 200 else 'application/json')
             self.end_headers()
@@ -31,6 +34,7 @@ def upstream(monkeypatch):
     thread.start()
     base = f'http://127.0.0.1:{server.server_port}/v1'
     monkeypatch.setattr(Config, 'DEEPSEEK_BASE_URL', base)
+    monkeypatch.setattr(Config, 'DEEPSEEK_API_KEY', 'primary')
     monkeypatch.setattr(Config, 'DEEPSEEK_API_KEY_BACKUP', 'backup')
     yield base, calls, settings
     for identity, (_, _, local) in list(failover._endpoints.items()):
@@ -56,6 +60,30 @@ def test_balance_failure_retries_same_request_with_second_key(upstream, caplog):
     assert [c[0] for c in calls] == ['primary', 'backup']
     assert calls[0][1] == calls[1][1]
     assert 'HTTP 402' in caplog.text
+
+
+def test_server_owned_alias_cannot_replace_deepseek_primary(upstream, monkeypatch):
+    base, calls, settings = upstream
+    settings["canonical-primary"] = 200
+    monkeypatch.setattr(Config, "DEEPSEEK_API_KEY", "canonical-primary")
+    monkeypatch.setattr(Config, "DEEP_MODEL_API_KEY", "stale-role-alias")
+
+    endpoint, token = failover.completion_endpoint(base, "stale-role-alias")
+
+    assert request(endpoint, token).status_code == 200
+    assert [key for key, _ in calls] == ["canonical-primary"]
+
+
+def test_distinct_runtime_key_cannot_replace_deepseek_primary(upstream, monkeypatch):
+    base, calls, settings = upstream
+    settings["canonical-primary"] = 200
+    monkeypatch.setattr(Config, "DEEPSEEK_API_KEY", "canonical-primary")
+    monkeypatch.setattr(Config, "DEEP_MODEL_API_KEY", "stale-role-alias")
+
+    endpoint, token = failover.completion_endpoint(base, "runtime-owner-key")
+
+    assert request(endpoint, token).status_code == 200
+    assert [key for key, _ in calls] == ["canonical-primary"]
 
 
 @pytest.mark.parametrize('status, expected', [(200, ['primary']), (400, ['primary']), (429, ['primary']), (500, ['primary'])])
@@ -137,3 +165,42 @@ def test_harness_switches_current_completion_without_restarting_turn(upstream, t
     assert result['message']['content'] == 'hello'
     assert len(turns) == 1
     assert [c[0] for c in calls] == ['primary', 'backup']
+
+
+def test_deepseek_default_direct_transport_ignores_broken_system_proxy(upstream, monkeypatch):
+    base, calls, settings = upstream
+    settings['primary'] = 200
+    monkeypatch.setattr(Config, 'DEEPSEEK_TRUST_ENV_PROXY', False)
+    for key in ('HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY'):
+        monkeypatch.setenv(key, 'http://127.0.0.1:1')
+    monkeypatch.setenv('NO_PROXY', '')
+    assert request(*failover.completion_endpoint(base, 'primary')).status_code == 200
+    assert len(calls) == 1
+
+
+def test_transport_disconnect_returns_safe_json_without_key_switch(upstream, caplog):
+    base, calls, settings = upstream
+    settings['primary'] = 'disconnect'
+    response = request(*failover.completion_endpoint(base, 'primary'))
+    assert response.status_code == 502
+    assert response.json()['error']['code'] == 'model_transport_unavailable'
+    assert '<html' not in response.text.lower()
+    assert [key for key, _ in calls] == ['primary']
+    assert 'RemoteProtocolError' in caplog.text
+
+
+@pytest.mark.parametrize('method', ['chat', 'stream_chat', 'stream_chat_with_tools'])
+def test_gateway_does_not_expose_upstream_error_body(monkeypatch, method):
+    from types import SimpleNamespace
+    from app.chat.model_gateway import ChatModelGateway, UNAVAILABLE_MESSAGE
+    monkeypatch.setattr('app.chat.model_gateway.requests.post', lambda *a, **kw:
+        SimpleNamespace(status_code=502, text='<html>private-provider-details</html>'))
+    gateway = ChatModelGateway(api_base='http://unrelated.example/v1', api_key='test', model_name='test')
+    if method == 'stream_chat_with_tools':
+        result = list(gateway.stream_chat_with_tools([], tools=[]))
+        assert result[-1]['message'] == UNAVAILABLE_MESSAGE
+    else:
+        with pytest.raises(RuntimeError) as exc:
+            result = getattr(gateway, method)([])
+            if method == 'stream_chat': list(result)
+        assert str(exc.value) == UNAVAILABLE_MESSAGE

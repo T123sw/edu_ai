@@ -1,0 +1,11 @@
+[MinerU] 已启用 MinerU Cloud（直连远程 API）用于 PDF 解析
+[LLM] ok deepseek-v4-pro 同步调用 182564ms | 4443 字符
+[LLM] ok deepseek-v4-flash 同步调用 1500ms | 147 字符
+[LLM] ok deepseek-v4-pro 同步调用 257557ms | 5277 字符
+[LLM] ok deepseek-v4-flash 同步调用 1206ms | 156 字符
+[LLM] ok deepseek-v4-pro 同步调用 160261ms | 4724 字符
+{"kind": "classroom", "public_retry_passed": true}
+[CTX] context 加载 0ms | cid=9a3a1191
+[CTX] context 加载 0ms | cid=9a3a1191
+[CTX] context 加载 0ms | cid=9a3a1191
+{"kind": "classroom", "recheck_passed": true}

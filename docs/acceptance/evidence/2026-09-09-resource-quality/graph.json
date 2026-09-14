@@ -1,0 +1,1501 @@
+{
+  "kind": "graph",
+  "conversation_id": "resource-e2e-graph-2ce4293e",
+  "turns": [
+    {
+      "question": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "正在生成思维导图，完成后会在这里显示。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-graph-2ce4293e"
+        },
+        "action": {
+          "name": "generate.graph"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "graph",
+          "status": "running",
+          "stage": "generating"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "b41abbc46430463b920ae07d147f76c6",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "面向大学初学者的数组随机访问思维导图知识准备，覆盖内存布局、地址计算和适用条件三个分支。仅涉及一维数组的抽象内存模型与地址计算，不涉及多维数组、动态数组实现细节、缓存优化或具体编程语言语法。",
+                "prerequisites": [
+                  "变量与基本数据类型概念",
+                  "内存以字节为单位的基本认识",
+                  "索引从0开始的基本约定"
+                ],
+                "objectives": [
+                  "描述数组在内存中连续存储的抽象布局",
+                  "解释数组元素地址计算公式中各参数的含义",
+                  "计算给定索引元素的地址",
+                  "列举数组随机访问的适用条件",
+                  "识别数组随机访问不适用的场景"
+                ],
+                "units": [
+                  {
+                    "title": "数组的连续内存布局",
+                    "explanation": "数组在抽象内存模型中占据一段连续的地址空间，元素按索引顺序依次存放。连续意味着相邻索引的元素地址相邻，这是随机访问的基础。注意：这里的连续是抽象地址层面的连续，不要求底层物理内存页连续。",
+                    "example": "int arr[5] 在抽象内存中占据从地址A到A+19的连续20字节（假设int为4字节）。",
+                    "misconception": "抽象地址连续不等于物理内存连续。操作系统通过虚拟内存机制可能将页面映射到不连续的物理页。",
+                    "check": "能否解释为什么抽象连续地址不要求物理页连续？",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "数组名与首地址",
+                    "explanation": "数组名在表达式中通常代表首元素地址（即索引0的地址）。首地址是地址计算的基准点。在C语言中，数组名在多数表达式中退化为指向首元素的指针，但sizeof等少数上下文除外。",
+                    "example": "int a[10]; 则 a 的值等于 &a[0]。",
+                    "misconception": "数组名不是指针变量，它没有独立的存储空间，不能进行赋值操作。",
+                    "check": "数组名与指向首元素的指针有何区别？",
+                    "objective_indices": [
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "地址计算公式",
+                    "explanation": "一维数组元素地址公式为：元素i的地址 = 首地址 + i × 元素大小。其中i为索引（从0开始），元素大小由类型决定（如int通常4字节，char为1字节）。该公式是随机访问的理论基础，允许O(1)时间定位任意元素。",
+                    "example": "若首地址为1000，int占4字节，则元素a[3]的地址 = 1000 + 3×4 = 1012。",
+                    "misconception": "索引从1开始计算时公式需调整为 首地址 + (i-1)×元素大小；混淆0基与1基会导致地址计算错误。",
+                    "check": "给定首地址2000，double占8字节，计算a[5]的地址。",
+                    "objective_indices": [
+                      1,
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "随机访问的O(1)特性",
+                    "explanation": "随机访问指通过索引直接计算地址并访问，所需操作次数与数组长度无关，即时间复杂度为O(1)。这是数组相对于链表的核心优势。注意：O(1)是抽象模型中的操作次数，不保证真实系统耗时恒定，缓存、内存带宽等因素会影响实际耗时。",
+                    "example": "访问a[0]与访问a[9999]在抽象模型中操作次数相同。",
+                    "misconception": "O(1)不意味着实际耗时绝对相等。缓存未命中、页错误等会使不同索引的访问耗时差异显著。",
+                    "check": "为什么说O(1)是操作次数层面的结论而非实际耗时保证？",
+                    "objective_indices": [
+                      3
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "适用条件：连续存储与固定大小元素",
+                    "explanation": "数组随机访问的前提是：①元素在内存中连续存储；②每个元素大小固定且已知。满足这两个条件才能通过乘法与加法直接计算地址。若元素大小不一（如指针数组指向变长对象），则需间接访问。",
+                    "example": "int数组满足条件；而存储字符串的char*数组，元素本身是指针（大小固定），但指向的字符串长度可变，这不影响指针数组本身的随机访问。",
+                    "misconception": "元素大小固定指数组存储单元大小固定，不要求元素指向的内容大小固定。",
+                    "check": "为什么元素大小必须固定才能用乘法计算地址？",
+                    "objective_indices": [
+                      3
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "适用条件：索引范围与边界",
+                    "explanation": "随机访问要求索引在有效范围内（0到长度-1）。越界访问是未定义行为（C/C++）或抛出异常（Java等），不属于随机访问的正常适用场景。随机访问本身不检查边界，安全性由程序员或语言运行时保证。",
+                    "example": "int a[5]; 有效索引为0-4，a[5]越界。",
+                    "misconception": "数组不自动检查边界不等于越界访问是合法的随机访问；越界是错误，不是随机访问的特性。",
+                    "check": "访问a[-1]或a[长度]属于什么行为？",
+                    "objective_indices": [
+                      3,
+                      4
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "不适用场景：频繁插入删除",
+                    "explanation": "数组在中间插入或删除元素需要移动后续所有元素，时间复杂度为O(n)。若操作以插入删除为主，链表等结构更合适。随机访问优势仅在按下标直接访问时体现。",
+                    "example": "在长度为n的数组头部插入元素需移动n个元素。",
+                    "misconception": "数组尾部插入删除是O(1)（不考虑扩容），但中间或头部操作是O(n)，不能一概而论。",
+                    "check": "在数组头部频繁插入的场景，数组是否合适？为什么？",
+                    "objective_indices": [
+                      4
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "不适用场景：大小动态变化",
+                    "explanation": "静态数组长度固定，无法动态增长。动态数组（如C++ vector）虽支持扩容，但扩容时可能涉及整体拷贝到新内存块，不是原地操作。若数据规模频繁大幅变化且无法预估，需考虑其他结构。",
+                    "example": "C++ vector在容量不足时重新分配并拷贝所有元素。",
+                    "misconception": "动态数组的扩容是均摊O(1)，但单次扩容可能开销大，实时性要求高的场景需注意。",
+                    "check": "动态数组扩容时发生了什么？为什么不是原地操作？",
+                    "objective_indices": [
+                      4
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本材料基于抽象内存模型，不涉及具体CPU缓存、页表等硬件细节。",
+                  "元素大小假设为常见值（int 4字节等），实际大小依赖平台与编译器，教学中需明确假设。",
+                  "不讨论多维数组的地址计算（行优先/列优先）。",
+                  "不涉及指针算术的复杂语义（如指向数组的指针、多维指针）。",
+                  "未覆盖动态数组的扩容策略细节（如增长因子）。"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：材料明确限定为一维数组抽象内存模型，不涉及多维数组、动态数组实现细节、缓存优化或具体语言语法，与resource_contract的范围一致。",
+                      "reason": "scope和limitations均明确声明了这些边界，且units内容未超出该范围。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：地址计算公式、O(1)特性、适用条件等各单元之间逻辑一致，无矛盾。",
+                      "reason": "公式单元给出首地址+索引×元素大小，O(1)单元基于该公式推导，适用条件单元强调连续存储和固定大小元素，推理链条一致。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子正确性：地址计算示例数值正确，数组名示例符合C语言语义，越界示例正确。",
+                      "reason": "首地址1000，int 4字节，a[3]地址=1000+3×4=1012，计算正确；数组名a等于&a[0]在C语言中正确；int a[5]有效索引0-4，a[5]越界正确。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：所有学习目标均有对应单元覆盖，且边界案例（越界、抽象连续与物理连续区别）已提供。",
+                      "reason": "目标0由单元1覆盖，目标1由单元2和3覆盖，目标2由单元3覆盖，目标3由单元4和5覆盖，目标4由单元6、7、8覆盖；越界和物理页不连续等边界案例已明确说明。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "来源示例前提未被错误泛化：数组名退化、O(1)特性、动态数组扩容等均有限定条件，未泛化为所有环境。",
+                      "reason": "数组名单元明确说明sizeof等上下文除外；O(1)单元强调是抽象模型操作次数，不保证实际耗时恒定；动态数组单元说明扩容可能整体拷贝，且limitations声明不涉及具体硬件细节。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_6b1eec7f49aa44feb38f57c6d80ed621",
+                "resource_type": "graph",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支；资料使用通用知识即可，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "submit_resource_direct",
+              "data": {
+                "task_id": "job_c0e727a9eddd4908",
+                "status": "submitted",
+                "workflow_type": "graph"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "task_id": "job_c0e727a9eddd4908",
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成graph",
+          "workflow_label": "graph",
+          "topics": [
+            "请生成一份"
+          ],
+          "issues": [],
+          "confirmed_facts": [
+            "包含内存布局、地址计算和适用条件三个分支",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”思维导图",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕请生成一份继续讨论"
+        }
+      }
+    },
+    {
+      "question": "刚才生成的资源完成了吗？请读取它并概括内容。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "完成了，思维导图《数组随机访问》已经生成好，内容如下：\n\n**主题**：面向大学初学者，从三个分支理解数组的随机访问。\n\n1. **内存布局**\n   - 数组元素按索引顺序连续存放（抽象地址层面连续，物理内存页不要求连续）。\n   - 数组名代表首地址，可看作 `&a[0]`；它不是指针变量，没有独立存储空间。\n   - 示例：`int arr[5]` 假设 int 占 4 字节，则占据首地址 A 起连续 20 字节。\n\n2. **地址计算**\n   - 核心公式：元素 i 的地址 = 首地址 + i × 元素大小（i 从 0 开始）。\n   - 示例：首地址 1000、int 4 字节时，`a[3]` 地址为 1000 + 3×4 = 1012。\n   - 由此获得 O(1) 随机访问：访问 `a[0]` 与 `a[9999]` 的操作次数相同；但要提示学生这是抽象模型结论，不等于实际耗时恒定（缓存未命中、页错误会带来差异）。\n\n3. **适用条件**\n   - 前提：元素大小固定、索引在有效范围（0 到 长度−1），越界是错误而非随机访问特性。\n   - 不适用：频繁在中间或头部插入删除（需移动元素 O(n)，尾部操作除外）；大小频繁动态变化时，倍增扩容的动态数组尾插均摊 O(1)，固定增量扩容则均摊仍为 O(n)。\n\n需要我基于这张图展开讲某个分支（比如地址公式的推导或与链表的对比），可以继续说明。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-graph-2ce4293e"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [
+          {
+            "artifact_id": "graph-9dc5e6715378d892",
+            "artifact_type": "graph",
+            "title": "数组随机访问",
+            "content": {
+              "root": {
+                "id": "root",
+                "title": "数组随机访问",
+                "summary": "面向大学初学者的思维导图，从内存布局、地址计算和适用条件三个分支理解数组随机访问。",
+                "children": [
+                  {
+                    "id": "memory-layout",
+                    "title": "内存布局",
+                    "summary": "数组在抽象内存中连续存放，数组名代表首地址。",
+                    "children": [
+                      {
+                        "id": "continuous-layout",
+                        "title": "连续存储",
+                        "summary": "元素按索引顺序紧邻存放，相邻索引地址相邻。",
+                        "children": [
+                          {
+                            "id": "abstract-continuity",
+                            "title": "抽象地址连续",
+                            "summary": "连续指抽象地址层面，不要求物理页连续。",
+                            "children": [
+                              {
+                                "id": "physical-pages",
+                                "title": "物理页可不连续",
+                                "summary": "操作系统通过虚拟内存可将页面映射到不连续的物理页。"
+                              }
+                            ]
+                          },
+                          {
+                            "id": "example-layout",
+                            "title": "示例：int arr[5]",
+                            "summary": "假设int为4字节，占据从地址A到A+19的连续20字节。"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "array-name",
+                        "title": "数组名与首地址",
+                        "summary": "数组名在表达式中代表首元素地址，是地址计算的基准。",
+                        "children": [
+                          {
+                            "id": "array-name-meaning",
+                            "title": "数组名 = &a[0]",
+                            "summary": "如 int a[10]，a 的值等于 &a[0]。"
+                          },
+                          {
+                            "id": "array-name-caveat",
+                            "title": "数组名不是指针变量",
+                            "summary": "数组名无独立存储空间，不能赋值；sizeof 等少数上下文除外。"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "address-calculation",
+                    "title": "地址计算",
+                    "summary": "通过首地址加索引乘元素大小，O(1) 定位任意元素。",
+                    "children": [
+                      {
+                        "id": "address-formula",
+                        "title": "地址公式",
+                        "summary": "元素 i 的地址 = 首地址 + i × 元素大小。",
+                        "children": [
+                          {
+                            "id": "formula-params",
+                            "title": "参数含义",
+                            "summary": "i 为从 0 开始的索引；元素大小由类型决定（如 int 通常 4 字节）。"
+                          },
+                          {
+                            "id": "formula-example",
+                            "title": "计算示例",
+                            "summary": "首地址 1000，int 4 字节，a[3] 地址 = 1000 + 3×4 = 1012。"
+                          },
+                          {
+                            "id": "zero-based",
+                            "title": "0 基索引约定",
+                            "summary": "若从 1 开始计数，公式需调整为 首地址 + (i-1)×元素大小。"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "o1-property",
+                        "title": "O(1) 随机访问",
+                        "summary": "操作次数与数组长度无关，这是相对链表的核心优势。",
+                        "children": [
+                          {
+                            "id": "o1-abstraction",
+                            "title": "抽象模型结论",
+                            "summary": "访问 a[0] 与 a[9999] 操作次数相同。"
+                          },
+                          {
+                            "id": "o1-not-real-time",
+                            "title": "不等于实际耗时恒定",
+                            "summary": "缓存未命中、页错误等会使不同索引的实际访问耗时差异显著。"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "applicability",
+                    "title": "适用条件",
+                    "summary": "随机访问需要连续存储、固定大小元素和有效索引；插入删除频繁或大小动态变化时不适用。",
+                    "children": [
+                      {
+                        "id": "requirements",
+                        "title": "前提条件",
+                        "summary": "满足条件才能用乘法与加法直接计算地址。",
+                        "children": [
+                          {
+                            "id": "fixed-size",
+                            "title": "元素大小固定",
+                            "summary": "每个元素大小固定且已知；指针数组元素本身大小固定，指向内容可变不影响。"
+                          },
+                          {
+                            "id": "index-range",
+                            "title": "索引在有效范围内",
+                            "summary": "有效索引为 0 到 长度-1；越界是错误而非随机访问特性。"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "not-suitable",
+                        "title": "不适用场景",
+                        "summary": "以下场景数组随机访问优势无法体现。",
+                        "children": [
+                          {
+                            "id": "frequent-insert-delete",
+                            "title": "频繁插入删除",
+                            "summary": "中间或头部操作需移动后续元素，时间复杂度 O(n)。",
+                            "children": [
+                              {
+                                "id": "tail-operation",
+                                "title": "尾部操作例外",
+                                "summary": "尾部插入删除是 O(1)（不考虑扩容），不能一概而论。"
+                              }
+                            ]
+                          },
+                          {
+                            "id": "dynamic-size",
+                            "title": "大小频繁动态变化",
+                            "summary": "采用按因子扩容（如倍增）的动态数组，尾插扩容均摊为 O(1)；若采用固定增量扩容，单次扩容为 O(n)，尾插均摊仍为 O(n)。单次扩容可能整体拷贝到新内存块，开销为 O(n)；若扩容幅度无法预估或场景对实时性敏感，需考虑其他结构。"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "6432ee11b68f4c1e89a81988f5d72397",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "query_resource_job",
+              "data": {
+                "task_id": "job_c0e727a9eddd4908",
+                "resource_type": "graph",
+                "status": "succeeded",
+                "progress": 100,
+                "title": "数组随机访问",
+                "result_ref": {
+                  "resource_type": "course_material",
+                  "course_id": "resource-e2e-course",
+                  "material_type": "graph",
+                  "material_id": "graph-9dc5e6715378d892"
+                },
+                "verification": {
+                  "decision": "pass",
+                  "checks": "version_bound_resource_review"
+                },
+                "failure_reason": null,
+                "artifact": {
+                  "artifact_id": "graph-9dc5e6715378d892",
+                  "artifact_type": "graph",
+                  "title": "数组随机访问",
+                  "content": {
+                    "root": {
+                      "id": "root",
+                      "title": "数组随机访问",
+                      "summary": "面向大学初学者的思维导图，从内存布局、地址计算和适用条件三个分支理解数组随机访问。",
+                      "children": [
+                        {
+                          "id": "memory-layout",
+                          "title": "内存布局",
+                          "summary": "数组在抽象内存中连续存放，数组名代表首地址。",
+                          "children": [
+                            {
+                              "id": "continuous-layout",
+                              "title": "连续存储",
+                              "summary": "元素按索引顺序紧邻存放，相邻索引地址相邻。",
+                              "children": [
+                                {
+                                  "id": "abstract-continuity",
+                                  "title": "抽象地址连续",
+                                  "summary": "连续指抽象地址层面，不要求物理页连续。",
+                                  "children": [
+                                    {
+                                      "id": "physical-pages",
+                                      "title": "物理页可不连续",
+                                      "summary": "操作系统通过虚拟内存可将页面映射到不连续的物理页。"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "example-layout",
+                                  "title": "示例：int arr[5]",
+                                  "summary": "假设int为4字节，占据从地址A到A+19的连续20字节。"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "array-name",
+                              "title": "数组名与首地址",
+                              "summary": "数组名在表达式中代表首元素地址，是地址计算的基准。",
+                              "children": [
+                                {
+                                  "id": "array-name-meaning",
+                                  "title": "数组名 = &a[0]",
+                                  "summary": "如 int a[10]，a 的值等于 &a[0]。"
+                                },
+                                {
+                                  "id": "array-name-caveat",
+                                  "title": "数组名不是指针变量",
+                                  "summary": "数组名无独立存储空间，不能赋值；sizeof 等少数上下文除外。"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "address-calculation",
+                          "title": "地址计算",
+                          "summary": "通过首地址加索引乘元素大小，O(1) 定位任意元素。",
+                          "children": [
+                            {
+                              "id": "address-formula",
+                              "title": "地址公式",
+                              "summary": "元素 i 的地址 = 首地址 + i × 元素大小。",
+                              "children": [
+                                {
+                                  "id": "formula-params",
+                                  "title": "参数含义",
+                                  "summary": "i 为从 0 开始的索引；元素大小由类型决定（如 int 通常 4 字节）。"
+                                },
+                                {
+                                  "id": "formula-example",
+                                  "title": "计算示例",
+                                  "summary": "首地址 1000，int 4 字节，a[3] 地址 = 1000 + 3×4 = 1012。"
+                                },
+                                {
+                                  "id": "zero-based",
+                                  "title": "0 基索引约定",
+                                  "summary": "若从 1 开始计数，公式需调整为 首地址 + (i-1)×元素大小。"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "o1-property",
+                              "title": "O(1) 随机访问",
+                              "summary": "操作次数与数组长度无关，这是相对链表的核心优势。",
+                              "children": [
+                                {
+                                  "id": "o1-abstraction",
+                                  "title": "抽象模型结论",
+                                  "summary": "访问 a[0] 与 a[9999] 操作次数相同。"
+                                },
+                                {
+                                  "id": "o1-not-real-time",
+                                  "title": "不等于实际耗时恒定",
+                                  "summary": "缓存未命中、页错误等会使不同索引的实际访问耗时差异显著。"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "applicability",
+                          "title": "适用条件",
+                          "summary": "随机访问需要连续存储、固定大小元素和有效索引；插入删除频繁或大小动态变化时不适用。",
+                          "children": [
+                            {
+                              "id": "requirements",
+                              "title": "前提条件",
+                              "summary": "满足条件才能用乘法与加法直接计算地址。",
+                              "children": [
+                                {
+                                  "id": "fixed-size",
+                                  "title": "元素大小固定",
+                                  "summary": "每个元素大小固定且已知；指针数组元素本身大小固定，指向内容可变不影响。"
+                                },
+                                {
+                                  "id": "index-range",
+                                  "title": "索引在有效范围内",
+                                  "summary": "有效索引为 0 到 长度-1；越界是错误而非随机访问特性。"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "not-suitable",
+                              "title": "不适用场景",
+                              "summary": "以下场景数组随机访问优势无法体现。",
+                              "children": [
+                                {
+                                  "id": "frequent-insert-delete",
+                                  "title": "频繁插入删除",
+                                  "summary": "中间或头部操作需移动后续元素，时间复杂度 O(n)。",
+                                  "children": [
+                                    {
+                                      "id": "tail-operation",
+                                      "title": "尾部操作例外",
+                                      "summary": "尾部插入删除是 O(1)（不考虑扩容），不能一概而论。"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "dynamic-size",
+                                  "title": "大小频繁动态变化",
+                                  "summary": "采用按因子扩容（如倍增）的动态数组，尾插扩容均摊为 O(1)；若采用固定增量扩容，单次扩容为 O(n)，尾插均摊仍为 O(n)。单次扩容可能整体拷贝到新内存块，开销为 O(n)；若扩容幅度无法预估或场景对实时性敏感，需考虑其他结构。"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "verification": {
+          "decision": "pass",
+          "checks": "version_bound_resource_review"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "",
+          "scope_path": [],
+          "resolution": "needs_clarification",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成graph",
+          "workflow_label": "graph",
+          "topics": [
+            "刚才生成的资源完成了吗",
+            "请读取它并概括内容",
+            "请生成一份"
+          ],
+          "goal": "总结内容",
+          "issues": [
+            "不等于实际耗时恒定（缓存未命中、页错误会带来差异）",
+            "越界是错误而非随机访问特性"
+          ],
+          "confirmed_facts": [
+            "包含内存布局、地址计算和适用条件三个分支",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [
+            "前提：元素大小固定、索引在有效范围（0 到 长度−1）"
+          ],
+          "evidence_details": [
+            {
+              "content": "前提：元素大小固定、索引在有效范围（0 到 长度−1）",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            }
+          ],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "active_artifact_label": "当前产物：graph",
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”思维导图",
+          "allow_rag": true,
+          "allow_web": true
+        }
+      }
+    }
+  ],
+  "direct_generation_verified": true,
+  "job": {
+    "schema_version": 2,
+    "version": 10,
+    "edu_job_id": "job_c0e727a9eddd4908",
+    "kind": "generate_graph",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "生成完成，已保存到“我的资源”，仅你可见。",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "graph",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "graph",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "",
+        "focus": "面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支；资料使用通用知识即可，无需检索。",
+        "length_hint": "面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支；资料使用通用知识即可，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "direct_org_6b1eec7f49aa44feb38f57c6d80ed621",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-graph-2ce4293e",
+        "harness_chapters": [],
+        "classroom_options": {},
+        "harness_organization": {
+          "scope": "面向大学初学者的数组随机访问思维导图知识准备，覆盖内存布局、地址计算和适用条件三个分支。仅涉及一维数组的抽象内存模型与地址计算，不涉及多维数组、动态数组实现细节、缓存优化或具体编程语言语法。",
+          "prerequisites": [
+            "变量与基本数据类型概念",
+            "内存以字节为单位的基本认识",
+            "索引从0开始的基本约定"
+          ],
+          "objectives": [
+            "描述数组在内存中连续存储的抽象布局",
+            "解释数组元素地址计算公式中各参数的含义",
+            "计算给定索引元素的地址",
+            "列举数组随机访问的适用条件",
+            "识别数组随机访问不适用的场景"
+          ],
+          "units": [
+            {
+              "title": "数组的连续内存布局",
+              "explanation": "数组在抽象内存模型中占据一段连续的地址空间，元素按索引顺序依次存放。连续意味着相邻索引的元素地址相邻，这是随机访问的基础。注意：这里的连续是抽象地址层面的连续，不要求底层物理内存页连续。",
+              "example": "int arr[5] 在抽象内存中占据从地址A到A+19的连续20字节（假设int为4字节）。",
+              "misconception": "抽象地址连续不等于物理内存连续。操作系统通过虚拟内存机制可能将页面映射到不连续的物理页。",
+              "check": "能否解释为什么抽象连续地址不要求物理页连续？",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "数组名与首地址",
+              "explanation": "数组名在表达式中通常代表首元素地址（即索引0的地址）。首地址是地址计算的基准点。在C语言中，数组名在多数表达式中退化为指向首元素的指针，但sizeof等少数上下文除外。",
+              "example": "int a[10]; 则 a 的值等于 &a[0]。",
+              "misconception": "数组名不是指针变量，它没有独立的存储空间，不能进行赋值操作。",
+              "check": "数组名与指向首元素的指针有何区别？",
+              "objective_indices": [
+                1
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "地址计算公式",
+              "explanation": "一维数组元素地址公式为：元素i的地址 = 首地址 + i × 元素大小。其中i为索引（从0开始），元素大小由类型决定（如int通常4字节，char为1字节）。该公式是随机访问的理论基础，允许O(1)时间定位任意元素。",
+              "example": "若首地址为1000，int占4字节，则元素a[3]的地址 = 1000 + 3×4 = 1012。",
+              "misconception": "索引从1开始计算时公式需调整为 首地址 + (i-1)×元素大小；混淆0基与1基会导致地址计算错误。",
+              "check": "给定首地址2000，double占8字节，计算a[5]的地址。",
+              "objective_indices": [
+                1,
+                2
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "随机访问的O(1)特性",
+              "explanation": "随机访问指通过索引直接计算地址并访问，所需操作次数与数组长度无关，即时间复杂度为O(1)。这是数组相对于链表的核心优势。注意：O(1)是抽象模型中的操作次数，不保证真实系统耗时恒定，缓存、内存带宽等因素会影响实际耗时。",
+              "example": "访问a[0]与访问a[9999]在抽象模型中操作次数相同。",
+              "misconception": "O(1)不意味着实际耗时绝对相等。缓存未命中、页错误等会使不同索引的访问耗时差异显著。",
+              "check": "为什么说O(1)是操作次数层面的结论而非实际耗时保证？",
+              "objective_indices": [
+                3
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "适用条件：连续存储与固定大小元素",
+              "explanation": "数组随机访问的前提是：①元素在内存中连续存储；②每个元素大小固定且已知。满足这两个条件才能通过乘法与加法直接计算地址。若元素大小不一（如指针数组指向变长对象），则需间接访问。",
+              "example": "int数组满足条件；而存储字符串的char*数组，元素本身是指针（大小固定），但指向的字符串长度可变，这不影响指针数组本身的随机访问。",
+              "misconception": "元素大小固定指数组存储单元大小固定，不要求元素指向的内容大小固定。",
+              "check": "为什么元素大小必须固定才能用乘法计算地址？",
+              "objective_indices": [
+                3
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "适用条件：索引范围与边界",
+              "explanation": "随机访问要求索引在有效范围内（0到长度-1）。越界访问是未定义行为（C/C++）或抛出异常（Java等），不属于随机访问的正常适用场景。随机访问本身不检查边界，安全性由程序员或语言运行时保证。",
+              "example": "int a[5]; 有效索引为0-4，a[5]越界。",
+              "misconception": "数组不自动检查边界不等于越界访问是合法的随机访问；越界是错误，不是随机访问的特性。",
+              "check": "访问a[-1]或a[长度]属于什么行为？",
+              "objective_indices": [
+                3,
+                4
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "不适用场景：频繁插入删除",
+              "explanation": "数组在中间插入或删除元素需要移动后续所有元素，时间复杂度为O(n)。若操作以插入删除为主，链表等结构更合适。随机访问优势仅在按下标直接访问时体现。",
+              "example": "在长度为n的数组头部插入元素需移动n个元素。",
+              "misconception": "数组尾部插入删除是O(1)（不考虑扩容），但中间或头部操作是O(n)，不能一概而论。",
+              "check": "在数组头部频繁插入的场景，数组是否合适？为什么？",
+              "objective_indices": [
+                4
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "不适用场景：大小动态变化",
+              "explanation": "静态数组长度固定，无法动态增长。动态数组（如C++ vector）虽支持扩容，但扩容时可能涉及整体拷贝到新内存块，不是原地操作。若数据规模频繁大幅变化且无法预估，需考虑其他结构。",
+              "example": "C++ vector在容量不足时重新分配并拷贝所有元素。",
+              "misconception": "动态数组的扩容是均摊O(1)，但单次扩容可能开销大，实时性要求高的场景需注意。",
+              "check": "动态数组扩容时发生了什么？为什么不是原地操作？",
+              "objective_indices": [
+                4
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "本材料基于抽象内存模型，不涉及具体CPU缓存、页表等硬件细节。",
+            "元素大小假设为常见值（int 4字节等），实际大小依赖平台与编译器，教学中需明确假设。",
+            "不讨论多维数组的地址计算（行优先/列优先）。",
+            "不涉及指针算术的复杂语义（如指向数组的指针、多维指针）。",
+            "未覆盖动态数组的扩容策略细节（如增长因子）。"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "前提适用性：材料明确限定为一维数组抽象内存模型，不涉及多维数组、动态数组实现细节、缓存优化或具体语言语法，与resource_contract的范围一致。",
+                "reason": "scope和limitations均明确声明了这些边界，且units内容未超出该范围。",
+                "passed": true
+              },
+              {
+                "claim": "内部推理一致性：地址计算公式、O(1)特性、适用条件等各单元之间逻辑一致，无矛盾。",
+                "reason": "公式单元给出首地址+索引×元素大小，O(1)单元基于该公式推导，适用条件单元强调连续存储和固定大小元素，推理链条一致。",
+                "passed": true
+              },
+              {
+                "claim": "具体例子正确性：地址计算示例数值正确，数组名示例符合C语言语义，越界示例正确。",
+                "reason": "首地址1000，int 4字节，a[3]地址=1000+3×4=1012，计算正确；数组名a等于&a[0]在C语言中正确；int a[5]有效索引0-4，a[5]越界正确。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖：所有学习目标均有对应单元覆盖，且边界案例（越界、抽象连续与物理连续区别）已提供。",
+                "reason": "目标0由单元1覆盖，目标1由单元2和3覆盖，目标2由单元3覆盖，目标3由单元4和5覆盖，目标4由单元6、7、8覆盖；越界和物理页不连续等边界案例已明确说明。",
+                "passed": true
+              },
+              {
+                "claim": "来源示例前提未被错误泛化：数组名退化、O(1)特性、动态数组扩容等均有限定条件，未泛化为所有环境。",
+                "reason": "数组名单元明确说明sizeof等上下文除外；O(1)单元强调是抽象模型操作次数，不保证实际耗时恒定；动态数组单元说明扩容可能整体拷贝，且limitations声明不涉及具体硬件细节。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_6b1eec7f49aa44feb38f57c6d80ed621",
+          "resource_type": "graph",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支；资料使用通用知识即可，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "direct",
+        "harness_execution_context": {
+          "stage": "write_and_review_graph",
+          "decision": {
+            "request_id": "b41abbc46430463b920ae07d147f76c6",
+            "user_message": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。",
+            "outline_id": "direct_org_6b1eec7f49aa44feb38f57c6d80ed621",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "b41abbc46430463b920ae07d147f76c6",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_ace72c1bf4d61abb",
+      "idempotency_key": "dsh:b843dc61e989e72d41abf28211baf5d698912df9fd168d9b06934404485a77ed",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": {
+      "resource_type": "course_material",
+      "course_id": "resource-e2e-course",
+      "material_type": "graph",
+      "material_id": "graph-9dc5e6715378d892"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-09-09T04:24:41.676365+00:00",
+    "started_at": "2026-09-09T04:24:42.082798+00:00",
+    "finished_at": "2026-09-09T04:34:12.239123+00:00",
+    "updated_at": "2026-09-09T04:34:12.239123+00:00"
+  },
+  "material": {
+    "title": "数组随机访问",
+    "content": {
+      "root": {
+        "id": "root",
+        "title": "数组随机访问",
+        "summary": "面向大学初学者的思维导图，从内存布局、地址计算和适用条件三个分支理解数组随机访问。",
+        "children": [
+          {
+            "id": "memory-layout",
+            "title": "内存布局",
+            "summary": "数组在抽象内存中连续存放，数组名代表首地址。",
+            "children": [
+              {
+                "id": "continuous-layout",
+                "title": "连续存储",
+                "summary": "元素按索引顺序紧邻存放，相邻索引地址相邻。",
+                "children": [
+                  {
+                    "id": "abstract-continuity",
+                    "title": "抽象地址连续",
+                    "summary": "连续指抽象地址层面，不要求物理页连续。",
+                    "children": [
+                      {
+                        "id": "physical-pages",
+                        "title": "物理页可不连续",
+                        "summary": "操作系统通过虚拟内存可将页面映射到不连续的物理页。"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "example-layout",
+                    "title": "示例：int arr[5]",
+                    "summary": "假设int为4字节，占据从地址A到A+19的连续20字节。"
+                  }
+                ]
+              },
+              {
+                "id": "array-name",
+                "title": "数组名与首地址",
+                "summary": "数组名在表达式中代表首元素地址，是地址计算的基准。",
+                "children": [
+                  {
+                    "id": "array-name-meaning",
+                    "title": "数组名 = &a[0]",
+                    "summary": "如 int a[10]，a 的值等于 &a[0]。"
+                  },
+                  {
+                    "id": "array-name-caveat",
+                    "title": "数组名不是指针变量",
+                    "summary": "数组名无独立存储空间，不能赋值；sizeof 等少数上下文除外。"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "address-calculation",
+            "title": "地址计算",
+            "summary": "通过首地址加索引乘元素大小，O(1) 定位任意元素。",
+            "children": [
+              {
+                "id": "address-formula",
+                "title": "地址公式",
+                "summary": "元素 i 的地址 = 首地址 + i × 元素大小。",
+                "children": [
+                  {
+                    "id": "formula-params",
+                    "title": "参数含义",
+                    "summary": "i 为从 0 开始的索引；元素大小由类型决定（如 int 通常 4 字节）。"
+                  },
+                  {
+                    "id": "formula-example",
+                    "title": "计算示例",
+                    "summary": "首地址 1000，int 4 字节，a[3] 地址 = 1000 + 3×4 = 1012。"
+                  },
+                  {
+                    "id": "zero-based",
+                    "title": "0 基索引约定",
+                    "summary": "若从 1 开始计数，公式需调整为 首地址 + (i-1)×元素大小。"
+                  }
+                ]
+              },
+              {
+                "id": "o1-property",
+                "title": "O(1) 随机访问",
+                "summary": "操作次数与数组长度无关，这是相对链表的核心优势。",
+                "children": [
+                  {
+                    "id": "o1-abstraction",
+                    "title": "抽象模型结论",
+                    "summary": "访问 a[0] 与 a[9999] 操作次数相同。"
+                  },
+                  {
+                    "id": "o1-not-real-time",
+                    "title": "不等于实际耗时恒定",
+                    "summary": "缓存未命中、页错误等会使不同索引的实际访问耗时差异显著。"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "applicability",
+            "title": "适用条件",
+            "summary": "随机访问需要连续存储、固定大小元素和有效索引；插入删除频繁或大小动态变化时不适用。",
+            "children": [
+              {
+                "id": "requirements",
+                "title": "前提条件",
+                "summary": "满足条件才能用乘法与加法直接计算地址。",
+                "children": [
+                  {
+                    "id": "fixed-size",
+                    "title": "元素大小固定",
+                    "summary": "每个元素大小固定且已知；指针数组元素本身大小固定，指向内容可变不影响。"
+                  },
+                  {
+                    "id": "index-range",
+                    "title": "索引在有效范围内",
+                    "summary": "有效索引为 0 到 长度-1；越界是错误而非随机访问特性。"
+                  }
+                ]
+              },
+              {
+                "id": "not-suitable",
+                "title": "不适用场景",
+                "summary": "以下场景数组随机访问优势无法体现。",
+                "children": [
+                  {
+                    "id": "frequent-insert-delete",
+                    "title": "频繁插入删除",
+                    "summary": "中间或头部操作需移动后续元素，时间复杂度 O(n)。",
+                    "children": [
+                      {
+                        "id": "tail-operation",
+                        "title": "尾部操作例外",
+                        "summary": "尾部插入删除是 O(1)（不考虑扩容），不能一概而论。"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "dynamic-size",
+                    "title": "大小频繁动态变化",
+                    "summary": "采用按因子扩容（如倍增）的动态数组，尾插扩容均摊为 O(1)；若采用固定增量扩容，单次扩容为 O(n)，尾插均摊仍为 O(n)。单次扩容可能整体拷贝到新内存块，开销为 O(n)；若扩容幅度无法预估或场景对实时性敏感，需考虑其他结构。"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "graph",
+        "content_sha256": "eeb42989f00c67d57f206d9ae4c0aa4086e15a88270c2b6141e979aa0fb107e7",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "内容以 root 下 memory-layout、address-calculation、applicability 三支准确覆盖用户要求的“内存布局、地址计算和适用条件”；受众定位为大学初学者，表述基于通用知识，未引入需要检索的外部内容；标题与节点 summary 均围绕一维数组随机访问。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "逐节点核验：example-layout 的 int arr[5] 5×4=20 字节、地址空间 A 到 A+19 正确；formula-example 1000+3×4=1012 正确；zero-based 从 1 计数改 (i-1) 正确；o1-abstraction 与 o1-not-real-time 区分操作次数与实际耗时正确；index-range 0 到长度-1 与越界定性正确；frequent-insert-delete 中间/头部移动后续元素 O(n)、tail-operation 尾部 O(1) 正确；dynamic-size 明确按因子扩容均摊 O(1)、固定增量均摊 O(n)，未把某一实现复杂度泛化为所有动态数组，符合合同对复杂度的限定要求。全部节点的前提（抽象连续、固定元素大小、有效索引、0基索引）均与断言匹配。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "作为导图，已核验示例与父子关系：int arr[5] 20 字节支持连续布局；a 等于 &a[0] 支持数组名与首地址；首地址1000、a[3]=1012 支持地址公式；a[0] 与 a[9999] 支持 O(1) 抽象结论；int a[5] 中 a[5] 越界支持索引范围；头部插入移动 n 个元素与 C++ vector 扩容示例支持不适用场景。各示例的数值和对象范围与父节点一致，没有误导性关系。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "三支结构符合 requirements 且按同一维度（布局/计算/适用性）划分；memory-layout 下连续存储与数组名、address-calculation 下公式与 O(1)、applicability 下前提与不适用场景父子关系准确，同层粒度大体一致；未发现循环或虚假因果。dynamic-size 节点 summary 信息密度略高但不构成结构错误，可作建议优化。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "资源未引用任何外部证据或检索来源；内容为数组随机访问的通用知识，符合 specification.source_policy 的 allow_rag/allow_web 和通用知识要求，无需来源核验。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "学习目标 0-4 分别由 memory-layout、address-formula/array-name、formula-example、o1-property/requirements、index-range/frequent-insert-delete/dynamic-size 覆盖；未超出 scope，未讨论多维数组、缓存具体细节或语言语法教学；limitations 与内容不矛盾。必须覆盖的三个分支均有对应节点。"
+          }
+        ],
+        "version": 3,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "2ecf5da2aa4777393f3f039e769b318069054eeda3c65353cd994e40190ec953",
+            "decision": "revise",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "内容为中文，受众为大学初学者；根节点为“数组随机访问”，三个分支内存布局、地址计算、适用条件与要求一致；未扩展到多维数组、缓存优化等范围外主题。C/C++示例用于说明通用数组模型，数值假设如 int 4 字节已显式标注。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": false,
+                  "reason": "地址公式、int arr[5] 占20字节、a[3]=1012、O(1)非实际耗时等多数断言正确。但“大小频繁动态变化”置于不适用场景且未说明均摊O(1)或实时性/无法预估限定，过于绝对：动态数组频繁尾插扩容的均摊成本仍是O(1)，仅单次扩容为O(n)，不能由此断言随机访问优势无法体现。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "独立核算示例：int arr[5] 的地址区间 A 到 A+19 共20字节正确；首地址1000、int 4字节时 a[3]=1012 正确；指针数组元素大小固定正确。a[9999] 示例未标注数组长度，建议补充，但作为O(1)抽象示例的数值本身不引起计算错误。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "根节点下三个分支维度一致，父子层级清楚，叶节点摘要简短，无循环和同义堆叠。“适用条件”下前提与不适用场景分开，“O(1)”下抽象结论与真实耗时限制分开，便于初学者分辨。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "该导图为通用知识生成，source_policy.selected_doc_ids 为空，未引用外部资料，不存在来源与正文不一致或虚假引用。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "学习目标全部覆盖：内存连续布局、数组名/首地址、地址公式参数与计算、O(1)及适用条件、越界和插入删除/大小变化等不适用场景均有节点；物理页不连续和缓存/页错误等关键区分也已体现。"
+                }
+              ],
+              "blocking_issues": [
+                "applicability/not-suitable/dynamic-size 节点将“大小频繁动态变化”归为不适用场景过于绝对。动态数组尾插扩容的均摊复杂度为 O(1)，单次扩容 O(n) 只说明单次开销大，不能推出频繁动态变化时数组随机访问优势无法体现；应补充限定（如“无法预估的大幅扩容”或“实时性敏感场景”）并说明均摊与单次差异。"
+              ],
+              "suggestions": [
+                "为 array-name 相关节点补充语言限定，如“以C/C++为例”，或将表述改为语言无关的“许多低级语言中数组标识符给出首元素地址”，避免与 scope 中不涉及具体语言语法的边界冲突。",
+                "将 o1-abstraction 示例改为“访问 a[0] 与 a[n-1] 操作次数相同”，或注明“假设数组长度大于 9999”，避免与索引范围节点冲突。",
+                "dynamic-size 节点可补充“均摊O(1)”及“实时性敏感/无法预估大幅扩容”等限定，以更准确区分单次扩容与整体适用性。"
+              ]
+            }
+          },
+          {
+            "version": 2,
+            "content_sha256": "56d63ec77f298a1056eb5c83a2985826c4190d944262b873130fa5e1be370815",
+            "decision": "revise",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "根节点主题为“数组随机访问”，三个一级分支分别覆盖内存布局、地址计算和适用条件，符合用户明确要求；受众为大学初学者，语言为中文，使用通用数组与地址计算知识，无需检索来源。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": false,
+                  "reason": "多数知识断言正确，但“适用条件”分支下 dynamic-size 节点摘要断言“动态数组尾插扩容的均摊复杂度为 O(1)”未限定扩容策略。该结论仅在按因子扩容（如倍增）的动态数组实现中成立；若采用固定增量扩容，单次扩容为 O(n)，尾插均摊仍为 O(n)。这违反了资源合同关于算法复杂度须说明实现与计数方式的要求。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "导图中的示例关系已逐一核验：int arr[5] 从地址 A 到 A+19 的 20 字节区间正确；int a[10] 中 a 等于 &a[0] 在 C 语言语境下正确；首地址 1000、int 4 字节时 a[3] 地址为 1012 正确；int a[5] 的有效索引 0–4、a[5] 越界正确；长度为 n 的数组头部插入移动 n 个元素正确；C++ vector 扩容整体拷贝是动态数组扩容的恰当示例。这些示例与所属父节点关系准确。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "根节点下三个一级分支按“布局—计算—适用条件”同一认知维度组织，层级清晰，同层粒度相近；父子关系准确，无循环和虚假因果；内存布局与地址公式中的首地址虽有交叉，但分别作为布局基础和计算输入，不构成同义重复。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "本材料基于通用知识，用户说明无需检索，内容未引用具体来源；因此来源核验不适用，无来源错误。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "内容完整覆盖要求的三个分支：抽象连续布局、物理页不连续、数组名/首地址、地址公式及参数、0 基约定、O(1) 与真实耗时区别、适用前提、索引范围边界，以及不适用场景（频繁插入删除和大小动态变化）。边界案例和适用范围均有体现。"
+                }
+              ],
+              "blocking_issues": [
+                "节点 dynamic-size 的摘要“动态数组尾插扩容的均摊复杂度为 O(1)”缺少扩容策略限定。应改为“采用按因子扩容（如倍增）的动态数组，尾插扩容均摊为 O(1)”，或删去均摊结论；否则对固定增量扩容的动态数组不成立。"
+              ],
+              "suggestions": [
+                "“数组名与首地址”分支的父摘要可显式标注为 C 语言语境，如“在 C 语言中，数组名在表达式中代表首元素地址”，避免对 Java、Python 等语言学习者造成泛化误导。",
+                "“地址公式”节点可补充“元素大小以字节为单位”，以帮助初学者区分元素个数与字节偏移。"
+              ]
+            }
+          },
+          {
+            "version": 3,
+            "content_sha256": "eeb42989f00c67d57f206d9ae4c0aa4086e15a88270c2b6141e979aa0fb107e7",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "内容以 root 下 memory-layout、address-calculation、applicability 三支准确覆盖用户要求的“内存布局、地址计算和适用条件”；受众定位为大学初学者，表述基于通用知识，未引入需要检索的外部内容；标题与节点 summary 均围绕一维数组随机访问。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "逐节点核验：example-layout 的 int arr[5] 5×4=20 字节、地址空间 A 到 A+19 正确；formula-example 1000+3×4=1012 正确；zero-based 从 1 计数改 (i-1) 正确；o1-abstraction 与 o1-not-real-time 区分操作次数与实际耗时正确；index-range 0 到长度-1 与越界定性正确；frequent-insert-delete 中间/头部移动后续元素 O(n)、tail-operation 尾部 O(1) 正确；dynamic-size 明确按因子扩容均摊 O(1)、固定增量均摊 O(n)，未把某一实现复杂度泛化为所有动态数组，符合合同对复杂度的限定要求。全部节点的前提（抽象连续、固定元素大小、有效索引、0基索引）均与断言匹配。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "作为导图，已核验示例与父子关系：int arr[5] 20 字节支持连续布局；a 等于 &a[0] 支持数组名与首地址；首地址1000、a[3]=1012 支持地址公式；a[0] 与 a[9999] 支持 O(1) 抽象结论；int a[5] 中 a[5] 越界支持索引范围；头部插入移动 n 个元素与 C++ vector 扩容示例支持不适用场景。各示例的数值和对象范围与父节点一致，没有误导性关系。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "三支结构符合 requirements 且按同一维度（布局/计算/适用性）划分；memory-layout 下连续存储与数组名、address-calculation 下公式与 O(1)、applicability 下前提与不适用场景父子关系准确，同层粒度大体一致；未发现循环或虚假因果。dynamic-size 节点 summary 信息密度略高但不构成结构错误，可作建议优化。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "资源未引用任何外部证据或检索来源；内容为数组随机访问的通用知识，符合 specification.source_policy 的 allow_rag/allow_web 和通用知识要求，无需来源核验。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "学习目标 0-4 分别由 memory-layout、address-formula/array-name、formula-example、o1-property/requirements、index-range/frequent-insert-delete/dynamic-size 覆盖；未超出 scope，未讨论多维数组、缓存具体细节或语言语法教学；limitations 与内容不矛盾。必须覆盖的三个分支均有对应节点。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "可将 applicability.not-suitable.dynamic-size 的摘要拆分为“按因子扩容均摊 O(1)”和“固定增量扩容均摊 O(n)”两个子节点，以降低初学者阅读密度并保持节点粒度一致。",
+                "建议将 memory-layout 摘要中“数组名代表首地址”微调为“数组名在表达式中通常退化为首元素地址”，与子节点的例外说明更一致。",
+                "o1-property 提到“相对链表的核心优势”，可补充一句“链表按下标访问需遍历为 O(n)”，但需保持摘要简洁。"
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "可将 applicability.not-suitable.dynamic-size 的摘要拆分为“按因子扩容均摊 O(1)”和“固定增量扩容均摊 O(n)”两个子节点，以降低初学者阅读密度并保持节点粒度一致。",
+          "建议将 memory-layout 摘要中“数组名代表首地址”微调为“数组名在表达式中通常退化为首元素地址”，与子节点的例外说明更一致。",
+          "o1-property 提到“相对链表的核心优势”，可补充一句“链表按下标访问需遍历为 O(n)”，但需保持摘要简洁。"
+        ]
+      }
+    },
+    "source": {
+      "selected_doc_ids": [],
+      "rag_index_keys": []
+    },
+    "schema_version": 2,
+    "version": 1,
+    "material_type": "graph",
+    "material_id": "graph-9dc5e6715378d892",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "owner_user_id": "resource-e2e-admin",
+    "created_by": "resource-e2e-admin",
+    "visibility": "private",
+    "source_job_id": "job_c0e727a9eddd4908",
+    "config_snapshot_id": "cfg_ace72c1bf4d61abb",
+    "source_snapshot": {
+      "mode": "none",
+      "requested_document_ids": [],
+      "documents": [],
+      "resolved_at": "2026-09-09T04:24:42.115499+00:00"
+    },
+    "config_snapshot": {
+      "allow_rag": true,
+      "audience": "大学初学者",
+      "classroom_options": {},
+      "confirmed_outline": "",
+      "entrypoint": "agent",
+      "focus": "面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支；资料使用通用知识即可，无需检索。",
+      "harness_approval_request_id": "b41abbc46430463b920ae07d147f76c6",
+      "harness_chapters": [],
+      "harness_conversation_id": "resource-e2e-graph-2ce4293e",
+      "harness_evidence_ids": [],
+      "harness_execution_context": {
+        "decision": {
+          "interpreted_by": "model",
+          "outline_id": "direct_org_6b1eec7f49aa44feb38f57c6d80ed621",
+          "request_id": "b41abbc46430463b920ae07d147f76c6",
+          "revision": 1,
+          "user_message": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。"
+        },
+        "stage": "write_and_review_graph",
+        "working_memory": {}
+      },
+      "harness_interaction_mode": "direct",
+      "harness_organization": {
+        "audience": "大学初学者",
+        "evidence_ids": [],
+        "limitations": [
+          "本材料基于抽象内存模型，不涉及具体CPU缓存、页表等硬件细节。",
+          "元素大小假设为常见值（int 4字节等），实际大小依赖平台与编译器，教学中需明确假设。",
+          "不讨论多维数组的地址计算（行优先/列优先）。",
+          "不涉及指针算术的复杂语义（如指向数组的指针、多维指针）。",
+          "未覆盖动态数组的扩容策略细节（如增长因子）。"
+        ],
+        "model_review": {
+          "checks": [
+            {
+              "claim": "前提适用性：材料明确限定为一维数组抽象内存模型，不涉及多维数组、动态数组实现细节、缓存优化或具体语言语法，与resource_contract的范围一致。",
+              "passed": true,
+              "reason": "scope和limitations均明确声明了这些边界，且units内容未超出该范围。"
+            },
+            {
+              "claim": "内部推理一致性：地址计算公式、O(1)特性、适用条件等各单元之间逻辑一致，无矛盾。",
+              "passed": true,
+              "reason": "公式单元给出首地址+索引×元素大小，O(1)单元基于该公式推导，适用条件单元强调连续存储和固定大小元素，推理链条一致。"
+            },
+            {
+              "claim": "具体例子正确性：地址计算示例数值正确，数组名示例符合C语言语义，越界示例正确。",
+              "passed": true,
+              "reason": "首地址1000，int 4字节，a[3]地址=1000+3×4=1012，计算正确；数组名a等于&a[0]在C语言中正确；int a[5]有效索引0-4，a[5]越界正确。"
+            },
+            {
+              "claim": "边界与学习目标覆盖：所有学习目标均有对应单元覆盖，且边界案例（越界、抽象连续与物理连续区别）已提供。",
+              "passed": true,
+              "reason": "目标0由单元1覆盖，目标1由单元2和3覆盖，目标2由单元3覆盖，目标3由单元4和5覆盖，目标4由单元6、7、8覆盖；越界和物理页不连续等边界案例已明确说明。"
+            },
+            {
+              "claim": "来源示例前提未被错误泛化：数组名退化、O(1)特性、动态数组扩容等均有限定条件，未泛化为所有环境。",
+              "passed": true,
+              "reason": "数组名单元明确说明sizeof等上下文除外；O(1)单元强调是抽象模型操作次数，不保证实际耗时恒定；动态数组单元说明扩容可能整体拷贝，且limitations声明不涉及具体硬件细节。"
+            }
+          ],
+          "issues": [],
+          "passed": true
+        },
+        "objectives": [
+          "描述数组在内存中连续存储的抽象布局",
+          "解释数组元素地址计算公式中各参数的含义",
+          "计算给定索引元素的地址",
+          "列举数组随机访问的适用条件",
+          "识别数组随机访问不适用的场景"
+        ],
+        "organization_id": "org_6b1eec7f49aa44feb38f57c6d80ed621",
+        "prerequisites": [
+          "变量与基本数据类型概念",
+          "内存以字节为单位的基本认识",
+          "索引从0开始的基本约定"
+        ],
+        "requirements": "面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支；资料使用通用知识即可，无需检索。",
+        "resource_type": "graph",
+        "scope": "面向大学初学者的数组随机访问思维导图知识准备，覆盖内存布局、地址计算和适用条件三个分支。仅涉及一维数组的抽象内存模型与地址计算，不涉及多维数组、动态数组实现细节、缓存优化或具体编程语言语法。",
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "scope_id": null,
+          "scope_type": "course",
+          "selected_doc_ids": []
+        },
+        "subject": "数组随机访问",
+        "units": [
+          {
+            "check": "能否解释为什么抽象连续地址不要求物理页连续？",
+            "evidence_ids": [],
+            "example": "int arr[5] 在抽象内存中占据从地址A到A+19的连续20字节（假设int为4字节）。",
+            "explanation": "数组在抽象内存模型中占据一段连续的地址空间，元素按索引顺序依次存放。连续意味着相邻索引的元素地址相邻，这是随机访问的基础。注意：这里的连续是抽象地址层面的连续，不要求底层物理内存页连续。",
+            "misconception": "抽象地址连续不等于物理内存连续。操作系统通过虚拟内存机制可能将页面映射到不连续的物理页。",
+            "objective_indices": [
+              0
+            ],
+            "title": "数组的连续内存布局"
+          },
+          {
+            "check": "数组名与指向首元素的指针有何区别？",
+            "evidence_ids": [],
+            "example": "int a[10]; 则 a 的值等于 &a[0]。",
+            "explanation": "数组名在表达式中通常代表首元素地址（即索引0的地址）。首地址是地址计算的基准点。在C语言中，数组名在多数表达式中退化为指向首元素的指针，但sizeof等少数上下文除外。",
+            "misconception": "数组名不是指针变量，它没有独立的存储空间，不能进行赋值操作。",
+            "objective_indices": [
+              1
+            ],
+            "title": "数组名与首地址"
+          },
+          {
+            "check": "给定首地址2000，double占8字节，计算a[5]的地址。",
+            "evidence_ids": [],
+            "example": "若首地址为1000，int占4字节，则元素a[3]的地址 = 1000 + 3×4 = 1012。",
+            "explanation": "一维数组元素地址公式为：元素i的地址 = 首地址 + i × 元素大小。其中i为索引（从0开始），元素大小由类型决定（如int通常4字节，char为1字节）。该公式是随机访问的理论基础，允许O(1)时间定位任意元素。",
+            "misconception": "索引从1开始计算时公式需调整为 首地址 + (i-1)×元素大小；混淆0基与1基会导致地址计算错误。",
+            "objective_indices": [
+              1,
+              2
+            ],
+            "title": "地址计算公式"
+          },
+          {
+            "check": "为什么说O(1)是操作次数层面的结论而非实际耗时保证？",
+            "evidence_ids": [],
+            "example": "访问a[0]与访问a[9999]在抽象模型中操作次数相同。",
+            "explanation": "随机访问指通过索引直接计算地址并访问，所需操作次数与数组长度无关，即时间复杂度为O(1)。这是数组相对于链表的核心优势。注意：O(1)是抽象模型中的操作次数，不保证真实系统耗时恒定，缓存、内存带宽等因素会影响实际耗时。",
+            "misconception": "O(1)不意味着实际耗时绝对相等。缓存未命中、页错误等会使不同索引的访问耗时差异显著。",
+            "objective_indices": [
+              3
+            ],
+            "title": "随机访问的O(1)特性"
+          },
+          {
+            "check": "为什么元素大小必须固定才能用乘法计算地址？",
+            "evidence_ids": [],
+            "example": "int数组满足条件；而存储字符串的char*数组，元素本身是指针（大小固定），但指向的字符串长度可变，这不影响指针数组本身的随机访问。",
+            "explanation": "数组随机访问的前提是：①元素在内存中连续存储；②每个元素大小固定且已知。满足这两个条件才能通过乘法与加法直接计算地址。若元素大小不一（如指针数组指向变长对象），则需间接访问。",
+            "misconception": "元素大小固定指数组存储单元大小固定，不要求元素指向的内容大小固定。",
+            "objective_indices": [
+              3
+            ],
+            "title": "适用条件：连续存储与固定大小元素"
+          },
+          {
+            "check": "访问a[-1]或a[长度]属于什么行为？",
+            "evidence_ids": [],
+            "example": "int a[5]; 有效索引为0-4，a[5]越界。",
+            "explanation": "随机访问要求索引在有效范围内（0到长度-1）。越界访问是未定义行为（C/C++）或抛出异常（Java等），不属于随机访问的正常适用场景。随机访问本身不检查边界，安全性由程序员或语言运行时保证。",
+            "misconception": "数组不自动检查边界不等于越界访问是合法的随机访问；越界是错误，不是随机访问的特性。",
+            "objective_indices": [
+              3,
+              4
+            ],
+            "title": "适用条件：索引范围与边界"
+          },
+          {
+            "check": "在数组头部频繁插入的场景，数组是否合适？为什么？",
+            "evidence_ids": [],
+            "example": "在长度为n的数组头部插入元素需移动n个元素。",
+            "explanation": "数组在中间插入或删除元素需要移动后续所有元素，时间复杂度为O(n)。若操作以插入删除为主，链表等结构更合适。随机访问优势仅在按下标直接访问时体现。",
+            "misconception": "数组尾部插入删除是O(1)（不考虑扩容），但中间或头部操作是O(n)，不能一概而论。",
+            "objective_indices": [
+              4
+            ],
+            "title": "不适用场景：频繁插入删除"
+          },
+          {
+            "check": "动态数组扩容时发生了什么？为什么不是原地操作？",
+            "evidence_ids": [],
+            "example": "C++ vector在容量不足时重新分配并拷贝所有元素。",
+            "explanation": "静态数组长度固定，无法动态增长。动态数组（如C++ vector）虽支持扩容，但扩容时可能涉及整体拷贝到新内存块，不是原地操作。若数据规模频繁大幅变化且无法预估，需考虑其他结构。",
+            "misconception": "动态数组的扩容是均摊O(1)，但单次扩容可能开销大，实时性要求高的场景需注意。",
+            "objective_indices": [
+              4
+            ],
+            "title": "不适用场景：大小动态变化"
+          }
+        ]
+      },
+      "harness_outline_id": "direct_org_6b1eec7f49aa44feb38f57c6d80ed621",
+      "harness_outline_revision": 1,
+      "harness_review_required": true,
+      "length_hint": "面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支；资料使用通用知识即可，无需检索。",
+      "research_context": "",
+      "research_sources": [],
+      "resource_type": "graph",
+      "subject": "数组随机访问",
+      "title": "数组随机访问"
+    },
+    "status": "ready",
+    "created_at": "2026-09-09T04:34:12.175184",
+    "updated_at": "2026-09-09T04:34:12.175184",
+    "is_pinned": false,
+    "pinned_at": null,
+    "content_hash": "2bdb354c702c83940ee3c22df959a9762e5684a4834a4939d146bed17046c839",
+    "artifact_paths": []
+  },
+  "passed": true,
+  "browser_preview": true,
+  "graph_interaction_verified": true,
+  "export_content_verified": true,
+  "accepted_by_manual_audit": true
+}

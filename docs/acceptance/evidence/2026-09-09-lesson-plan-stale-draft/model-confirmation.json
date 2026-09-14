@@ -1,0 +1,25 @@
+[
+  {
+    "case": "confirm_lesson_with_old_report_draft",
+    "question": "可以",
+    "previous_edit_request": "把报告改成教案",
+    "status": "new_resource",
+    "intent": {
+      "resource_type": "lesson_plan",
+      "subject": "数组的实现"
+    },
+    "passed": true,
+    "seconds": 4.2,
+    "message": ""
+  },
+  {
+    "case": "explicit_save_old_draft",
+    "question": "先保存右侧这份旧修改稿，教案方案暂时不执行",
+    "previous_edit_request": "把报告改成教案",
+    "status": "completed",
+    "intent": null,
+    "passed": true,
+    "seconds": 9.6,
+    "message": "已将修改稿保存为新文档《数组报告（修改稿）》，原文档已保留。"
+  }
+]

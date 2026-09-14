@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from app.chat.application.knowledge_context import ResolvedWorkspaceContext
+from app.chat.domain.action_hints import ActionHint
 
 from .artifact_reference import ArtifactReferencePayload, ArtifactDraftAction
 from .capability_policy import CapabilityPolicy
@@ -67,10 +68,15 @@ class ChatRequestV2(BaseModel):
     artifact_id: str | None = None
     artifact_draft_action: ArtifactDraftAction | None = None
     artifact_reference: ArtifactReferencePayload | None = None
+    interaction_state: dict | None = None
+    resource_source_context: dict | None = None
     conversation_reference: ConversationReferencePayload | None = None
-    action_hint: str | None = None
+    action_hint: ActionHint | None = None
+    entry_mode: Literal["conversation", "generation_factory"] = "conversation"
+    # Internal reservation created when a generation-factory request is
+    # admitted. It is never accepted from the public request payload.
+    factory_job_id: str | None = None
     input_images: list[ChatInputImagePayload] = Field(default_factory=list)
     input_videos: list[ChatInputVideoPayload] = Field(default_factory=list)
     workspace_context: ResolvedWorkspaceContext | None = None
     capability: CapabilityPolicy = Field(default_factory=CapabilityPolicy)
-

@@ -1476,7 +1476,19 @@ export function getModel(config: ModelConfig): ModelWithInfo {
               }
             }
           }
-          const response = await globalThis.fetch(url, init);
+          let response = await globalThis.fetch(url, init);
+          if (
+            providerId === 'deepseek' &&
+            response.status === 402 &&
+            config.backupApiKey &&
+            config.backupApiKey !== effectiveApiKey
+          ) {
+            await response.body?.cancel().catch(() => undefined);
+            const headers = new Headers(init?.headers);
+            headers.set('Authorization', `Bearer ${config.backupApiKey}`);
+            log.warn('[deepseek] Primary key returned HTTP 402; retrying with backup key');
+            response = await globalThis.fetch(url, { ...init, headers });
+          }
 
           // Recover reasoning that @ai-sdk/openai's chat schema drops: rewrite
           // streamed `reasoning_content` deltas into an inline <think> block

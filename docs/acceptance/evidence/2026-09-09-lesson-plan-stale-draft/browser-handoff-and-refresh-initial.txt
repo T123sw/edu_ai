@@ -1,0 +1,220 @@
+[WebServer] (node:1727222) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1727256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 5 workers
+
+(node:1727350) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1727352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1727354) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1727351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1727353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [compact1280] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.6s)
+  ✓   5 [desktop1366] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.6s)
+  ✓   3 [desktop1440] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.7s)
+  ✓   4 [compact1024] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.8s)
+  ✓   2 [desktop1920] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (9.2s)
+  ✘   6 [compact1280] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (6.1s)
+  ✘   9 [compact1024] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (6.0s)
+  ✘   8 [desktop1440] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (6.2s)
+  ✘  10 [desktop1920] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (6.5s)
+  ✘   7 [desktop1366] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (11.1s)
+
+
+  1) [desktop1366] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '数组的实现（修改稿） 报告 · 已完成', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('button', { name: '数组的实现（修改稿） 报告 · 已完成', exact: true })
+
+
+      79 |   saved = true;
+      80 |   await page.getByRole('button', { name: '刷新最近生成资源' }).click();
+    > 81 |   await expect(page.getByRole('button', { name: '数组的实现（修改稿） 报告 · 已完成', exact: true })).toBeVisible();
+         |                                                                                        ^
+      82 | });
+      83 |
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:81:88
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop1440] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '刷新最近生成资源' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('button', { name: '刷新最近生成资源' })
+
+
+      75 |   ] : [] }));
+      76 |   await page.goto('/#ai?course_id=course-physics');
+    > 77 |   await expect(page.getByRole('button', { name: '刷新最近生成资源' })).toBeVisible();
+         |                                                                ^
+      78 |   await expect(page.getByText('暂无生成记录', { exact: true })).toBeVisible();
+      79 |   saved = true;
+      80 |   await page.getByRole('button', { name: '刷新最近生成资源' }).click();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:77:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1440/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1440/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop1920] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '刷新最近生成资源' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('button', { name: '刷新最近生成资源' })
+
+
+      75 |   ] : [] }));
+      76 |   await page.goto('/#ai?course_id=course-physics');
+    > 77 |   await expect(page.getByRole('button', { name: '刷新最近生成资源' })).toBeVisible();
+         |                                                                ^
+      78 |   await expect(page.getByText('暂无生成记录', { exact: true })).toBeVisible();
+      79 |   saved = true;
+      80 |   await page.getByRole('button', { name: '刷新最近生成资源' }).click();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:77:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1920/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1920/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1920/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-desktop1920/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [compact1280] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '刷新最近生成资源' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('button', { name: '刷新最近生成资源' })
+
+
+      75 |   ] : [] }));
+      76 |   await page.goto('/#ai?course_id=course-physics');
+    > 77 |   await expect(page.getByRole('button', { name: '刷新最近生成资源' })).toBeVisible();
+         |                                                                ^
+      78 |   await expect(page.getByText('暂无生成记录', { exact: true })).toBeVisible();
+      79 |   saved = true;
+      80 |   await page.getByRole('button', { name: '刷新最近生成资源' }).click();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:77:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1280/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1280/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1280/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1280/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [compact1024] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '刷新最近生成资源' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('button', { name: '刷新最近生成资源' })
+
+
+      75 |   ] : [] }));
+      76 |   await page.goto('/#ai?course_id=course-physics');
+    > 77 |   await expect(page.getByRole('button', { name: '刷新最近生成资源' })).toBeVisible();
+         |                                                                ^
+      78 |   await expect(page.getByText('暂无生成记录', { exact: true })).toBeVisible();
+      79 |   saved = true;
+      80 |   await page.getByRole('button', { name: '刷新最近生成资源' }).click();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:77:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1024/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1024/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-recent-r-27182-and-shows-their-actual-type-compact1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    [desktop1366] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+    [desktop1440] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+    [desktop1920] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+    [compact1280] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+    [compact1024] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type 
+  5 passed (24.4s)

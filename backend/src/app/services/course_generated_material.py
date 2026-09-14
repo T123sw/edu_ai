@@ -9,6 +9,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
+from app.services.course_knowledge_artifacts import (
+    artifact_generation_instructions,
+    validate_requested_artifacts,
+)
+
 
 MIN_GENERATED_MATERIAL_LENGTH = 800
 MIN_REVIEW_SCORE = 80
@@ -82,6 +87,9 @@ def generate_reviewed_supplement(
     leaf_title: str,
     sequence: int,
     call_model: Callable[[str], str],
+    topic_id: str = "",
+    deliverables: list[dict[str, Any]] | None = None,
+    additional_requirements: str = "",
 ) -> ReviewedSupplement:
     title = f"{leaf_title}学习材料（AI 补充 {sequence}）"
     last_issues: tuple[str, ...] = ()
@@ -91,7 +99,17 @@ def generate_reviewed_supplement(
         2: "分步骤案例与边界情况分析",
         3: "常见错误辨析、练习与参考解题思路",
     }.get(sequence, "综合学习资料")
-    for attempt in range(1, 3):
+    requested_deliverables = [dict(item) for item in deliverables or []]
+    artifact_instructions = artifact_generation_instructions(requested_deliverables)
+    domain_guardrails = ""
+    if "信号量" in leaf_title or re.search(r"\bsemaphore\b", leaf_title, re.I):
+        domain_guardrails = (
+            "\n信号量示例专项约束：若使用 POSIX C API，只能包含标准头文件 <semaphore.h>，"
+            "并给出可编译命令；互斥锁式初值 1 不能证明固定执行顺序，若案例声称 A 必须先于 B，"
+            "应使用初值 0 的事件信号量或两个信号量建立 happens-before，并逐步核对 P/V 后的值、"
+            "阻塞队列与唤醒过程。"
+        )
+    for attempt in range(1, 4):
         revision_feedback = (
             "\n上一次审查指出以下问题，本次必须逐条修正，不能只是改写措辞：\n- "
             + "\n- ".join(last_issues)
@@ -110,18 +128,28 @@ def generate_reviewed_supplement(
 4. 不得编造网址、参考文献、引用、作者或许可证；不要声称内容来自某个外部来源。
 5. 只输出 Markdown 正文，不要输出写作说明。
 6. 每个提到的语法或概念都必须解释准确；提交前自行验证示例、分支边界、循环终止条件和练习要求不存在冲突。
+7. 不要生成目录或重复章节标题；每个指定的结构化教学产物标题只能在正文中出现一次。
+{('8. 教师还要求以下结构化教学产物，标题和字段必须严格遵守：' + chr(10) + artifact_instructions) if artifact_instructions else ''}
+{('9. 教师补充要求：' + additional_requirements) if additional_requirements else ''}
+{domain_guardrails}
 
 这是第 {attempt} 次生成；资料序号为 {sequence}。
 {revision_feedback}
 """.strip()
         content = _clean_model_text(_call_model_with_retry(call_model, generation_prompt))
         structural = tuple(_structural_issues(content, leaf_title))
-        if structural:
-            last_issues = structural
+        artifacts, artifact_issues = validate_requested_artifacts(
+            content,
+            topic_id=topic_id,
+            deliverables=requested_deliverables,
+        )
+        if structural or artifact_issues:
+            last_issues = (*structural, *artifact_issues)
             continue
         review_prompt = f"""
 你是独立的课程资料质量审查员，不是原作者。请审查下面这份面向“{leaf_title}”的材料。
 按准确性 35 分、知识点覆盖 25 分、教学结构 20 分、示例与练习 20 分评分。若存在事实错误、偏题、虚构引用或不可用示例，approved 必须为 false。
+教师要求的结构化教学产物如下：{artifact_instructions or '无额外交付物'}。数量、答案、解析、评分点或验证步骤缺失时 approved 必须为 false。
 只返回 JSON：{{"score": 0-100, "approved": true/false, "issues": ["问题"]}}。
 
 材料：
@@ -144,6 +172,7 @@ def generate_reviewed_supplement(
                     "review_threshold": MIN_REVIEW_SCORE,
                     "review_method": "independent_model_review",
                     "review_suggestions": list(review_issues),
+                    "learning_artifacts": artifacts,
                 },
             )
     raise ValueError(

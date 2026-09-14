@@ -1,0 +1,161 @@
+
+Running 5 tests using 5 workers
+
+(node:1689406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1689405) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1689403) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1689404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1689402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [compact1280] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.3s)
+  ✘  4 [compact1024] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.4s)
+  ✘  5 [desktop1440] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.5s)
+  ✘  1 [desktop1366] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.5s)
+  ✘  2 [desktop1920] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.8s)
+
+
+  1) [desktop1366] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+
+    TypeError: Cannot read properties of undefined (reading 'artifact_id')
+
+      50 |   await input.fill('帮我生成数组的实现的教案'); await input.press('Enter');
+      51 |   await expect(page.getByRole('heading', { name: '数组教案方案', exact: true })).toBeVisible({ timeout: 15000 });
+    > 52 |   expect(requests[0].artifact_reference.artifact_id).toBe('revision-report');
+         |                                         ^
+      53 |   await input.fill('按这个方案继续'); await input.press('Enter');
+      54 |   await expect.poll(() => requests.length).toBe(2);
+      55 |   expect(requests[1].artifact_reference).toBeFalsy();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:52:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop1440] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+
+    TypeError: Cannot read properties of undefined (reading 'artifact_id')
+
+      50 |   await input.fill('帮我生成数组的实现的教案'); await input.press('Enter');
+      51 |   await expect(page.getByRole('heading', { name: '数组教案方案', exact: true })).toBeVisible({ timeout: 15000 });
+    > 52 |   expect(requests[0].artifact_reference.artifact_id).toBe('revision-report');
+         |                                         ^
+      53 |   await input.fill('按这个方案继续'); await input.press('Enter');
+      54 |   await expect.poll(() => requests.length).toBe(2);
+      55 |   expect(requests[1].artifact_reference).toBeFalsy();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:52:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1440/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1440/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop1920] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+
+    TypeError: Cannot read properties of undefined (reading 'artifact_id')
+
+      50 |   await input.fill('帮我生成数组的实现的教案'); await input.press('Enter');
+      51 |   await expect(page.getByRole('heading', { name: '数组教案方案', exact: true })).toBeVisible({ timeout: 15000 });
+    > 52 |   expect(requests[0].artifact_reference.artifact_id).toBe('revision-report');
+         |                                         ^
+      53 |   await input.fill('按这个方案继续'); await input.press('Enter');
+      54 |   await expect.poll(() => requests.length).toBe(2);
+      55 |   expect(requests[1].artifact_reference).toBeFalsy();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:52:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1920/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1920/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1920/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-desktop1920/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [compact1280] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+
+    TypeError: Cannot read properties of undefined (reading 'artifact_id')
+
+      50 |   await input.fill('帮我生成数组的实现的教案'); await input.press('Enter');
+      51 |   await expect(page.getByRole('heading', { name: '数组教案方案', exact: true })).toBeVisible({ timeout: 15000 });
+    > 52 |   expect(requests[0].artifact_reference.artifact_id).toBe('revision-report');
+         |                                         ^
+      53 |   await input.fill('按这个方案继续'); await input.press('Enter');
+      54 |   await expect.poll(() => requests.length).toBe(2);
+      55 |   expect(requests[1].artifact_reference).toBeFalsy();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:52:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-compact1280/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-compact1280/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-compact1280/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-compact1280/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [compact1024] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+
+    TypeError: Cannot read properties of undefined (reading 'artifact_id')
+
+      50 |   await input.fill('帮我生成数组的实现的教案'); await input.press('Enter');
+      51 |   await expect(page.getByRole('heading', { name: '数组教案方案', exact: true })).toBeVisible({ timeout: 15000 });
+    > 52 |   expect(requests[0].artifact_reference.artifact_id).toBe('revision-report');
+         |                                         ^
+      53 |   await input.fill('按这个方案继续'); await input.press('Enter');
+      54 |   await expect.poll(() => requests.length).toBe(2);
+      55 |   expect(requests[1].artifact_reference).toBeFalsy();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision.spec.ts:52:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-compact1024/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-compact1024/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-compact1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-new-less-91163-ference-before-confirmation-compact1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    [desktop1366] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+    [desktop1440] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+    [desktop1920] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+    [compact1280] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 
+    [compact1024] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation 

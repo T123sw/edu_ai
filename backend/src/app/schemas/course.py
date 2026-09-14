@@ -231,6 +231,7 @@ class CourseKnowledgeBuildConfig(BaseModel):
     target_points_per_module: int = Field(default=4, ge=2, le=20)
     target_materials_per_leaf: int = Field(default=3, ge=1, le=10)
     minimum_web_materials_per_leaf: int = Field(default=1, ge=0, le=10)
+    minimum_authoritative_sources_per_leaf: int = Field(default=1, ge=0, le=10)
     maximum_ai_materials_per_leaf: int = Field(default=1, ge=0, le=10)
     max_search_results_per_leaf: int = Field(default=8, ge=1, le=20)
     prefer_complete_textbooks: bool = True
@@ -263,6 +264,10 @@ class CourseKnowledgeBuildConfig(BaseModel):
         if self.maximum_ai_materials_per_leaf > self.target_materials_per_leaf:
             raise ValueError(
                 "maximum_ai_materials_per_leaf cannot exceed target_materials_per_leaf"
+            )
+        if self.minimum_authoritative_sources_per_leaf > self.target_materials_per_leaf:
+            raise ValueError(
+                "minimum_authoritative_sources_per_leaf cannot exceed target_materials_per_leaf"
             )
         if not self.ai_supplement_enabled:
             self.maximum_ai_materials_per_leaf = 0
@@ -342,9 +347,23 @@ class GenerateClassroomRequest(BaseModel):
     )
     enable_tts: bool = Field(
         default=True,
-        description="是否生成真人配音（D1，SPEC-04 §5）。sidecar 未配置 TTS provider 时会静默跳过，自动退回前端浏览器 TTS/静音等待兜底",
+        description="是否由 Edu_AI 通过运行时 TTS 配置生成真人配音；失败时退回前端浏览器 TTS/静音等待兜底",
     )
-    voice: Literal["", "alloy", "nova", "shimmer"] = "alloy"
+    voice: Literal[
+        "",
+        "alloy",
+        "nova",
+        "shimmer",
+        "vivian",
+        "serena",
+        "uncle_fu",
+        "dylan",
+        "eric",
+        "ryan",
+        "aiden",
+        "ono_anna",
+        "sohee",
+    ] = "vivian"
     include_visuals: bool = True
     idempotency_key: Optional[str] = Field(default=None, min_length=1, max_length=160)
 

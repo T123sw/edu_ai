@@ -3,11 +3,19 @@ import type { KnowledgeBaseDocument } from "../../stitch/api/types";
 export type GenerationSourceMode = "course_auto" | "selected_documents" | "none";
 export type GenerationSourceSelection = { mode: GenerationSourceMode; selectedDocumentIds: string[] };
 
-export function initialGenerationSource(selectedDocumentIds: string[]): GenerationSourceSelection {
+export function generationSourceSummary(source: GenerationSourceSelection): string {
+  if (source.mode === "selected_documents") return `已选择 ${source.selectedDocumentIds.length} 份文档`;
+  if (source.mode === "course_auto") return "自动检索课程资料";
+  return "不使用知识库";
+}
+
+export function initialGenerationSource(selectedDocumentIds: string[], allowRag = false): GenerationSourceSelection {
   const normalized = [...new Set(selectedDocumentIds.map((id) => id.trim()).filter(Boolean))];
   return normalized.length > 0
     ? { mode: "selected_documents", selectedDocumentIds: normalized }
-    : { mode: "none", selectedDocumentIds: [] };
+    : allowRag
+      ? { mode: "course_auto", selectedDocumentIds: [] }
+      : { mode: "none", selectedDocumentIds: [] };
 }
 
 export function changeSourceMode(selection: GenerationSourceSelection, mode: GenerationSourceMode): GenerationSourceSelection {

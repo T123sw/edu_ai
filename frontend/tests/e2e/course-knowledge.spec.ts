@@ -15,13 +15,65 @@ test("learning resource generation uses a compact progressive-disclosure modal",
   await expect(dialog.getByRole("button", { name: /^光学/ })).toHaveAttribute("aria-expanded", "false");
 
   await dialog.getByRole("checkbox", { name: "力学" }).check();
-  await expect(dialog.getByText("已选择 1 个知识点，将生成 3 项资源")).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "开始生成 3 项资源" })).toBeEnabled();
+  await expect(dialog.getByText("已选择 1 个知识点，涉及 3 个资源槽位")).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "检查 3 个资源槽位" })).toBeEnabled();
   await dialog.getByRole("button", { name: "查看力学详情" }).click();
   await expect(dialog.locator(".standard-resource-card")).toHaveCount(3);
 
   await dialog.getByRole("button", { name: "取消", exact: true }).click();
   await expect(dialog).toHaveCount(0);
+});
+
+test("existing resources are previewed before explicit regeneration and the batch recovers after reload", async ({ teacherPage }) => {
+  await teacherPage.goto("/#knowledge?course_id=course-physics", { waitUntil: "domcontentloaded" });
+  await teacherPage.getByRole("button", { name: "学习资源生成" }).click();
+  let dialog = teacherPage.getByRole("dialog", { name: "学习资源生成" });
+  await dialog.getByRole("button", { name: /^光学/ }).click();
+  await dialog.getByRole("checkbox", { name: "几何光学" }).check();
+
+  await dialog.getByRole("button", { name: "检查 3 个资源槽位" }).click();
+  await expect(dialog.getByText("补齐 2 项")).toBeVisible();
+  await expect(dialog.getByText("保留 1 项")).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "确认生成 2 项资源" })).toBeEnabled();
+
+  await dialog.getByRole("radio", { name: "为全部选中资源生成候选新版" }).check();
+  await dialog.getByRole("button", { name: "检查 3 个资源槽位" }).click();
+  await expect(dialog.getByText("候选新版 1 项")).toBeVisible();
+  await dialog.getByRole("button", { name: "确认生成 3 项资源" }).click();
+  await expect(dialog.getByText("本次生成进度")).toBeVisible();
+  await expect(dialog.getByText("已完成 0/3 项")).toBeVisible();
+
+  await dialog.getByRole("button", { name: "取消", exact: true }).click();
+  await teacherPage.reload({ waitUntil: "domcontentloaded" });
+  await teacherPage.getByRole("button", { name: "学习资源生成" }).click();
+  dialog = teacherPage.getByRole("dialog", { name: "学习资源生成" });
+  await expect(dialog.getByText("本次生成进度")).toBeVisible();
+  await expect(dialog.getByText("已完成 0/3 项")).toBeVisible();
+});
+
+test("review version conflict is shown instead of approving an unseen candidate", async ({ teacherPage }) => {
+  let reviewPayload: Record<string, unknown> | null = null;
+  await teacherPage.route("**/standard-resources/standard-mechanics-guide/review", async (route) => {
+    reviewPayload = route.request().postDataJSON() as Record<string, unknown>;
+    await route.fulfill({
+      status: 409,
+      contentType: "application/json",
+      body: JSON.stringify({ detail: { code: "VERSION_CHANGED", message: "资源已生成新版，请刷新后重新审核" } }),
+    });
+  });
+  await teacherPage.goto("/#knowledge?course_id=course-physics", { waitUntil: "domcontentloaded" });
+  await teacherPage.getByRole("button", { name: "学习资源生成" }).click();
+  const dialog = teacherPage.getByRole("dialog", { name: "学习资源生成" });
+  await dialog.getByRole("button", { name: "查看力学详情" }).click();
+  const guide = dialog.locator(".standard-resource-card").filter({ hasText: "学习指南" });
+  await guide.getByRole("button", { name: "批准发布" }).click();
+
+  await expect(dialog.getByRole("alert")).toContainText("资源已生成新版，请刷新后重新审核");
+  expect(reviewPayload).toMatchObject({
+    decision: "approved",
+    expected_version: 1,
+    expected_content_hash: "hash-standard-mechanics-guide-v1",
+  });
 });
 
 test("course knowledge keeps one document uploader and the resource generation entry", async ({ teacherPage }) => {

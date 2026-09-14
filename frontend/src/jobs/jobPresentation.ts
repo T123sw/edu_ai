@@ -45,7 +45,15 @@ const JOB_ERROR_MESSAGES: Record<string, JobUserMessage> = {
   },
   PROVIDER_UNAVAILABLE: {
     title: "生成服务暂时不可用",
-    detail: "系统会自动重试，也可以稍后再次提交。",
+    detail: "可以在任务中心重试；如果仍然失败，请检查模型服务额度或配置。",
+  },
+  FACTORY_PREPARATION_FAILED: {
+    title: "生成要求准备失败",
+    detail: "原始要求已保留，请返回生成工厂重新提交。",
+  },
+  FACTORY_PREPARATION_TIMEOUT: {
+    title: "生成要求准备超时",
+    detail: "原始要求已保留，请稍后重新提交。",
   },
   UNSUPPORTED_HANDLER_VERSION: {
     title: "任务版本已过期",
@@ -108,6 +116,9 @@ export function presentJobDetail(job: JobRecord): string {
 
   if (job.status === "canceled") return "任务已取消。";
   if (job.status === "cancel_requested") return "正在安全停止任务…";
+  if (job.status === "queued" && job.step === "preparing") {
+    return "Agent 正在整理生成要求，完成后将自动进入生成队列。";
+  }
   if (job.status === "queued") return "任务已提交，正在等待后台处理。";
   if (job.status === "running") return "后台正在处理中，请稍候。";
   return "任务状态已更新。";

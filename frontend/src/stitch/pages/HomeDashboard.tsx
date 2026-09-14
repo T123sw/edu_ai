@@ -4,6 +4,7 @@ import { readResume } from "../resume/resumeRecord";
 import { useEffect, useMemo, useState } from "react";
 
 import { useJobStore } from "../../jobs/jobStore";
+import { useStore } from "../../store/teacher/useStore";
 import { isActiveJob } from "../../jobs/types";
 import {
   backendCourseToSummary,
@@ -15,6 +16,7 @@ import { getLearningOverview } from "../api/learning";
 import type { BackendCourse } from "../api/types";
 import { useAuthSession } from "../authSession";
 import { CourseCreateDialog } from "../course/CourseCreateDialog";
+import { buildNewCourseKnowledgeAgentPrompt } from "../course/courseKnowledgeAgentHandoff";
 import { AppSurface, MaterialIcon, routeHref, routes, useAppShell } from "../shared";
 import { buildTeacherCourseHash } from "../teacherRoutes";
 import { toCourseCardPresentation, type CourseCardFacts } from "./courseCardPresentation";
@@ -43,6 +45,7 @@ export function HomeDashboardPage() {
   const previousVisit = user ? readResume(user) : null;
   const { setSelectedCourse } = useAppShell();
   const jobs = useJobStore((state) => state.jobs);
+  const enqueueCourseMessage = useStore((state) => state.enqueueCourseMessage);
   const [courses, setCourses] = useState<BackendCourse[]>([]);
   const [facts, setFacts] = useState<Record<string, CourseCardFacts>>({});
   const [query, setQuery] = useState("");
@@ -100,12 +103,16 @@ export function HomeDashboardPage() {
     return { ...(facts[courseId] ?? emptyFacts), activeJobCount };
   }
 
-  function courseCreated(course: BackendCourse) {
+  function courseCreated(course: BackendCourse, knowledgeRequirements: string) {
     const courseIndex = courses.length;
     setCourses((current) => [...current, course]);
     setSelectedCourse(backendCourseToSummary(course, courseIndex));
+    enqueueCourseMessage(
+      course.id,
+      buildNewCourseKnowledgeAgentPrompt(course, knowledgeRequirements),
+    );
     setCreateOpen(false);
-    window.location.hash = buildTeacherCourseHash("course-detail", course.id);
+    window.location.hash = buildTeacherCourseHash("ai", course.id);
   }
 
   return (

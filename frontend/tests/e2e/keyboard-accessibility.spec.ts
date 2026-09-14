@@ -1,48 +1,34 @@
 import { expect, test } from "./fixtures/teacherApp";
 import type { Locator, Page, Route } from "playwright/test";
 
-function job(status: "running" | "canceled") {
-  return {
-    schema_version: 1,
-    version: status === "running" ? 1 : 2,
-    edu_job_id: "job-generated-fixture",
-    kind: "report",
-    status,
-    step: status === "running" ? "generating" : "canceled",
-    progress: status === "running" ? 35 : 35,
-    message: status === "running" ? "正在生成报告" : "任务已取消",
-    owner_user_id: "teacher-a",
-    course_id: "course-physics",
-    scope_type: "course",
-    input_summary: { title: "键盘验收报告" },
-    retryable: status === "canceled",
-    cancelable: status === "running",
-    created_at: "2026-08-07T01:00:00+08:00",
-    updated_at: "2026-08-07T01:01:00+08:00",
-  };
-}
-
 async function keyboardActivate(locator: Locator, page: Page, key = "Enter") {
   await locator.focus();
   await expect(locator).toBeFocused();
   await page.keyboard.press(key);
 }
 
-test("teacher completes the core workflow with the keyboard only", async ({ teacherPage }, testInfo) => {
-  let currentJobStatus: "running" | "canceled" = "running";
-  await teacherPage.route("**/api/jobs/job-generated-fixture", (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify(job(currentJobStatus)),
-  }));
-  await teacherPage.route("**/api/chat/v2/report/direct", (route) => route.fulfill({
-    status: 202,
-    contentType: "application/json",
-    body: JSON.stringify(job("running")),
-  }));
-  await teacherPage.route("**/api/jobs/job-generated-fixture/cancel", (route: Route) => {
-    currentJobStatus = "canceled";
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(job("canceled")) });
+async function openFactory(factory: Locator, switcher: Locator) {
+  await expect.poll(async () => {
+    if (await factory.isVisible()) return true;
+    if (await switcher.isVisible()) await switcher.press("Enter", { timeout: 1_000 }).catch(() => undefined);
+    return factory.isVisible();
+  }, { timeout: 20_000 }).toBe(true);
+  await expect(factory).toBeVisible();
+}
+
+test("teacher completes the core workflow with the keyboard only", async ({ teacherPage }) => {
+  let agentRequest: Record<string, unknown> | null = null;
+  await teacherPage.route("**/api/chat/v2/stream", async (route) => {
+    agentRequest = route.request().postDataJSON();
+    const payload = {
+      message: { role: "assistant", content: "已收到生成要求。" },
+      conversation: { conversation_id: "keyboard-agent-conversation" },
+      action: { name: "generate.report" }, artifacts: [], sources: [], trace: { path: "deepseek-harness" },
+    };
+    await route.fulfill({
+      contentType: "text/event-stream; charset=utf-8",
+      body: `data: ${JSON.stringify({ type: "result", payload })}\n\ndata: ${JSON.stringify({ type: "done", payload: {} })}\n\n`,
+    });
   });
 
   await teacherPage.goto("/#home", { waitUntil: "domcontentloaded" });
@@ -64,52 +50,44 @@ test("teacher completes the core workflow with the keyboard only", async ({ teac
   await keyboardActivate(teacherPage.getByRole("link", { name: "大学物理" }), teacherPage);
   await expect(teacherPage).toHaveURL(/course_id=course-physics/u);
 
-  if (testInfo.project.name === "compact1024") {
-    await keyboardActivate(teacherPage.getByRole("button", { name: "打开课程导航" }), teacherPage);
+  const courseNavigationButton = teacherPage.getByRole("button", { name: "打开课程导航" });
+  if (await courseNavigationButton.isVisible()) {
+    await keyboardActivate(courseNavigationButton, teacherPage);
     await keyboardActivate(teacherPage.getByTestId("course-navigation-drawer").getByRole("link", { name: "课程知识" }), teacherPage);
   } else {
     await keyboardActivate(
-      teacherPage.getByRole("navigation", { name: "课程工作区" }).getByRole("link", { name: "课程知识", exact: false }),
+      teacherPage.getByRole("navigation", { name: "课程工作栏" }).getByRole("link", { name: "课程知识", exact: false }),
       teacherPage,
     );
   }
-  await keyboardActivate(teacherPage.getByRole("link", { name: "知识图谱", exact: true }), teacherPage);
-  await expect(teacherPage).toHaveURL(/view=structure/u);
-  await keyboardActivate(teacherPage.getByRole("link", { name: "课程知识库", exact: true }), teacherPage);
-  await expect(teacherPage).toHaveURL(/view=documents/u);
+  await expect(teacherPage).toHaveURL(/#knowledge\?course_id=course-physics/u);
+  await expect(teacherPage.getByRole("heading", { name: "课程知识", exact: true })).toBeVisible();
 
   await teacherPage.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
   await teacherPage.waitForTimeout(500);
   const factory = teacherPage.getByTestId("generation-factory");
-  const factorySwitcher = teacherPage.getByRole("button", { name: "生成工厂", exact: true });
-  if (!(await factory.isVisible()) && await factorySwitcher.isVisible()) await keyboardActivate(factorySwitcher, teacherPage);
-  await expect(factory).toBeVisible();
+  const factorySwitcher = teacherPage.getByRole("button", { name: /^(生成工厂|打开生成工厂)$/ });
+  await openFactory(factory, factorySwitcher);
   await keyboardActivate(teacherPage.locator(".generation-factory__registry").getByRole("button", { name: "教学报告", exact: true }), teacherPage);
-  await teacherPage.getByLabel("报告主题 *").focus();
-  await teacherPage.keyboard.press("Control+A");
+  const brief = teacherPage.getByRole("dialog", { name: "创建教学报告" }).getByRole("textbox", { name: "描述你想生成的内容" });
+  await expect(brief).toBeFocused();
   await teacherPage.keyboard.type("键盘验收报告");
-  await keyboardActivate(teacherPage.getByRole("button", { name: "开始后台生成" }), teacherPage);
-  await keyboardActivate(teacherPage.getByRole("button", { name: /任务中心/ }), teacherPage);
-  const cancel = teacherPage.getByRole("dialog", { name: "任务中心" }).getByRole("button", { name: "取消", exact: true });
-  await expect(cancel).toBeVisible();
-  await keyboardActivate(cancel, teacherPage);
-  await expect.poll(() => currentJobStatus).toBe("canceled");
-  await teacherPage.getByRole("dialog", { name: "任务中心" }).getByLabel("关闭任务中心").click();
+  await keyboardActivate(teacherPage.getByRole("dialog", { name: "创建教学报告" }).getByRole("button", { name: "交给 AI" }), teacherPage);
+  await expect.poll(() => agentRequest).not.toBeNull();
+  expect(agentRequest?.question).toBe("键盘验收报告");
+  expect(agentRequest?.action_hint).toBe("generate.report");
 
-  if (!(await factory.isVisible()) && await factorySwitcher.isVisible()) await keyboardActivate(factorySwitcher, teacherPage);
+  await openFactory(factory, factorySwitcher);
   await keyboardActivate(teacherPage.locator(".generation-factory__registry").getByRole("button", { name: "课堂小游戏", exact: true }), teacherPage);
-  const memoryGame = teacherPage.getByRole("button", { name: "记忆翻牌", exact: false });
-  await keyboardActivate(memoryGame, teacherPage);
-  await expect(memoryGame).toHaveAttribute("aria-pressed", "true");
-  await teacherPage.getByRole("dialog", { name: "配置课堂小游戏" }).getByRole("button", { name: "取消" }).click();
+  const gameDialog = teacherPage.getByRole("dialog", { name: "创建课堂小游戏" });
+  await expect(gameDialog.getByRole("textbox", { name: "描述你想生成的内容" })).toBeFocused();
+  await keyboardActivate(gameDialog.getByRole("button", { name: "取消" }), teacherPage);
 
   await teacherPage.goto("/#resources?course_id=course-physics", { waitUntil: "domcontentloaded" });
-  await keyboardActivate(teacherPage.getByRole("tab", { name: /课程共享/ }), teacherPage);
-  const flashcardResource = teacherPage.getByRole("button", { name: /力学核心概念闪卡/u });
-  await keyboardActivate(flashcardResource, teacherPage);
-  const firstCard = teacherPage.locator(".resource-flashcard-grid button").first();
-  await keyboardActivate(firstCard, teacherPage);
-  await expect(firstCard).toHaveAttribute("aria-pressed", "true");
+  await keyboardActivate(teacherPage.getByRole("tree", { name: "资源目录" }).getByRole("button", { name: /未分类资源/ }), teacherPage);
+  const reportResource = teacherPage.getByRole("button", { name: /牛顿运动定律教学报告/u });
+  await keyboardActivate(reportResource, teacherPage);
+  await expect(teacherPage.getByRole("heading", { name: "牛顿运动定律教学报告" })).toBeVisible();
 
   await teacherPage.goto("/#classroom-player?course_id=course-physics&classroom_id=classroom-mechanics", { waitUntil: "domcontentloaded" });
   const play = teacherPage.getByRole("button", { name: /播放当前页/u });
@@ -117,9 +95,7 @@ test("teacher completes the core workflow with the keyboard only", async ({ teac
   await expect(teacherPage.getByRole("button", { name: /暂停/u })).toBeFocused();
 
   for (const iconAction of [
-    teacherPage.getByRole("link", { name: "返回 AI 课堂列表" }),
-    teacherPage.getByRole("button", { name: "字幕" }),
-    teacherPage.getByRole("button", { name: /全屏/u }),
+    teacherPage.getByRole("button", { name: "导出 MP4" }),
   ]) {
     await expect(iconAction).toHaveAccessibleName(/\S/u);
   }
@@ -129,9 +105,8 @@ test("critical text and primary actions meet WCAG AA contrast", async ({ teacher
   await teacherPage.goto("/#ai?course_id=course-physics", { waitUntil: "domcontentloaded" });
   await teacherPage.waitForTimeout(500);
   const factory = teacherPage.getByTestId("generation-factory");
-  const switcher = teacherPage.getByRole("button", { name: "生成工厂", exact: true });
-  if (!(await factory.isVisible()) && await switcher.isVisible()) await switcher.click();
-  await expect(factory).toBeVisible();
+  const switcher = teacherPage.getByRole("button", { name: /^(生成工厂|打开生成工厂)$/ });
+  await openFactory(factory, switcher);
   await teacherPage.getByRole("button", { name: "教学报告", exact: true }).click();
   const primary = teacherPage.locator(".generation-factory__modal footer .is-primary");
   await expect(primary).toBeVisible();

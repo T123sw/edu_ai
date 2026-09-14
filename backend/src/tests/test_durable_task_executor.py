@@ -15,6 +15,7 @@ from app.services.durable_task_handlers import (
 )
 from app.services.job_completion_service import JobCompletionService
 from app.services.job_store import JobKind, JobStatus, create_job, get_job
+from app.chat.model_gateway import ModelUnavailableError
 from core import Config
 from core.course_storage import CourseStorageManager
 
@@ -32,6 +33,7 @@ class ObservingTaskStore(TaskStore):
 
 
 def build_runtime(monkeypatch, tmp_path, *, observing: bool = False):
+    monkeypatch.setenv("JOB_PERSISTENCE_MODE", "json")
     monkeypatch.setattr(Config, "STORAGE_ROOT", tmp_path / "app-storage")
     store_class = ObservingTaskStore if observing else TaskStore
     store = store_class(str(tmp_path / "tasks.db"))
@@ -203,6 +205,28 @@ def test_business_failure_preserves_its_stable_error_code(monkeypatch, tmp_path)
     assert job.status == JobStatus.FAILED
     assert job.error_code == "RAG_INDEX_FAILED"
     assert job.error_message == "embedding unavailable"
+    store.close()
+
+
+def test_model_unavailable_is_a_retryable_provider_failure(monkeypatch, tmp_path):
+    store, _, registry, executor = build_runtime(monkeypatch, tmp_path)
+
+    def unavailable(command, context):
+        raise ModelUnavailableError("模型服务暂时不可用")
+
+    registry.register("report_direct", 1, unavailable)
+
+    assert executor.run_once() is True
+
+    task = store.get_durable("job-1")
+    job = get_job("job-1")
+    assert task is not None
+    assert task.status == "failed"
+    assert task.error_code == "PROVIDER_UNAVAILABLE"
+    assert job is not None
+    assert job.status == JobStatus.FAILED
+    assert job.error_code == "PROVIDER_UNAVAILABLE"
+    assert job.retryable is True
     store.close()
 
 

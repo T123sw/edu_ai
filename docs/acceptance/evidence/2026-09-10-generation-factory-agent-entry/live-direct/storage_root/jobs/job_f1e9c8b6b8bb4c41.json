@@ -1,0 +1,182 @@
+{
+  "schema_version": 2,
+  "version": 6,
+  "edu_job_id": "job_f1e9c8b6b8bb4c41",
+  "kind": "generate_graph",
+  "status": "succeeded",
+  "step": "completed",
+  "progress": 100,
+  "message": "生成完成，已保存到“我的资源”，仅你可见。",
+  "owner_user_id": "resource-e2e-admin",
+  "owner": "resource-e2e-admin",
+  "course_id": "resource-e2e-course",
+  "scope_type": "course",
+  "scope_id": null,
+  "input_summary": {
+    "title": "数组随机访问",
+    "resource_type": "graph",
+    "source_mode": "none",
+    "selected_doc_ids": [],
+    "config": {
+      "entrypoint": "agent",
+      "resource_type": "graph",
+      "audience": "大学初学者",
+      "title": "数组随机访问",
+      "subject": "数组随机访问",
+      "confirmed_outline": "",
+      "focus": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+      "length_hint": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+      "allow_rag": true,
+      "research_context": "",
+      "research_sources": [],
+      "harness_outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+      "harness_outline_revision": 1,
+      "harness_conversation_id": "resource-e2e-graph-15f673c6",
+      "harness_chapters": [],
+      "classroom_options": {},
+      "harness_organization": {
+        "scope": "本知识材料面向大学初学者，围绕“数组随机访问”这一主题，为后续制作思维导图准备核心知识。内容限定为三个分支：内存布局、地址计算、适用条件。重点解释数组为什么能通过下标在常数时间内定位元素，以及这一结论依赖哪些前提。不展开动态数组扩容、多维数组的多种存储顺序、缓存与分页对实际耗时的影响、语言间负索引差异等扩展内容。",
+        "prerequisites": [
+          "变量与基本数据类型的概念",
+          "下标或索引的基本含义",
+          "内存地址的初步概念",
+          "常数时间与线性时间的基本区别"
+        ],
+        "objectives": [
+          "能用自己的话说明数组元素在内存中连续存放的含义，并指出连续的是抽象地址而非物理页",
+          "能写出并解释一维数组随机访问的地址计算公式",
+          "能根据首地址、下标和元素大小计算指定元素的地址",
+          "能说明数组随机访问为常数时间所依赖的前提条件",
+          "能区分数组随机访问与按值查找、链表定位等不同操作的时间代价"
+        ],
+        "units": [
+          {
+            "title": "内存布局：连续存放的含义",
+            "explanation": "数组的随机访问能力首先来自其内存布局：数组元素按顺序存放在一段连续的地址区间中，相邻元素之间相隔固定步长。这里的“连续”指程序可见的抽象地址连续，即下标 i 与 i+1 的元素地址相差一个元素大小；它不要求底层物理内存页连续，因为虚拟地址到物理地址的映射可以是不连续的。元素大小指一个完整元素占用的字节数，包括结构体等类型中的对齐填充。",
+            "example": "设 int 占 4 字节，数组 int a[5] 的首元素地址为 1000，则 a[0] 在 1000，a[1] 在 1004，a[2] 在 1008，依此类推，相邻元素地址差恒为 4。",
+            "misconception": "把“地址连续”误解为“物理内存连续”；或认为结构体有填充就不能使用地址公式。实际上公式中的元素大小取完整元素占用空间，C/C++ 中 sizeof(元素类型) 已包含填充，相邻结构体元素的步长就是 sizeof(元素类型)。",
+            "check": "若某类型 sizeof 为 12 字节，首元素地址为 2000，则第 4 个元素（下标 3）的地址是多少？连续的是抽象地址还是物理地址？",
+            "objective_indices": [
+              0,
+              3
+            ],
+            "evidence_ids": []
+          },
+          {
+            "title": "地址计算：由下标直接定位",
+            "explanation": "在一维数组中，若首元素地址为 base，元素大小为 size，下标为 i，则元素地址为 base + i × size。这个式子只涉及一次乘法和一次加法，与数组长度无关，因此按下标访问元素是常数时间操作。公式成立的前提是：下标从 0 开始计数、元素大小固定、数组占用一段连续地址区间。",
+            "example": "double 占 8 字节，数组 double d[10] 首地址为 5000，则 d[6] 的地址为 5000 + 6 × 8 = 5048。",
+            "misconception": "把下标当作从 1 开始，导致地址偏移多算一个元素；或把元素大小误当成“数据部分大小”而忽略对齐填充。",
+            "check": "首地址 3000、元素大小 4 字节、下标 5，元素地址是多少？若下标改为从 1 开始计数，公式需要怎样调整？",
+            "objective_indices": [
+              1,
+              2
+            ],
+            "evidence_ids": []
+          },
+          {
+            "title": "适用条件：常数时间访问依赖什么",
+            "explanation": "数组随机访问的常数时间结论有明确前提：已知首地址、元素大小固定、下标合法且可直接计算地址。它描述的是按已知下标定位元素这一操作，不等于按值查找。按值查找通常需要逐个检查元素，最坏情况下要检查全部元素，其代价随元素个数增长。此外，常数时间指抽象操作次数不随数组长度增长，不意味着真实系统耗时绝对恒定；缓存命中、分页、内存层级等会使实际耗时随访问模式变化。",
+            "example": "在长度为 n 的数组中读取 a[k]（k 已知且合法）只需一次地址计算；而查找值等于 x 的元素，最坏需要比较 n 次。两者不是同一种操作。",
+            "misconception": "把“随机访问是 O(1)”推广为“数组的一切操作都很快”，或推广为“实际耗时恒定”。另一个常见错误是把数组随机访问与链表定位混为一谈：链表即使知道要访问第 k 个位置，通常也需要从头遍历，除非额外保存了节点位置。",
+            "check": "为什么“按下标读取 a[k]”是常数时间，而“查找值等于 x 的元素”通常不是？常数时间是否保证真实运行时间完全不变？",
+            "objective_indices": [
+              3,
+              4
+            ],
+            "evidence_ids": []
+          }
+        ],
+        "limitations": [
+          "本材料不检索外部资料，仅使用通用知识组织，未引用具体教材或标准。",
+          "未展开多维数组的行优先/列优先存储差异，地址公式仅针对一维数组。",
+          "未讨论动态数组扩容、越界访问后果、不同语言负索引语义等扩展话题。",
+          "常数时间仅指抽象操作次数不随数组长度增长，未量化缓存、分页等真实系统因素。",
+          "元素大小与内存语义依赖具体语言和实现假设，不能无条件推广到所有环境。"
+        ],
+        "model_review": {
+          "passed": true,
+          "checks": [
+            {
+              "claim": "前提适用性：材料把“连续”限定为程序可见的抽象地址连续，并明确不要求底层物理页连续，同时说明元素大小取完整元素占用空间（含对齐填充）。",
+              "reason": "该限定与虚拟内存模型一致：虚拟地址连续即可满足 base + i×size 的推导，物理页可由页表映射到不连续帧。结构体数组的步长在 C/C++ 中为 sizeof(元素类型)，已包含填充，因此“有填充就不能用公式”确为误解。前提未被错误泛化。",
+              "passed": true
+            },
+            {
+              "claim": "内部推理一致性：地址公式 base + i×size 与“常数时间”结论的推导一致，且未把抽象操作次数等同于真实系统耗时。",
+              "reason": "公式只含一次乘法与一次加法，操作数与数组长度 n 无关，故抽象操作次数为 O(1)。材料同时指出缓存、分页会使实际耗时随访问模式变化，未将 O(1) 泛化为真实耗时恒定。",
+              "passed": true
+            },
+            {
+              "claim": "具体例子：int a[5] 首地址 1000、int 占 4 字节时 a[0..2] 为 1000/1004/1008；double d[10] 首地址 5000 时 d[6] 为 5048。",
+              "reason": "逐步追踪：1000 + 0×4 = 1000，1000 + 1×4 = 1004，1000 + 2×4 = 1008，步长恒为 4。5000 + 6×8 = 5000 + 48 = 5048，计算正确。check 中 2000 + 3×12 = 2036、3000 + 5×4 = 3020 亦正确。",
+              "passed": true
+            },
+            {
+              "claim": "边界与学习目标覆盖：材料覆盖了内存布局、地址计算、适用条件三个分支，并区分了按下标访问与按值查找、链表定位的代价。",
+              "reason": "objectives 中“说明连续含义”“写出并解释公式”“计算地址”“说明前提”“区分不同操作代价”分别由三个 unit 的 explanation/example/check 支撑。按下标访问 O(1) 与按值查找最坏 O(n) 的对比正确；链表定位需从头遍历的说明在“除非额外保存节点位置”限定下成立，未把某种实现代价说成所有实现的必然结果。",
+              "passed": true
+            },
+            {
+              "claim": "边界处理：材料未展开越界访问、负索引、多维数组存储顺序等，并在 limitations 中声明。",
+              "reason": "resource_contract 允许当前阶段只准备支持目标的知识与前提，不要求完整成品栏目。材料明确限定为一维数组、下标从 0 开始且合法，未对未覆盖边界作错误断言，因此不构成失败。",
+              "passed": true
+            }
+          ],
+          "issues": []
+        },
+        "organization_id": "org_cc160c060e024e48925a2db66cf5e7cb",
+        "resource_type": "graph",
+        "subject": "数组随机访问",
+        "audience": "大学初学者",
+        "requirements": "思维导图；根节点为主题“数组随机访问”，包含三个分支：内存布局、地址计算、适用条件。面向大学初学者，使用通用知识，无需检索。",
+        "evidence_ids": [],
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "selected_doc_ids": [],
+          "scope_type": "course",
+          "scope_id": null
+        }
+      },
+      "harness_review_required": true,
+      "harness_interaction_mode": "direct",
+      "harness_execution_context": {
+        "stage": "write_and_review_graph",
+        "decision": {
+          "request_id": "3472486d6a9c4da18adea24bc62e73b7",
+          "user_message": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。",
+          "outline_id": "direct_org_cc160c060e024e48925a2db66cf5e7cb",
+          "revision": 1,
+          "interpreted_by": "model"
+        },
+        "working_memory": {}
+      },
+      "harness_approval_request_id": "3472486d6a9c4da18adea24bc62e73b7",
+      "harness_evidence_ids": []
+    },
+    "config_snapshot_id": "cfg_17831672b63f140b",
+    "idempotency_key": "dsh:ac6c468c2aeccb415da4126746ec99a12e35d0f2a52462b34ffd454dd985705e",
+    "review_policy": "required",
+    "source": "teacher-generation-factory"
+  },
+  "result_ref": {
+    "resource_type": "course_material",
+    "course_id": "resource-e2e-course",
+    "material_type": "graph",
+    "material_id": "graph-95fe0a63a975a5a2"
+  },
+  "retry_of_job_id": null,
+  "parent_job_id": null,
+  "provider_job_ref": null,
+  "sidecar_job_id": null,
+  "error_message": null,
+  "error": null,
+  "error_code": null,
+  "retryable": false,
+  "cancelable": false,
+  "created_at": "2026-09-10T06:18:36.181828+00:00",
+  "started_at": "2026-09-10T06:18:36.423104+00:00",
+  "finished_at": "2026-09-10T06:20:28.658540+00:00",
+  "updated_at": "2026-09-10T06:20:28.658540+00:00"
+}

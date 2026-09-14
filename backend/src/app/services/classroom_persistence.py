@@ -87,15 +87,35 @@ def persist_classroom_result(
         owner_user_id=owner,
         source_snapshot=source_snapshot,
         source_job_id=source_job_id,
-        visibility=("course" if material_metadata else None),
+        visibility=(
+            "course"
+            if material_metadata
+            and (
+                material_metadata.get("origin_type") == "standard"
+                or not material_metadata.get("harness_config")
+            )
+            else None
+        ),
     )
     if not saved:
         raise ClassroomPersistError(
             f"Failed to persist classroom {classroom_id} for course {course_id}"
         )
 
+    saved_material = course_storage_manager.get_generated_material(
+        course_id,
+        "classroom",
+        classroom_id,
+        owner_user_id=owner,
+    )
+
     return {
+        **({"resource_type": "course_material", "material_type": "classroom", "material_id": classroom_id}
+           if (material_metadata or {}).get("harness_config") else {}),
         "classroom_id": classroom_id,
         "course_id": course_id,
         "scenes_count": material_data["scenes_count"],
+        "version": (saved_material or {}).get("version"),
+        "content_hash": (saved_material or {}).get("content_hash"),
+        "generation_batch_id": (saved_material or {}).get("generation_batch_id"),
     }

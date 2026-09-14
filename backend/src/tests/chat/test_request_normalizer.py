@@ -3,7 +3,9 @@ from types import SimpleNamespace
 from app.chat.application.request_normalizer import normalize_chat_request
 
 
-def test_normalize_v1_request_maps_to_v2_defaults():
+def test_normalize_v1_request_maps_to_v2_defaults(monkeypatch):
+    from core.config import Config
+    monkeypatch.setattr(Config, "USE_DEEPSEEK_HARNESS", False)
     payload = SimpleNamespace(
         question="你好",
         conversation_id=None,
@@ -26,6 +28,21 @@ def test_normalize_v1_request_maps_to_v2_defaults():
     assert result.capability.allow_rag is False
     assert result.capability.allow_web is False
     assert result.action_hint is None
+    assert result.entry_mode == "conversation"
+
+
+def test_normalize_request_preserves_generation_factory_entry_mode():
+    result = normalize_chat_request(SimpleNamespace(
+        question="直接生成报告",
+        entry_mode="generation_factory",
+        action_hint="generate.report",
+        allow_rag=False,
+        allow_web=False,
+        selected_doc_ids=[],
+    ))
+
+    assert result.entry_mode == "generation_factory"
+    assert result.action_hint == "generate.report"
 
 
 def test_normalize_v1_use_rag_is_supported_when_allow_rag_missing():

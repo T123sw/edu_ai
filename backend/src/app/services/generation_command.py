@@ -33,6 +33,7 @@ GenerationResourceType = Literal[
     "flashcard",
     "graph",
     "game",
+    "classroom",
 ]
 
 _JOB_KIND_BY_RESOURCE: dict[str, JobKind] = {
@@ -43,11 +44,17 @@ _JOB_KIND_BY_RESOURCE: dict[str, JobKind] = {
     "flashcard": JobKind.GENERATE_FLASHCARD,
     "graph": JobKind.GENERATE_GRAPH,
     "game": JobKind.GENERATE_GAME,
+    "classroom": JobKind.GENERATE_CLASSROOM,
 }
 _WORKFLOW_BY_RESOURCE = {
     resource_type: f"{resource_type}_direct"
     for resource_type in _JOB_KIND_BY_RESOURCE
 }
+_WORKFLOW_BY_RESOURCE["classroom"] = "classroom_generate"
+
+
+def generation_job_kind(resource_type: GenerationResourceType) -> JobKind:
+    return _JOB_KIND_BY_RESOURCE[resource_type]
 
 
 class GenerationCommand(BaseModel):
@@ -60,6 +67,7 @@ class GenerationCommand(BaseModel):
     selected_doc_ids: list[str] = Field(default_factory=list)
     deadline_seconds: int = Field(default=300, ge=1, le=86400)
     execution_timeout_seconds: int | None = Field(default=None, ge=1, le=86400)
+    review_policy: Literal["standard", "required"] = "standard"
     config: dict[str, Any] = Field(default_factory=dict)
     idempotency_key: str
     material_id: str | None = None
@@ -159,6 +167,30 @@ class GenerationCommandService:
         existing_job: EduJob | None = None,
     ) -> EduJob:
         with self._submission_lock:
+            if existing_job is not None:
+                expected_kind = _JOB_KIND_BY_RESOURCE[command.resource_type]
+                if (
+                    existing_job.kind != expected_kind
+                    or existing_job.owner_user_id != command.owner_user_id
+                    or existing_job.course_id != command.course_id
+                ):
+                    raise ValueError("reserved_generation_job_mismatch")
+                if existing_job.status not in ACTIVE_JOB_STATUSES:
+                    raise ValueError("reserved_generation_job_not_active")
+            if command.resource_type == 'classroom':
+                from app.chat.harness.resource_jobs import submit_classroom
+                from core.course_storage import storage_manager
+                submitted = submit_classroom(command, storage_manager, existing_job=existing_job)
+                if submitted.status in ACTIVE_JOB_STATUSES:
+                    return update_job(
+                        submitted.edu_job_id,
+                        status=JobStatus.QUEUED,
+                        step="queued",
+                        progress=0,
+                        message="生成任务已进入后台队列",
+                        cancelable=True,
+                    ) or submitted
+                return submitted
             if existing_job is None:
                 duplicate = self._find_duplicate(command)
                 if duplicate is not None:
@@ -181,11 +213,42 @@ class GenerationCommandService:
                         "config": command.config,
                         "config_snapshot_id": command.config_snapshot_id,
                         "idempotency_key": command.idempotency_key,
+                        "review_policy": command.review_policy,
                         "source": "teacher-generation-factory",
                     },
                 )
             else:
                 job = existing_job
+
+            if existing_job is not None:
+                summary = dict(job.input_summary or {})
+                summary.update(
+                    {
+                        "title": str(
+                            command.config.get("title")
+                            or command.config.get("topic")
+                            or summary.get("title")
+                            or command.resource_type
+                        )[:160],
+                        "resource_type": command.resource_type,
+                        "source_mode": command.source_mode,
+                        "selected_doc_ids": command.selected_doc_ids,
+                        "config": command.config,
+                        "config_snapshot_id": command.config_snapshot_id,
+                        "idempotency_key": command.idempotency_key,
+                        "review_policy": command.review_policy,
+                        "source": "teacher-generation-factory",
+                    }
+                )
+                job = update_job(
+                    job.edu_job_id,
+                    status=JobStatus.QUEUED,
+                    step="queued",
+                    progress=0,
+                    message="生成任务已进入后台队列",
+                    input_summary=summary,
+                    cancelable=True,
+                ) or job
 
             payload = command.model_dump(mode="json")
             payload["runtime_config_snapshot"] = dict(
@@ -232,6 +295,77 @@ class GenerationCommandService:
                     )
                     return duplicate_job
             return job
+
+    def reserve_factory_request(
+        self,
+        *,
+        resource_type: GenerationResourceType,
+        owner_user_id: str,
+        course_id: str,
+        scope_type: str,
+        scope_id: str | None,
+        request_id: str,
+        title: str,
+    ) -> EduJob:
+        """Persist the Agent preparation stage before any model work starts."""
+        normalized_request_id = str(request_id or "").strip()
+        identity = ":".join(
+            (owner_user_id, course_id, resource_type, normalized_request_id)
+        )
+        job_id = "job_" + hashlib.sha256(identity.encode()).hexdigest()[:16]
+        with self._submission_lock:
+            existing = get_job(job_id)
+            if existing is not None:
+                if (
+                    existing.kind != _JOB_KIND_BY_RESOURCE[resource_type]
+                    or existing.owner_user_id != owner_user_id
+                    or existing.course_id != course_id
+                ):
+                    raise ValueError("factory_job_identity_conflict")
+                return existing
+            job = create_job(
+                edu_job_id=job_id,
+                kind=_JOB_KIND_BY_RESOURCE[resource_type],
+                owner_user_id=owner_user_id,
+                course_id=course_id,
+                scope_type=scope_type,
+                scope_id=scope_id,
+                input_summary={
+                    "title": str(title or resource_type).strip()[:160],
+                    "resource_type": resource_type,
+                    "factory_request_id": normalized_request_id,
+                    "source": "teacher-generation-factory",
+                },
+            )
+            return update_job(
+                job.edu_job_id,
+                status=JobStatus.QUEUED,
+                step="preparing",
+                progress=0,
+                message="Agent 正在整理生成要求",
+                cancelable=False,
+            ) or job
+
+    def fail_factory_reservation(
+        self,
+        job_id: str,
+        *,
+        error_code: str,
+        error_message: str,
+    ) -> EduJob | None:
+        with self._submission_lock:
+            job = get_job(job_id)
+            if job is None or job.status not in ACTIVE_JOB_STATUSES or job.step != "preparing":
+                return job
+            return update_job(
+                job.edu_job_id,
+                status=JobStatus.FAILED,
+                step="preparation_failed",
+                progress=100,
+                message="生成要求准备失败",
+                error_code=error_code,
+                error_message=error_message,
+            )
 
     def _find_duplicate(self, command: GenerationCommand) -> EduJob | None:
         page = list_job_page(

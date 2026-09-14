@@ -1,0 +1,344 @@
+{
+  "root": {
+    "id": "os-course",
+    "data": {
+      "type": "course",
+      "summary": "面向大二计算机专业学生的操作系统基础课程，8 课时覆盖进程、调度、同步、死锁与虚拟内存。",
+      "node_count": 28,
+      "document_count": 8,
+      "builder_version": "course-kb-plan-v2",
+      "source_build_id": "kb-8cc2c8640cfd4a28b31fee3782c5eb82",
+      "publication_status": "published",
+      "rolled_back_from_version": 1
+    },
+    "label": "操作系统",
+    "children": [
+      {
+        "id": "process-thread",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "从程序到进程、线程与系统调用，建立并发执行的基本认识。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "process-concept",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "进程状态、PCB 与系统调用接口，理解用户态到内核态的切换。"
+            },
+            "label": "进程与系统调用的核心机制",
+            "children": [
+              {
+                "id": "process-state-pcb",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "五状态模型、状态转换条件与 PCB 保存的上下文信息。",
+                  "document_ids": [
+                    "doc-d40793aa46174976bd25f9df7a992233",
+                    "doc-02fc687f298a40bf8d52a8f99e179863",
+                    "doc-28e7ea7bf2f543e7b5dacbe502a4e5ad"
+                  ]
+                },
+                "label": "进程状态与 PCB"
+              },
+              {
+                "id": "syscall-mechanism",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "系统调用号、陷入指令、参数传递与返回值的执行流程。",
+                  "document_ids": [
+                    "doc-da10493118f14305bf226b39ce364550",
+                    "doc-f90b811907c7427fbddf30e041a6cd72",
+                    "doc-5e1cfb966cb443cc921d9f6865b4b8c1"
+                  ]
+                },
+                "label": "系统调用的核心机制"
+              }
+            ]
+          },
+          {
+            "id": "thread-model",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "线程共享与私有资源，用户级与内核级线程的差异。"
+            },
+            "label": "线程与并发执行",
+            "children": [
+              {
+                "id": "thread-vs-process",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "从地址空间、资源拥有和切换代价比较进程与线程。",
+                  "document_ids": [
+                    "doc-4a0040df75db49cb89817fe74e05336e",
+                    "doc-8af10b1a990b425c8a16092d9c1b2baf",
+                    "doc-4f2decf452254843b4fb3f031138c3c5",
+                    "doc-bc7d6f092afe41b3bcd233c5cc48cd66"
+                  ]
+                },
+                "label": "线程与进程的区别"
+              }
+            ]
+          },
+          {
+            "id": "kp_ed8f3bc857ef4c6ab90141ec135a55e5",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "教师明确要求新增该知识点，现有目录与文档均无容器资源隔离内容，属真实缺口。挂到“进程与线程”模块下，与进程资源管理主题衔接。依据为教师原话，未引用已有文档全文。",
+              "document_ids": [
+                "doc-bb61a1728bae45b39f2f89ed77297428",
+                "doc-9264852ed7d7480aa49e201f93860897",
+                "doc-f9e5e6feeb7c498393b1d396bd926280",
+                "doc-f2130a68c16d4306ad5b68a38a551519",
+                "doc-85034d02c92040d8997a8e6026d17786",
+                "doc-0794344ddbc547259ec147479e0e6364"
+              ]
+            },
+            "label": "Linux cgroups 与容器资源隔离",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "cpu-scheduling",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "调度准则与常见算法，重点掌握等待时间的计算方法。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "sched-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "调度时机、抢占方式与周转时间、等待时间等指标。"
+            },
+            "label": "调度基础与评价指标",
+            "children": [
+              {
+                "id": "sched-criteria",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "CPU 利用率、吞吐量、周转时间、等待时间与响应时间。",
+                  "document_ids": [
+                    "doc-d8eba63c4b8c4976a169e9e69ef7e1f3",
+                    "doc-e7f438c507184658ba0948b824c1b162",
+                    "doc-330579decc334e528ba86485050e68fb"
+                  ]
+                },
+                "label": "CPU 调度准则与指标"
+              }
+            ]
+          },
+          {
+            "id": "sched-algorithms",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "FCFS、SJF、RR 与优先级调度的规则和对比。"
+            },
+            "label": "常见 CPU 调度算法",
+            "children": [
+              {
+                "id": "fcfs-sjf",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "先来先服务与短作业优先的规则、优缺点及等待时间计算。",
+                  "document_ids": [
+                    "doc-c1e507287aeb48ad819c1906aec67751",
+                    "doc-68ab06dc58984ece90de15d4d4daa10c",
+                    "doc-1b430d1da9894a12a159ae1c247b5a81"
+                  ]
+                },
+                "label": "FCFS 与 SJF 调度算法"
+              },
+              {
+                "id": "rr-priority",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "时间片轮转与优先级调度的执行过程及饥饿问题。",
+                  "document_ids": [
+                    "doc-edda2958547c4774913d3e065b50ee6e",
+                    "doc-f58df50ef468488ba50d00048568db03",
+                    "doc-7d7fc2159b6541f6a097d1b1d7c1fcfc"
+                  ]
+                },
+                "label": "时间片轮转与优先级调度"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "process-sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "临界区问题与信号量机制，能分析并解决典型同步问题。"
+        },
+        "label": "进程同步",
+        "children": [
+          {
+            "id": "sync-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "竞态条件、临界区三条件与软件同步方法。"
+            },
+            "label": "同步基础与临界区",
+            "children": [
+              {
+                "id": "race-critical",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "并发访问共享变量导致结果不确定，临界区需互斥进入。",
+                  "document_ids": [
+                    "doc-f8e8f165cf944b4ba8fd8ceb4ee10c2a",
+                    "doc-0704c0754df146c187dd9789cb9993b7",
+                    "doc-fcaba0426abb46cc9b469b966f537fe8"
+                  ]
+                },
+                "label": "竞态条件与临界区"
+              }
+            ]
+          },
+          {
+            "id": "semaphore",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "P/V 操作语义及生产者消费者、读者写者问题分析。"
+            },
+            "label": "信号量机制与应用",
+            "children": [
+              {
+                "id": "semaphore-pv",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "整型与记录型信号量的定义、P/V 原子操作与阻塞唤醒。",
+                  "document_ids": [
+                    "doc-7fc105127271426a871ac503adba8201",
+                    "doc-482a83f643db4fe1b4cc1f140d012161",
+                    "doc-fa57dab15d3c4e8a9656c2220eea4717"
+                  ]
+                },
+                "label": "信号量 P/V 操作"
+              },
+              {
+                "id": "producer-consumer",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "用信号量解决有界缓冲区同步，分析互斥与同步信号量顺序。",
+                  "document_ids": [
+                    "doc-cb89ce4c8dbe4e8d8409d6747f9aaf02",
+                    "doc-d4edbeed19dc40d7b7970dc905fbcd47",
+                    "doc-6a077f0421784ee8996d8f843546b8b5"
+                  ]
+                },
+                "label": "生产者消费者问题"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "死锁产生条件、预防避免检测与恢复策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "deadlock-basics",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "四个必要条件与资源分配图的环路判定。"
+            },
+            "label": "死锁条件与资源分配图",
+            "children": [
+              {
+                "id": "deadlock-conditions",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "互斥、占有并等待、非抢占与循环等待的含义。",
+                  "document_ids": [
+                    "doc-033e898a4312436393ba93b5972b7a6f",
+                    "doc-ff339f947ba84b24ab2921638f745979",
+                    "doc-0d0bb84d48464e55a6ea38fbf2b31b72"
+                  ]
+                },
+                "label": "死锁四个必要条件"
+              }
+            ]
+          },
+          {
+            "id": "deadlock-strategies",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "预防、避免、检测与恢复策略及银行家算法。"
+            },
+            "label": "死锁处理策略",
+            "children": [
+              {
+                "id": "prevent-avoid",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "破坏必要条件与安全状态、银行家算法的基本思想。",
+                  "document_ids": [
+                    "doc-1e96cd1c532e4aefb8014e99ff850aad",
+                    "doc-b8cfc100782649cdbdcc664719c6bbe0",
+                    "doc-88fa45f0aabf4398818c79c7fc88ac8b"
+                  ]
+                },
+                "label": "死锁预防与避免"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "virtual-memory",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "分页、缺页处理与页面置换算法，理解地址转换全过程。"
+        },
+        "label": "虚拟内存",
+        "children": [
+          {
+            "id": "paging",
+            "data": {
+              "type": "knowledge_unit",
+              "summary": "页表、地址划分与 TLB 加速的地址转换。"
+            },
+            "label": "分页与地址转换",
+            "children": [
+              {
+                "id": "paging-address",
+                "data": {
+                  "tier": "brief",
+                  "type": "knowledge_point",
+                  "summary": "逻辑地址划分为页号与页内偏移，经页表映射到物理地址。",
+                  "document_ids": [
+                    "doc-548cc56da61140bba830599ba95c3c08",
+                    "doc-ea2225c133d14e49a936ea0e307092d3",
+                    "doc-f7b820a25efd40368db30f0cb396c80d"
+                  ]
+                },
+                "label": "分页与地址转换"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

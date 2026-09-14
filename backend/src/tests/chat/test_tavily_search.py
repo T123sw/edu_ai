@@ -45,12 +45,13 @@ def test_search_tavily_uses_bearer_auth_and_normalizes_results(monkeypatch):
         api_key="tvly-test",
         base_url="https://api.tavily.com/",
         timeout=7,
+        include_domains=["docs.python.org"],
     )
 
     assert captured["url"] == "https://api.tavily.com/search"
     assert captured["headers"]["Authorization"] == "Bearer tvly-test"
     assert captured["payload"]["max_results"] == 4
     assert captured["payload"]["include_raw_content"] is False
+    assert captured["payload"]["include_domains"] == ["docs.python.org"]
     assert hits[0].site == "docs.python.org"
     assert hits[0].raw["score"] == 0.91
-

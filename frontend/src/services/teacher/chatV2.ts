@@ -31,6 +31,7 @@ export interface ChatReplyRequestV2 {
   input_images?: ChatInputImageV2[];
   input_videos?: ChatInputVideoV2[];
   action_hint?: string;
+  entry_mode?: 'conversation' | 'generation_factory';
   artifact_draft_action?: ArtifactDraftAction;
   artifact_reference?: ChatArtifactReference;
   conversation_reference?: ChatConversationReference;
@@ -404,8 +405,23 @@ export interface ArtifactRevisionOutcome {
 export interface ChatResponseV2 {
   task_id?: string | null;
   harness_outline?: { outline_id: string; revision: number; subject: string } | null;
+  knowledge_plan?: {
+    build_id: string;
+    revision: number;
+    status: string;
+    phase: string;
+    progress: number;
+    summary?: string;
+    proposal?: Record<string, unknown> | null;
+    quality_score?: number | null;
+    error?: Record<string, unknown> | null;
+    published_version?: number | null;
+    review_url?: string;
+    job?: Record<string, unknown>;
+  } | null;
   verification?: Record<string, unknown> | null;
   artifact_revision?: ArtifactRevisionOutcome | null;
+  resource_creation_handoff?: boolean;
   workspace_context?: ResolvedWorkspaceContext | null;
   clarification?: ScopeClarification | null;
   message: {
@@ -805,7 +821,7 @@ export async function transcribeSpeechV2(file: Blob, filename: string): Promise<
   return (await resp.json()) as SpeechTranscriptResponseV2;
 }
 
-interface BuildChatReplyPayloadOptions {
+export interface BuildChatReplyPayloadOptions {
   question: string;
   conversationId?: string | null;
   courseId?: string;
@@ -814,6 +830,8 @@ interface BuildChatReplyPayloadOptions {
   allowRag: boolean;
   allowWeb: boolean;
   selectedDocIds: string[];
+  actionHint?: string;
+  entryMode?: 'conversation' | 'generation_factory';
   inputImages?: ChatInputImageV2[];
   inputVideos?: ChatInputVideoV2[];
   artifactReference?: ChatArtifactReference | null;
@@ -846,6 +864,8 @@ export function buildChatReplyPayload(options: BuildChatReplyPayloadOptions): Ch
     allow_web: options.allowWeb,
     source_mode: sourceMode,
     selected_doc_ids: selectedDocIds,
+    action_hint: options.actionHint || undefined,
+    entry_mode: options.entryMode || undefined,
   };
   if (options.artifactReference) {
     payload.artifact_reference = options.artifactReference;

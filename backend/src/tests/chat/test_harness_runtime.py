@@ -83,6 +83,77 @@ def test_model_decides_not_to_call_submit_and_scope_cannot_be_overridden(tmp_pat
         assert calls == []
 
 
+def test_generation_factory_can_draft_and_submit_report_in_same_turn(tmp_path):
+    req = request(
+        question="生成一份递归教学报告",
+        request_id="factory-report",
+        action_hint="generate.report",
+        entry_mode="generation_factory",
+    )
+    calls = []
+    with HarnessStore(tmp_path).session(req) as state:
+        tools = toolset(
+            req,
+            state,
+            submit=lambda command: calls.append(command) or SimpleNamespace(edu_job_id="job-factory-report"),
+        )
+        outline = tools.call("draft_report_outline", {"subject": "递归", "section_count": 3})
+        assert outline["ok"], outline
+        submitted = tools.call("submit_report", ref(outline["data"]))
+
+    assert submitted["ok"], submitted
+    assert submitted["data"]["task_id"] == "job-factory-report"
+    assert len(calls) == 1
+
+
+def test_generation_factory_submission_reuses_preparing_public_job(tmp_path):
+    reserved = SimpleNamespace(
+        edu_job_id="job-preparing-graph",
+        kind="generate_graph",
+        owner_user_id="alice",
+        course_id="course1",
+        status="queued",
+    )
+    req = request(
+        question="生成递归思维导图",
+        request_id="factory-graph",
+        action_hint="generate.graph",
+        entry_mode="generation_factory",
+        factory_job_id=reserved.edu_job_id,
+    )
+    calls = []
+
+    def submit(command, *, existing_job=None):
+        calls.append((command, existing_job))
+        return reserved
+
+    with HarnessStore(tmp_path).session(req) as state:
+        tools = toolset(
+            req,
+            state,
+            submit=submit,
+            get_job=lambda task_id: reserved if task_id == reserved.edu_job_id else None,
+        )
+        state.data.setdefault("organizations", {})["org-graph"] = {
+            "organization_id": "org-graph",
+            "resource_type": "graph",
+            "subject": "递归",
+            "audience": "初学者",
+            "requirements": "梳理递归结构",
+            "evidence_ids": [],
+            "source_policy": tools._source_policy(),
+        }
+        submitted = tools.call(
+            "submit_resource_direct",
+            {"organization_id": "org-graph", "source_mode": "planned_evidence"},
+        )
+
+    assert submitted["ok"], submitted
+    assert submitted["data"]["task_id"] == reserved.edu_job_id
+    assert len(calls) == 1
+    assert calls[0][1] is reserved
+
+
 def test_store_isolates_actors_and_courses_but_retains_scope_history(tmp_path):
     store = HarnessStore(tmp_path)
     with store.session(request()) as state:
@@ -242,7 +313,12 @@ def test_orchestrator_routes_sync_and_report_hint_to_harness():
     assert orchestrator.dispatch(request()) == {"ok": True}
     assert list(orchestrator.dispatch_stream(request(action_hint="generate.report")))[0]["type"] == "result"
     assert calls == ["sync", "stream"]
-    assert not HarnessRuntime.supports(request(action_hint="generate.quiz"))
+    for kind in ("report", "lesson_plan", "blog", "quiz", "flashcard", "graph", "game", "classroom"):
+        assert HarnessRuntime.supports(request(action_hint=f"generate.{kind}"))
+    assert not HarnessRuntime.supports(SimpleNamespace(
+        input_images=[], input_videos=[], artifact_reference=None,
+        action_hint="generate.unknown",
+    ))
 
 
 def test_http_response_model_preserves_harness_fields(monkeypatch):
@@ -694,3 +770,66 @@ def test_conversation_projects_durable_task_status_without_mutating_history(tmp_
     assert projected['history'][0]['task_id'] == 'job1'
     assert payload['history'][0]['content'] == '正在生成'
     assert 'task_id' not in project_task_status(payload, 'bob', task_store=Tasks(), harness_root=tmp_path)['history'][0]
+
+
+def test_restore_model_workspace_revalidates_matching_scope_only(tmp_path):
+    from app.chat.application.knowledge_context import ResolvedWorkspaceContext
+    course = SimpleNamespace(get_course_info=lambda cid: {'name': '课程'}, get_knowledge_graph=lambda cid: {'root': {'id': 'root', 'label': '课程'}})
+    req = request(scope_type='course', scope_id=None)
+    store = HarnessStore(tmp_path)
+    with store.session(req) as state:
+        tools = toolset(req, state, course_storage=course)
+        assert tools.call('select_workspace', {'scope_type': 'course', 'topic': '数组'})['ok']
+    req = request(scope_type='course', scope_id=None, workspace_context=ResolvedWorkspaceContext(
+        course_id='course1', scope_type='course', resolution='resolved', explicit_course=False))
+    authorized = []
+    with store.session(req) as state:
+        tools = toolset(req, state, course_storage=course, authorize=lambda request: authorized.append(request.owner))
+        tools.restore_selected_workspace()
+        assert req.workspace_context.explicit_course
+        assert authorized == ['alice']
+        assert not req.workspace_context.update_workspace
+    req = request(scope_type='knowledge_point', scope_id='different', workspace_context=ResolvedWorkspaceContext(
+        course_id='course1', scope_type='knowledge_point', scope_id='different', resolution='needs_clarification'))
+    with store.session(req) as state:
+        tools = toolset(req, state, course_storage=course)
+        tools.restore_selected_workspace()
+        assert req.scope_id == 'different'
+        assert req.workspace_context.resolution == 'needs_clarification'
+
+
+def test_followup_waits_for_prior_reply_tail_and_reads_saved_history(tmp_path):
+    import threading
+    store = HarnessStore(tmp_path)
+    req = request(request_id='following-turn', question='继续解释')
+    entered, release = threading.Event(), threading.Event()
+    def previous():
+        with store.session(req) as session:
+            entered.set()
+            assert release.wait(5)
+            session.data['history'] = [{'role': 'assistant', 'content': '教案正在后台生成'}]
+            session.save()
+    thread = threading.Thread(target=previous)
+    thread.start()
+    assert entered.wait(2)
+    prompts = []
+    class SDK:
+        def __init__(self, **kwargs): pass
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def close(self): pass
+        def run(self, prompt, **kwargs):
+            prompts.append(prompt)
+            return SimpleNamespace(final_response='继续解释数组', finish_reason='stop')
+    timer = threading.Timer(.2, release.set)
+    timer.start()
+    try:
+        runtime = HarnessRuntime(store=store, sdk_factory=SDK,
+            tool_factory=lambda request, session, **kwargs: toolset(request, session, **kwargs))
+        result = runtime.run(request=req, snapshot=ConversationSnapshot())
+        assert result['message']['content'] == '继续解释数组'
+        assert '教案正在后台生成' in prompts[0]
+    finally:
+        release.set()
+        thread.join(5)
+        timer.cancel()

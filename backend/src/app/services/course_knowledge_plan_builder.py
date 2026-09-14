@@ -6,6 +6,7 @@ import copy
 import hashlib
 import os
 import re
+import time
 from contextlib import nullcontext
 from collections.abc import Callable, Mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -16,7 +17,6 @@ from urllib.parse import urlparse
 import httpx
 from bs4 import BeautifulSoup
 
-from app.persistence.dependencies import get_postgres_knowledge_repository
 from app.services.course_generated_material import generate_reviewed_supplement
 from app.services.course_knowledge_builder import _canonical_path, _robots_allows, _safe_material_filename, utc_now
 from app.services.course_knowledge_coverage import calculate_leaf_coverage
@@ -35,6 +35,7 @@ from app.services.course_knowledge_source_ingestion import (
 )
 from app.services.course_knowledge_textbook_mapping import map_textbook_chunks_to_graph
 from app.services.course_knowledge_quality_gate import evaluate_course_knowledge_quality
+from app.services.course_knowledge_source_policy import is_non_instructional_source_title
 from app.services.job_store import EduJob, JobKind, JobStatus, create_job, update_job
 from core.course_storage import LIBRARY_TYPE_COURSE, CourseStorageManager
 
@@ -43,10 +44,196 @@ PLAN_BUILDER_VERSION = "course-kb-plan-v2"
 MIN_DOCUMENTS_PER_LEAF = 3
 
 
+class CourseKnowledgeBuildCancelled(RuntimeError):
+    """Raised at safe phase boundaries when the durable task was canceled."""
+
+
+def _effective_build_config(build: Mapping[str, Any]) -> dict[str, Any]:
+    config = dict(build.get("config") or {})
+    intent = build.get("intent_contract")
+    if isinstance(intent, Mapping):
+        source_policy = intent.get("source_policy")
+        if isinstance(source_policy, Mapping):
+            config["ai_supplement_enabled"] = bool(
+                source_policy.get("allow_ai_fallback", False)
+            )
+    return config
+
+
+def _merge_source_candidates(
+    existing: list[Mapping[str, Any]],
+    additions: list[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Keep one database row per canonical URL while retaining all topic hits."""
+
+    merged: list[dict[str, Any]] = [dict(item) for item in existing]
+    positions = {
+        canonical_source_url(item.get("url")) or str(item.get("url") or ""): index
+        for index, item in enumerate(merged)
+    }
+    for raw in additions:
+        candidate = dict(raw)
+        key = canonical_source_url(candidate.get("url")) or str(candidate.get("url") or "")
+        if not key or key not in positions:
+            positions[key] = len(merged)
+            merged.append(candidate)
+            continue
+        index = positions[key]
+        current = merged[index]
+        matched_topics = {
+            str(item)
+            for item in (
+                *(dict(current.get("metadata") or {}).get("matched_topic_ids") or []),
+                *(dict(candidate.get("metadata") or {}).get("matched_topic_ids") or []),
+                current.get("topic_id"),
+                candidate.get("topic_id"),
+            )
+            if item
+        }
+        current_priority = (
+            bool(current.get("selected")),
+            2 if current.get("review_status") == "ready" else 1 if current.get("review_status") == "relevant" else 0,
+            float(dict(current.get("metadata") or {}).get("priority_score") or 0),
+        )
+        candidate_priority = (
+            bool(candidate.get("selected")),
+            2 if candidate.get("review_status") == "ready" else 1 if candidate.get("review_status") == "relevant" else 0,
+            float(dict(candidate.get("metadata") or {}).get("priority_score") or 0),
+        )
+        winner = candidate if candidate_priority > current_priority else current
+        winner = dict(winner)
+        winner["metadata"] = {
+            **dict(winner.get("metadata") or {}),
+            "matched_topic_ids": sorted(matched_topics),
+        }
+        merged[index] = winner
+    return merged
+
+
+def _update_candidate_in_memory(
+    candidates: list[dict[str, Any]],
+    candidate_id: str,
+    *,
+    review_status: str,
+    review_reason: str,
+    metadata: Mapping[str, Any] | None = None,
+) -> None:
+    for candidate in candidates:
+        if str(candidate.get("candidate_id") or "") != candidate_id:
+            continue
+        candidate["review_status"] = review_status
+        candidate["review_reason"] = review_reason
+        candidate["metadata"] = {
+            **dict(candidate.get("metadata") or {}),
+            **dict(metadata or {}),
+        }
+        return
+
+
+def get_postgres_knowledge_repository():
+    # Avoid importing application configuration while pure planning helpers are
+    # imported by tests and offline evaluators. Keep this public compatibility
+    # seam because builder tests and deployments patch it.
+    from app.persistence.dependencies import (
+        get_postgres_knowledge_repository as resolve_repository,
+    )
+
+    return resolve_repository()
+
+
+def _knowledge_repository():
+    return get_postgres_knowledge_repository()
+
+
+def _ensure_required_artifact_generation(
+    deficits: list[tuple[Mapping[str, Any], int]],
+    *,
+    topics: list[Mapping[str, Any]],
+    persisted: list[Mapping[str, Any]],
+    ai_enabled: bool,
+    maximum_ai: int,
+) -> None:
+    """Schedule one reviewed artifact document when the teacher allows AI."""
+
+    if not ai_enabled or maximum_ai < 1:
+        return
+    for topic in topics:
+        deliverables = [
+            item
+            for item in topic.get("deliverables") or []
+            if isinstance(item, Mapping) and item.get("hardness", "hard") == "hard"
+        ]
+        if not deliverables or not bool(
+            dict(topic.get("source_policy") or {}).get("allow_ai_fallback", False)
+        ):
+            continue
+        required_counts = {
+            str(item.get("requirement_id") or ""): int(item.get("count") or 0)
+            for item in deliverables
+        }
+        topic_id = str(topic.get("topic_id") or "")
+        topic_scoped = any(item.get("application") == "topic" for item in deliverables)
+        existing_counts: dict[str, int] = {}
+        existing_artifacts = [
+            artifact
+            for document in persisted
+            for artifact in document.get("learning_artifacts") or []
+            if isinstance(artifact, Mapping)
+            and artifact.get("validation_status", "passed") == "passed"
+            and (
+                not topic_scoped
+                or str(artifact.get("topic_id") or document.get("scope_id") or "") == topic_id
+            )
+        ]
+        for artifact in existing_artifacts:
+            requirement_id = str(artifact.get("requirement_id") or "")
+            existing_counts[requirement_id] = existing_counts.get(requirement_id, 0) + int(
+                artifact.get("count") or 1
+            )
+        if all(
+            existing_counts.get(requirement_id, 0) >= count
+            for requirement_id, count in required_counts.items()
+        ):
+            continue
+        if not any(
+            str(item.get("topic_id") or "") == topic_id and sequence == 1
+            for item, sequence in deficits
+        ):
+            deficits.append(({**dict(topic), "artifact_generation_only": True}, 1))
+        if not topic_scoped:
+            return
+
+
+def _reviewed_generation_resume_limit(
+    topic: Mapping[str, Any],
+    *,
+    ai_budget: int,
+    ai_enabled: bool,
+    maximum_ai: int,
+) -> int:
+    """Keep reviewed teaching artifacts across retries, even after sources fill the leaf.
+
+    Source acquisition can remove the numeric content deficit on a later run,
+    but it does not replace teacher-requested cases, exercises, explanations,
+    or labs already produced and independently reviewed for this build.
+    """
+
+    if not ai_enabled or maximum_ai < 1:
+        return ai_budget
+    requires_generated_artifacts = bool(
+        dict(topic.get("source_policy") or {}).get("allow_ai_fallback", False)
+        and any(
+            isinstance(item, Mapping) and item.get("hardness", "hard") == "hard"
+            for item in topic.get("deliverables") or []
+        )
+    )
+    return max(ai_budget, 1 if requires_generated_artifacts else 0)
+
+
 def submit_course_knowledge_plan_build_job(
     *, course_id: str, owner_user_id: str, build_id: str, retry: bool = False
 ) -> EduJob:
-    repository = get_postgres_knowledge_repository()
+    repository = _knowledge_repository()
     build = repository.get_build(build_id)
     if build is None or str(build.get("library_id") or "") != course_id:
         raise ValueError("知识库构建计划不存在")
@@ -103,11 +290,23 @@ def _extract_reviewed_page(
         raise ValueError("来源必须使用 HTTPS")
     if not _robots_allows(client, url):
         raise PermissionError("来源 robots.txt 不允许抓取")
-    response = client.get(url)
-    response.raise_for_status()
-    if "html" not in str(response.headers.get("content-type") or "").casefold():
-        raise ValueError("来源不是可解析的网页正文")
-    soup = BeautifulSoup(response.text, "html.parser")
+    download_deadline = time.monotonic() + 20
+    chunks: list[bytes] = []
+    downloaded_bytes = 0
+    with client.stream("GET", url) as response:
+        response.raise_for_status()
+        if "html" not in str(response.headers.get("content-type") or "").casefold():
+            raise ValueError("来源不是可解析的网页正文")
+        final_response_url = str(response.url)
+        encoding = response.encoding or "utf-8"
+        for chunk in response.iter_bytes():
+            if time.monotonic() > download_deadline:
+                raise TimeoutError("来源正文下载超过 20 秒总时限")
+            downloaded_bytes += len(chunk)
+            if downloaded_bytes > 3 * 1024 * 1024:
+                raise ValueError("来源网页超过 3 MiB，拒绝作为单篇知识点正文")
+            chunks.append(chunk)
+    soup = BeautifulSoup(b"".join(chunks).decode(encoding, errors="replace"), "html.parser")
     for element in soup.select("script, style, nav, header, footer, aside, form, noscript"):
         element.decompose()
     main = soup.select_one("main, article, [role='main'], .md-content, #content") or soup.body
@@ -127,7 +326,7 @@ def _extract_reviewed_page(
     if len(content) < 300:
         raise ValueError("来源正文过短")
     content = content[:60000]
-    final_url = canonical_source_url(str(getattr(response, "url", None) or url))
+    final_url = canonical_source_url(final_response_url or url)
     if not final_url:
         raise ValueError("来源最终重定向 URL 不是 HTTPS")
     content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
@@ -146,6 +345,112 @@ def _update_saved_record(
     record.update(dict(fields))
     manager.save_knowledge_base_index(course_id, index)
     return record
+
+
+_GENERIC_TOPIC_TERMS = {
+    "基础",
+    "基本",
+    "概念",
+    "原理",
+    "机制",
+    "方法",
+    "过程",
+    "问题",
+    "分析",
+    "理解",
+    "掌握",
+    "解释",
+    "比较",
+    "操作",
+}
+
+
+def _direct_topic_terms(topic_title: str) -> set[str]:
+    """Extract leaf-specific terms without counting generic objective wording."""
+
+    normalized = str(topic_title or "").casefold()
+    latin_terms = set(re.findall(r"[a-z][a-z0-9+#.-]{1,}", normalized))
+    chinese_parts = re.split(
+        r"(?:以及|及其|与|和|及|的|、|/|[：:，,；;（）()\s]+)",
+        "".join(re.findall(r"[\u4e00-\u9fff/、，；：与和及的（）()]+", normalized)),
+    )
+    chinese_terms: set[str] = set()
+    for raw_part in chinese_parts:
+        part = raw_part
+        for generic in ("基本概念", "核心概念", "基本原理", "基本机制"):
+            part = part.replace(generic, "")
+        if len(part) >= 2 and part not in _GENERIC_TOPIC_TERMS:
+            chinese_terms.add(part)
+    terms = latin_terms | chinese_terms
+    aliases = {
+        "容器资源隔离": {"container", "resource", "isolation", "cgroup"},
+        "资源隔离": {"resource", "isolation", "cgroup"},
+        "内存": {"memory"},
+        "调度": {"scheduling", "scheduler"},
+        "死锁": {"deadlock"},
+        "线程": {"thread"},
+        "进程": {"process"},
+        "虚拟内存": {"virtual memory"},
+        "页面置换": {"page replacement"},
+        "地址转换": {"address translation"},
+    }
+    compact_title = re.sub(r"\s+", "", normalized)
+    for chinese_term, translated in aliases.items():
+        if chinese_term in compact_title:
+            terms.update(translated)
+    for term in tuple(terms):
+        if re.fullmatch(r"[a-z][a-z0-9+#.-]*s", term) and len(term) > 3:
+            terms.add(term[:-1])
+    return terms
+
+
+def _source_semantic_evidence(candidate: Mapping[str, Any], content: str) -> tuple[bool, float]:
+    metadata = dict(candidate.get("metadata") or {})
+    title = re.sub(r"\s+", "", str(metadata.get("topic_title") or "")).casefold()
+    objective = str(metadata.get("topic_objective") or "")
+    subject = f"{metadata.get('topic_title') or ''} {objective}".casefold()
+    latin_terms = set(re.findall(r"[a-z0-9+#.-]{2,}", subject))
+    chinese = "".join(re.findall(r"[\u4e00-\u9fff]", subject))
+    chinese_terms = {
+        chinese[index : index + 2]
+        for index in range(max(0, len(chinese) - 1))
+    }
+    terms = {item for item in (*latin_terms, *chinese_terms) if item}
+    direct_terms = _direct_topic_terms(str(metadata.get("topic_title") or ""))
+    if not terms or not direct_terms:
+        return True, 1.0
+    normalized_content = str(content or "").casefold()
+    compact_content = re.sub(r"\s+", "", normalized_content)
+    matched = sum(1 for term in terms if term in normalized_content)
+    score = round(matched / len(terms), 4)
+    direct_matches = {term for term in direct_terms if term in normalized_content}
+    specialized_latin = {
+        term for term in direct_terms if re.search(r"[a-z]", term)
+    }
+    required_direct_matches = 1 if len(direct_terms) == 1 else 2
+    if specialized_latin:
+        required_direct_matches = min(
+            required_direct_matches,
+            max(1, min(2, len(specialized_latin))),
+        )
+
+    relevant_chars = 0
+    relevant_blocks = 0
+    for block in re.split(r"\n\s*\n", str(content or "")):
+        normalized_block = block.casefold()
+        if any(term in normalized_block for term in direct_terms):
+            relevant_chars += len(block.strip())
+            relevant_blocks += 1
+
+    exact_title = bool(title and title in compact_content)
+    direct_enough = len(direct_matches) >= required_direct_matches
+    substantive = relevant_chars >= 350 and relevant_blocks >= 2
+    passed = direct_enough and substantive and (
+        exact_title
+        or (matched >= 3 and score >= 0.3)
+        or len(direct_matches) >= 3
+    )
+    return bool(passed), score
 
 
 def _persist_candidate(
@@ -176,11 +481,23 @@ def _persist_candidate(
                 "content_hash": existing.get("content_hash"),
                 "content_chars": int(existing.get("content_chars") or 0),
                 "chunk_count": int(existing.get("chunk_count") or 0),
+                "source_domain": existing.get("source_domain"),
+                "authority_tier": existing.get("authority_tier"),
+                "semantic_evidence_passed": existing.get("semantic_evidence_passed"),
+                "semantic_evidence_score": existing.get("semantic_evidence_score"),
                 "provenance_ok": bool(existing.get("content_hash") and (existing.get("source_final_url") or existing.get("source_url"))),
             }
     headers = {"User-Agent": "EduAI-CourseKnowledgeBuilder/2.0 (+source-attribution)"}
-    with httpx.Client(timeout=30, follow_redirects=True, headers=headers) as client:
+    timeout = httpx.Timeout(connect=8, read=8, write=8, pool=5)
+    with httpx.Client(timeout=timeout, follow_redirects=True, headers=headers) as client:
         title, content, final_url, content_hash = _extract_reviewed_page(client, candidate)
+    if is_non_instructional_source_title(title):
+        raise ValueError("来源页面属于新闻、通知或教学管理内容，不是知识点正文")
+    semantic_evidence_passed, semantic_evidence_score = _source_semantic_evidence(
+        candidate, content
+    )
+    if not semantic_evidence_passed:
+        raise ValueError("来源正文与目标知识点缺少足够语义证据")
     if seen_final_urls is not None and final_url in seen_final_urls:
         raise ValueError("来源最终 URL 与本次构建中的其他页面重复")
     if seen_content_hashes is not None and content_hash in seen_content_hashes:
@@ -224,6 +541,8 @@ def _persist_candidate(
             "source_final_url": final_url,
             "content_hash": content_hash,
             "content_chars": len(content),
+            "semantic_evidence_passed": semantic_evidence_passed,
+            "semantic_evidence_score": semantic_evidence_score,
         },
     )
     if seen_final_urls is not None:
@@ -240,6 +559,10 @@ def _persist_candidate(
         "content_chars": len(content),
         "chunk_count": int(import_result.get("chunk_count") or 0),
         "final_url": final_url,
+        "source_domain": str(candidate.get("domain") or parsed_domain(final_url)),
+        "authority_tier": candidate.get("authority_tier"),
+        "semantic_evidence_passed": semantic_evidence_passed,
+        "semantic_evidence_score": semantic_evidence_score,
     }
 
 
@@ -265,12 +588,27 @@ def _generate_and_persist_supplement(
         "api_base": resolved.get("base_url"),
         "api_key": resolved.get("api_key"),
         "timeout_seconds": resolved.get("timeout_seconds"),
+        # Reasoning-capable models account for hidden reasoning inside the
+        # completion budget. Structured cases plus exercises otherwise risk a
+        # successful HTTP response whose visible content is empty.
+        "max_tokens": 8192,
+        # This phase needs deterministic schema adherence, not a long hidden
+        # chain of thought. DeepSeek thinking mode is enabled by default and
+        # can consume the whole completion budget before emitting Markdown.
+        "thinking": "disabled",
     }
     supplement = generate_reviewed_supplement(
         course_title=course_title,
-        leaf_title=leaf_title + ("；本次补充要求：" + str(topic["requested_materials"]) if topic.get("requested_materials") else ""),
+        leaf_title=leaf_title,
         sequence=sequence,
         call_model=lambda prompt: str(rag_system._call_llm(prompt, llm_config=llm_config)),
+        topic_id=scope_id,
+        deliverables=(
+            [dict(item) for item in topic.get("deliverables") or []]
+            if sequence == 1
+            else []
+        ),
+        additional_requirements=str(topic.get("requested_materials") or ""),
     )
     identity = f"{course_id}:{scope_id}:{sequence}"
     if topic.get("material_namespace"):
@@ -300,10 +638,12 @@ def _generate_and_persist_supplement(
                 "authority_tier": "model_generated_reviewed", "generated_by": PLAN_BUILDER_VERSION,
                 "generated_at": utc_now(), "generation_audit": {
                     **supplement.audit, **dict(fallback_audit or {}),
+                    "build_id": str(topic.get("material_namespace") or ""),
                     "model": resolved.get("model"),
                     "prompt_version": "course-leaf-supplement-v1",
                 },
                 "generation_review_score": supplement.review_score, "doc_kind": "generated",
+                "learning_artifacts": list(supplement.audit.get("learning_artifacts") or []),
                 "source_type": "model_generated", "status": "received",
                 "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
                 "content_hash": hashlib.sha256(body.encode("utf-8")).hexdigest(),
@@ -317,6 +657,7 @@ def _generate_and_persist_supplement(
         "content_chars": len(body),
         "chunk_count": int(import_result.get("chunk_count") or 0),
         "fallback_audit": dict(fallback_audit or {}),
+        "learning_artifacts": list(supplement.audit.get("learning_artifacts") or []),
     }
 
 
@@ -341,6 +682,73 @@ def _ingest_online_textbook_candidate(
         if fetched.content_format == "pdf"
         else parse_html_source(fetched)
     )
+    linked_chapter_urls = [
+        str(item).strip()
+        for item in (candidate.get("metadata") or {}).get("linked_chapter_urls") or []
+        if str(item).strip()
+    ]
+    if linked_chapter_urls:
+        chapter_results: list[tuple[str, Mapping[str, Any]]] = []
+        chapter_warnings: list[dict[str, str]] = []
+        with httpx.Client(timeout=60, follow_redirects=False, headers=headers) as client:
+            for chapter_url in linked_chapter_urls:
+                chapter_candidate = {
+                    "url": chapter_url,
+                    "title": (
+                        f"{candidate.get('title') or '在线教材'} · "
+                        f"{chapter_url.rsplit('/', 1)[-1]}"
+                    ),
+                    "metadata": {"content_format_hint": "pdf"},
+                }
+                try:
+                    chapter_fetched = fetch_source(
+                        client,
+                        chapter_candidate,
+                        robots_allowed=lambda url: _robots_allows(client, url),
+                    )
+                    chapter_results.append(
+                        (
+                            chapter_fetched.final_url,
+                            parse_pdf_source(chapter_fetched, pdf_parser=pdf_parser),
+                        )
+                    )
+                except Exception as exc:
+                    chapter_warnings.append(
+                        {"source_url": chapter_url, "message": str(exc)}
+                    )
+        if not chapter_results:
+            raise SourceIngestionError(
+                "TEXTBOOK_CHAPTER_BUNDLE_FAILED",
+                "在线教材章节目录可访问，但所有经审核的章节 PDF 均下载或解析失败",
+            )
+        merged_outline: list[dict[str, Any]] = []
+        merged_chunks: list[dict[str, Any]] = []
+        summaries: list[str] = []
+        char_count = 0
+        for chapter_url, result in chapter_results:
+            summaries.append(str(result.get("summary") or ""))
+            char_count += int(result.get("char_count") or 0)
+            merged_outline.extend(dict(item) for item in result.get("outline") or [])
+            merged_chunks.extend(
+                {**dict(item), "source_url": chapter_url}
+                for item in result.get("chunks") or []
+            )
+        parse_result = {
+            "parser": "linked-pdf-bundle",
+            "parser_metadata": {
+                "catalog_url": fetched.final_url,
+                "chapter_urls": [item[0] for item in chapter_results],
+                "failed_chapters": chapter_warnings,
+            },
+            "summary": "\n\n".join(item for item in summaries if item)[:4000],
+            "outline": merged_outline,
+            "chunks": merged_chunks,
+            "char_count": char_count,
+            "chapter_count": len(merged_outline),
+            "chunk_count": len(merged_chunks),
+            "warnings": chapter_warnings,
+            "parsed_at": utc_now(),
+        }
     suffix = ".pdf" if fetched.content_format == "pdf" else ".html"
     textbook_id = f"online-{fetched.content_hash[:20]}"
     return {
@@ -358,6 +766,8 @@ def _ingest_online_textbook_candidate(
         "content_format": fetched.content_format,
         "parse_result": parse_result,
         "source_candidate_id": candidate.get("candidate_id"),
+        "source_domain": candidate.get("domain"),
+        "authority_tier": candidate.get("authority_tier"),
         "is_online_textbook": True,
     }
 
@@ -368,6 +778,7 @@ def _reviewed_generated_documents(
     course_id: str,
     scope_id: str,
     limit: int,
+    build_id: str = "",
 ) -> list[dict[str, Any]]:
     """Resume independently reviewed supplements from an interrupted build."""
     if limit <= 0 or not hasattr(manager, "get_knowledge_base_index"):
@@ -381,6 +792,11 @@ def _reviewed_generated_documents(
             or record.get("source_type") != "model_generated"
             or int(record.get("generation_review_score") or 0) < 80
             or str(record.get("status") or "received") not in {"received", "ready"}
+            or (
+                build_id
+                and str((record.get("generation_audit") or {}).get("build_id") or "")
+                != build_id
+            )
         ):
             continue
         item = {
@@ -397,6 +813,12 @@ def _reviewed_generated_documents(
                 item[field] = record[field]
         if record.get("generation_audit"):
             item["fallback_audit"] = dict(record["generation_audit"])
+        if record.get("learning_artifacts"):
+            item["learning_artifacts"] = [
+                dict(artifact)
+                for artifact in record.get("learning_artifacts") or []
+                if isinstance(artifact, Mapping)
+            ]
         eligible.append(item)
         if len(eligible) >= limit:
             break
@@ -478,6 +900,8 @@ def _persist_textbook_materials(
                     "content_hash": textbook.get("content_hash"), "status": "received",
                     "chunk_count": int(import_result.get("chunk_count") or 0), "indexed_at": utc_now(),
                     "source_url": textbook.get("source_url"),
+                    "source_domain": textbook.get("source_domain"),
+                    "authority_tier": textbook.get("authority_tier"),
                     "retrieved_at": textbook.get("retrieved_at"),
                     "is_online_textbook": is_online,
                     "parser_metadata": (textbook.get("parse_result") or {}).get("parser_metadata"),
@@ -502,11 +926,22 @@ def _persist_textbook_materials(
             None,
         )
         if existing:
-            persisted.append({"document_id": str(existing.get("id") or ""), "scope_id": scope_id, "source_type": "textbook", "reused": True})
+            persisted.append({
+                "document_id": str(existing.get("id") or ""),
+                "scope_id": scope_id,
+                "source_type": "textbook",
+                "reused": True,
+                "source_url": existing.get("source_url"),
+                "source_domain": existing.get("source_domain"),
+                "authority_tier": existing.get("authority_tier"),
+                "is_online_textbook": existing.get("is_online_textbook", False),
+            })
             continue
         textbook = textbooks[textbook_id]
         sections = [
-            f"## {('第 ' + str(item.get('page')) + ' 页') if item.get('page') else item.get('chapter_title') or '教材章节'}\n\n{item.get('content') or ''}"
+            f"## {('第 ' + str(item.get('page')) + ' 页') if item.get('page') else item.get('chapter_title') or '教材章节'}\n\n"
+            f"来源：{item.get('source_url') or textbook.get('source_url') or ''}\n\n"
+            f"{item.get('content') or ''}"
             for item in mappings
         ]
         body = f"# {textbook.get('filename')} · 节点资料\n\n" + "\n\n".join(sections)
@@ -541,6 +976,8 @@ def _persist_textbook_materials(
                 "content_hash": content_hash, "content_chars": content_chars,
                 "mapping_confidence": minimum_confidence,
                 "source_url": textbook.get("source_url"),
+                "source_domain": textbook.get("source_domain"),
+                "authority_tier": textbook.get("authority_tier"),
                 "source_artifact_id": textbook_id,
                 "is_online_textbook": is_online,
                 "provenance_ok": bool(
@@ -554,6 +991,8 @@ def _persist_textbook_materials(
             "content_hash": content_hash, "content_chars": content_chars,
             "mapping_confidence": minimum_confidence,
             "source_url": textbook.get("source_url"),
+            "source_domain": textbook.get("source_domain"),
+            "authority_tier": textbook.get("authority_tier"),
             "source_artifact_id": textbook_id,
             "is_online_textbook": is_online,
             "provenance_ok": bool(content_hash and (textbook.get("source_url") or textbook_id)),
@@ -633,6 +1072,41 @@ def _textbook_first_coverage(
     )
 
 
+def _missing_preferred_domains(
+    topic: Mapping[str, Any], persisted: list[Mapping[str, Any]]
+) -> list[str]:
+    preferred = [
+        str(item).casefold().strip(".")
+        for item in dict(topic.get("source_policy") or {}).get("preferred_domains") or []
+        if str(item).strip()
+    ]
+    if not preferred:
+        return []
+    topic_id = str(topic.get("topic_id") or "")
+    present = {
+        parsed_domain(str(item.get("final_url") or item.get("source_url") or ""))
+        .casefold()
+        .strip(".")
+        for item in persisted
+        if str(item.get("scope_id") or "") == topic_id
+    }
+    return [
+        domain
+        for domain in preferred
+        if not any(host == domain or host.endswith("." + domain) for host in present)
+    ]
+
+
+def _candidate_fills_preferred_gap(
+    candidate: Mapping[str, Any], missing_domains: list[str]
+) -> bool:
+    hostname = parsed_domain(str(candidate.get("url") or "")).casefold().strip(".")
+    return any(
+        hostname == domain or hostname.endswith("." + domain)
+        for domain in missing_domains
+    )
+
+
 def _run_textbook_first_build(
     *,
     repository: Any,
@@ -645,7 +1119,7 @@ def _run_textbook_first_build(
     build_id: str,
     progress: Callable[[int, str, str], None] | None,
 ) -> dict[str, Any]:
-    config = dict(build.get("config") or {})
+    config = _effective_build_config(build)
     topics = execution_topics(build)
     if not topics:
         raise ValueError("构建计划没有叶级知识点")
@@ -672,6 +1146,7 @@ def _run_textbook_first_build(
     textbook_candidates = [
         item for item in all_candidates
         if item.get("selected") and item.get("review_status") == "relevant"
+        and bool((item.get("metadata") or {}).get("institutional_authority"))
     ]
     for candidate in textbook_candidates:
         try:
@@ -696,6 +1171,16 @@ def _run_textbook_first_build(
                     "parsed_at": (textbook.get("parse_result") or {}).get("parsed_at"),
                 },
             )
+            _update_candidate_in_memory(
+                all_candidates,
+                str(candidate.get("candidate_id") or ""),
+                review_status="ready",
+                review_reason="教材下载和结构化解析成功",
+                metadata={
+                    "final_url": textbook.get("source_url"),
+                    "content_hash": textbook.get("content_hash"),
+                },
+            )
         except Exception as exc:
             code = exc.code if isinstance(exc, SourceIngestionError) else "TEXTBOOK_INGESTION_FAILED"
             failures.append({
@@ -706,6 +1191,13 @@ def _run_textbook_first_build(
             })
             repository.update_source_candidate_result(
                 build_id,
+                str(candidate.get("candidate_id") or ""),
+                review_status="fetch_failed",
+                review_reason=str(exc),
+                metadata={"failure_code": code, "fetch_failed_at": utc_now()},
+            )
+            _update_candidate_in_memory(
+                all_candidates,
                 str(candidate.get("candidate_id") or ""),
                 review_status="fetch_failed",
                 review_reason=str(exc),
@@ -734,11 +1226,24 @@ def _run_textbook_first_build(
     max_rounds = min(3, max(1, int(config.get("max_search_rounds_per_leaf") or 2)))
     seen_final_urls: set[str] = {str(d["final_url"]) for d in persisted if d.get("final_url")}
     seen_content_hashes: set[str] = {str(d["content_hash"]) for d in persisted if d.get("content_hash")}
-    attempted_urls: set[str] = set()
+    attempted_urls: set[str] = {
+        canonical_source_url(item.get("source_url")) or str(item.get("source_url") or "")
+        for item in online_textbooks
+        if item.get("source_url")
+    }
+    topic_by_id = {str(item.get("topic_id") or ""): item for item in topics}
     leaf_search_rounds: dict[str, int] = {str(item["topic_id"]): 0 for item in topics}
     for round_index in range(max_rounds):
         coverage = _textbook_first_coverage(topics, persisted, config)
         gap_ids = {topic_id for topic_id, item in coverage.items() if item["unmet"]}
+        # Exhaust every explicitly preferred domain before considering the
+        # source search complete. This turns “Linux Kernel 与 Docker 官方”
+        # into observable acquisition behavior instead of a label in metrics.
+        gap_ids.update(
+            str(topic.get("topic_id") or "")
+            for topic in topics
+            if _missing_preferred_domains(topic, persisted)
+        )
         if not gap_ids:
             break
         discovery = discover_leaf_gap_sources(
@@ -746,7 +1251,15 @@ def _run_textbook_first_build(
         )
         warnings.extend(dict(item) for item in discovery["warnings"])
         round_candidates = [dict(item) for item in discovery["source_candidates"]]
-        all_candidates.extend(round_candidates)
+        all_candidates = _merge_source_candidates(all_candidates, round_candidates)
+        active_candidate_ids = {
+            str(item.get("candidate_id") or "") for item in all_candidates
+        }
+        round_candidates = [
+            item
+            for item in round_candidates
+            if str(item.get("candidate_id") or "") in active_candidate_ids
+        ]
         build = repository.replace_build_source_candidates(
             build_id,
             topics=topics,
@@ -780,7 +1293,13 @@ def _run_textbook_first_build(
                 continue
             attempted_urls.add(attempted_url)
             current = _textbook_first_coverage(topics, persisted, config).get(topic_id, {})
-            if not current.get("unmet"):
+            missing_preferred = _missing_preferred_domains(
+                topic_by_id.get(topic_id, {}), persisted
+            )
+            fills_preferred_gap = _candidate_fills_preferred_gap(
+                candidate, missing_preferred
+            )
+            if not current.get("unmet") and not fills_preferred_gap:
                 continue
             try:
                 item = _persist_candidate(
@@ -805,6 +1324,19 @@ def _run_textbook_first_build(
                     metadata={
                         "final_url": item.get("final_url"),
                         "content_hash": item.get("content_hash"),
+                        "semantic_evidence_score": item.get("semantic_evidence_score"),
+                        "fetched_at": utc_now(),
+                    },
+                )
+                _update_candidate_in_memory(
+                    all_candidates,
+                    str(candidate.get("candidate_id") or ""),
+                    review_status="ready",
+                    review_reason="网页正文抓取、清洗与索引成功",
+                    metadata={
+                        "final_url": item.get("final_url"),
+                        "content_hash": item.get("content_hash"),
+                        "semantic_evidence_score": item.get("semantic_evidence_score"),
                         "fetched_at": utc_now(),
                     },
                 )
@@ -818,6 +1350,13 @@ def _run_textbook_first_build(
                 })
                 repository.update_source_candidate_result(
                     build_id,
+                    str(candidate.get("candidate_id") or ""),
+                    review_status="fetch_failed",
+                    review_reason=str(exc),
+                    metadata={"failure_code": code, "fetch_failed_at": utc_now()},
+                )
+                _update_candidate_in_memory(
+                    all_candidates,
                     str(candidate.get("candidate_id") or ""),
                     review_status="fetch_failed",
                     review_reason=str(exc),
@@ -851,16 +1390,31 @@ def _run_textbook_first_build(
             - int(before_ai[topic_id]["effective_units"]),
         )
         ai_budget = min(maximum_ai, missing_units) if ai_enabled else 0
-        resumed = _reviewed_generated_documents(
-            manager, course_id=course_id, scope_id=topic_id, limit=ai_budget
+        resume_limit = _reviewed_generation_resume_limit(
+            topic,
+            ai_budget=ai_budget,
+            ai_enabled=ai_enabled,
+            maximum_ai=maximum_ai,
         )
-        if build.get("knowledge_proposal"):
-            resumed = []
+        resumed = _reviewed_generated_documents(
+            manager,
+            course_id=course_id,
+            scope_id=topic_id,
+            limit=resume_limit,
+            build_id=build_id,
+        )
         persisted.extend(resumed)
         deficits.extend(
             (topic, sequence)
             for sequence in range(1, max(0, ai_budget - len(resumed)) + 1)
         )
+    _ensure_required_artifact_generation(
+        deficits,
+        topics=topics,
+        persisted=persisted,
+        ai_enabled=ai_enabled,
+        maximum_ai=maximum_ai,
+    )
 
     course_title = str((build.get("course_snapshot") or {}).get("title") or "课程")
     persistence_lock = RLock()
@@ -881,7 +1435,11 @@ def _run_textbook_first_build(
                     sequence=sequence,
                     persistence_lock=persistence_lock,
                     fallback_audit={
-                        "fallback_reason": "non_ai_search_exhausted",
+                        "fallback_reason": (
+                            "teacher_required_artifact"
+                            if topic.get("artifact_generation_only")
+                            else "non_ai_search_exhausted"
+                        ),
                         "non_ai_attempt_count": leaf_search_rounds[str(topic["topic_id"])],
                         "pre_ai_coverage": before_ai[str(topic["topic_id"])],
                     },
@@ -951,7 +1509,7 @@ def _run_textbook_first_build(
         metrics=quality_details, quality_score=quality_score,
     )
     if not quality["passed"]:
-        failed_checks = [item["check_type"] for item in quality["checks"] if item["status"] == "failed"]
+        failed_checks = [item["check_type"] for item in quality["checks"] if item["status"] != "passed"]
         repository.update_build(
             build_id, status="blocked", phase="quality_blocked", progress=100,
             metrics=quality_details, quality_score=quality_score,
@@ -994,9 +1552,19 @@ def run_course_knowledge_plan_build_job(
     owner_user_id: str,
     build_id: str,
     progress: Callable[[int, str, str], None] | None = None,
+    is_cancel_requested: Callable[[], bool] | None = None,
 ) -> dict[str, Any]:
-    repository = get_postgres_knowledge_repository()
+    repository = _knowledge_repository()
     build = repository.get_build(build_id)
+    progress_reporter = progress
+
+    def guarded_progress(value: int, step: str, message: str) -> None:
+        if is_cancel_requested is not None and is_cancel_requested():
+            raise CourseKnowledgeBuildCancelled("课程知识库构建已由用户取消")
+        if progress_reporter is not None:
+            progress_reporter(value, step, message)
+
+    progress = guarded_progress if progress_reporter is not None or is_cancel_requested is not None else None
     try:
         if build is None or str(build.get("library_id") or "") != course_id:
             raise ValueError("知识库构建计划不存在")
@@ -1036,7 +1604,7 @@ def run_course_knowledge_plan_build_job(
         topics = list(build.get("topics") or [])
         if not topics:
             raise ValueError("构建计划没有叶级知识点")
-        config = dict(build.get("config") or {})
+        config = _effective_build_config(build)
         target_per_leaf = max(
             1, int(config.get("target_materials_per_leaf") or MIN_DOCUMENTS_PER_LEAF)
         )
@@ -1149,12 +1717,19 @@ def run_course_knowledge_plan_build_job(
                 course_id=course_id,
                 scope_id=topic_id,
                 limit=ai_budget,
+                build_id=build_id,
             )
-            if build.get("knowledge_proposal"):
-                resumed = []
             persisted.extend(resumed)
             remaining = max(0, ai_budget - len(resumed))
             deficits.extend((topic, sequence) for sequence in range(1, remaining + 1))
+
+        _ensure_required_artifact_generation(
+            deficits,
+            topics=topics,
+            persisted=persisted,
+            ai_enabled=ai_enabled,
+            maximum_ai=maximum_ai,
+        )
 
         persistence_lock = RLock()
         if deficits:
@@ -1213,7 +1788,7 @@ def run_course_knowledge_plan_build_job(
         if progress:
             progress(85, "quality_check", f"质量评分 {quality_score:.0f}/100")
         if not quality["passed"]:
-            failed_checks = [item["check_type"] for item in quality["checks"] if item["status"] == "failed"]
+            failed_checks = [item["check_type"] for item in quality["checks"] if item["status"] != "passed"]
             repository.update_build(build_id, status="blocked", phase="quality_blocked", progress=100, metrics=quality_details, quality_score=quality_score, error={"code": "QUALITY_GATE_FAILED", "message": f"质量门禁未通过：{', '.join(failed_checks)}"})
             raise RuntimeError(f"质量门禁未通过（{quality_score:.0f}/100）：{', '.join(failed_checks)}")
 
@@ -1231,6 +1806,22 @@ def run_course_knowledge_plan_build_job(
         }
         update_job(job_id, status=JobStatus.SUCCEEDED, step="completed", progress=100, message="课程知识库已通过质量检查并发布", result_ref=result)
         return result
+    except CourseKnowledgeBuildCancelled:
+        current = repository.get_build(build_id)
+        if current is not None and current.get("status") not in {"succeeded", "blocked"}:
+            repository.update_build(
+                build_id,
+                status="canceled",
+                phase="canceled",
+                progress=int(current.get("progress") or 0),
+                error={"code": "GENERATION_CANCELLED", "message": "课程知识库构建已取消"},
+            )
+        return {
+            "resource_type": "course_knowledge_base",
+            "course_id": course_id,
+            "build_id": build_id,
+            "canceled": True,
+        }
     except Exception as exc:
         current = repository.get_build(build_id)
         if current is not None and current.get("status") != "blocked":

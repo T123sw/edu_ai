@@ -1,0 +1,2215 @@
+{
+  "build_id": "kb-58337c7bfba945988551f09bb86f9f9c",
+  "library_id": "course-4c438c2ad14b4ffd864f8d380126cf08",
+  "status": "failed",
+  "phase": "failed",
+  "progress": 100,
+  "revision": 4,
+  "graph_confirmed_at": "2026-09-11T08:57:43.624795+00:00",
+  "confirmed_graph_revision": 4,
+  "confirmed_by": "teacher",
+  "metrics": {
+    "source_discovery": {
+      "textbook": {
+        "candidate_count": 17,
+        "search_failure_count": 0,
+        "selected_textbook_count": 2
+      }
+    },
+    "selected_source_count": 0
+  },
+  "quality_score": null,
+  "error": {
+    "code": "COURSE_KB_PLAN_BUILD_FAILED",
+    "message": "(psycopg.errors.UniqueViolation) duplicate key value violates unique constraint \"uq_knowledge_source_candidates_url\"\nDETAIL:  Key (build_id, url)=(kb-58337c7bfba945988551f09bb86f9f9c, https://cs.neepu.edu.cn/jxdg/6.caozuoxitong.pdf) already exists.\n[SQL: INSERT INTO knowledge_source_candidates (candidate_id, build_id, topic_id, url, title, domain, source_type, language, authority_tier, license_info, review_status, review_reason, selected, relevance_score, metadata_payload, created_at) VALUES (%(candidate_id)s::VARCHAR, %(build_id)s::VARCHAR, %(topic_id)s::VARCHAR, %(url)s::VARCHAR, %(title)s::VARCHAR, %(domain)s::VARCHAR, %(source_type)s::VARCHAR, %(language)s::VARCHAR, %(authority_tier)s::VARCHAR, %(license_info)s::JSONB, %(review_status)s::VARCHAR, %(review_reason)s::VARCHAR, %(selected)s, %(relevance_score)s, %(metadata_payload)s::JSONB, %(created_at)s::TIMESTAMP WITH TIME ZONE)]\n[parameters: [{'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-2037eb2b4323f1b1b486', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://www.jd.com/zxnews/8eb1b6b6efd180ba.html', 'title': '计算机操作系统(第2版)简介,目录书摘 - 京东', 'domain': 'www.jd.com', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'textbook_candidate', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'relevant', 'review_reason': '已通过 HTTPS 与课程相关性预筛，等待正文抓取', 'selected': True, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': '操作系统 掌握 C 语言和数据结构的计算机专业大 ... (957 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-b960864f1b4d75a47a04', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://www.bistu.edu.cn/docs/2024-03/W020230920631388693464.pdf', 'title': '[PDF] 目录 - 北京信息科技大学', 'domain': 'www.bistu.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'relevant', 'review_reason': '已通过 HTTPS 与课程相关性预筛，等待正文抓取', 'selected': True, 'relevance_score': 0.5, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (1849 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-0930b46ac04d5a80429f', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://blog.csdn.net/weixin_30495795/article/details/118621950', 'title': '计算机操作系统双语教程,计算机操作系统双语教程-CSDN博客', 'domain': 'blog.csdn.net', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'textbook_candidate', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '已达到在线教材候选上限', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': '操作系统 掌握 C 语言和数据结构的计算机专业大 ... (1011 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-44729436c4357ed58f55', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://cs.neepu.edu.cn/jxdg/6.caozuoxitong.pdf', 'title': '操作系统教学大纲', 'domain': 'cs.neepu.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源是课程简介或教学大纲，不足以作为知识点正文', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (1811 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-c19f8b9a4b52aebb10fc', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://ist.nenu.edu.cn/fjkcjj.pdf', 'title': '[PDF] 《线性代数》课程简介', 'domain': 'ist.nenu.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源是课程简介或教学大纲，不足以作为知识点正文', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (1787 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-18bbec1b9a1412ccbbff', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://www.gkd.edu.cn/2025kcsz/upload/files/2025/8/6efbd9c9ca8cc2d9.pdf', 'title': '《数据结构及算法设计》课程标准', 'domain': 'www.gkd.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '课程级教材发现只保留完整教材或课程讲义', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (1867 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-1440253192229009cb96', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://www.qau.edu.cn/userfiles/files/zhuye/2019/03/20190320110156.pdf', 'title': '计算机科学与技术专业（软件外包方向）课程体系框架图 - 青岛农业大学', 'domain': 'www.qau.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '课程级教材发现只保留完整教材或课程讲义', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 掌握 C 语言 ... (949 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-22b89da3117670921141', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': None, 'url': 'https://download.csdn.net/download/strawqqhat/11234476', 'title': '操作系统讲义.pdf资源-CSDN文库', 'domain': 'download.csdn.net', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'textbook_candidate', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源属于低质量文档镜像或下载站，已在抓取前拒绝', 'selected': False, 'relevance_score': 0.8, 'metadata_payload': Jsonb({'query': '操作系统 掌握 C 语言和数据结构的计算机专业大 ... (950 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}  ... displaying 10 of 66 total bound parameter sets ...  {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-f381cd3ac67904d2433e', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': 'kp-os-brief-process-thread', 'url': 'https://wlkc.zcst.edu.cn/meol/common/script/preview/download_preview.jsp?fileid=1851938&lid=42194&preview=preview&resid=352342', 'title': '《操作系统》教学大纲（2021.3） - 珠海科技学院', 'domain': 'wlkc.zcst.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源是课程简介或教学大纲，不足以作为知识点正文', 'selected': False, 'relevance_score': 0.102, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 线程与进程的区 ... (1192 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}, {'candidate_id': 'kb-58337c7bfba945988551f09bb86f9f9c:source-b763371416e9e1defe8f', 'build_id': 'kb-58337c7bfba945988551f09bb86f9f9c', 'topic_id': 'kp-os-brief-sync-semaphore', 'url': 'http://cc.bjtu.edu.cn:81/meol/data/convert/2024/7/9/a291b587-ec84-4623-92c3-01c99832852f_689432.html', 'title': '如果信号量已存在，返回一个错误。', 'domain': 'cc.bjtu.edu.cn', 'source_type': 'web', 'language': 'zh-CN', 'authority_tier': 'authoritative_source', 'license_info': Jsonb({'name': None, 'url': None}), 'review_status': 'rejected_irrelevant', 'review_reason': '来源 URL 非 HTTPS，或与课程主题没有可识别的语义重合', 'selected': False, 'relevance_score': 0.0638, 'metadata_payload': Jsonb({'query': 'site:edu.cn 操作系统 信号量与典型同 ... (1053 chars)), 'created_at': datetime.datetime(2026, 9, 11, 8, 58, 37, 757549, tzinfo=datetime.timezone.utc)}]]\n(Background on this error at: https://sqlalche.me/e/20/gkpj)"
+  },
+  "created_at": "2026-09-11T08:53:54.009564+00:00",
+  "updated_at": "2026-09-11T08:58:37.807391+00:00",
+  "quality_checks": [],
+  "config": {
+    "preset": "standard",
+    "graph_depth": 3,
+    "update_strategy": "incremental",
+    "content_language": "zh-CN",
+    "target_module_count": 4,
+    "max_online_textbooks": 2,
+    "ai_supplement_enabled": true,
+    "target_points_per_module": 4,
+    "prefer_complete_textbooks": true,
+    "target_materials_per_leaf": 3,
+    "max_search_rounds_per_leaf": 2,
+    "max_search_results_per_leaf": 8,
+    "maximum_ai_materials_per_leaf": 1,
+    "minimum_web_materials_per_leaf": 1,
+    "minimum_authoritative_sources_per_leaf": 1
+  },
+  "topics": [
+    {
+      "title": "进程的概念与状态",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-process-concept",
+      "objective": "进程定义、进程控制块与就绪/运行/阻塞状态转换。",
+      "graph_path": "操作系统（简明版） / 进程与线程 / 进程的概念与状态",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "系统调用机制",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-process-syscall",
+      "objective": "用户态与内核态切换、系统调用接口及典型调用示例。",
+      "graph_path": "操作系统（简明版） / 进程与线程 / 系统调用机制",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "线程与进程的区别",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-process-thread",
+      "objective": "线程的引入动机、共享资源与独立栈/寄存器上下文。",
+      "graph_path": "操作系统（简明版） / 进程与线程 / 线程与进程的区别",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "调度基本概念与评价指标",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-sched-basic",
+      "objective": "调度时机、周转时间与等待时间的定义。",
+      "graph_path": "操作系统（简明版） / CPU 调度 / 调度基本概念与评价指标",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "常见调度算法",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-sched-algorithms",
+      "objective": "FCFS、SJF、时间片轮转的基本规则与等待时间计算。",
+      "graph_path": "操作系统（简明版） / CPU 调度 / 常见调度算法",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "临界区与竞态条件",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-sync-race",
+      "objective": "并发访问共享变量引发的问题及临界区三条件。",
+      "graph_path": "操作系统（简明版） / 进程同步与信号量 / 临界区与竞态条件",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "信号量与典型同步问题",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-sync-semaphore",
+      "objective": "P/V 操作语义及生产者-消费者问题的信号量解法。",
+      "graph_path": "操作系统（简明版） / 进程同步与信号量 / 信号量与典型同步问题",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "死锁的概念与必要条件",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-deadlock-concept",
+      "objective": "死锁定义、四个必要条件及简单预防思路。",
+      "graph_path": "操作系统（简明版） / 死锁 / 死锁的概念与必要条件",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "分页与地址转换",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-vm-paging",
+      "objective": "页表、逻辑地址到物理地址的转换过程。",
+      "graph_path": "操作系统（简明版） / 虚拟内存：分页、缺页与页面置换 / 分页与地址转换",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    },
+    {
+      "title": "缺页与页面置换",
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "topic_id": "kp-os-brief-vm-pagefault",
+      "objective": "缺页中断处理流程及 FIFO、LRU 置换算法。",
+      "graph_path": "操作系统（简明版） / 虚拟内存：分页、缺页与页面置换 / 缺页与页面置换",
+      "deliverables": [],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "requirement_ids": [
+        "req_3a87a6d70bb72353",
+        "req_e64cc0435672019a",
+        "req_018624459304f328",
+        "req_1a85098d7ff1fb56"
+      ],
+      "material_namespace": "kb-58337c7bfba945988551f09bb86f9f9c"
+    }
+  ],
+  "warnings": [],
+  "course_id": "course-4c438c2ad14b4ffd864f8d380126cf08",
+  "textbooks": [],
+  "graph_draft": {
+    "id": "course-os-brief",
+    "data": {
+      "type": "course",
+      "summary": "8 课时入门课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存的核心概念与基本计算。"
+    },
+    "label": "操作系统（简明版）",
+    "children": [
+      {
+        "id": "mod-os-brief-process",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "理解进程与线程的概念、状态、系统调用接口与基本操作。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "kp-os-brief-process-concept",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程定义、进程控制块与就绪/运行/阻塞状态转换。"
+            },
+            "label": "进程的概念与状态",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-syscall",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "用户态与内核态切换、系统调用接口及典型调用示例。"
+            },
+            "label": "系统调用机制",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-thread",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "线程的引入动机、共享资源与独立栈/寄存器上下文。"
+            },
+            "label": "线程与进程的区别",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-scheduling",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "掌握常见调度算法并能计算等待时间。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "kp-os-brief-sched-basic",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "调度时机、周转时间与等待时间的定义。"
+            },
+            "label": "调度基本概念与评价指标",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-algorithms",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FCFS、SJF、时间片轮转的基本规则与等待时间计算。"
+            },
+            "label": "常见调度算法",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "用信号量分析并解决典型同步问题。"
+        },
+        "label": "进程同步与信号量",
+        "children": [
+          {
+            "id": "kp-os-brief-sync-race",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "并发访问共享变量引发的问题及临界区三条件。"
+            },
+            "label": "临界区与竞态条件",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-semaphore",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "P/V 操作语义及生产者-消费者问题的信号量解法。"
+            },
+            "label": "信号量与典型同步问题",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "理解死锁的成因与基本处理策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "kp-os-brief-deadlock-concept",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "死锁定义、四个必要条件及简单预防思路。"
+            },
+            "label": "死锁的概念与必要条件",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-vm",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "解释分页、缺页和页面置换算法的基本机制。"
+        },
+        "label": "虚拟内存：分页、缺页与页面置换",
+        "children": [
+          {
+            "id": "kp-os-brief-vm-paging",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "页表、逻辑地址到物理地址的转换过程。"
+            },
+            "label": "分页与地址转换",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-pagefault",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "缺页中断处理流程及 FIFO、LRU 置换算法。"
+            },
+            "label": "缺页与页面置换",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "baseline_graph": null,
+  "course_snapshot": {
+    "id": "course-4c438c2ad14b4ffd864f8d380126cf08",
+    "icon": "menu_book",
+    "color": "#3157d5",
+    "title": "操作系统（真实E2E-2026-09-11-os-v2-op）",
+    "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+    "language": "zh-CN",
+    "revision": 0,
+    "course_id": "course-4c438c2ad14b4ffd864f8d380126cf08",
+    "created_at": "2026-09-11T08:53:32.280064+00:00",
+    "created_by": "teacher",
+    "difficulty": "introductory",
+    "objectives": [
+      "能解释进程、线程和系统调用的核心机制",
+      "能比较常见 CPU 调度算法并计算等待时间",
+      "能使用信号量分析并解决典型同步问题",
+      "能解释分页、缺页和页面置换算法"
+    ],
+    "updated_at": "2026-09-11T08:53:32.280064+00:00",
+    "course_code": "QSANXMCA",
+    "description": "面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存。",
+    "knowledgeGraph": "",
+    "cover_image_ref": null
+  },
+  "intent_contract": {
+    "mode": "create",
+    "scope": {
+      "exclude_topics": [],
+      "include_topics": [
+        "进程与线程",
+        "CPU 调度",
+        "进程同步",
+        "死锁",
+        "虚拟内存"
+      ],
+      "preserve_existing_graph": false,
+      "preserve_existing_documents": false
+    },
+    "status": "ready_for_review",
+    "assumptions": [
+      "课时长度未换算为分钟，课程内容预算按课时数校验。"
+    ],
+    "deliverables": [],
+    "requirements": [
+      {
+        "kind": "duration",
+        "hardness": "hard",
+        "statement": "8 课时",
+        "verification": "course_time_budget",
+        "requirement_id": "req_3a87a6d70bb72353",
+        "normalized_value": {
+          "lessons": 8,
+          "minutes": null
+        }
+      },
+      {
+        "kind": "audience",
+        "hardness": "hard",
+        "statement": "掌握 C 语言和数据结构的计算机专业大二学生",
+        "verification": "pedagogical_fit_review",
+        "requirement_id": "req_e64cc0435672019a",
+        "normalized_value": "掌握 C 语言和数据结构的计算机专业大二学生"
+      },
+      {
+        "kind": "scope",
+        "hardness": "hard",
+        "statement": "进程与线程；CPU 调度；进程同步；死锁；虚拟内存",
+        "verification": "graph_scope_check",
+        "requirement_id": "req_018624459304f328",
+        "normalized_value": [
+          "进程与线程",
+          "CPU 调度",
+          "进程同步",
+          "死锁",
+          "虚拟内存"
+        ]
+      },
+      {
+        "kind": "depth",
+        "hardness": "hard",
+        "statement": "基础",
+        "verification": "pedagogical_depth_review",
+        "requirement_id": "req_1a85098d7ff1fb56",
+        "normalized_value": {
+          "conceptual_rigor": "基础",
+          "example_complexity": "",
+          "target_bloom_levels": [
+            "understand",
+            "apply",
+            "analyze"
+          ],
+          "math_or_code_expectation": ""
+        }
+      }
+    ],
+    "depth_profile": {
+      "conceptual_rigor": "基础",
+      "example_complexity": "",
+      "target_bloom_levels": [
+        "understand",
+        "apply",
+        "analyze"
+      ],
+      "math_or_code_expectation": ""
+    },
+    "original_text": "课程名称：操作系统（真实E2E-2026-09-11-os-v2-op）；课程简介：面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存；教学对象：掌握 C 语言和数据结构的计算机专业大二学生；课程难度：introductory；内容语言：zh-CN；课程目标：能解释进程、线程和系统调用的核心机制；能比较常见 CPU 调度算法并计算等待时间；能使用信号量分析并解决典型同步问题；能解释分页、缺页和页面置换算法。先生成可审核方案，不要直接发布。",
+    "source_policy": {
+      "freshness": null,
+      "required_domains": [],
+      "allow_ai_fallback": false,
+      "allowed_languages": [
+        "zh-CN"
+      ],
+      "preferred_domains": [],
+      "preferred_organizations": [],
+      "allow_community_fallback": true,
+      "minimum_authoritative_sources_per_topic": 0
+    },
+    "course_profile": {
+      "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+      "language": "zh-CN",
+      "difficulty": "introductory",
+      "prerequisites": [
+        "C 语言",
+        "数据结构"
+      ],
+      "duration_lessons": 8,
+      "duration_minutes": null,
+      "learning_outcomes": [
+        "能解释进程、线程和系统调用的核心机制",
+        "能比较常见 CPU 调度算法并计算等待时间",
+        "能使用信号量分析并解决典型同步问题",
+        "能解释分页、缺页和页面置换算法"
+      ]
+    },
+    "schema_version": "2.0",
+    "clarification_questions": []
+  },
+  "source_candidates": [
+    {
+      "candidate_id": "source-056c9b2664edc304b6e7",
+      "topic_id": null,
+      "title": "《计算机操作系统》(COMPUTER OPERATING SYSTEMS) - 道客巴巴",
+      "url": "https://www.doc88.com/p-999341864479.html",
+      "domain": "www.doc88.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "web_discovered",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 课程讲义 教材 章节 目录 PDF",
+        "snippet": "下载积分: 900 内容提示: 《计算机操作系统》教学大纲 第一部分 大纲说明 一、课程的性质和任务 《计算机操作系统》是计算机科学与技术专业本科生的一门必修课程。通过学习使学员掌握计算机操作系统的基本原理及组成计算机操作系统的基本概念和相关的新概念、名词及术语 了解计算机操作系统的发展特点、 设计技巧和方法 对常用计算机操作系统(DOS、 Windows和UNIX 或Linux) 会进行基本的操作使用。 二、先修课程要求 计算机原理C 语言程序设计和数据结构 三、课程的教学基本要求 掌握计算机操作系统的基本概念、新名词、术语及设计思路和方法技巧掌握... 文档格式:PDF | 页数:3 | 浏览次数:37 | 《计算机操作系统》教学大纲 第一部分 大纲说明 一、课程的性质和任务 《计算机操作系统》是计算机科学与技术专业本科生的一门必修课程。通过学习使学员掌握计算机操作系统的基本原理及组成计算机操作系统的基本概念和相关的新概念、名词及术语 了解计算机操作系统的发展特点、 设计技巧和方法 对常用计算机操作系统(DOS、 Windows和UNIX 或Linux) 会进行基本的操作使用。 二、先修课程要求 计算机原理C 语言程序设计和数据结构 三、课程的教学基本要求 掌握计算机操作系统的基本概念、新名词、术语及设计思路和方法技巧掌握一种操作系统的安装、使用和简单维护。 四、教学方法和教学形式建议 课堂讲解与实际参观、调研、实例使用相结合加强实践教学讲课与实验比例大于 41。 五、课程教学要求的层次 1. 熟练掌握要求学生能够全面、深入理解和熟练掌握所学内容并能够用其分析、初步设计和解答与网络应用相关的问题能够举一反三。 2.掌握要求学生能够较好地理解和掌握并且能够进行简单分析和判断。 3.了解要求学生能够一般地了解所学内容。 第二部分 多种媒",
+        "provider": "configured_web_search",
+        "bocha_rank": 2,
+        "topic_title": "",
+        "original_url": "https://www.doc88.com/p-999341864479.html",
+        "canonical_url": "https://www.doc88.com/p-999341864479.html",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.43,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "course_notes_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0,
+        "low_quality_source": true,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-059a7609944a1755a9f2",
+      "topic_id": null,
+      "title": "计算机操作系统课程教学大纲.pdf_淘豆网",
+      "url": "https://www.taodocs.com/p-1115323073.html",
+      "domain": "www.taodocs.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "web_discovered",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 课程讲义 教材 章节 目录 PDF",
+        "snippet": "文档列表 文档介绍 该【计算机操作系统课程教学大纲 】是由【DATA洞察】上传分享,文档一共【5】页,该文档可以免费在线阅读,需要了解更多关于【计算机操作系统课程教学大纲 】的内容,可以使用淘豆网的站内搜索功能,选择自己适合的文档,以下文字是截取该文章内的部分文字,如需要获得完整电子版,请下载此文档到您的设备,方便您编辑和打印。:..计算机操作系统课程教学大纲一、::::计算机体系结构、:本课程旨在使学生了解计算机操作系统的基本原理、功能和特性,掌握操作系统的设计与实现方法,并培养学生使用和管理操作系统的能力。二、安排学生完成操作系统相关的设计与实现作业四、:《计算机操作系统教程》:-《现代操作系统》-《深入理解计算机系统》-《操作系统概念》:..-《操作系统导论》五、:包括课堂表现、:期末闭卷考试,占总成绩的60%:学生实验报告评分,占总成绩的20%:学生作业评分,占总成绩的20%六、:定期进行学生评价,:对学生的学习情况进行评价,:结合学生评价与教师总结,不断改进课程内容与教学方法,提高教学质量。七、::XXX八、备注:..本教学大纲仅为参考,具体教学内容与进度可能根据实际情况进行调整,学生需以授课教师的实际安排为准。以上是对《计算机操作系统课程教学大纲》的详细介绍,该课程旨在帮助学生全面了解和掌握计算机操作系统的原理、功能和实现方法。通过理论教学、实践操作、案例分析等方式,培养学生使用和管理操作系统的能力,以适应不同领域的计算机应用需求。学生将通过课堂学习、实验操作和课程作业等方式进行评估,全面掌握操作系统相关知识和技能。该教学大纲为教师和学生提供了一个框架,用于指导和组织课程教学活动,同时也为课程评价和改进提供了依据。 计算机操作系统课程教学大纲 来自淘豆网www.taodocs.com转载请标明出处.",
+        "provider": "configured_web_search",
+        "bocha_rank": 4,
+        "topic_title": "",
+        "original_url": "https://www.taodocs.com/p-1115323073.html",
+        "canonical_url": "https://www.taodocs.com/p-1115323073.html",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.4775,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "course_notes_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": true,
+        "completeness_score": 0.2,
+        "low_quality_source": true,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-0930b46ac04d5a80429f",
+      "topic_id": null,
+      "title": "计算机操作系统双语教程,计算机操作系统双语教程-CSDN博客",
+      "url": "https://blog.csdn.net/weixin_30495795/article/details/118621950",
+      "domain": "blog.csdn.net",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "textbook_candidate",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "已达到在线教材候选上限",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 开放教材 完整教程 章节 目录",
+        "snippet": "《计算机操作系统双语教程(普通高等院校十二五规划教材)》编著者朱天翔等。《计算机操作系统双语教程(普通高等院校十二五规划教材)》内容提要:本书介绍了计算机操作系统的基本概念、原理和相关的技术。从计算技术的产生到操作系统的发展,从单机批处理操作到多道程序系统的实现,由浅入深、循序渐进,构成计算机操作系统的整体架构。全书共分8章,分别介绍了计算机操作系统的基本概念;",
+        "provider": "configured_web_search",
+        "bocha_rank": 1,
+        "topic_title": "",
+        "original_url": "https://blog.csdn.net/weixin_30495795/article/details/118621950",
+        "canonical_url": "https://blog.csdn.net/weixin_30495795/article/details/118621950",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "course_notes",
+        "priority_score": 0.59,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_html",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0.25,
+        "low_quality_source": false,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-1440253192229009cb96",
+      "topic_id": null,
+      "title": "计算机科学与技术专业（软件外包方向）课程体系框架图 - 青岛农业大学",
+      "url": "https://www.qau.edu.cn/userfiles/files/zhuye/2019/03/20190320110156.pdf",
+      "domain": "www.qau.edu.cn",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "authoritative_source",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "site:edu.cn 操作系统 掌握 C 语言和数据结构的计算机专业大二学生 完整教材 课程讲义 PDF filetype:pdf",
+        "snippet": "掌握操作系统的组成、结构以及管理各种 ... 先修课程：《计算机基础》、《C 语言》、《数据结构》。 ... 先修课程：《数据结构》、《操作系统》、《数据库》、《计算机.",
+        "provider": "configured_web_search",
+        "bocha_rank": 2,
+        "topic_title": "",
+        "original_url": "https://www.qau.edu.cn/userfiles/files/zhuye/2019/03/20190320110156.pdf",
+        "canonical_url": "https://www.qau.edu.cn/userfiles/files/zhuye/2019/03/20190320110156.pdf",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.595,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0,
+        "low_quality_source": false,
+        "content_format_hint": "pdf",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": true
+      }
+    },
+    {
+      "candidate_id": "source-18bbec1b9a1412ccbbff",
+      "topic_id": null,
+      "title": "《数据结构及算法设计》课程标准",
+      "url": "https://www.gkd.edu.cn/2025kcsz/upload/files/2025/8/6efbd9c9ca8cc2d9.pdf",
+      "domain": "www.gkd.edu.cn",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "authoritative_source",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "site:edu.cn 操作系统 掌握 C 语言和数据结构的计算机专业大二学生 完整教材 课程讲义 PDF filetype:pdf",
+        "snippet": "代码规范意识，强化“用技术解决问题”的职业素养； 3、思政与价值引领：将社会主义核心价值观、工匠精神、文化自信等思政元素融入 教学全过程，在算法复杂度分析中渗透“精益求精”的工匠精神，在团队项目中培育 “诚信协作”的处世之道，在非遗、党史等主题项目中厚植文化自信与社会责任感，最 终培养出既懂技术、又有情怀，能服务区域计算机行业发展的高层次技术技能人才。 三、课程目标 通过本课程的学习，要求学生掌握常见数据结构的使用方法和实用程序的开发技术， 能够对相关算法的分析和理解。培养计算机专业的学生结合实际，设计有效的算法和数 据结构的能力，为学习操作系统、编译原理和数据库等后续课程奠定基础。 （一）知识目标 1、掌握数据结构的基本概念及相关术语，理解不同算法效率差异的核心逻辑； 2、掌握线性表、栈、队列的逻辑结构、存储结构及基本运算的实现原理； 3、掌握串的存储结构及模式匹配算法，理解字符串处理的核心逻辑； 4、掌握数组和广义表的存储结构及基本运算，熟悉特殊矩阵、稀疏矩阵的压缩存储 方法； 5、掌握树、二叉树的基本概念、性质及存储结构，熟练掌握二叉树的遍历及哈夫曼 树、哈夫曼编码的基本操作； 6、掌握图的基本概念、存储结构及遍历方法，熟悉最小生成树、单源最短路径、拓 扑排序的实现原理； 7、掌握插入排序、交换排序、选择排序、归并排序等常用排序算法的基本思想及实 现； 8、掌握折半查找、二叉排序树查找、哈希查找的基本原理及适用场景。 （二）能力目标 1、能根据实际问题选择合适的数据结构，完成数据建模； 2、能独立编写代码实现常用数据结构的基本运算，并通过调试解决代码中的逻辑错 误； 3、能对现有算法进行时间复杂度分析，在项目中筛选并优化出高效算法； 4、能以小组为单位完成综合实践项目，分工完成需求分析、代码编写、功能测试等 环节，输出可运行的完整程序； [...] 《数据结构及算法设计》课程标准 一、课程信息 课程名称 数据结构及算 法设计 适用专 业 计算机应用工 程，大数据工 程技术 适用层次 职业教育本科 学时/学 分 64/4 开课单 位 信息工程学院 考核性质 考试 理论学时 0 实践学 时 32 理实一体学 时 32 二、课程性质与任务 （一）课程性质 在计算机科学中，数据结构是一门研究非数值计算的程序设计问题中，计算机的操 作对象（数据元素）以及它们之间的关系和",
+        "provider": "configured_web_search",
+        "bocha_rank": 6,
+        "topic_title": "",
+        "original_url": "https://www.gkd.edu.cn/2025kcsz/upload/files/2025/8/6efbd9c9ca8cc2d9.pdf",
+        "canonical_url": "https://www.gkd.edu.cn/2025kcsz/upload/files/2025/8/6efbd9c9ca8cc2d9.pdf",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.6383,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0.2,
+        "low_quality_source": false,
+        "content_format_hint": "pdf",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": true
+      }
+    },
+    {
+      "candidate_id": "source-1b93b4c2cfcf58533977",
+      "topic_id": null,
+      "title": "操作系统第0章 课程简介_文档下载",
+      "url": "https://doc.wendoc.com/b3577eb31b6f0967b67237176-6.html",
+      "domain": "doc.wendoc.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "web_discovered",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 课程讲义 教材 章节 目录 PDF",
+        "snippet": "操作系统的PPT,东软课件 操作系统 学习《操作系统》的意义 学习操作系统必需的基础知识 熟知计算机组成原理 掌握C语言编程及汇编语言编程 掌握数据结构基本知识 第0章 课程简介 _理学_高等教育_教育专区。1 网络编程基础侯彦娥 houyane@qq.com... 操作系统第0章 课程简介 31页 1下载券 第0章 课程简介 与学期要... 暂无评... 课程简介 0.2 课程授课安排 0.3 课程实验安排 第0章 引言 0.1 课程简介 0.2 课程授课安排 0.3 课程实验安排 0.1 课程简介 1、课程名称: 操作系统 A 2... 第0章 课程简介 及要求 暂无评价 9页 1财富值 操作系统第0章 课程简介 31页 2财富值 第0章_ 课程简介 _2011 8页 免费 C语言第0章_ 课程简介 10页20财富值... 20100908_085254_463235_ 第0章 课程介绍 _调查/报告_表格/模板_实用文档。信息系统...系统的分析与设计 操作系统 Java程序设计 会计学 数据结构 信息系统开发入门 ... 第0章 _ 课程简介 _工学_高等教育_教育专区。光电信息技术 课程简介 张小贝 上海大学...SOC在光纤陀螺全数字开环 系统 上的应用 §5.11 汽车输油管内外径光电在线测量... 第0章 信息系统基础 课程简介 信息管理系统专业的ppt信息管理系统专业的ppt隐藏>>... 操作系统 、 WEB原理与应用、JAVA程序设计、数据库系统基础、计算机网 络、数据库... 第0章课程简介 _经济学_高等教育_教育专区。东北财经大学 张先治、池国华《企业价值评估》第二版 课程同步课件第0课企业价值评估南华工商学院金融系 Email:AlenLiu95... 4 课程介绍 ? 操作系统 及常用软件安装 ?在 操作系统 及常用软件安装部分中,主要 ..",
+        "provider": "configured_web_search",
+        "bocha_rank": 3,
+        "topic_title": "",
+        "original_url": "https://doc.wendoc.com/b3577eb31b6f0967b67237176-6.html",
+        "canonical_url": "https://doc.wendoc.com/b3577eb31b6f0967b67237176-6.html",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.4217,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "course_notes_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": true,
+        "completeness_score": 0,
+        "low_quality_source": true,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-2037eb2b4323f1b1b486",
+      "topic_id": null,
+      "title": "计算机操作系统(第2版)简介,目录书摘 - 京东",
+      "url": "https://www.jd.com/zxnews/8eb1b6b6efd180ba.html",
+      "domain": "www.jd.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "textbook_candidate",
+      "review_status": "fetch_failed",
+      "review_reason": "'bytes' object has no attribute 'casefold'",
+      "selected": true,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 开放教材 完整教程 章节 目录",
+        "snippet": "内容简介:《计算机操作系统(第2版)》,本书系统地介绍了现代操作系统的基本理论和最新技术,并具体分析了Windows和Linux中的实现技术和方法。本书的使用对象是开设操作系统课程的相关专业的本科生,以及具有一些操作系统基本知识并想进一步了解操作系统内部编程的读者。本书可作为普通高等院校操作系统课程的教材。 作者简介: 目录:",
+        "provider": "configured_web_search",
+        "bocha_rank": 5,
+        "topic_title": "",
+        "failure_code": "TEXTBOOK_INGESTION_FAILED",
+        "original_url": "https://www.jd.com/zxnews/8eb1b6b6efd180ba.html",
+        "canonical_url": "https://www.jd.com/zxnews/8eb1b6b6efd180ba.html",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "textbook",
+        "priority_score": 0.685,
+        "discovery_scope": "course",
+        "fetch_failed_at": "2026-09-11T08:57:50.673805+00:00",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_html",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0.7,
+        "low_quality_source": false,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-22b89da3117670921141",
+      "topic_id": null,
+      "title": "操作系统讲义.pdf资源-CSDN文库",
+      "url": "https://download.csdn.net/download/strawqqhat/11234476",
+      "domain": "download.csdn.net",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "textbook_candidate",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "来源属于低质量文档镜像或下载站，已在抓取前拒绝",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 课程讲义 教材 章节 目录 PDF",
+        "snippet": "在计算机科学的学习领域中,操作系统是不可或缺的核心课程。它不仅是技术专业学生必须深入探究的领域,更是那些希望在未来从事系统级编程或系统管理工作的学生的基础。操作系统的教学不仅包括理论知识的传授,更重要... Linux操作系统讲义.pdf 浏览:120 \"Linux操作系统讲义.pdf\"",
+        "provider": "configured_web_search",
+        "bocha_rank": 1,
+        "topic_title": "",
+        "original_url": "https://download.csdn.net/download/strawqqhat/11234476",
+        "canonical_url": "https://download.csdn.net/download/strawqqhat/11234476",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "course_notes",
+        "priority_score": 0.59,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "course_notes_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0.25,
+        "low_quality_source": true,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-44729436c4357ed58f55",
+      "topic_id": null,
+      "title": "操作系统教学大纲",
+      "url": "https://cs.neepu.edu.cn/jxdg/6.caozuoxitong.pdf",
+      "domain": "cs.neepu.edu.cn",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "authoritative_source",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "来源是课程简介或教学大纲，不足以作为知识点正文",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "site:edu.cn 操作系统 掌握 C 语言和数据结构的计算机专业大二学生 完整教材 课程讲义 PDF filetype:pdf",
+        "snippet": "操作系统教学大纲 一、基本信息 英文名称：Operating System 课程编号：063311205 课程类别：专业课 课程性质：必修课 学时：60 （理论学时：60） 学分：3.5 适用对象：计算机科学与技术专业 先修课程：数据结构、计算机组成原理、C 语言程序设计、计算机科学导论 开课单位：计算机学院 使用教材： 张尧学，宋虹，张高.计算机操作系统教程.第4 版.北京：清华大学出版社，2013 主要参考书： 邹恒明.计算机的心智操作系统之哲学原理.第2 版.北京:机械工业出版社.2012 William Stallings.操作系统-精髓与设计原理.第8 版.北京:电子工业出版社.2017 汤小丹.计算机操作系统.第4 版.西安: 西安电子科技大学出版社.2014 二、教学目标 《操作系统》是计算机类专业的一门主干专业课，在培养学生逻辑思维能力、复杂问题分析和解决 能力、综合设计能力等方面占有重要的地位。 本课程的教学目的是使学生了解计算机操作系统的基本概念；了解操作系统在计算机系统中的地位 和作用；掌握操作系统控制和管理计算机系统的原理、技术和方法；建立以操作系统为中心的计算机系 统性认识和整体性把握，具有剖析、设计、开发和构造现代操作系统的基本能力并能够运用所学操作系 统知识分析问题和解决问题。课程目标及能力要求具体如下： 课程目标1：掌握作业、进程、处理机、虚拟存储器、文件系统、中断、通道、设备管理等基本概念和 基本管理策略，能够分析和评价计算机复杂工程问题中涉及的系统并行设计、存储空间分配、处理机调 度等问题。 课程目标2：掌握处理机调度、虚拟存储器管理、设备控制等计算机资源管理策略和管理逻辑，能够识 别、判断影响计算机性能的关键因素，并具备并发调度、协调配合、性能分析、冲突解决和提升资源利 用率的能力。 [...] 别、判断影响计算机性能的关键因素，并具备并发调度、协调配合、性能分析、冲突解决和提升资源利 用率的能力。 课程目标3：掌握操作系统在有限资源、有限时间、高昂成本等诸多限制条件下的进程并发化、设备虚 拟化、调度优先化、设备分配公平化、安全措施层次化等解决方案和基本原理。面对大型复杂问题，具 备对性能、可靠性、成本等影响因素综合衡量并得出最佳解决方案的基本素质。 表1 课程目标对毕业要求的支撑关系 毕业要求 毕业要求指标点 课程目标对毕业 ",
+        "provider": "configured_web_search",
+        "bocha_rank": 1,
+        "topic_title": "",
+        "original_url": "https://cs.neepu.edu.cn/jxdg/6.caozuoxitong.pdf",
+        "canonical_url": "https://cs.neepu.edu.cn/jxdg/6.caozuoxitong.pdf",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "textbook",
+        "priority_score": 0.83,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": true,
+        "completeness_score": 0.7,
+        "low_quality_source": false,
+        "content_format_hint": "pdf",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": true
+      }
+    },
+    {
+      "candidate_id": "source-5f7aba055c6cff8e3c82",
+      "topic_id": null,
+      "title": "第2章计算机操作系统_文档下载",
+      "url": "https://doc.wendoc.com/b346018ca69a6a72ac747773f-7.html",
+      "domain": "doc.wendoc.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "web_discovered",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 开放教材 完整教程 章节 目录",
+        "snippet": "第2章 计算机操作系统 _电脑基础知识_IT/计算机_专业资料。 第2章 计算机操作系统 什么是操作系统 ? ? 操作系统是管理计算机系统资源以及方便用户利 用计算机系统资源... 第2章 计算机操作系统 ?2.1 操作系统的发展简况 ?2.2 操作系统的主要功能 ?2.3 Windows系统的使用 ?2.4 其他操作系统简介 2.1 操作系统的发展简况 ?2.1... 第二章 计算机操作系统 _计算机硬件及网络_IT/计算机_专业资料。 第二章 计算机操作系统 本章学习目标: ? 掌握 Windows2003 的基本操作 ? 掌握“我的电脑”“资源... UNIX的用户界面Shell简介 第二章 用户与 操作系统 的接口 2.1 作业控制级接口 2.1.1 作业、作业步、作业流所谓作业就是用户一次请求 计算机系统 为它完成任务所进行... 第2章 计算机操作系统 概述_IT/计算机_专业资料。计算机操作系统概述1.1 存储程序式计算机 ? 1.2 操作系统的发展历史 ? 1.3 操作系统的基本概念 ? 1.4 操作... 第2章 计算机操作系统 2.1 操作系统概述 2.2 Windows XP的基本操作 2.3文件和文件夹的管理 2.4 程序管理 2.5 磁盘管理 2.6 系统管理 2013-6-25 大学计... 计算机操作系统第二章 课后答案(完整版)_计算机软件及应用_IT/计算机_专业资料。 计算机操作系统 (第三版,汤小丹) 第二章 课后习题答案(完整版)第... 计算机技术应用基础刘传平中国地质大学(北京) 第2章 计算机操作系统 ?2.1 操作系统的发展简况 ?2.2 操作系统的主要功能 ?2.3 Windows系统的使用 ?2.4 其他操... 第2章 计算机操作系统 答案 操作系统用户界面_工学_高等教育_教育专区。计算机操作系统答案(第三版) 操作系",
+        "provider": "configured_web_search",
+        "bocha_rank": 4,
+        "topic_title": "",
+        "original_url": "https://doc.wendoc.com/b346018ca69a6a72ac747773f-7.html",
+        "canonical_url": "https://doc.wendoc.com/b346018ca69a6a72ac747773f-7.html",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.4775,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_html",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0.2,
+        "low_quality_source": true,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-62ddde7f8f5432c16de0",
+      "topic_id": null,
+      "title": "我是数学系学生准备跨考计算机应用技术专业研究生,时间紧迫,无从下手,好心人帮我指点一下。 - 搜狗问问",
+      "url": "http://wenwen.sogou.com/z/q902849237.htm",
+      "domain": "wenwen.sogou.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "textbook_candidate",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "来源 URL 非 HTTPS，或与课程主题没有可识别的语义重合",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 开放教材 完整教程 章节 目录",
+        "snippet": "我买了初试所需教材,《数据结构》,《操作系统》,《计算机组成原理》,《计算机网络》,刚开始学《数据结构》就碰壁,很棘手啊,哪位好心的师哥师姐帮我出下主意,交我该怎么学。不胜感激! 想考计算机专业,操作系统是计算机专业必修的专业课,下面是我的推荐: 在复习操作系统前,尤其对于那些跨专业的考生来说,要学习一些先导课程。这些先导课程有《计算机概论》、《数据结构》、《算法》、《C语言》、《计算机体系结构》。 ·计算机概论:主要是对计算机整个技术体系有一个全面而大致的了解。当出现问题时,可以有针对性的查询资料,从而找到解决的办法。 ·数据结构:纵观整个操作系统技术,重点之一就是对数据的存储与处理。一个数据由哪那些成分构成,以什么方式构成,结构是什么,这些都总结在数据结构这门课程中。如何针对不同数据采用不同的方法编写好的程序,也是数据结构研究的重点。 ·算法:算法是在有限步骤内求解某一问题所使用的一组定义明确的规则。操作系统涉及相当多的算法,所以掌握一定算法知识,是学好操作系统的前提。 ·C语言:主流的操作系统都是由C编写而成,而且数据结构、操作系统中的算法大部分都是由类C语言描述的。因此掌握C语言,是看懂书中程序的关键。 ·计算机体系结构:操作系统任务之一就是管理计算机硬件,如对存储器的管理、CPU的调度。因此,必须了解计算机的结构组成、工作原理,才能更好的深入学习管理这些硬件的操作系统知识。 要学习与实践相结合,才能突飞猛进。在生活中寻找“模型”,学习就有动力。 再看看别人怎么说的。",
+        "provider": "configured_web_search",
+        "bocha_rank": 6,
+        "topic_title": "",
+        "original_url": "http://wenwen.sogou.com/z/q902849237.htm",
+        "canonical_url": "",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "course_notes",
+        "priority_score": 0.5483,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_html",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0.25,
+        "low_quality_source": false,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-755e2b9cbff02d9e9267",
+      "topic_id": null,
+      "title": "计算机科学与技术专业《计算机网络通信》课程知识单元结构 - 道客巴巴",
+      "url": "https://www.doc88.com/p-54259555613452.html",
+      "domain": "www.doc88.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "web_discovered",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 课程讲义 教材 章节 目录 PDF",
+        "snippet": "下载积分: 1100 内容提示: 《操作系统原理》 教学大纲 (2009 版) 一、 课程基本情况 课程的性质、 地位和任务 操作系统是计算机科学与技术专业的专业基础课。 操作系统是计算机系统配置的基本系统软件之一, 是一门理论与实践紧密结合的课程。 学好该课程对认识整个计算机系统的工作机理有着重要的作用。 本课程主要介绍操作系统的功能及结构, 一些基本的算法; 以多道程序设计技术为基础, 介绍构成系统的各子系统的工作原理及设计方法。 通过理论联系实际的教学, 使学生能较系统地了解计算机操作系统的基本概念、 工作原理、 设计目标和主要的算法和技术, 培养学生分析和设计操作系统... 文档格式:DOC | 页数:4 | 浏览次数:6 | 《操作系统原理》 教学大纲 (2009 版) 一、 课程基本情况 课程的性质、 地位和任务 操作系统是计算机科学与技术专业的专业基础课。 操作系统是计算机系统配置的基本系统软件之一, 是一门理论与实践紧密结合的课程。 学好该课程对认识整个计算机系统的工作机理有着重要的作用。 本课程主要介绍操作系统的功能及结构, 一些基本的算法; 以多道程序设计技术为基础, 介绍构成系统的各子系统的工作原理及设计方法。 通过理论联系实际的教学, 使学生能较系统地了解计算机操作系统的基本概念、 工作原理、 设计目标和主要的算法和技术, 培养学生分析和设计操作系统的初步能力, 为今后进一步从事计算机操作系统和系统软件的分析、 研制和开发打下良好的基础。 课程教学的基本要求 通过本课程的学习, 可以使学生熟悉操作系统和计算机系统发展的历史、 为什么计算机系统要有操作系统、 操作系统分类, 理解和掌握操作系统的基本思想及基本概念: 并发、 共享、 虚拟性、 进程、 线程、 死锁等, 掌握操作系统各模块的工作过程及有关的算法和特性, 以及一些常见的技术和原理。 能初步认",
+        "provider": "configured_web_search",
+        "bocha_rank": 5,
+        "topic_title": "",
+        "original_url": "https://www.doc88.com/p-54259555613452.html",
+        "canonical_url": "https://www.doc88.com/p-54259555613452.html",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.415,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "course_notes_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0,
+        "low_quality_source": true,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-7e35ce9ef807936b3c81",
+      "topic_id": null,
+      "title": "计算机科学与技术专业本科课程教学大纲",
+      "url": "http://cit.xynu.edu.cn/__local/6/B7/A6/E61E346C4A3DE2D764E97A2E315_D399322B_4F0A69.pdf",
+      "domain": "cit.xynu.edu.cn",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "authoritative_source",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "site:edu.cn 操作系统 掌握 C 语言和数据结构的计算机专业大二学生 完整教材 课程讲义 PDF filetype:pdf",
+        "snippet": "《C 语言程序设计实验》课程教学大纲 ................................ ................................ ............... 73 《数据结构》课程教学大纲 ................................ ................................ ................................ ... 77 《数据结构实验 》课程教学大纲 ................................ ................................ ........................... 86 《数据库原理与应用》课程教学大纲 ................................ ................................ ................... 90 《数据库原理与应用实验》课程教学大纲 ................................ ................................ ......... 100 《操作系统》课程教学大纲 ................................ ................................ ................................ . 103 [...] 《大学物理 C》课程教学大纲 ................................ ................................ ............................... 32 《大学物理实验》课程教学大纲 ................................ ................................ ........................... 40 （二）专业基础平台 ................................ ................................ ...............................",
+        "provider": "configured_web_search",
+        "bocha_rank": 4,
+        "topic_title": "",
+        "original_url": "http://cit.xynu.edu.cn/__local/6/B7/A6/E61E346C4A3DE2D764E97A2E315_D399322B_4F0A69.pdf",
+        "canonical_url": "",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.5825,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": true,
+        "completeness_score": 0,
+        "low_quality_source": false,
+        "content_format_hint": "pdf",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": true
+      }
+    },
+    {
+      "candidate_id": "source-b960864f1b4d75a47a04",
+      "topic_id": null,
+      "title": "[PDF] 目录 - 北京信息科技大学",
+      "url": "https://www.bistu.edu.cn/docs/2024-03/W020230920631388693464.pdf",
+      "domain": "www.bistu.edu.cn",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "authoritative_source",
+      "review_status": "fetch_failed",
+      "review_reason": "来源 robots.txt 不允许抓取",
+      "selected": true,
+      "relevance_score": 0.5,
+      "metadata": {
+        "query": "site:edu.cn 操作系统 掌握 C 语言和数据结构的计算机专业大二学生 完整教材 课程讲义 PDF filetype:pdf",
+        "snippet": "4.C 语言程序开发过程 了解C 语言概况； 了解算法的概念和特点； 理解常见的算法表示方法； 掌握C 语言程序上机步骤及编程环境的基本操作。 重难点说明：C 语言的基本结构，C 语言程序的开 发步骤。 1 2 第2 章基本数据类型 1.数据类型概述 2.标识符、常量和变量 3.基本的数据类型 4.数据的输入和输出 掌握基本数据类型； 掌握数据的输入和输出方法。 重难点说明：输入和输出函数的使用。 3 3 第3 章顺序结构程序设计 1.算术运算和算术表达式 2.赋值运算和赋值表达式 3.自增自减运算 4.顺序结构程序设计 掌握基本运算符和表达式的使用； 掌握顺序结构程 序设计。 重难点说明：各种运算符的使用。 2 4 第4 章选择结构程序设计 1.关系运算和逻辑运算 2.使用if 语句实现的选择结构 3.选择结构程序设计举例 掌握选择结构程序设计。 重难点说明：嵌套的if-else 结构。 2 5 第5 章循环结构程序设计 1.三种循环语句 2.循环嵌套 3.循环结构程序设计举例 掌握循环结构程序设计。 重难点说明：嵌套的循环结构，循环结构程序的算 法设计。 6 6 第6 章模块化程序设计—函数 1.函数的定义 2.函数的调用和参数传递 3.嵌套调用和递归调用 4.变量的作用域 掌握函数的定义、声明和调用方法； 掌握函数的嵌套调用； 理解程序的递归调用； 理解局部变量、全局变量的使用。 重难点说明： 函数的定义及调用， 递归函数的设计。 4 7 第7 章数组 1.一维数组 2.二维数组 掌握数组的概念； 掌握数组、字符串的编程方法，掌握常用的系统字 符串处理函数（gets、puts、strlen、strcpy、strcmp、 6 9 理论部分 序号 教学内容提要 基本要求 学时 3.字符数组 strcat） 。 重难点说明：排序算法、字符串应用。 8 第8 章指针 [...] 2．C 语言概述 3．算法及其描述 4．C 语言程序开发过程 了解C 语言概况； 了解算法的概念及表示方法； 掌握C 语言程序上机步骤及编程环境的基本操作。 重难点说明：C 语言的基本结构，C 语言程序的 开发步骤。 2 3 理论部分 序号 教学内容提要 基本要求 学时 2 第2 章 基本数据类型 1. [...] 7. 通过数学类专业课程和计算机课程的学习，具备严密的逻辑思维能力，能够运用所",
+        "provider": "configured_web_search",
+        "bocha_rank": 3,
+        "topic_title": "",
+        "failure_code": "ROBOTS_DENIED",
+        "original_url": "https://www.bistu.edu.cn/docs/2024-03/W020230920631388693464.pdf",
+        "canonical_url": "https://www.bistu.edu.cn/docs/2024-03/W020230920631388693464.pdf",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "textbook",
+        "priority_score": 0.6017,
+        "discovery_scope": "course",
+        "fetch_failed_at": "2026-09-11T08:57:50.860620+00:00",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.5,
+        "discovery_intent": "complete_textbook_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0.45,
+        "low_quality_source": false,
+        "content_format_hint": "pdf",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": true
+      }
+    },
+    {
+      "candidate_id": "source-c19f8b9a4b52aebb10fc",
+      "topic_id": null,
+      "title": "[PDF] 《线性代数》课程简介",
+      "url": "https://ist.nenu.edu.cn/fjkcjj.pdf",
+      "domain": "ist.nenu.edu.cn",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "authoritative_source",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "来源是课程简介或教学大纲，不足以作为知识点正文",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "site:edu.cn 操作系统 掌握 C 语言和数据结构的计算机专业大二学生 完整教材 课程讲义 PDF filetype:pdf",
+        "snippet": "综合应用所学的知识 分析问题的能力及较强的自主学习能力，提高学生的综合素质，逐步培养学生的探索精 神和创新能力。 2 （4）评价方式及组织实施 ① 平时成绩30 分：其中测验15 分、作业10 分、出勤考核5 分（教师评价+学生 自评） ②闭卷考试70 分（教师评价） 学习资源: （一）主要参考书目 教材： 《线性代数》 ， 同济大学数学教研室编，第六版，高等教育出版社，2014 年 版。 扩充阅读材料： 1、 《线性代数简明教程》 ，陈龙玄等主编，北京：中国科学技术出版社，2000 年版 2、 《线性代数》 ，居余马等主编，北京：清华大学出版社，2002 年版 3、 《线性代数及应用》 ，谢国瑞主编，北京：高等教育出版社，1999 年版 4、 《Linear Algebra And Its Application》,David C.Lay .2005 年版 （二）其它学习资源 课程网站： 3 《C 语言程序设计》课程简介 课程类别：学科基础课程 课程编码：1151722011302 课程英文名：The C Programming Language 预修课程： 《计算机导论》 总学时数： 54 实践学时： 18 建议修读学期： 第一学期 内容提要： 本课程为软件工程专业的学科基础课，3 学分，共54 学时，其中18 学时为实践学 时。 课程于第一学期开设。 C 是计算机领域中应用最为广泛、 最为成功的程序设计语言， 具备功能强大、语法灵活等特点，是计算机专业技术员必须掌握程序设计语言。 本课程从软件工程专业的角度出发，重点介绍基本数据类型、程序的基本结构与构 成、结构化程序设计、优化程序设计、构造数据类型和外部数据类型等项内容，使学生 能够深刻理解、全面掌握C 程序设计技术与方法。 通过本课程的学习，学生应理解并掌握C 语言的基本概念和语法；理解并应用结构 [...] 建议修读学期：第五学期 内容提要： 本课程为软件工程专业的专业选修课, 其先修课程是C 语言、汇编语言、微机原理 等，平行课程是操作系统、计算机系统结构、计算机组成原理等，是一门实践性很强的 课程。本课程理论讲授与工程实践并重，目的是使学生通过该课程的学习，了解嵌入式 系统设计的相关技术，掌握嵌入式系统的交叉开发与调试技术、嵌入式系统中各个硬件 芯片之间的接口技术与通信原理、硬件底层驱动程序设计技术、",
+        "provider": "configured_web_search",
+        "bocha_rank": 5,
+        "topic_title": "",
+        "original_url": "https://ist.nenu.edu.cn/fjkcjj.pdf",
+        "canonical_url": "https://ist.nenu.edu.cn/fjkcjj.pdf",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "textbook",
+        "priority_score": 0.655,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": true,
+        "completeness_score": 0.25,
+        "low_quality_source": false,
+        "content_format_hint": "pdf",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": true
+      }
+    },
+    {
+      "candidate_id": "source-d696b2d62b269ecd7595",
+      "topic_id": null,
+      "title": "《操作系统》课程教学大纲-20210923214904.pdf-原创力文档",
+      "url": "https://max.book118.com/html/2021/0923/7112065163004010.shtm",
+      "domain": "max.book118.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "web_discovered",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "课程级教材发现只保留完整教材或课程讲义",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 课程讲义 教材 章节 目录 PDF",
+        "snippet": "《操作系统》课程教学大纲 课程类别:专业基础课 适用专业:计算机应用技术 适用层次:高起专 适用教育形式:成人教 考核形式:考试 所属学院:计算机科学与技术学院 先修课程:计算机应用基础 一、课程简介 《操作系统》是计算机应用技术专业开设的专业基础课,是培养学生具备计算机操作系 统的基本理论、基本原理和应用能力的一门必修课,是学习其它后续专业课程的基础。本课 程主要培养学生理解计算机操作系统的基本理论及原理,提高学生分析和解决软件系统问题 的能力,是一门对学生操作系统相关知识的学习及应用能力培养起到关键、基础作用的课程。 二、课程学习目标 1、能描述操作系统的基本原理及组成结构、基本概念、特征、性能、用途和相关的新 概念、名词及术语。 2、能说明进程控制的基本原理和方法,了解信号量机制和PV操作原语。 3、能够阐释处理机调度和死锁基本原理和方法,分析不同进程调度算法平均周转时间, 总结不同算法的优缺点;了解银行加算法和安全算法进行资源分配的思想。 4、能阐释存储器和虚拟存储器管理的基本原(原书第7 版),机械工业出版 社,2012 (3)陈向群,马洪兵 等译,现代操作系统 (原书第3 版),机械工业出版社,2009 (4) Andrew S. Tanenbaum, Herbert Bos, 现代操作系统(第四版 英文版)Modern Operating Systems (4th Edition),机械工业出版社,2014 (5)RamezElmasri, A. Gil Carrick, David Levine, 操作系统实用教程-螺旋方法(英 文版)Operating Systems - A Spiral Approach, 机械工业出版社,2010 4、其他辅助学习材料 (1)/ (2)/ 六、课程结构导航与学习建议 篇章 理论学时 实践学时 教学内容 篇章比例",
+        "provider": "configured_web_search",
+        "bocha_rank": 6,
+        "topic_title": "",
+        "original_url": "https://max.book118.com/html/2021/0923/7112065163004010.shtm",
+        "canonical_url": "https://max.book118.com/html/2021/0923/7112065163004010.shtm",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "web_article",
+        "priority_score": 0.4133,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "course_notes_pdf",
+        "matched_topic_ids": [],
+        "non_instructional": true,
+        "completeness_score": 0,
+        "low_quality_source": true,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    },
+    {
+      "candidate_id": "source-f2b4a889e64471b43501",
+      "topic_id": null,
+      "title": "中央电大开放教育计算机科学与技术专业 - 道客巴巴",
+      "url": "https://www.doc88.com/p-638754544067.html",
+      "domain": "www.doc88.com",
+      "source_type": "web",
+      "language": "zh-CN",
+      "license_name": null,
+      "license_url": null,
+      "authority_tier": "textbook_candidate",
+      "review_status": "rejected_irrelevant",
+      "review_reason": "来源属于低质量文档镜像或下载站，已在抓取前拒绝",
+      "selected": false,
+      "relevance_score": 0.8,
+      "metadata": {
+        "query": "操作系统 掌握 C 语言和数据结构的计算机专业大二学生 开放教材 完整教程 章节 目录",
+        "snippet": "下载积分: 800 内容提示: 12-2-21 1 中央电大开放教育“计算机科学与技术专业 ” 计算机操作系统 课程教学设计方案 一、课程概况 【课程名称】计算机操作系统 该课程是中央电大计算机科学与技术专业的一门专业必修课。 计算机操作系统课是计算机专业的重要课程之一 通过学习使学员掌握计算机操作系统的设计基本原理及组成计算机操作系统的基本概念和相关的新概念、名词及术语了解计算机操作系统的发展特点和设计技巧和方法对常用计算机操作系统Dos、Windows 和UNIX 或Linux会进行基本的操作使用。 主要内容包括计算机操作系统概述、作业管理、文件管理... 文档格式:PDF | 页数:4 | 浏览次数:12 | 12-2-21 1 中央电大开放教育“计算机科学与技术专业 ” 计算机操作系统 课程教学设计方案 一、课程概况 【课程名称】计算机操作系统 该课程是中央电大计算机科学与技术专业的一门专业必修课。 计算机操作系统课是计算机专业的重要课程之一 通过学习使学员掌握计算机操作系统的设计基本原理及组成计算机操作系统的基本概念和相关的新概念、名词及术语了解计算机操作系统的发展特点和设计技巧和方法对常用计算机操作系统Dos、Windows 和UNIX 或Linux会进行基本的操作使用。 主要内容包括计算机操作系统概述、作业管理、文件管理、存储管理、输入输出设备管理、进程及处理机管理、操作系统结构及程序设计。 二、课程教材 文字教材《计算机操作系统》 。 作者吴企渊等 清华大学出版社 2000 年 文字教材考虑到开放教育、远程教育以及电大学员的特点对课程教材在版式安排和工艺设计上充分考虑自学、助学作用。文字教材遵循深入浅出的原则以新的更加生动的方式讲述操作系统 对概念、 原理的解释和描述尽可能地以日常生活所接触到的管理实际例子和图示加以对比",
+        "provider": "configured_web_search",
+        "bocha_rank": 3,
+        "topic_title": "",
+        "original_url": "https://www.doc88.com/p-638754544067.html",
+        "canonical_url": "https://www.doc88.com/p-638754544067.html",
+        "discovered_at": "2026-09-11T08:57:44.363499+00:00",
+        "resource_kind": "course_notes",
+        "priority_score": 0.5567,
+        "discovery_scope": "course",
+        "requirement_ids": [],
+        "topic_objective": "",
+        "topic_relevance": 1,
+        "course_relevance": 0.8,
+        "discovery_intent": "complete_textbook_html",
+        "matched_topic_ids": [],
+        "non_instructional": false,
+        "completeness_score": 0.25,
+        "low_quality_source": true,
+        "content_format_hint": "html",
+        "required_domain_match": null,
+        "preferred_domain_match": null,
+        "institutional_authority": false
+      }
+    }
+  ],
+  "existing_materials": [],
+  "knowledge_proposal": {
+    "mode": "create",
+    "items": [],
+    "intent": {
+      "mode": "create",
+      "scope": {
+        "exclude_topics": [],
+        "include_topics": [
+          "进程与线程",
+          "CPU 调度",
+          "进程同步",
+          "死锁",
+          "虚拟内存"
+        ],
+        "preserve_existing_graph": false,
+        "preserve_existing_documents": false
+      },
+      "status": "ready_for_review",
+      "assumptions": [
+        "课时长度未换算为分钟，课程内容预算按课时数校验。"
+      ],
+      "deliverables": [],
+      "requirements": [
+        {
+          "kind": "duration",
+          "hardness": "hard",
+          "statement": "8 课时",
+          "verification": "course_time_budget",
+          "requirement_id": "req_3a87a6d70bb72353",
+          "normalized_value": {
+            "lessons": 8,
+            "minutes": null
+          }
+        },
+        {
+          "kind": "audience",
+          "hardness": "hard",
+          "statement": "掌握 C 语言和数据结构的计算机专业大二学生",
+          "verification": "pedagogical_fit_review",
+          "requirement_id": "req_e64cc0435672019a",
+          "normalized_value": "掌握 C 语言和数据结构的计算机专业大二学生"
+        },
+        {
+          "kind": "scope",
+          "hardness": "hard",
+          "statement": "进程与线程；CPU 调度；进程同步；死锁；虚拟内存",
+          "verification": "graph_scope_check",
+          "requirement_id": "req_018624459304f328",
+          "normalized_value": [
+            "进程与线程",
+            "CPU 调度",
+            "进程同步",
+            "死锁",
+            "虚拟内存"
+          ]
+        },
+        {
+          "kind": "depth",
+          "hardness": "hard",
+          "statement": "基础",
+          "verification": "pedagogical_depth_review",
+          "requirement_id": "req_1a85098d7ff1fb56",
+          "normalized_value": {
+            "conceptual_rigor": "基础",
+            "example_complexity": "",
+            "target_bloom_levels": [
+              "understand",
+              "apply",
+              "analyze"
+            ],
+            "math_or_code_expectation": ""
+          }
+        }
+      ],
+      "depth_profile": {
+        "conceptual_rigor": "基础",
+        "example_complexity": "",
+        "target_bloom_levels": [
+          "understand",
+          "apply",
+          "analyze"
+        ],
+        "math_or_code_expectation": ""
+      },
+      "original_text": "课程名称：操作系统（真实E2E-2026-09-11-os-v2-op）；课程简介：面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存；教学对象：掌握 C 语言和数据结构的计算机专业大二学生；课程难度：introductory；内容语言：zh-CN；课程目标：能解释进程、线程和系统调用的核心机制；能比较常见 CPU 调度算法并计算等待时间；能使用信号量分析并解决典型同步问题；能解释分页、缺页和页面置换算法。先生成可审核方案，不要直接发布。",
+      "source_policy": {
+        "freshness": null,
+        "required_domains": [],
+        "allow_ai_fallback": false,
+        "allowed_languages": [
+          "zh-CN"
+        ],
+        "preferred_domains": [],
+        "preferred_organizations": [],
+        "allow_community_fallback": true,
+        "minimum_authoritative_sources_per_topic": 0
+      },
+      "course_profile": {
+        "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+        "language": "zh-CN",
+        "difficulty": "introductory",
+        "prerequisites": [
+          "C 语言",
+          "数据结构"
+        ],
+        "duration_lessons": 8,
+        "duration_minutes": null,
+        "learning_outcomes": [
+          "能解释进程、线程和系统调用的核心机制",
+          "能比较常见 CPU 调度算法并计算等待时间",
+          "能使用信号量分析并解决典型同步问题",
+          "能解释分页、缺页和页面置换算法"
+        ]
+      },
+      "schema_version": "2.0",
+      "clarification_questions": []
+    },
+    "review": {
+      "method": "model_review",
+      "approved": true
+    },
+    "options": [
+      {
+        "id": "brief",
+        "root": {
+          "id": "course-os-brief",
+          "data": {
+            "type": "course",
+            "summary": "8 课时入门课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存的核心概念与基本计算。"
+          },
+          "label": "操作系统（简明版）",
+          "children": [
+            {
+              "id": "mod-os-brief-process",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "理解进程与线程的概念、状态、系统调用接口与基本操作。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "kp-os-brief-process-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程定义、进程控制块与就绪/运行/阻塞状态转换。"
+                  },
+                  "label": "进程的概念与状态",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-process-syscall",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "用户态与内核态切换、系统调用接口及典型调用示例。"
+                  },
+                  "label": "系统调用机制",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-process-thread",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "线程的引入动机、共享资源与独立栈/寄存器上下文。"
+                  },
+                  "label": "线程与进程的区别",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-brief-scheduling",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "掌握常见调度算法并能计算等待时间。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "kp-os-brief-sched-basic",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "调度时机、周转时间与等待时间的定义。"
+                  },
+                  "label": "调度基本概念与评价指标",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-sched-algorithms",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FCFS、SJF、时间片轮转的基本规则与等待时间计算。"
+                  },
+                  "label": "常见调度算法",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-brief-sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "用信号量分析并解决典型同步问题。"
+              },
+              "label": "进程同步与信号量",
+              "children": [
+                {
+                  "id": "kp-os-brief-sync-race",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "并发访问共享变量引发的问题及临界区三条件。"
+                  },
+                  "label": "临界区与竞态条件",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-sync-semaphore",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "P/V 操作语义及生产者-消费者问题的信号量解法。"
+                  },
+                  "label": "信号量与典型同步问题",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-brief-deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "理解死锁的成因与基本处理策略。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "kp-os-brief-deadlock-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "死锁定义、四个必要条件及简单预防思路。"
+                  },
+                  "label": "死锁的概念与必要条件",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-brief-vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "解释分页、缺页和页面置换算法的基本机制。"
+              },
+              "label": "虚拟内存：分页、缺页与页面置换",
+              "children": [
+                {
+                  "id": "kp-os-brief-vm-paging",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "页表、逻辑地址到物理地址的转换过程。"
+                  },
+                  "label": "分页与地址转换",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-vm-pagefault",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "缺页中断处理流程及 FIFO、LRU 置换算法。"
+                  },
+                  "label": "缺页与页面置换",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "level": "brief",
+        "metrics": {
+          "max_depth": 3,
+          "leaf_count": 10,
+          "node_count": 16,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "适用对象：大二入门学生，8 课时紧凑教学。覆盖全部课程目标所需的最小核心：进程与线程（含系统调用机制）、常见调度算法与等待时间计算、信号量解决典型同步问题、死锁基本概念、分页与缺页及置换算法。取舍：不展开内核实现细节、不涉及多处理器调度与复杂同步模式，例题以单处理器、小规模为主，保证可独立完成教学。"
+      },
+      {
+        "id": "standard",
+        "root": {
+          "id": "course-os-standard",
+          "data": {
+            "type": "course",
+            "summary": "8 课时入门课程，在核心概念基础上增加机制细节、算法对比与典型计算练习。"
+          },
+          "label": "操作系统（标准版）",
+          "children": [
+            {
+              "id": "mod-os-std-process",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "理解进程与线程的概念、状态、系统调用、创建与切换。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "kp-os-std-process-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程定义、进程控制块与就绪/运行/阻塞状态转换。"
+                  },
+                  "label": "进程的概念与状态",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-process-syscall",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "用户态与内核态切换、系统调用接口及典型调用示例。"
+                  },
+                  "label": "系统调用机制",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-process-create",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "fork/exec 语义与上下文切换的开销来源。"
+                  },
+                  "label": "进程创建与上下文切换",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-process-thread",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "线程的引入动机、共享资源与独立栈/寄存器上下文。"
+                  },
+                  "label": "线程与进程的区别",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-std-scheduling",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "掌握常见调度算法并能计算与比较等待时间。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "kp-os-std-sched-basic",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "调度时机、周转时间与等待时间的定义。"
+                  },
+                  "label": "调度基本概念与评价指标",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sched-algorithms",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FCFS、SJF、时间片轮转的基本规则与等待时间计算。"
+                  },
+                  "label": "常见调度算法",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sched-compare",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "同一作业集下不同算法的等待时间对比与选择依据。"
+                  },
+                  "label": "调度算法对比与例题",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-std-sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "用信号量分析并解决典型同步问题。"
+              },
+              "label": "进程同步与信号量",
+              "children": [
+                {
+                  "id": "kp-os-std-sync-race",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "并发访问共享变量引发的问题及临界区三条件。"
+                  },
+                  "label": "临界区与竞态条件",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sync-semaphore",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "P/V 操作语义及生产者-消费者问题的信号量解法。"
+                  },
+                  "label": "信号量与典型同步问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sync-classic",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "读者-写者问题的信号量建模与解法分析。"
+                  },
+                  "label": "经典同步问题",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-std-deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "理解死锁的成因、预防与避免。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "kp-os-std-deadlock-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "死锁定义、四个必要条件及简单预防思路。"
+                  },
+                  "label": "死锁的概念与必要条件",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-deadlock-avoid",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "安全状态概念及银行家算法的基本判定过程。"
+                  },
+                  "label": "死锁避免与银行家算法",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-std-vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "解释分页、缺页和页面置换算法，并能比较置换算法。"
+              },
+              "label": "虚拟内存：分页、缺页与页面置换",
+              "children": [
+                {
+                  "id": "kp-os-std-vm-paging",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "页表、逻辑地址到物理地址的转换过程。"
+                  },
+                  "label": "分页与地址转换",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-vm-pagefault",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "缺页中断处理流程及 FIFO、LRU 置换算法。"
+                  },
+                  "label": "缺页与页面置换",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-vm-compare",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "同一引用串下 FIFO 与 LRU 的缺页次数对比及 Belady 异常现象。"
+                  },
+                  "label": "置换算法对比与缺页率计算",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "level": "standard",
+        "metrics": {
+          "max_depth": 3,
+          "leaf_count": 15,
+          "node_count": 21,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "适用对象：大二标准教学，8 课时。在核心结构上增加机制细节与典型例题：进程创建与上下文切换、调度算法对比与计算练习、信号量经典问题（读者-写者）、死锁避免与银行家算法入门、置换算法对比与缺页率计算。取舍：不深入内核源码与多处理器细节，保持入门难度但计算与应用训练更充分。"
+      },
+      {
+        "id": "complete",
+        "root": {
+          "id": "course-os-complete",
+          "data": {
+            "type": "course",
+            "summary": "8 课时入门课程，覆盖核心概念、机制细节、算法对比与少量进阶应用接口。"
+          },
+          "label": "操作系统（完整版）",
+          "children": [
+            {
+              "id": "mod-os-cpl-process",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "理解进程与线程的概念、状态、系统调用、创建、切换与多线程模型。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "kp-os-cpl-process-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程定义、进程控制块与就绪/运行/阻塞状态转换。"
+                  },
+                  "label": "进程的概念与状态",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-process-syscall",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "用户态与内核态切换、系统调用接口及典型调用示例。"
+                  },
+                  "label": "系统调用机制",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-process-create",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "fork/exec 语义与上下文切换的开销来源。"
+                  },
+                  "label": "进程创建与上下文切换",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-process-thread",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "线程的引入动机、共享资源与独立栈/寄存器上下文。"
+                  },
+                  "label": "线程与进程的区别",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-process-thread-model",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "用户级线程、内核级线程及多对一/一对一/多对多模型的基本概念。"
+                  },
+                  "label": "多线程模型简介",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-cpl-scheduling",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "掌握常见调度算法并能计算、比较与选择。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "kp-os-cpl-sched-basic",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "调度时机、周转时间与等待时间的定义。"
+                  },
+                  "label": "调度基本概念与评价指标",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-algorithms",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FCFS、SJF、时间片轮转的基本规则与等待时间计算。"
+                  },
+                  "label": "常见调度算法",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-compare",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "同一作业集下不同算法的等待时间对比与选择依据。"
+                  },
+                  "label": "调度算法对比与例题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-advanced",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "多级反馈队列的基本思想与队列间反馈规则的概念性介绍。"
+                  },
+                  "label": "多级反馈队列简介",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-cpl-sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "用信号量与管程分析并解决典型同步问题。"
+              },
+              "label": "进程同步与信号量",
+              "children": [
+                {
+                  "id": "kp-os-cpl-sync-race",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "并发访问共享变量引发的问题及临界区三条件。"
+                  },
+                  "label": "临界区与竞态条件",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sync-semaphore",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "P/V 操作语义及生产者-消费者问题的信号量解法。"
+                  },
+                  "label": "信号量与典型同步问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sync-classic",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "读者-写者问题的信号量建模与解法分析。"
+                  },
+                  "label": "经典同步问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sync-monitor",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "管程的封装思想及条件变量在同步中的基本作用。"
+                  },
+                  "label": "管程与条件变量简介",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-cpl-deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "理解死锁的成因、预防、避免与检测恢复。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "kp-os-cpl-deadlock-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "死锁定义、四个必要条件及简单预防思路。"
+                  },
+                  "label": "死锁的概念与必要条件",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-deadlock-avoid",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "安全状态概念及银行家算法的基本判定过程。"
+                  },
+                  "label": "死锁避免与银行家算法",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-deadlock-detect",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "资源分配图与等待图检测思路及简单恢复策略的概念性介绍。"
+                  },
+                  "label": "死锁检测与恢复简介",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-cpl-vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "解释分页、缺页和页面置换算法，并能分析性能。"
+              },
+              "label": "虚拟内存：分页、缺页与页面置换",
+              "children": [
+                {
+                  "id": "kp-os-cpl-vm-paging",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "页表、逻辑地址到物理地址的转换过程。"
+                  },
+                  "label": "分页与地址转换",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-vm-pagefault",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "缺页中断处理流程及 FIFO、LRU 置换算法。"
+                  },
+                  "label": "缺页与页面置换",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-vm-compare",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "同一引用串下 FIFO 与 LRU 的缺页次数对比及 Belady 异常现象。"
+                  },
+                  "label": "置换算法对比与缺页率计算",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-vm-advanced",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "多级页表与 TLB 的作用及地址转换中的基本角色。"
+                  },
+                  "label": "多级页表与 TLB 简介",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "level": "complete",
+        "metrics": {
+          "max_depth": 3,
+          "leaf_count": 20,
+          "node_count": 26,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "适用对象：大二进阶教学，8 课时。在标准版基础上，仅在课程目标与指定范围内适度增加进阶内容：多线程模型简介、多级反馈队列简介、管程与条件变量简介、死锁检测与恢复简介、多级页表与 TLB 简介。取舍：仍保持入门难度，不涉及内核源码级实现；受 8 课时限制，进阶点以概念性介绍为主，不承诺覆盖全部高阶主题，教师可按课时取舍。"
+      }
+    ],
+    "summary": "无已发布目录，按 8 课时、入门难度、面向掌握 C 语言与数据结构的大二学生设计三档方案。三档共享同一核心结构，严格限定在教师指定范围：进程与线程、CPU 调度、进程同步、死锁、虚拟内存。系统调用机制作为“进程与线程”模块内的知识点保留（课程目标要求“能解释进程、线程和系统调用的核心机制”），不再单列为独立模块。brief 为 8 课时可直接教学的紧凑版，覆盖全部课程目标所需核心知识点；standard 在核心之上增加机制细节与典型例题；complete 在 8 课时预算内适度增加进阶内容，仅保留与课程目标直接相关、可在入门难度下讲授的少量进阶点，不承诺覆盖全部高阶主题。差异来自教学展开深度与进阶应用，不改变核心知识点名称，不编造教材覆盖。",
+    "core_topics": [
+      "CPU 调度",
+      "死锁",
+      "虚拟内存：分页、缺页与页面置换",
+      "进程与线程",
+      "进程同步与信号量"
+    ],
+    "requirements": "课程名称：操作系统（真实E2E-2026-09-11-os-v2-op）；课程简介：面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存；教学对象：掌握 C 语言和数据结构的计算机专业大二学生；课程难度：introductory；内容语言：zh-CN；课程目标：能解释进程、线程和系统调用的核心机制；能比较常见 CPU 调度算法并计算等待时间；能使用信号量分析并解决典型同步问题；能解释分页、缺页和页面置换算法。先生成可审核方案，不要直接发布。",
+    "document_snapshot": []
+  },
+  "proposal_selection": {
+    "item_ids": [],
+    "option_id": "brief",
+    "expected_revision": 3
+  },
+  "selected_topic_ids": [
+    "kp-os-brief-process-concept",
+    "kp-os-brief-process-syscall",
+    "kp-os-brief-process-thread",
+    "kp-os-brief-sched-basic",
+    "kp-os-brief-sched-algorithms",
+    "kp-os-brief-sync-race",
+    "kp-os-brief-sync-semaphore",
+    "kp-os-brief-deadlock-concept",
+    "kp-os-brief-vm-paging",
+    "kp-os-brief-vm-pagefault"
+  ],
+  "topic_requirements": {},
+  "current_graph_summary": null,
+  "baseline_graph_version": null
+}

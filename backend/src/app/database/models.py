@@ -598,6 +598,9 @@ class LearningTaskModel(Base):
 class StandardResourceBatch(Base):
     __tablename__ = "standard_resource_batches"
     __table_args__ = (
+        UniqueConstraint(
+            "course_id", "idempotency_key", name="uq_standard_resource_batches_idempotency"
+        ),
         CheckConstraint(
             "status IN ('queued', 'running', 'partial', 'completed', 'failed')",
             name="standard_resource_batches_valid_status",
@@ -607,6 +610,9 @@ class StandardResourceBatch(Base):
     batch_id: Mapped[str] = mapped_column(String(200), primary_key=True)
     course_id: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
     created_by: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    graph_version: Mapped[str] = mapped_column(String(128), nullable=False)
+    generation_mode: Mapped[str] = mapped_column(String(32), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued", index=True)
     total_items: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     queued_items: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -624,6 +630,9 @@ class StandardResourceBatchItem(Base):
         UniqueConstraint(
             "batch_id", "leaf_id", "standard_kind",
             name="uq_standard_resource_batch_items_slot",
+        ),
+        UniqueConstraint(
+            "active_slot_key", name="uq_standard_resource_batch_items_active_slot"
         ),
         CheckConstraint(
             "standard_kind IN ('classroom', 'study_guide', 'practice')",
@@ -646,6 +655,14 @@ class StandardResourceBatchItem(Base):
     standard_kind: Mapped[str] = mapped_column(String(32), nullable=False)
     material_type: Mapped[str] = mapped_column(String(80), nullable=False)
     material_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    action: Mapped[str] = mapped_column(String(32), nullable=False, default="generate")
+    base_version: Mapped[int | None] = mapped_column(Integer)
+    material_version: Mapped[int | None] = mapped_column(Integer)
+    content_hash: Mapped[str | None] = mapped_column(String(128))
+    active_slot_key: Mapped[str | None] = mapped_column(String(700))
+    generation_context: Mapped[dict[str, Any]] = mapped_column(
+        JSON_PAYLOAD, nullable=False, default=dict
+    )
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="queued", index=True)
     job_id: Mapped[str | None] = mapped_column(String(200), index=True)
     attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

@@ -41,6 +41,7 @@ from app.chat.api.schemas_v2 import (
     GenerationToolCatalogResponseV2,
 )
 from app.chat.application.response_builder_v2 import build_v2_error_response
+from app.chat.domain.action_hints import GENERATION_ACTION_HINTS
 from app.services.generation_command import (
     GenerationCommand,
     generation_command_service,
@@ -284,7 +285,7 @@ def _stream_json_frame(event: dict) -> str:
 
 def _is_workflow_intent_from_reply(payload: ChatReplyRequestV2) -> bool:
     question = str(payload.question or "")
-    if payload.action_hint in {"generate.report", "generate.lesson_plan", "generate.quiz"}:
+    if payload.action_hint in GENERATION_ACTION_HINTS:
         return True
     lowered = question.lower()
     if any(token in lowered for token in ("quiz", "report", "lesson plan", "exercise", "practice", "test")):

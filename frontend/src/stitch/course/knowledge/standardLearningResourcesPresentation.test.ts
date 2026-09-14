@@ -115,7 +115,12 @@ test("selection summary reports knowledge points and three resources per point",
   assert.deepEqual(standardSelectionSummary(4), {
     leafCount: 4,
     resourceCount: 12,
-    label: "已选择 4 个知识点，将生成 12 项资源",
+    label: "已选择 4 个知识点，涉及 12 个资源槽位",
+  });
+  assert.deepEqual(standardSelectionSummary(4, 1), {
+    leafCount: 4,
+    resourceCount: 4,
+    label: "已选择 4 个知识点，涉及 4 个资源槽位",
   });
 });
 

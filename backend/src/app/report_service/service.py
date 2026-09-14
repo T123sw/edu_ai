@@ -53,10 +53,16 @@ class ReportService:
 
     def _create_default_llm(self) -> ChatOpenAI:
         """Create default LLM instance."""
+        from app.services.deepseek_key_failover import completion_endpoint
+
+        base_url, api_key = completion_endpoint(
+            self.config.llm_base_url,
+            self.config.llm_api_key,
+        )
         return ChatOpenAI(
             model=self.config.llm_model,
-            api_key=self.config.llm_api_key,
-            base_url=self.config.llm_base_url,
+            api_key=api_key,
+            base_url=base_url,
         )
 
     def generate(

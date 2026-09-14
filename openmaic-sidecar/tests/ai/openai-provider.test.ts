@@ -105,6 +105,112 @@ describe('OpenAI provider defaults', () => {
     expect(model).toEqual({ endpoint: 'responses', modelId: 'gpt-5.5' });
   });
 
+  it('retries a DeepSeek HTTP 402 once with the backup key', async () => {
+    const originalFetch = globalThis.fetch;
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response('{}', { status: 402 }))
+      .mockResolvedValueOnce(new Response('{"ok":true}', { status: 200 }));
+    globalThis.fetch = fetchMock;
+
+    try {
+      getModel({
+        providerId: 'deepseek',
+        modelId: 'deepseek-v4-flash',
+        apiKey: 'sk-primary',
+        backupApiKey: 'sk-backup',
+      });
+      const options = openAiMock.createOpenAI.mock.calls.at(-1)?.[0] as {
+        fetch?: typeof fetch;
+      };
+
+      const response = await options.fetch?.('https://api.deepseek.test/v1/chat/completions', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer sk-primary' },
+        body: '{}',
+      });
+
+      expect(response?.status).toBe(200);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(new Headers(fetchMock.mock.calls[1]?.[1]?.headers).get('Authorization')).toBe(
+        'Bearer sk-backup',
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it.each([400, 401, 403, 429, 500])(
+    'does not switch DeepSeek keys for HTTP %s',
+    async (status) => {
+      const originalFetch = globalThis.fetch;
+      const fetchMock = vi
+        .fn<typeof fetch>()
+        .mockResolvedValue(new Response('{}', { status }));
+      globalThis.fetch = fetchMock;
+
+      try {
+        getModel({
+          providerId: 'deepseek',
+          modelId: 'deepseek-v4-flash',
+          apiKey: 'sk-primary',
+          backupApiKey: 'sk-backup',
+        });
+        const options = openAiMock.createOpenAI.mock.calls.at(-1)?.[0] as {
+          fetch?: typeof fetch;
+        };
+
+        const response = await options.fetch?.(
+          'https://api.deepseek.test/v1/chat/completions',
+          {
+            method: 'POST',
+            headers: { Authorization: 'Bearer sk-primary' },
+            body: '{}',
+          },
+        );
+
+        expect(response?.status).toBe(status);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    },
+  );
+
+  it('stops after one DeepSeek backup attempt when both keys return HTTP 402', async () => {
+    const originalFetch = globalThis.fetch;
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response('{}', { status: 402 }));
+    globalThis.fetch = fetchMock;
+
+    try {
+      getModel({
+        providerId: 'deepseek',
+        modelId: 'deepseek-v4-flash',
+        apiKey: 'sk-primary',
+        backupApiKey: 'sk-backup',
+      });
+      const options = openAiMock.createOpenAI.mock.calls.at(-1)?.[0] as {
+        fetch?: typeof fetch;
+      };
+
+      const response = await options.fetch?.('https://api.deepseek.test/v1/chat/completions', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer sk-primary' },
+        body: '{}',
+      });
+
+      expect(response?.status).toBe(402);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(new Headers(fetchMock.mock.calls[1]?.[1]?.headers).get('Authorization')).toBe(
+        'Bearer sk-backup',
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   it('includes latest official GLM and Kimi coding models', () => {
     expect(getModelInfo('glm', 'glm-5.2')).toMatchObject({
       id: 'glm-5.2',

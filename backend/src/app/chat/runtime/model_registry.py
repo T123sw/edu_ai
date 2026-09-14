@@ -6,9 +6,15 @@ from app.chat.model_gateway import ChatModelGateway
 
 
 def _to_gateway_candidate(model: dict) -> dict:
+    api_base = model.get("api_base") or Config.REMOTE_MODEL_API_BASE
+    api_key = model.get("api_key") or Config.REMOTE_MODEL_API_KEY
+    # Several legacy role aliases can point at the DeepSeek endpoint while
+    # retaining an older key. DeepSeek traffic has one explicit priority:
+    # DEEPSEEK_API_KEY first, then DEEPSEEK_API_KEY_BACKUP in the transport.
+    api_key = Config.resolve_llm_api_key(api_base, api_key)
     return {
-        "api_base": model.get("api_base") or Config.REMOTE_MODEL_API_BASE,
-        "api_key": model.get("api_key") or Config.REMOTE_MODEL_API_KEY,
+        "api_base": api_base,
+        "api_key": api_key,
         "model_name": model.get("model_name") or model.get("id") or Config.LLM_MODEL,
     }
 
@@ -64,10 +70,17 @@ def build_agent_gateway() -> ChatModelGateway:
 
 def build_planner_gateway() -> ChatModelGateway:
     """规划专用网关：使用 Qwen (阿里百炼)，响应快、成本低。"""
+    candidate = _to_gateway_candidate(
+        {
+            "api_base": Config.QWEN_BASE_URL,
+            "api_key": Config.QWEN_API_KEY,
+            "model_name": Config.VISION_MODEL_ID,
+        }
+    )
     return ChatModelGateway(
-        api_base=Config.QWEN_BASE_URL,
-        api_key=Config.QWEN_API_KEY,
-        model_name=Config.VISION_MODEL_ID,
+        api_base=candidate["api_base"],
+        api_key=candidate["api_key"],
+        model_name=candidate["model_name"],
         fallbacks=_tool_capable_fallbacks(),
     )
 

@@ -47,6 +47,26 @@ def test_batch_contains_three_items_for_each_selected_leaf(repositories) -> None
     }
 
 
+def test_active_resource_slot_rejects_a_second_batch(repositories) -> None:
+    repository, _materials = repositories
+    leaves = extract_leaf_nodes(GRAPH)[:1]
+    repository.create_batch(
+        course_id="course-1",
+        created_by="teacher",
+        leaves=leaves,
+        idempotency_key="first-request",
+    )
+
+    with pytest.raises(StandardResourceRuleError) as error:
+        repository.create_batch(
+            course_id="course-1",
+            created_by="teacher",
+            leaves=leaves,
+            idempotency_key="second-request",
+        )
+    assert error.value.code == "SLOT_GENERATION_ACTIVE"
+
+
 def test_approving_pending_version_keeps_explicit_approved_pointer(repositories) -> None:
     repository, materials = repositories
     material_id = "standard-relationships-and-keys-study_guide"
@@ -136,3 +156,55 @@ def test_rejecting_new_version_does_not_remove_old_approved_pointer(repositories
 
     assert rejected["approved_version"] == 1
     assert rejected["current_review_status"] == "rejected"
+
+
+def test_batch_pending_targets_do_not_follow_a_newer_material_version(repositories) -> None:
+    repository, materials = repositories
+    leaf = extract_leaf_nodes(GRAPH)[0]
+    batch = repository.create_batch(
+        course_id="course-1",
+        created_by="teacher",
+        leaves=[leaf],
+        idempotency_key="exact-batch-version",
+    )
+    item = next(target for target in batch["items"] if target["standard_kind"] == "study_guide")
+    materials.upsert({
+        "course_id": "course-1",
+        "material_type": item["material_type"],
+        "material_id": item["material_id"],
+        "title": "第 1 版",
+        "origin_type": "standard",
+        "standard_kind": "study_guide",
+        "generation_batch_id": batch["batch_id"],
+        "current_review_status": "pending",
+        "review_status": "pending",
+        "version": 1,
+        "content_hash": "hash-v1",
+        "content": "one",
+    })
+    repository.mark_succeeded(
+        batch_item_id=item["batch_item_id"],
+        material_version=1,
+        content_hash="hash-v1",
+    )
+    assert repository.list_pending_targets_in_batch(
+        course_id="course-1", batch_id=batch["batch_id"]
+    ) == [{"material_id": item["material_id"], "version": 1, "content_hash": "hash-v1"}]
+
+    materials.upsert({
+        "course_id": "course-1",
+        "material_type": item["material_type"],
+        "material_id": item["material_id"],
+        "title": "第 2 版",
+        "origin_type": "standard",
+        "standard_kind": "study_guide",
+        "generation_batch_id": "another-batch",
+        "current_review_status": "pending",
+        "review_status": "pending",
+        "version": 2,
+        "content_hash": "hash-v2",
+        "content": "two",
+    })
+    assert repository.list_pending_targets_in_batch(
+        course_id="course-1", batch_id=batch["batch_id"]
+    ) == []

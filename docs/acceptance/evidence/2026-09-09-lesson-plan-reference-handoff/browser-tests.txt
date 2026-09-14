@@ -1,0 +1,20 @@
+
+Running 5 tests using 5 workers
+
+(node:1690834) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1690835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1690832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1690833) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1690836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [compact1280] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.1s)
+  ✓  5 [desktop1440] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.1s)
+  ✓  2 [desktop1366] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.2s)
+  ✓  3 [compact1024] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.3s)
+  ✓  4 [desktop1920] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (8.4s)
+
+  5 passed (10.0s)

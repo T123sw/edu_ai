@@ -5,13 +5,19 @@ import {
   createStandardResourceBatch,
   getStandardResourceBatch,
   getStandardResources,
+  listStandardResourceBatches,
+  previewStandardResourceBatch,
   retryStandardResourceBatch,
   reviewStandardResource,
 } from "../../api/standardResources";
+import { ApiError } from "../../api/client";
 import { listMyCourseResourceLearningProgress } from "../../api/resourceLearning";
 import type {
   ResourceLearningProgress as ResourceLearningProgressData,
   StandardResourceBatch,
+  StandardResourceBatchPreview,
+  StandardResourceGenerationMode,
+  StandardResourceKind,
   StandardResourceLeaf,
   StandardResourceSlot,
 } from "../../api/types";
@@ -196,6 +202,12 @@ export function StandardLearningResources({
   const [leaves, setLeaves] = useState<StandardResourceLeaf[]>([]);
   const [selectedLeafIds, setSelectedLeafIds] = useState<Set<string>>(new Set());
   const [batch, setBatch] = useState<StandardResourceBatch | null>(null);
+  const [preview, setPreview] = useState<StandardResourceBatchPreview | null>(null);
+  const [generationRequestId, setGenerationRequestId] = useState("");
+  const [generationMode, setGenerationMode] = useState<StandardResourceGenerationMode>("fill_missing");
+  const [selectedKinds, setSelectedKinds] = useState<Set<StandardResourceKind>>(
+    new Set(["classroom", "study_guide", "practice"]),
+  );
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
@@ -209,11 +221,12 @@ export function StandardLearningResources({
     if (!courseId) return;
     setLoading(true);
     try {
-      const [catalog, progressItems] = await Promise.all([
+      const [catalog, progressItems, recentBatches] = await Promise.all([
         getStandardResources(courseId),
         isStudent
           ? listMyCourseResourceLearningProgress(courseId).catch(() => [])
           : Promise.resolve([]),
+        canManage ? listStandardResourceBatches(courseId, 1).catch(() => []) : Promise.resolve([]),
       ]);
       setLeaves(catalog.leaves);
       setProgressByResourceKey(
@@ -227,13 +240,14 @@ export function StandardLearningResources({
           ]),
         ),
       );
+      setBatch((current) => current || recentBatches[0] || null);
       setError("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "标准学习资源加载失败");
     } finally {
       setLoading(false);
     }
-  }, [courseId, isStudent]);
+  }, [canManage, courseId, isStudent]);
 
   useEffect(() => {
     void loadCatalog();
@@ -267,11 +281,28 @@ export function StandardLearningResources({
   }, [compact, groups]);
 
   function toggleLeaf(leafId: string) {
+    setPreview(null);
     setSelectedLeafIds((current) => toggleStandardResourceLeafScope(current, [leafId]));
   }
 
   function toggleChapter(leafIds: readonly string[]) {
+    setPreview(null);
     setSelectedLeafIds((current) => toggleStandardResourceLeafScope(current, leafIds));
+  }
+
+  function toggleKind(kind: StandardResourceKind) {
+    setPreview(null);
+    setSelectedKinds((current) => {
+      const next = new Set(current);
+      if (next.has(kind)) next.delete(kind);
+      else next.add(kind);
+      return next;
+    });
+  }
+
+  function changeGenerationMode(mode: StandardResourceGenerationMode) {
+    setPreview(null);
+    setGenerationMode(mode);
   }
 
   function toggleChapterOpen(chapterId: string) {
@@ -284,16 +315,35 @@ export function StandardLearningResources({
   }
 
   async function generateSelected() {
-    if (!courseId || !selectedCount) return;
+    if (!courseId || !selectedCount || selectedKinds.size === 0) return;
     setWorking(true);
     setError("");
     try {
+      if (!preview) {
+        const nextPreview = await previewStandardResourceBatch(
+          courseId,
+          [...selectedLeafIds],
+          [...selectedKinds],
+          generationMode,
+        );
+        setPreview(nextPreview);
+        setGenerationRequestId(crypto.randomUUID());
+        return;
+      }
       const created = await createStandardResourceBatch(
         courseId,
         [...selectedLeafIds],
+        {
+          standardKinds: [...selectedKinds],
+          mode: generationMode,
+          idempotencyKey: generationRequestId || crypto.randomUUID(),
+          graphVersion: preview.graph_version,
+        },
       );
       setBatch(created);
       setSelectedLeafIds(new Set());
+      setPreview(null);
+      setGenerationRequestId("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "生成任务提交失败");
     } finally {
@@ -314,10 +364,23 @@ export function StandardLearningResources({
     setWorking(true);
     setError("");
     try {
-      await reviewStandardResource(courseId, slot.material_id, decision, reason);
+      const contentHash = String(slot.resource?.content_hash || "");
+      if (!slot.current_version || !contentHash) throw new Error("资源版本信息不完整，请刷新后重试");
+      await reviewStandardResource(
+        courseId,
+        slot.material_id,
+        decision,
+        slot.current_version,
+        contentHash,
+        reason,
+      );
       await loadCatalog();
     } catch (reasonValue) {
-      setError(reasonValue instanceof Error ? reasonValue.message : "审核操作失败");
+      const message = reasonValue instanceof Error ? reasonValue.message : "审核操作失败";
+      if (reasonValue instanceof ApiError && reasonValue.status === 409) {
+        await loadCatalog();
+      }
+      setError(message);
     } finally {
       setWorking(false);
     }
@@ -380,22 +443,29 @@ export function StandardLearningResources({
               <button
                 type="button"
                 className="standard-resources__select-all"
-                onClick={() => setSelectedLeafIds(
-                  selectedCount === leaves.length
-                    ? new Set()
-                    : new Set(leaves.map((leaf) => leaf.leaf_id)),
-                )}
+                onClick={() => {
+                  setPreview(null);
+                  setSelectedLeafIds(
+                    selectedCount === leaves.length
+                      ? new Set()
+                      : new Set(leaves.map((leaf) => leaf.leaf_id)),
+                  );
+                }}
               >
                 {selectedCount === leaves.length ? "取消全选" : "选择全部知识点"}
               </button>
               <button
                 type="button"
                 className="standard-resources__generate"
-                disabled={!selectedCount || working}
+                disabled={!selectedCount || selectedKinds.size === 0 || working || Boolean(preview && preview.actionable_items === 0)}
                 onClick={() => void generateSelected()}
               >
                 <MaterialIcon name="auto_awesome" />
-                {working ? "正在提交…" : `生成 ${selectedCount * 3} 项资源`}
+                {working
+                  ? "正在处理…"
+                  : preview
+                    ? `确认生成 ${preview.actionable_items} 项资源`
+                    : `检查 ${selectedCount * selectedKinds.size} 个资源槽位`}
               </button>
             </div>
           ) : null}
@@ -403,6 +473,45 @@ export function StandardLearningResources({
       ) : null}
 
       {error && <div className="standard-resources__error" role="alert">{error}</div>}
+
+      {canManage ? (
+        <section className="standard-resources__generation-policy" aria-label="生成策略">
+          <fieldset>
+            <legend>生成资源类型</legend>
+            {(Object.keys(STANDARD_RESOURCE_KIND_META) as StandardResourceKind[]).map((kind) => (
+              <label key={kind}>
+                <input type="checkbox" checked={selectedKinds.has(kind)} onChange={() => toggleKind(kind)} />
+                {STANDARD_RESOURCE_KIND_META[kind].label}
+              </label>
+            ))}
+          </fieldset>
+          <fieldset>
+            <legend>已有资源处理</legend>
+            {([
+              ["fill_missing", "仅补齐缺失资源"],
+              ["repair_rejected", "补齐并修订已退回资源"],
+              ["regenerate_all", "为全部选中资源生成候选新版"],
+            ] as const).map(([mode, label]) => (
+              <label key={mode}>
+                <input type="radio" name="standard-resource-generation-mode" checked={generationMode === mode} onChange={() => changeGenerationMode(mode)} />
+                {label}
+              </label>
+            ))}
+          </fieldset>
+        </section>
+      ) : null}
+
+      {preview ? (
+        <div className="standard-resources__preview" role="status">
+          <strong>生成检查结果</strong>
+          <span>补齐 {preview.generate_items} 项</span>
+          <span>修订 {preview.repair_items} 项</span>
+          <span>候选新版 {preview.regenerate_items} 项</span>
+          <span>保留 {preview.kept_items} 项</span>
+          <span>阻断 {preview.blocked_items} 项</span>
+          {preview.actionable_items === 0 ? <p>当前选择没有需要生成的资源。</p> : null}
+        </div>
+      ) : null}
 
       {batch ? (
         <div className="standard-resource-batch" aria-live="polite">
@@ -598,14 +707,17 @@ export function StandardLearningResources({
       {compact && canManage && leaves.length > 0 ? (
         <footer className="standard-resources__compact-footer">
           <div className="standard-resources__compact-selection">
-            <strong>{standardSelectionSummary(selectedCount).label}</strong>
+            <strong>{standardSelectionSummary(selectedCount, selectedKinds.size).label}</strong>
             <button
               type="button"
-              onClick={() => setSelectedLeafIds(
-                selectedCount === leaves.length
-                  ? new Set()
-                  : new Set(leaves.map((leaf) => leaf.leaf_id)),
-              )}
+              onClick={() => {
+                setPreview(null);
+                setSelectedLeafIds(
+                  selectedCount === leaves.length
+                    ? new Set()
+                    : new Set(leaves.map((leaf) => leaf.leaf_id)),
+                );
+              }}
             >
               {selectedCount === leaves.length ? "取消全选" : "选择全部知识点"}
             </button>
@@ -621,11 +733,15 @@ export function StandardLearningResources({
             <button
               type="button"
               className="standard-resources__generate"
-              disabled={!selectedCount || working}
+              disabled={!selectedCount || selectedKinds.size === 0 || working || Boolean(preview && preview.actionable_items === 0)}
               onClick={() => void generateSelected()}
             >
               <MaterialIcon name="auto_awesome" />
-              {working ? "正在提交…" : `开始生成 ${selectedCount * 3} 项资源`}
+              {working
+                ? "正在处理…"
+                : preview
+                  ? `确认生成 ${preview.actionable_items} 项资源`
+                  : `检查 ${selectedCount * selectedKinds.size} 个资源槽位`}
             </button>
           </div>
         </footer>

@@ -1,0 +1,1330 @@
+{
+  "kind": "graph",
+  "conversation_id": "resource-e2e-graph-349c3aaa",
+  "turns": [
+    {
+      "question": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "正在生成思维导图，完成后会在这里显示。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-graph-349c3aaa"
+        },
+        "action": {
+          "name": "generate.graph"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "graph",
+          "status": "running",
+          "stage": "generating"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "580260dce8844f76b2a87b141ddb8c86",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "本思维导图面向大学初学者，讲解数组随机访问的基本概念、内存布局、地址计算和适用条件，不涉及高级数据结构或复杂内存管理。",
+                "prerequisites": [
+                  "了解基本编程概念（变量、数组）",
+                  "理解二进制和内存基本概念"
+                ],
+                "objectives": [
+                  "描述数组在内存中的连续存储和元素等长特性",
+                  "解释基址单元和首元素地址的概念",
+                  "使用公式 addr = base + i × element_size 计算任意元素地址",
+                  "对比随机访问与顺序访问的优缺点，说明O(1)复杂度",
+                  "识别数组随机访问的适用场景和局限"
+                ],
+                "units": [
+                  {
+                    "title": "内存布局",
+                    "explanation": "数组在内存中是一段连续的空间，每个元素占用相同大小的字节数，数组的起始地址称为基址。",
+                    "example": "例如，int数组a[5]在内存中占用20字节（假设int为4字节），a[0]的地址为基址。",
+                    "misconception": "初学者可能误以为数组元素在内存中分散存储，实际上它们是连续排列的。",
+                    "check": "请描述数组在内存中的存储特点。",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "连续存储",
+                    "explanation": "数组元素按顺序紧密排列，元素之间没有空隙，这使得通过索引计算地址成为可能。",
+                    "example": "若数组起始地址为1000，每个元素4字节，则a[1]地址为1004，a[2]为1008。",
+                    "misconception": "",
+                    "check": "",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "元素等长",
+                    "explanation": "数组中所有元素的数据类型相同，因此每个元素占用的字节数一致，这是地址计算的基础。",
+                    "example": "char数组每个元素1字节，double数组每个元素通常8字节。",
+                    "misconception": "",
+                    "check": "",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "基址单元",
+                    "explanation": "基址是数组第一个元素的地址，也是地址计算的起点。",
+                    "example": "在C语言中，数组名a代表首元素地址，即基址。",
+                    "misconception": "",
+                    "check": "",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "地址计算",
+                    "explanation": "通过基址加上偏移量来计算任意元素的地址，偏移量等于索引乘以元素大小。",
+                    "example": "",
+                    "misconception": "",
+                    "check": "",
+                    "objective_indices": [
+                      1,
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "首元素地址+偏移",
+                    "explanation": "元素i的地址 = 首元素地址 + i × 元素大小，其中i从0开始。",
+                    "example": "若基址为1000，元素大小4，则a[3]地址为1000 + 3×4 = 1012。",
+                    "misconception": "初学者可能忘记索引从0开始，导致计算错误。",
+                    "check": "计算给定基址和元素大小时，a[2]的地址。",
+                    "objective_indices": [
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "公式 addr = base + i × element_size",
+                    "explanation": "这是随机访问的核心公式，它使得访问任意元素的时间与数组大小无关。",
+                    "example": "对于int a[10]，基址为2000，a[5]地址为2000 + 5×4 = 2020。",
+                    "misconception": "",
+                    "check": "使用公式计算指定元素的地址。",
+                    "objective_indices": [
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "适用条件",
+                    "explanation": "数组随机访问适用于需要频繁访问任意元素的场景，其时间复杂度为O(1)，但插入和删除操作效率低。",
+                    "example": "例如，在实现哈希表或需要快速索引的算法中，数组是理想选择。",
+                    "misconception": "初学者可能认为所有数据结构都支持O(1)随机访问，但链表需要遍历。",
+                    "check": "比较数组和链表在随机访问上的性能差异。",
+                    "objective_indices": [
+                      3,
+                      4
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "随机访问适用场景/优点与局限",
+                    "explanation": "优点：访问速度快，适合读多写少的场景；局限：大小固定，插入删除需移动元素，内存要求连续。",
+                    "example": "在图像处理中，像素数据用数组存储，便于快速访问任意像素。",
+                    "misconception": "",
+                    "check": "",
+                    "objective_indices": [
+                      3,
+                      4
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "O(1) 与顺序访问对比",
+                    "explanation": "随机访问时间复杂度为O(1)，而顺序访问（如链表）需要O(n)时间，但链表在插入删除时更高效。",
+                    "example": "访问数组第100个元素只需一次计算，而链表需要从头遍历100次。",
+                    "misconception": "有人误以为O(1)意味着访问时间绝对恒定，实际是常数时间，与数组大小无关。",
+                    "check": "解释为什么数组随机访问是O(1)而链表是O(n)。",
+                    "objective_indices": [
+                      3
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本资源基于通用计算机内存模型，未涉及缓存、虚拟内存等实际硬件影响。",
+                  "未讨论动态数组（如C++ vector）的扩容机制。",
+                  "假设元素大小固定且已知，实际中可能因对齐而略有差异。"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：内容基于通用内存模型，假设元素等长且索引从0开始，符合大学初学者的知识背景。",
+                      "reason": "前提在limitations中明确说明，且units中一致使用索引从0开始和固定元素大小，未发现错误泛化。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：地址计算公式 addr = base + i × element_size 在所有示例中一致应用。",
+                      "reason": "逐步追踪示例：基址1000，元素大小4，a[1]地址=1000+1×4=1004，a[2]=1008，a[3]=1012；基址2000，a[5]=2000+5×4=2020。所有计算正确且一致。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子：示例正确演示了连续存储和地址计算。",
+                      "reason": "int数组a[5]占用20字节（5×4），a[0]为基址；char数组1字节，double数组8字节；链表访问第100个元素需遍历，数组O(1)。例子与说明无矛盾。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：覆盖所有目标，且处理了常见误解。",
+                      "reason": "目标0-4分别由units覆盖：内存布局（连续存储、元素等长、基址单元）、地址计算（公式）、适用条件（O(1)对比）。误解包括分散存储、索引从0开始、所有数据结构O(1)、O(1)绝对恒定。未发现边界错误，如索引越界未涉及但非必需。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_d4c9cfb1a7744b6f9ea470d085766851",
+                "resource_type": "graph",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "思维导图：面向大学初学者讲解“数组随机访问”，根主题保持“数组随机访问”，按同一分类维度设置三个一级分支：①内存布局（连续存储、元素等长、基址单元）；②地址计算（首元素地址+偏移，公式 addr = base + i × element_size）；③适用条件（随机访问适用场景/优点与局限，O(1) 与顺序访问对比）。节点层级合理、同层粒度相近，summary 简短可读。资料使用通用知识即可，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "submit_resource_direct",
+              "data": {
+                "task_id": "job_f6caa76de18c4b7f",
+                "status": "submitted",
+                "workflow_type": "graph"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "task_id": "job_f6caa76de18c4b7f",
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成graph",
+          "workflow_label": "graph",
+          "topics": [
+            "请生成一份"
+          ],
+          "issues": [],
+          "confirmed_facts": [
+            "包含内存布局、地址计算和适用条件三个分支",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”思维导图",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕请生成一份继续讨论"
+        }
+      }
+    },
+    {
+      "question": "刚才生成的资源完成了吗？请读取它并概括内容。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "刚才那张《数组随机访问》思维导图已经生成完成了，不过当前内容还没有到可以正常读取核验的状态，所以我暂时没法给你做内容概括，也不便把它当作最终可用版本交付。等它的内容可以查看后，我再为你总结三个分支（内存布局、地址计算、适用条件）的具体内容。\n\n如果你是想继续基于这份导图调整或补充内容，也可以告诉我，我会在它能读取后再处理。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-graph-349c3aaa"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "b8bb5274aadb4775ac2a10ddb30fc02c",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "query_report_job",
+              "data": {
+                "task_id": "job_f6caa76de18c4b7f",
+                "status": "succeeded",
+                "progress": 100,
+                "title": "数组随机访问",
+                "created_at": "2026-09-09T02:48:46.075454+00:00",
+                "result_ref": {
+                  "resource_type": "course_material",
+                  "course_id": "resource-e2e-course",
+                  "material_type": "graph",
+                  "material_id": "graph-4d430d4107fbf7f4"
+                },
+                "verification": {
+                  "decision": "fail",
+                  "checks": "structure_and_version_bound_report_review",
+                  "semantic_review": "missing_or_stale",
+                  "review": null
+                },
+                "failure_reason": null,
+                "report_link": {
+                  "source_conversation_id": "resource-e2e-graph-349c3aaa",
+                  "outline_id": "direct_org_d4c9cfb1a7744b6f9ea470d085766851",
+                  "revision": 1,
+                  "result_ref": {
+                    "resource_type": "course_material",
+                    "course_id": "resource-e2e-course",
+                    "material_type": "graph",
+                    "material_id": "graph-4d430d4107fbf7f4"
+                  },
+                  "access": "read_only"
+                }
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "verification": {
+          "decision": "fail",
+          "checks": "structure_and_version_bound_report_review",
+          "semantic_review": "missing_or_stale",
+          "review": null
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "",
+          "scope_path": [],
+          "resolution": "needs_clarification",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成graph",
+          "workflow_label": "graph",
+          "topics": [
+            "刚才生成的资源完成了吗",
+            "请读取它并概括内容",
+            "请生成一份"
+          ],
+          "goal": "总结内容",
+          "issues": [],
+          "confirmed_facts": [
+            "包含内存布局、地址计算和适用条件三个分支",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [
+            "不过当前内容还没有到可以正常读取核验的状态"
+          ],
+          "evidence_details": [
+            {
+              "content": "不过当前内容还没有到可以正常读取核验的状态",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            }
+          ],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”思维导图",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕刚才生成的资源完成了吗、请读取它并概括内容进行总结"
+        }
+      }
+    }
+  ],
+  "direct_generation_verified": true,
+  "job": {
+    "schema_version": 2,
+    "version": 4,
+    "edu_job_id": "job_f6caa76de18c4b7f",
+    "kind": "generate_graph",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "生成完成，已保存到“我的资源”，仅你可见。",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "graph",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "graph",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "",
+        "focus": "思维导图：面向大学初学者讲解“数组随机访问”，根主题保持“数组随机访问”，按同一分类维度设置三个一级分支：①内存布局（连续存储、元素等长、基址单元）；②地址计算（首元素地址+偏移，公式 addr = base + i × element_size）；③适用条件（随机访问适用场景/优点与局限，O(1) 与顺序访问对比）。节点层级合理、同层粒度相近，summary 简短可读。资料使用通用知识即可，无需检索。",
+        "length_hint": "思维导图：面向大学初学者讲解“数组随机访问”，根主题保持“数组随机访问”，按同一分类维度设置三个一级分支：①内存布局（连续存储、元素等长、基址单元）；②地址计算（首元素地址+偏移，公式 addr = base + i × element_size）；③适用条件（随机访问适用场景/优点与局限，O(1) 与顺序访问对比）。节点层级合理、同层粒度相近，summary 简短可读。资料使用通用知识即可，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "direct_org_d4c9cfb1a7744b6f9ea470d085766851",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-graph-349c3aaa",
+        "harness_chapters": [],
+        "classroom_options": {},
+        "harness_organization": {
+          "scope": "本思维导图面向大学初学者，讲解数组随机访问的基本概念、内存布局、地址计算和适用条件，不涉及高级数据结构或复杂内存管理。",
+          "prerequisites": [
+            "了解基本编程概念（变量、数组）",
+            "理解二进制和内存基本概念"
+          ],
+          "objectives": [
+            "描述数组在内存中的连续存储和元素等长特性",
+            "解释基址单元和首元素地址的概念",
+            "使用公式 addr = base + i × element_size 计算任意元素地址",
+            "对比随机访问与顺序访问的优缺点，说明O(1)复杂度",
+            "识别数组随机访问的适用场景和局限"
+          ],
+          "units": [
+            {
+              "title": "内存布局",
+              "explanation": "数组在内存中是一段连续的空间，每个元素占用相同大小的字节数，数组的起始地址称为基址。",
+              "example": "例如，int数组a[5]在内存中占用20字节（假设int为4字节），a[0]的地址为基址。",
+              "misconception": "初学者可能误以为数组元素在内存中分散存储，实际上它们是连续排列的。",
+              "check": "请描述数组在内存中的存储特点。",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "连续存储",
+              "explanation": "数组元素按顺序紧密排列，元素之间没有空隙，这使得通过索引计算地址成为可能。",
+              "example": "若数组起始地址为1000，每个元素4字节，则a[1]地址为1004，a[2]为1008。",
+              "misconception": "",
+              "check": "",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "元素等长",
+              "explanation": "数组中所有元素的数据类型相同，因此每个元素占用的字节数一致，这是地址计算的基础。",
+              "example": "char数组每个元素1字节，double数组每个元素通常8字节。",
+              "misconception": "",
+              "check": "",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "基址单元",
+              "explanation": "基址是数组第一个元素的地址，也是地址计算的起点。",
+              "example": "在C语言中，数组名a代表首元素地址，即基址。",
+              "misconception": "",
+              "check": "",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "地址计算",
+              "explanation": "通过基址加上偏移量来计算任意元素的地址，偏移量等于索引乘以元素大小。",
+              "example": "",
+              "misconception": "",
+              "check": "",
+              "objective_indices": [
+                1,
+                2
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "首元素地址+偏移",
+              "explanation": "元素i的地址 = 首元素地址 + i × 元素大小，其中i从0开始。",
+              "example": "若基址为1000，元素大小4，则a[3]地址为1000 + 3×4 = 1012。",
+              "misconception": "初学者可能忘记索引从0开始，导致计算错误。",
+              "check": "计算给定基址和元素大小时，a[2]的地址。",
+              "objective_indices": [
+                2
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "公式 addr = base + i × element_size",
+              "explanation": "这是随机访问的核心公式，它使得访问任意元素的时间与数组大小无关。",
+              "example": "对于int a[10]，基址为2000，a[5]地址为2000 + 5×4 = 2020。",
+              "misconception": "",
+              "check": "使用公式计算指定元素的地址。",
+              "objective_indices": [
+                2
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "适用条件",
+              "explanation": "数组随机访问适用于需要频繁访问任意元素的场景，其时间复杂度为O(1)，但插入和删除操作效率低。",
+              "example": "例如，在实现哈希表或需要快速索引的算法中，数组是理想选择。",
+              "misconception": "初学者可能认为所有数据结构都支持O(1)随机访问，但链表需要遍历。",
+              "check": "比较数组和链表在随机访问上的性能差异。",
+              "objective_indices": [
+                3,
+                4
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "随机访问适用场景/优点与局限",
+              "explanation": "优点：访问速度快，适合读多写少的场景；局限：大小固定，插入删除需移动元素，内存要求连续。",
+              "example": "在图像处理中，像素数据用数组存储，便于快速访问任意像素。",
+              "misconception": "",
+              "check": "",
+              "objective_indices": [
+                3,
+                4
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "O(1) 与顺序访问对比",
+              "explanation": "随机访问时间复杂度为O(1)，而顺序访问（如链表）需要O(n)时间，但链表在插入删除时更高效。",
+              "example": "访问数组第100个元素只需一次计算，而链表需要从头遍历100次。",
+              "misconception": "有人误以为O(1)意味着访问时间绝对恒定，实际是常数时间，与数组大小无关。",
+              "check": "解释为什么数组随机访问是O(1)而链表是O(n)。",
+              "objective_indices": [
+                3
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "本资源基于通用计算机内存模型，未涉及缓存、虚拟内存等实际硬件影响。",
+            "未讨论动态数组（如C++ vector）的扩容机制。",
+            "假设元素大小固定且已知，实际中可能因对齐而略有差异。"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "前提适用性：内容基于通用内存模型，假设元素等长且索引从0开始，符合大学初学者的知识背景。",
+                "reason": "前提在limitations中明确说明，且units中一致使用索引从0开始和固定元素大小，未发现错误泛化。",
+                "passed": true
+              },
+              {
+                "claim": "内部推理一致性：地址计算公式 addr = base + i × element_size 在所有示例中一致应用。",
+                "reason": "逐步追踪示例：基址1000，元素大小4，a[1]地址=1000+1×4=1004，a[2]=1008，a[3]=1012；基址2000，a[5]=2000+5×4=2020。所有计算正确且一致。",
+                "passed": true
+              },
+              {
+                "claim": "具体例子：示例正确演示了连续存储和地址计算。",
+                "reason": "int数组a[5]占用20字节（5×4），a[0]为基址；char数组1字节，double数组8字节；链表访问第100个元素需遍历，数组O(1)。例子与说明无矛盾。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖：覆盖所有目标，且处理了常见误解。",
+                "reason": "目标0-4分别由units覆盖：内存布局（连续存储、元素等长、基址单元）、地址计算（公式）、适用条件（O(1)对比）。误解包括分散存储、索引从0开始、所有数据结构O(1)、O(1)绝对恒定。未发现边界错误，如索引越界未涉及但非必需。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_d4c9cfb1a7744b6f9ea470d085766851",
+          "resource_type": "graph",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "思维导图：面向大学初学者讲解“数组随机访问”，根主题保持“数组随机访问”，按同一分类维度设置三个一级分支：①内存布局（连续存储、元素等长、基址单元）；②地址计算（首元素地址+偏移，公式 addr = base + i × element_size）；③适用条件（随机访问适用场景/优点与局限，O(1) 与顺序访问对比）。节点层级合理、同层粒度相近，summary 简短可读。资料使用通用知识即可，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "direct",
+        "harness_execution_context": {
+          "stage": "write_and_review_graph",
+          "decision": {
+            "request_id": "580260dce8844f76b2a87b141ddb8c86",
+            "user_message": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。",
+            "outline_id": "direct_org_d4c9cfb1a7744b6f9ea470d085766851",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "580260dce8844f76b2a87b141ddb8c86",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_c611a332be238c3c",
+      "idempotency_key": "dsh:96bd58ab6414d2fafdc671de9270e3f7c51dfc41c283f18d437c7b7c7c673104",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": {
+      "resource_type": "course_material",
+      "course_id": "resource-e2e-course",
+      "material_type": "graph",
+      "material_id": "graph-4d430d4107fbf7f4"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-09-09T02:48:46.075454+00:00",
+    "started_at": "2026-09-09T02:48:46.617697+00:00",
+    "finished_at": "2026-09-09T02:50:34.434424+00:00",
+    "updated_at": "2026-09-09T02:50:34.434424+00:00"
+  },
+  "material": {
+    "title": "数组随机访问",
+    "content": {
+      "root": {
+        "id": "root",
+        "title": "数组随机访问",
+        "summary": "面向大学初学者的思维导图，从内存布局、地址计算和适用条件三个维度讲解数组随机访问的原理与特性。",
+        "children": [
+          {
+            "id": "memory-layout",
+            "title": "内存布局",
+            "summary": "数组在内存中连续存储，元素等长，以基址为起点。",
+            "children": [
+              {
+                "id": "continuous-storage",
+                "title": "连续存储",
+                "summary": "元素紧密排列，无空隙，是地址计算的前提。",
+                "children": []
+              },
+              {
+                "id": "equal-element-size",
+                "title": "元素等长",
+                "summary": "同类型元素占用相同字节数，如int占4字节、char占1字节。",
+                "children": []
+              },
+              {
+                "id": "base-address",
+                "title": "基址单元",
+                "summary": "数组首元素地址，即数组名代表的地址，是计算的起点。",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "address-calculation",
+            "title": "地址计算",
+            "summary": "通过基址加偏移量计算任意元素地址，核心公式为 addr = base + i × element_size。",
+            "children": [
+              {
+                "id": "base-plus-offset",
+                "title": "首元素地址+偏移",
+                "summary": "偏移量等于索引乘以元素大小，索引从0开始。",
+                "children": []
+              },
+              {
+                "id": "formula",
+                "title": "公式 addr = base + i × element_size",
+                "summary": "例：基址1000、元素4字节，a[3]地址为1012。",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "applicability",
+            "title": "适用条件",
+            "summary": "随机访问适用于读多写少、需快速索引的场景，时间复杂度O(1)，但插入删除低效。",
+            "children": [
+              {
+                "id": "scenarios-advantages-limitations",
+                "title": "适用场景/优点与局限",
+                "summary": "适合图像处理等场景；优点为访问快，局限为大小固定、需连续内存。",
+                "children": []
+              },
+              {
+                "id": "o1-vs-sequential",
+                "title": "O(1) 与顺序访问对比",
+                "summary": "数组随机访问O(1)，链表顺序访问O(n)；链表插入删除更高效。",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "graph",
+        "content_sha256": "b0c78bff171014d429619c96c6117dd7b82cb64ab9641bb7e1e35482051c66b6",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "根主题为“数组随机访问”，未改写主题；一级分支正是“内存布局”“地址计算”“适用条件”，并在其下按用户指定的子项展开（连续存储/元素等长/基址单元，首元素地址+偏移/公式，适用场景优缺点/O(1)与顺序访问对比）。同层分支粒度接近，节点摘要均简短可读，符合导图结构与内容要求。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "技术结论与内部逻辑正确：数组连续存储且元素等长是地址计算基础；公式 addr = base + i × element_size 在示例 base=1000、element_size=4 时给出 a[3]=1000+3×4=1012，计算无误；数组随机访问 O(1)、链表按索引访问需遍历为 O(n)、链表在已知位置插入删除更高效等论断在通用内存模型下成立，未发现矛盾或虚假因果。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "本题材为思维导图，不存在习题、选项、知识卡问答或游戏任务，故不适用逐题求解型核验；按导图核验节点关系，内存布局→地址计算→适用条件的承接关系成立，父节点是子节点的合理分类概括，无同义分支。节点摘要中少量实例（int 占 4 字节、char 占 1 字节、基址 1000 下 a[3] 为 1012）均正确且服务于概念说明。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "节点 id 唯一，结构为 root→一级分支→叶节点的树形层次，每个节点均具备 id/title/summary/children 字段；摘要为短句概括，没有把完整段落塞入节点；同级摘要长度和信息量相近，树结构无循环，子节点归属准确。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "资源要求明确为“资料使用通用知识即可，无需检索”，本导图仅使用数组内存布局与地址计算的教科书级通用知识，不包含需要外部引用支持的特定数据或论断；因此未列出外部来源不构成缺陷。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "五个学习目标均有对应节点：内存布局分支覆盖连续存储、元素等长与基址单元；地址计算分支覆盖首元素地址+偏移与公式并体现索引从 0 开始；适用条件分支覆盖适用场景/优点/局限以及 O(1) 与顺序访问的对比。整体范围与用户指定的三个一级分支一致，无必要遗漏。"
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "b0c78bff171014d429619c96c6117dd7b82cb64ab9641bb7e1e35482051c66b6",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "根主题为“数组随机访问”，未改写主题；一级分支正是“内存布局”“地址计算”“适用条件”，并在其下按用户指定的子项展开（连续存储/元素等长/基址单元，首元素地址+偏移/公式，适用场景优缺点/O(1)与顺序访问对比）。同层分支粒度接近，节点摘要均简短可读，符合导图结构与内容要求。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "技术结论与内部逻辑正确：数组连续存储且元素等长是地址计算基础；公式 addr = base + i × element_size 在示例 base=1000、element_size=4 时给出 a[3]=1000+3×4=1012，计算无误；数组随机访问 O(1)、链表按索引访问需遍历为 O(n)、链表在已知位置插入删除更高效等论断在通用内存模型下成立，未发现矛盾或虚假因果。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "本题材为思维导图，不存在习题、选项、知识卡问答或游戏任务，故不适用逐题求解型核验；按导图核验节点关系，内存布局→地址计算→适用条件的承接关系成立，父节点是子节点的合理分类概括，无同义分支。节点摘要中少量实例（int 占 4 字节、char 占 1 字节、基址 1000 下 a[3] 为 1012）均正确且服务于概念说明。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "节点 id 唯一，结构为 root→一级分支→叶节点的树形层次，每个节点均具备 id/title/summary/children 字段；摘要为短句概括，没有把完整段落塞入节点；同级摘要长度和信息量相近，树结构无循环，子节点归属准确。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "资源要求明确为“资料使用通用知识即可，无需检索”，本导图仅使用数组内存布局与地址计算的教科书级通用知识，不包含需要外部引用支持的特定数据或论断；因此未列出外部来源不构成缺陷。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "五个学习目标均有对应节点：内存布局分支覆盖连续存储、元素等长与基址单元；地址计算分支覆盖首元素地址+偏移与公式并体现索引从 0 开始；适用条件分支覆盖适用场景/优点/局限以及 O(1) 与顺序访问的对比。整体范围与用户指定的三个一级分支一致，无必要遗漏。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": []
+            }
+          }
+        ],
+        "suggestions": []
+      }
+    },
+    "source": {
+      "selected_doc_ids": [],
+      "rag_index_keys": []
+    },
+    "schema_version": 2,
+    "version": 1,
+    "material_type": "graph",
+    "material_id": "graph-4d430d4107fbf7f4",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "owner_user_id": "resource-e2e-admin",
+    "created_by": "resource-e2e-admin",
+    "visibility": "private",
+    "source_job_id": "job_f6caa76de18c4b7f",
+    "config_snapshot_id": "cfg_c611a332be238c3c",
+    "source_snapshot": {
+      "mode": "none",
+      "requested_document_ids": [],
+      "documents": [],
+      "resolved_at": "2026-09-09T02:48:46.683910+00:00"
+    },
+    "config_snapshot": {
+      "allow_rag": true,
+      "audience": "大学初学者",
+      "classroom_options": {},
+      "confirmed_outline": "",
+      "entrypoint": "agent",
+      "focus": "思维导图：面向大学初学者讲解“数组随机访问”，根主题保持“数组随机访问”，按同一分类维度设置三个一级分支：①内存布局（连续存储、元素等长、基址单元）；②地址计算（首元素地址+偏移，公式 addr = base + i × element_size）；③适用条件（随机访问适用场景/优点与局限，O(1) 与顺序访问对比）。节点层级合理、同层粒度相近，summary 简短可读。资料使用通用知识即可，无需检索。",
+      "harness_approval_request_id": "580260dce8844f76b2a87b141ddb8c86",
+      "harness_chapters": [],
+      "harness_conversation_id": "resource-e2e-graph-349c3aaa",
+      "harness_evidence_ids": [],
+      "harness_execution_context": {
+        "decision": {
+          "interpreted_by": "model",
+          "outline_id": "direct_org_d4c9cfb1a7744b6f9ea470d085766851",
+          "request_id": "580260dce8844f76b2a87b141ddb8c86",
+          "revision": 1,
+          "user_message": "请生成一份面向大学初学者的“数组随机访问”思维导图，包含内存布局、地址计算和适用条件三个分支。资料使用通用知识即可，无需检索。"
+        },
+        "stage": "write_and_review_graph",
+        "working_memory": {}
+      },
+      "harness_interaction_mode": "direct",
+      "harness_organization": {
+        "audience": "大学初学者",
+        "evidence_ids": [],
+        "limitations": [
+          "本资源基于通用计算机内存模型，未涉及缓存、虚拟内存等实际硬件影响。",
+          "未讨论动态数组（如C++ vector）的扩容机制。",
+          "假设元素大小固定且已知，实际中可能因对齐而略有差异。"
+        ],
+        "model_review": {
+          "checks": [
+            {
+              "claim": "前提适用性：内容基于通用内存模型，假设元素等长且索引从0开始，符合大学初学者的知识背景。",
+              "passed": true,
+              "reason": "前提在limitations中明确说明，且units中一致使用索引从0开始和固定元素大小，未发现错误泛化。"
+            },
+            {
+              "claim": "内部推理一致性：地址计算公式 addr = base + i × element_size 在所有示例中一致应用。",
+              "passed": true,
+              "reason": "逐步追踪示例：基址1000，元素大小4，a[1]地址=1000+1×4=1004，a[2]=1008，a[3]=1012；基址2000，a[5]=2000+5×4=2020。所有计算正确且一致。"
+            },
+            {
+              "claim": "具体例子：示例正确演示了连续存储和地址计算。",
+              "passed": true,
+              "reason": "int数组a[5]占用20字节（5×4），a[0]为基址；char数组1字节，double数组8字节；链表访问第100个元素需遍历，数组O(1)。例子与说明无矛盾。"
+            },
+            {
+              "claim": "边界与学习目标覆盖：覆盖所有目标，且处理了常见误解。",
+              "passed": true,
+              "reason": "目标0-4分别由units覆盖：内存布局（连续存储、元素等长、基址单元）、地址计算（公式）、适用条件（O(1)对比）。误解包括分散存储、索引从0开始、所有数据结构O(1)、O(1)绝对恒定。未发现边界错误，如索引越界未涉及但非必需。"
+            }
+          ],
+          "issues": [],
+          "passed": true
+        },
+        "objectives": [
+          "描述数组在内存中的连续存储和元素等长特性",
+          "解释基址单元和首元素地址的概念",
+          "使用公式 addr = base + i × element_size 计算任意元素地址",
+          "对比随机访问与顺序访问的优缺点，说明O(1)复杂度",
+          "识别数组随机访问的适用场景和局限"
+        ],
+        "organization_id": "org_d4c9cfb1a7744b6f9ea470d085766851",
+        "prerequisites": [
+          "了解基本编程概念（变量、数组）",
+          "理解二进制和内存基本概念"
+        ],
+        "requirements": "思维导图：面向大学初学者讲解“数组随机访问”，根主题保持“数组随机访问”，按同一分类维度设置三个一级分支：①内存布局（连续存储、元素等长、基址单元）；②地址计算（首元素地址+偏移，公式 addr = base + i × element_size）；③适用条件（随机访问适用场景/优点与局限，O(1) 与顺序访问对比）。节点层级合理、同层粒度相近，summary 简短可读。资料使用通用知识即可，无需检索。",
+        "resource_type": "graph",
+        "scope": "本思维导图面向大学初学者，讲解数组随机访问的基本概念、内存布局、地址计算和适用条件，不涉及高级数据结构或复杂内存管理。",
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "scope_id": null,
+          "scope_type": "course",
+          "selected_doc_ids": []
+        },
+        "subject": "数组随机访问",
+        "units": [
+          {
+            "check": "请描述数组在内存中的存储特点。",
+            "evidence_ids": [],
+            "example": "例如，int数组a[5]在内存中占用20字节（假设int为4字节），a[0]的地址为基址。",
+            "explanation": "数组在内存中是一段连续的空间，每个元素占用相同大小的字节数，数组的起始地址称为基址。",
+            "misconception": "初学者可能误以为数组元素在内存中分散存储，实际上它们是连续排列的。",
+            "objective_indices": [
+              0
+            ],
+            "title": "内存布局"
+          },
+          {
+            "check": "",
+            "evidence_ids": [],
+            "example": "若数组起始地址为1000，每个元素4字节，则a[1]地址为1004，a[2]为1008。",
+            "explanation": "数组元素按顺序紧密排列，元素之间没有空隙，这使得通过索引计算地址成为可能。",
+            "misconception": "",
+            "objective_indices": [
+              0
+            ],
+            "title": "连续存储"
+          },
+          {
+            "check": "",
+            "evidence_ids": [],
+            "example": "char数组每个元素1字节，double数组每个元素通常8字节。",
+            "explanation": "数组中所有元素的数据类型相同，因此每个元素占用的字节数一致，这是地址计算的基础。",
+            "misconception": "",
+            "objective_indices": [
+              0
+            ],
+            "title": "元素等长"
+          },
+          {
+            "check": "",
+            "evidence_ids": [],
+            "example": "在C语言中，数组名a代表首元素地址，即基址。",
+            "explanation": "基址是数组第一个元素的地址，也是地址计算的起点。",
+            "misconception": "",
+            "objective_indices": [
+              0
+            ],
+            "title": "基址单元"
+          },
+          {
+            "check": "",
+            "evidence_ids": [],
+            "example": "",
+            "explanation": "通过基址加上偏移量来计算任意元素的地址，偏移量等于索引乘以元素大小。",
+            "misconception": "",
+            "objective_indices": [
+              1,
+              2
+            ],
+            "title": "地址计算"
+          },
+          {
+            "check": "计算给定基址和元素大小时，a[2]的地址。",
+            "evidence_ids": [],
+            "example": "若基址为1000，元素大小4，则a[3]地址为1000 + 3×4 = 1012。",
+            "explanation": "元素i的地址 = 首元素地址 + i × 元素大小，其中i从0开始。",
+            "misconception": "初学者可能忘记索引从0开始，导致计算错误。",
+            "objective_indices": [
+              2
+            ],
+            "title": "首元素地址+偏移"
+          },
+          {
+            "check": "使用公式计算指定元素的地址。",
+            "evidence_ids": [],
+            "example": "对于int a[10]，基址为2000，a[5]地址为2000 + 5×4 = 2020。",
+            "explanation": "这是随机访问的核心公式，它使得访问任意元素的时间与数组大小无关。",
+            "misconception": "",
+            "objective_indices": [
+              2
+            ],
+            "title": "公式 addr = base + i × element_size"
+          },
+          {
+            "check": "比较数组和链表在随机访问上的性能差异。",
+            "evidence_ids": [],
+            "example": "例如，在实现哈希表或需要快速索引的算法中，数组是理想选择。",
+            "explanation": "数组随机访问适用于需要频繁访问任意元素的场景，其时间复杂度为O(1)，但插入和删除操作效率低。",
+            "misconception": "初学者可能认为所有数据结构都支持O(1)随机访问，但链表需要遍历。",
+            "objective_indices": [
+              3,
+              4
+            ],
+            "title": "适用条件"
+          },
+          {
+            "check": "",
+            "evidence_ids": [],
+            "example": "在图像处理中，像素数据用数组存储，便于快速访问任意像素。",
+            "explanation": "优点：访问速度快，适合读多写少的场景；局限：大小固定，插入删除需移动元素，内存要求连续。",
+            "misconception": "",
+            "objective_indices": [
+              3,
+              4
+            ],
+            "title": "随机访问适用场景/优点与局限"
+          },
+          {
+            "check": "解释为什么数组随机访问是O(1)而链表是O(n)。",
+            "evidence_ids": [],
+            "example": "访问数组第100个元素只需一次计算，而链表需要从头遍历100次。",
+            "explanation": "随机访问时间复杂度为O(1)，而顺序访问（如链表）需要O(n)时间，但链表在插入删除时更高效。",
+            "misconception": "有人误以为O(1)意味着访问时间绝对恒定，实际是常数时间，与数组大小无关。",
+            "objective_indices": [
+              3
+            ],
+            "title": "O(1) 与顺序访问对比"
+          }
+        ]
+      },
+      "harness_outline_id": "direct_org_d4c9cfb1a7744b6f9ea470d085766851",
+      "harness_outline_revision": 1,
+      "harness_review_required": true,
+      "length_hint": "思维导图：面向大学初学者讲解“数组随机访问”，根主题保持“数组随机访问”，按同一分类维度设置三个一级分支：①内存布局（连续存储、元素等长、基址单元）；②地址计算（首元素地址+偏移，公式 addr = base + i × element_size）；③适用条件（随机访问适用场景/优点与局限，O(1) 与顺序访问对比）。节点层级合理、同层粒度相近，summary 简短可读。资料使用通用知识即可，无需检索。",
+      "research_context": "",
+      "research_sources": [],
+      "resource_type": "graph",
+      "subject": "数组随机访问",
+      "title": "数组随机访问"
+    },
+    "status": "ready",
+    "created_at": "2026-09-09T02:50:34.373784",
+    "updated_at": "2026-09-09T02:50:34.373784",
+    "is_pinned": false,
+    "pinned_at": null,
+    "content_hash": "2333d1eda1dc0c4cbb86f96b8af930c6755bf8be6c8f9700b456c06150717a78",
+    "artifact_paths": []
+  },
+  "passed": true,
+  "error": "{'message': {'role': 'assistant', 'content': '刚才那张《数组随机访问》思维导图已经生成完成了，不过当前内容还没有到可以正常读取核验的状态，所以我暂时没法给你做内容概括，也不便把它当作最终可用版本交付。等它的内容可以查看后，我再为你总结三个分支（内存布局、地址计算、适用条件）的具体内容。\\n\\n如果你是想继续基于这份导图调整或补充内容，也可以告诉我，我会在它能读取后再处理。'}, 'conversation': {'conversation_id': 'resource-e2e-graph-349c3aaa'}, 'action': {'name': 'chat.reply'}, 'artifacts': [], 'workflow': None, 'sources': [], 'trace': {'path': 'deepseek-harness', 'model_runtime': 'dsh', 'request_id': 'b8bb5274aadb4775ac2a10ddb30fc02c', 'tool_events': [{'ok': True, 'tool': 'query_report_job', 'data': {'task_id': 'job_f6caa76de18c4b7f', 'status': 'succeeded', 'progress': 100, 'title': '数组随机访问', 'created_at': '2026-09-09T02:48:46.075454+00:00', 'result_ref': {'resource_type': 'course_material', 'course_id': 'resource-e2e-course', 'material_type': 'graph', 'material_id': 'graph-4d430d4107fbf7f4'}, 'verification': {'decision': 'fail', 'checks': 'structure_and_version_bound_report_review', 'semantic_review': 'missing_or_stale', 'review': None}, 'failure_reason': None, 'report_link': {'source_conversation_id': 'resource-e2e-graph-349c3aaa', 'outline_id': 'direct_org_d4c9cfb1a7744b6f9ea470d085766851', 'revision': 1, 'result_ref': {'resource_type': 'course_material', 'course_id': 'resource-e2e-course', 'material_type': 'graph', 'material_id': 'graph-4d430d4107fbf7f4'}, 'access': 'read_only'}}}], 'agent_memory_write': {'candidate_count': 0, 'accepted_count': 0, 'written_count': 0, 'rejected_count': 0, 'shadow_candidate_count': 0, 'provider': 'rules', 'provider_status': 'disabled', 'memory_ids': []}}, 'verification': {'decision': 'fail', 'checks': 'structure_and_version_bound_report_review', 'semantic_review': 'missing_or_stale', 'review': None}, 'workspace_context': {'course_id': 'resource-e2e-course', 'course_title': '数据结构验收课程', 'scope_type': 'course', 'scope_id': None, 'scope_title': '', 'scope_path': [], 'resolution': 'needs_clarification', 'explicit_course': False, 'update_workspace': False}, 'status_card': {'mode': 'workflow', 'status_label': '正在生成graph', 'workflow_label': 'graph', 'topics': ['刚才生成的资源完成了吗', '请读取它并概括内容', '请生成一份'], 'goal': '总结内容', 'issues': [], 'confirmed_facts': ['包含内存布局、地址计算和适用条件三个分支', '资料使用通用知识即可'], 'student_signals': [], 'evidence_points': ['不过当前内容还没有到可以正常读取核验的状态'], 'evidence_details': [{'content': '不过当前内容还没有到可以正常读取核验的状态', 'source_type': 'assistant_message', 'confidence': 'low', 'source_message_count': 1}], 'extra_constraints': [], 'source_labels': ['当前会话', '当前课程'], 'suggested_actions': ['继续生成'], 'audience': '大学初学者的“数组随机访问”思维导图', 'allow_rag': True, 'allow_web': True, 'summary_hint': '当前围绕刚才生成的资源完成了吗、请读取它并概括内容进行总结'}}",
+  "recheck_result": {
+    "message": {
+      "role": "assistant",
+      "content": "我重新查询了刚才那份资源，已确认它状态正常、内容可读。它就是《数组随机访问》思维导图，围绕一个根节点展开三个分支：\n\n**根节点：数组随机访问**（面向大学初学者，从三个维度讲解原理与特性）\n\n**分支一：内存布局**\n- 连续存储：元素紧密排列、无空隙，是地址计算的前提\n- 元素等长：同类型元素占用相同字节（如 int 占 4 字节、char 占 1 字节）\n- 基址单元：数组首元素地址，是计算的起点\n\n**分支二：地址计算**\n- 首元素地址 + 偏移：偏移 = 索引 × 元素大小，索引从 0 开始\n- 核心公式：addr = base + i × element_size，示例：基址 1000、元素 4 字节时，a[3] 的地址为 1012\n\n**分支三：适用条件**\n- 适用场景/优点与局限：适合读多写少、需快速索引的场景（如图像处理）；优点是访问快，局限是大小固定、需要连续内存\n- O(1) 与顺序访问对比：数组随机访问 O(1)，链表顺序访问 O(n)；链表在插入删除上更高效\n\n这份导图三支脉络清晰、层级一致，可以直接作为课堂讲解或学生复习使用。"
+    },
+    "conversation": {
+      "conversation_id": "resource-e2e-graph-349c3aaa"
+    },
+    "action": {
+      "name": "chat.reply"
+    },
+    "artifacts": [
+      {
+        "artifact_id": "graph-4d430d4107fbf7f4",
+        "artifact_type": "graph",
+        "title": "数组随机访问",
+        "content": {
+          "root": {
+            "id": "root",
+            "title": "数组随机访问",
+            "summary": "面向大学初学者的思维导图，从内存布局、地址计算和适用条件三个维度讲解数组随机访问的原理与特性。",
+            "children": [
+              {
+                "id": "memory-layout",
+                "title": "内存布局",
+                "summary": "数组在内存中连续存储，元素等长，以基址为起点。",
+                "children": [
+                  {
+                    "id": "continuous-storage",
+                    "title": "连续存储",
+                    "summary": "元素紧密排列，无空隙，是地址计算的前提。",
+                    "children": []
+                  },
+                  {
+                    "id": "equal-element-size",
+                    "title": "元素等长",
+                    "summary": "同类型元素占用相同字节数，如int占4字节、char占1字节。",
+                    "children": []
+                  },
+                  {
+                    "id": "base-address",
+                    "title": "基址单元",
+                    "summary": "数组首元素地址，即数组名代表的地址，是计算的起点。",
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "address-calculation",
+                "title": "地址计算",
+                "summary": "通过基址加偏移量计算任意元素地址，核心公式为 addr = base + i × element_size。",
+                "children": [
+                  {
+                    "id": "base-plus-offset",
+                    "title": "首元素地址+偏移",
+                    "summary": "偏移量等于索引乘以元素大小，索引从0开始。",
+                    "children": []
+                  },
+                  {
+                    "id": "formula",
+                    "title": "公式 addr = base + i × element_size",
+                    "summary": "例：基址1000、元素4字节，a[3]地址为1012。",
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "id": "applicability",
+                "title": "适用条件",
+                "summary": "随机访问适用于读多写少、需快速索引的场景，时间复杂度O(1)，但插入删除低效。",
+                "children": [
+                  {
+                    "id": "scenarios-advantages-limitations",
+                    "title": "适用场景/优点与局限",
+                    "summary": "适合图像处理等场景；优点为访问快，局限为大小固定、需连续内存。",
+                    "children": []
+                  },
+                  {
+                    "id": "o1-vs-sequential",
+                    "title": "O(1) 与顺序访问对比",
+                    "summary": "数组随机访问O(1)，链表顺序访问O(n)；链表插入删除更高效。",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "workflow": null,
+    "sources": [],
+    "trace": {
+      "path": "deepseek-harness",
+      "model_runtime": "dsh",
+      "request_id": "78fcd8152a414c4c8eb32238c9eec91c",
+      "tool_events": [
+        {
+          "ok": true,
+          "tool": "query_resource_job",
+          "data": {
+            "task_id": "job_f6caa76de18c4b7f",
+            "resource_type": "graph",
+            "status": "succeeded",
+            "progress": 100,
+            "title": "数组随机访问",
+            "result_ref": {
+              "resource_type": "course_material",
+              "course_id": "resource-e2e-course",
+              "material_type": "graph",
+              "material_id": "graph-4d430d4107fbf7f4"
+            },
+            "verification": {
+              "decision": "pass",
+              "checks": "version_bound_resource_review"
+            },
+            "failure_reason": null,
+            "artifact": {
+              "artifact_id": "graph-4d430d4107fbf7f4",
+              "artifact_type": "graph",
+              "title": "数组随机访问",
+              "content": {
+                "root": {
+                  "id": "root",
+                  "title": "数组随机访问",
+                  "summary": "面向大学初学者的思维导图，从内存布局、地址计算和适用条件三个维度讲解数组随机访问的原理与特性。",
+                  "children": [
+                    {
+                      "id": "memory-layout",
+                      "title": "内存布局",
+                      "summary": "数组在内存中连续存储，元素等长，以基址为起点。",
+                      "children": [
+                        {
+                          "id": "continuous-storage",
+                          "title": "连续存储",
+                          "summary": "元素紧密排列，无空隙，是地址计算的前提。",
+                          "children": []
+                        },
+                        {
+                          "id": "equal-element-size",
+                          "title": "元素等长",
+                          "summary": "同类型元素占用相同字节数，如int占4字节、char占1字节。",
+                          "children": []
+                        },
+                        {
+                          "id": "base-address",
+                          "title": "基址单元",
+                          "summary": "数组首元素地址，即数组名代表的地址，是计算的起点。",
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "address-calculation",
+                      "title": "地址计算",
+                      "summary": "通过基址加偏移量计算任意元素地址，核心公式为 addr = base + i × element_size。",
+                      "children": [
+                        {
+                          "id": "base-plus-offset",
+                          "title": "首元素地址+偏移",
+                          "summary": "偏移量等于索引乘以元素大小，索引从0开始。",
+                          "children": []
+                        },
+                        {
+                          "id": "formula",
+                          "title": "公式 addr = base + i × element_size",
+                          "summary": "例：基址1000、元素4字节，a[3]地址为1012。",
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "applicability",
+                      "title": "适用条件",
+                      "summary": "随机访问适用于读多写少、需快速索引的场景，时间复杂度O(1)，但插入删除低效。",
+                      "children": [
+                        {
+                          "id": "scenarios-advantages-limitations",
+                          "title": "适用场景/优点与局限",
+                          "summary": "适合图像处理等场景；优点为访问快，局限为大小固定、需连续内存。",
+                          "children": []
+                        },
+                        {
+                          "id": "o1-vs-sequential",
+                          "title": "O(1) 与顺序访问对比",
+                          "summary": "数组随机访问O(1)，链表顺序访问O(n)；链表插入删除更高效。",
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "agent_memory_write": {
+        "candidate_count": 0,
+        "accepted_count": 0,
+        "written_count": 0,
+        "rejected_count": 0,
+        "shadow_candidate_count": 0,
+        "provider": "rules",
+        "provider_status": "disabled",
+        "memory_ids": []
+      }
+    },
+    "verification": {
+      "decision": "pass",
+      "checks": "version_bound_resource_review"
+    },
+    "workspace_context": {
+      "course_id": "resource-e2e-course",
+      "course_title": "数据结构验收课程",
+      "scope_type": "course",
+      "scope_id": null,
+      "scope_title": "",
+      "scope_path": [],
+      "resolution": "needs_clarification",
+      "explicit_course": false,
+      "update_workspace": false
+    },
+    "status_card": {
+      "mode": "chat",
+      "status_label": "普通对话",
+      "topics": [
+        "请重新查询刚才这份已生成资源的真实状态",
+        "并读取实际内容后概括"
+      ],
+      "goal": "总结内容",
+      "issues": [],
+      "confirmed_facts": [
+        "并读取实际内容后概括"
+      ],
+      "student_signals": [],
+      "evidence_points": [
+        "是地址计算的前提"
+      ],
+      "evidence_details": [
+        {
+          "content": "是地址计算的前提",
+          "source_type": "assistant_message",
+          "confidence": "low",
+          "source_message_count": 1
+        }
+      ],
+      "extra_constraints": [],
+      "source_labels": [
+        "当前会话",
+        "当前课程"
+      ],
+      "active_artifact_label": "当前产物：graph",
+      "waiting_label": "继续提问，或告诉我你想生成什么",
+      "suggested_actions": [
+        "继续提问",
+        "生成报告"
+      ],
+      "allow_rag": true,
+      "allow_web": true,
+      "summary_hint": "当前围绕请重新查询刚才这份已生成资源的真实状态、并读取实际内容后概括进行总结"
+    }
+  },
+  "readback_recheck_verified": true,
+  "browser_preview": true,
+  "accepted_by_manual_audit": false,
+  "manual_audit_issue": "链表插入删除更高效缺少已知位置前提，元素大小和数组名语义缺少语言/实现限定。"
+}

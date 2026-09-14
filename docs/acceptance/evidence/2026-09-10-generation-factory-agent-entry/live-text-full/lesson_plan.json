@@ -1,0 +1,630 @@
+{
+  "kind": "lesson_plan",
+  "conversation_id": "resource-e2e-lesson_plan-1602ecce",
+  "turns": [
+    {
+      "question": "请生成一份面向大学初学者、15分钟的“数组随机访问”教案，包含具体课堂活动和评价。资料使用通用知识即可，无需检索。",
+      "events": [
+        {
+          "type": "metadata",
+          "payload": {
+            "conversation_id": "resource-e2e-lesson_plan-1602ecce",
+            "runtime": "deepseek-harness",
+            "trace": {
+              "path": "deepseek-harness"
+            }
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "thinking",
+            "label": "正在处理请求"
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "skill",
+            "label": "正在加载任务流程"
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "select_workspace",
+            "tool_name": "select_workspace",
+            "call_id": "07d596674d4a44c19a2543ad05b3ca8f",
+            "args": {
+              "scope_type": "course",
+              "topic": "数组随机访问"
+            }
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "select_workspace",
+            "tool_name": "select_workspace",
+            "call_id": "07d596674d4a44c19a2543ad05b3ca8f",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "draft_resource_outline",
+            "tool_name": "draft_resource_outline",
+            "call_id": "f1c3368cdbf4420d95e9d057831d19e6",
+            "args": {
+              "resource_type": "lesson_plan",
+              "subject": "数组随机访问",
+              "audience": "大学初学者（大一学生，刚接触程序设计与数据结构）",
+              "requirements": "课时15分钟；面向大学初学者；含具体课堂活动与评价方式；侧重数组随机访问的机制（下标到地址的换算、O(1) 的含义）与实际验证；资料用通用知识即可，无需检索。",
+              "section_count": 4
+            }
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "draft_resource_outline",
+            "tool_name": "draft_resource_outline",
+            "call_id": "f1c3368cdbf4420d95e9d057831d19e6",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "draft_resource_outline",
+              "data": {
+                "outline_id": "outline_a2507fae69e24e73a43a04ea956be3b4",
+                "revision": 1,
+                "created_request_id": "c1aaf1fdde884dcca17e411d4d3fec0d",
+                "resource_type": "lesson_plan",
+                "subject": "数组随机访问",
+                "audience": "大学初学者（大一学生，刚接触程序设计与数据结构）",
+                "requirements": "课时15分钟；面向大学初学者；含具体课堂活动与评价方式；侧重数组随机访问的机制（下标到地址的换算、O(1) 的含义）与实际验证；资料用通用知识即可，无需检索。",
+                "workspace": {
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "organization_id": null,
+                "classroom_options": {},
+                "quality": {
+                  "structural": "pass",
+                  "objective_coverage": false,
+                  "coverage_method": "not_performed",
+                  "semantic_review": "deferred_to_generation",
+                  "review": null
+                },
+                "chapters": [
+                  {
+                    "title": "情境导入与目标明确",
+                    "duration_minutes": 2.0,
+                    "teacher_activity": "展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。",
+                    "student_activity": "观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。",
+                    "assessment": "通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "地址换算机制讲解",
+                    "duration_minutes": 5.0,
+                    "teacher_activity": "以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。",
+                    "student_activity": "跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。",
+                    "assessment": "随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "O(1) 含义与边界澄清",
+                    "duration_minutes": 4.0,
+                    "teacher_activity": "解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。",
+                    "student_activity": "完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。",
+                    "assessment": "收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "课堂验证与总结评价",
+                    "duration_minutes": 4.0,
+                    "teacher_activity": "组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。",
+                    "student_activity": "两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。",
+                    "assessment": "每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。",
+                    "unit_indices": []
+                  }
+                ],
+                "markdown": "# 数组随机访问：教案方案\n\n教学目标：\n- 能写出并解释一维数组随机访问的地址换算公式：元素地址 = 首地址 + 下标 × 元素大小。\n- 能说明数组随机访问为 O(1) 的含义：访问时间不随数组长度增长，并指出这是基于连续存储与等长元素的抽象模型。\n- 能通过课堂活动验证下标访问结果与地址换算一致，并区分抽象操作次数与真实系统耗时。\n\n课堂总时长：15 分钟\n\n## 1. 情境导入与目标明确（2 分钟）\n- 教师活动：展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。\n- 学生任务：观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。\n- 评价证据：通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。\n\n## 2. 地址换算机制讲解（5 分钟）\n- 教师活动：以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。\n- 学生任务：跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。\n- 评价证据：随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。\n\n## 3. O(1) 含义与边界澄清（4 分钟）\n- 教师活动：解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。\n- 学生任务：完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。\n- 评价证据：收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。\n\n## 4. 课堂验证与总结评价（4 分钟）\n- 教师活动：组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。\n- 学生任务：两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。\n- 评价证据：每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "status": "awaiting_approval",
+                "job_id": null
+              }
+            },
+            "outline_markdown": "# 数组随机访问：教案方案\n\n教学目标：\n- 能写出并解释一维数组随机访问的地址换算公式：元素地址 = 首地址 + 下标 × 元素大小。\n- 能说明数组随机访问为 O(1) 的含义：访问时间不随数组长度增长，并指出这是基于连续存储与等长元素的抽象模型。\n- 能通过课堂活动验证下标访问结果与地址换算一致，并区分抽象操作次数与真实系统耗时。\n\n课堂总时长：15 分钟\n\n## 1. 情境导入与目标明确（2 分钟）\n- 教师活动：展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。\n- 学生任务：观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。\n- 评价证据：通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。\n\n## 2. 地址换算机制讲解（5 分钟）\n- 教师活动：以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。\n- 学生任务：跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。\n- 评价证据：随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。\n\n## 3. O(1) 含义与边界澄清（4 分钟）\n- 教师活动：解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。\n- 学生任务：完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。\n- 评价证据：收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。\n\n## 4. 课堂验证与总结评价（4 分钟）\n- 教师活动：组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。\n- 学生任务：两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。\n- 评价证据：每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。",
+            "resource_type": "lesson_plan",
+            "subject": "数组随机访问"
+          }
+        },
+        {
+          "type": "result",
+          "payload": {
+            "message": {
+              "role": "assistant",
+              "content": "# 数组随机访问：教案方案\n\n教学目标：\n- 能写出并解释一维数组随机访问的地址换算公式：元素地址 = 首地址 + 下标 × 元素大小。\n- 能说明数组随机访问为 O(1) 的含义：访问时间不随数组长度增长，并指出这是基于连续存储与等长元素的抽象模型。\n- 能通过课堂活动验证下标访问结果与地址换算一致，并区分抽象操作次数与真实系统耗时。\n\n课堂总时长：15 分钟\n\n## 1. 情境导入与目标明确（2 分钟）\n- 教师活动：展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。\n- 学生任务：观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。\n- 评价证据：通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。\n\n## 2. 地址换算机制讲解（5 分钟）\n- 教师活动：以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。\n- 学生任务：跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。\n- 评价证据：随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。\n\n## 3. O(1) 含义与边界澄清（4 分钟）\n- 教师活动：解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。\n- 学生任务：完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。\n- 评价证据：收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。\n\n## 4. 课堂验证与总结评价（4 分钟）\n- 教师活动：组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。\n- 学生任务：两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。\n- 评价证据：每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。\n\n方案第 1 版。可以提出修改意见，或告诉我按此结构继续。"
+            },
+            "conversation": {
+              "conversation_id": "resource-e2e-lesson_plan-1602ecce"
+            },
+            "action": {
+              "name": "generate.lesson_plan"
+            },
+            "artifacts": [],
+            "workflow": {
+              "type": "lesson_plan",
+              "status": "awaiting_confirm",
+              "stage": "outline"
+            },
+            "sources": [],
+            "trace": {
+              "path": "deepseek-harness",
+              "model_runtime": "dsh",
+              "request_id": "c1aaf1fdde884dcca17e411d4d3fec0d",
+              "tool_events": [
+                {
+                  "ok": true,
+                  "tool": "select_workspace",
+                  "data": {
+                    "course_id": "resource-e2e-course",
+                    "course_title": "数据结构验收课程",
+                    "scope_type": "course",
+                    "scope_id": null,
+                    "scope_title": "数据结构验收课程",
+                    "scope_path": [
+                      "数据结构验收课程"
+                    ],
+                    "resolution": "resolved",
+                    "explicit_course": true,
+                    "update_workspace": false,
+                    "topic": "数组随机访问"
+                  }
+                },
+                {
+                  "ok": true,
+                  "tool": "draft_resource_outline",
+                  "data": {
+                    "outline_id": "outline_a2507fae69e24e73a43a04ea956be3b4",
+                    "revision": 1,
+                    "created_request_id": "c1aaf1fdde884dcca17e411d4d3fec0d",
+                    "resource_type": "lesson_plan",
+                    "subject": "数组随机访问",
+                    "audience": "大学初学者（大一学生，刚接触程序设计与数据结构）",
+                    "requirements": "课时15分钟；面向大学初学者；含具体课堂活动与评价方式；侧重数组随机访问的机制（下标到地址的换算、O(1) 的含义）与实际验证；资料用通用知识即可，无需检索。",
+                    "workspace": {
+                      "scope_type": "course",
+                      "scope_id": null
+                    },
+                    "organization_id": null,
+                    "classroom_options": {},
+                    "quality": {
+                      "structural": "pass",
+                      "objective_coverage": false,
+                      "coverage_method": "not_performed",
+                      "semantic_review": "deferred_to_generation",
+                      "review": null
+                    },
+                    "chapters": [
+                      {
+                        "title": "情境导入与目标明确",
+                        "duration_minutes": 2.0,
+                        "teacher_activity": "展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。",
+                        "student_activity": "观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。",
+                        "assessment": "通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。",
+                        "unit_indices": []
+                      },
+                      {
+                        "title": "地址换算机制讲解",
+                        "duration_minutes": 5.0,
+                        "teacher_activity": "以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。",
+                        "student_activity": "跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。",
+                        "assessment": "随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。",
+                        "unit_indices": []
+                      },
+                      {
+                        "title": "O(1) 含义与边界澄清",
+                        "duration_minutes": 4.0,
+                        "teacher_activity": "解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。",
+                        "student_activity": "完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。",
+                        "assessment": "收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。",
+                        "unit_indices": []
+                      },
+                      {
+                        "title": "课堂验证与总结评价",
+                        "duration_minutes": 4.0,
+                        "teacher_activity": "组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。",
+                        "student_activity": "两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。",
+                        "assessment": "每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。",
+                        "unit_indices": []
+                      }
+                    ],
+                    "markdown": "# 数组随机访问：教案方案\n\n教学目标：\n- 能写出并解释一维数组随机访问的地址换算公式：元素地址 = 首地址 + 下标 × 元素大小。\n- 能说明数组随机访问为 O(1) 的含义：访问时间不随数组长度增长，并指出这是基于连续存储与等长元素的抽象模型。\n- 能通过课堂活动验证下标访问结果与地址换算一致，并区分抽象操作次数与真实系统耗时。\n\n课堂总时长：15 分钟\n\n## 1. 情境导入与目标明确（2 分钟）\n- 教师活动：展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。\n- 学生任务：观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。\n- 评价证据：通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。\n\n## 2. 地址换算机制讲解（5 分钟）\n- 教师活动：以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。\n- 学生任务：跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。\n- 评价证据：随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。\n\n## 3. O(1) 含义与边界澄清（4 分钟）\n- 教师活动：解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。\n- 学生任务：完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。\n- 评价证据：收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。\n\n## 4. 课堂验证与总结评价（4 分钟）\n- 教师活动：组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。\n- 学生任务：两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。\n- 评价证据：每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。",
+                    "evidence_ids": [],
+                    "source_policy": {
+                      "allow_rag": true,
+                      "allow_web": true,
+                      "selected_doc_ids": [],
+                      "scope_type": "course",
+                      "scope_id": null
+                    },
+                    "status": "awaiting_approval",
+                    "job_id": null,
+                    "presented_revision": 1,
+                    "presented_request_id": "c1aaf1fdde884dcca17e411d4d3fec0d"
+                  }
+                }
+              ],
+              "agent_memory_write": {
+                "candidate_count": 0,
+                "accepted_count": 0,
+                "written_count": 0,
+                "rejected_count": 0,
+                "shadow_candidate_count": 0,
+                "provider": "rules",
+                "provider_status": "disabled",
+                "memory_ids": []
+              }
+            },
+            "harness_outline": {
+              "outline_id": "outline_a2507fae69e24e73a43a04ea956be3b4",
+              "revision": 1,
+              "subject": "数组随机访问"
+            },
+            "workspace_context": {
+              "course_id": "resource-e2e-course",
+              "course_title": "数据结构验收课程",
+              "scope_type": "course",
+              "scope_id": null,
+              "scope_title": "数据结构验收课程",
+              "scope_path": [
+                "数据结构验收课程"
+              ],
+              "resolution": "resolved",
+              "explicit_course": true,
+              "update_workspace": false
+            },
+            "interaction_state": {
+              "version": 1,
+              "foreground": "plan:outline_a2507fae69e24e73a43a04ea956be3b4",
+              "tasks": {
+                "plan:outline_a2507fae69e24e73a43a04ea956be3b4": {
+                  "id": "plan:outline_a2507fae69e24e73a43a04ea956be3b4",
+                  "kind": "lesson_plan",
+                  "revision": 1,
+                  "status": "awaiting_confirm"
+                }
+              }
+            },
+            "status_card": {
+              "mode": "workflow",
+              "status_label": "等待你确认并继续",
+              "workflow_label": "教案",
+              "topics": [
+                "请生成一份"
+              ],
+              "goal": "整理教案",
+              "issues": [
+                "评价证据：通过举手或简短问答了解学生对访问速度的直觉"
+              ],
+              "confirmed_facts": [
+                "包含具体课堂活动和评价",
+                "资料使用通用知识即可"
+              ],
+              "student_signals": [
+                "评价证据：通过举手或简短问答了解学生对访问速度的直觉"
+              ],
+              "evidence_points": [
+                "学生任务：观察数组示意图",
+                "评价证据：通过举手或简短问答了解学生对访问速度的直觉",
+                "最后总结公式与 O(1) 的适用前提"
+              ],
+              "evidence_details": [
+                {
+                  "content": "学生任务：观察数组示意图",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                },
+                {
+                  "content": "评价证据：通过举手或简短问答了解学生对访问速度的直觉",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                },
+                {
+                  "content": "最后总结公式与 O(1) 的适用前提",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                }
+              ],
+              "extra_constraints": [],
+              "source_labels": [
+                "当前会话",
+                "当前课程"
+              ],
+              "waiting_label": "等待你确认并继续",
+              "suggested_actions": [
+                "确认并继续",
+                "调整要求"
+              ],
+              "audience": "大学初学者、15分钟的“数组随机访问”教案",
+              "allow_rag": true,
+              "allow_web": true
+            }
+          }
+        },
+        {
+          "type": "done",
+          "payload": {
+            "conversation_id": "resource-e2e-lesson_plan-1602ecce"
+          }
+        }
+      ],
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "# 数组随机访问：教案方案\n\n教学目标：\n- 能写出并解释一维数组随机访问的地址换算公式：元素地址 = 首地址 + 下标 × 元素大小。\n- 能说明数组随机访问为 O(1) 的含义：访问时间不随数组长度增长，并指出这是基于连续存储与等长元素的抽象模型。\n- 能通过课堂活动验证下标访问结果与地址换算一致，并区分抽象操作次数与真实系统耗时。\n\n课堂总时长：15 分钟\n\n## 1. 情境导入与目标明确（2 分钟）\n- 教师活动：展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。\n- 学生任务：观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。\n- 评价证据：通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。\n\n## 2. 地址换算机制讲解（5 分钟）\n- 教师活动：以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。\n- 学生任务：跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。\n- 评价证据：随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。\n\n## 3. O(1) 含义与边界澄清（4 分钟）\n- 教师活动：解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。\n- 学生任务：完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。\n- 评价证据：收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。\n\n## 4. 课堂验证与总结评价（4 分钟）\n- 教师活动：组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。\n- 学生任务：两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。\n- 评价证据：每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。\n\n方案第 1 版。可以提出修改意见，或告诉我按此结构继续。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-lesson_plan-1602ecce"
+        },
+        "action": {
+          "name": "generate.lesson_plan"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "lesson_plan",
+          "status": "awaiting_confirm",
+          "stage": "outline"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "c1aaf1fdde884dcca17e411d4d3fec0d",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "draft_resource_outline",
+              "data": {
+                "outline_id": "outline_a2507fae69e24e73a43a04ea956be3b4",
+                "revision": 1,
+                "created_request_id": "c1aaf1fdde884dcca17e411d4d3fec0d",
+                "resource_type": "lesson_plan",
+                "subject": "数组随机访问",
+                "audience": "大学初学者（大一学生，刚接触程序设计与数据结构）",
+                "requirements": "课时15分钟；面向大学初学者；含具体课堂活动与评价方式；侧重数组随机访问的机制（下标到地址的换算、O(1) 的含义）与实际验证；资料用通用知识即可，无需检索。",
+                "workspace": {
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "organization_id": null,
+                "classroom_options": {},
+                "quality": {
+                  "structural": "pass",
+                  "objective_coverage": false,
+                  "coverage_method": "not_performed",
+                  "semantic_review": "deferred_to_generation",
+                  "review": null
+                },
+                "chapters": [
+                  {
+                    "title": "情境导入与目标明确",
+                    "duration_minutes": 2.0,
+                    "teacher_activity": "展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。",
+                    "student_activity": "观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。",
+                    "assessment": "通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "地址换算机制讲解",
+                    "duration_minutes": 5.0,
+                    "teacher_activity": "以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。",
+                    "student_activity": "跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。",
+                    "assessment": "随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "O(1) 含义与边界澄清",
+                    "duration_minutes": 4.0,
+                    "teacher_activity": "解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。",
+                    "student_activity": "完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。",
+                    "assessment": "收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "课堂验证与总结评价",
+                    "duration_minutes": 4.0,
+                    "teacher_activity": "组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。",
+                    "student_activity": "两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。",
+                    "assessment": "每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。",
+                    "unit_indices": []
+                  }
+                ],
+                "markdown": "# 数组随机访问：教案方案\n\n教学目标：\n- 能写出并解释一维数组随机访问的地址换算公式：元素地址 = 首地址 + 下标 × 元素大小。\n- 能说明数组随机访问为 O(1) 的含义：访问时间不随数组长度增长，并指出这是基于连续存储与等长元素的抽象模型。\n- 能通过课堂活动验证下标访问结果与地址换算一致，并区分抽象操作次数与真实系统耗时。\n\n课堂总时长：15 分钟\n\n## 1. 情境导入与目标明确（2 分钟）\n- 教师活动：展示一个长度为 8 的整型数组，提问“访问第 0 个和第 7 个元素，哪个更慢”，并说明本课将验证随机访问的机制与 O(1) 含义。\n- 学生任务：观察数组示意图，凭直觉回答并简要说明理由，记录自己的初始判断。\n- 评价证据：通过举手或简短问答了解学生对访问速度的直觉，不评价对错，仅作为后续对比的起点。\n\n## 2. 地址换算机制讲解（5 分钟）\n- 教师活动：以 int 数组为例，写出公式“元素地址 = 首地址 + 下标 × 元素大小”，代入首地址 1000、元素大小 4，计算下标 0、3、7 的地址，并强调元素大小指完整元素占用空间。\n- 学生任务：跟随计算，在纸上写出下标 5 的地址，并与邻座核对结果。\n- 评价证据：随机抽问两名学生说出下标 5 的地址计算过程，检查公式代入是否正确。\n\n## 3. O(1) 含义与边界澄清（4 分钟）\n- 教师活动：解释 O(1) 表示访问操作次数不随数组长度 n 增长，对比线性查找需要逐个检查；同时说明抽象连续地址不要求物理内存页连续，常数时间不意味着真实耗时绝对恒定。\n- 学生任务：完成判断题：访问长度 10 和长度 1000000 的数组第 3 个元素，操作次数是否相同；并用自己的话写出理由。\n- 评价证据：收集判断题答案，请一名学生说明理由，检查是否混淆操作次数与真实耗时。\n\n## 4. 课堂验证与总结评价（4 分钟）\n- 教师活动：组织学生用纸笔模拟数组内存布局，给定首地址和元素大小，随机抽取下标计算地址并核对元素值；最后总结公式与 O(1) 的适用前提。\n- 学生任务：两人一组，一人报下标，另一人计算地址并说出对应元素，交换角色完成至少三轮。\n- 评价证据：每组提交一张记录纸，包含三个下标、对应地址和元素值；教师快速检查公式使用是否正确，并口头反馈。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "status": "awaiting_approval",
+                "job_id": null,
+                "presented_revision": 1,
+                "presented_request_id": "c1aaf1fdde884dcca17e411d4d3fec0d"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "harness_outline": {
+          "outline_id": "outline_a2507fae69e24e73a43a04ea956be3b4",
+          "revision": 1,
+          "subject": "数组随机访问"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "interaction_state": {
+          "version": 1,
+          "foreground": "plan:outline_a2507fae69e24e73a43a04ea956be3b4",
+          "tasks": {
+            "plan:outline_a2507fae69e24e73a43a04ea956be3b4": {
+              "id": "plan:outline_a2507fae69e24e73a43a04ea956be3b4",
+              "kind": "lesson_plan",
+              "revision": 1,
+              "status": "awaiting_confirm"
+            }
+          }
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "等待你确认并继续",
+          "workflow_label": "教案",
+          "topics": [
+            "请生成一份"
+          ],
+          "goal": "整理教案",
+          "issues": [
+            "评价证据：通过举手或简短问答了解学生对访问速度的直觉"
+          ],
+          "confirmed_facts": [
+            "包含具体课堂活动和评价",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [
+            "评价证据：通过举手或简短问答了解学生对访问速度的直觉"
+          ],
+          "evidence_points": [
+            "学生任务：观察数组示意图",
+            "评价证据：通过举手或简短问答了解学生对访问速度的直觉",
+            "最后总结公式与 O(1) 的适用前提"
+          ],
+          "evidence_details": [
+            {
+              "content": "学生任务：观察数组示意图",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            },
+            {
+              "content": "评价证据：通过举手或简短问答了解学生对访问速度的直觉",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            },
+            {
+              "content": "最后总结公式与 O(1) 的适用前提",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            }
+          ],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "等待你确认并继续",
+          "suggested_actions": [
+            "确认并继续",
+            "调整要求"
+          ],
+          "audience": "大学初学者、15分钟的“数组随机访问”教案",
+          "allow_rag": true,
+          "allow_web": true
+        }
+      },
+      "elapsed_seconds": 19.499,
+      "task_submitted_seconds": null
+    },
+    {
+      "question": "先不要生成，解释一下你如何检查学生学会了。",
+      "events": [
+        {
+          "type": "error",
+          "payload": {
+            "message": "The file lock '/home/zxqs_ep/Edu_AI/docs/acceptance/evidence/2026-09-10-generation-factory-agent-entry/live-text-full/storage_root/interaction_locks/9a0d37f1677db3cd723fe079aa031b5f90fa4f9717e5dfabef621a61514a305f.lock' could not be acquired.",
+            "conversation_id": "resource-e2e-lesson_plan-1602ecce"
+          }
+        }
+      ],
+      "result": null,
+      "elapsed_seconds": 15.043,
+      "task_submitted_seconds": null
+    }
+  ],
+  "passed": false,
+  "error": "('lesson_plan', None)"
+}

@@ -59,6 +59,7 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         artifact_reference=getattr(payload, "artifact_reference", None),
         conversation_reference=getattr(payload, "conversation_reference", None),
         action_hint=getattr(payload, "action_hint", None),
+        entry_mode=getattr(payload, "entry_mode", "conversation"),
         input_images=list(getattr(payload, "input_images", None) or []),
         input_videos=list(getattr(payload, "input_videos", None) or []),
         capability=CapabilityPolicy(
@@ -71,12 +72,17 @@ def normalize_chat_request(payload) -> ChatRequestV2:
         ),
     )
 
+    configure_harness_capabilities(request, payload)
+    return request
+
+
+def configure_harness_capabilities(request, payload=None):
     from core.config import Config
     from app.chat.harness.runtime import HarnessRuntime
     if Config.USE_DEEPSEEK_HARNESS and HarnessRuntime.supports(request):
         request.capability.retrieval_buttons_are_requirements = True
-        request.capability.require_rag = bool(getattr(payload, 'allow_rag', getattr(payload, 'use_rag', False)))
-        request.capability.require_web = bool(getattr(payload, 'allow_web', False))
+        request.capability.require_rag = bool(getattr(payload, 'allow_rag', getattr(payload, 'use_rag', request.capability.allow_rag)))
+        request.capability.require_web = bool(getattr(payload, 'allow_web', request.capability.allow_web))
         request.capability.allow_rag = True
         request.capability.allow_web = True
         request.capability.allow_tools = True

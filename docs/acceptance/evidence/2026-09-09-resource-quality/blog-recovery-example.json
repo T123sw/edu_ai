@@ -1,0 +1,1318 @@
+{
+  "kind": "blog",
+  "conversation_id": "resource-e2e-blog-4bc2d14f",
+  "turns": [
+    {
+      "question": "请生成一篇面向大学初学者的“数组随机访问”教学博客，约600字，包含具体地址计算实例。先给文章大纲，确认后写正文。资料使用通用知识即可，无需检索。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "# 数组随机访问：博客大纲\n\n## 1. 为什么数组能直接找到第i个元素\n- 连续内存与固定大小\n- 从基地址到目标地址\n\n## 2. 地址计算公式与代入实例\n- 从0开始的下标公式\n- 从1开始的下标公式\n- 两个实例的完整计算\n\n## 3. O(1)随机访问的真正含义\n- 常数次运算与数组长度无关\n- 实际耗时并非绝对恒定\n\n## 4. O(1)结论的适用边界\n- 查找与越界不属于随机访问\n- 插入操作为何不是O(1)\n\n大纲第 1 版。可以提出修改意见，或告诉我按此结构继续。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-blog-4bc2d14f"
+        },
+        "action": {
+          "name": "generate.blog"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "blog",
+          "status": "awaiting_confirm",
+          "stage": "outline"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "709136327657481ebcfa04e8d828f79e",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问（教学博客）"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "面向大学初学者的数组随机访问概念教学博客的知识准备。覆盖数组连续内存存储、下标到地址的换算公式、常数时间复杂度含义及其适用边界。不涉及链表、哈希表等其它数据结构细节，不讨论具体编程语言语法。",
+                "prerequisites": [
+                  "变量与内存基本概念",
+                  "进制与字节基础",
+                  "简单算术运算"
+                ],
+                "objectives": [
+                  "能解释数组元素在内存中连续存放的前提条件",
+                  "能写出数组元素地址计算公式并代入数值计算指定下标元素的地址",
+                  "能说明随机访问时间复杂度为O(1)的含义及其前提",
+                  "能识别随机访问O(1)不保证实际耗时恒定的场景"
+                ],
+                "units": [
+                  {
+                    "title": "数组的连续内存布局",
+                    "explanation": "数组随机访问的核心前提是：数组的n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间（设每个元素占k字节）。因此只要知道首元素地址（基地址）和元素大小，就能推算出任意下标元素的存放位置。这是数组与链表等非连续结构的关键区别。",
+                    "example": "int数组a[5]，每个int占4字节，基地址为1000，则a[0]在1000，a[1]在1004，a[2]在1008，依次连续排列。",
+                    "misconception": "初学者常误以为数组元素地址是随机散落的，或认为下标本身直接就是地址。实际上下标是逻辑序号，地址需通过公式换算。",
+                    "check": "若基地址为2000，元素占8字节，a[3]的地址是多少？",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "地址计算公式与代入实例",
+                    "explanation": "对于从下标0开始的数组，元素a[i]的地址 = 基地址 + i × 元素大小。若数组从下标1开始（如某些语言或数学表述），公式变为 基地址 + (i-1) × 元素大小。计算时需注意下标起始约定，避免差一错误。",
+                    "example": "设double数组b[10]基地址为3000，每个double占8字节。求b[5]地址：3000 + 5×8 = 3040。若按从1开始计数，b[5]对应公式3000 + (5-1)×8 = 3032。",
+                    "misconception": "容易忘记乘元素大小，或混淆下标从0还是从1开始，导致计算结果偏移一个元素。",
+                    "check": "char数组c[20]基地址5000，每个char占1字节，c[12]地址？若改为从1开始计数，c[12]地址又是多少？",
+                    "objective_indices": [
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "随机访问的O(1)含义",
+                    "explanation": "随机访问指通过下标直接定位元素，所需操作次数不随数组长度n增长，即时间复杂度为O(1)。这里的计数方式是：一次乘法和一次加法（或硬件直接计算偏移），与n无关。这是数组相对链表（需从头遍历）的优势。",
+                    "example": "访问a[0]和访问a[99999]在算法分析层面都只需常数次运算，不因数组变大而增加步骤。",
+                    "misconception": "误以为O(1)意味着实际耗时绝对恒定。实际耗时受缓存命中、内存分页、元素大小等因素影响，例如访问跨页元素可能比访问缓存内元素慢得多。",
+                    "check": "为什么说访问a[0]和a[99999]的算法步骤数相同，但实际耗时可能不同？",
+                    "objective_indices": [
+                      2,
+                      3
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "O(1)的适用边界",
+                    "explanation": "O(1)结论建立在数组已存在且下标有效的前提下。若需先查找元素位置（如无序数组中查找某值），则仍需O(n)遍历；若下标越界，语言可能报错或产生未定义行为。此外，真实系统耗时受存储层次影响，常数时间不代表物理时间恒定。",
+                    "example": "已知下标直接访问是O(1)；但若要在数组中查找值为x的元素，需逐个比较，最坏O(n)。",
+                    "misconception": "把'随机访问O(1)'泛化为'数组所有操作都O(1)'，或忽略越界检查成本。",
+                    "check": "数组的插入操作（需移动元素）是O(1)吗？为什么？",
+                    "objective_indices": [
+                      2,
+                      3
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "未涉及多维数组的地址计算（行优先/列优先）",
+                  "未讨论动态数组（如vector）的扩容机制",
+                  "未比较不同语言中数组下标起始差异的完整列表",
+                  "未深入缓存与内存层次对实际性能的量化影响",
+                  "所有公式假设元素大小固定且无填充对齐等特殊情况"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "数组随机访问O(1)的前提是数组已存在且下标有效，不适用于查找等操作",
+                      "reason": "原文在units[3]中明确说明O(1)结论建立在数组已存在且下标有效的前提下，并举例查找需O(n)，未将随机访问O(1)泛化到所有操作，符合前提适用性要求。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "地址计算公式内部一致，区分下标从0和从1开始的场景",
+                      "reason": "units[1]给出从0开始公式：基地址 + i×元素大小；units[2]给出从1开始公式：基地址 + (i-1)×元素大小。两个公式在各自下标约定下正确，且units[2]的示例计算（3000+5×8=3040，3000+(5-1)×8=3032）数值正确，无混用。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体代入实例数值正确",
+                      "reason": "逐步验证：units[1]中int数组基地址1000，元素4字节，a[0]=1000, a[1]=1004, a[2]=1008，正确；units[2]中double数组基地址3000，元素8字节，b[5]=3000+5×8=3040，从1开始为3000+(5-1)×8=3032，正确；units[2]的check中char数组基地址5000，元素1字节，c[12]=5000+12×1=5012，从1开始为5000+(12-1)×1=5011，正确。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖充分，且未错误处理不存在值或空输入",
+                      "reason": "学习目标包括解释连续存放前提、写出公式并代入、说明O(1)含义及识别不保证实际耗时恒定的场景。units[0]覆盖目标0，units[1]覆盖目标1，units[2]覆盖目标2和3，units[3]覆盖目标2和3的边界。内容未涉及空输入或越界的具体处理，但resource_contract允许单张闪卡无需多目标，且本材料为知识准备，不要求展开所有边界案例；用户未明确要求空输入或越界案例，因此不判错。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_db20e46da261455b88fa9e7659646c3a",
+                "resource_type": "blog",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "draft_resource_outline",
+              "data": {
+                "outline_id": "outline_e0f00521cc604123be4cc93f7b76aa10",
+                "revision": 1,
+                "created_request_id": "709136327657481ebcfa04e8d828f79e",
+                "resource_type": "blog",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+                "workspace": {
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "organization_id": "org_db20e46da261455b88fa9e7659646c3a",
+                "classroom_options": {
+                  "enable_tts": false,
+                  "include_visuals": true,
+                  "duration_minutes": 25
+                },
+                "quality": {
+                  "structural": "pass",
+                  "objective_coverage": true,
+                  "semantic_review": "not_performed",
+                  "review": null
+                },
+                "chapters": [
+                  {
+                    "title": "为什么数组能直接找到第i个元素",
+                    "points": [
+                      "连续内存与固定大小",
+                      "从基地址到目标地址"
+                    ],
+                    "unit_indices": [
+                      0
+                    ]
+                  },
+                  {
+                    "title": "地址计算公式与代入实例",
+                    "points": [
+                      "从0开始的下标公式",
+                      "从1开始的下标公式",
+                      "两个实例的完整计算"
+                    ],
+                    "unit_indices": [
+                      1
+                    ]
+                  },
+                  {
+                    "title": "O(1)随机访问的真正含义",
+                    "points": [
+                      "常数次运算与数组长度无关",
+                      "实际耗时并非绝对恒定"
+                    ],
+                    "unit_indices": [
+                      2
+                    ]
+                  },
+                  {
+                    "title": "O(1)结论的适用边界",
+                    "points": [
+                      "查找与越界不属于随机访问",
+                      "插入操作为何不是O(1)"
+                    ],
+                    "unit_indices": [
+                      3
+                    ]
+                  }
+                ],
+                "markdown": "# 数组随机访问：博客大纲\n\n## 1. 为什么数组能直接找到第i个元素\n- 连续内存与固定大小\n- 从基地址到目标地址\n\n## 2. 地址计算公式与代入实例\n- 从0开始的下标公式\n- 从1开始的下标公式\n- 两个实例的完整计算\n\n## 3. O(1)随机访问的真正含义\n- 常数次运算与数组长度无关\n- 实际耗时并非绝对恒定\n\n## 4. O(1)结论的适用边界\n- 查找与越界不属于随机访问\n- 插入操作为何不是O(1)",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "status": "awaiting_approval",
+                "job_id": null,
+                "presented_revision": 1,
+                "presented_request_id": "709136327657481ebcfa04e8d828f79e"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "harness_outline": {
+          "outline_id": "outline_e0f00521cc604123be4cc93f7b76aa10",
+          "revision": 1,
+          "subject": "数组随机访问"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "等待你确认并继续",
+          "workflow_label": "blog",
+          "topics": [
+            "请生成一篇"
+          ],
+          "issues": [],
+          "confirmed_facts": [
+            "包含具体地址计算实例",
+            "先给文章大纲",
+            "确认后写正文"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "等待你确认并继续",
+          "suggested_actions": [
+            "确认并继续",
+            "调整要求"
+          ],
+          "audience": "大学初学者的“数组随机访问”教学博客",
+          "length": "600字",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕请生成一篇继续讨论"
+        }
+      }
+    },
+    {
+      "question": "Go ahead with this plan.",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "正在生成博客，完成后会在这里显示。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-blog-4bc2d14f"
+        },
+        "action": {
+          "name": "generate.blog"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "blog",
+          "status": "running",
+          "stage": "generating"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "ccd8ecd2b73741b4bf0ceaae07d0823a",
+          "tool_events": [
+            {
+              "ok": false,
+              "tool": "submit_resource",
+              "error": "needs_clarification: 请先明确知识点或整门课程范围",
+              "retryable": false
+            },
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "submit_resource",
+              "data": {
+                "task_id": "job_70cdc83fb6704bd2",
+                "status": "submitted",
+                "workflow_type": "blog"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "task_id": "job_70cdc83fb6704bd2",
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成blog",
+          "workflow_label": "blog",
+          "topics": [
+            "Go ahead with this plan.",
+            "请生成一篇"
+          ],
+          "issues": [],
+          "confirmed_facts": [
+            "包含具体地址计算实例",
+            "先给文章大纲",
+            "确认后写正文"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”教学博客",
+          "length": "600字",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕Go ahead with this plan.、请生成一篇继续讨论"
+        }
+      }
+    }
+  ],
+  "job": {
+    "schema_version": 2,
+    "version": 6,
+    "edu_job_id": "job_61f0b5f545e541ed",
+    "kind": "generate_blog",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "生成完成，已保存到“我的资源”，仅你可见。",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "blog",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "blog",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "# 数组随机访问：博客大纲\n\n## 1. 为什么数组能直接找到第i个元素\n- 连续内存与固定大小\n- 从基地址到目标地址\n\n## 2. 地址计算公式与代入实例\n- 从0开始的下标公式\n- 从1开始的下标公式\n- 两个实例的完整计算\n\n## 3. O(1)随机访问的真正含义\n- 常数次运算与数组长度无关\n- 实际耗时并非绝对恒定\n\n## 4. O(1)结论的适用边界\n- 查找与越界不属于随机访问\n- 插入操作为何不是O(1)",
+        "focus": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+        "length_hint": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "outline_e0f00521cc604123be4cc93f7b76aa10",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-blog-4bc2d14f",
+        "harness_chapters": [
+          {
+            "title": "为什么数组能直接找到第i个元素",
+            "points": [
+              "连续内存与固定大小",
+              "从基地址到目标地址"
+            ],
+            "unit_indices": [
+              0
+            ]
+          },
+          {
+            "title": "地址计算公式与代入实例",
+            "points": [
+              "从0开始的下标公式",
+              "从1开始的下标公式",
+              "两个实例的完整计算"
+            ],
+            "unit_indices": [
+              1
+            ]
+          },
+          {
+            "title": "O(1)随机访问的真正含义",
+            "points": [
+              "常数次运算与数组长度无关",
+              "实际耗时并非绝对恒定"
+            ],
+            "unit_indices": [
+              2
+            ]
+          },
+          {
+            "title": "O(1)结论的适用边界",
+            "points": [
+              "查找与越界不属于随机访问",
+              "插入操作为何不是O(1)"
+            ],
+            "unit_indices": [
+              3
+            ]
+          }
+        ],
+        "classroom_options": {
+          "enable_tts": false,
+          "include_visuals": true,
+          "duration_minutes": 25
+        },
+        "harness_organization": {
+          "scope": "面向大学初学者的数组随机访问概念教学博客的知识准备。覆盖数组连续内存存储、下标到地址的换算公式、常数时间复杂度含义及其适用边界。不涉及链表、哈希表等其它数据结构细节，不讨论具体编程语言语法。",
+          "prerequisites": [
+            "变量与内存基本概念",
+            "进制与字节基础",
+            "简单算术运算"
+          ],
+          "objectives": [
+            "能解释数组元素在内存中连续存放的前提条件",
+            "能写出数组元素地址计算公式并代入数值计算指定下标元素的地址",
+            "能说明随机访问时间复杂度为O(1)的含义及其前提",
+            "能识别随机访问O(1)不保证实际耗时恒定的场景"
+          ],
+          "units": [
+            {
+              "title": "数组的连续内存布局",
+              "explanation": "数组随机访问的核心前提是：数组的n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间（设每个元素占k字节）。因此只要知道首元素地址（基地址）和元素大小，就能推算出任意下标元素的存放位置。这是数组与链表等非连续结构的关键区别。",
+              "example": "int数组a[5]，每个int占4字节，基地址为1000，则a[0]在1000，a[1]在1004，a[2]在1008，依次连续排列。",
+              "misconception": "初学者常误以为数组元素地址是随机散落的，或认为下标本身直接就是地址。实际上下标是逻辑序号，地址需通过公式换算。",
+              "check": "若基地址为2000，元素占8字节，a[3]的地址是多少？",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "地址计算公式与代入实例",
+              "explanation": "对于从下标0开始的数组，元素a[i]的地址 = 基地址 + i × 元素大小。若数组从下标1开始（如某些语言或数学表述），公式变为 基地址 + (i-1) × 元素大小。计算时需注意下标起始约定，避免差一错误。",
+              "example": "设double数组b[10]基地址为3000，每个double占8字节。求b[5]地址：3000 + 5×8 = 3040。若按从1开始计数，b[5]对应公式3000 + (5-1)×8 = 3032。",
+              "misconception": "容易忘记乘元素大小，或混淆下标从0还是从1开始，导致计算结果偏移一个元素。",
+              "check": "char数组c[20]基地址5000，每个char占1字节，c[12]地址？若改为从1开始计数，c[12]地址又是多少？",
+              "objective_indices": [
+                1
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "随机访问的O(1)含义",
+              "explanation": "随机访问指通过下标直接定位元素，所需操作次数不随数组长度n增长，即时间复杂度为O(1)。这里的计数方式是：一次乘法和一次加法（或硬件直接计算偏移），与n无关。这是数组相对链表（需从头遍历）的优势。",
+              "example": "访问a[0]和访问a[99999]在算法分析层面都只需常数次运算，不因数组变大而增加步骤。",
+              "misconception": "误以为O(1)意味着实际耗时绝对恒定。实际耗时受缓存命中、内存分页、元素大小等因素影响，例如访问跨页元素可能比访问缓存内元素慢得多。",
+              "check": "为什么说访问a[0]和a[99999]的算法步骤数相同，但实际耗时可能不同？",
+              "objective_indices": [
+                2,
+                3
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "O(1)的适用边界",
+              "explanation": "O(1)结论建立在数组已存在且下标有效的前提下。若需先查找元素位置（如无序数组中查找某值），则仍需O(n)遍历；若下标越界，语言可能报错或产生未定义行为。此外，真实系统耗时受存储层次影响，常数时间不代表物理时间恒定。",
+              "example": "已知下标直接访问是O(1)；但若要在数组中查找值为x的元素，需逐个比较，最坏O(n)。",
+              "misconception": "把'随机访问O(1)'泛化为'数组所有操作都O(1)'，或忽略越界检查成本。",
+              "check": "数组的插入操作（需移动元素）是O(1)吗？为什么？",
+              "objective_indices": [
+                2,
+                3
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "未涉及多维数组的地址计算（行优先/列优先）",
+            "未讨论动态数组（如vector）的扩容机制",
+            "未比较不同语言中数组下标起始差异的完整列表",
+            "未深入缓存与内存层次对实际性能的量化影响",
+            "所有公式假设元素大小固定且无填充对齐等特殊情况"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "数组随机访问O(1)的前提是数组已存在且下标有效，不适用于查找等操作",
+                "reason": "原文在units[3]中明确说明O(1)结论建立在数组已存在且下标有效的前提下，并举例查找需O(n)，未将随机访问O(1)泛化到所有操作，符合前提适用性要求。",
+                "passed": true
+              },
+              {
+                "claim": "地址计算公式内部一致，区分下标从0和从1开始的场景",
+                "reason": "units[1]给出从0开始公式：基地址 + i×元素大小；units[2]给出从1开始公式：基地址 + (i-1)×元素大小。两个公式在各自下标约定下正确，且units[2]的示例计算（3000+5×8=3040，3000+(5-1)×8=3032）数值正确，无混用。",
+                "passed": true
+              },
+              {
+                "claim": "具体代入实例数值正确",
+                "reason": "逐步验证：units[1]中int数组基地址1000，元素4字节，a[0]=1000, a[1]=1004, a[2]=1008，正确；units[2]中double数组基地址3000，元素8字节，b[5]=3000+5×8=3040，从1开始为3000+(5-1)×8=3032，正确；units[2]的check中char数组基地址5000，元素1字节，c[12]=5000+12×1=5012，从1开始为5000+(12-1)×1=5011，正确。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖充分，且未错误处理不存在值或空输入",
+                "reason": "学习目标包括解释连续存放前提、写出公式并代入、说明O(1)含义及识别不保证实际耗时恒定的场景。units[0]覆盖目标0，units[1]覆盖目标1，units[2]覆盖目标2和3，units[3]覆盖目标2和3的边界。内容未涉及空输入或越界的具体处理，但resource_contract允许单张闪卡无需多目标，且本材料为知识准备，不要求展开所有边界案例；用户未明确要求空输入或越界案例，因此不判错。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_db20e46da261455b88fa9e7659646c3a",
+          "resource_type": "blog",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "outline_confirmation",
+        "harness_execution_context": {
+          "stage": "write_and_review_blog",
+          "decision": {
+            "request_id": "ccd8ecd2b73741b4bf0ceaae07d0823a",
+            "user_message": "Go ahead with this plan.",
+            "outline_id": "outline_e0f00521cc604123be4cc93f7b76aa10",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "ccd8ecd2b73741b4bf0ceaae07d0823a",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_aa1366f182331ce4",
+      "idempotency_key": "dsh:4413ca75fd16df02c6d808ab2be6f2675705a4df16d313c228e8c456037a46e4",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": {
+      "resource_type": "course_material",
+      "course_id": "resource-e2e-course",
+      "material_type": "blog",
+      "material_id": "job_70cdc83fb6704bd2"
+    },
+    "retry_of_job_id": "job_70cdc83fb6704bd2",
+    "parent_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-09-09T03:41:35.187743+00:00",
+    "started_at": "2026-09-09T03:41:35.415186+00:00",
+    "finished_at": "2026-09-09T03:42:10.643221+00:00",
+    "updated_at": "2026-09-09T03:42:10.643221+00:00"
+  },
+  "passed": true,
+  "error": "{'schema_version': 2, 'version': 6, 'edu_job_id': 'job_70cdc83fb6704bd2', 'kind': 'generate_blog', 'status': 'failed', 'step': 'failed', 'progress': 100, 'message': '任务执行失败', 'owner_user_id': 'resource-e2e-admin', 'course_id': 'resource-e2e-course', 'scope_type': 'course', 'scope_id': None, 'input_summary': {'title': '数组随机访问', 'resource_type': 'blog', 'source_mode': 'none', 'selected_doc_ids': [], 'config': {'entrypoint': 'agent', 'resource_type': 'blog', 'audience': '大学初学者', 'title': '数组随机访问', 'subject': '数组随机访问', 'confirmed_outline': '# 数组随机访问：博客大纲\\n\\n## 1. 为什么数组能直接找到第i个元素\\n- 连续内存与固定大小\\n- 从基地址到目标地址\\n\\n## 2. 地址计算公式与代入实例\\n- 从0开始的下标公式\\n- 从1开始的下标公式\\n- 两个实例的完整计算\\n\\n## 3. O(1)随机访问的真正含义\\n- 常数次运算与数组长度无关\\n- 实际耗时并非绝对恒定\\n\\n## 4. O(1)结论的适用边界\\n- 查找与越界不属于随机访问\\n- 插入操作为何不是O(1)', 'focus': '面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。', 'length_hint': '面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。', 'allow_rag': True, 'research_context': '', 'research_sources': [], 'harness_outline_id': 'outline_e0f00521cc604123be4cc93f7b76aa10', 'harness_outline_revision': 1, 'harness_conversation_id': 'resource-e2e-blog-4bc2d14f', 'harness_chapters': [{'title': '为什么数组能直接找到第i个元素', 'points': ['连续内存与固定大小', '从基地址到目标地址'], 'unit_indices': [0]}, {'title': '地址计算公式与代入实例', 'points': ['从0开始的下标公式', '从1开始的下标公式', '两个实例的完整计算'], 'unit_indices': [1]}, {'title': 'O(1)随机访问的真正含义', 'points': ['常数次运算与数组长度无关', '实际耗时并非绝对恒定'], 'unit_indices': [2]}, {'title': 'O(1)结论的适用边界', 'points': ['查找与越界不属于随机访问', '插入操作为何不是O(1)'], 'unit_indices': [3]}], 'classroom_options': {'enable_tts': False, 'include_visuals': True, 'duration_minutes': 25}, 'harness_organization': {'scope': '面向大学初学者的数组随机访问概念教学博客的知识准备。覆盖数组连续内存存储、下标到地址的换算公式、常数时间复杂度含义及其适用边界。不涉及链表、哈希表等其它数据结构细节，不讨论具体编程语言语法。', 'prerequisites': ['变量与内存基本概念', '进制与字节基础', '简单算术运算'], 'objectives': ['能解释数组元素在内存中连续存放的前提条件', '能写出数组元素地址计算公式并代入数值计算指定下标元素的地址', '能说明随机访问时间复杂度为O(1)的含义及其前提', '能识别随机访问O(1)不保证实际耗时恒定的场景'], 'units': [{'title': '数组的连续内存布局', 'explanation': '数组随机访问的核心前提是：数组的n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间（设每个元素占k字节）。因此只要知道首元素地址（基地址）和元素大小，就能推算出任意下标元素的存放位置。这是数组与链表等非连续结构的关键区别。', 'example': 'int数组a[5]，每个int占4字节，基地址为1000，则a[0]在1000，a[1]在1004，a[2]在1008，依次连续排列。', 'misconception': '初学者常误以为数组元素地址是随机散落的，或认为下标本身直接就是地址。实际上下标是逻辑序号，地址需通过公式换算。', 'check': '若基地址为2000，元素占8字节，a[3]的地址是多少？', 'objective_indices': [0], 'evidence_ids': []}, {'title': '地址计算公式与代入实例', 'explanation': '对于从下标0开始的数组，元素a[i]的地址 = 基地址 + i × 元素大小。若数组从下标1开始（如某些语言或数学表述），公式变为 基地址 + (i-1) × 元素大小。计算时需注意下标起始约定，避免差一错误。', 'example': '设double数组b[10]基地址为3000，每个double占8字节。求b[5]地址：3000 + 5×8 = 3040。若按从1开始计数，b[5]对应公式3000 + (5-1)×8 = 3032。', 'misconception': '容易忘记乘元素大小，或混淆下标从0还是从1开始，导致计算结果偏移一个元素。', 'check': 'char数组c[20]基地址5000，每个char占1字节，c[12]地址？若改为从1开始计数，c[12]地址又是多少？', 'objective_indices': [1], 'evidence_ids': []}, {'title': '随机访问的O(1)含义', 'explanation': '随机访问指通过下标直接定位元素，所需操作次数不随数组长度n增长，即时间复杂度为O(1)。这里的计数方式是：一次乘法和一次加法（或硬件直接计算偏移），与n无关。这是数组相对链表（需从头",
+  "retry_original_job": {
+    "schema_version": 2,
+    "version": 6,
+    "edu_job_id": "job_70cdc83fb6704bd2",
+    "kind": "generate_blog",
+    "status": "failed",
+    "step": "failed",
+    "progress": 100,
+    "message": "任务执行失败",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "blog",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "blog",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "# 数组随机访问：博客大纲\n\n## 1. 为什么数组能直接找到第i个元素\n- 连续内存与固定大小\n- 从基地址到目标地址\n\n## 2. 地址计算公式与代入实例\n- 从0开始的下标公式\n- 从1开始的下标公式\n- 两个实例的完整计算\n\n## 3. O(1)随机访问的真正含义\n- 常数次运算与数组长度无关\n- 实际耗时并非绝对恒定\n\n## 4. O(1)结论的适用边界\n- 查找与越界不属于随机访问\n- 插入操作为何不是O(1)",
+        "focus": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+        "length_hint": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "outline_e0f00521cc604123be4cc93f7b76aa10",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-blog-4bc2d14f",
+        "harness_chapters": [
+          {
+            "title": "为什么数组能直接找到第i个元素",
+            "points": [
+              "连续内存与固定大小",
+              "从基地址到目标地址"
+            ],
+            "unit_indices": [
+              0
+            ]
+          },
+          {
+            "title": "地址计算公式与代入实例",
+            "points": [
+              "从0开始的下标公式",
+              "从1开始的下标公式",
+              "两个实例的完整计算"
+            ],
+            "unit_indices": [
+              1
+            ]
+          },
+          {
+            "title": "O(1)随机访问的真正含义",
+            "points": [
+              "常数次运算与数组长度无关",
+              "实际耗时并非绝对恒定"
+            ],
+            "unit_indices": [
+              2
+            ]
+          },
+          {
+            "title": "O(1)结论的适用边界",
+            "points": [
+              "查找与越界不属于随机访问",
+              "插入操作为何不是O(1)"
+            ],
+            "unit_indices": [
+              3
+            ]
+          }
+        ],
+        "classroom_options": {
+          "enable_tts": false,
+          "include_visuals": true,
+          "duration_minutes": 25
+        },
+        "harness_organization": {
+          "scope": "面向大学初学者的数组随机访问概念教学博客的知识准备。覆盖数组连续内存存储、下标到地址的换算公式、常数时间复杂度含义及其适用边界。不涉及链表、哈希表等其它数据结构细节，不讨论具体编程语言语法。",
+          "prerequisites": [
+            "变量与内存基本概念",
+            "进制与字节基础",
+            "简单算术运算"
+          ],
+          "objectives": [
+            "能解释数组元素在内存中连续存放的前提条件",
+            "能写出数组元素地址计算公式并代入数值计算指定下标元素的地址",
+            "能说明随机访问时间复杂度为O(1)的含义及其前提",
+            "能识别随机访问O(1)不保证实际耗时恒定的场景"
+          ],
+          "units": [
+            {
+              "title": "数组的连续内存布局",
+              "explanation": "数组随机访问的核心前提是：数组的n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间（设每个元素占k字节）。因此只要知道首元素地址（基地址）和元素大小，就能推算出任意下标元素的存放位置。这是数组与链表等非连续结构的关键区别。",
+              "example": "int数组a[5]，每个int占4字节，基地址为1000，则a[0]在1000，a[1]在1004，a[2]在1008，依次连续排列。",
+              "misconception": "初学者常误以为数组元素地址是随机散落的，或认为下标本身直接就是地址。实际上下标是逻辑序号，地址需通过公式换算。",
+              "check": "若基地址为2000，元素占8字节，a[3]的地址是多少？",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "地址计算公式与代入实例",
+              "explanation": "对于从下标0开始的数组，元素a[i]的地址 = 基地址 + i × 元素大小。若数组从下标1开始（如某些语言或数学表述），公式变为 基地址 + (i-1) × 元素大小。计算时需注意下标起始约定，避免差一错误。",
+              "example": "设double数组b[10]基地址为3000，每个double占8字节。求b[5]地址：3000 + 5×8 = 3040。若按从1开始计数，b[5]对应公式3000 + (5-1)×8 = 3032。",
+              "misconception": "容易忘记乘元素大小，或混淆下标从0还是从1开始，导致计算结果偏移一个元素。",
+              "check": "char数组c[20]基地址5000，每个char占1字节，c[12]地址？若改为从1开始计数，c[12]地址又是多少？",
+              "objective_indices": [
+                1
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "随机访问的O(1)含义",
+              "explanation": "随机访问指通过下标直接定位元素，所需操作次数不随数组长度n增长，即时间复杂度为O(1)。这里的计数方式是：一次乘法和一次加法（或硬件直接计算偏移），与n无关。这是数组相对链表（需从头遍历）的优势。",
+              "example": "访问a[0]和访问a[99999]在算法分析层面都只需常数次运算，不因数组变大而增加步骤。",
+              "misconception": "误以为O(1)意味着实际耗时绝对恒定。实际耗时受缓存命中、内存分页、元素大小等因素影响，例如访问跨页元素可能比访问缓存内元素慢得多。",
+              "check": "为什么说访问a[0]和a[99999]的算法步骤数相同，但实际耗时可能不同？",
+              "objective_indices": [
+                2,
+                3
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "O(1)的适用边界",
+              "explanation": "O(1)结论建立在数组已存在且下标有效的前提下。若需先查找元素位置（如无序数组中查找某值），则仍需O(n)遍历；若下标越界，语言可能报错或产生未定义行为。此外，真实系统耗时受存储层次影响，常数时间不代表物理时间恒定。",
+              "example": "已知下标直接访问是O(1)；但若要在数组中查找值为x的元素，需逐个比较，最坏O(n)。",
+              "misconception": "把'随机访问O(1)'泛化为'数组所有操作都O(1)'，或忽略越界检查成本。",
+              "check": "数组的插入操作（需移动元素）是O(1)吗？为什么？",
+              "objective_indices": [
+                2,
+                3
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "未涉及多维数组的地址计算（行优先/列优先）",
+            "未讨论动态数组（如vector）的扩容机制",
+            "未比较不同语言中数组下标起始差异的完整列表",
+            "未深入缓存与内存层次对实际性能的量化影响",
+            "所有公式假设元素大小固定且无填充对齐等特殊情况"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "数组随机访问O(1)的前提是数组已存在且下标有效，不适用于查找等操作",
+                "reason": "原文在units[3]中明确说明O(1)结论建立在数组已存在且下标有效的前提下，并举例查找需O(n)，未将随机访问O(1)泛化到所有操作，符合前提适用性要求。",
+                "passed": true
+              },
+              {
+                "claim": "地址计算公式内部一致，区分下标从0和从1开始的场景",
+                "reason": "units[1]给出从0开始公式：基地址 + i×元素大小；units[2]给出从1开始公式：基地址 + (i-1)×元素大小。两个公式在各自下标约定下正确，且units[2]的示例计算（3000+5×8=3040，3000+(5-1)×8=3032）数值正确，无混用。",
+                "passed": true
+              },
+              {
+                "claim": "具体代入实例数值正确",
+                "reason": "逐步验证：units[1]中int数组基地址1000，元素4字节，a[0]=1000, a[1]=1004, a[2]=1008，正确；units[2]中double数组基地址3000，元素8字节，b[5]=3000+5×8=3040，从1开始为3000+(5-1)×8=3032，正确；units[2]的check中char数组基地址5000，元素1字节，c[12]=5000+12×1=5012，从1开始为5000+(12-1)×1=5011，正确。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖充分，且未错误处理不存在值或空输入",
+                "reason": "学习目标包括解释连续存放前提、写出公式并代入、说明O(1)含义及识别不保证实际耗时恒定的场景。units[0]覆盖目标0，units[1]覆盖目标1，units[2]覆盖目标2和3，units[3]覆盖目标2和3的边界。内容未涉及空输入或越界的具体处理，但resource_contract允许单张闪卡无需多目标，且本材料为知识准备，不要求展开所有边界案例；用户未明确要求空输入或越界案例，因此不判错。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_db20e46da261455b88fa9e7659646c3a",
+          "resource_type": "blog",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "outline_confirmation",
+        "harness_execution_context": {
+          "stage": "write_and_review_blog",
+          "decision": {
+            "request_id": "ccd8ecd2b73741b4bf0ceaae07d0823a",
+            "user_message": "Go ahead with this plan.",
+            "outline_id": "outline_e0f00521cc604123be4cc93f7b76aa10",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "ccd8ecd2b73741b4bf0ceaae07d0823a",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_aa1366f182331ce4",
+      "idempotency_key": "dsh:4413ca75fd16df02c6d808ab2be6f2675705a4df16d313c228e8c456037a46e4",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": null,
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": "1 validation error for Review\n  Invalid JSON: EOF while parsing an object at line 36 column 1 [type=json_invalid, input_value='{\"checks\": [\\n  {\\n    \"...与小结部分。\"\\n]', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/json_invalid",
+    "error": "1 validation error for Review\n  Invalid JSON: EOF while parsing an object at line 36 column 1 [type=json_invalid, input_value='{\"checks\": [\\n  {\\n    \"...与小结部分。\"\\n]', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/json_invalid",
+    "error_code": "TASK_EXECUTION_FAILED",
+    "retryable": true,
+    "cancelable": false,
+    "created_at": "2026-09-09T03:33:26.799094+00:00",
+    "started_at": "2026-09-09T03:33:26.998684+00:00",
+    "finished_at": "2026-09-09T03:34:44.419130+00:00",
+    "updated_at": "2026-09-09T03:34:44.419130+00:00"
+  },
+  "material": {
+    "title": "数组随机访问",
+    "content": "# 数组随机访问：为什么 `a[i]` 能“瞬间”找到元素？\n\n## 1. 为什么数组能直接找到第i个元素\n\n想象你有一排编号为0到9的储物柜，它们紧紧挨在一起，每个柜子大小完全相同。这就是数组在内存中的样子：**n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间**。\n\n假设有一个`int`数组`a[5]`，每个`int`占4字节，基地址（首元素地址）为1000。那么`a[0]`在地址1000，`a[1]`在1004，`a[2]`在1008——元素们像排队一样依次排列，中间没有空隙。\n\n关键点在于：**下标只是逻辑序号，不是地址本身**。要找到第`i`个元素，我们需要通过公式把下标换算成真实的内存地址。\n\n## 2. 地址计算公式与代入实例\n\n**从下标0开始**（如C、Java等语言）：\n```\na[i]的地址 = 基地址 + i × 元素大小\n```\n\n**从下标1开始**（如某些数学表述或语言）：\n```\na[i]的地址 = 基地址 + (i-1) × 元素大小\n```\n\n来看两个完整计算：\n\n**实例1**：`double`数组`b[10]`，基地址3000，每个`double`占8字节，求`b[5]`的地址。\n- 从0开始：3000 + 5×8 = **3040**\n- 从1开始：3000 + (5-1)×8 = **3032**\n\n**实例2**：`char`数组`c[20]`，基地址5000，每个`char`占1字节，求`c[12]`的地址。\n- 从0开始：5000 + 12×1 = **5012**\n- 从1开始：5000 + (12-1)×1 = **5011**\n\n注意：忘记乘元素大小，或混淆下标起始约定，都会导致“差一错误”。\n\n## 3. O(1)随机访问的真正含义\n\n所谓**随机访问**，是指通过下标直接定位元素。无论访问`a[0]`还是`a[99999]`，算法层面都只需一次乘法和一次加法（或硬件直接计算偏移），**操作次数不随数组长度n增长**，这就是时间复杂度O(1)。\n\n这是数组相对链表的核心优势——链表要找到第`i`个节点，必须从头逐个遍历，需要O(n)步。\n\n但请务必注意：**O(1)不代表实际耗时绝对恒定**。访问跨内存页的元素可能比访问缓存中的元素慢几个数量级。复杂度描述的是“操作步骤的数量级”，而非物理时间。\n\n## 4. O(1)结论的适用边界\n\nO(1)结论有严格前提：**数组已存在且下标有效**。\n\n- **查找不是O(1)**：若要在无序数组中查找某个值，需逐个比较，最坏情况O(n)。\n- **插入不是O(1)**：在数组中间插入元素，需要把后续元素依次后移，平均O(n)。\n- **越界访问**：下标超出范围时，语言可能报错或产生未定义行为，这不在随机访问的讨论范围内。\n\n## 小结\n\n数组随机访问的O(1)源于“连续内存 + 固定大小”的布局，通过地址公式直接换算。理解这个原理，你就明白了为什么数组适合按下标读取，也知道了它并非万能——查找和插入仍需付出线性代价。",
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "blog",
+        "content_sha256": "a44410a79cb56bf21b1451fa1436e349a1a14f8775bdd1264a785b6f5822fb25",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "The resource is a blog of roughly 600 Chinese words, has an attractive title, opens with a concrete scenario, follows the confirmed outline (continuous layout, formulas with two worked examples, O(1) meaning, applicability boundary), and closes with a summary. It omits classroom-style teaching sections appropriately for the blog resource type."
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "All address formulas and arithmetic were independently verified: for base 1000 with 4-byte ints, a[0]=1000, a[1]=1004, a[2]=1008; for the double example, 3000+5*8=3040 and 3000+(5-1)*8=3032; for the char example, 5000+12*1=5012 and 5000+11*1=5011. The O(1) claim is correctly limited to direct indexed access on an existing array with a valid index. Comparisons to linked-list traversal, worst-case O(n) search, and shifting-based insertion at O(n) are correct. The statement that O(1) does not imply constant physical time is correct. No fabricated sources, statistics, or personal experiences occur."
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "For a blog, the examples are the locker analogy plus two fully substituted address calculations, including both 0-based and 1-based conventions. Each calculation is accurate and is used to illustrate the formulas rather than to replace their statement."
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "The structure proceeds naturally for the intended audience: an intuitive continuous-layout scene, then formulas with worked examples, then the real meaning of O(1), and finally the boundary cases. Terminology is explained in context (base address, byte size, index conventions), the length fits a short teaching blog, and each section builds on the previous one without requiring classroom activities."
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "The specification explicitly allows general knowledge without retrieval for this blog, so no citations are required. No fabricated references, URLs, studies, or data appear in the content."
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "The confirmed outline is fully covered: contiguous memory and fixed size, base-to-target address computation, 0-based and 1-based formulas with two complete worked instances, the O(1) meaning with non-constant physical time, and boundary cases showing search, insertion, and out-of-bounds access are not O(1) random access. Stated limitations (multidimensional arrays, dynamic array reallocation, full cross-language index comparisons, cache quantification, padding) are appropriate exclusions for a short university-beginner blog and do not leave any confirmed objective uncovered."
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "a44410a79cb56bf21b1451fa1436e349a1a14f8775bdd1264a785b6f5822fb25",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "The resource is a blog of roughly 600 Chinese words, has an attractive title, opens with a concrete scenario, follows the confirmed outline (continuous layout, formulas with two worked examples, O(1) meaning, applicability boundary), and closes with a summary. It omits classroom-style teaching sections appropriately for the blog resource type."
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "All address formulas and arithmetic were independently verified: for base 1000 with 4-byte ints, a[0]=1000, a[1]=1004, a[2]=1008; for the double example, 3000+5*8=3040 and 3000+(5-1)*8=3032; for the char example, 5000+12*1=5012 and 5000+11*1=5011. The O(1) claim is correctly limited to direct indexed access on an existing array with a valid index. Comparisons to linked-list traversal, worst-case O(n) search, and shifting-based insertion at O(n) are correct. The statement that O(1) does not imply constant physical time is correct. No fabricated sources, statistics, or personal experiences occur."
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "For a blog, the examples are the locker analogy plus two fully substituted address calculations, including both 0-based and 1-based conventions. Each calculation is accurate and is used to illustrate the formulas rather than to replace their statement."
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "The structure proceeds naturally for the intended audience: an intuitive continuous-layout scene, then formulas with worked examples, then the real meaning of O(1), and finally the boundary cases. Terminology is explained in context (base address, byte size, index conventions), the length fits a short teaching blog, and each section builds on the previous one without requiring classroom activities."
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "The specification explicitly allows general knowledge without retrieval for this blog, so no citations are required. No fabricated references, URLs, studies, or data appear in the content."
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "The confirmed outline is fully covered: contiguous memory and fixed size, base-to-target address computation, 0-based and 1-based formulas with two complete worked instances, the O(1) meaning with non-constant physical time, and boundary cases showing search, insertion, and out-of-bounds access are not O(1) random access. Stated limitations (multidimensional arrays, dynamic array reallocation, full cross-language index comparisons, cache quantification, padding) are appropriate exclusions for a short university-beginner blog and do not leave any confirmed objective uncovered."
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "Consider explicitly saying 'in this simple model each element occupies a contiguous fixed-size block and alignment/padding is ignored' to make the assumption visible while remaining informal.",
+                "The blog calls the 'from index 1' formula a mathematical or language-specific convention without naming one; a brief parenthetical such as 'e.g., Fortran or mathematical notation' would improve precision without needing a full cross-language list.",
+                "A short one-line worked practice example immediately after the formulas (for instance, base 2000 with 8-byte elements for a[3]) could give readers a natural place to pause and self-check before reading the full examples."
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "Consider explicitly saying 'in this simple model each element occupies a contiguous fixed-size block and alignment/padding is ignored' to make the assumption visible while remaining informal.",
+          "The blog calls the 'from index 1' formula a mathematical or language-specific convention without naming one; a brief parenthetical such as 'e.g., Fortran or mathematical notation' would improve precision without needing a full cross-language list.",
+          "A short one-line worked practice example immediately after the formulas (for instance, base 2000 with 8-byte elements for a[3]) could give readers a natural place to pause and self-check before reading the full examples."
+        ]
+      }
+    },
+    "source": {
+      "selected_doc_ids": [],
+      "rag_index_keys": []
+    },
+    "schema_version": 2,
+    "version": 1,
+    "material_type": "blog",
+    "material_id": "job_70cdc83fb6704bd2",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "owner_user_id": "resource-e2e-admin",
+    "created_by": "resource-e2e-admin",
+    "visibility": "private",
+    "source_job_id": "job_61f0b5f545e541ed",
+    "config_snapshot_id": "cfg_aa1366f182331ce4",
+    "source_snapshot": {
+      "mode": "none",
+      "requested_document_ids": [],
+      "documents": [],
+      "resolved_at": "2026-09-09T03:41:35.447918+00:00"
+    },
+    "config_snapshot": {
+      "allow_rag": true,
+      "audience": "大学初学者",
+      "classroom_options": {
+        "duration_minutes": 25,
+        "enable_tts": false,
+        "include_visuals": true
+      },
+      "confirmed_outline": "# 数组随机访问：博客大纲\n\n## 1. 为什么数组能直接找到第i个元素\n- 连续内存与固定大小\n- 从基地址到目标地址\n\n## 2. 地址计算公式与代入实例\n- 从0开始的下标公式\n- 从1开始的下标公式\n- 两个实例的完整计算\n\n## 3. O(1)随机访问的真正含义\n- 常数次运算与数组长度无关\n- 实际耗时并非绝对恒定\n\n## 4. O(1)结论的适用边界\n- 查找与越界不属于随机访问\n- 插入操作为何不是O(1)",
+      "entrypoint": "agent",
+      "focus": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+      "harness_approval_request_id": "ccd8ecd2b73741b4bf0ceaae07d0823a",
+      "harness_chapters": [
+        {
+          "points": [
+            "连续内存与固定大小",
+            "从基地址到目标地址"
+          ],
+          "title": "为什么数组能直接找到第i个元素",
+          "unit_indices": [
+            0
+          ]
+        },
+        {
+          "points": [
+            "从0开始的下标公式",
+            "从1开始的下标公式",
+            "两个实例的完整计算"
+          ],
+          "title": "地址计算公式与代入实例",
+          "unit_indices": [
+            1
+          ]
+        },
+        {
+          "points": [
+            "常数次运算与数组长度无关",
+            "实际耗时并非绝对恒定"
+          ],
+          "title": "O(1)随机访问的真正含义",
+          "unit_indices": [
+            2
+          ]
+        },
+        {
+          "points": [
+            "查找与越界不属于随机访问",
+            "插入操作为何不是O(1)"
+          ],
+          "title": "O(1)结论的适用边界",
+          "unit_indices": [
+            3
+          ]
+        }
+      ],
+      "harness_conversation_id": "resource-e2e-blog-4bc2d14f",
+      "harness_evidence_ids": [],
+      "harness_execution_context": {
+        "decision": {
+          "interpreted_by": "model",
+          "outline_id": "outline_e0f00521cc604123be4cc93f7b76aa10",
+          "request_id": "ccd8ecd2b73741b4bf0ceaae07d0823a",
+          "revision": 1,
+          "user_message": "Go ahead with this plan."
+        },
+        "stage": "write_and_review_blog",
+        "working_memory": {}
+      },
+      "harness_interaction_mode": "outline_confirmation",
+      "harness_organization": {
+        "audience": "大学初学者",
+        "evidence_ids": [],
+        "limitations": [
+          "未涉及多维数组的地址计算（行优先/列优先）",
+          "未讨论动态数组（如vector）的扩容机制",
+          "未比较不同语言中数组下标起始差异的完整列表",
+          "未深入缓存与内存层次对实际性能的量化影响",
+          "所有公式假设元素大小固定且无填充对齐等特殊情况"
+        ],
+        "model_review": {
+          "checks": [
+            {
+              "claim": "数组随机访问O(1)的前提是数组已存在且下标有效，不适用于查找等操作",
+              "passed": true,
+              "reason": "原文在units[3]中明确说明O(1)结论建立在数组已存在且下标有效的前提下，并举例查找需O(n)，未将随机访问O(1)泛化到所有操作，符合前提适用性要求。"
+            },
+            {
+              "claim": "地址计算公式内部一致，区分下标从0和从1开始的场景",
+              "passed": true,
+              "reason": "units[1]给出从0开始公式：基地址 + i×元素大小；units[2]给出从1开始公式：基地址 + (i-1)×元素大小。两个公式在各自下标约定下正确，且units[2]的示例计算（3000+5×8=3040，3000+(5-1)×8=3032）数值正确，无混用。"
+            },
+            {
+              "claim": "具体代入实例数值正确",
+              "passed": true,
+              "reason": "逐步验证：units[1]中int数组基地址1000，元素4字节，a[0]=1000, a[1]=1004, a[2]=1008，正确；units[2]中double数组基地址3000，元素8字节，b[5]=3000+5×8=3040，从1开始为3000+(5-1)×8=3032，正确；units[2]的check中char数组基地址5000，元素1字节，c[12]=5000+12×1=5012，从1开始为5000+(12-1)×1=5011，正确。"
+            },
+            {
+              "claim": "边界与学习目标覆盖充分，且未错误处理不存在值或空输入",
+              "passed": true,
+              "reason": "学习目标包括解释连续存放前提、写出公式并代入、说明O(1)含义及识别不保证实际耗时恒定的场景。units[0]覆盖目标0，units[1]覆盖目标1，units[2]覆盖目标2和3，units[3]覆盖目标2和3的边界。内容未涉及空输入或越界的具体处理，但resource_contract允许单张闪卡无需多目标，且本材料为知识准备，不要求展开所有边界案例；用户未明确要求空输入或越界案例，因此不判错。"
+            }
+          ],
+          "issues": [],
+          "passed": true
+        },
+        "objectives": [
+          "能解释数组元素在内存中连续存放的前提条件",
+          "能写出数组元素地址计算公式并代入数值计算指定下标元素的地址",
+          "能说明随机访问时间复杂度为O(1)的含义及其前提",
+          "能识别随机访问O(1)不保证实际耗时恒定的场景"
+        ],
+        "organization_id": "org_db20e46da261455b88fa9e7659646c3a",
+        "prerequisites": [
+          "变量与内存基本概念",
+          "进制与字节基础",
+          "简单算术运算"
+        ],
+        "requirements": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+        "resource_type": "blog",
+        "scope": "面向大学初学者的数组随机访问概念教学博客的知识准备。覆盖数组连续内存存储、下标到地址的换算公式、常数时间复杂度含义及其适用边界。不涉及链表、哈希表等其它数据结构细节，不讨论具体编程语言语法。",
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "scope_id": null,
+          "scope_type": "course",
+          "selected_doc_ids": []
+        },
+        "subject": "数组随机访问",
+        "units": [
+          {
+            "check": "若基地址为2000，元素占8字节，a[3]的地址是多少？",
+            "evidence_ids": [],
+            "example": "int数组a[5]，每个int占4字节，基地址为1000，则a[0]在1000，a[1]在1004，a[2]在1008，依次连续排列。",
+            "explanation": "数组随机访问的核心前提是：数组的n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间（设每个元素占k字节）。因此只要知道首元素地址（基地址）和元素大小，就能推算出任意下标元素的存放位置。这是数组与链表等非连续结构的关键区别。",
+            "misconception": "初学者常误以为数组元素地址是随机散落的，或认为下标本身直接就是地址。实际上下标是逻辑序号，地址需通过公式换算。",
+            "objective_indices": [
+              0
+            ],
+            "title": "数组的连续内存布局"
+          },
+          {
+            "check": "char数组c[20]基地址5000，每个char占1字节，c[12]地址？若改为从1开始计数，c[12]地址又是多少？",
+            "evidence_ids": [],
+            "example": "设double数组b[10]基地址为3000，每个double占8字节。求b[5]地址：3000 + 5×8 = 3040。若按从1开始计数，b[5]对应公式3000 + (5-1)×8 = 3032。",
+            "explanation": "对于从下标0开始的数组，元素a[i]的地址 = 基地址 + i × 元素大小。若数组从下标1开始（如某些语言或数学表述），公式变为 基地址 + (i-1) × 元素大小。计算时需注意下标起始约定，避免差一错误。",
+            "misconception": "容易忘记乘元素大小，或混淆下标从0还是从1开始，导致计算结果偏移一个元素。",
+            "objective_indices": [
+              1
+            ],
+            "title": "地址计算公式与代入实例"
+          },
+          {
+            "check": "为什么说访问a[0]和a[99999]的算法步骤数相同，但实际耗时可能不同？",
+            "evidence_ids": [],
+            "example": "访问a[0]和访问a[99999]在算法分析层面都只需常数次运算，不因数组变大而增加步骤。",
+            "explanation": "随机访问指通过下标直接定位元素，所需操作次数不随数组长度n增长，即时间复杂度为O(1)。这里的计数方式是：一次乘法和一次加法（或硬件直接计算偏移），与n无关。这是数组相对链表（需从头遍历）的优势。",
+            "misconception": "误以为O(1)意味着实际耗时绝对恒定。实际耗时受缓存命中、内存分页、元素大小等因素影响，例如访问跨页元素可能比访问缓存内元素慢得多。",
+            "objective_indices": [
+              2,
+              3
+            ],
+            "title": "随机访问的O(1)含义"
+          },
+          {
+            "check": "数组的插入操作（需移动元素）是O(1)吗？为什么？",
+            "evidence_ids": [],
+            "example": "已知下标直接访问是O(1)；但若要在数组中查找值为x的元素，需逐个比较，最坏O(n)。",
+            "explanation": "O(1)结论建立在数组已存在且下标有效的前提下。若需先查找元素位置（如无序数组中查找某值），则仍需O(n)遍历；若下标越界，语言可能报错或产生未定义行为。此外，真实系统耗时受存储层次影响，常数时间不代表物理时间恒定。",
+            "misconception": "把'随机访问O(1)'泛化为'数组所有操作都O(1)'，或忽略越界检查成本。",
+            "objective_indices": [
+              2,
+              3
+            ],
+            "title": "O(1)的适用边界"
+          }
+        ]
+      },
+      "harness_outline_id": "outline_e0f00521cc604123be4cc93f7b76aa10",
+      "harness_outline_revision": 1,
+      "harness_review_required": true,
+      "length_hint": "面向大学初学者的“数组随机访问”教学博客，全文约600字，必须包含具体的地址计算公式与代入计算实例。交互流程：先给简短文章大纲，用户确认后再写正文。资料使用通用知识即可，无需检索。",
+      "research_context": "",
+      "research_sources": [],
+      "resource_type": "blog",
+      "subject": "数组随机访问",
+      "title": "数组随机访问"
+    },
+    "status": "ready",
+    "created_at": "2026-09-09T03:42:10.577035",
+    "updated_at": "2026-09-09T03:42:10.577035",
+    "is_pinned": false,
+    "pinned_at": null,
+    "content_hash": "d0ad69c349134ba3eca8ca3e5200e68d907aaba0f2be6462328d27a45c6218af",
+    "artifact_paths": []
+  },
+  "public_retry_verified": true,
+  "recheck_result": {
+    "message": {
+      "role": "assistant",
+      "content": "重试已完成，这篇《数组随机访问》博客已生成好，内容可以直接查看：\n\n# 数组随机访问：为什么 `a[i]` 能\"瞬间\"找到元素？\n\n## 1. 为什么数组能直接找到第i个元素\n\n想象你有一排编号为0到9的储物柜，它们紧紧挨在一起，每个柜子大小完全相同。这就是数组在内存中的样子：**n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间**。\n\n假设有一个`int`数组`a[5]`，每个`int`占4字节，基地址（首元素地址）为1000。那么`a[0]`在地址1000，`a[1]`在1004，`a[2]`在1008——元素们像排队一样依次排列，中间没有空隙。\n\n关键点在于：**下标只是逻辑序号，不是地址本身**。要找到第`i`个元素，我们需要通过公式把下标换算成真实的内存地址。\n\n## 2. 地址计算公式与代入实例\n\n**从下标0开始**（如C、Java等语言）：\n```\na[i]的地址 = 基地址 + i × 元素大小\n```\n\n**从下标1开始**（如某些数学表述或语言）：\n```\na[i]的地址 = 基地址 + (i-1) × 元素大小\n```\n\n来看两个完整计算：\n\n**实例1**：`double`数组`b[10]`，基地址3000，每个`double`占8字节，求`b[5]`的地址。\n- 从0开始：3000 + 5×8 = **3040**\n- 从1开始：3000 + (5-1)×8 = **3032**\n\n**实例2**：`char`数组`c[20]`，基地址5000，每个`char`占1字节，求`c[12]`的地址。\n- 从0开始：5000 + 12×1 = **5012**\n- 从1开始：5000 + (12-1)×1 = **5011**\n\n注意：忘记乘元素大小，或混淆下标起始约定，都会导致\"差一错误\"。\n\n## 3. O(1)随机访问的真正含义\n\n所谓**随机访问**，是指通过下标直接定位元素。无论访问`a[0]`还是`a[99999]`，算法层面都只需一次乘法和一次加法（或硬件直接计算偏移），**操作次数不随数组长度n增长**，这就是时间复杂度O(1)。\n\n这是数组相对链表的核心优势——链表要找到第`i`个节点，必须从头逐个遍历，需要O(n)步。\n\n但请务必注意：**O(1)不代表实际耗时绝对恒定**。访问跨内存页的元素可能比访问缓存中的元素慢几个数量级。复杂度描述的是\"操作步骤的数量级\"，而非物理时间。\n\n## 4. O(1)结论的适用边界\n\nO(1)结论有严格前提：**数组已存在且下标有效**。\n\n- **查找不是O(1)**：若要在无序数组中查找某个值，需逐个比较，最坏情况O(n)。\n- **插入不是O(1)**：在数组中间插入元素，需要把后续元素依次后移，平均O(n)。\n- **越界访问**：下标超出范围时，语言可能报错或产生未定义行为，这不在随机访问的讨论范围内。\n\n## 小结\n\n数组随机访问的O(1)源于\"连续内存 + 固定大小\"的布局，通过地址公式直接换算。理解这个原理，你就明白了为什么数组适合按下标读取，也知道了它并非万能——查找和插入仍需付出线性代价。"
+    },
+    "conversation": {
+      "conversation_id": "resource-e2e-blog-4bc2d14f"
+    },
+    "action": {
+      "name": "chat.reply"
+    },
+    "artifacts": [
+      {
+        "artifact_id": "job_70cdc83fb6704bd2",
+        "artifact_type": "blog",
+        "title": "数组随机访问",
+        "content": "# 数组随机访问：为什么 `a[i]` 能“瞬间”找到元素？\n\n## 1. 为什么数组能直接找到第i个元素\n\n想象你有一排编号为0到9的储物柜，它们紧紧挨在一起，每个柜子大小完全相同。这就是数组在内存中的样子：**n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间**。\n\n假设有一个`int`数组`a[5]`，每个`int`占4字节，基地址（首元素地址）为1000。那么`a[0]`在地址1000，`a[1]`在1004，`a[2]`在1008——元素们像排队一样依次排列，中间没有空隙。\n\n关键点在于：**下标只是逻辑序号，不是地址本身**。要找到第`i`个元素，我们需要通过公式把下标换算成真实的内存地址。\n\n## 2. 地址计算公式与代入实例\n\n**从下标0开始**（如C、Java等语言）：\n```\na[i]的地址 = 基地址 + i × 元素大小\n```\n\n**从下标1开始**（如某些数学表述或语言）：\n```\na[i]的地址 = 基地址 + (i-1) × 元素大小\n```\n\n来看两个完整计算：\n\n**实例1**：`double`数组`b[10]`，基地址3000，每个`double`占8字节，求`b[5]`的地址。\n- 从0开始：3000 + 5×8 = **3040**\n- 从1开始：3000 + (5-1)×8 = **3032**\n\n**实例2**：`char`数组`c[20]`，基地址5000，每个`char`占1字节，求`c[12]`的地址。\n- 从0开始：5000 + 12×1 = **5012**\n- 从1开始：5000 + (12-1)×1 = **5011**\n\n注意：忘记乘元素大小，或混淆下标起始约定，都会导致“差一错误”。\n\n## 3. O(1)随机访问的真正含义\n\n所谓**随机访问**，是指通过下标直接定位元素。无论访问`a[0]`还是`a[99999]`，算法层面都只需一次乘法和一次加法（或硬件直接计算偏移），**操作次数不随数组长度n增长**，这就是时间复杂度O(1)。\n\n这是数组相对链表的核心优势——链表要找到第`i`个节点，必须从头逐个遍历，需要O(n)步。\n\n但请务必注意：**O(1)不代表实际耗时绝对恒定**。访问跨内存页的元素可能比访问缓存中的元素慢几个数量级。复杂度描述的是“操作步骤的数量级”，而非物理时间。\n\n## 4. O(1)结论的适用边界\n\nO(1)结论有严格前提：**数组已存在且下标有效**。\n\n- **查找不是O(1)**：若要在无序数组中查找某个值，需逐个比较，最坏情况O(n)。\n- **插入不是O(1)**：在数组中间插入元素，需要把后续元素依次后移，平均O(n)。\n- **越界访问**：下标超出范围时，语言可能报错或产生未定义行为，这不在随机访问的讨论范围内。\n\n## 小结\n\n数组随机访问的O(1)源于“连续内存 + 固定大小”的布局，通过地址公式直接换算。理解这个原理，你就明白了为什么数组适合按下标读取，也知道了它并非万能——查找和插入仍需付出线性代价。"
+      }
+    ],
+    "workflow": null,
+    "sources": [],
+    "trace": {
+      "path": "deepseek-harness",
+      "model_runtime": "dsh",
+      "request_id": "c775fb098e15478fb18e1b7022824424",
+      "tool_events": [
+        {
+          "ok": true,
+          "tool": "query_resource_job",
+          "data": {
+            "task_id": "job_61f0b5f545e541ed",
+            "resource_type": "blog",
+            "status": "succeeded",
+            "progress": 100,
+            "title": "数组随机访问",
+            "result_ref": {
+              "resource_type": "course_material",
+              "course_id": "resource-e2e-course",
+              "material_type": "blog",
+              "material_id": "job_70cdc83fb6704bd2"
+            },
+            "verification": {
+              "decision": "pass",
+              "checks": "version_bound_resource_review"
+            },
+            "failure_reason": null,
+            "artifact": {
+              "artifact_id": "job_70cdc83fb6704bd2",
+              "artifact_type": "blog",
+              "title": "数组随机访问",
+              "content": "# 数组随机访问：为什么 `a[i]` 能“瞬间”找到元素？\n\n## 1. 为什么数组能直接找到第i个元素\n\n想象你有一排编号为0到9的储物柜，它们紧紧挨在一起，每个柜子大小完全相同。这就是数组在内存中的样子：**n个元素被分配在一块连续的内存区域中，每个元素占用相同大小的存储空间**。\n\n假设有一个`int`数组`a[5]`，每个`int`占4字节，基地址（首元素地址）为1000。那么`a[0]`在地址1000，`a[1]`在1004，`a[2]`在1008——元素们像排队一样依次排列，中间没有空隙。\n\n关键点在于：**下标只是逻辑序号，不是地址本身**。要找到第`i`个元素，我们需要通过公式把下标换算成真实的内存地址。\n\n## 2. 地址计算公式与代入实例\n\n**从下标0开始**（如C、Java等语言）：\n```\na[i]的地址 = 基地址 + i × 元素大小\n```\n\n**从下标1开始**（如某些数学表述或语言）：\n```\na[i]的地址 = 基地址 + (i-1) × 元素大小\n```\n\n来看两个完整计算：\n\n**实例1**：`double`数组`b[10]`，基地址3000，每个`double`占8字节，求`b[5]`的地址。\n- 从0开始：3000 + 5×8 = **3040**\n- 从1开始：3000 + (5-1)×8 = **3032**\n\n**实例2**：`char`数组`c[20]`，基地址5000，每个`char`占1字节，求`c[12]`的地址。\n- 从0开始：5000 + 12×1 = **5012**\n- 从1开始：5000 + (12-1)×1 = **5011**\n\n注意：忘记乘元素大小，或混淆下标起始约定，都会导致“差一错误”。\n\n## 3. O(1)随机访问的真正含义\n\n所谓**随机访问**，是指通过下标直接定位元素。无论访问`a[0]`还是`a[99999]`，算法层面都只需一次乘法和一次加法（或硬件直接计算偏移），**操作次数不随数组长度n增长**，这就是时间复杂度O(1)。\n\n这是数组相对链表的核心优势——链表要找到第`i`个节点，必须从头逐个遍历，需要O(n)步。\n\n但请务必注意：**O(1)不代表实际耗时绝对恒定**。访问跨内存页的元素可能比访问缓存中的元素慢几个数量级。复杂度描述的是“操作步骤的数量级”，而非物理时间。\n\n## 4. O(1)结论的适用边界\n\nO(1)结论有严格前提：**数组已存在且下标有效**。\n\n- **查找不是O(1)**：若要在无序数组中查找某个值，需逐个比较，最坏情况O(n)。\n- **插入不是O(1)**：在数组中间插入元素，需要把后续元素依次后移，平均O(n)。\n- **越界访问**：下标超出范围时，语言可能报错或产生未定义行为，这不在随机访问的讨论范围内。\n\n## 小结\n\n数组随机访问的O(1)源于“连续内存 + 固定大小”的布局，通过地址公式直接换算。理解这个原理，你就明白了为什么数组适合按下标读取，也知道了它并非万能——查找和插入仍需付出线性代价。"
+            }
+          }
+        }
+      ],
+      "agent_memory_write": {
+        "candidate_count": 0,
+        "accepted_count": 0,
+        "written_count": 0,
+        "rejected_count": 0,
+        "shadow_candidate_count": 0,
+        "provider": "rules",
+        "provider_status": "disabled",
+        "memory_ids": []
+      }
+    },
+    "verification": {
+      "decision": "pass",
+      "checks": "version_bound_resource_review"
+    },
+    "workspace_context": {
+      "course_id": "resource-e2e-course",
+      "course_title": "数据结构验收课程",
+      "scope_type": "course",
+      "scope_id": null,
+      "scope_title": "",
+      "scope_path": [],
+      "resolution": "needs_clarification",
+      "explicit_course": false,
+      "update_workspace": false
+    },
+    "status_card": {
+      "mode": "chat",
+      "status_label": "普通对话",
+      "topics": [
+        "我刚才在任务列表重试了这份资源",
+        "请查询对应重试任务的真实状态并读取内容"
+      ],
+      "goal": "继续对话",
+      "issues": [
+        "都会导致\"差一错误\""
+      ],
+      "confirmed_facts": [
+        "我刚才在任务列表重试了这份资源"
+      ],
+      "student_signals": [
+        "这不在随机访问的讨论范围内"
+      ],
+      "evidence_points": [
+        "O(1)结论有严格前提：**数组已存在且下标有效**"
+      ],
+      "evidence_details": [
+        {
+          "content": "O(1)结论有严格前提：**数组已存在且下标有效**",
+          "source_type": "assistant_message",
+          "confidence": "low",
+          "source_message_count": 1
+        }
+      ],
+      "extra_constraints": [],
+      "source_labels": [
+        "当前会话",
+        "当前课程"
+      ],
+      "active_artifact_label": "当前产物：blog",
+      "waiting_label": "继续提问，或告诉我你想生成什么",
+      "suggested_actions": [
+        "继续提问",
+        "生成报告"
+      ],
+      "allow_rag": true,
+      "allow_web": true
+    }
+  },
+  "readback_recheck_verified": true,
+  "browser_preview": true
+}

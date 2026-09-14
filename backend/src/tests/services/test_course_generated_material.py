@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from app.services.course_generated_material import generate_reviewed_supplement
+from app.services.course_knowledge_artifacts import validate_requested_artifacts
 
 
 def test_model_supplement_is_chinese_long_structured_and_independently_reviewed():
@@ -33,6 +34,33 @@ def test_model_supplement_is_chinese_long_structured_and_independently_reviewed(
     assert len(result.content) >= 800
     assert result.audit["generation_attempts"] == 1
     assert len(prompts) == 2
+
+
+def test_additional_requirements_do_not_change_the_leaf_title_contract():
+    content = (
+        "# Linux cgroups学习材料\n\n## 概念说明\n" + "cgroups 用于资源控制。" * 80
+        + "\n\n## 示例与步骤\n" + "设置 CPU 和内存限制并验证结果。" * 70
+        + "\n\n## 常见错误\n" + "检查控制器是否启用。" * 60
+    )
+    prompts = []
+
+    def call_model(prompt: str) -> str:
+        prompts.append(prompt)
+        if "质量审查员" in prompt:
+            return '{"score": 90, "approved": true, "issues": []}'
+        return content
+
+    result = generate_reviewed_supplement(
+        course_title="操作系统",
+        leaf_title="Linux cgroups",
+        sequence=1,
+        call_model=call_model,
+        additional_requirements="包含 Docker 案例和三道练习",
+    )
+
+    assert result.approved is True
+    assert "教师补充要求：包含 Docker 案例和三道练习" in prompts[0]
+    assert "Linux cgroups；本次补充要求" not in prompts[0]
 
 
 def test_failed_review_feedback_is_injected_into_the_single_regeneration():
@@ -98,3 +126,56 @@ def test_transient_model_failure_is_retried(monkeypatch):
 
     assert result.approved is True
     assert calls == 3
+
+
+def test_artifact_validator_ignores_empty_table_of_contents_heading():
+    specification = [{
+        "requirement_id": "req-case",
+        "type": "worked_case",
+        "count": 1,
+    }]
+    content = (
+        "## 完整案例 1\n\n"
+        "## 正文\n\n"
+        "## 完整案例 1\n\n"
+        "背景：一次调度任务。输入：三个进程。步骤：逐步计算等待时间。"
+        "输出：平均等待时间。验证：使用时间线重新计算并得到相同结果。"
+    )
+
+    artifacts, issues = validate_requested_artifacts(
+        content,
+        topic_id="scheduling",
+        deliverables=specification,
+    )
+
+    assert issues == []
+    assert len(artifacts) == 1
+
+
+def test_semaphore_generation_prompt_includes_compilable_ordering_guardrails():
+    content = (
+        "# 信号量 P/V 操作学习材料\n\n## 概念说明\n"
+        + "P 操作等待资源，V 操作释放资源并唤醒等待者。" * 60
+        + "\n\n## 示例与步骤\n" + "使用初值为零的事件信号量建立先后关系。" * 50
+        + "\n\n## 常见错误\n" + "不要把互斥与事件同步混为一谈。" * 50
+        + "\n\n## 练习与小结\n" + "逐步记录信号量值和阻塞队列。" * 40
+    )
+    prompts = []
+
+    def call_model(prompt: str) -> str:
+        prompts.append(prompt)
+        if "质量审查员" in prompt:
+            return '{"score": 94, "approved": true, "issues": []}'
+        return content
+
+    result = generate_reviewed_supplement(
+        course_title="操作系统",
+        leaf_title="信号量 P/V 操作",
+        sequence=1,
+        call_model=call_model,
+    )
+
+    assert result.approved is True
+    assert "<semaphore.h>" in prompts[0]
+    assert "初值 1 不能证明固定执行顺序" in prompts[0]
+    assert "happens-before" in prompts[0]

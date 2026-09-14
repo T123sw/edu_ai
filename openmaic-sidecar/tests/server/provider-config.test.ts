@@ -55,6 +55,7 @@ const ENV_PREFIXES_TO_CLEAR = [
 function clearProviderEnv() {
   for (const prefix of ENV_PREFIXES_TO_CLEAR) {
     delete process.env[`${prefix}_API_KEY`];
+    delete process.env[`${prefix}_API_KEY_BACKUP`];
     delete process.env[`${prefix}_BASE_URL`];
     delete process.env[`${prefix}_MODELS`];
   }
@@ -129,6 +130,24 @@ describe('provider-config', () => {
     it('returns empty string for unknown provider with no env var', async () => {
       const { resolveApiKey } = await import('@/lib/server/provider-config');
       expect(resolveApiKey('nonexistent-provider')).toBe('');
+    });
+  });
+
+  describe('resolveBackupApiKey', () => {
+    it('returns the DeepSeek backup key from env', async () => {
+      vi.stubEnv('DEEPSEEK_API_KEY', 'sk-primary');
+      vi.stubEnv('DEEPSEEK_API_KEY_BACKUP', 'sk-backup');
+      const { resolveBackupApiKey } = await import('@/lib/server/provider-config');
+
+      expect(resolveBackupApiKey('deepseek')).toBe('sk-backup');
+    });
+
+    it('does not apply the DeepSeek backup to other providers', async () => {
+      vi.stubEnv('DEEPSEEK_API_KEY', 'sk-primary');
+      vi.stubEnv('DEEPSEEK_API_KEY_BACKUP', 'sk-backup');
+      const { resolveBackupApiKey } = await import('@/lib/server/provider-config');
+
+      expect(resolveBackupApiKey('openrouter')).toBe('');
     });
   });
 

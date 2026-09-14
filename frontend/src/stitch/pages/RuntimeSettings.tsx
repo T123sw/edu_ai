@@ -140,6 +140,22 @@ type TestedRevision = {
   revisionId: string;
 };
 
+function isLoopbackServiceUrl(value: unknown) {
+  try {
+    const hostname = new URL(String(value ?? "")).hostname
+      .replace(/^\[|\]$/g, "")
+      .toLowerCase();
+    return (
+      hostname === "localhost" ||
+      hostname === "::1" ||
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("127.")
+    );
+  } catch {
+    return false;
+  }
+}
+
 function sourceLabel(
   source: RuntimeProviderStatus["effective_source"],
   scope: RuntimeConfigScope,
@@ -531,13 +547,32 @@ export function RuntimeSettingsPage() {
                           name={field}
                           label={meta.label}
                           tooltip={meta.hint}
+                          dependencies={field === "api_key" ? ["base_url"] : undefined}
                           className={fullWidth ? "sm:col-span-2" : undefined}
                           rules={[
-                            ...(field === "base_url" || field === "api_key"
+                            ...(field === "base_url"
                               ? [
                                   {
                                     required: true,
                                     message: `请填写${meta.label}`,
+                                  },
+                                ]
+                              : []),
+                            ...(field === "api_key"
+                              ? [
+                                  {
+                                    validator: async (_rule: unknown, value: unknown) => {
+                                      if (
+                                        String(value ?? "").trim() ||
+                                        (selectedItem.provider === "tts" &&
+                                          isLoopbackServiceUrl(
+                                            form.getFieldValue("base_url"),
+                                          ))
+                                      ) {
+                                        return;
+                                      }
+                                      throw new Error(`请填写${meta.label}`);
+                                    },
                                   },
                                 ]
                               : []),

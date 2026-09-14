@@ -1,0 +1,6 @@
+{
+  "status": 422,
+  "body": {
+    "detail": "方案未通过检查，请重试：方案范围审查未通过：[\"materials 项 target_id 为 proc-model，与新增节点 proc-thread 不一致，资料可能挂错位置。\", \"新增节点未提供 evidence_document_ids，无法确认现有目录是否已覆盖 cgroups，理由中“现有目录未覆盖”缺乏依据。\"]"
+  }
+}

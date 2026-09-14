@@ -1,0 +1,27 @@
+[WebServer] (node:99288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99335) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:99517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:132:5 › factory submission enters the Agent stream with the exact brief and action hint (7.0s)
+(node:99934) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:132:5 › factory submission enters the Agent stream with the exact brief and action hint (5.5s)
+(node:100138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:132:5 › factory submission enters the Agent stream with the exact brief and action hint (5.6s)
+(node:100288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:132:5 › factory submission enters the Agent stream with the exact brief and action hint (5.0s)
+(node:100445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:132:5 › factory submission enters the Agent stream with the exact brief and action hint (5.1s)
+(node:100607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:132:5 › factory submission enters the Agent stream with the exact brief and action hint (5.3s)
+
+  6 passed (42.7s)

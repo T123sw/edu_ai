@@ -1,0 +1,1119 @@
+{
+  "kind": "quiz",
+  "conversation_id": "resource-e2e-quiz-cde91dcc",
+  "turns": [
+    {
+      "question": "请生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "正在生成习题，完成后会在这里显示。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-quiz-cde91dcc"
+        },
+        "action": {
+          "name": "generate.quiz"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "quiz",
+          "status": "running",
+          "stage": "generating"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "dc4aa0516af74833a36dbdc7f12b75f0",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "本知识单元面向大学初学者，聚焦数组随机访问（通过下标在常数时间内访问元素）的基本概念、前提条件、时间复杂度的抽象含义及其与真实系统表现的边界。内容覆盖数组的连续内存布局（抽象层面）、下标从0开始、随机访问的O(1)操作次数含义，以及缓存/分页等物理因素对实际耗时的影响。不涉及动态数组扩容、多维数组、指针算术或具体编程语言的语法细节。",
+                "prerequisites": [
+                  "理解变量和基本数据类型",
+                  "了解循环和函数的基本概念",
+                  "初步认识时间复杂度的大O记号"
+                ],
+                "objectives": [
+                  "解释数组随机访问的含义，即通过下标在常数时间内获取元素",
+                  "说明数组元素在内存中连续存放是随机访问的前提",
+                  "区分抽象模型中的O(1)操作次数与真实系统中缓存、分页等因素导致的耗时差异",
+                  "识别数组下标从0开始这一常见约定及其对访问的影响"
+                ],
+                "units": [
+                  {
+                    "title": "数组随机访问的定义与操作",
+                    "explanation": "数组随机访问是指通过下标（索引）直接访问数组中任意位置的元素，无需遍历其他元素。在抽象模型中，这一操作的时间复杂度为O(1)，即操作次数不随数组大小变化。其实现基础是数组元素在内存中连续存放，通过起始地址加下标乘以元素大小计算目标地址。",
+                    "example": "设数组A有100个元素，访问A[50]和访问A[10]所需的操作次数在抽象模型中相同，均为常数次。",
+                    "misconception": "初学者常误以为访问靠后的元素需要先访问前面的元素，实际上随机访问直接计算地址，不需要顺序经过中间元素。",
+                    "check": "若数组有n个元素，访问A[n-1]的操作次数是否随n增大而增加？答案是否定的，抽象模型中仍为常数次。",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "连续内存布局是随机访问的前提",
+                    "explanation": "数组要求元素在内存中连续存放（抽象地址连续），这样才能通过公式 address = base + index * element_size 直接定位。若元素分散存放（如链表），则无法通过下标直接计算地址，必须从头遍历，访问第k个元素需O(k)次操作。注意：抽象地址连续不要求底层物理页连续，操作系统可能将虚拟连续页映射到不连续的物理页。",
+                    "example": "链表访问第50个节点需从头节点开始逐个移动50次，而数组访问A[50]只需一次地址计算。",
+                    "misconception": "有人将数组的抽象连续地址直接等同于物理内存连续，实际上虚拟内存机制允许物理页不连续，但这不影响程序员视角的随机访问能力。",
+                    "check": "若某数据结构元素不连续存放，能否保证O(1)随机访问？通常不能，因为无法直接计算地址。",
+                    "objective_indices": [
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "O(1)的抽象含义与真实系统差异",
+                    "explanation": "在算法分析中，数组随机访问记为O(1)指操作次数（如地址计算和一次内存访问）不随数组规模增长。但真实系统耗时受缓存命中率、内存层次结构、分页等影响：访问刚被使用过的元素可能命中缓存而更快，访问远处元素可能触发缺页或缓存未命中而更慢。因此O(1)描述的是操作次数的渐近量级，不承诺实际耗时恒定。",
+                    "example": "反复访问A[0]可能因缓存命中而极快，而首次访问A[999999]可能因加载新内存页而明显更慢，但两者在抽象模型中均为常数次操作。",
+                    "misconception": "将O(1)误解为'实际耗时绝对相同'，忽略了缓存、分页等物理因素；O(1)只保证操作次数有常数上界。",
+                    "check": "若两次随机访问实际耗时不同，是否违背O(1)复杂度？不违背，因为复杂度分析的是操作次数而非物理时间。",
+                    "objective_indices": [
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "下标从0开始的约定",
+                    "explanation": "多数编程语言（如C、C++、Java、Python）中数组下标从0开始，即第一个元素为A[0]，最后一个为A[n-1]。这一约定源于地址计算公式：base + index * size，当index=0时正好指向首元素。部分语言（如MATLAB、Lua）从1开始，但本单元以从0开始的主流约定为准。访问A[n]或A[-1]（在无负索引支持的语言中）属于越界或错误。",
+                    "example": "数组A长度为5，有效下标为0,1,2,3,4；A[5]越界，A[-1]在C语言中为非法访问（在Python中则指最后一个元素，但本单元不讨论负索引）。",
+                    "misconception": "初学者常误以为第一个元素下标为1，导致访问A[n]时越界或漏掉首元素。",
+                    "check": "若数组长度为n，最后一个元素的下标是多少？应为n-1。",
+                    "objective_indices": [
+                      3
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本单元基于数组元素连续存放的抽象模型，不涉及具体语言中数组实现的差异（如Python列表实际存储对象引用）。",
+                  "O(1)复杂度仅指操作次数，不承诺真实系统耗时恒定；缓存、分页等物理因素不在抽象模型内。",
+                  "下标从0开始是主流约定，但并非所有语言如此；本单元不覆盖从1开始的语言或负索引语义。",
+                  "未讨论多维数组的随机访问、动态数组扩容或数组与指针的关系。",
+                  "无外部证据输入，内容基于通用计算机科学知识。"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：数组随机访问的O(1)分析基于连续内存布局和下标直接计算地址，适用于抽象模型，不适用于链表等非连续结构。",
+                      "reason": "单元1和单元2明确说明随机访问的前提是连续存放，链表访问第k个元素需O(k)次操作，且单元2的check指出非连续结构通常不能保证O(1)。前提限定充分，未错误泛化到所有数据结构。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：地址计算公式address = base + index * element_size与下标从0开始的约定一致，且O(1)描述操作次数而非物理时间。",
+                      "reason": "单元4解释下标从0开始源于公式当index=0时指向首元素；单元3区分操作次数与物理耗时，指出缓存/分页影响实际时间但不违背O(1)。各单元推理一致，无矛盾。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子正确性：数组A有100个元素，访问A[50]和A[10]操作次数相同；链表访问第50个节点需50次移动；数组长度为5时有效下标0-4，A[5]越界。",
+                      "reason": "逐步追踪：A[50]和A[10]均通过公式一次计算地址，操作次数常数；链表从头遍历到第50个节点需移动49次或50次（取决于计数），但表述为'逐个移动50次'可视为近似，不构成实质错误；长度5的数组下标0-4，A[5]越界正确。例子与说明一致。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：覆盖随机访问定义、连续内存前提、O(1)抽象与真实差异、下标从0开始四个目标，并处理越界、负索引、物理页不连续等边界。",
+                      "reason": "四个单元分别对应objectives的四个索引；单元4明确A[n]越界和A[-1]在不同语言语义差异；单元2指出抽象连续不要求物理页连续。边界案例已提供，目标全覆盖。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_6ac81ca42106421d84bffb5b2f411a9d",
+                "resource_type": "quiz",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "submit_resource_direct",
+              "data": {
+                "task_id": "job_589cbd51b2a1411b",
+                "status": "submitted",
+                "workflow_type": "quiz"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "task_id": "job_589cbd51b2a1411b",
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成练习",
+          "workflow_label": "练习",
+          "topics": [
+            "请生成3道"
+          ],
+          "goal": "生成练习",
+          "issues": [],
+          "confirmed_facts": [
+            "每题4个选项",
+            "附正确答案与解析",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”单选题",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕请生成3道继续讨论"
+        }
+      }
+    },
+    {
+      "question": "刚才生成的资源完成了吗？请读取它并概括内容。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "完成了，《数组随机访问》习题已经生成好，我读取了内容，概括如下：\n\n**《数组随机访问基础测验》——3道单选题**\n\n1. **随机访问的操作次数**（易）\n   设数组 A 有 100 个元素，访问 A[50] 与 A[10] 相比操作次数如何？\n   答案：两者相同，均为常数次。解析强调数组按下标公式直接计算地址，无需遍历中间元素，并区分了与链表顺序访问的不同。\n\n2. **O(1) 随机访问的前提**（中）\n   正确说法是：数组元素连续存放，故可用公式直接计算目标地址。解析澄清了三个干扰项：抽象地址连续不等于物理页连续（页表可映射）、地址与下标线性关系是连续存放的结果而非前提、缓存只是加速而非必要条件。\n\n3. **O(1) 与实际耗时的关系**（中）\n   反复访问 A[0] 很快、首次访问远处的 A[999999] 较慢，这是否违背 O(1)？答案：不违背——O(1) 描述操作次数的渐近量级，不承诺实际耗时恒定；差异来自缓存、缺页等物理因素，而非遍历。\n\n每道题均含 4 个选项、正确答案和解析，解析里有针对性的误区澄清，适合大学初学者自测使用。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-quiz-cde91dcc"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [
+          {
+            "artifact_id": "quiz-211c77bfb5d6ea33",
+            "artifact_type": "quiz",
+            "title": "数组随机访问",
+            "content": {
+              "title": "数组随机访问基础测验",
+              "questions": [
+                {
+                  "id": "q1",
+                  "type": "single_choice",
+                  "stem": "设数组 A 有 100 个元素，在抽象模型中访问 A[50] 与访问 A[10] 相比，所需的操作次数如何？",
+                  "options": [
+                    "访问 A[50] 需要更多操作，因为它的下标更大",
+                    "两者所需的操作次数相同，均为常数次",
+                    "访问 A[10] 需要更多操作，因为它更靠近数组开头",
+                    "无法确定，取决于数组元素的具体值"
+                  ],
+                  "answer": "B",
+                  "explanation": "数组随机访问通过下标直接计算目标地址（address = base + index × element_size），不需要遍历中间元素。因此访问 A[50] 和 A[10] 都只需一次地址计算加一次内存访问，操作次数均为常数，不随下标大小或数组规模变化。选项 A 误以为访问靠后元素需先经过前面元素，这是把数组访问与链表顺序遍历混淆了；选项 C 同样没有依据；选项 D 与元素值无关，元素值不影响寻址过程。",
+                  "difficulty": "easy"
+                },
+                {
+                  "id": "q2",
+                  "type": "single_choice",
+                  "stem": "关于数组随机访问能够达到 O(1) 操作次数的前提，下列说法正确的是？",
+                  "options": [
+                    "数组元素在内存中连续存放，因此可以通过公式直接计算目标地址",
+                    "数组元素必须存储在物理内存的同一页中",
+                    "数组元素在内存中的存放位置必须与下标大小成正比",
+                    "数组必须存储在 CPU 缓存中才能实现随机访问"
+                  ],
+                  "answer": "A",
+                  "explanation": "随机访问的 O(1) 操作次数依赖于元素连续存放（抽象地址连续），从而能用 base + index × element_size 直接定位。选项 B 错误：抽象地址连续不要求物理页连续，操作系统可通过页表将虚拟连续地址映射到不连续的物理页。选项 C 错误：地址与下标是线性关系，但这不是随机访问的前提，而是连续存放的结果。选项 D 错误：数组通常存放在内存中，缓存只是加速机制，不是随机访问的必要条件。",
+                  "difficulty": "medium"
+                },
+                {
+                  "id": "q3",
+                  "type": "single_choice",
+                  "stem": "某程序反复访问数组元素 A[0] 时耗时极短，而首次访问远处的 A[999999] 时耗时明显更长。关于这一现象与 O(1) 复杂度的关系，下列说法正确的是？",
+                  "options": [
+                    "这说明数组随机访问的实际复杂度不是 O(1)，因为两次访问耗时不同",
+                    "这说明 O(1) 复杂度分析有误，实际复杂度应随访问位置变化",
+                    "这不违背 O(1)，因为 O(1) 描述的是操作次数的渐近量级，不承诺实际耗时恒定",
+                    "这说明 A[999999] 的访问需要遍历前面的元素，因此耗时更长"
+                  ],
+                  "answer": "C",
+                  "explanation": "算法分析中的 O(1) 指操作次数（地址计算加一次内存访问）不随数组规模增长，而非物理耗时绝对相同。真实系统中，反复访问 A[0] 可能命中缓存而更快，首次访问 A[999999] 可能因缓存未命中或触发缺页而更慢，但这些物理因素不影响抽象模型中的操作次数。选项 A 和 B 混淆了操作次数与物理耗时；选项 D 错误，数组随机访问不需要遍历中间元素，耗时差异来自缓存、分页等物理因素而非遍历。",
+                  "difficulty": "medium"
+                }
+              ]
+            }
+          }
+        ],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "0742b56802b24913b70fff4fddbad00b",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "query_resource_job",
+              "data": {
+                "task_id": "job_589cbd51b2a1411b",
+                "resource_type": "quiz",
+                "status": "succeeded",
+                "progress": 100,
+                "title": "数组随机访问",
+                "result_ref": {
+                  "resource_type": "course_material",
+                  "course_id": "resource-e2e-course",
+                  "material_type": "quiz",
+                  "material_id": "quiz-211c77bfb5d6ea33"
+                },
+                "verification": {
+                  "decision": "pass",
+                  "checks": "version_bound_resource_review"
+                },
+                "failure_reason": null,
+                "artifact": {
+                  "artifact_id": "quiz-211c77bfb5d6ea33",
+                  "artifact_type": "quiz",
+                  "title": "数组随机访问",
+                  "content": {
+                    "title": "数组随机访问基础测验",
+                    "questions": [
+                      {
+                        "id": "q1",
+                        "type": "single_choice",
+                        "stem": "设数组 A 有 100 个元素，在抽象模型中访问 A[50] 与访问 A[10] 相比，所需的操作次数如何？",
+                        "options": [
+                          "访问 A[50] 需要更多操作，因为它的下标更大",
+                          "两者所需的操作次数相同，均为常数次",
+                          "访问 A[10] 需要更多操作，因为它更靠近数组开头",
+                          "无法确定，取决于数组元素的具体值"
+                        ],
+                        "answer": "B",
+                        "explanation": "数组随机访问通过下标直接计算目标地址（address = base + index × element_size），不需要遍历中间元素。因此访问 A[50] 和 A[10] 都只需一次地址计算加一次内存访问，操作次数均为常数，不随下标大小或数组规模变化。选项 A 误以为访问靠后元素需先经过前面元素，这是把数组访问与链表顺序遍历混淆了；选项 C 同样没有依据；选项 D 与元素值无关，元素值不影响寻址过程。",
+                        "difficulty": "easy"
+                      },
+                      {
+                        "id": "q2",
+                        "type": "single_choice",
+                        "stem": "关于数组随机访问能够达到 O(1) 操作次数的前提，下列说法正确的是？",
+                        "options": [
+                          "数组元素在内存中连续存放，因此可以通过公式直接计算目标地址",
+                          "数组元素必须存储在物理内存的同一页中",
+                          "数组元素在内存中的存放位置必须与下标大小成正比",
+                          "数组必须存储在 CPU 缓存中才能实现随机访问"
+                        ],
+                        "answer": "A",
+                        "explanation": "随机访问的 O(1) 操作次数依赖于元素连续存放（抽象地址连续），从而能用 base + index × element_size 直接定位。选项 B 错误：抽象地址连续不要求物理页连续，操作系统可通过页表将虚拟连续地址映射到不连续的物理页。选项 C 错误：地址与下标是线性关系，但这不是随机访问的前提，而是连续存放的结果。选项 D 错误：数组通常存放在内存中，缓存只是加速机制，不是随机访问的必要条件。",
+                        "difficulty": "medium"
+                      },
+                      {
+                        "id": "q3",
+                        "type": "single_choice",
+                        "stem": "某程序反复访问数组元素 A[0] 时耗时极短，而首次访问远处的 A[999999] 时耗时明显更长。关于这一现象与 O(1) 复杂度的关系，下列说法正确的是？",
+                        "options": [
+                          "这说明数组随机访问的实际复杂度不是 O(1)，因为两次访问耗时不同",
+                          "这说明 O(1) 复杂度分析有误，实际复杂度应随访问位置变化",
+                          "这不违背 O(1)，因为 O(1) 描述的是操作次数的渐近量级，不承诺实际耗时恒定",
+                          "这说明 A[999999] 的访问需要遍历前面的元素，因此耗时更长"
+                        ],
+                        "answer": "C",
+                        "explanation": "算法分析中的 O(1) 指操作次数（地址计算加一次内存访问）不随数组规模增长，而非物理耗时绝对相同。真实系统中，反复访问 A[0] 可能命中缓存而更快，首次访问 A[999999] 可能因缓存未命中或触发缺页而更慢，但这些物理因素不影响抽象模型中的操作次数。选项 A 和 B 混淆了操作次数与物理耗时；选项 D 错误，数组随机访问不需要遍历中间元素，耗时差异来自缓存、分页等物理因素而非遍历。",
+                        "difficulty": "medium"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "verification": {
+          "decision": "pass",
+          "checks": "version_bound_resource_review"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "",
+          "scope_path": [],
+          "resolution": "needs_clarification",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成练习",
+          "workflow_label": "练习",
+          "topics": [
+            "刚才生成的资源完成了吗",
+            "请读取它并概括内容",
+            "请生成3道"
+          ],
+          "goal": "生成练习",
+          "issues": [],
+          "confirmed_facts": [
+            "每题4个选项",
+            "附正确答案与解析",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [
+            "O(1) 随机访问的前提**（中）",
+            "解析澄清了三个干扰项：抽象地址连续不等于物理页连续（页表可映射）、地址与下标线性关系是连续存放的结果而非前提、缓存只是加"
+          ],
+          "evidence_details": [
+            {
+              "content": "O(1) 随机访问的前提**（中）",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            },
+            {
+              "content": "解析澄清了三个干扰项：抽象地址连续不等于物理页连续（页表可映射）、地址与下标线性关系是连续存放的结果而非前提、缓存只是加",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            }
+          ],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "active_artifact_label": "当前产物：练习",
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”单选题",
+          "allow_rag": true,
+          "allow_web": true,
+          "summary_hint": "当前围绕刚才生成的资源完成了吗、请读取它并概括内容进行总结"
+        }
+      }
+    }
+  ],
+  "direct_generation_verified": true,
+  "job": {
+    "schema_version": 2,
+    "version": 6,
+    "edu_job_id": "job_589cbd51b2a1411b",
+    "kind": "generate_quiz",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "生成完成，已保存到“我的资源”，仅你可见。",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "quiz",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "quiz",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "",
+        "focus": "生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+        "length_hint": "生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "direct_org_6ac81ca42106421d84bffb5b2f411a9d",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-quiz-cde91dcc",
+        "harness_chapters": [],
+        "classroom_options": {},
+        "harness_organization": {
+          "scope": "本知识单元面向大学初学者，聚焦数组随机访问（通过下标在常数时间内访问元素）的基本概念、前提条件、时间复杂度的抽象含义及其与真实系统表现的边界。内容覆盖数组的连续内存布局（抽象层面）、下标从0开始、随机访问的O(1)操作次数含义，以及缓存/分页等物理因素对实际耗时的影响。不涉及动态数组扩容、多维数组、指针算术或具体编程语言的语法细节。",
+          "prerequisites": [
+            "理解变量和基本数据类型",
+            "了解循环和函数的基本概念",
+            "初步认识时间复杂度的大O记号"
+          ],
+          "objectives": [
+            "解释数组随机访问的含义，即通过下标在常数时间内获取元素",
+            "说明数组元素在内存中连续存放是随机访问的前提",
+            "区分抽象模型中的O(1)操作次数与真实系统中缓存、分页等因素导致的耗时差异",
+            "识别数组下标从0开始这一常见约定及其对访问的影响"
+          ],
+          "units": [
+            {
+              "title": "数组随机访问的定义与操作",
+              "explanation": "数组随机访问是指通过下标（索引）直接访问数组中任意位置的元素，无需遍历其他元素。在抽象模型中，这一操作的时间复杂度为O(1)，即操作次数不随数组大小变化。其实现基础是数组元素在内存中连续存放，通过起始地址加下标乘以元素大小计算目标地址。",
+              "example": "设数组A有100个元素，访问A[50]和访问A[10]所需的操作次数在抽象模型中相同，均为常数次。",
+              "misconception": "初学者常误以为访问靠后的元素需要先访问前面的元素，实际上随机访问直接计算地址，不需要顺序经过中间元素。",
+              "check": "若数组有n个元素，访问A[n-1]的操作次数是否随n增大而增加？答案是否定的，抽象模型中仍为常数次。",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "连续内存布局是随机访问的前提",
+              "explanation": "数组要求元素在内存中连续存放（抽象地址连续），这样才能通过公式 address = base + index * element_size 直接定位。若元素分散存放（如链表），则无法通过下标直接计算地址，必须从头遍历，访问第k个元素需O(k)次操作。注意：抽象地址连续不要求底层物理页连续，操作系统可能将虚拟连续页映射到不连续的物理页。",
+              "example": "链表访问第50个节点需从头节点开始逐个移动50次，而数组访问A[50]只需一次地址计算。",
+              "misconception": "有人将数组的抽象连续地址直接等同于物理内存连续，实际上虚拟内存机制允许物理页不连续，但这不影响程序员视角的随机访问能力。",
+              "check": "若某数据结构元素不连续存放，能否保证O(1)随机访问？通常不能，因为无法直接计算地址。",
+              "objective_indices": [
+                1
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "O(1)的抽象含义与真实系统差异",
+              "explanation": "在算法分析中，数组随机访问记为O(1)指操作次数（如地址计算和一次内存访问）不随数组规模增长。但真实系统耗时受缓存命中率、内存层次结构、分页等影响：访问刚被使用过的元素可能命中缓存而更快，访问远处元素可能触发缺页或缓存未命中而更慢。因此O(1)描述的是操作次数的渐近量级，不承诺实际耗时恒定。",
+              "example": "反复访问A[0]可能因缓存命中而极快，而首次访问A[999999]可能因加载新内存页而明显更慢，但两者在抽象模型中均为常数次操作。",
+              "misconception": "将O(1)误解为'实际耗时绝对相同'，忽略了缓存、分页等物理因素；O(1)只保证操作次数有常数上界。",
+              "check": "若两次随机访问实际耗时不同，是否违背O(1)复杂度？不违背，因为复杂度分析的是操作次数而非物理时间。",
+              "objective_indices": [
+                2
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "下标从0开始的约定",
+              "explanation": "多数编程语言（如C、C++、Java、Python）中数组下标从0开始，即第一个元素为A[0]，最后一个为A[n-1]。这一约定源于地址计算公式：base + index * size，当index=0时正好指向首元素。部分语言（如MATLAB、Lua）从1开始，但本单元以从0开始的主流约定为准。访问A[n]或A[-1]（在无负索引支持的语言中）属于越界或错误。",
+              "example": "数组A长度为5，有效下标为0,1,2,3,4；A[5]越界，A[-1]在C语言中为非法访问（在Python中则指最后一个元素，但本单元不讨论负索引）。",
+              "misconception": "初学者常误以为第一个元素下标为1，导致访问A[n]时越界或漏掉首元素。",
+              "check": "若数组长度为n，最后一个元素的下标是多少？应为n-1。",
+              "objective_indices": [
+                3
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "本单元基于数组元素连续存放的抽象模型，不涉及具体语言中数组实现的差异（如Python列表实际存储对象引用）。",
+            "O(1)复杂度仅指操作次数，不承诺真实系统耗时恒定；缓存、分页等物理因素不在抽象模型内。",
+            "下标从0开始是主流约定，但并非所有语言如此；本单元不覆盖从1开始的语言或负索引语义。",
+            "未讨论多维数组的随机访问、动态数组扩容或数组与指针的关系。",
+            "无外部证据输入，内容基于通用计算机科学知识。"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "前提适用性：数组随机访问的O(1)分析基于连续内存布局和下标直接计算地址，适用于抽象模型，不适用于链表等非连续结构。",
+                "reason": "单元1和单元2明确说明随机访问的前提是连续存放，链表访问第k个元素需O(k)次操作，且单元2的check指出非连续结构通常不能保证O(1)。前提限定充分，未错误泛化到所有数据结构。",
+                "passed": true
+              },
+              {
+                "claim": "内部推理一致性：地址计算公式address = base + index * element_size与下标从0开始的约定一致，且O(1)描述操作次数而非物理时间。",
+                "reason": "单元4解释下标从0开始源于公式当index=0时指向首元素；单元3区分操作次数与物理耗时，指出缓存/分页影响实际时间但不违背O(1)。各单元推理一致，无矛盾。",
+                "passed": true
+              },
+              {
+                "claim": "具体例子正确性：数组A有100个元素，访问A[50]和A[10]操作次数相同；链表访问第50个节点需50次移动；数组长度为5时有效下标0-4，A[5]越界。",
+                "reason": "逐步追踪：A[50]和A[10]均通过公式一次计算地址，操作次数常数；链表从头遍历到第50个节点需移动49次或50次（取决于计数），但表述为'逐个移动50次'可视为近似，不构成实质错误；长度5的数组下标0-4，A[5]越界正确。例子与说明一致。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖：覆盖随机访问定义、连续内存前提、O(1)抽象与真实差异、下标从0开始四个目标，并处理越界、负索引、物理页不连续等边界。",
+                "reason": "四个单元分别对应objectives的四个索引；单元4明确A[n]越界和A[-1]在不同语言语义差异；单元2指出抽象连续不要求物理页连续。边界案例已提供，目标全覆盖。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_6ac81ca42106421d84bffb5b2f411a9d",
+          "resource_type": "quiz",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "direct",
+        "harness_execution_context": {
+          "stage": "write_and_review_quiz",
+          "decision": {
+            "request_id": "dc4aa0516af74833a36dbdc7f12b75f0",
+            "user_message": "请生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+            "outline_id": "direct_org_6ac81ca42106421d84bffb5b2f411a9d",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "dc4aa0516af74833a36dbdc7f12b75f0",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_4d726ea5d6ffb4d8",
+      "idempotency_key": "dsh:58b6a02ea0f41e873363170642556e29be205638a91ab4fc72e6305baf787f87",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": {
+      "resource_type": "course_material",
+      "course_id": "resource-e2e-course",
+      "material_type": "quiz",
+      "material_id": "quiz-211c77bfb5d6ea33"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-09-09T04:19:42.047267+00:00",
+    "started_at": "2026-09-09T04:19:42.582747+00:00",
+    "finished_at": "2026-09-09T04:21:48.245652+00:00",
+    "updated_at": "2026-09-09T04:21:48.245652+00:00"
+  },
+  "material": {
+    "title": "数组随机访问",
+    "content": {
+      "title": "数组随机访问基础测验",
+      "questions": [
+        {
+          "id": "q1",
+          "type": "single_choice",
+          "stem": "设数组 A 有 100 个元素，在抽象模型中访问 A[50] 与访问 A[10] 相比，所需的操作次数如何？",
+          "options": [
+            "访问 A[50] 需要更多操作，因为它的下标更大",
+            "两者所需的操作次数相同，均为常数次",
+            "访问 A[10] 需要更多操作，因为它更靠近数组开头",
+            "无法确定，取决于数组元素的具体值"
+          ],
+          "answer": "B",
+          "explanation": "数组随机访问通过下标直接计算目标地址（address = base + index × element_size），不需要遍历中间元素。因此访问 A[50] 和 A[10] 都只需一次地址计算加一次内存访问，操作次数均为常数，不随下标大小或数组规模变化。选项 A 误以为访问靠后元素需先经过前面元素，这是把数组访问与链表顺序遍历混淆了；选项 C 同样没有依据；选项 D 与元素值无关，元素值不影响寻址过程。",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q2",
+          "type": "single_choice",
+          "stem": "关于数组随机访问能够达到 O(1) 操作次数的前提，下列说法正确的是？",
+          "options": [
+            "数组元素在内存中连续存放，因此可以通过公式直接计算目标地址",
+            "数组元素必须存储在物理内存的同一页中",
+            "数组元素在内存中的存放位置必须与下标大小成正比",
+            "数组必须存储在 CPU 缓存中才能实现随机访问"
+          ],
+          "answer": "A",
+          "explanation": "随机访问的 O(1) 操作次数依赖于元素连续存放（抽象地址连续），从而能用 base + index × element_size 直接定位。选项 B 错误：抽象地址连续不要求物理页连续，操作系统可通过页表将虚拟连续地址映射到不连续的物理页。选项 C 错误：地址与下标是线性关系，但这不是随机访问的前提，而是连续存放的结果。选项 D 错误：数组通常存放在内存中，缓存只是加速机制，不是随机访问的必要条件。",
+          "difficulty": "medium"
+        },
+        {
+          "id": "q3",
+          "type": "single_choice",
+          "stem": "某程序反复访问数组元素 A[0] 时耗时极短，而首次访问远处的 A[999999] 时耗时明显更长。关于这一现象与 O(1) 复杂度的关系，下列说法正确的是？",
+          "options": [
+            "这说明数组随机访问的实际复杂度不是 O(1)，因为两次访问耗时不同",
+            "这说明 O(1) 复杂度分析有误，实际复杂度应随访问位置变化",
+            "这不违背 O(1)，因为 O(1) 描述的是操作次数的渐近量级，不承诺实际耗时恒定",
+            "这说明 A[999999] 的访问需要遍历前面的元素，因此耗时更长"
+          ],
+          "answer": "C",
+          "explanation": "算法分析中的 O(1) 指操作次数（地址计算加一次内存访问）不随数组规模增长，而非物理耗时绝对相同。真实系统中，反复访问 A[0] 可能命中缓存而更快，首次访问 A[999999] 可能因缓存未命中或触发缺页而更慢，但这些物理因素不影响抽象模型中的操作次数。选项 A 和 B 混淆了操作次数与物理耗时；选项 D 错误，数组随机访问不需要遍历中间元素，耗时差异来自缓存、分页等物理因素而非遍历。",
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "quiz",
+        "content_sha256": "94879b48978a7a9894702a29b0ea7d6ce023f490e242c63b7283015becfe5bcd",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "已生成3道面向大学初学者的数组随机访问单选题，每题4个选项，均附正确答案与解析；难度分别为 easy、medium、medium，符合初学者定位；选项未自行添加 A./B. 前缀，答案使用大写选项字母；语言为中文，未超出用户要求的题量、题型和受众范围。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "逐题核验：题1地址计算为 base + index × element_size，访问 A[50] 与 A[10] 均为常数次操作，答案 B 正确；题2随机访问 O(1) 前提是抽象地址连续，不要求物理同页或缓存，答案 A 正确；题3 O(1) 指操作次数渐近量级，不承诺实际耗时恒定，缓存、分页差异不构成矛盾，答案 C 正确。选项及解析未发现事实、数值或前提错误。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "对3道题逐题独立求解：题1选 B，题2选 A，题3选 C，与给定答案一致。每题4个选项均逐项核验，正确选项理由成立，干扰项均有真实错误原因；解析对关键错误选项的说明准确，未用猜测或含糊表述掩盖错误。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "题目结构由浅入深：先比较不同下标访问的操作次数，再考查连续内存这一前提，最后区分抽象 O(1) 与真实系统耗时差异；三道题考点不重复，答案位置为 B、A、C，顺序不规律；干扰项体现真实误区，如把随机访问与链表遍历混淆、把抽象连续误解为物理同页、把 O(1) 误解为耗时恒定。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "用户明确资料使用通用知识即可，无需检索；quiz 未引用外部证据，符合要求。已确认方案中的知识断言逐一核验：数组随机访问 O(1) 分析、连续内存前提、O(1) 与物理耗时区别、下标从0开始等均无实质错误；unit 2 中链表访问第50个节点的移动次数表述存在计数歧义，但不构成事实错误，已在建议中提示。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "用户要求3道单选题，本资源完整提供3道4选项单选题及解析；覆盖面包括随机访问的操作次数、连续内存前提、O(1)抽象含义与真实系统差异，满足本次直接要求。未覆盖下标从0开始和越界边界，但用户未要求覆盖全部知识目标，且题量有限，不构成缺陷。"
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "94879b48978a7a9894702a29b0ea7d6ce023f490e242c63b7283015becfe5bcd",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "已生成3道面向大学初学者的数组随机访问单选题，每题4个选项，均附正确答案与解析；难度分别为 easy、medium、medium，符合初学者定位；选项未自行添加 A./B. 前缀，答案使用大写选项字母；语言为中文，未超出用户要求的题量、题型和受众范围。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "逐题核验：题1地址计算为 base + index × element_size，访问 A[50] 与 A[10] 均为常数次操作，答案 B 正确；题2随机访问 O(1) 前提是抽象地址连续，不要求物理同页或缓存，答案 A 正确；题3 O(1) 指操作次数渐近量级，不承诺实际耗时恒定，缓存、分页差异不构成矛盾，答案 C 正确。选项及解析未发现事实、数值或前提错误。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "对3道题逐题独立求解：题1选 B，题2选 A，题3选 C，与给定答案一致。每题4个选项均逐项核验，正确选项理由成立，干扰项均有真实错误原因；解析对关键错误选项的说明准确，未用猜测或含糊表述掩盖错误。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "题目结构由浅入深：先比较不同下标访问的操作次数，再考查连续内存这一前提，最后区分抽象 O(1) 与真实系统耗时差异；三道题考点不重复，答案位置为 B、A、C，顺序不规律；干扰项体现真实误区，如把随机访问与链表遍历混淆、把抽象连续误解为物理同页、把 O(1) 误解为耗时恒定。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "用户明确资料使用通用知识即可，无需检索；quiz 未引用外部证据，符合要求。已确认方案中的知识断言逐一核验：数组随机访问 O(1) 分析、连续内存前提、O(1) 与物理耗时区别、下标从0开始等均无实质错误；unit 2 中链表访问第50个节点的移动次数表述存在计数歧义，但不构成事实错误，已在建议中提示。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "用户要求3道单选题，本资源完整提供3道4选项单选题及解析；覆盖面包括随机访问的操作次数、连续内存前提、O(1)抽象含义与真实系统差异，满足本次直接要求。未覆盖下标从0开始和越界边界，但用户未要求覆盖全部知识目标，且题量有限，不构成缺陷。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "题1选项C的解析可更明确说明：随机访问任何下标所需操作次数均为常数，位置靠前或靠后均不影响操作次数，避免只用“没有依据”略显笼统。",
+                "题2选项C可进一步显式说明“成正比”这一表述不严谨：连续数组地址为 base + index × element_size，是带基址的线性关系；且这种关系是连续存放的结果，不是随机访问的前提。",
+                "已确认方案的 unit 2 示例中“链表访问第50个节点需从头节点开始逐个移动50次”建议明确是按访问节点数计数还是按指针移动边数计数，避免初学者混淆；该表述不影响本测验题目正确性。"
+              ],
+              "question_checks": [
+                {
+                  "question_index": 0,
+                  "independent_solution": "数组随机访问通过公式 address = base + index × element_size 直接计算目标地址，访问任一元素的操作次数都是常数，与下标大小和位置无关。因此访问 A[50] 与访问 A[10] 所需操作次数相同。",
+                  "answer_matches": true,
+                  "explanation_valid": true,
+                  "option_checks": [
+                    {
+                      "option_index": 0,
+                      "reasoning": "该选项错误：数组随机访问不需要遍历中间元素，访问 A[50] 不会因为下标更大而需要更多操作。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 1,
+                      "reasoning": "该选项正确：访问任意下标元素只需一次地址计算加一次内存访问，操作次数为常数，与下标大小无关。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 2,
+                      "reasoning": "该选项错误：访问更靠近开头的元素也不会需要更多操作，随机访问任何位置均为常数次操作。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 3,
+                      "reasoning": "该选项错误：数组随机访问的操作次数与元素的具体值无关，寻址只依赖基址、下标和元素大小。",
+                      "explanation_valid": true
+                    }
+                  ]
+                },
+                {
+                  "question_index": 1,
+                  "independent_solution": "随机访问 O(1) 操作次数的前提是数组元素在抽象地址空间中连续存放，从而能用 base + index × element_size 直接计算目标地址。物理内存无需同一页，缓存也不是必要条件；地址与下标的关系是连续存放的结果，而不是前提。因此选 A。",
+                  "answer_matches": true,
+                  "explanation_valid": true,
+                  "option_checks": [
+                    {
+                      "option_index": 0,
+                      "reasoning": "该选项正确：抽象地址连续存放使得目标地址可直接通过公式计算，这是 O(1) 随机访问的前提。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 1,
+                      "reasoning": "该选项错误：数组抽象地址连续不等于底层物理内存必须位于同一页，操作系统可通过页表将虚拟连续地址映射到不连续物理页。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 2,
+                      "reasoning": "该选项错误：连续存放时地址是下标的线性关系（base + index × element_size），并非严格的“成正比”，且这是连续存放的结果，不是随机访问的前提。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 3,
+                      "reasoning": "该选项错误：数组通常存储在内存中，CPU 缓存只是降低访问延迟的加速机制，不是实现随机访问的必要条件。",
+                      "explanation_valid": true
+                    }
+                  ]
+                },
+                {
+                  "question_index": 2,
+                  "independent_solution": "算法复杂度中的 O(1) 指操作次数不随数组规模增长，而非实际耗时恒定。缓存命中、缓存未命中或缺页等物理因素会导致实际耗时不同，但不改变抽象模型中的常数次操作次数；A[999999] 的访问仍是一次地址计算，不需要遍历前面的元素。因此选 C。",
+                  "answer_matches": true,
+                  "explanation_valid": true,
+                  "option_checks": [
+                    {
+                      "option_index": 0,
+                      "reasoning": "该选项错误：实际耗时不同不能推出抽象复杂度不是 O(1)，因为 O(1) 描述的是操作次数渐近量级，而非物理时间恒定。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 1,
+                      "reasoning": "该选项错误：O(1) 分析没有错误；实际耗时受缓存、分页等物理因素影响，不等于抽象复杂度随访问位置变化。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 2,
+                      "reasoning": "该选项正确：O(1) 只保证操作次数有常数上界，不承诺真实系统中的实际耗时绝对相同。",
+                      "explanation_valid": true
+                    },
+                    {
+                      "option_index": 3,
+                      "reasoning": "该选项错误：数组随机访问按地址直接定位，不遍历中间元素；耗时差异来自缓存未命中或缺页等物理因素，而非遍历。",
+                      "explanation_valid": true
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "题1选项C的解析可更明确说明：随机访问任何下标所需操作次数均为常数，位置靠前或靠后均不影响操作次数，避免只用“没有依据”略显笼统。",
+          "题2选项C可进一步显式说明“成正比”这一表述不严谨：连续数组地址为 base + index × element_size，是带基址的线性关系；且这种关系是连续存放的结果，不是随机访问的前提。",
+          "已确认方案的 unit 2 示例中“链表访问第50个节点需从头节点开始逐个移动50次”建议明确是按访问节点数计数还是按指针移动边数计数，避免初学者混淆；该表述不影响本测验题目正确性。"
+        ],
+        "question_checks": [
+          {
+            "question_index": 0,
+            "independent_solution": "数组随机访问通过公式 address = base + index × element_size 直接计算目标地址，访问任一元素的操作次数都是常数，与下标大小和位置无关。因此访问 A[50] 与访问 A[10] 所需操作次数相同。",
+            "answer_matches": true,
+            "explanation_valid": true,
+            "option_checks": [
+              {
+                "option_index": 0,
+                "reasoning": "该选项错误：数组随机访问不需要遍历中间元素，访问 A[50] 不会因为下标更大而需要更多操作。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 1,
+                "reasoning": "该选项正确：访问任意下标元素只需一次地址计算加一次内存访问，操作次数为常数，与下标大小无关。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 2,
+                "reasoning": "该选项错误：访问更靠近开头的元素也不会需要更多操作，随机访问任何位置均为常数次操作。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 3,
+                "reasoning": "该选项错误：数组随机访问的操作次数与元素的具体值无关，寻址只依赖基址、下标和元素大小。",
+                "explanation_valid": true
+              }
+            ]
+          },
+          {
+            "question_index": 1,
+            "independent_solution": "随机访问 O(1) 操作次数的前提是数组元素在抽象地址空间中连续存放，从而能用 base + index × element_size 直接计算目标地址。物理内存无需同一页，缓存也不是必要条件；地址与下标的关系是连续存放的结果，而不是前提。因此选 A。",
+            "answer_matches": true,
+            "explanation_valid": true,
+            "option_checks": [
+              {
+                "option_index": 0,
+                "reasoning": "该选项正确：抽象地址连续存放使得目标地址可直接通过公式计算，这是 O(1) 随机访问的前提。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 1,
+                "reasoning": "该选项错误：数组抽象地址连续不等于底层物理内存必须位于同一页，操作系统可通过页表将虚拟连续地址映射到不连续物理页。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 2,
+                "reasoning": "该选项错误：连续存放时地址是下标的线性关系（base + index × element_size），并非严格的“成正比”，且这是连续存放的结果，不是随机访问的前提。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 3,
+                "reasoning": "该选项错误：数组通常存储在内存中，CPU 缓存只是降低访问延迟的加速机制，不是实现随机访问的必要条件。",
+                "explanation_valid": true
+              }
+            ]
+          },
+          {
+            "question_index": 2,
+            "independent_solution": "算法复杂度中的 O(1) 指操作次数不随数组规模增长，而非实际耗时恒定。缓存命中、缓存未命中或缺页等物理因素会导致实际耗时不同，但不改变抽象模型中的常数次操作次数；A[999999] 的访问仍是一次地址计算，不需要遍历前面的元素。因此选 C。",
+            "answer_matches": true,
+            "explanation_valid": true,
+            "option_checks": [
+              {
+                "option_index": 0,
+                "reasoning": "该选项错误：实际耗时不同不能推出抽象复杂度不是 O(1)，因为 O(1) 描述的是操作次数渐近量级，而非物理时间恒定。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 1,
+                "reasoning": "该选项错误：O(1) 分析没有错误；实际耗时受缓存、分页等物理因素影响，不等于抽象复杂度随访问位置变化。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 2,
+                "reasoning": "该选项正确：O(1) 只保证操作次数有常数上界，不承诺真实系统中的实际耗时绝对相同。",
+                "explanation_valid": true
+              },
+              {
+                "option_index": 3,
+                "reasoning": "该选项错误：数组随机访问按地址直接定位，不遍历中间元素；耗时差异来自缓存未命中或缺页等物理因素，而非遍历。",
+                "explanation_valid": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "source": {
+      "selected_doc_ids": [],
+      "rag_index_keys": []
+    },
+    "schema_version": 2,
+    "version": 1,
+    "material_type": "quiz",
+    "material_id": "quiz-211c77bfb5d6ea33",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "owner_user_id": "resource-e2e-admin",
+    "created_by": "resource-e2e-admin",
+    "visibility": "private",
+    "source_job_id": "job_589cbd51b2a1411b",
+    "config_snapshot_id": "cfg_4d726ea5d6ffb4d8",
+    "source_snapshot": {
+      "mode": "none",
+      "requested_document_ids": [],
+      "documents": [],
+      "resolved_at": "2026-09-09T04:19:42.615258+00:00"
+    },
+    "config_snapshot": {
+      "allow_rag": true,
+      "audience": "大学初学者",
+      "classroom_options": {},
+      "confirmed_outline": "",
+      "entrypoint": "agent",
+      "focus": "生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+      "harness_approval_request_id": "dc4aa0516af74833a36dbdc7f12b75f0",
+      "harness_chapters": [],
+      "harness_conversation_id": "resource-e2e-quiz-cde91dcc",
+      "harness_evidence_ids": [],
+      "harness_execution_context": {
+        "decision": {
+          "interpreted_by": "model",
+          "outline_id": "direct_org_6ac81ca42106421d84bffb5b2f411a9d",
+          "request_id": "dc4aa0516af74833a36dbdc7f12b75f0",
+          "revision": 1,
+          "user_message": "请生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。"
+        },
+        "stage": "write_and_review_quiz",
+        "working_memory": {}
+      },
+      "harness_interaction_mode": "direct",
+      "harness_organization": {
+        "audience": "大学初学者",
+        "evidence_ids": [],
+        "limitations": [
+          "本单元基于数组元素连续存放的抽象模型，不涉及具体语言中数组实现的差异（如Python列表实际存储对象引用）。",
+          "O(1)复杂度仅指操作次数，不承诺真实系统耗时恒定；缓存、分页等物理因素不在抽象模型内。",
+          "下标从0开始是主流约定，但并非所有语言如此；本单元不覆盖从1开始的语言或负索引语义。",
+          "未讨论多维数组的随机访问、动态数组扩容或数组与指针的关系。",
+          "无外部证据输入，内容基于通用计算机科学知识。"
+        ],
+        "model_review": {
+          "checks": [
+            {
+              "claim": "前提适用性：数组随机访问的O(1)分析基于连续内存布局和下标直接计算地址，适用于抽象模型，不适用于链表等非连续结构。",
+              "passed": true,
+              "reason": "单元1和单元2明确说明随机访问的前提是连续存放，链表访问第k个元素需O(k)次操作，且单元2的check指出非连续结构通常不能保证O(1)。前提限定充分，未错误泛化到所有数据结构。"
+            },
+            {
+              "claim": "内部推理一致性：地址计算公式address = base + index * element_size与下标从0开始的约定一致，且O(1)描述操作次数而非物理时间。",
+              "passed": true,
+              "reason": "单元4解释下标从0开始源于公式当index=0时指向首元素；单元3区分操作次数与物理耗时，指出缓存/分页影响实际时间但不违背O(1)。各单元推理一致，无矛盾。"
+            },
+            {
+              "claim": "具体例子正确性：数组A有100个元素，访问A[50]和A[10]操作次数相同；链表访问第50个节点需50次移动；数组长度为5时有效下标0-4，A[5]越界。",
+              "passed": true,
+              "reason": "逐步追踪：A[50]和A[10]均通过公式一次计算地址，操作次数常数；链表从头遍历到第50个节点需移动49次或50次（取决于计数），但表述为'逐个移动50次'可视为近似，不构成实质错误；长度5的数组下标0-4，A[5]越界正确。例子与说明一致。"
+            },
+            {
+              "claim": "边界与学习目标覆盖：覆盖随机访问定义、连续内存前提、O(1)抽象与真实差异、下标从0开始四个目标，并处理越界、负索引、物理页不连续等边界。",
+              "passed": true,
+              "reason": "四个单元分别对应objectives的四个索引；单元4明确A[n]越界和A[-1]在不同语言语义差异；单元2指出抽象连续不要求物理页连续。边界案例已提供，目标全覆盖。"
+            }
+          ],
+          "issues": [],
+          "passed": true
+        },
+        "objectives": [
+          "解释数组随机访问的含义，即通过下标在常数时间内获取元素",
+          "说明数组元素在内存中连续存放是随机访问的前提",
+          "区分抽象模型中的O(1)操作次数与真实系统中缓存、分页等因素导致的耗时差异",
+          "识别数组下标从0开始这一常见约定及其对访问的影响"
+        ],
+        "organization_id": "org_6ac81ca42106421d84bffb5b2f411a9d",
+        "prerequisites": [
+          "理解变量和基本数据类型",
+          "了解循环和函数的基本概念",
+          "初步认识时间复杂度的大O记号"
+        ],
+        "requirements": "生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+        "resource_type": "quiz",
+        "scope": "本知识单元面向大学初学者，聚焦数组随机访问（通过下标在常数时间内访问元素）的基本概念、前提条件、时间复杂度的抽象含义及其与真实系统表现的边界。内容覆盖数组的连续内存布局（抽象层面）、下标从0开始、随机访问的O(1)操作次数含义，以及缓存/分页等物理因素对实际耗时的影响。不涉及动态数组扩容、多维数组、指针算术或具体编程语言的语法细节。",
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "scope_id": null,
+          "scope_type": "course",
+          "selected_doc_ids": []
+        },
+        "subject": "数组随机访问",
+        "units": [
+          {
+            "check": "若数组有n个元素，访问A[n-1]的操作次数是否随n增大而增加？答案是否定的，抽象模型中仍为常数次。",
+            "evidence_ids": [],
+            "example": "设数组A有100个元素，访问A[50]和访问A[10]所需的操作次数在抽象模型中相同，均为常数次。",
+            "explanation": "数组随机访问是指通过下标（索引）直接访问数组中任意位置的元素，无需遍历其他元素。在抽象模型中，这一操作的时间复杂度为O(1)，即操作次数不随数组大小变化。其实现基础是数组元素在内存中连续存放，通过起始地址加下标乘以元素大小计算目标地址。",
+            "misconception": "初学者常误以为访问靠后的元素需要先访问前面的元素，实际上随机访问直接计算地址，不需要顺序经过中间元素。",
+            "objective_indices": [
+              0
+            ],
+            "title": "数组随机访问的定义与操作"
+          },
+          {
+            "check": "若某数据结构元素不连续存放，能否保证O(1)随机访问？通常不能，因为无法直接计算地址。",
+            "evidence_ids": [],
+            "example": "链表访问第50个节点需从头节点开始逐个移动50次，而数组访问A[50]只需一次地址计算。",
+            "explanation": "数组要求元素在内存中连续存放（抽象地址连续），这样才能通过公式 address = base + index * element_size 直接定位。若元素分散存放（如链表），则无法通过下标直接计算地址，必须从头遍历，访问第k个元素需O(k)次操作。注意：抽象地址连续不要求底层物理页连续，操作系统可能将虚拟连续页映射到不连续的物理页。",
+            "misconception": "有人将数组的抽象连续地址直接等同于物理内存连续，实际上虚拟内存机制允许物理页不连续，但这不影响程序员视角的随机访问能力。",
+            "objective_indices": [
+              1
+            ],
+            "title": "连续内存布局是随机访问的前提"
+          },
+          {
+            "check": "若两次随机访问实际耗时不同，是否违背O(1)复杂度？不违背，因为复杂度分析的是操作次数而非物理时间。",
+            "evidence_ids": [],
+            "example": "反复访问A[0]可能因缓存命中而极快，而首次访问A[999999]可能因加载新内存页而明显更慢，但两者在抽象模型中均为常数次操作。",
+            "explanation": "在算法分析中，数组随机访问记为O(1)指操作次数（如地址计算和一次内存访问）不随数组规模增长。但真实系统耗时受缓存命中率、内存层次结构、分页等影响：访问刚被使用过的元素可能命中缓存而更快，访问远处元素可能触发缺页或缓存未命中而更慢。因此O(1)描述的是操作次数的渐近量级，不承诺实际耗时恒定。",
+            "misconception": "将O(1)误解为'实际耗时绝对相同'，忽略了缓存、分页等物理因素；O(1)只保证操作次数有常数上界。",
+            "objective_indices": [
+              2
+            ],
+            "title": "O(1)的抽象含义与真实系统差异"
+          },
+          {
+            "check": "若数组长度为n，最后一个元素的下标是多少？应为n-1。",
+            "evidence_ids": [],
+            "example": "数组A长度为5，有效下标为0,1,2,3,4；A[5]越界，A[-1]在C语言中为非法访问（在Python中则指最后一个元素，但本单元不讨论负索引）。",
+            "explanation": "多数编程语言（如C、C++、Java、Python）中数组下标从0开始，即第一个元素为A[0]，最后一个为A[n-1]。这一约定源于地址计算公式：base + index * size，当index=0时正好指向首元素。部分语言（如MATLAB、Lua）从1开始，但本单元以从0开始的主流约定为准。访问A[n]或A[-1]（在无负索引支持的语言中）属于越界或错误。",
+            "misconception": "初学者常误以为第一个元素下标为1，导致访问A[n]时越界或漏掉首元素。",
+            "objective_indices": [
+              3
+            ],
+            "title": "下标从0开始的约定"
+          }
+        ]
+      },
+      "harness_outline_id": "direct_org_6ac81ca42106421d84bffb5b2f411a9d",
+      "harness_outline_revision": 1,
+      "harness_review_required": true,
+      "length_hint": "生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+      "research_context": "",
+      "research_sources": [],
+      "resource_type": "quiz",
+      "subject": "数组随机访问",
+      "title": "数组随机访问"
+    },
+    "status": "ready",
+    "created_at": "2026-09-09T04:21:48.192233",
+    "updated_at": "2026-09-09T04:21:48.192233",
+    "is_pinned": false,
+    "pinned_at": null,
+    "content_hash": "6d33139edf04625cda3140fd716df182968c7abeb73540e77d9647e76067e0b5",
+    "artifact_paths": []
+  },
+  "passed": true,
+  "export_content_verified": true,
+  "browser_preview": true,
+  "accepted_by_manual_audit": true
+}

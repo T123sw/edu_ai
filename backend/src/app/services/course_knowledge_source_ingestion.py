@@ -72,6 +72,12 @@ def validate_public_source_url(
     normalized = canonical_source_url(value)
     if not normalized:
         raise SourceIngestionError("UNSAFE_SOURCE_URL", "来源 URL 无法规范化")
+    if parsed.path.endswith("/") and not urlsplit(normalized).path.endswith("/"):
+        normalized = normalized.replace(
+            urlsplit(normalized).path,
+            urlsplit(normalized).path + "/",
+            1,
+        )
     return normalized
 
 
@@ -150,7 +156,7 @@ def fetch_source(
     else:
         if len(payload) > max_html_bytes:
             raise SourceIngestionError("DOWNLOAD_TOO_LARGE", "HTML 文件超过允许大小")
-        lowered = payload[:512].lstrip().casefold()
+        lowered = payload[:512].lstrip().lower()
         if "html" not in content_type and not lowered.startswith((b"<!doctype html", b"<html")):
             raise SourceIngestionError("CONTENT_TYPE_MISMATCH", "来源不是可解析的 HTML 或 PDF")
         content_format = "html"

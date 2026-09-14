@@ -1,0 +1,24 @@
+{
+  "id": "course-91205880c651486aabef002a9c330617",
+  "title": "操作系统（真实E2E-2026-09-11-os-real-）",
+  "description": "面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存。",
+  "icon": "menu_book",
+  "color": "#3157d5",
+  "objectives": [
+    "能解释进程、线程和系统调用的核心机制",
+    "能比较常见 CPU 调度算法并计算等待时间",
+    "能使用信号量分析并解决典型同步问题",
+    "能解释分页、缺页和页面置换算法"
+  ],
+  "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+  "language": "zh-CN",
+  "difficulty": "introductory",
+  "knowledgeGraph": "",
+  "revision": 0,
+  "course_code": "VAQATF7T",
+  "membership_role": "owner",
+  "created_by": "teacher",
+  "created_at": "2026-09-11T06:21:11.081409+00:00",
+  "updated_at": "2026-09-11T06:21:11.081409+00:00",
+  "last_used_at": null
+}

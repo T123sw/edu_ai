@@ -1,0 +1,37 @@
+[MinerU] 已启用 MinerU Cloud（直连远程 API）用于 PDF 解析
+[CTX] context 加载 0ms | cid=b12e6aa0
+[CTX] context 加载 0ms | cid=b12e6aa0
+[LLM] ok deepseek-v4-flash 同步调用 11529ms | 2587 字符
+[LLM] fail deepseek-v4-flash HTTP 502 30076ms
+[LLM] ok deepseek-v4-flash 同步调用 5382ms | 1196 字符
+[LLM] ok deepseek-v4-flash 同步调用 7487ms | 1683 字符
+[LLM] ok deepseek-v4-flash 同步调用 3817ms | 702 字符
+[CTX] context 加载 0ms | cid=b12e6aa0
+{"kind": "lesson_plan", "stage": "turn", "action": {"name": "generate.lesson_plan"}, "workflow": {"type": "lesson_plan", "status": "awaiting_confirm", "stage": "outline"}}
+[CTX] context 加载 0ms | cid=b12e6aa0
+[CTX] context 加载 0ms | cid=b12e6aa0
+[CTX] context 加载 0ms | cid=b12e6aa0
+{"kind": "lesson_plan", "stage": "turn", "action": {"name": "chat.reply"}, "workflow": null}
+[CTX] context 加载 0ms | cid=b12e6aa0
+[CTX] context 加载 0ms | cid=b12e6aa0
+[LLM] ok deepseek-v4-flash 同步调用 20810ms | 2785 字符
+[LLM] ok deepseek-v4-flash 同步调用 5220ms | 1043 字符
+[LLM] ok deepseek-v4-flash 同步调用 12671ms | 1706 字符
+[LLM] ok deepseek-v4-flash 同步调用 5693ms | 978 字符
+[CTX] context 加载 0ms | cid=b12e6aa0
+{"kind": "lesson_plan", "stage": "turn", "action": {"name": "generate.lesson_plan"}, "workflow": {"type": "lesson_plan", "status": "awaiting_confirm", "stage": "outline"}}
+[CTX] context 加载 0ms | cid=b12e6aa0
+[CTX] context 加载 0ms | cid=b12e6aa0
+[CTX] context 加载 0ms | cid=b12e6aa0
+{"kind": "lesson_plan", "stage": "turn", "action": {"name": "generate.lesson_plan"}, "workflow": {"type": "lesson_plan", "status": "running", "stage": "generating"}}
+[LLM] ok deepseek-v4-flash 同步调用 27560ms | 4904 字符
+[LLM] ok deepseek-v4-pro 同步调用 188529ms | 2149 字符
+[LLM] ok deepseek-v4-flash 同步调用 24775ms | 5468 字符
+[LLM] ok deepseek-v4-pro 同步调用 275179ms | 2107 字符
+[LLM] ok deepseek-v4-flash 同步调用 24371ms | 5174 字符
+[LLM] ok deepseek-v4-pro 同步调用 172953ms | 1774 字符
+[CTX] context 加载 0ms | cid=b12e6aa0
+[CTX] context 加载 0ms | cid=b12e6aa0
+[CTX] context 加载 0ms | cid=b12e6aa0
+{"kind": "lesson_plan", "stage": "turn", "action": {"name": "chat.reply"}, "workflow": null}
+{"kind": "lesson_plan", "passed": true, "material_id": "lesson_plan-7fc81c98f67bddb0"}

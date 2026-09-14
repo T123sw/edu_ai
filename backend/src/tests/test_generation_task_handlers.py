@@ -22,6 +22,54 @@ RESOURCE_CASES = [
 ]
 
 
+@pytest.mark.parametrize(
+    "resource_type",
+    ["report", "lesson_plan", "blog", "quiz", "flashcard", "graph", "game"],
+)
+def test_factory_payload_preserves_review_specification(resource_type):
+    context = DurableExecutionContext(
+        task_id="job-factory-spec",
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        config_snapshot_id="cfg-factory-spec",
+        progress=lambda progress, step, message: None,
+        is_cancel_requested=lambda: False,
+    )
+    config = {
+        "entrypoint": "generation_factory",
+        "title": "数组的实现",
+        "subject": "数组的实现",
+        "audience": "计算机专业低年级学生",
+        "focus": "连续内存、地址映射与动态扩容",
+        "confirmed_outline": "存储布局；访问；扩容",
+        "harness_chapters": [{"title": "存储布局"}],
+        "harness_organization": {"objectives": ["解释地址映射"]},
+        "harness_interaction_mode": "direct",
+        "harness_execution_context": {"stage": "write_and_review"},
+    }
+
+    payload = GenerationTaskHandler._build_payload(
+        {
+            "resource_type": resource_type,
+            "course_id": "course-1",
+            "scope_type": "course",
+            "source_mode": "none",
+            "selected_doc_ids": [],
+            "config": config,
+        },
+        context,
+    )
+
+    assert payload.subject == "数组的实现"
+    assert payload.audience == "计算机专业低年级学生"
+    assert payload.focus == "连续内存、地址映射与动态扩容"
+    assert payload.confirmed_outline == "存储布局；访问；扩容"
+    assert payload.harness_chapters == [{"title": "存储布局"}]
+    assert payload.harness_organization == {"objectives": ["解释地址映射"]}
+    assert payload.harness_interaction_mode == "direct"
+    assert payload.harness_execution_context == {"stage": "write_and_review"}
+
+
 class FakeGenerationService:
     def __init__(self, resource_type: str):
         self.resource_type = resource_type
@@ -91,12 +139,17 @@ def test_generation_handler_rebuilds_requests_and_publishes_stable_resource(
     assert fake.payload.course_id == "course-1"
     assert fake.payload.material_id == f"{resource_type}-stable"
     assert result["saved"] is True
-    assert result["result_ref"] == {
+    assert {
+        key: result["result_ref"][key]
+        for key in ("resource_type", "course_id", "material_type", "material_id")
+    } == {
         "resource_type": "course_material",
         "course_id": "course-1",
         "material_type": resource_type,
         "material_id": f"{resource_type}-stable",
     }
+    assert result["result_ref"]["version"] >= 1
+    assert result["result_ref"]["content_hash"]
     material = manager.get_generated_material(
         "course-1",
         resource_type,
@@ -268,3 +321,50 @@ def test_game_handler_preserves_topic_and_generation_options(tmp_path):
     assert fake.payload.card_count == 12
     assert fake.payload.difficulty == "hard"
     assert fake.payload.duration_minutes == 8
+
+
+def test_required_review_policy_selects_reviewed_generator_without_outline_marker(
+    tmp_path, monkeypatch,
+):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure("course-1")
+    direct = FakeGenerationService("flashcard")
+    reviewed = FakeGenerationService("flashcard")
+
+    monkeypatch.setattr(
+        "app.chat.harness.reviewed_resource.ReviewedResourceGenerator",
+        lambda progress: reviewed,
+    )
+    monkeypatch.setattr(
+        "app.chat.harness.reviewed_resource.verified_resource",
+        lambda artifact, resource_type: resource_type == "flashcard",
+    )
+    handler = GenerationTaskHandler(
+        course_storage_manager=manager,
+        service_factories={"flashcard": lambda: direct},
+    )
+    context = DurableExecutionContext(
+        task_id="job-reviewed",
+        owner_user_id="teacher-a",
+        course_id="course-1",
+        config_snapshot_id="cfg-reviewed",
+        progress=lambda progress, step, message: None,
+        is_cancel_requested=lambda: False,
+    )
+
+    result = handler({
+        "resource_type": "flashcard",
+        "owner_user_id": "teacher-a",
+        "course_id": "course-1",
+        "scope_type": "course",
+        "source_mode": "none",
+        "selected_doc_ids": [],
+        "review_policy": "required",
+        "config": {"entrypoint": "agent", "title": "Agent flashcards"},
+        "material_id": "flashcard-reviewed",
+    }, context)
+
+    assert reviewed.payload is not None
+    assert reviewed.payload.review_policy == "required"
+    assert direct.payload is None
+    assert result["saved"] is True

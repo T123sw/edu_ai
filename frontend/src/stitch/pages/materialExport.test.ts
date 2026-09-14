@@ -20,3 +20,13 @@ test("structured resources export JSON", () => {
   assert.equal(file.filename, "链表习题.json");
   assert.deepEqual(JSON.parse(file.content), { questions: [] });
 });
+
+
+test("native quiz and flashcard exports preserve generated content", () => {
+  const questions = [{ id: "q1", type: "single_choice", stem: "2+3?", options: ["5", "6"], answer: "A", explanation: "相加为五" }];
+  const cards = [{ id: "c1", front: "2+3?", back: "5" }];
+  for (const [kind, content] of [["quiz", { title: "加法", questions }], ["flashcard", { title: "加法", cards }]] as const) {
+    const file = materialExportFile({ material_id: "native", material_type: kind, content }, "");
+    assert.deepEqual(JSON.parse(file.content), content);
+  }
+});

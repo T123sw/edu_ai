@@ -1531,6 +1531,29 @@ class ChatService:
         deep_model_cfg = Config.get_deep_model()
         vision_model_cfg = Config.get_vision_model()
 
+        from app.services.deepseek_key_failover import completion_endpoint
+
+        planner_api_base, planner_api_key = completion_endpoint(
+            str(planner_model_cfg.get("api_base") or Config.REMOTE_MODEL_API_BASE),
+            str(planner_model_cfg.get("api_key") or Config.REMOTE_MODEL_API_KEY),
+        )
+        deep_api_base, deep_api_key = completion_endpoint(
+            str(
+                deep_model_cfg.get("api_base")
+                or Config.DEEP_MODEL_API_BASE
+                or Config.REMOTE_MODEL_API_BASE
+            ),
+            str(
+                deep_model_cfg.get("api_key")
+                or Config.DEEP_MODEL_API_KEY
+                or Config.REMOTE_MODEL_API_KEY
+            ),
+        )
+        vision_api_base, vision_api_key = completion_endpoint(
+            str(vision_model_cfg.get("api_base") or ""),
+            str(vision_model_cfg.get("api_key") or ""),
+        )
+
         history = conversation_storage.get_messages(conv_id, limit=Config.CHAT_HISTORY_WINDOW * 2)
         user_profile = user_profile_storage.get_profile(owner or "") if owner else {}
         conv_state = conversation_storage.get_state(conv_id)
@@ -1587,31 +1610,23 @@ class ChatService:
             "user_profile": user_profile,
             # llm: 路由/工具决策模型（固定走 planner，默认 gpt-5.4-mini）
             "llm": ChatOpenAI(
-                api_key=str(planner_model_cfg.get("api_key") or Config.REMOTE_MODEL_API_KEY),
-                base_url=str(planner_model_cfg.get("api_base") or Config.REMOTE_MODEL_API_BASE),
+                api_key=planner_api_key,
+                base_url=planner_api_base,
                 model=str(planner_model_cfg.get("model_name") or Config.LLM_MODEL),
                 temperature=0.0,
             ),
             # llm_deep: 对话/大纲/报告正文统一使用默认回答模型（现切到 Qwen3.5 Plus）
             "llm_deep": ChatOpenAI(
-                api_key=str(
-                    deep_model_cfg.get("api_key")
-                    or Config.DEEP_MODEL_API_KEY
-                    or Config.REMOTE_MODEL_API_KEY
-                ),
-                base_url=str(
-                    deep_model_cfg.get("api_base")
-                    or Config.DEEP_MODEL_API_BASE
-                    or Config.REMOTE_MODEL_API_BASE
-                ),
+                api_key=deep_api_key,
+                base_url=deep_api_base,
                 model=str(deep_model_cfg.get("model_name") or Config.LLM_MODEL_DEEP),
                 temperature=0.0,
                 max_tokens=4096,
             ),
             # vlm: 仅当检测到图片时使用的视觉模型（Qwen）
             "vlm": ChatOpenAI(
-                api_key=str(vision_model_cfg.get("api_key") or ""),
-                base_url=str(vision_model_cfg.get("api_base") or ""),
+                api_key=vision_api_key,
+                base_url=vision_api_base,
                 model=str(vision_model_cfg.get("model_name") or ""),
                 temperature=0.2,
             ),

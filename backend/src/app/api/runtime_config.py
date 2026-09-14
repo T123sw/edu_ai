@@ -49,6 +49,121 @@ class ProviderVerificationError(ValueError):
         self.code = code
 
 
+
+
+def _speech_url_from_base(base_url: str) -> str:
+    normalized = base_url.rstrip("/")
+    if normalized.endswith("/audio/speech"):
+        return normalized
+    return f"{normalized}/audio/speech"
+
+
+def _tts_origin(base_url: str) -> str:
+    normalized = base_url.rstrip("/")
+    for suffix in ("/v1/audio/speech", "/audio/speech", "/v1"):
+        if normalized.endswith(suffix):
+            return normalized[: -len(suffix)]
+    return normalized
+
+
+def _verify_tts_provider(
+    base_url: str, api_key: str, values: dict[str, Any], timeout: float
+) -> None:
+    """SPEC-16 §6: 先 /health 检查，再合成测试短句，校验音频合法性。"""
+    origin = _tts_origin(base_url)
+    auth_headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+
+    # Step 1: /health
+    try:
+        health_resp = httpx.get(
+            f"{origin}/health", headers=auth_headers, timeout=timeout
+        )
+    except httpx.TimeoutException as exc:
+        raise ProviderVerificationError("timeout", "TTS 服务连接超时") from exc
+    except httpx.ConnectError as exc:
+        raise ProviderVerificationError(
+            "endpoint_unreachable", "TTS 服务地址不可达"
+        ) from exc
+    except httpx.HTTPError as exc:
+        raise ProviderVerificationError(
+            "invalid_response", "TTS /health 请求失败"
+        ) from exc
+
+    if health_resp.status_code != 200:
+        raise ProviderVerificationError(
+            "invalid_response", f"TTS /health 返回 HTTP {health_resp.status_code}"
+        )
+    try:
+        health_data = health_resp.json()
+    except ValueError as exc:
+        raise ProviderVerificationError(
+            "invalid_response", "TTS /health 不是合法 JSON"
+        ) from exc
+    if not isinstance(health_data, dict) or health_data.get("status") != "ok":
+        status_value = (
+            health_data.get("status") if isinstance(health_data, dict) else "非对象"
+        )
+        raise ProviderVerificationError(
+            "invalid_response", f"TTS /health status 异常: {status_value}"
+        )
+    if health_data.get("model_loaded") is not True:
+        raise ProviderVerificationError("model_loading", "TTS 模型尚未加载完成")
+
+    # Step 2: POST /audio/speech
+    speech_url = _speech_url_from_base(base_url)
+    payload = {
+        "model": str(values.get("model") or ""),
+        "voice": str(values.get("voice") or "vivian"),
+        "input": "配置测试",
+        "response_format": "mp3",
+    }
+    try:
+        response = httpx.post(
+            speech_url,
+            headers={**auth_headers, "Content-Type": "application/json"},
+            json=payload,
+            timeout=timeout,
+        )
+    except httpx.TimeoutException as exc:
+        raise ProviderVerificationError("timeout", "TTS 合成请求超时") from exc
+    except httpx.ConnectError as exc:
+        raise ProviderVerificationError(
+            "endpoint_unreachable", "TTS 合成地址不可达"
+        ) from exc
+    except httpx.HTTPError as exc:
+        raise ProviderVerificationError(
+            "invalid_response", "TTS 合成请求失败"
+        ) from exc
+
+    if response.status_code != 200:
+        mapped = {
+            400: "invalid_request",
+            401: "authentication_failed",
+            403: "authentication_failed",
+            404: "model_not_found",
+            413: "input_too_long",
+            422: "unsupported_format",
+            429: "queue_full",
+            500: "inference_failed",
+            503: "model_loading",
+            504: "inference_timeout",
+        }.get(response.status_code, "invalid_response")
+        raise ProviderVerificationError(
+            mapped, f"TTS 合成失败（HTTP {response.status_code}）"
+        )
+
+    content_type = response.headers.get("content-type", "").lower()
+    if not content_type.startswith("audio/"):
+        raise ProviderVerificationError(
+            "invalid_response", f"TTS 返回的 Content-Type 不是音频: {content_type!r}"
+        )
+    audio = response.content
+    if not audio:
+        raise ProviderVerificationError("invalid_response", "TTS 返回空音频")
+    if len(audio) > 10 * 1024 * 1024:
+        raise ProviderVerificationError("invalid_response", "TTS 音频超过 10MiB")
+
+
 def _verify_provider(provider: str, values: dict[str, Any]) -> None:
     base_url = str(values.get("base_url") or "").rstrip("/")
     api_key = str(values.get("api_key") or "")
@@ -57,7 +172,7 @@ def _verify_provider(provider: str, values: dict[str, Any]) -> None:
             "invalid_endpoint", "服务地址必须以 http:// 或 https:// 开头"
         )
     timeout = max(1.0, min(120.0, float(values.get("timeout_seconds") or 15)))
-    headers = {"Authorization": f"Bearer {api_key}"}
+    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
     try:
         if provider == "classroom":
             response = httpx.get(
@@ -75,17 +190,8 @@ def _verify_provider(provider: str, values: dict[str, Any]) -> None:
             # endpoint. A reachable, authenticated API root is the safest probe.
             response = httpx.get(base_url, headers=headers, timeout=timeout)
         elif provider == "tts":
-            response = httpx.post(
-                f"{base_url}/audio/speech",
-                headers={**headers, "Content-Type": "application/json"},
-                json={
-                    "model": str(values.get("model") or ""),
-                    "voice": str(values.get("voice") or "alloy"),
-                    "input": "配置测试",
-                    "response_format": "mp3",
-                },
-                timeout=timeout,
-            )
+            _verify_tts_provider(base_url, api_key, values, timeout)
+            return
         else:
             response = httpx.get(f"{base_url}/models", headers=headers, timeout=timeout)
         response.raise_for_status()

@@ -43,9 +43,9 @@ class HarnessStore:
         return directory
 
     @contextmanager
-    def session(self, request):
+    def session(self, request, *, timeout=0):
         directory = self.directory(request)
-        with FileLock(str(directory / "session.lock"), timeout=0):
+        with FileLock(str(directory / "session.lock"), timeout=timeout):
             path = directory / "state.json"
             state = json.loads(path.read_text()) if path.exists() else {
                 "version": 1, "history": [], "evidence": {}, "outlines": {},

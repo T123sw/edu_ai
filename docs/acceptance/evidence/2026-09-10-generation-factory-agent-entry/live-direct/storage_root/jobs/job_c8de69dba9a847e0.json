@@ -1,0 +1,192 @@
+{
+  "schema_version": 2,
+  "version": 10,
+  "edu_job_id": "job_c8de69dba9a847e0",
+  "kind": "generate_quiz",
+  "status": "succeeded",
+  "step": "completed",
+  "progress": 100,
+  "message": "生成完成，已保存到“我的资源”，仅你可见。",
+  "owner_user_id": "resource-e2e-admin",
+  "owner": "resource-e2e-admin",
+  "course_id": "resource-e2e-course",
+  "scope_type": "course",
+  "scope_id": null,
+  "input_summary": {
+    "title": "数组随机访问",
+    "resource_type": "quiz",
+    "source_mode": "none",
+    "selected_doc_ids": [],
+    "config": {
+      "entrypoint": "agent",
+      "resource_type": "quiz",
+      "audience": "大学初学者",
+      "title": "数组随机访问",
+      "subject": "数组随机访问",
+      "confirmed_outline": "",
+      "focus": "生成3道关于“数组随机访问”的单选题；每题4个选项；附正确答案与解析；难度面向大学初学者；使用通用知识，无需检索资料。",
+      "length_hint": "生成3道关于“数组随机访问”的单选题；每题4个选项；附正确答案与解析；难度面向大学初学者；使用通用知识，无需检索资料。",
+      "allow_rag": true,
+      "research_context": "",
+      "research_sources": [],
+      "harness_outline_id": "direct_org_c21edab0a70e40dcaaeb72742ab3c006",
+      "harness_outline_revision": 1,
+      "harness_conversation_id": "resource-e2e-quiz-a243af06",
+      "harness_chapters": [],
+      "classroom_options": {},
+      "harness_organization": {
+        "scope": "面向大学初学者的数组随机访问知识准备，聚焦一维数组按下标访问元素的抽象模型、地址计算公式、时间复杂度含义及常见边界条件；不涉及多维数组、动态数组扩容、链表、哈希表或具体语言标准库实现细节。",
+        "prerequisites": [
+          "了解变量、数据类型和内存地址的基本概念",
+          "知道数组是相同类型元素的连续集合",
+          "能理解下标从0开始的常见约定"
+        ],
+        "objectives": [
+          "能说明数组随机访问的含义：通过下标直接定位元素，而非从头逐个查找",
+          "能写出并解释一维数组元素地址计算公式：基地址 + 下标 × 元素大小",
+          "能判断给定下标是否在合法范围内，并说明越界访问的后果",
+          "能区分随机访问的常数时间复杂度与真实系统耗时，不将O(1)等同于绝对耗时恒定"
+        ],
+        "units": [
+          {
+            "title": "随机访问的定义",
+            "explanation": "数组随机访问指给定下标后，直接计算该元素在内存中的位置并读取，不需要依次检查前面的元素。这里的“随机”不是指随机数，而是指可以按任意合法下标访问。",
+            "example": "对于数组 a = [10, 20, 30, 40]，访问 a[2] 可直接得到 30，不必先读取 a[0] 和 a[1]。",
+            "misconception": "把“随机访问”误解为随机选取一个元素，或认为访问任意下标都需要从头遍历。",
+            "check": "若数组有 n 个元素，访问 a[n-1] 是否需要先访问前 n-1 个元素？",
+            "objective_indices": [
+              0
+            ],
+            "evidence_ids": []
+          },
+          {
+            "title": "地址计算公式",
+            "explanation": "在一维数组中，若基地址为 base，每个元素占用 size 字节，下标为 i，则元素地址通常为 base + i × size。该公式成立的前提是元素类型相同、连续存放，且下标从0开始计数。元素大小指完整元素占用的空间；在 C/C++ 中，结构体数组的步长通常就是 sizeof(元素类型)，已包含对齐填充。",
+            "example": "设 base = 1000，size = 4，则 a[0] 地址为 1000，a[1] 为 1004，a[3] 为 1012。",
+            "misconception": "认为数组地址公式要求底层物理内存页连续；实际上抽象连续地址不保证物理页连续。也不要把元素大小误解为仅指基本字段大小而忽略结构体填充。",
+            "check": "若 base = 2000，size = 8，a[5] 的地址是多少？",
+            "objective_indices": [
+              1
+            ],
+            "evidence_ids": []
+          },
+          {
+            "title": "下标范围与越界",
+            "explanation": "长度为 n 的一维数组，合法下标通常为 0 到 n-1。访问 n 或负数下标属于越界，可能读到无关数据、引发运行时错误或未定义行为。不同语言对负索引语义不同，例如 Python 中 -1 表示最后一个元素，而 C/C++ 中负下标通常不合法。",
+            "example": "数组 a = [5, 6, 7]，长度为3，合法下标是0、1、2；a[3] 越界。",
+            "misconception": "认为所有语言中 a[-1] 都表示最后一个元素，或认为越界访问一定会立即报错。",
+            "check": "长度为 10 的数组，合法下标范围是什么？a[10] 是否合法？",
+            "objective_indices": [
+              2
+            ],
+            "evidence_ids": []
+          },
+          {
+            "title": "常数时间复杂度的含义",
+            "explanation": "在抽象模型下，数组随机访问通常计为 O(1)，即访问时间不随数组长度增长而增长。但这不表示真实系统耗时绝对恒定；缓存命中、分页、内存层级和具体实现都会影响实际耗时。复杂度必须说明所分析的实现和计数方式。",
+            "example": "访问 a[0] 和 a[999999] 在抽象操作次数上都是一次地址计算加一次读取，但真实运行时间可能因缓存不同而有差异。",
+            "misconception": "把 O(1) 理解为任何情况下耗时完全相同，或把某种低效实现的复杂度说成所有实现的必然结果。",
+            "check": "O(1) 是否意味着访问数组首元素和末元素在真实机器上的耗时绝对相等？",
+            "objective_indices": [
+              3
+            ],
+            "evidence_ids": []
+          }
+        ],
+        "limitations": [
+          "本知识准备不包含具体编程语言的完整语法、标准库实现或编译器优化细节。",
+          "地址计算公式以抽象连续内存模型为前提，不保证底层物理页连续。",
+          "不同语言对负索引、越界检查和数组对象表示可能不同，使用时需结合具体语言环境。",
+          "未检索外部资料，仅使用通用知识组织。"
+        ],
+        "model_review": {
+          "passed": true,
+          "checks": [
+            {
+              "claim": "前提适用性：地址公式 base + i × size 的前提（元素类型相同、连续存放、下标从0开始）被明确限定，且未把抽象连续地址泛化为物理页连续。",
+              "reason": "unit 2 明确写出该公式成立前提，并在 misconception 中区分抽象连续地址与物理页连续；limitations 也重申不保证物理页连续。未发现把来源示例前提错误泛化到所有语言或所有内存实现。",
+              "passed": true
+            },
+            {
+              "claim": "内部推理一致性：随机访问定义、地址计算、越界判断、O(1) 含义之间无矛盾。",
+              "reason": "unit 1 说直接计算位置读取，unit 2 给出地址公式，unit 3 给出合法下标 0 到 n-1，unit 4 说明 O(1) 是抽象操作次数不随 n 增长而非真实耗时恒定。四者相互支持，无冲突。",
+              "passed": true
+            },
+            {
+              "claim": "具体例子：a=[10,20,30,40] 访问 a[2] 得 30；base=1000,size=4 时 a[0]=1000,a[1]=1004,a[3]=1012；a=[5,6,7] 合法下标 0,1,2，a[3] 越界。",
+              "reason": "逐步追踪：a[2] 是第三个元素 30，正确；1000+1×4=1004，1000+3×4=1012，正确；长度3的合法下标为0,1,2，a[3] 越界，正确。例子与说明一致。",
+              "passed": true
+            },
+            {
+              "claim": "边界与学习目标覆盖：覆盖下标 0 与 n-1、越界 n 和负数、不同语言负索引差异、O(1) 与真实耗时差异。",
+              "reason": "unit 1 的 check 涉及 a[n-1]；unit 3 明确合法范围 0 到 n-1、a[n] 越界、Python -1 与 C/C++ 负下标差异；unit 4 区分抽象 O(1) 与缓存/分页导致的真实耗时差异。四个 objectives 均有对应 unit 的 objective_indices 覆盖。",
+              "passed": true
+            },
+            {
+              "claim": "结构体数组元素大小与对齐填充：不能说结构体有填充便不能套用地址公式。",
+              "reason": "unit 2 正确说明元素大小指完整元素占用空间，C/C++ 中结构体数组步长通常就是 sizeof(元素类型)，已包含对齐填充。该限定避免了常见误解。",
+              "passed": true
+            },
+            {
+              "claim": "复杂度表述：O(1) 不表示真实系统耗时绝对恒定，且复杂度需说明实现和计数方式。",
+              "reason": "unit 4 明确 O(1) 是抽象模型下访问时间不随数组长度增长，并列出缓存、分页、内存层级等影响因素；limitations 也说明不包含编译器优化细节。未把 O(1) 泛化为所有实现耗时相同。",
+              "passed": true
+            }
+          ],
+          "issues": []
+        },
+        "organization_id": "org_c21edab0a70e40dcaaeb72742ab3c006",
+        "resource_type": "quiz",
+        "subject": "数组随机访问",
+        "audience": "大学初学者",
+        "requirements": "生成3道关于“数组随机访问”的单选题；每题4个选项；附正确答案与解析；难度面向大学初学者；使用通用知识，无需检索资料。",
+        "evidence_ids": [],
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "selected_doc_ids": [],
+          "scope_type": "course",
+          "scope_id": null
+        }
+      },
+      "harness_review_required": true,
+      "harness_interaction_mode": "direct",
+      "harness_execution_context": {
+        "stage": "write_and_review_quiz",
+        "decision": {
+          "request_id": "102861dabffc423fba692a3a0d84b903",
+          "user_message": "请生成3道面向大学初学者的“数组随机访问”单选题，每题4个选项，附正确答案与解析。资料使用通用知识即可，无需检索。",
+          "outline_id": "direct_org_c21edab0a70e40dcaaeb72742ab3c006",
+          "revision": 1,
+          "interpreted_by": "model"
+        },
+        "working_memory": {}
+      },
+      "harness_approval_request_id": "102861dabffc423fba692a3a0d84b903",
+      "harness_evidence_ids": []
+    },
+    "config_snapshot_id": "cfg_09b6bf8a1271d601",
+    "idempotency_key": "dsh:b6b93d5a227d7617ad84b8e2c3b2e3c2c3ff6bbd2eac1a0a8a5ecbfbee3632c3",
+    "review_policy": "required",
+    "source": "teacher-generation-factory"
+  },
+  "result_ref": {
+    "resource_type": "course_material",
+    "course_id": "resource-e2e-course",
+    "material_type": "quiz",
+    "material_id": "quiz-6139501d57007661"
+  },
+  "retry_of_job_id": null,
+  "parent_job_id": null,
+  "provider_job_ref": null,
+  "sidecar_job_id": null,
+  "error_message": null,
+  "error": null,
+  "error_code": null,
+  "retryable": false,
+  "cancelable": false,
+  "created_at": "2026-09-10T06:16:14.314420+00:00",
+  "started_at": "2026-09-10T06:16:14.690348+00:00",
+  "finished_at": "2026-09-10T06:26:02.532454+00:00",
+  "updated_at": "2026-09-10T06:26:02.532454+00:00"
+}

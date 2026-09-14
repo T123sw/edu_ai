@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { BlogArtifactPreview } from "../../components/generation/previews/BlogArtifactPreview";
+import { MindMapCanvas, type MindMapNode } from "../../components/mindmap/MindMapCanvas";
 import { courseMaterialToMarkdown } from "../api/courses";
 import type { CourseMaterial } from "../api/types";
 import { useAuthenticatedBlobUrl } from "../api/useAuthenticatedBlobUrl";
@@ -27,7 +28,7 @@ function QuizPreview({ material }: { material: CourseMaterial }) {
         <article key={question.id || index}>
           <span>第 {index + 1} 题</span>
           <h3>{question.stem || "未命名题目"}</h3>
-          {question.options?.length ? <ol>{question.options.map((option) => <li key={option}>{option}</li>)}</ol> : null}
+          {question.options?.length ? <ol style={{ listStyleType: "upper-alpha", paddingLeft: "1.5rem" }}>{question.options.map((option) => <li key={option}>{option}</li>)}</ol> : null}
           <details><summary>查看答案与解析</summary><p><strong>答案：</strong>{question.answer || "未提供"}</p>{question.explanation ? <p><strong>解析：</strong>{question.explanation}</p> : null}</details>
         </article>
       )) : <p className="resource-preview-empty">当前习题暂无可展示的题目。</p>}
@@ -55,33 +56,11 @@ function FlashcardPreview({ material }: { material: CourseMaterial }) {
   );
 }
 
-type MindNode = { id?: string; title?: string; summary?: string; children?: MindNode[] };
-
-function MindBranch({ node, depth = 1 }: { node: MindNode; depth?: number }) {
-  const children = Array.isArray(node.children) ? node.children : [];
-  return (
-    <li className="resource-mind-map__branch" role="treeitem" aria-level={depth} aria-expanded={children.length ? true : undefined}>
-      <article className={`resource-mind-map__node${depth === 1 ? " resource-mind-map__node--root" : ""}`}>
-        <strong>{node.title || "未命名节点"}</strong>
-        {node.summary ? <small>{node.summary}</small> : null}
-      </article>
-      {children.length ? (
-        <ol className="resource-mind-map__children" role="group">
-          {children.map((child, index) => (
-            <MindBranch key={child.id || `${child.title}-${index}`} node={child} depth={depth + 1} />
-          ))}
-        </ol>
-      ) : null}
-    </li>
-  );
-}
-
 function MindMapPreview({ material }: { material: CourseMaterial }) {
   const payload = record(material.content);
-  const root = record(payload.root) as MindNode;
-  const hasRoot = Boolean(root.title || root.children?.length);
-  const [zoom, setZoom] = useState(1);
-  return <section className="resource-mind-map"><div className="resource-mind-map__controls"><button type="button" onClick={() => setZoom((value) => Math.max(0.6, value - 0.2))}>缩小</button><span>{Math.round(zoom * 100)}%</span><button type="button" onClick={() => setZoom((value) => Math.min(1.8, value + 0.2))}>放大</button><button type="button" onClick={() => setZoom(1)}>复位</button><button type="button" disabled={!hasRoot} onClick={() => downloadMindMapJson(material.content, material.title || "思维导图")}>导出导图</button></div><div className="resource-mind-map__viewport"><div className="resource-mind-map__canvas" style={{ transform: `scale(${zoom})` }}>{hasRoot ? <ol className="resource-mind-map__tree" role="tree" aria-label={material.title || "思维导图"}><MindBranch node={root} /></ol> : <p className="resource-preview-empty">当前思维导图暂无节点。</p>}</div></div></section>;
+  const candidate = record(payload.root) as MindMapNode;
+  const root = candidate.title || candidate.children?.length ? candidate : null;
+  return <MindMapCanvas root={root} label={material.title || "思维导图"} onExport={root ? () => downloadMindMapJson(material.content, material.title || "思维导图") : undefined} />;
 }
 
 function GamePreview({ material }: { material: CourseMaterial }) {
@@ -98,9 +77,9 @@ export function CourseMaterialArtifactPreview({ material, onReference }: { mater
   const markdown = useMemo(() => courseMaterialToMarkdown(material), [material]);
   const exportButton = <><button type="button" onClick={() => downloadMaterialFile(material, markdown)} className="rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">导出</button>{onReference && <button type="button" onClick={onReference} className="ml-2 rounded-full border border-(--shell-border) bg-white px-4 py-2 text-sm font-bold">引用</button>}</>;
   if (previewKind === "blog") return <><div className="mb-3 flex justify-end">{exportButton}</div><BlogArtifactPreview material={material} markdown={markdown} /></>;
-  if (previewKind === "quiz") return <><div className="mb-3 flex justify-end">{exportButton}</div><QuizPreview material={material} /></>;
-  if (previewKind === "flashcard") return <><div className="mb-3 flex justify-end">{exportButton}</div><FlashcardPreview material={material} /></>;
-  if (previewKind === "mind-map") return <><div className="mb-3 flex justify-end">{exportButton}</div><MindMapPreview material={material} /></>;
+  if (previewKind === "quiz") return <><div className="mb-3 flex justify-end">{exportButton}</div><QuizPreview key={material.material_id} material={material} /></>;
+  if (previewKind === "flashcard") return <><div className="mb-3 flex justify-end">{exportButton}</div><FlashcardPreview key={material.material_id} material={material} /></>;
+  if (previewKind === "mind-map") return <><div className="mb-3 flex justify-end">{exportButton}</div><MindMapPreview key={material.material_id} material={material} /></>;
   if (previewKind === "game") return <><div className="mb-3 flex justify-end">{exportButton}</div><GamePreview material={material} /></>;
   if (previewKind === "rich-text") return <><div className="mb-3 flex justify-end">{exportButton}</div><div className="edu-rich-preview"><MarkdownPreview content={markdown} /></div></>;
   return <div className="resource-preview-empty"><strong>暂无专用预览</strong><p>此资源暂时无法在线预览，请选择其他资源。</p></div>;

@@ -15,7 +15,7 @@ import {
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreated: (course: BackendCourse) => void;
+  onCreated: (course: BackendCourse, knowledgeRequirements: string) => void;
 };
 
 export function CourseCreateDialog({ open, onClose, onCreated }: Props) {
@@ -51,7 +51,7 @@ export function CourseCreateDialog({ open, onClose, onCreated }: Props) {
     try {
       const course = await createCourse(result.payload);
       setDraft(EMPTY_COURSE_CREATION_DRAFT);
-      onCreated(course);
+      onCreated(course, result.knowledgeRequirements);
     } catch (reason) {
       setSubmitError(reason instanceof Error ? reason.message : "课程创建失败，请重试");
     } finally {
@@ -78,23 +78,34 @@ export function CourseCreateDialog({ open, onClose, onCreated }: Props) {
         <form onSubmit={submit} noValidate>
           <label>
             <span>课程名称</span>
-            <input autoFocus value={draft.title} onChange={(event) => update("title", event.target.value)} aria-invalid={Boolean(errors.title)} />
+            <input autoFocus value={draft.title} onChange={(event) => update("title", event.target.value)} placeholder="例如：高中 Python 编程基础" aria-invalid={Boolean(errors.title)} />
             {errors.title ? <small role="alert">{errors.title}</small> : null}
           </label>
           <label>
             <span>课程简介</span>
-            <textarea rows={3} value={draft.description} onChange={(event) => update("description", event.target.value)} placeholder="说明课程主题、范围和教学侧重点" aria-invalid={Boolean(errors.description)} />
+            <textarea rows={3} value={draft.description} onChange={(event) => update("description", event.target.value)} placeholder="例如：通过 16 课时的讲解和上机练习，帮助零基础学生掌握 Python 基础语法与问题求解。" aria-invalid={Boolean(errors.description)} />
             {errors.description ? <small role="alert">{errors.description}</small> : null}
           </label>
           <label>
             <span>教学对象 / 年级</span>
-            <input value={draft.audience} onChange={(event) => update("audience", event.target.value)} placeholder="例如：高一学生、计算机专业大一学生" aria-invalid={Boolean(errors.audience)} />
+            <input value={draft.audience} onChange={(event) => update("audience", event.target.value)} placeholder="例如：没有编程基础的高一学生" aria-invalid={Boolean(errors.audience)} />
             {errors.audience ? <small role="alert">{errors.audience}</small> : null}
           </label>
           <label>
             <span>课程目标</span>
-            <textarea rows={4} value={draft.objectivesText} onChange={(event) => update("objectivesText", event.target.value)} placeholder={"每行一个目标，例如：\n理解线性代数的核心概念\n能用矩阵解决实际问题"} aria-invalid={Boolean(errors.objectivesText)} />
+            <textarea rows={4} value={draft.objectivesText} onChange={(event) => update("objectivesText", event.target.value)} placeholder={"每行一个目标，例如：\n能使用变量、条件和循环编写简单程序\n能定位并修正常见语法错误\n能独立完成一个小型数据处理项目"} aria-invalid={Boolean(errors.objectivesText)} />
             {errors.objectivesText ? <small role="alert">{errors.objectivesText}</small> : null}
+          </label>
+          <label>
+            <span>知识库构建要求</span>
+            <textarea
+              rows={5}
+              value={draft.knowledgeRequirements}
+              onChange={(event) => update("knowledgeRequirements", event.target.value)}
+              placeholder={"例如：用 8 课时覆盖进程、调度、同步、死锁和虚拟内存，达到本科基础到应用深度；优先使用 MIT、Stanford 等大学课程和公认教材，资料不足时允许 AI 基于来源补充；每个主题包含机制讲解、1 个可验证案例和 3 道带答案解析的练习。"}
+              aria-invalid={Boolean(errors.knowledgeRequirements)}
+            />
+            {errors.knowledgeRequirements ? <small role="alert">{errors.knowledgeRequirements}</small> : null}
           </label>
           <div className="course-create__row">
             <label>

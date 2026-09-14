@@ -1,0 +1,13 @@
+{
+  "course_id": "course-91205880c651486aabef002a9c330617",
+  "first_build_id": "kb-716b212c73724a6cbac74c232f3479bf",
+  "increment_build_id": "kb-94758853537446b89b95b9021c0c9fdb",
+  "first_status": "succeeded",
+  "increment_status": "succeeded",
+  "first_quality_score": 100,
+  "increment_quality_score": 100,
+  "first_node_count": 22,
+  "increment_node_count": 23,
+  "preserved_node_count": 22,
+  "all_first_nodes_preserved": true
+}

@@ -3,12 +3,14 @@ researchContext 合并、以及端到端 generate_classroom_for_course（成功/
 失败两条完成语义分支）。
 """
 
+import json
 import sys
 import uuid
 from types import SimpleNamespace
 from pathlib import Path
 
 import anyio
+import httpx
 import pytest
 
 API_ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +27,23 @@ from app.services.classroom_service import (
     generate_classroom_for_course,
     submit_classroom_generation_job,
 )
+from app.services.classroom_media import synthesize_classroom_speech_audio
+from app.services.runtime_config_store import RuntimeConfigStore
+from app.services.openmaic_tts_service import OpenMaicTtsService
+
+
+class FakeBackendTtsService:
+    def __init__(self) -> None:
+        self.calls: list[dict] = []
+        self.fail_texts: set[str] = set()
+
+    async def synthesize(
+        self, *, text: str, audio_id: str, speed: float | None = None
+    ) -> tuple[bytes, str]:
+        self.calls.append({"text": text, "audio_id": audio_id, "speed": speed})
+        if text in self.fail_texts:
+            raise RuntimeError("tts unavailable")
+        return b"fake-backend-tts", "mp3"
 
 
 @pytest.fixture(autouse=True)
@@ -41,6 +60,12 @@ def _isolate_job_storage(monkeypatch, tmp_path):
         "app.services.platform_task_handlers.get_task_store",
         lambda: task_store,
     )
+    fake_tts = FakeBackendTtsService()
+    monkeypatch.setattr(
+        "app.services.classroom_service.OpenMaicTtsService",
+        lambda **_kwargs: fake_tts,
+    )
+    task_store.fake_tts = fake_tts
     yield task_store
     task_store.close()
 
@@ -49,6 +74,8 @@ def _make_manager() -> CourseStorageManager:
     root = Path("tests/.tmp") / f"classroom-service-{uuid.uuid4().hex}"
     root.mkdir(parents=True, exist_ok=True)
     manager = CourseStorageManager(root_path=str(root))
+    # P9: 强制本地 JSON 模式，避免 .env 的 postgres 设置让测试连真实数据库
+    manager._knowledge_uses_postgres = lambda: False
     manager.create_course_structure("course-1")
     manager.save_course_info("course-1", {"id": "course-1", "title": "course"})
     return manager
@@ -275,7 +302,9 @@ class FakeClient:
         }
 
 
-async def test_generate_classroom_for_course_merges_context_and_persists_on_success(monkeypatch):
+async def test_generate_classroom_for_course_merges_context_and_persists_on_success(
+    monkeypatch, _isolate_job_storage
+):
     manager = _make_manager()
     monkeypatch.setattr(
         "app.services.classroom_service.fetch_course_rag_snippets",
@@ -293,7 +322,17 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
     )
 
     assert job.status == JobStatus.SUCCEEDED
-    assert job.result_ref == {
+    assert {
+        key: job.result_ref[key]
+        for key in (
+            "classroom_id",
+            "course_id",
+            "scenes_count",
+            "resource_type",
+            "material_type",
+            "material_id",
+        )
+    } == {
         "classroom_id": "stage-1",
         "course_id": "course-1",
         "scenes_count": 1,
@@ -301,15 +340,16 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
         "material_type": "classroom",
         "material_id": "stage-1",
     }
+    assert job.result_ref["version"] >= 1
+    assert job.result_ref["content_hash"]
     assert client.submitted_body["research_context"] == "web snippet\n\n[来源: textbook.pdf]\nRAG snippet"
     assert client.get_classroom_calls == ["stage-1"]  # job.result.classroomId -> get_classroom(id)
-    assert client.synthesize_tts_calls == [
+    assert client.synthesize_tts_calls == []
+    assert _isolate_job_storage.fake_tts.calls == [
         {
             "text": "hi",
             "audio_id": "act-1",
-            "provider_id": "qwen-tts",
-            "voice": "Cherry",
-            "speed": 1.0,
+            "speed": None,
         }
     ]
 
@@ -318,6 +358,142 @@ async def test_generate_classroom_for_course_merges_context_and_persists_on_succ
     )
     assert saved is not None
     assert saved["title"] == "Compound Interest"
+
+
+async def test_generate_classroom_for_course_respects_disabled_tts(
+    monkeypatch, _isolate_job_storage
+):
+    manager = _make_manager()
+    monkeypatch.setattr(
+        "app.services.classroom_service.fetch_course_rag_snippets", lambda **kwargs: None
+    )
+
+    job = await generate_classroom_for_course(
+        course_id="course-1",
+        requirement="Teach compound interest",
+        owner="teacher-a",
+        course_storage_manager=manager,
+        enable_tts=False,
+        client=FakeClient(),
+    )
+
+    assert job.status == JobStatus.SUCCEEDED
+    assert _isolate_job_storage.fake_tts.calls == []
+    saved = manager.get_generated_material(
+        "course-1", "classroom", "stage-1", owner_user_id="teacher-a"
+    )
+    assert "audioUrl" not in saved["scenes"][0]["actions"][0]
+
+
+async def test_classroom_tts_uses_action_speed_and_isolates_one_failed_action(tmp_path):
+    manager = CourseStorageManager(root_path=str(tmp_path / "course-data"))
+    service = FakeBackendTtsService()
+    service.fail_texts.add("第一句失败")
+    scenes = [
+        {
+            "id": "scene-1",
+            "actions": [
+                {
+                    "id": "speech-1",
+                    "type": "speech",
+                    "text": "第一句失败",
+                    "speed": 0.75,
+                },
+                {
+                    "id": "speech-2",
+                    "type": "speech",
+                    "text": "第二句成功",
+                    "speed": 1.25,
+                },
+            ],
+        }
+    ]
+
+    generated = await synthesize_classroom_speech_audio(
+        scenes=scenes,
+        course_id="course-1",
+        classroom_id="classroom-1",
+        course_storage_manager=manager,
+        tts_service=service,
+    )
+
+    assert generated == 1
+    assert scenes[0]["actions"][0].get("audioUrl") is None
+    assert scenes[0]["actions"][1]["audioUrl"].endswith("speech-2.mp3")
+    assert service.calls == [
+        {"text": "第一句失败", "audio_id": "speech-1", "speed": 0.75},
+        {"text": "第二句成功", "audio_id": "speech-2", "speed": 1.25},
+    ]
+
+
+async def test_tts_client_resolves_runtime_config():
+    class StubResolver:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def resolve(self, provider: str):
+            self.calls.append(provider)
+            return {
+                "provider_name": "local-qwen-tts",
+                "base_url": "http://tts.test/v1",
+                "api_key": "secret",
+                "model": "qwen3-tts",
+                "voice": "serena",
+                "timeout_seconds": 25,
+                "_source": "user",
+            }
+
+    resolver = StubResolver()
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url == httpx.URL("http://tts.test/v1/audio/speech")
+        assert request.headers["authorization"] == "Bearer secret"
+        payload = json.loads(request.content)
+        assert payload["model"] == "qwen3-tts"
+        assert payload["voice"] == "serena"
+        assert payload["speed"] == 1.4
+        return httpx.Response(200, headers={"Content-Type": "audio/mpeg"}, content=b"ID3")
+
+    service = OpenMaicTtsService(
+        config_resolver=resolver,
+        transport=httpx.MockTransport(handler),
+    )
+    audio, format_name = await service.synthesize(
+        text="运行时配置测试", audio_id="runtime-test", speed=1.4
+    )
+
+    assert resolver.calls == ["tts"]
+    assert audio == b"ID3"
+    assert format_name == "mp3"
+
+
+def test_runtime_tts_config_allows_empty_key_only_for_loopback(tmp_path):
+    store = RuntimeConfigStore(root=tmp_path / "runtime-config", master_key="test-key")
+    local = store.create_draft(
+        scope="user",
+        owner_id="teacher-a",
+        provider="tts",
+        values={
+            "base_url": "http://127.0.0.1:8188/v1",
+            "api_key": "",
+            "model": "qwen3-tts",
+            "voice": "vivian",
+        },
+    )
+    assert local["status"] == "draft"
+
+    with pytest.raises(ValueError, match="api_key is required"):
+        store.create_draft(
+            scope="user",
+            owner_id="teacher-a",
+            provider="tts",
+            values={
+                "base_url": "https://speech.example/v1",
+                "api_key": "",
+                "model": "qwen3-tts",
+                "voice": "vivian",
+            },
+        )
 
 
 async def test_generate_classroom_for_course_migrates_tts_audio_before_persisting(monkeypatch):

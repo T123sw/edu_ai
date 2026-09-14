@@ -1,0 +1,10 @@
+[
+  {
+    "observed_at": "2026-09-11T06:54:07.163Z",
+    "status": "succeeded",
+    "phase": "published",
+    "progress": 100,
+    "quality_score": 100,
+    "error": null
+  }
+]

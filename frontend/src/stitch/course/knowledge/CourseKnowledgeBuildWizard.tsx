@@ -29,6 +29,16 @@ type Props = {
   onClose: () => void;
 };
 
+function firstKnowledgePointLabel(root?: KnowledgeGraphNode | null): string {
+  if (!root) return "指定知识点";
+  if (!root.children?.length) return root.label;
+  for (const child of root.children) {
+    const label = firstKnowledgePointLabel(child);
+    if (label) return label;
+  }
+  return root.label;
+}
+
 export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onClose }: Props) {
   const [step, setStep] = useState<"proposal" | "textbooks" | "graph">(
     build.graph_draft ? "graph" : build.knowledge_proposal ? "proposal" : "textbooks",
@@ -42,6 +52,12 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
   const lastSavedGraph = useRef<KnowledgeGraphNode | null>(build.graph_draft || null);
   const [graphBusy, setGraphBusy] = useState(false);
   const [error, setError] = useState("");
+  const isSupplement = Boolean(build.baseline_graph);
+  const courseTitle = String(build.course_snapshot?.title || "本课程");
+  const exampleKnowledgePoint = firstKnowledgePointLabel(build.baseline_graph);
+  const requirementsPlaceholder = isSupplement
+    ? `例如：本次只补充“${exampleKnowledgePoint}”知识点\n补充内容：概念辨析、2 个典型案例、3 道带解析的练习\n保留范围：保留现有目录，不重建其他章节\n资料偏好：优先使用已上传教材，资料不足时再检索公开来源`
+    : `例如：${courseTitle}面向仅具备入门基础的本专业一年级学生，共 16 课时\n重点内容：基础概念、核心方法和典型应用\n学习资料：每个知识点配 1 个案例和 2 道练习\n不包含：暂不涉及进阶专题\n其他要求：优先使用已上传教材，内容使用简体中文`;
   const jobs = useCourseJobs(courseId);
   const relevantJobs = useMemo(
     () => jobs.filter((job) => String(job.input_summary?.build_id || "") === build.build_id),
@@ -216,26 +232,27 @@ export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onC
   return (
     <div className="course-kb-wizard" role="dialog" aria-modal="false" aria-labelledby="kb-wizard-title">
       <header className="course-kb-wizard__header">
-        <div><h2 id="kb-wizard-title">{build.baseline_graph ? "更新课程知识库" : "创建课程知识库"}</h2></div>
+        <div><h2 id="kb-wizard-title">{isSupplement ? "更新课程知识库" : "创建课程知识库"}</h2></div>
         <button type="button" aria-label="关闭构建向导" onClick={onClose}><MaterialIcon name="close" /></button>
       </header>
       <nav className="course-kb-wizard__steps" aria-label="更新步骤">
         <span className={step === "textbooks" ? "is-active" : ""}>1 需求与教材</span>
-        <span className={step === "proposal" ? "is-active" : ""}>2 {build.baseline_graph ? "补充清单" : "大纲对比"}</span>
+        <span className={step === "proposal" ? "is-active" : ""}>2 {isSupplement ? "补充清单" : "大纲对比"}</span>
         <span className={step === "graph" ? "is-active" : ""}>3 确认目录</span>
       </nav>
       {step === "proposal" && build.knowledge_proposal ? (
         <CourseKnowledgeProposalView key={build.revision} proposal={build.knowledge_proposal} busy={saving} onSelect={selection => void chooseProposal(selection)} onBack={() => setStep("textbooks")} />
       ) : step === "textbooks" ? (<>
-        <label className="course-kb-proposal__requirements">{build.baseline_graph ? "这次想补充什么？" : "这门课面向谁，希望覆盖哪些内容？"}
+        <label className="course-kb-proposal__requirements">
+          <strong>{isSupplement ? "这次想补充什么？" : "这门课面向谁，希望覆盖哪些内容？"}</strong>
           <textarea value={requirements} onChange={event => setRequirements(event.target.value)} maxLength={4000}
-            placeholder={build.baseline_graph ? "例如：检查现有资料，只补充循环结构的练习。留空则检查整体缺口。" : "可填写授课对象、学时或重点。留空则根据课程介绍和教学目标规划。"} />
+            placeholder={requirementsPlaceholder} />
         </label>
         <CourseKnowledgeTextbookStep
           textbooks={build.textbooks || []}
           uploading={uploading}
           generating={generating}
-          generateLabel={build.baseline_graph ? "分析补充建议" : "生成三份大纲"}
+          generateLabel={isSupplement ? "分析补充建议" : "生成三份大纲"}
           onBack={onClose}
           onUpload={(files) => void upload(files)}
           onRetry={(id) => void retry(id)}

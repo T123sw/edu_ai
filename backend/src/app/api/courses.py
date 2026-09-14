@@ -79,6 +79,7 @@ from app.schemas.course import (
 from app.services import course_service as _svc
 from app.services import knowledge_document_service as _knowledge
 from app.services.course_knowledge_plan_builder import submit_course_knowledge_plan_build_job
+from app.services.course_knowledge_application import CourseKnowledgeApplicationService
 from app.services.course_knowledge_graph_generator import (
     submit_course_knowledge_graph_generation_job,
     validate_graph_draft_for_build,
@@ -1086,34 +1087,19 @@ def create_knowledge_base_build_draft(
     payload: CourseKnowledgeBuildDraftCreateRequest,
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
-    mgr = _svc._get_manager()
-    course = mgr.get_course_info(course_id)
-    if not course:
-        raise HTTPException(status_code=404, detail="课程不存在")
-    course_snapshot = dict(course)
-    course_snapshot["id"] = course_id
-    repository = get_postgres_knowledge_repository()
-    latest_graph = repository.get_latest_graph_version(course_id)
-    baseline_graph = copy.deepcopy((latest_graph or {}).get("graph"))
-    plan = {
-        "course_id": course_id,
-        "course_snapshot": course_snapshot,
-        "config": payload.config.model_dump(mode="json"),
-        "baseline_graph_version": (latest_graph or {}).get("version"),
-        "baseline_graph": baseline_graph,
-        "current_graph_summary": summarize_course_knowledge_graph(baseline_graph),
-        "textbooks": [],
-        "graph_draft": None,
-        "topics": [],
-        "source_candidates": [],
-        "warnings": [],
-    }
     try:
-        return repository.create_build_draft(
+        return CourseKnowledgeApplicationService(
+            course_storage=_svc._get_manager(),
+            repository=get_postgres_knowledge_repository(),
+        ).create_draft(
             course_id=course_id,
-            triggered_by=principal.user_id,
-            plan=plan,
+            actor_user_id=principal.user_id,
+            config=payload.config,
         )
+    except ValueError as exc:
+        if str(exc) == "课程不存在":
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(
             status_code=503,
@@ -1502,7 +1488,7 @@ def start_knowledge_base_build(
 @router.post(
     "/{course_id}/knowledge-builds/{build_id}/retry",
     status_code=status.HTTP_202_ACCEPTED,
-    summary="从稳定检查点重试失败或阻塞的课程知识库构建",
+    summary="从稳定检查点重试失败、阻塞或已取消的课程知识库构建",
 )
 def retry_knowledge_base_build(
     course_id: str,
@@ -1510,8 +1496,8 @@ def retry_knowledge_base_build(
     principal: CoursePrincipal = Depends(require_course_generate),
 ):
     build = _get_course_knowledge_build_or_404(course_id, build_id)
-    if build.get("status") not in {"blocked", "failed"}:
-        raise HTTPException(status_code=422, detail="只有失败或阻塞的构建可以重试")
+    if build.get("status") not in {"blocked", "failed", "canceled"}:
+        raise HTTPException(status_code=422, detail="只有失败、阻塞或已取消的构建可以重试")
     try:
         job = submit_course_knowledge_plan_build_job(
             course_id=course_id,

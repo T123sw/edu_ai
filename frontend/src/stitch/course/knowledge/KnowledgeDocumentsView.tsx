@@ -51,13 +51,23 @@ export function KnowledgeDocumentsView({ readOnly = false }: { readOnly?: boolea
 
   useEffect(() => {
     if (!courseId) return;
+    let cancelled = false;
+    setRoot(null);
+    setSelectedNodeId("");
+    setExpandedIds(new Set());
     getKnowledgeGraph(courseId)
       .then((data) => {
+        if (cancelled) return;
         setRoot(data.root);
         setSelectedNodeId((current) => current || data.root.id);
-        setExpandedIds(defaultExpandedNodeIds(data.root));
+        setExpandedIds((current) =>
+          current.size ? current : defaultExpandedNodeIds(data.root),
+        );
       })
-      .catch(() => setError("知识图谱暂时无法加载，请稍后重试。"));
+      .catch(() => {
+        if (!cancelled) setError("知识图谱暂时无法加载，请稍后重试。");
+      });
+    return () => { cancelled = true; };
   }, [courseId]);
 
   const nodes = useMemo(() => root ? flattenKnowledgeTree(root) : [], [root]);

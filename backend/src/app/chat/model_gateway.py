@@ -2,10 +2,19 @@
 
 from typing import Any, Dict, Iterable, List, Optional
 
+import logging
 import json
 import time
 
 import requests
+
+
+logger = logging.getLogger(__name__)
+UNAVAILABLE_MESSAGE = '模型服务暂时不可用，请稍后重试；已提交的生成任务可在“后台任务”中查看或重试。'
+
+
+class ModelUnavailableError(RuntimeError):
+    """All configured completion providers rejected or failed the request."""
 
 
 class ChatModelGateway:
@@ -90,12 +99,12 @@ class ChatModelGateway:
             except requests.RequestException as exc:
                 elapsed_ms = (time.perf_counter() - t0) * 1000
                 print(f"[LLM] fail {candidate['model_name']} 同步调用失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
-                errors.append(f"{candidate['model_name']}: {exc}")
+                errors.append(f"{candidate['model_name']}: {type(exc).__name__}")
                 continue
             if resp.status_code != 200:
                 elapsed_ms = (time.perf_counter() - t0) * 1000
                 print(f"[LLM] fail {candidate['model_name']} HTTP {resp.status_code} {elapsed_ms:.0f}ms", flush=True)
-                errors.append(f"{candidate['model_name']}: {resp.status_code} {resp.text}")
+                errors.append(f"{candidate['model_name']}: HTTP {resp.status_code}")
                 continue
 
             data = resp.json()
@@ -109,7 +118,8 @@ class ChatModelGateway:
             print(f"[LLM] ok {candidate['model_name']} 同步调用 {elapsed_ms:.0f}ms | {len(content)} 字符", flush=True)
             return content
 
-        raise RuntimeError(f"模型调用失败: {' | '.join(errors)}")
+        logger.warning("Model candidates unavailable: %s", " | ".join(errors))
+        raise ModelUnavailableError(UNAVAILABLE_MESSAGE)
 
     def stream_chat_with_tools(
         self,
@@ -155,7 +165,7 @@ class ChatModelGateway:
                     timeout=120,
                 )
             except requests.RequestException as exc:
-                errors.append(f"{candidate['model_name']}: {exc}")
+                errors.append(f"{candidate['model_name']}: {type(exc).__name__}")
                 continue
             if resp.status_code != 200:
                 body_preview = resp.text[:400] if resp.text else ""
@@ -242,7 +252,8 @@ class ChatModelGateway:
             yield {"type": "done"}
             return
 
-        yield {"type": "error", "message": f"所有模型失败: {' | '.join(errors)}"}
+        logger.warning("Model candidates unavailable: %s", " | ".join(errors))
+        yield {"type": "error", "message": UNAVAILABLE_MESSAGE}
 
     def stream_chat(
         self,
@@ -275,12 +286,12 @@ class ChatModelGateway:
             except requests.RequestException as exc:
                 elapsed_ms = (time.perf_counter() - t0) * 1000
                 print(f"[LLM] fail {candidate['model_name']} 流式连接失败 {elapsed_ms:.0f}ms | {exc}", flush=True)
-                errors.append(f"{candidate['model_name']}: {exc}")
+                errors.append(f"{candidate['model_name']}: {type(exc).__name__}")
                 continue
             if resp.status_code != 200:
                 elapsed_ms = (time.perf_counter() - t0) * 1000
                 print(f"[LLM] fail {candidate['model_name']} HTTP {resp.status_code} {elapsed_ms:.0f}ms", flush=True)
-                errors.append(f"{candidate['model_name']}: {resp.status_code} {resp.text}")
+                errors.append(f"{candidate['model_name']}: HTTP {resp.status_code}")
                 continue
 
             for raw_line in resp.iter_lines(decode_unicode=False):
@@ -315,4 +326,5 @@ class ChatModelGateway:
             print(f"[LLM] ok {candidate['model_name']} 流式完成 {elapsed_ms:.0f}ms | {token_count} tokens", flush=True)
             return
 
-        raise RuntimeError(f"模型调用失败: {' | '.join(errors)}")
+        logger.warning("Model candidates unavailable: %s", " | ".join(errors))
+        raise ModelUnavailableError(UNAVAILABLE_MESSAGE)

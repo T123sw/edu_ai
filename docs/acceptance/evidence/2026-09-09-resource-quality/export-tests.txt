@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: quiz preview reads questions from generated material content
+ok 1 - quiz preview reads questions from generated material content
+  ---
+  duration_ms: 1.692753
+  type: 'test'
+  ...
+# Subtest: legacy top-level quiz questions remain supported
+ok 2 - legacy top-level quiz questions remain supported
+  ---
+  duration_ms: 0.245072
+  type: 'test'
+  ...
+# Subtest: text resources export readable markdown
+ok 3 - text resources export readable markdown
+  ---
+  duration_ms: 2.603297
+  type: 'test'
+  ...
+# Subtest: structured resources export JSON
+ok 4 - structured resources export JSON
+  ---
+  duration_ms: 2.841796
+  type: 'test'
+  ...
+# Subtest: native quiz and flashcard exports preserve generated content
+ok 5 - native quiz and flashcard exports preserve generated content
+  ---
+  duration_ms: 0.498495
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 678.862763

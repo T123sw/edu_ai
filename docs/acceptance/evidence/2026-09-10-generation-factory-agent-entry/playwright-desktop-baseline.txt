@@ -1,0 +1,1385 @@
+[WebServer] (node:127643) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:127675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 122 tests using 1 worker
+
+(node:127750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [desktop1366] › tests/e2e/answer-markdown.spec.ts:16:7 › answer preserves complete Markdown structure with sources=false (5.9s)
+  ✓    2 [desktop1366] › tests/e2e/answer-markdown.spec.ts:16:7 › answer preserves complete Markdown structure with sources=true (5.8s)
+  ✘    3 [desktop1366] › tests/e2e/artifact-revision-jobs.spec.ts:3:5 › revision is tracked by the global task manager and returns version controls (10.4s)
+(node:128015) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    4 [desktop1366] › tests/e2e/artifact-revision-jobs.spec.ts:27:5 › resource page exposes the retained original version (5.0s)
+  ✓    5 [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button inserts a title with server ID/version without starting a task (1366px) (5.5s)
+  ✓    6 [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button inserts a title with server ID/version without starting a task (390px) (5.9s)
+  ✓    7 [desktop1366] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (6.2s)
+  ✓    8 [desktop1366] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (4.9s)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+  ✘    9 [desktop1366] › tests/e2e/classroom-catalog.spec.ts:4:5 › teacher reviews and publishes a resource from the curriculum directory (5.8s)
+(node:128547) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   10 [desktop1366] › tests/e2e/classroom-catalog.spec.ts:28:5 › compact classroom keeps the curriculum directory in a usable drawer (2.0m)
+(node:129433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   11 [desktop1366] › tests/e2e/classroom-catalog.spec.ts:43:5 › curriculum node toggles open and closed by its label (4.5s)
+  ✓   12 [desktop1366] › tests/e2e/classroom-experience.spec.ts:7:5 › shared overview, visible classroom review and teacher practice (5.2s)
+  ✓   13 [desktop1366] › tests/e2e/classroom-experience.spec.ts:29:5 › subtitles follow individual sentences through playback and replay (7.8s)
+  ✓   14 [desktop1366] › tests/e2e/classroom-experience.spec.ts:55:5 › student practice submits letter keys and multiple selections against the published version (6.2s)
+  ✓   15 [desktop1366] › tests/e2e/classroom-persistent-qa.spec.ts:129:7 › persistent classroom QA › shows the student turn immediately on the right and resumes after answering (4.6s)
+  ✘   16 [desktop1366] › tests/e2e/classroom-persistent-qa.spec.ts:161:7 › persistent classroom QA › automatically plays all pages in order and stops on the last page (8.5s)
+  -   17 [desktop1366] › tests/e2e/classroom-realtime-qa.real.spec.ts:67:7 › real classroom QA acceptance › interrupts, speaks through protected audio, resumes, persists, and isolates
+  -   18 [desktop1366] › tests/e2e/classroom-realtime-qa.real.spec.ts:202:7 › real classroom QA acceptance › degraded server TTS falls back to browser speech and resumes
+(node:129771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   19 [desktop1366] › tests/e2e/core-pages.spec.ts:4:5 › login explains the teacher workspace and exposes concrete errors inline (7.6s)
+(node:129994) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   20 [desktop1366] › tests/e2e/core-pages.spec.ts:20:5 › home renders one searchable factual course entry (6.3s)
+(node:130136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   21 [desktop1366] › tests/e2e/core-pages.spec.ts:33:5 › course overview presents course information and one workspace entry (1.4s)
+  ✓   22 [desktop1366] › tests/e2e/core-pages.spec.ts:46:5 › viewer settings is a factual read-only view (990ms)
+  ✘   23 [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:44:5 › 无教材：配置规模、模型生成图谱、人工确认后才检索并发布 (7.4s)
+(node:130276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   24 [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:61:5 › 有教材：教材解析参与模型图谱，并与网络和 AI 资料共同入库 (7.5s)
+(node:130381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   25 [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:85:5 › 已有知识库：增量生成只追加新节点并保留全部现有节点 (7.5s)
+(node:130483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   26 [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:109:5 › 窄屏使用图谱与节点详情分页且页面无横向滚动 (7.3s)
+(node:130598) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   27 [desktop1366] › tests/e2e/course-knowledge.spec.ts:3:5 › learning resource generation uses a compact progressive-disclosure modal (3.0s)
+  ✓   28 [desktop1366] › tests/e2e/course-knowledge.spec.ts:27:5 › course knowledge keeps one document uploader and the resource generation entry (2.4s)
+  ✓   29 [desktop1366] › tests/e2e/course-knowledge.spec.ts:34:5 › course knowledge only displays the knowledge library, without generated course materials (2.1s)
+  ✓   30 [desktop1366] › tests/e2e/course-knowledge.spec.ts:42:5 › legacy knowledge view parameters do not restore the retired graph canvas (2.3s)
+  ✓   31 [desktop1366] › tests/e2e/course-knowledge.spec.ts:50:5 › legacy graph links redirect into unified course knowledge (1.9s)
+  ✓   32 [desktop1366] › tests/e2e/course-knowledge.spec.ts:55:5 › knowledge browsing prioritizes the directory and searchable documents (2.4s)
+  ✘   33 [desktop1366] › tests/e2e/course-lifecycle-actions.spec.ts:4:5 › course editor can delete one document from the selected knowledge node (2.0m)
+(node:132964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   34 [desktop1366] › tests/e2e/course-lifecycle-actions.spec.ts:40:5 › course owner must enter the exact title before deleting a course (1.4s)
+  ✓   35 [desktop1366] › tests/e2e/course-preparation-history.spec.ts:3:5 › overview retains the preparation topic and resumes it from the primary action (1.3s)
+  ✓   36 [desktop1366] › tests/e2e/course-preparation-history.spec.ts:24:5 › failed material lookup is distinguished from no generated materials (1.2s)
+  ✘   37 [desktop1366] › tests/e2e/course-shell.spec.ts:3:5 › course workspace has one stable navigation and main landmark (6.1s)
+(node:133226) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   38 [desktop1366] › tests/e2e/course-shell.spec.ts:30:5 › course navigation keeps global actions and changes the task page (2.0m)
+(node:134035) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   39 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:48:5 › all generation buttons open the same concise Agent prompt (6.7s)
+  ✓   40 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:91:5 › all factory buttons submit their canonical hint through the Agent stream (9.1s)
+  ✓   41 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:133:5 › factory submission enters the Agent stream with the exact brief and action hint (4.9s)
+  ✓   42 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:172:5 › personal documents checked on the left become the optional Agent source (5.7s)
+  ✓   43 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:192:5 › generation prompt keeps an unfinished brief for the same workspace (6.0s)
+  ✓   44 [desktop1366] › tests/e2e/generation-inline-preview.spec.ts:17:5 › recent file opens in a wider right panel and returns without navigation (5.8s)
+  ✓   45 [desktop1366] › tests/e2e/generation-inline-preview.spec.ts:39:5 › failed file read stays in place and can be retried (5.3s)
+  ✓   46 [desktop1366] › tests/e2e/generation-inline-preview.spec.ts:57:5 › reference inserts only the title and sends identity and hash; removing the draft reference clears it (5.4s)
+  ✓   47 [desktop1366] › tests/e2e/generation-practice-resources.spec.ts:24:5 › practice resources preserve detailed natural-language briefs and canonical Agent hints (6.9s)
+  ✓   48 [desktop1366] › tests/e2e/generation-text-resources.spec.ts:24:5 › long-form resources send complete natural-language requirements to the Agent (7.1s)
+  ✓   49 [desktop1366] › tests/e2e/generation-visual-resources.spec.ts:24:5 › visual resources use the shared concise Agent dialog without horizontal overflow (6.5s)
+  ✓   50 [desktop1366] › tests/e2e/harness-resources.spec.ts:3:5 › mind map starts with an overview and preserves hidden nodes in export (5.1s)
+  ✓   51 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 教案 uses the appropriate interaction and submission progress (5.1s)
+  ✓   52 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 博客 uses the appropriate interaction and submission progress (5.0s)
+  ✓   53 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 习题 uses the appropriate interaction and submission progress (5.0s)
+  ✓   54 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 闪卡 uses the appropriate interaction and submission progress (5.2s)
+  ✓   55 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 思维导图 uses the appropriate interaction and submission progress (4.8s)
+  ✓   56 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 互动游戏 uses the appropriate interaction and submission progress (5.1s)
+  ✓   57 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › AI 课堂 uses the appropriate interaction and submission progress (5.1s)
+  ✓   58 [desktop1366] › tests/e2e/harness-resources.spec.ts:81:5 › switching resource links in the same course opens the requested result (4.9s)
+  ✓   59 [desktop1366] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (4.8s)
+  ✓   60 [desktop1366] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives late-result (7.1s)
+  ✓   61 [desktop1366] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives disconnect (7.2s)
+  ✓   62 [desktop1366] › tests/e2e/home-resume.spec.ts:35:5 › teacher records successful scope changes, ignores home/profile, and resumes after refresh (6.7s)
+  ✓   63 [desktop1366] › tests/e2e/home-resume.spec.ts:54:5 › student has one compact entry and restores learning scope (8.0s)
+  ✓   64 [desktop1366] › tests/e2e/home-resume.spec.ts:69:5 › switching authenticated account never displays the prior account history (1.6s)
+  ✓   65 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › new storage does not produce false history or break the home (852ms)
+  ✓   66 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › corrupt storage does not produce false history or break the home (873ms)
+  ✓   67 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › legacy storage does not produce false history or break the home (835ms)
+  ✓   68 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › blocked storage does not produce false history or break the home (867ms)
+  ✓   69 [desktop1366] › tests/e2e/home-resume.spec.ts:100:5 › course loss clears history, temporary failure preserves it and offers retry (1.2s)
+  ✓   70 [desktop1366] › tests/e2e/home-resume.spec.ts:117:5 › missing scope explicitly falls back to the same course (1.1s)
+  ✓   71 [desktop1366] › tests/e2e/home-resume.spec.ts:125:5 › unsafe stored route is hidden; unknown fields never appear in restored URLs (1.7s)
+  ✘   72 [desktop1366] › tests/e2e/home-resume.spec.ts:137:7 › teacher long course name stays readable at 390px and supports keyboard (1.2s)
+(node:135925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   73 [desktop1366] › tests/e2e/home-resume.spec.ts:137:7 › student long course name stays readable at 390px and supports keyboard (6.0s)
+  ✓   74 [desktop1366] › tests/e2e/home-resume.spec.ts:156:5 › resource URL survives refresh and deletion falls back without choosing another material (5.7s)
+  ✓   75 [desktop1366] › tests/e2e/home-resume.spec.ts:175:5 › failed course and failed scope visits never overwrite the prior valid location (6.0s)
+  ✓   76 [desktop1366] › tests/e2e/home-resume.spec.ts:189:5 › classroom replaceState updates are tracked and canonical route restores the exact resource (4.9s)
+  ✓   77 [desktop1366] › tests/e2e/keyboard-accessibility.spec.ts:10:5 › teacher completes the core workflow with the keyboard only (11.2s)
+  ✓   78 [desktop1366] › tests/e2e/keyboard-accessibility.spec.ts:99:5 › critical text and primary actions meet WCAG AA contrast (4.7s)
+  ✓   79 [desktop1366] › tests/e2e/knowledge-context.spec.ts:14:5 › scope bar resolves server labels and selection preserves hash contract (6.0s)
+  ✓   80 [desktop1366] › tests/e2e/knowledge-context.spec.ts:34:5 › clarification returns through result event and answer retains conversation (5.3s)
+  ✓   81 [desktop1366] › tests/e2e/knowledge-context.spec.ts:54:5 › late reply cannot overwrite a newly selected scope (5.0s)
+  ✓   82 [desktop1366] › tests/e2e/knowledge-context.spec.ts:76:5 › home resume restores the scope sent to the shared chat entry (5.4s)
+  ✘   83 [desktop1366] › tests/e2e/knowledge-context.spec.ts:96:5 › shared revision result reads history and restores with the current base version (2.0m)
+(node:138020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   84 [desktop1366] › tests/e2e/knowledge-context.spec.ts:122:5 › recognized topic updates scope without clearing conversation or opening adjustment (5.1s)
+  ✓   85 [desktop1366] › tests/e2e/knowledge-context.spec.ts:149:5 › submitted job uses final user-facing message instead of streamed internal identifiers (5.0s)
+  ✓   86 [desktop1366] › tests/e2e/knowledge-context.spec.ts:172:5 › outline uses saved content and ordinary dialogue typography (6.0s)
+  ✓   87 [desktop1366] › tests/e2e/knowledge-context.spec.ts:220:5 › result-only report task updates the conversation when the job completes (6.5s)
+  ✓   88 [desktop1366] › tests/e2e/knowledge-context.spec.ts:247:5 › report readback keeps its explanation through final delivery and a follow-up (5.1s)
+  ✓   89 [desktop1366] › tests/e2e/knowledge-document-actions.spec.ts:3:5 › knowledge header shares one row and document actions open a menu (3.4s)
+  ✓   90 [desktop1366] › tests/e2e/knowledge-proposals.spec.ts:6:7 › knowledge proposals select, revise and confirm mode=create (3.1s)
+  ✓   91 [desktop1366] › tests/e2e/knowledge-proposals.spec.ts:6:7 › knowledge proposals select, revise and confirm mode=supplement (3.1s)
+  ✓   92 [desktop1366] › tests/e2e/knowledge-tree-expansion.spec.ts:34:5 › knowledge directory labels reveal and collapse one level at a time (2.2s)
+  ✓   93 [desktop1366] › tests/e2e/knowledge-tree-expansion.spec.ts:48:5 › course knowledge directory uses the same collapsed tree behavior (2.4s)
+  ✓   94 [desktop1366] › tests/e2e/knowledge-tree-expansion.spec.ts:61:5 › workspace directory labels toggle children and directly attached documents (5.5s)
+  ✓   95 [desktop1366] › tests/e2e/knowledge-update-simple.spec.ts:4:5 › knowledge update begins with needs and optional textbooks (2.6s)
+  ✓   96 [desktop1366] › tests/e2e/local-launcher-smoke.spec.ts:4:5 › local launcher exposes frontend, backend, and OpenMAIC (1.4s)
+  ✓   97 [desktop1366] › tests/e2e/overflow-regression.spec.ts:24:5 › every approved page stays within the viewport without new React warnings (2.2s)
+  ✓   98 [desktop1366] › tests/e2e/overflow-regression.spec.ts:43:5 › all eight generation Agent dialogs keep prompt and action reachable (10.6s)
+  ✓   99 [desktop1366] › tests/e2e/overflow-regression.spec.ts:87:5 › loading, empty, error, and permission states remain usable (4.5s)
+  ✘  100 [desktop1366] › tests/e2e/page-baseline.spec.ts:3:5 › teacher can traverse every core course page (2.0m)
+(node:140667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  101 [desktop1366] › tests/e2e/page-baseline.spec.ts:46:5 › capture diagnostic page inventory (3.6s)
+  ✘  102 [desktop1366] › tests/e2e/resource-spaces.spec.ts:3:5 › keyboard publication flow preserves the personal source (6.0s)
+(node:140909) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  103 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:3:5 › course resources constrain hostile content and focus on the document (4.3s)
+  ✘  104 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:33:5 › classroom player keeps core controls on the first screen (8.1s)
+(node:141050) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  105 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:56:5 › teacher can edit and export a private generated report (4.6s)
+  ✓  106 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:78:5 › knowledge directory switches documents and reveals management actions on demand (5.5s)
+  ✓  107 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:105:5 › resource collections keep root and chapter documents from burying the curriculum (6.2s)
+  ✓  108 [desktop1366] › tests/e2e/revision-draft-preview.spec.ts:6:5 › colored draft iterates, restores after refresh and saves the shown revision (16.2s)
+  ✘  109 [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:142:5 › student enters the isolated six-destination workspace and can ask with course knowledge (6.3s)
+(node:141616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  110 [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:164:5 › course knowledge and course shared spaces stay read-only while personal spaces remain manageable (6.2s)
+(node:141779) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  111 [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:188:5 › course AI classroom is playable and role/API escape paths are denied (6.0s)
+(node:141893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  112 [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:211:5 › student can leave a course from the home course card (6.2s)
+  ✘  113 [desktop1366] › tests/e2e/visual-regression.spec.ts:79:5 › approved teacher pages match the light visual baseline (16.1s)
+(node:142127) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  114 [desktop1366] › tests/e2e/visual-regression.spec.ts:83:5 › critical teacher pages match the dark visual baseline (19.5s)
+(node:142535) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  115 [desktop1366] › tests/e2e/workspace-context-directory.spec.ts:3:5 › preparation context changes leave the full course directory intact (6.8s)
+  ✓  116 [desktop1366] › tests/e2e/workspace-source-selection.spec.ts:3:5 › only personal sources are selectable and the RAG toggle remains available (5.7s)
+  ✓  117 [desktop1366] › tests/e2e/workspace-topic.spec.ts:3:5 › chat title precedes its topic subtitle and the picker expands chapters to reveal leaf topics (7.0s)
+(node:142728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  118 [desktop1366] › tests/e2e/learning-loop-ui-edge-cases.spec.ts:21:5 › teacher distinguishes duplicate resources and one overview failure stays local (5ms)
+(node:142799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  119 [desktop1366] › tests/e2e/learning-task-assessment-loop.spec.ts:158:5 › teacher and student finish the mandatory assessment loop end to end (40ms)
+(node:142871) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  120 [desktop1366] › tests/e2e/resource-learning.spec.ts:78:5 › student resource learning remains versioned and separate from teacher tasks (40ms)
+(node:142940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  121 [desktop1366] › tests/e2e/teacher-student-learning-loop-real-model.spec.ts:51:5 › qwen answers teacher and student from role-scoped learning facts (41ms)
+(node:143017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  122 [desktop1366] › tests/e2e/teacher-student-learning-loop.spec.ts:64:5 › teacher and student complete a truthful learning loop with role-scoped agents (41ms)
+
+
+  1) [desktop1366] › tests/e2e/artifact-revision-jobs.spec.ts:3:5 › revision is tracked by the global task manager and returns version controls 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('正在修改：《数组报告》 · 第 2 版')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('正在修改：《数组报告》 · 第 2 版')
+
+
+      20 |   await input.press('Enter');
+      21 |   await expect(page.getByText(result.message.content,{exact:true})).toBeVisible({timeout:20000});
+    > 22 |   await expect(page.getByText('正在修改：《数组报告》 · 第 2 版')).toBeVisible();
+         |                                                       ^
+      23 |   await page.getByRole('button',{name:'查看新版',exact:true}).click();
+      24 |   await expect(page).toHaveURL(/material_id=report-1/);
+      25 | });
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/artifact-revision-jobs.spec.ts:22:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-jobs-rev-1c513-nd-returns-version-controls-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/artifact-revision-jobs-rev-1c513-nd-returns-version-controls-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/artifact-revision-jobs-rev-1c513-nd-returns-version-controls-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/artifact-revision-jobs-rev-1c513-nd-returns-version-controls-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop1366] › tests/e2e/classroom-catalog.spec.ts:4:5 › teacher reviews and publishes a resource from the curriculum directory 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('tree', { name: '课程目录' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('tree', { name: '课程目录' })
+
+
+       8 |
+       9 |   const tree = teacherPage.getByRole("tree", { name: "课程目录" });
+    > 10 |   await expect(tree).toBeVisible();
+         |                      ^
+      11 |   await tree.getByRole("treeitem", { name: /1\.1 力与运动/ }).getByRole("button").click();
+      12 |   await tree.getByRole("treeitem", { name: /力学学习指南.*待审核/ }).getByRole("button").click();
+      13 |
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/classroom-catalog.spec.ts:10:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/classroom-catalog-teacher--1a5da-om-the-curriculum-directory-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/classroom-catalog-teacher--1a5da-om-the-curriculum-directory-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/classroom-catalog-teacher--1a5da-om-the-curriculum-directory-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/classroom-catalog-teacher--1a5da-om-the-curriculum-directory-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop1366] › tests/e2e/classroom-catalog.spec.ts:28:5 › compact classroom keeps the curriculum directory in a usable drawer 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '课程目录', exact: true })
+
+
+      32 |   });
+      33 |
+    > 34 |   await teacherPage.getByRole("button", { name: "课程目录", exact: true }).click();
+         |                                                                        ^
+      35 |   const directory = teacherPage.locator(".course-classroom-catalog__directory");
+      36 |   await expect(directory).toHaveClass(/is-open/);
+      37 |   await expect(directory.getByRole("tree", { name: "课程目录" })).toBeVisible();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/classroom-catalog.spec.ts:34:72
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/classroom-catalog-compact--6ec66-irectory-in-a-usable-drawer-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/classroom-catalog-compact--6ec66-irectory-in-a-usable-drawer-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/classroom-catalog-compact--6ec66-irectory-in-a-usable-drawer-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/classroom-catalog-compact--6ec66-irectory-in-a-usable-drawer-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop1366] › tests/e2e/classroom-persistent-qa.spec.ts:161:7 › persistent classroom QA › automatically plays all pages in order and stops on the last page 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTitle('第三页：递归处理')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByTitle('第三页：递归处理')
+
+
+      166 |     await page.getByRole('button', { name: '播放当前页' }).click();
+      167 |     await expect(page.getByText('3 / 3')).toBeVisible();
+    > 168 |     await expect(page.getByTitle('第三页：递归处理')).toBeVisible();
+          |                                               ^
+      169 |     await expect(page.getByRole('button', { name: '重播当前页' })).toBeEnabled();
+      170 |   });
+      171 | });
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/classroom-persistent-qa.spec.ts:168:47
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/classroom-persistent-qa-pe-e54dd--and-stops-on-the-last-page-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/classroom-persistent-qa-pe-e54dd--and-stops-on-the-last-page-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/classroom-persistent-qa-pe-e54dd--and-stops-on-the-last-page-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/classroom-persistent-qa-pe-e54dd--and-stops-on-the-last-page-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop1366] › tests/e2e/core-pages.spec.ts:4:5 › login explains the teacher workspace and exposes concrete errors inline 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('课程中心 · 教师工作台', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('课程中心 · 教师工作台', { exact: true })
+
+
+      14 |
+      15 |   await expect(teacherPage.getByRole("heading", { name: "登录 Edu AI", exact: true })).toBeVisible();
+    > 16 |   await expect(teacherPage.getByText("课程中心 · 教师工作台", { exact: true })).toBeVisible();
+         |                                                                        ^
+      17 |   await expect(teacherPage.getByText("开发演示账号已启用", { exact: false })).toHaveCount(0);
+      18 | });
+      19 |
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/core-pages.spec.ts:16:72
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/core-pages-login-explains--c6055-oses-concrete-errors-inline-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/core-pages-login-explains--c6055-oses-concrete-errors-inline-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/core-pages-login-explains--c6055-oses-concrete-errors-inline-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/core-pages-login-explains--c6055-oses-concrete-errors-inline-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop1366] › tests/e2e/core-pages.spec.ts:20:5 › home renders one searchable factual course entry 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.teacher-course-card')
+    Expected substring: "课程资源"
+    Received string:    "大学物理面向本科生的力学、电磁学与近代物理课程。课程资料1个人资源2暂无使用记录进入课程"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('.teacher-course-card')
+        14 × locator resolved to <a aria-label="大学物理" class="teacher-course-card" href="#course-detail?course_id=course-physics">…</a>
+           - unexpected value "大学物理面向本科生的力学、电磁学与近代物理课程。课程资料1个人资源2暂无使用记录进入课程"
+
+
+      23 |   await expect(cards).toHaveCount(1);
+      24 |   await expect(cards).toContainText("课程资料");
+    > 25 |   await expect(cards).toContainText("课程资源");
+         |                       ^
+      26 |   await expect(cards).toContainText("进行中任务");
+      27 |   await expect(cards).not.toContainText("%");
+      28 |
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/core-pages.spec.ts:25:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/core-pages-home-renders-one-searchable-factual-course-entry-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/core-pages-home-renders-one-searchable-factual-course-entry-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/core-pages-home-renders-one-searchable-factual-course-entry-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/core-pages-home-renders-one-searchable-factual-course-entry-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:44:5 › 无教材：配置规模、模型生成图谱、人工确认后才检索并发布 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: /课程知识库.*向导/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('dialog', { name: /课程知识库.*向导/ })
+
+
+       5 |   await teacherPage.goto("/#knowledge?course_id=course-physics&view=documents", { waitUntil: "domcontentloaded" });
+       6 |   await teacherPage.getByRole("button", { name: /更新知识库|一键构建知识库/ }).click();
+    >  7 |   await expect(teacherPage.getByRole("dialog", { name: /课程知识库.*向导/ })).toBeVisible();
+         |                                                                        ^
+       8 | }
+       9 |
+      10 | async function configureSmallBuild(teacherPage: Parameters<typeof installCourseKnowledgeBuildRoutes>[0]) {
+        at openBuildWizard (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-knowledge-build-wizard.spec.ts:7:72)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-knowledge-build-wizard.spec.ts:46:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/course-knowledge-build-wizard-无教材：配置规模、模型生成图谱、人工确认后才检索并发布-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/course-knowledge-build-wizard-无教材：配置规模、模型生成图谱、人工确认后才检索并发布-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/course-knowledge-build-wizard-无教材：配置规模、模型生成图谱、人工确认后才检索并发布-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/course-knowledge-build-wizard-无教材：配置规模、模型生成图谱、人工确认后才检索并发布-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:61:5 › 有教材：教材解析参与模型图谱，并与网络和 AI 资料共同入库 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: /课程知识库.*向导/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('dialog', { name: /课程知识库.*向导/ })
+
+
+       5 |   await teacherPage.goto("/#knowledge?course_id=course-physics&view=documents", { waitUntil: "domcontentloaded" });
+       6 |   await teacherPage.getByRole("button", { name: /更新知识库|一键构建知识库/ }).click();
+    >  7 |   await expect(teacherPage.getByRole("dialog", { name: /课程知识库.*向导/ })).toBeVisible();
+         |                                                                        ^
+       8 | }
+       9 |
+      10 | async function configureSmallBuild(teacherPage: Parameters<typeof installCourseKnowledgeBuildRoutes>[0]) {
+        at openBuildWizard (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-knowledge-build-wizard.spec.ts:7:72)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-knowledge-build-wizard.spec.ts:63:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/course-knowledge-build-wizard-有教材：教材解析参与模型图谱，并与网络和-AI-资料共同入库-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/course-knowledge-build-wizard-有教材：教材解析参与模型图谱，并与网络和-AI-资料共同入库-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/course-knowledge-build-wizard-有教材：教材解析参与模型图谱，并与网络和-AI-资料共同入库-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/course-knowledge-build-wizard-有教材：教材解析参与模型图谱，并与网络和-AI-资料共同入库-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:85:5 › 已有知识库：增量生成只追加新节点并保留全部现有节点 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: /课程知识库.*向导/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('dialog', { name: /课程知识库.*向导/ })
+
+
+       5 |   await teacherPage.goto("/#knowledge?course_id=course-physics&view=documents", { waitUntil: "domcontentloaded" });
+       6 |   await teacherPage.getByRole("button", { name: /更新知识库|一键构建知识库/ }).click();
+    >  7 |   await expect(teacherPage.getByRole("dialog", { name: /课程知识库.*向导/ })).toBeVisible();
+         |                                                                        ^
+       8 | }
+       9 |
+      10 | async function configureSmallBuild(teacherPage: Parameters<typeof installCourseKnowledgeBuildRoutes>[0]) {
+        at openBuildWizard (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-knowledge-build-wizard.spec.ts:7:72)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-knowledge-build-wizard.spec.ts:87:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/course-knowledge-build-wizard-已有知识库：增量生成只追加新节点并保留全部现有节点-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/course-knowledge-build-wizard-已有知识库：增量生成只追加新节点并保留全部现有节点-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/course-knowledge-build-wizard-已有知识库：增量生成只追加新节点并保留全部现有节点-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/course-knowledge-build-wizard-已有知识库：增量生成只追加新节点并保留全部现有节点-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:109:5 › 窄屏使用图谱与节点详情分页且页面无横向滚动 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: /课程知识库.*向导/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('dialog', { name: /课程知识库.*向导/ })
+
+
+       5 |   await teacherPage.goto("/#knowledge?course_id=course-physics&view=documents", { waitUntil: "domcontentloaded" });
+       6 |   await teacherPage.getByRole("button", { name: /更新知识库|一键构建知识库/ }).click();
+    >  7 |   await expect(teacherPage.getByRole("dialog", { name: /课程知识库.*向导/ })).toBeVisible();
+         |                                                                        ^
+       8 | }
+       9 |
+      10 | async function configureSmallBuild(teacherPage: Parameters<typeof installCourseKnowledgeBuildRoutes>[0]) {
+        at openBuildWizard (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-knowledge-build-wizard.spec.ts:7:72)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-knowledge-build-wizard.spec.ts:113:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/course-knowledge-build-wizard-窄屏使用图谱与节点详情分页且页面无横向滚动-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/course-knowledge-build-wizard-窄屏使用图谱与节点详情分页且页面无横向滚动-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/course-knowledge-build-wizard-窄屏使用图谱与节点详情分页且页面无横向滚动-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/course-knowledge-build-wizard-窄屏使用图谱与节点详情分页且页面无横向滚动-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [desktop1366] › tests/e2e/course-lifecycle-actions.spec.ts:4:5 › course editor can delete one document from the selected knowledge node 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.waitForRequest: Test timeout of 120000ms exceeded.
+
+      29 |     waitUntil: "domcontentloaded",
+      30 |   });
+    > 31 |   const requestPromise = teacherPage.waitForRequest((request) =>
+         |                                      ^
+      32 |     request.method() === "DELETE"
+      33 |       && new URL(request.url()).pathname === "/api/courses/course-physics/knowledge-base/documents/doc-mechanics",
+      34 |   );
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-lifecycle-actions.spec.ts:31:38
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '删除文档 大学物理·力学.pdf' })
+
+
+      33 |       && new URL(request.url()).pathname === "/api/courses/course-physics/knowledge-base/documents/doc-mechanics",
+      34 |   );
+    > 35 |   await teacherPage.getByRole("button", { name: "删除文档 大学物理·力学.pdf" }).click();
+         |                                                                       ^
+      36 |   await requestPromise;
+      37 |   await expect(teacherPage.getByText("大学物理·力学.pdf", { exact: true })).toHaveCount(0);
+      38 | });
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-lifecycle-actions.spec.ts:35:71
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/course-lifecycle-actions-c-ecaa4-the-selected-knowledge-node-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/course-lifecycle-actions-c-ecaa4-the-selected-knowledge-node-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/course-lifecycle-actions-c-ecaa4-the-selected-knowledge-node-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/course-lifecycle-actions-c-ecaa4-the-selected-knowledge-node-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [desktop1366] › tests/e2e/course-shell.spec.ts:3:5 › course workspace has one stable navigation and main landmark 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[aria-current=\'page\']')
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('[aria-current=\'page\']')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      10 |   await expect(teacherPage.getByTestId("course-shell")).toBeVisible();
+      11 |   await expect(teacherPage.locator("main")).toHaveCount(1);
+    > 12 |   await expect(teacherPage.locator("[aria-current='page']")).toHaveCount(1);
+         |                                                              ^
+      13 |   await expect(teacherPage.getByText("当前课程")).toHaveCount(0);
+      14 |   await expect(teacherPage.getByRole("button", { name: /任务中心/ })).toBeVisible();
+      15 |   await expect(teacherPage.getByRole("link", { name: "个人中心" })).toBeVisible();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-shell.spec.ts:12:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/course-shell-course-worksp-78583-avigation-and-main-landmark-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/course-shell-course-worksp-78583-avigation-and-main-landmark-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/course-shell-course-worksp-78583-avigation-and-main-landmark-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/course-shell-course-worksp-78583-avigation-and-main-landmark-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [desktop1366] › tests/e2e/course-shell.spec.ts:30:5 › course navigation keeps global actions and changes the task page 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: '课程资源' })
+
+
+      35 |   });
+      36 |
+    > 37 |   await teacherPage.getByRole("link", { name: "课程资源" }).click();
+         |                                                         ^
+      38 |   await expect(teacherPage).toHaveURL(/#resources\?course_id=course-physics/);
+      39 |   await expect(teacherPage.getByRole("heading", { name: "课程资源", exact: true })).toBeVisible();
+      40 |   await expect(teacherPage.getByRole("button", { name: /任务中心/ })).toBeVisible();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/course-shell.spec.ts:37:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/course-shell-course-naviga-234b6-s-and-changes-the-task-page-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/course-shell-course-naviga-234b6-s-and-changes-the-task-page-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/course-shell-course-naviga-234b6-s-and-changes-the-task-page-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/course-shell-course-naviga-234b6-s-and-changes-the-task-page-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [desktop1366] › tests/e2e/home-resume.spec.ts:137:7 › teacher long course name stays readable at 390px and supports keyboard 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 140
+    Received:   195.5
+
+      142 |     await expect(entry(page).getByRole('button')).toBeEnabled();
+      143 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    > 144 |     expect((await entry(page).boundingBox())!.height).toBeLessThan(140);
+          |                                                       ^
+      145 |     await expect(entry(page).locator('strong')).toHaveText('数据结构与算法设计'.repeat(12));
+      146 |     const button = entry(page).getByRole('button');
+      147 |     await button.focus();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/home-resume.spec.ts:144:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/home-resume-teacher-long-c-6670a-390px-and-supports-keyboard-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/home-resume-teacher-long-c-6670a-390px-and-supports-keyboard-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/home-resume-teacher-long-c-6670a-390px-and-supports-keyboard-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/home-resume-teacher-long-c-6670a-390px-and-supports-keyboard-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [desktop1366] › tests/e2e/knowledge-context.spec.ts:96:5 › shared revision result reads history and restores with the current base version 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '恢复旧版', exact: true })
+
+
+      111 |   const input = page.getByPlaceholder('开始输入问题…（Shift + Enter 换行）');
+      112 |   await input.fill('修改数组报告'); await input.press('Enter');
+    > 113 |   await page.getByRole('button', { name: '恢复旧版', exact: true }).click();
+          |                                                                 ^
+      114 |   await page.getByRole('button', { name: '查看此版本' }).click();
+      115 |   await expect(page.getByRole('heading', { name: '历史数组说明' })).toBeVisible();
+      116 |   await page.getByRole('button', { name: '恢复为新版本' }).click();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/knowledge-context.spec.ts:113:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/knowledge-context-shared-r-cdcc9-th-the-current-base-version-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/knowledge-context-shared-r-cdcc9-th-the-current-base-version-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/knowledge-context-shared-r-cdcc9-th-the-current-base-version-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/knowledge-context-shared-r-cdcc9-th-the-current-base-version-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [desktop1366] › tests/e2e/learning-loop-ui-edge-cases.spec.ts:21:5 › teacher distinguishes duplicate resources and one overview failure stays local 
+
+    Error: ENOENT: no such file or directory, lstat '/home/zxqs_ep/Edu_AI/frontend/api/course_data/courses/computational-thinking'
+
+       at fixtures/learningLoop.ts:321
+
+      319 |     );
+      320 |     mkdirSync(resolve(courseDataRoot, "courses"), { recursive: true });
+    > 321 |     cpSync(sourceCourseDir, isolatedCourseDir, { recursive: true });
+          |           ^
+      322 |     const python = process.env.PYTHON || process.env.PYTHON_BIN || "python";
+      323 |     const databaseUrl = `sqlite+pysqlite:///${dbPath.replace(/\\/g, "/")}`;
+      324 |     const backendEnv = {
+        at Object.exports.test._test.test.extend.learningBackend.scope (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/fixtures/learningLoop.ts:321:11)
+
+    Error Context: test-results/e2e/learning-loop-ui-edge-case-b3084-verview-failure-stays-local-desktop1366/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/learning-loop-ui-edge-case-b3084-verview-failure-stays-local-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/learning-loop-ui-edge-case-b3084-verview-failure-stays-local-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [desktop1366] › tests/e2e/learning-task-assessment-loop.spec.ts:158:5 › teacher and student finish the mandatory assessment loop end to end 
+
+    Error: ENOENT: no such file or directory, lstat '/home/zxqs_ep/Edu_AI/frontend/api/course_data/courses/computational-thinking'
+
+       at fixtures/learningLoop.ts:321
+
+      319 |     );
+      320 |     mkdirSync(resolve(courseDataRoot, "courses"), { recursive: true });
+    > 321 |     cpSync(sourceCourseDir, isolatedCourseDir, { recursive: true });
+          |           ^
+      322 |     const python = process.env.PYTHON || process.env.PYTHON_BIN || "python";
+      323 |     const databaseUrl = `sqlite+pysqlite:///${dbPath.replace(/\\/g, "/")}`;
+      324 |     const backendEnv = {
+        at Object.exports.test._test.test.extend.learningBackend.scope (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/fixtures/learningLoop.ts:321:11)
+
+    Error Context: test-results/e2e/learning-task-assessment-l-41a6e--assessment-loop-end-to-end-desktop1366/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/learning-task-assessment-l-41a6e--assessment-loop-end-to-end-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/learning-task-assessment-l-41a6e--assessment-loop-end-to-end-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [desktop1366] › tests/e2e/page-baseline.spec.ts:3:5 › teacher can traverse every core course page 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('navigation', { name: '课程工作区' }).getByRole('link', { name: '课程概览' })
+
+
+      26 |         .getByRole("navigation", { name: "课程工作区" })
+      27 |         .getByRole("link", { name })
+    > 28 |         .click();
+         |          ^
+      29 |     }
+      30 |     await expect(teacherPage.getByRole("heading", { name, exact: true })).toBeVisible();
+      31 |   }
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/page-baseline.spec.ts:28:10
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/page-baseline-teacher-can-traverse-every-core-course-page-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/page-baseline-teacher-can-traverse-every-core-course-page-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/page-baseline-teacher-can-traverse-every-core-course-page-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/page-baseline-teacher-can-traverse-every-core-course-page-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [desktop1366] › tests/e2e/resource-learning.spec.ts:78:5 › student resource learning remains versioned and separate from teacher tasks 
+
+    Error: ENOENT: no such file or directory, lstat '/home/zxqs_ep/Edu_AI/frontend/api/course_data/courses/computational-thinking'
+
+       at fixtures/learningLoop.ts:321
+
+      319 |     );
+      320 |     mkdirSync(resolve(courseDataRoot, "courses"), { recursive: true });
+    > 321 |     cpSync(sourceCourseDir, isolatedCourseDir, { recursive: true });
+          |           ^
+      322 |     const python = process.env.PYTHON || process.env.PYTHON_BIN || "python";
+      323 |     const databaseUrl = `sqlite+pysqlite:///${dbPath.replace(/\\/g, "/")}`;
+      324 |     const backendEnv = {
+        at Object.exports.test._test.test.extend.learningBackend.scope (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/fixtures/learningLoop.ts:321:11)
+
+    Error Context: test-results/e2e/resource-learning-student--4d754-separate-from-teacher-tasks-desktop1366/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/resource-learning-student--4d754-separate-from-teacher-tasks-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/resource-learning-student--4d754-separate-from-teacher-tasks-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [desktop1366] › tests/e2e/resource-spaces.spec.ts:3:5 › keyboard publication flow preserves the personal source 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.course-shell__header').getByRole('tablist', { name: '资源空间' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('.course-shell__header').getByRole('tablist', { name: '资源空间' })
+
+
+       8 |   const mineTab = page.getByRole("tab", { name: /我的资源/u });
+       9 |   const courseTab = page.getByRole("tab", { name: /课程共享/u });
+    > 10 |   await expect(page.locator(".course-shell__header").getByRole("tablist", { name: "资源空间" })).toBeVisible();
+         |                                                                                              ^
+      11 |   await expect(page.locator(".course-shell__heading-row").getByRole("tablist", { name: "资源空间" })).toBeVisible();
+      12 |   const resourceToolbar = page.locator("main > header");
+      13 |   await expect(resourceToolbar.getByRole("radiogroup", { name: "资源类型筛选" })).toBeVisible();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/resource-spaces.spec.ts:10:94
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/resource-spaces-keyboard-p-f958a-eserves-the-personal-source-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/resource-spaces-keyboard-p-f958a-eserves-the-personal-source-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/resource-spaces-keyboard-p-f958a-eserves-the-personal-source-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/resource-spaces-keyboard-p-f958a-eserves-the-personal-source-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:33:5 › classroom player keeps core controls on the first screen 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator: getByLabel('语音状态')
+    Expected: in viewport
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeInViewport" with timeout 5000ms
+      - waiting for getByLabel('语音状态')
+
+
+      43 |   await expect(teacherPage.getByRole("button", { name: /播放当前页|暂停|重新播放当前页/ })).toBeInViewport();
+      44 |   await expect(teacherPage.getByRole("button", { name: "下一页" })).toBeInViewport();
+    > 45 |   await expect(teacherPage.getByLabel("语音状态")).toBeInViewport();
+         |                                                ^
+      46 |   await expect(teacherPage.getByRole("region", { name: "课堂舞台" })).toBeInViewport();
+      47 |   await expect(teacherPage.getByText("scene-internal-mechanics-1")).toHaveCount(0);
+      48 |
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/resources-and-classroom.spec.ts:45:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/resources-and-classroom-cl-6637e-ontrols-on-the-first-screen-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/resources-and-classroom-cl-6637e-ontrols-on-the-first-screen-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/resources-and-classroom-cl-6637e-ontrols-on-the-first-screen-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/resources-and-classroom-cl-6637e-ontrols-on-the-first-screen-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:142:5 › student enters the isolated six-destination workspace and can ask with course knowledge 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('student-shell')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByTestId('student-shell')
+
+
+      142 | test("student enters the isolated six-destination workspace and can ask with course knowledge", async ({ page }) => {
+      143 |   await page.goto("/#student-home", { waitUntil: "domcontentloaded" });
+    > 144 |   await expect(page.getByTestId("student-shell")).toBeVisible();
+          |                                                   ^
+      145 |   await ensureNavigation(page);
+      146 |   for (const label of ["学习首页", "AI问答", "课程知识", "个人知识库", "AI课堂", "资源管理"]) await expect(page.getByRole("link", { name: label }).first()).toBeVisible();
+      147 |   await expect(page.getByRole("link", { name: /课程详情|课程设置|运行设置/ })).toHaveCount(0);
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/student-workspace-foundation.spec.ts:144:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/student-workspace-foundati-9c648-n-ask-with-course-knowledge-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/student-workspace-foundati-9c648-n-ask-with-course-knowledge-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/student-workspace-foundati-9c648-n-ask-with-course-knowledge-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/student-workspace-foundati-9c648-n-ask-with-course-knowledge-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:164:5 › course knowledge and course shared spaces stay read-only while personal spaces remain manageable 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('牛顿运动定律', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('牛顿运动定律', { exact: true })
+
+
+      164 | test("course knowledge and course shared spaces stay read-only while personal spaces remain manageable", async ({ page }) => {
+      165 |   await page.goto(`/#student-course-knowledge?course_id=${course.id}&view=documents`, { waitUntil: "domcontentloaded" });
+    > 166 |   await expect(page.getByText("牛顿运动定律", { exact: true })).toBeVisible();
+          |                                                           ^
+      167 |   await expect(page.getByRole("button", { name: /上传资料/ })).toHaveCount(0);
+      168 |
+      169 |   await page.goto("/#student-personal-knowledge", { waitUntil: "domcontentloaded" });
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/student-workspace-foundation.spec.ts:166:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/student-workspace-foundati-da9ad-al-spaces-remain-manageable-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/student-workspace-foundati-da9ad-al-spaces-remain-manageable-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/student-workspace-foundati-da9ad-al-spaces-remain-manageable-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/student-workspace-foundati-da9ad-al-spaces-remain-manageable-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:188:5 › course AI classroom is playable and role/API escape paths are denied 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: '创建 AI 课堂' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('button', { name: '创建 AI 课堂' })
+
+
+      188 | test("course AI classroom is playable and role/API escape paths are denied", async ({ page }) => {
+      189 |   await page.goto(`/#student-classroom?course_id=${course.id}&space=mine`, { waitUntil: "domcontentloaded" });
+    > 190 |   await expect(page.getByRole("button", { name: "创建 AI 课堂" })).toBeVisible();
+          |                                                                ^
+      191 |   await page.getByRole("button", { name: "课程 AI 课堂" }).click();
+      192 |   await expect(page.getByText("牛顿定律互动课堂", { exact: true })).toBeVisible();
+      193 |   await expect(page.getByRole("button", { name: "创建 AI 课堂" })).toHaveCount(0);
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/student-workspace-foundation.spec.ts:190:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/student-workspace-foundati-e154f-API-escape-paths-are-denied-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/student-workspace-foundati-e154f-API-escape-paths-are-denied-desktop1366/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/student-workspace-foundati-e154f-API-escape-paths-are-denied-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/student-workspace-foundati-e154f-API-escape-paths-are-denied-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [desktop1366] › tests/e2e/teacher-student-learning-loop-real-model.spec.ts:51:5 › qwen answers teacher and student from role-scoped learning facts 
+
+    Error: ENOENT: no such file or directory, lstat '/home/zxqs_ep/Edu_AI/frontend/api/course_data/courses/computational-thinking'
+
+       at fixtures/learningLoop.ts:321
+
+      319 |     );
+      320 |     mkdirSync(resolve(courseDataRoot, "courses"), { recursive: true });
+    > 321 |     cpSync(sourceCourseDir, isolatedCourseDir, { recursive: true });
+          |           ^
+      322 |     const python = process.env.PYTHON || process.env.PYTHON_BIN || "python";
+      323 |     const databaseUrl = `sqlite+pysqlite:///${dbPath.replace(/\\/g, "/")}`;
+      324 |     const backendEnv = {
+        at Object.exports.test._test.test.extend.learningBackend.scope (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/fixtures/learningLoop.ts:321:11)
+
+    Error Context: test-results/e2e/teacher-student-learning-l-95f77--role-scoped-learning-facts-desktop1366/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/teacher-student-learning-l-95f77--role-scoped-learning-facts-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/teacher-student-learning-l-95f77--role-scoped-learning-facts-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) [desktop1366] › tests/e2e/teacher-student-learning-loop.spec.ts:64:5 › teacher and student complete a truthful learning loop with role-scoped agents 
+
+    Error: ENOENT: no such file or directory, lstat '/home/zxqs_ep/Edu_AI/frontend/api/course_data/courses/computational-thinking'
+
+       at fixtures/learningLoop.ts:321
+
+      319 |     );
+      320 |     mkdirSync(resolve(courseDataRoot, "courses"), { recursive: true });
+    > 321 |     cpSync(sourceCourseDir, isolatedCourseDir, { recursive: true });
+          |           ^
+      322 |     const python = process.env.PYTHON || process.env.PYTHON_BIN || "python";
+      323 |     const databaseUrl = `sqlite+pysqlite:///${dbPath.replace(/\\/g, "/")}`;
+      324 |     const backendEnv = {
+        at Object.exports.test._test.test.extend.learningBackend.scope (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/fixtures/learningLoop.ts:321:11)
+
+    Error Context: test-results/e2e/teacher-student-learning-l-477a7-oop-with-role-scoped-agents-desktop1366/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/teacher-student-learning-l-477a7-oop-with-role-scoped-agents-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/teacher-student-learning-l-477a7-oop-with-role-scoped-agents-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) [desktop1366] › tests/e2e/visual-regression.spec.ts:79:5 › approved teacher pages match the light visual baseline 
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/light-course-resources-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:80:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/light-course-settings-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:80:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/light-profile-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:80:3
+
+    attachment #1: light-course-resources (image/png) ──────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/light-course-resources-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-approved-76ac7-h-the-light-visual-baseline-desktop1366/light-course-resources-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: light-course-settings (image/png) ───────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/light-course-settings-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-approved-76ac7-h-the-light-visual-baseline-desktop1366/light-course-settings-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: light-profile (image/png) ───────────────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/light-profile-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-approved-76ac7-h-the-light-visual-baseline-desktop1366/light-profile-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/e2e/visual-regression-approved-76ac7-h-the-light-visual-baseline-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/visual-regression-approved-76ac7-h-the-light-visual-baseline-desktop1366/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/e2e/visual-regression-approved-76ac7-h-the-light-visual-baseline-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/visual-regression-approved-76ac7-h-the-light-visual-baseline-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) [desktop1366] › tests/e2e/visual-regression.spec.ts:83:5 › critical teacher pages match the dark visual baseline 
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-login-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-course-home-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-course-overview-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-question-generation-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-knowledge-documents-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-knowledge-structure-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-classroom-list-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-classroom-player-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-course-resources-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-course-settings-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    Error: A snapshot doesn't exist at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts-snapshots/dark-profile-desktop1366-linux.png, writing actual.
+
+      65 |       await waitForCssBackground(page, ".login-page");
+      66 |     }
+    > 67 |     await expect(page).toHaveScreenshot(`${theme}-${name}.png`, {
+         |     ^
+      68 |       animations: "disabled",
+      69 |       caret: "hide",
+      70 |       fullPage: false,
+        at captureMatrix (/home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:67:5)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/e2e/visual-regression.spec.ts:85:3
+
+    attachment #1: dark-login (image/png) ──────────────────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-login-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-login-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: dark-course-home (image/png) ────────────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-course-home-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-course-home-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: dark-course-overview (image/png) ────────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-course-overview-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-course-overview-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: dark-question-generation (image/png) ────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-question-generation-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-question-generation-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: dark-knowledge-documents (image/png) ────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-knowledge-documents-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-knowledge-documents-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: dark-knowledge-structure (image/png) ────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-knowledge-structure-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-knowledge-structure-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: dark-classroom-list (image/png) ─────────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-classroom-list-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-classroom-list-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: dark-classroom-player (image/png) ───────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-classroom-player-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-classroom-player-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: dark-course-resources (image/png) ───────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-course-resources-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-course-resources-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: dark-course-settings (image/png) ───────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-course-settings-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-course-settings-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: dark-profile (image/png) ───────────────────────────────────────────────────────
+    Expected: tests/e2e/visual-regression.spec.ts-snapshots/dark-profile-desktop1366-linux.png
+    Received: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/dark-profile-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: screenshot (image/png) ─────────────────────────────────────────────────────────
+    test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/error-context.md
+
+    attachment #14: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/e2e/visual-regression-critical-7267b-ch-the-dark-visual-baseline-desktop1366/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28 failed
+    [desktop1366] › tests/e2e/artifact-revision-jobs.spec.ts:3:5 › revision is tracked by the global task manager and returns version controls 
+    [desktop1366] › tests/e2e/classroom-catalog.spec.ts:4:5 › teacher reviews and publishes a resource from the curriculum directory 
+    [desktop1366] › tests/e2e/classroom-catalog.spec.ts:28:5 › compact classroom keeps the curriculum directory in a usable drawer 
+    [desktop1366] › tests/e2e/classroom-persistent-qa.spec.ts:161:7 › persistent classroom QA › automatically plays all pages in order and stops on the last page 
+    [desktop1366] › tests/e2e/core-pages.spec.ts:4:5 › login explains the teacher workspace and exposes concrete errors inline 
+    [desktop1366] › tests/e2e/core-pages.spec.ts:20:5 › home renders one searchable factual course entry 
+    [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:44:5 › 无教材：配置规模、模型生成图谱、人工确认后才检索并发布 
+    [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:61:5 › 有教材：教材解析参与模型图谱，并与网络和 AI 资料共同入库 
+    [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:85:5 › 已有知识库：增量生成只追加新节点并保留全部现有节点 
+    [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:109:5 › 窄屏使用图谱与节点详情分页且页面无横向滚动 ──
+    [desktop1366] › tests/e2e/course-lifecycle-actions.spec.ts:4:5 › course editor can delete one document from the selected knowledge node 
+    [desktop1366] › tests/e2e/course-shell.spec.ts:3:5 › course workspace has one stable navigation and main landmark 
+    [desktop1366] › tests/e2e/course-shell.spec.ts:30:5 › course navigation keeps global actions and changes the task page 
+    [desktop1366] › tests/e2e/home-resume.spec.ts:137:7 › teacher long course name stays readable at 390px and supports keyboard 
+    [desktop1366] › tests/e2e/knowledge-context.spec.ts:96:5 › shared revision result reads history and restores with the current base version 
+    [desktop1366] › tests/e2e/learning-loop-ui-edge-cases.spec.ts:21:5 › teacher distinguishes duplicate resources and one overview failure stays local 
+    [desktop1366] › tests/e2e/learning-task-assessment-loop.spec.ts:158:5 › teacher and student finish the mandatory assessment loop end to end 
+    [desktop1366] › tests/e2e/page-baseline.spec.ts:3:5 › teacher can traverse every core course page 
+    [desktop1366] › tests/e2e/resource-learning.spec.ts:78:5 › student resource learning remains versioned and separate from teacher tasks 
+    [desktop1366] › tests/e2e/resource-spaces.spec.ts:3:5 › keyboard publication flow preserves the personal source 
+    [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:33:5 › classroom player keeps core controls on the first screen 
+    [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:142:5 › student enters the isolated six-destination workspace and can ask with course knowledge 
+    [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:164:5 › course knowledge and course shared spaces stay read-only while personal spaces remain manageable 
+    [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:188:5 › course AI classroom is playable and role/API escape paths are denied 
+    [desktop1366] › tests/e2e/teacher-student-learning-loop-real-model.spec.ts:51:5 › qwen answers teacher and student from role-scoped learning facts 
+    [desktop1366] › tests/e2e/teacher-student-learning-loop.spec.ts:64:5 › teacher and student complete a truthful learning loop with role-scoped agents 
+    [desktop1366] › tests/e2e/visual-regression.spec.ts:79:5 › approved teacher pages match the light visual baseline 
+    [desktop1366] › tests/e2e/visual-regression.spec.ts:83:5 › critical teacher pages match the dark visual baseline 
+  2 skipped
+  92 passed (20.5m)

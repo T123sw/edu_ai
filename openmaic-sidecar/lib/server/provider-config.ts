@@ -18,6 +18,7 @@ const log = createLogger('ServerProviderConfig');
 
 interface ServerProviderEntry {
   apiKey: string;
+  backupApiKey?: string;
   baseUrl?: string;
   models?: string[];
   proxy?: string;
@@ -181,6 +182,7 @@ function loadEnvSection(
       ) {
         result[id] = {
           apiKey: entry.apiKey || '',
+          backupApiKey: entry.backupApiKey,
           baseUrl: entry.baseUrl,
           models: entry.models,
           proxy: entry.proxy,
@@ -192,6 +194,7 @@ function loadEnvSection(
   // Then, apply env vars (env takes priority over YAML)
   for (const [prefix, providerId] of Object.entries(envMap)) {
     const envApiKey = process.env[`${prefix}_API_KEY`] || undefined;
+    const envBackupApiKey = process.env[`${prefix}_API_KEY_BACKUP`] || undefined;
     const envBaseUrl = process.env[`${prefix}_BASE_URL`] || undefined;
     const envModelsStr = process.env[`${prefix}_MODELS`];
     const envModels = envModelsStr
@@ -204,6 +207,7 @@ function loadEnvSection(
     if (result[providerId]) {
       // YAML entry exists — env vars override individual fields
       if (envApiKey) result[providerId].apiKey = envApiKey;
+      if (envBackupApiKey) result[providerId].backupApiKey = envBackupApiKey;
       if (envBaseUrl) result[providerId].baseUrl = envBaseUrl;
       if (envModels) result[providerId].models = envModels;
       continue;
@@ -218,6 +222,7 @@ function loadEnvSection(
       continue;
     result[providerId] = {
       apiKey: envApiKey || '',
+      backupApiKey: envBackupApiKey,
       baseUrl: envBaseUrl,
       models: envModels,
     };
@@ -358,6 +363,15 @@ type ProviderSection = Exclude<keyof ServerConfig, 'ttsDisabled'>;
 /** Whether the operator configured this provider in the given section. */
 export function isServerConfiguredProvider(section: ProviderSection, providerId: string): boolean {
   return !!getConfig()[section][providerId];
+}
+
+/** DeepSeek alone supports an operator-managed backup key for HTTP 402. */
+export function resolveBackupApiKey(providerId: string): string {
+  if (providerId !== 'deepseek') return '';
+  const entry = getConfig().providers[providerId];
+  if (!entry) return '';
+  const backup = entry.backupApiKey || '';
+  return backup !== entry.apiKey ? backup : '';
 }
 
 function resolveSectionApiKey(

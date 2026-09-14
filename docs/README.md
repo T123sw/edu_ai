@@ -1,6 +1,6 @@
 # Edu-AI 文档中心
 
-最近更新：2026-09-07
+最近更新：2026-09-10
 
 本目录是项目文档的唯一入口。应用源码目录不再维护独立的 `docs/` 副本；`openmaic-sidecar/` 内的文档属于上游 vendored 项目，保持其原有结构。
 
@@ -14,6 +14,10 @@
 | [`architecture/`](architecture/) | 数据库迁移、播放协议等长期架构契约 | 修改相关模块前阅读 |
 | [`operations/`](operations/) | 数据切换、发布检查和运维清单 | 迁移、发布和故障处理时使用 |
 | [`superpowers/`](superpowers/) | 仍在推进或近期完成的设计、计划和验收记录 | 开发过程追踪，不作为部署配置来源 |
+
+## 当前推进
+
+[生成工厂统一 Agent 入口](superpowers/specs/2026-09-10-generation-factory-agent-entry-design-cn.md)：八类资源按钮已统一转入 Agent，以自然语言提取受众、结构和风格等要求；参见[具体实施计划](superpowers/plans/2026-09-10-generation-factory-agent-entry-implementation-cn.md)与[验收记录](acceptance/2026-09-10-generation-factory-agent-entry-acceptance-cn.md)。实现和自动化验收已完成，真实模型扩展项按验收记录跟踪。
 
 ## 前端体验并行实施文档
 

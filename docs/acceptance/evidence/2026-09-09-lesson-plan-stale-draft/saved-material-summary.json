@@ -1,0 +1,16 @@
+{
+  "material_id": "revision_b1606f317ff639af473f92406ae0cd9d",
+  "title": "数组的实现（修改稿）",
+  "material_type": "report",
+  "scope_type": "knowledge_point",
+  "scope_id": "array-linked-list",
+  "course_id": "computational-thinking",
+  "visibility": "private",
+  "storage": "PostgreSQL materials",
+  "created_at": "2026-09-09T06:36:31.645507+00:00",
+  "lesson_plan_outline_status": "awaiting_approval",
+  "lesson_plan_job_id": null,
+  "verified_directory_api": true,
+  "verified_recent_api": true,
+  "verified_live_browser": true
+}

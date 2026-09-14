@@ -1,10 +1,14 @@
 # OpenMAIC 迁移规格索引
 
-最近更新：2026-08-31
+最近更新：2026-09-11
 
 状态：Phase 0–6 与 AI 课堂实时问答已完成；连续授课与常驻问答体验优化、课程知识库可配置图谱先行构建待最终签收；Agent Memory V2 待实施
 
 本目录规定迁移后的接口、数据和运行时约束；验收证据见 [`../acceptance/`](../acceptance/README.md)。
+
+近期产品设计：[课程知识库 Agent 工作流程](../superpowers/specs/2026-09-10-course-knowledge-agent-workflow-design-cn.md)已完成 V1；基于真实操作系统课程验收，新增[课程知识库需求理解与内容质量闭环 V2](../superpowers/specs/2026-09-11-course-knowledge-intent-quality-v2-design-cn.md)、[V2 实施计划](../superpowers/plans/2026-09-11-course-knowledge-intent-quality-v2-implementation-cn.md)与[V2 验收标准](../acceptance/2026-09-11-course-knowledge-intent-quality-v2-acceptance-cn.md)。V2 保留 Agent 与确定性内核的混合架构，重点补齐需求契约、权威来源、教学产物和逐项发布门禁。
+
+[生成工厂统一 Agent 入口](../superpowers/specs/2026-09-10-generation-factory-agent-entry-design-cn.md)，配套[实施计划](../superpowers/plans/2026-09-10-generation-factory-agent-entry-implementation-cn.md)与[验收记录](../acceptance/2026-09-10-generation-factory-agent-entry-acceptance-cn.md)；实现与自动化验收已完成，真实模型扩展项有条件通过。
 
 | 规格 | 主题 | Phase | 状态 |
 | --- | --- | --- | --- |
@@ -23,6 +27,7 @@
 | [SPEC-12](SPEC-12_AI课堂实时问答与中断恢复.md) | AI 课堂实时问答与中断恢复 | 产品增量 | 完成，ACC-12 通过 |
 | [SPEC-13](SPEC-13_AI课堂连续授课与常驻问答体验优化.md) | AI 课堂连续授课与常驻问答体验优化 | 产品增量 | 设计已确认，待实施 |
 | [SPEC-14](SPEC-14_课程知识库可配置图谱先行构建.md) | 课程知识库可配置、图谱先行构建 | 产品增量 | 已实施，核心真实 E2E 通过；扩展场景待签收 |
+| [SPEC-16](SPEC-16_本地TTS服务接入协议.md) | 本地 TTS 服务接入协议 | 基础设施增量 | 设计草案，待实施 |
 | [MEM-V2](../superpowers/specs/2026-08-31-agent-memory-v2-langmem-integration-design-cn.md) | Agent Memory V2 与 LangMem 候选记忆辅助层 | Agent Memory | 设计与计划已拆分，待实施 |
 
 ## 全局约束

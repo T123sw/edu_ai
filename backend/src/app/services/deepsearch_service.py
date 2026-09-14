@@ -75,6 +75,37 @@ def _execute_search(query: str, max_urls: Optional[int]) -> List[WebSearchHit]:
     final_count = max(1, int(max_urls or int(os.getenv("WEB_SEARCH_DEFAULT_COUNT", "10") or "10")))
     recall_count = max(final_count, int(os.getenv("BOCHA_SEARCH_RECALL_COUNT", "50") or "50"))
     recall_count = min(recall_count, 50)
+    tavily_key = str(os.getenv("TAVILY_API_KEY", "")).strip()
+    site_match = re.match(r"^\s*site:([a-z0-9.-]+)\s+", query, flags=re.IGNORECASE)
+    if site_match and tavily_key:
+        constrained_domain = site_match.group(1).casefold().strip(".")
+        try:
+            print(
+                f"[DeepSearch] phase=search provider=tavily strategy=domain_constrained "
+                f"query={query!r} max_urls={final_count}"
+            )
+            domain_hits = search_tavily(
+                query,
+                count=final_count,
+                api_key=tavily_key,
+                base_url=os.getenv("TAVILY_BASE_URL", "https://api.tavily.com"),
+                timeout=float(os.getenv("TAVILY_SEARCH_TIMEOUT_S", "20") or "20"),
+                search_depth="advanced",
+                include_domains=[constrained_domain],
+            )
+            domain_hits = [
+                hit
+                for hit in domain_hits
+                if (str(hit.site or "").casefold().strip(".") == constrained_domain)
+                or str(hit.site or "").casefold().strip(".").endswith("." + constrained_domain)
+            ]
+            if domain_hits:
+                return domain_hits[:final_count]
+        except Exception as exc:
+            print(
+                "[DeepSearch] phase=search provider=tavily strategy=domain_constrained "
+                f"status=error fallback=bocha error={type(exc).__name__}: {exc}"
+            )
     print(f"[DeepSearch] phase=search provider=bocha query={query!r} max_urls={final_count} recall={recall_count}")
     try:
         hits = search_bocha(
@@ -91,7 +122,6 @@ def _execute_search(query: str, max_urls: Optional[int]) -> List[WebSearchHit]:
         if not hits:
             raise RuntimeError("Bocha returned no search results")
     except Exception as bocha_error:
-        tavily_key = str(os.getenv("TAVILY_API_KEY", "")).strip()
         if not tavily_key:
             raise
         print(

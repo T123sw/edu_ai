@@ -1,0 +1,13 @@
+[
+  {
+    "observed_at": "2026-09-11T14:02:55.414Z",
+    "status": "blocked",
+    "phase": "quality_blocked",
+    "progress": 100,
+    "quality_score": 59,
+    "error": {
+      "code": "QUALITY_GATE_FAILED",
+      "message": "质量门禁未通过：non_ai_coverage, content_sufficiency, authoritative_source_coverage, intent_adherence"
+    }
+  }
+]

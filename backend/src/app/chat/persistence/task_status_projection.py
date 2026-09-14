@@ -7,7 +7,7 @@ def is_report_read_result(result):
     if (result.get('workflow') or {}).get('stage') == 'result_check':
         return True  # Results produced before queries were separated from generation.
     tools = {item.get('tool') for item in (result.get('trace') or {}).get('tool_events', []) if item.get('ok')}
-    return 'query_report_job' in tools and not tools.intersection({'submit_report', 'cancel_report_job', 'draft_report_outline'})
+    return bool(tools.intersection({'query_report_job', 'query_resource_job'})) and not tools.intersection({'submit_report', 'cancel_report_job', 'draft_report_outline', 'submit_resource', 'submit_resource_direct', 'cancel_resource_job', 'draft_resource_outline'})
 
 
 def project_task_status(payload, owner, *, task_store=None, harness_root=None):

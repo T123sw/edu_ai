@@ -165,6 +165,7 @@ export async function installTeacherApiRoutes(page: Page) {
     study_guide: "pending",
     practice: "pending",
   };
+  let latestStandardBatch: Record<string, unknown> | null = null;
 
   await page.route("https://images.unsplash.com/**", (route) =>
     route.fulfill({
@@ -212,6 +213,9 @@ export async function installTeacherApiRoutes(page: Page) {
     if (path.endsWith("/knowledge-base/documents")) {
       return json(route, [readyDocument]);
     }
+    if (path === "/api/personal-knowledge/documents") {
+      return json(route, []);
+    }
     if (path.endsWith("/knowledge-graph")) {
       return json(route, {
         root: {
@@ -257,6 +261,7 @@ export async function installTeacherApiRoutes(page: Page) {
                   material_type: "classroom",
                   course_id: physicsCourse.id,
                   title: "力学互动课堂",
+                  content_hash: "hash-standard-mechanics-classroom-v2",
                   stage: { id: "standard-mechanics-classroom", name: "力学互动课堂" },
                   scenes: [],
                 },
@@ -273,6 +278,7 @@ export async function installTeacherApiRoutes(page: Page) {
                   material_type: "report",
                   course_id: physicsCourse.id,
                   title: "力学学习指南",
+                  content_hash: "hash-standard-mechanics-guide-v1",
                   final_markdown: "# 力学学习指南\n\n理解受力、加速度和运动状态之间的关系。",
                 },
               },
@@ -288,6 +294,7 @@ export async function installTeacherApiRoutes(page: Page) {
                   material_type: "quiz",
                   course_id: physicsCourse.id,
                   title: "力学巩固练习",
+                  content_hash: "hash-standard-mechanics-practice-v1",
                   content: { questions: [{ id: "q1", stem: "合力为零时物体可能处于什么状态？" }] },
                 },
               },
@@ -321,11 +328,14 @@ export async function installTeacherApiRoutes(page: Page) {
                 material_type: "classroom",
                 material_id: "standard-mechanics-classroom",
                 review_status: standardReviewStatuses.classroom,
+                current_version: 1,
+                approved_version: null,
                 resource: {
                   material_id: "standard-mechanics-classroom",
                   material_type: "classroom",
                   course_id: physicsCourse.id,
                   title: "力学互动课堂",
+                  content_hash: "hash-standard-mechanics-classroom-v1",
                   stage: { id: "standard-mechanics-classroom", name: "力学互动课堂" },
                   scenes: [],
                 },
@@ -335,11 +345,14 @@ export async function installTeacherApiRoutes(page: Page) {
                 material_type: "report",
                 material_id: "standard-mechanics-guide",
                 review_status: standardReviewStatuses.study_guide,
+                current_version: 1,
+                approved_version: standardReviewStatuses.study_guide === "approved" ? 1 : null,
                 resource: {
                   material_id: "standard-mechanics-guide",
                   material_type: "report",
                   course_id: physicsCourse.id,
                   title: "力学学习指南",
+                  content_hash: "hash-standard-mechanics-guide-v1",
                   final_markdown: "# 力学学习指南\n\n理解受力、加速度和运动状态之间的关系。",
                 },
               },
@@ -348,11 +361,14 @@ export async function installTeacherApiRoutes(page: Page) {
                 material_type: "quiz",
                 material_id: "standard-mechanics-practice",
                 review_status: standardReviewStatuses.practice,
+                current_version: 1,
+                approved_version: null,
                 resource: {
                   material_id: "standard-mechanics-practice",
                   material_type: "quiz",
                   course_id: physicsCourse.id,
                   title: "力学巩固练习",
+                  content_hash: "hash-standard-mechanics-practice-v1",
                   content: { questions: [{ id: "q1", stem: "合力为零时物体可能处于什么状态？" }] },
                 },
               },
@@ -366,12 +382,132 @@ export async function installTeacherApiRoutes(page: Page) {
             path_titles: ["大学物理", "光学", "几何光学"],
             slots: [
               { standard_kind: "classroom", material_type: "classroom", material_id: "standard-optics-classroom", review_status: "not_generated", resource: null },
-              { standard_kind: "study_guide", material_type: "report", material_id: "standard-optics-guide", review_status: "not_generated", resource: null },
+              {
+                standard_kind: "study_guide",
+                material_type: "report",
+                material_id: "standard-optics-guide",
+                review_status: "approved",
+                current_version: 1,
+                approved_version: 1,
+                resource: {
+                  material_id: "standard-optics-guide",
+                  material_type: "report",
+                  title: "几何光学学习指南",
+                  content_hash: "hash-standard-optics-guide-v1",
+                  content: "# 几何光学学习指南",
+                },
+              },
               { standard_kind: "practice", material_type: "quiz", material_id: "standard-optics-practice", review_status: "not_generated", resource: null },
             ],
           },
         ],
       });
+    }
+    if (
+      request.method() === "POST"
+      && path === `/api/courses/${physicsCourse.id}/standard-resource-batches/preview`
+    ) {
+      const payload = request.postDataJSON() as {
+        leaf_ids: string[];
+        standard_kinds: Array<"classroom" | "study_guide" | "practice">;
+        mode: "fill_missing" | "repair_rejected" | "regenerate_all";
+      };
+      const items = payload.leaf_ids.flatMap((leafId) => payload.standard_kinds.map((kind) => {
+        const existing = leafId === "optics" && kind === "study_guide";
+        const action = existing
+          ? (payload.mode === "regenerate_all" ? "regenerate" : "keep")
+          : "generate";
+        return {
+          leaf_id: leafId,
+          leaf_title: leafId === "optics" ? "几何光学" : "力学",
+          standard_kind: kind,
+          material_type: kind === "classroom" ? "classroom" : kind === "study_guide" ? "report" : "quiz",
+          material_id: `standard-${leafId}-${kind}`,
+          action,
+          reason: action === "keep" ? "保留已有资源" : "创建候选资源",
+          current_version: existing ? 1 : null,
+          approved_version: existing ? 1 : null,
+          content_hash: existing ? "hash-standard-optics-guide-v1" : null,
+        };
+      }));
+      const count = (action: string) => items.filter((item) => item.action === action).length;
+      return json(route, {
+        course_id: physicsCourse.id,
+        graph_version: "fixture-graph-v1",
+        mode: payload.mode,
+        standard_kinds: payload.standard_kinds,
+        generate_items: count("generate"),
+        repair_items: count("repair"),
+        regenerate_items: count("regenerate"),
+        kept_items: count("keep"),
+        blocked_items: count("blocked"),
+        actionable_items: items.filter((item) => ["generate", "repair", "regenerate"].includes(item.action)).length,
+        items,
+      });
+    }
+    if (
+      request.method() === "POST"
+      && path === `/api/courses/${physicsCourse.id}/standard-resource-batches`
+    ) {
+      const payload = request.postDataJSON() as {
+        leaf_ids: string[];
+        standard_kinds: Array<"classroom" | "study_guide" | "practice">;
+        mode: string;
+        idempotency_key: string;
+        graph_version: string;
+      };
+      const now = new Date().toISOString();
+      const items = payload.leaf_ids.flatMap((leafId) => payload.standard_kinds.map((kind, index) => ({
+        batch_item_id: `fixture-item-${leafId}-${kind}`,
+        batch_id: "fixture-standard-batch-1",
+        leaf_id: leafId,
+        leaf_title: leafId === "optics" ? "几何光学" : "力学",
+        standard_kind: kind,
+        material_type: kind === "classroom" ? "classroom" : kind === "study_guide" ? "report" : "quiz",
+        material_id: `standard-${leafId}-${kind}`,
+        action: leafId === "optics" && kind === "study_guide" ? "regenerate" : "generate",
+        base_version: leafId === "optics" && kind === "study_guide" ? 1 : null,
+        material_version: null,
+        content_hash: null,
+        status: "running",
+        job_id: `fixture-job-${index + 1}`,
+        attempt_count: 1,
+        error: null,
+        created_at: now,
+        updated_at: now,
+        finished_at: null,
+      })));
+      latestStandardBatch = {
+        batch_id: "fixture-standard-batch-1",
+        course_id: physicsCourse.id,
+        created_by: "teacher-a",
+        idempotency_key: payload.idempotency_key,
+        graph_version: payload.graph_version,
+        generation_mode: payload.mode,
+        status: "running",
+        total_items: items.length,
+        queued_items: 0,
+        running_items: items.length,
+        succeeded_items: 0,
+        failed_items: 0,
+        created_at: now,
+        updated_at: now,
+        finished_at: null,
+        items,
+      };
+      return json(route, latestStandardBatch, 202);
+    }
+    if (
+      request.method() === "GET"
+      && path === `/api/courses/${physicsCourse.id}/standard-resource-batches`
+    ) {
+      return json(route, latestStandardBatch ? [latestStandardBatch] : []);
+    }
+    if (
+      request.method() === "GET"
+      && path === `/api/courses/${physicsCourse.id}/standard-resource-batches/fixture-standard-batch-1`
+    ) {
+      return json(route, latestStandardBatch);
     }
     if (
       request.method() === "POST"
@@ -399,6 +535,9 @@ export async function installTeacherApiRoutes(page: Page) {
     }
     if (path === `/api/courses/${physicsCourse.id}/classrooms/classroom-mechanics`) {
       return json(route, materials.find((item) => item.material_id === "classroom-mechanics"));
+    }
+    if (path === `/api/courses/${physicsCourse.id}/classrooms`) {
+      return json(route, materials.filter((item) => item.material_type === "classroom"));
     }
     if (path.endsWith("/materials")) {
       const materialType = url.searchParams.get("material_type");
@@ -456,6 +595,16 @@ export async function installTeacherApiRoutes(page: Page) {
     }
     if (path.startsWith("/api/jobs")) {
       return json(route, jobs);
+    }
+    if (path === "/api/chat/v2/generation/tools") {
+      return json(route, {
+        tools: ["report", "lesson_plan", "blog", "quiz", "flashcard", "mind_map", "game", "classroom"].map((tool_id) => ({
+          tool_id,
+          output_scope: "personal",
+          allowed_source_scopes: ["none", "personal", "course"],
+          can_publish: false,
+        })),
+      });
     }
     if (path === "/api/chat/v2/generation/preflight") {
       return json(route, {

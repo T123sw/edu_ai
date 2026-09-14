@@ -1,0 +1,17 @@
+{
+  "users": [
+    {
+      "username": "resource-e2e-admin",
+      "password_hash": "pbkdf2_sha256$260000$b9ff79ffc7dd4d6ebb327d759bdd5d16$1b5be82b0075be0246b7e86beab3b8de73776d05c371cce6d09859f9047f2016",
+      "created_at": "2026-09-10T06:28:16.495139",
+      "role": "teacher",
+      "display_name": "resource-e2e-admin",
+      "email": "",
+      "phone": "",
+      "department": "",
+      "bio": "",
+      "avatar_path": "",
+      "password_updated_at": ""
+    }
+  ]
+}

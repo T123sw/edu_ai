@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.chat.application.knowledge_context import ResolvedWorkspaceContext, ScopeClarification
 from app.chat.domain.artifact_reference import ArtifactReferencePayload, ArtifactDraftAction
+from app.chat.domain.action_hints import ActionHint
 from app.chat.domain.contracts import ChatInputImagePayload, ChatInputVideoPayload
 from app.chat.domain.conversation_reference import ConversationReferencePayload
 from app.chat.domain.status_card import StatusCardViewModel
@@ -142,7 +143,8 @@ class ChatReplyRequestV2(BaseModel):
     selected_doc_ids: List[str] = Field(default_factory=list)
     input_images: List[ChatInputImagePayload] = Field(default_factory=list)
     input_videos: List[ChatInputVideoPayload] = Field(default_factory=list)
-    action_hint: Optional[str] = None
+    action_hint: Optional[ActionHint] = None
+    entry_mode: Literal["conversation", "generation_factory"] = "conversation"
 
 
 class ArtifactRevisionVersionRequestV2(BaseModel):
@@ -372,6 +374,7 @@ class DirectTraceMetaV2(BaseModel):
 class ChatResponseV2(BaseModel):
     task_id: Optional[str] = None
     harness_outline: Optional[Dict[str, Any]] = None
+    knowledge_plan: Optional[Dict[str, Any]] = None
     verification: Optional[Dict[str, Any]] = None
     artifact_revision: Optional[Dict[str, Any]] = None
     workspace_context: Optional[ResolvedWorkspaceContext] = None

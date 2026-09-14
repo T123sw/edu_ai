@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { CourseKnowledgeProposal, KnowledgeGraphNode } from '../../api/types';
+import { CourseKnowledgeIntentReview } from './CourseKnowledgeIntentReview';
 
 function Outline({ root, depth = 0 }: { root: KnowledgeGraphNode; depth?: number }) {
   return <ul>{(root.children || []).map(node => <li key={node.id}>{node.children?.length
@@ -15,6 +16,7 @@ export function CourseKnowledgeProposalView({ proposal, busy, onSelect, onBack }
   return <section className="course-kb-proposal">
     <h3>{proposal.mode === 'create' ? '比较课程大纲' : '确认本次补充内容'}</h3>
     <p>{proposal.summary}</p>
+    {proposal.intent ? <CourseKnowledgeIntentReview intent={proposal.intent} /> : null}
     {proposal.mode === 'create' ? <div className="course-kb-proposal__options">{proposal.options.map(option =>
       <article key={option.id}>
         <h4>{names[option.level]}</h4><p>{option.description}</p>

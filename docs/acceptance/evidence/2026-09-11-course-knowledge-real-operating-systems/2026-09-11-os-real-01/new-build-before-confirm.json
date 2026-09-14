@@ -1,0 +1,1160 @@
+{
+  "build_id": "kb-716b212c73724a6cbac74c232f3479bf",
+  "library_id": "course-91205880c651486aabef002a9c330617",
+  "status": "draft",
+  "phase": "graph_review",
+  "progress": 0,
+  "revision": 3,
+  "graph_confirmed_at": null,
+  "confirmed_graph_revision": null,
+  "confirmed_by": null,
+  "metrics": {},
+  "quality_score": null,
+  "error": null,
+  "created_at": "2026-09-11T06:22:14.051986+00:00",
+  "updated_at": "2026-09-11T06:29:56.382087+00:00",
+  "quality_checks": [],
+  "config": {
+    "preset": "standard",
+    "graph_depth": 3,
+    "update_strategy": "incremental",
+    "content_language": "zh-CN",
+    "target_module_count": 4,
+    "max_online_textbooks": 2,
+    "ai_supplement_enabled": true,
+    "target_points_per_module": 4,
+    "prefer_complete_textbooks": true,
+    "target_materials_per_leaf": 3,
+    "max_search_rounds_per_leaf": 2,
+    "max_search_results_per_leaf": 8,
+    "maximum_ai_materials_per_leaf": 1,
+    "minimum_web_materials_per_leaf": 1
+  },
+  "topics": [],
+  "warnings": [],
+  "course_id": "course-91205880c651486aabef002a9c330617",
+  "textbooks": [],
+  "graph_draft": {
+    "id": "course-os-brief",
+    "data": {
+      "type": "course",
+      "summary": "8 课时操作系统基础课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存五大核心模块。"
+    },
+    "label": "操作系统（简明）",
+    "children": [
+      {
+        "id": "mod-os-brief-process",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "进程与线程的基本概念、状态转换与调度基础。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "kp-os-brief-process-concept",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程定义、进程控制块与三态模型。"
+            },
+            "label": "进程的概念与状态",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-thread",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "线程的概念及其与进程的区别。"
+            },
+            "label": "线程",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-context",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程上下文切换的基本过程与开销来源。"
+            },
+            "label": "上下文切换",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sched",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "常见 CPU 调度算法及其性能指标计算。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "kp-os-brief-sched-metrics",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "周转时间、等待时间与响应时间的定义与计算。"
+            },
+            "label": "调度性能指标",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-fcfs",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FCFS 算法思想与等待时间计算。"
+            },
+            "label": "先来先服务调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-sjf",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "SJF 算法思想与等待时间计算。"
+            },
+            "label": "短作业优先调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-rr",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "RR 算法思想与时间片对性能的影响。"
+            },
+            "label": "时间片轮转调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-priority",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "优先级调度思想与饥饿问题。"
+            },
+            "label": "优先级调度",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "临界区问题与信号量机制解决典型同步问题。"
+        },
+        "label": "进程同步",
+        "children": [
+          {
+            "id": "kp-os-brief-sync-critical",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "临界区、互斥与同步的基本概念。"
+            },
+            "label": "临界区问题",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-semaphore",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "信号量的定义与 P、V 操作语义。"
+            },
+            "label": "信号量",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-producer-consumer",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "用信号量解决生产者-消费者问题的基本方法。"
+            },
+            "label": "生产者-消费者问题",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "死锁的产生条件与基本处理策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "kp-os-brief-deadlock-conditions",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "互斥、占有并等待、非抢占与循环等待四个条件。"
+            },
+            "label": "死锁产生的必要条件",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-deadlock-handling",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "预防、避免、检测与恢复的基本思路。"
+            },
+            "label": "死锁处理策略",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-vm",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "分页、缺页与页面置换算法的基本原理。"
+        },
+        "label": "虚拟内存",
+        "children": [
+          {
+            "id": "kp-os-brief-vm-paging",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "页、页框与页表的基本概念及地址转换。"
+            },
+            "label": "分页",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-pagefault",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "缺页中断的处理流程。"
+            },
+            "label": "缺页",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-replacement",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FIFO、LRU 与 OPT 的基本思想与缺页次数计算。"
+            },
+            "label": "页面置换算法",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "baseline_graph": null,
+  "course_snapshot": {
+    "id": "course-91205880c651486aabef002a9c330617",
+    "icon": "menu_book",
+    "color": "#3157d5",
+    "title": "操作系统（真实E2E-2026-09-11-os-real-）",
+    "audience": "掌握 C 语言和数据结构的计算机专业大二学生",
+    "language": "zh-CN",
+    "revision": 0,
+    "course_id": "course-91205880c651486aabef002a9c330617",
+    "created_at": "2026-09-11T06:21:11.081409+00:00",
+    "created_by": "teacher",
+    "difficulty": "introductory",
+    "objectives": [
+      "能解释进程、线程和系统调用的核心机制",
+      "能比较常见 CPU 调度算法并计算等待时间",
+      "能使用信号量分析并解决典型同步问题",
+      "能解释分页、缺页和页面置换算法"
+    ],
+    "updated_at": "2026-09-11T06:21:11.081409+00:00",
+    "course_code": "VAQATF7T",
+    "description": "面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存。",
+    "knowledgeGraph": "",
+    "cover_image_ref": null
+  },
+  "source_candidates": [],
+  "existing_materials": [],
+  "knowledge_proposal": {
+    "mode": "create",
+    "items": [],
+    "review": {
+      "method": "model_review",
+      "approved": true
+    },
+    "options": [
+      {
+        "id": "brief",
+        "root": {
+          "id": "course-os-brief",
+          "data": {
+            "type": "course",
+            "summary": "8 课时操作系统基础课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存五大核心模块。"
+          },
+          "label": "操作系统（简明）",
+          "children": [
+            {
+              "id": "mod-os-brief-process",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "进程与线程的基本概念、状态转换与调度基础。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "kp-os-brief-process-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程定义、进程控制块与三态模型。"
+                  },
+                  "label": "进程的概念与状态",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-process-thread",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "线程的概念及其与进程的区别。"
+                  },
+                  "label": "线程",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-process-context",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程上下文切换的基本过程与开销来源。"
+                  },
+                  "label": "上下文切换",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-brief-sched",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "常见 CPU 调度算法及其性能指标计算。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "kp-os-brief-sched-metrics",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "周转时间、等待时间与响应时间的定义与计算。"
+                  },
+                  "label": "调度性能指标",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-sched-fcfs",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FCFS 算法思想与等待时间计算。"
+                  },
+                  "label": "先来先服务调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-sched-sjf",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "SJF 算法思想与等待时间计算。"
+                  },
+                  "label": "短作业优先调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-sched-rr",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "RR 算法思想与时间片对性能的影响。"
+                  },
+                  "label": "时间片轮转调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-sched-priority",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "优先级调度思想与饥饿问题。"
+                  },
+                  "label": "优先级调度",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-brief-sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "临界区问题与信号量机制解决典型同步问题。"
+              },
+              "label": "进程同步",
+              "children": [
+                {
+                  "id": "kp-os-brief-sync-critical",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "临界区、互斥与同步的基本概念。"
+                  },
+                  "label": "临界区问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-sync-semaphore",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "信号量的定义与 P、V 操作语义。"
+                  },
+                  "label": "信号量",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-sync-producer-consumer",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "用信号量解决生产者-消费者问题的基本方法。"
+                  },
+                  "label": "生产者-消费者问题",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-brief-deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "死锁的产生条件与基本处理策略。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "kp-os-brief-deadlock-conditions",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "互斥、占有并等待、非抢占与循环等待四个条件。"
+                  },
+                  "label": "死锁产生的必要条件",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-deadlock-handling",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "预防、避免、检测与恢复的基本思路。"
+                  },
+                  "label": "死锁处理策略",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-brief-vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "分页、缺页与页面置换算法的基本原理。"
+              },
+              "label": "虚拟内存",
+              "children": [
+                {
+                  "id": "kp-os-brief-vm-paging",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "页、页框与页表的基本概念及地址转换。"
+                  },
+                  "label": "分页",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-vm-pagefault",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "缺页中断的处理流程。"
+                  },
+                  "label": "缺页",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-brief-vm-replacement",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FIFO、LRU 与 OPT 的基本思想与缺页次数计算。"
+                  },
+                  "label": "页面置换算法",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "level": "brief",
+        "metrics": {
+          "max_depth": 3,
+          "leaf_count": 16,
+          "node_count": 22,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "适用对象：计算机专业大二学生，8 课时入门教学。覆盖五大核心模块及其最核心概念，每个知识点只保留一个下位要点。取舍：不展开经典同步问题、TLB 与多级页表、多处理器调度、管程等进阶内容；可支撑课程目标中进程与线程机制、调度算法计算、信号量基本用法、分页与页面置换的基础教学，但经典同步问题与地址转换优化需在标准档或完整档补充。"
+      },
+      {
+        "id": "standard",
+        "root": {
+          "id": "course-os-standard",
+          "data": {
+            "type": "course",
+            "summary": "8 课时操作系统基础课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存五大核心模块，含典型算法与问题分析。"
+          },
+          "label": "操作系统（标准）",
+          "children": [
+            {
+              "id": "mod-os-std-process",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "进程与线程的概念、状态转换、创建与上下文切换。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "kp-os-std-process-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程定义、进程控制块与五态模型。"
+                  },
+                  "label": "进程的概念与状态",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-process-create",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "fork 等进程创建机制与进程终止流程。"
+                  },
+                  "label": "进程创建与终止",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-process-thread",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "线程的概念、线程与进程的区别及用户级/内核级线程模型。"
+                  },
+                  "label": "线程",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-process-context",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程上下文切换的基本过程与开销来源。"
+                  },
+                  "label": "上下文切换",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-std-sched",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "调度层次、常见调度算法及其性能指标计算。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "kp-os-std-sched-metrics",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "周转时间、等待时间与响应时间的定义与计算。"
+                  },
+                  "label": "调度性能指标",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sched-fcfs",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FCFS 算法思想、特点与等待时间计算。"
+                  },
+                  "label": "先来先服务调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sched-sjf",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "SJF 算法思想、抢占与非抢占形式及等待时间计算。"
+                  },
+                  "label": "短作业优先调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sched-rr",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "RR 算法思想、时间片大小对性能的影响。"
+                  },
+                  "label": "时间片轮转调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sched-priority",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "优先级调度思想、优先级设置与饥饿问题。"
+                  },
+                  "label": "优先级调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sched-mlfq",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "多级反馈队列的基本结构与调度过程。"
+                  },
+                  "label": "多级反馈队列调度",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-std-sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "临界区问题、信号量机制与经典同步问题。"
+              },
+              "label": "进程同步",
+              "children": [
+                {
+                  "id": "kp-os-std-sync-critical",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "临界区、互斥与同步的基本概念及临界区访问原则。"
+                  },
+                  "label": "临界区问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sync-semaphore",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "信号量的定义、P/V 操作语义与实现要点。"
+                  },
+                  "label": "信号量",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sync-producer-consumer",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "用信号量解决生产者-消费者问题的完整分析。"
+                  },
+                  "label": "生产者-消费者问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sync-reader-writer",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "读者-写者问题的信号量解法与公平性讨论。"
+                  },
+                  "label": "读者-写者问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-sync-philosopher",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "哲学家进餐问题的信号量解法与死锁避免。"
+                  },
+                  "label": "哲学家进餐问题",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-std-deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "死锁条件、预防、避免、检测与恢复。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "kp-os-std-deadlock-conditions",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "互斥、占有并等待、非抢占与循环等待四个条件。"
+                  },
+                  "label": "死锁产生的必要条件",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-deadlock-prevention",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "通过破坏必要条件预防死锁的方法。"
+                  },
+                  "label": "死锁预防",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-deadlock-avoidance",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "安全状态概念与银行家算法的执行过程。"
+                  },
+                  "label": "死锁避免与银行家算法",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-deadlock-detection",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "资源分配图与死锁检测、恢复的基本方法。"
+                  },
+                  "label": "死锁检测与恢复",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-std-vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "分页、地址转换、缺页处理与页面置换算法。"
+              },
+              "label": "虚拟内存",
+              "children": [
+                {
+                  "id": "kp-os-std-vm-paging",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "页、页框与页表的基本概念及地址转换过程。"
+                  },
+                  "label": "分页",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-vm-tlb",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "TLB 的作用与多级页表结构。"
+                  },
+                  "label": "快表与多级页表",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-vm-pagefault",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "缺页中断的处理流程与有效访问时间。"
+                  },
+                  "label": "缺页",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-vm-replacement",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FIFO、LRU 与 OPT 的基本思想与缺页次数计算。"
+                  },
+                  "label": "页面置换算法",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-std-vm-thrashing",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "抖动产生的原因与工作集概念。"
+                  },
+                  "label": "抖动",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "level": "standard",
+        "metrics": {
+          "max_depth": 3,
+          "leaf_count": 24,
+          "node_count": 30,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "适用对象：计算机专业大二学生，8 课时标准教学。在简明档基础上细化核心知识点，补充进程创建、线程模型、多级反馈队列、经典同步问题、银行家算法、TLB 与多级页表等内容，形成完整教学闭环。推荐作为默认方案。"
+      },
+      {
+        "id": "complete",
+        "root": {
+          "id": "course-os-complete",
+          "data": {
+            "type": "course",
+            "summary": "8 课时操作系统基础课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存五大核心模块，含进阶机制与性能分析（选讲）。"
+          },
+          "label": "操作系统（完整）",
+          "children": [
+            {
+              "id": "mod-os-cpl-process",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "进程与线程的概念、状态转换、创建、通信与上下文切换。"
+              },
+              "label": "进程与线程",
+              "children": [
+                {
+                  "id": "kp-os-cpl-process-concept",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程定义、进程控制块与五态模型。"
+                  },
+                  "label": "进程的概念与状态",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-process-create",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "fork 等进程创建机制与进程终止流程。"
+                  },
+                  "label": "进程创建与终止",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-process-ipc",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "共享内存、消息传递与管道等基本通信方式。"
+                  },
+                  "label": "进程间通信",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-process-thread",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "线程的概念、线程与进程的区别及用户级/内核级线程模型。"
+                  },
+                  "label": "线程",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-process-context",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "进程上下文切换的基本过程与开销来源。"
+                  },
+                  "label": "上下文切换",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-cpl-sched",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "调度层次、常见调度算法、多处理器调度与性能指标计算。"
+              },
+              "label": "CPU 调度",
+              "children": [
+                {
+                  "id": "kp-os-cpl-sched-metrics",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "周转时间、等待时间与响应时间的定义与计算。"
+                  },
+                  "label": "调度性能指标",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-fcfs",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FCFS 算法思想、特点与等待时间计算。"
+                  },
+                  "label": "先来先服务调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-sjf",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "SJF 算法思想、抢占与非抢占形式及等待时间计算。"
+                  },
+                  "label": "短作业优先调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-rr",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "RR 算法思想、时间片大小对性能的影响。"
+                  },
+                  "label": "时间片轮转调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-priority",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "优先级调度思想、优先级设置与饥饿问题。"
+                  },
+                  "label": "优先级调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-mlfq",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "多级反馈队列的基本结构与调度过程。"
+                  },
+                  "label": "多级反馈队列调度",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sched-multiprocessor",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "多处理器环境下的负载均衡与处理器亲和性。"
+                  },
+                  "label": "多处理器调度",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-cpl-sync",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "临界区问题、信号量、管程与经典同步问题。"
+              },
+              "label": "进程同步",
+              "children": [
+                {
+                  "id": "kp-os-cpl-sync-critical",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "临界区、互斥与同步的基本概念及临界区访问原则。"
+                  },
+                  "label": "临界区问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sync-semaphore",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "信号量的定义、P/V 操作语义与实现要点。"
+                  },
+                  "label": "信号量",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sync-monitor",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "管程的概念、条件变量与同步机制。"
+                  },
+                  "label": "管程",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sync-producer-consumer",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "用信号量解决生产者-消费者问题的完整分析。"
+                  },
+                  "label": "生产者-消费者问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sync-reader-writer",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "读者-写者问题的信号量解法与公平性讨论。"
+                  },
+                  "label": "读者-写者问题",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-sync-philosopher",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "哲学家进餐问题的信号量解法与死锁避免。"
+                  },
+                  "label": "哲学家进餐问题",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-cpl-deadlock",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "死锁条件、预防、避免、检测与恢复，以及与同步的关系。"
+              },
+              "label": "死锁",
+              "children": [
+                {
+                  "id": "kp-os-cpl-deadlock-conditions",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "互斥、占有并等待、非抢占与循环等待四个条件。"
+                  },
+                  "label": "死锁产生的必要条件",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-deadlock-prevention",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "通过破坏必要条件预防死锁的方法。"
+                  },
+                  "label": "死锁预防",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-deadlock-avoidance",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "安全状态概念与银行家算法的执行过程。"
+                  },
+                  "label": "死锁避免与银行家算法",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-deadlock-detection",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "资源分配图与死锁检测、恢复的基本方法。"
+                  },
+                  "label": "死锁检测与恢复",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-deadlock-sync-relation",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "同步问题中死锁与饥饿的成因与区分。"
+                  },
+                  "label": "死锁与同步的关系",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "mod-os-cpl-vm",
+              "data": {
+                "type": "knowledge_module",
+                "summary": "分页、地址转换、缺页处理、页面置换算法与请求分页性能。"
+              },
+              "label": "虚拟内存",
+              "children": [
+                {
+                  "id": "kp-os-cpl-vm-paging",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "页、页框与页表的基本概念及地址转换过程。"
+                  },
+                  "label": "分页",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-vm-tlb",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "TLB 的作用与多级页表结构。"
+                  },
+                  "label": "快表与多级页表",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-vm-pagefault",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "缺页中断的处理流程与有效访问时间。"
+                  },
+                  "label": "缺页",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-vm-replacement",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "FIFO、LRU 与 OPT 的基本思想与缺页次数计算。"
+                  },
+                  "label": "页面置换算法",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-vm-thrashing",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "抖动产生的原因与工作集概念。"
+                  },
+                  "label": "抖动",
+                  "children": []
+                },
+                {
+                  "id": "kp-os-cpl-vm-demand-paging",
+                  "data": {
+                    "type": "knowledge_point",
+                    "summary": "缺页率对有效访问时间的影响与性能分析。"
+                  },
+                  "label": "请求分页性能",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        "level": "complete",
+        "metrics": {
+          "max_depth": 3,
+          "leaf_count": 29,
+          "node_count": 35,
+          "module_count": 5,
+          "target_leaf_count": 16,
+          "target_module_count": 4,
+          "mapped_outline_count": 0,
+          "unmapped_outline_count": 0
+        },
+        "description": "适用对象：计算机专业大二学生，8 课时完整教学或有余量时选讲。在标准档基础上进一步细化知识点，补充进程间通信、多处理器调度、管程、死锁与同步的关系、请求分页性能等进阶内容。注意：进阶内容为选讲项，教师需按实际课时取舍，不宜宣称 8 课时可全部覆盖。"
+      }
+    ],
+    "summary": "课程无已发布目录，按教师规划约束，三档方案均严格以进程与线程、CPU 调度、进程同步、死锁、虚拟内存五个模块作为主干，不新增其他主题模块。三档包含同一组核心知识点，名称保持一致；差异仅体现在下位知识点粒度、教学展开深度与拓展内容数量。简明档覆盖五大模块核心概念，可支撑课程主要目标的基础教学，但经典同步问题、TLB 与多级页表等进阶内容需在标准档或完整档展开；完整档的进阶内容为选讲项，教师需按实际课时取舍，不宜宣称 8 课时可全部覆盖。",
+    "core_topics": [
+      "CPU 调度",
+      "死锁",
+      "虚拟内存",
+      "进程与线程",
+      "进程同步"
+    ],
+    "requirements": "课程名称：操作系统（真实E2E-2026-09-11-os-real-）\n课程简介：面向计算机专业大二学生的操作系统基础课程，共 8 课时，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存。\n教学对象：掌握 C 语言和数据结构的计算机专业大二学生\n课程难度：introductory\n内容语言：zh-CN\n课程目标：能解释进程、线程和系统调用的核心机制；能比较常见 CPU 调度算法并计算等待时间；能使用信号量分析并解决典型同步问题；能解释分页、缺页和页面置换算法\n要求：先生成可审核方案，不要直接发布。\n规划约束：\n1. 课程没有现有目录，请给出简明、标准、完整三档大纲。\n2. 三档方案必须包含同一组核心知识点（进程与线程、CPU 调度、进程同步、死锁、虚拟内存五块及其下位核心概念），三档之间的差异只体现在覆盖深度、下位节点粒度与拓展内容数量上，不能出现某一档缺失其他档已有的核心知识点。\n3. 三档都以这五个模块作为主干，保持知识点名称一致，便于教师横向比较后选择。",
+    "document_snapshot": []
+  },
+  "proposal_selection": {
+    "item_ids": [],
+    "option_id": "brief",
+    "expected_revision": 2
+  },
+  "selected_topic_ids": [
+    "kp-os-brief-process-concept",
+    "kp-os-brief-process-thread",
+    "kp-os-brief-process-context",
+    "kp-os-brief-sched-metrics",
+    "kp-os-brief-sched-fcfs",
+    "kp-os-brief-sched-sjf",
+    "kp-os-brief-sched-rr",
+    "kp-os-brief-sched-priority",
+    "kp-os-brief-sync-critical",
+    "kp-os-brief-sync-semaphore",
+    "kp-os-brief-sync-producer-consumer",
+    "kp-os-brief-deadlock-conditions",
+    "kp-os-brief-deadlock-handling",
+    "kp-os-brief-vm-paging",
+    "kp-os-brief-vm-pagefault",
+    "kp-os-brief-vm-replacement"
+  ],
+  "topic_requirements": {},
+  "current_graph_summary": null,
+  "baseline_graph_version": null
+}

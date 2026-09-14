@@ -1,0 +1,129 @@
+[WebServer] (node:264735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:264765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:264778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 70 tests using 4 workers
+
+(node:264839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:264838) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:264841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:264840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop1366] › tests/e2e/generation-practice-resources.spec.ts:27:5 › practice resources preserve detailed natural-language briefs and canonical Agent hints (8.4s)
+  ✓   1 [desktop1366] › tests/e2e/generation-text-resources.spec.ts:27:5 › long-form resources send complete natural-language requirements to the Agent (8.7s)
+  ✓   4 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:46:5 › all generation buttons open the same concise Agent prompt (8.8s)
+  ✓   2 [desktop1366] › tests/e2e/generation-visual-resources.spec.ts:27:5 › visual resources use the shared concise Agent dialog without horizontal overflow (9.1s)
+(node:265709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+  ✓   6 [desktop1366] › tests/e2e/overflow-regression.spec.ts:24:5 › every approved page stays within the viewport without new React warnings (1.7s)
+  ✓   8 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:46:5 › all generation buttons open the same concise Agent prompt (8.7s)
+  ✓   7 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:89:5 › all factory buttons submit their canonical hint through the Agent stream (11.2s)
+  ✓   5 [desktop1366] › tests/e2e/keyboard-accessibility.spec.ts:19:5 › teacher completes the core workflow with the keyboard only (11.8s)
+  ✓   9 [desktop1366] › tests/e2e/overflow-regression.spec.ts:43:5 › all eight generation Agent dialogs keep prompt and action reachable (12.3s)
+  ✓  11 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:133:5 › factory submission enters the Agent stream with the exact brief and action hint (6.1s)
+  ✓  12 [desktop1366] › tests/e2e/keyboard-accessibility.spec.ts:104:5 › critical text and primary actions meet WCAG AA contrast (6.3s)
+(node:266677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [desktop1366] › tests/e2e/overflow-regression.spec.ts:91:5 › loading, empty, error, and permission states remain usable (4.9s)
+(node:266745) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:89:5 › all factory buttons submit their canonical hint through the Agent stream (12.0s)
+  ✓  14 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:176:5 › personal documents checked on the left become the optional Agent source (7.1s)
+  ✓  15 [desktop1440] › tests/e2e/generation-practice-resources.spec.ts:27:5 › practice resources preserve detailed natural-language briefs and canonical Agent hints (7.9s)
+  ✓  16 [desktop1440] › tests/e2e/generation-text-resources.spec.ts:27:5 › long-form resources send complete natural-language requirements to the Agent (8.2s)
+  ✓  17 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:133:5 › factory submission enters the Agent stream with the exact brief and action hint (6.4s)
+  ✓  18 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:196:5 › generation prompt keeps an unfinished brief for the same workspace (6.0s)
+(node:267408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [desktop1440] › tests/e2e/generation-visual-resources.spec.ts:27:5 › visual resources use the shared concise Agent dialog without horizontal overflow (7.1s)
+  ✓  22 [desktop1440] › tests/e2e/overflow-regression.spec.ts:24:5 › every approved page stays within the viewport without new React warnings (2.4s)
+(node:267618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:176:5 › personal documents checked on the left become the optional Agent source (7.2s)
+  ✓  20 [desktop1440] › tests/e2e/keyboard-accessibility.spec.ts:19:5 › teacher completes the core workflow with the keyboard only (11.5s)
+  ✓  25 [desktop1440] › tests/e2e/generation-factory-shell.spec.ts:196:5 › generation prompt keeps an unfinished brief for the same workspace (7.2s)
+(node:268116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:46:5 › all generation buttons open the same concise Agent prompt (9.3s)
+  ✓  26 [desktop1440] › tests/e2e/keyboard-accessibility.spec.ts:104:5 › critical text and primary actions meet WCAG AA contrast (5.3s)
+(node:268261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 [desktop1440] › tests/e2e/overflow-regression.spec.ts:43:5 › all eight generation Agent dialogs keep prompt and action reachable (12.5s)
+  ✓  27 [desktop1920] › tests/e2e/generation-practice-resources.spec.ts:27:5 › practice resources preserve detailed natural-language briefs and canonical Agent hints (7.5s)
+  ✓  30 [desktop1440] › tests/e2e/overflow-regression.spec.ts:91:5 › loading, empty, error, and permission states remain usable (5.3s)
+(node:268719) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 [desktop1920] › tests/e2e/generation-text-resources.spec.ts:27:5 › long-form resources send complete natural-language requirements to the Agent (8.6s)
+  ✓  28 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:89:5 › all factory buttons submit their canonical hint through the Agent stream (11.2s)
+  ✓  33 [desktop1920] › tests/e2e/overflow-regression.spec.ts:24:5 › every approved page stays within the viewport without new React warnings (2.3s)
+  ✓  31 [desktop1920] › tests/e2e/generation-visual-resources.spec.ts:27:5 › visual resources use the shared concise Agent dialog without horizontal overflow (7.3s)
+(node:269109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  34 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:133:5 › factory submission enters the Agent stream with the exact brief and action hint (6.3s)
+  ✓  32 [desktop1920] › tests/e2e/keyboard-accessibility.spec.ts:19:5 › teacher completes the core workflow with the keyboard only (12.7s)
+  ✓  36 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:46:5 › all generation buttons open the same concise Agent prompt (8.8s)
+  ✓  37 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:176:5 › personal documents checked on the left become the optional Agent source (7.4s)
+  ✓  35 [desktop1920] › tests/e2e/overflow-regression.spec.ts:43:5 › all eight generation Agent dialogs keep prompt and action reachable (12.9s)
+  ✓  38 [desktop1920] › tests/e2e/keyboard-accessibility.spec.ts:104:5 › critical text and primary actions meet WCAG AA contrast (5.8s)
+(node:269773) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  41 [desktop1920] › tests/e2e/overflow-regression.spec.ts:91:5 › loading, empty, error, and permission states remain usable (5.1s)
+  ✓  40 [desktop1920] › tests/e2e/generation-factory-shell.spec.ts:196:5 › generation prompt keeps an unfinished brief for the same workspace (6.6s)
+(node:270041) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:270112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  42 [compact1280] › tests/e2e/generation-practice-resources.spec.ts:27:5 › practice resources preserve detailed natural-language briefs and canonical Agent hints (6.9s)
+  ✓  39 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:89:5 › all factory buttons submit their canonical hint through the Agent stream (11.0s)
+  ✓  43 [compact1280] › tests/e2e/generation-text-resources.spec.ts:27:5 › long-form resources send complete natural-language requirements to the Agent (6.9s)
+  ✓  44 [compact1280] › tests/e2e/generation-visual-resources.spec.ts:27:5 › visual resources use the shared concise Agent dialog without horizontal overflow (6.6s)
+(node:270554) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  47 [compact1280] › tests/e2e/overflow-regression.spec.ts:24:5 › every approved page stays within the viewport without new React warnings (2.2s)
+  ✓  46 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:133:5 › factory submission enters the Agent stream with the exact brief and action hint (6.4s)
+  ✓  45 [compact1280] › tests/e2e/keyboard-accessibility.spec.ts:19:5 › teacher completes the core workflow with the keyboard only (12.0s)
+  ✓  48 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:46:5 › all generation buttons open the same concise Agent prompt (8.3s)
+  ✓  50 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:176:5 › personal documents checked on the left become the optional Agent source (7.6s)
+  ✓  51 [compact1280] › tests/e2e/keyboard-accessibility.spec.ts:104:5 › critical text and primary actions meet WCAG AA contrast (6.5s)
+(node:271364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  49 [compact1280] › tests/e2e/overflow-regression.spec.ts:43:5 › all eight generation Agent dialogs keep prompt and action reachable (13.7s)
+  ✓  53 [compact1280] › tests/e2e/generation-factory-shell.spec.ts:196:5 › generation prompt keeps an unfinished brief for the same workspace (6.2s)
+(node:271517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  52 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:89:5 › all factory buttons submit their canonical hint through the Agent stream (10.0s)
+  ✓  55 [compact1280] › tests/e2e/overflow-regression.spec.ts:91:5 › loading, empty, error, and permission states remain usable (5.2s)
+(node:271769) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  54 [compact1024] › tests/e2e/generation-practice-resources.spec.ts:27:5 › practice resources preserve detailed natural-language briefs and canonical Agent hints (7.3s)
+  ✓  56 [compact1024] › tests/e2e/generation-text-resources.spec.ts:27:5 › long-form resources send complete natural-language requirements to the Agent (7.8s)
+  ✓  57 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:133:5 › factory submission enters the Agent stream with the exact brief and action hint (6.5s)
+  ✓  60 [compact1024] › tests/e2e/overflow-regression.spec.ts:24:5 › every approved page stays within the viewport without new React warnings (2.3s)
+  ✓  58 [compact1024] › tests/e2e/generation-visual-resources.spec.ts:27:5 › visual resources use the shared concise Agent dialog without horizontal overflow (6.2s)
+(node:272255) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  61 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:176:5 › personal documents checked on the left become the optional Agent source (6.4s)
+  ✓  59 [compact1024] › tests/e2e/keyboard-accessibility.spec.ts:19:5 › teacher completes the core workflow with the keyboard only (13.1s)
+  ✓  63 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:46:5 › all generation buttons open the same concise Agent prompt (7.2s)
+  ✓  64 [compact1024] › tests/e2e/generation-factory-shell.spec.ts:196:5 › generation prompt keeps an unfinished brief for the same workspace (6.1s)
+  ✓  62 [compact1024] › tests/e2e/overflow-regression.spec.ts:43:5 › all eight generation Agent dialogs keep prompt and action reachable (11.9s)
+  ✓  65 [compact1024] › tests/e2e/keyboard-accessibility.spec.ts:104:5 › critical text and primary actions meet WCAG AA contrast (5.3s)
+  ✓  66 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:89:5 › all factory buttons submit their canonical hint through the Agent stream (8.2s)
+  ✓  67 [compact1024] › tests/e2e/overflow-regression.spec.ts:91:5 › loading, empty, error, and permission states remain usable (5.1s)
+  ✓  68 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:133:5 › factory submission enters the Agent stream with the exact brief and action hint (6.1s)
+  ✓  69 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:176:5 › personal documents checked on the left become the optional Agent source (5.5s)
+  ✓  70 [mobile390] › tests/e2e/generation-factory-shell.spec.ts:196:5 › generation prompt keeps an unfinished brief for the same workspace (5.0s)
+
+  70 passed (2.6m)

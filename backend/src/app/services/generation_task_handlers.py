@@ -224,7 +224,7 @@ class _AgentReportGenerationAdapter:
         job_id: str,
         config_snapshot_id: str,
     ) -> dict[str, Any]:
-        if getattr(payload, "harness_outline_id", None):
+        if getattr(payload, "review_policy", "standard") == "required":
             from app.chat.harness.reviewed_report import generate_reviewed_report, ReportReviewFailed
             from app.services.durable_task_handlers import DurableTaskExecutionError
             try:
@@ -570,8 +570,16 @@ class GenerationTaskHandler:
                 "result_ref": {},
             }
         payload = self._build_payload(command, context, execution_context)
-        context.progress(5, "generating", "正在根据课程资料生成内容")
-        generator = factory()
+        context.progress(5, "generating", "正在准备生成内容")
+        review_required = (
+            command.get("review_policy") == "required"
+            or bool(config.get("harness_review_required"))
+        )
+        if review_required and resource_type != 'report':
+            from app.chat.harness.reviewed_resource import ReviewedResourceGenerator
+            generator = ReviewedResourceGenerator(progress=context.progress)
+        else:
+            generator = factory()
         generate_kwargs: dict[str, Any] = {
             "job_id": context.task_id,
             "config_snapshot_id": context.config_snapshot_id or "",
@@ -641,6 +649,8 @@ class GenerationTaskHandler:
                 config=_freeze(deepcopy(config)),
             )
         base: dict[str, Any] = {
+            "resource_type": resource_type,
+            "title": str(config.get("title") or config.get("topic") or resource_type),
             "owner": context.owner_user_id,
             "course_id": str(command.get("course_id") or context.course_id or ""),
             "scope_type": str(command.get("scope_type") or "course"),
@@ -656,7 +666,34 @@ class GenerationTaskHandler:
             "source_mode": execution_context.source.mode,
             "allow_rag": bool(execution_context.source.documents),
             "material_id": str(command.get("material_id") or ""),
+            "review_policy": str(command.get("review_policy") or "standard"),
         }
+        # The reviewed generator consumes one common specification regardless
+        # of the resource-specific legacy adapter shape. Generation Factory
+        # commands use entrypoint=generation_factory, so these fields must not
+        # depend on the older entrypoint=agent compatibility branch below.
+        for key in (
+            "subject",
+            "audience",
+            "focus",
+            "confirmed_outline",
+            "harness_chapters",
+            "harness_organization",
+            "classroom_options",
+            "harness_interaction_mode",
+            "research_context",
+            "research_sources",
+            "harness_execution_context",
+            "standard_bundle_spec",
+            "standard_bundle_contract",
+            "standard_action",
+            "baseline_version",
+            "baseline_summary",
+            "approved_version",
+            "rejection_reason",
+        ):
+            if key in config:
+                base[key] = deepcopy(config[key])
         if resource_type == "report":
             base.update(config)
         elif resource_type == "quiz":
@@ -775,10 +812,18 @@ class GenerationTaskHandler:
                 "result_ref": {},
             }
         artifact = dict(artifacts[0])
-        if resource_type == "report" and (command.get("config") or {}).get("harness_outline_id"):
+        review_required = (
+            command.get("review_policy") == "required"
+            or bool((command.get("config") or {}).get("harness_review_required"))
+        )
+        if resource_type == "report" and review_required:
             from app.chat.harness.reviewed_report import verified_review
             if not verified_review(artifact):
                 raise ValueError("harness_report_review_missing_or_stale_before_publish")
+        if resource_type != 'report' and review_required:
+            from app.chat.harness.reviewed_resource import verified_resource
+            if not verified_resource(artifact, resource_type):
+                raise ValueError('harness_resource_review_missing_or_stale_before_publish')
         material_id = str(command.get("material_id") or "").strip()
         course_id = str(command.get("course_id") or context.course_id or "").strip()
         standard_metadata = dict(
@@ -816,6 +861,16 @@ class GenerationTaskHandler:
                 },
             )
         )
+        saved_material = (
+            self.course_storage_manager.get_generated_material(
+                course_id,
+                resource_type,
+                material_id,
+                owner_user_id=context.owner_user_id,
+            )
+            if saved
+            else None
+        )
         return {
             **result,
             "saved": saved,
@@ -827,6 +882,9 @@ class GenerationTaskHandler:
                 "course_id": course_id,
                 "material_type": resource_type,
                 "material_id": material_id,
+                "version": (saved_material or {}).get("version"),
+                "content_hash": (saved_material or {}).get("content_hash"),
+                "generation_batch_id": (saved_material or {}).get("generation_batch_id"),
             },
         }
 

@@ -20,7 +20,10 @@ ENVIRONMENT_DEFAULTS: dict[str, dict[str, Any]] = {
     "llm": {
         "provider_name": "environment",
         "base_url": Config.DEEP_MODEL_API_BASE,
-        "api_key": Config.DEEP_MODEL_API_KEY,
+        "api_key": Config.resolve_llm_api_key(
+            Config.DEEP_MODEL_API_BASE,
+            Config.DEEP_MODEL_API_KEY,
+        ),
         "model": Config.LLM_MODEL_DEEP,
         "timeout_seconds": 120,
     },

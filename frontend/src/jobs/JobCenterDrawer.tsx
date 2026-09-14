@@ -386,7 +386,7 @@ function JobCard({
           <h4 title={title}>{title}</h4>
         </div>
         <span className={`job-card__status is-${job.status}`}>
-          {jobStatusLabel(job.status)}
+          {jobStatusLabel(job)}
         </span>
       </div>
       <div className="job-card__progress" aria-label={`任务进度 ${job.progress}%`}>
@@ -440,7 +440,8 @@ function jobIcon(kind: string) {
   return "auto_awesome";
 }
 
-function jobStatusLabel(status: JobRecord["status"]) {
+function jobStatusLabel(job: JobRecord) {
+  if (job.status === "queued" && job.step === "preparing") return "准备中";
   return (
     {
       queued: "排队中",
@@ -450,7 +451,7 @@ function jobStatusLabel(status: JobRecord["status"]) {
       partially_succeeded: "部分完成",
       failed: "失败",
       canceled: "已取消",
-    }[status] || status
+    }[job.status] || job.status
   );
 }
 

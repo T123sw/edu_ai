@@ -1,0 +1,4227 @@
+
+> edu-ai-frontend@0.1.0 test /home/zxqs_ep/Edu_AI/frontend
+> node --import tsx --test "src/**/*.test.ts" "scripts/**/*.test.ts"
+
+TAP version 13
+# Subtest: buildRenderUrl creates fixture and authenticated classroom routes
+ok 1 - buildRenderUrl creates fixture and authenticated classroom routes
+  ---
+  duration_ms: 2.156532
+  type: 'test'
+  ...
+# Subtest: parseVideoExportArguments enforces one source and an explicit output directory
+ok 2 - parseVideoExportArguments enforces one source and an explicit output directory
+  ---
+  duration_ms: 3.971208
+  type: 'test'
+  ...
+# Subtest: parseVideoExportArguments separates navigation and scene timeouts
+ok 3 - parseVideoExportArguments separates navigation and scene timeouts
+  ---
+  duration_ms: 0.606465
+  type: 'test'
+  ...
+# Subtest: serializeConcatManifest quotes apostrophes and normalizes Windows separators
+ok 4 - serializeConcatManifest quotes apostrophes and normalizes Windows separators
+  ---
+  duration_ms: 0.442268
+  type: 'test'
+  ...
+# Subtest: buildAudioMixArguments delays and mixes narration at global timeline offsets
+ok 5 - buildAudioMixArguments delays and mixes narration at global timeline offsets
+  ---
+  duration_ms: 0.69644
+  type: 'test'
+  ...
+# Subtest: buildAudioMixArguments does not attenuate narration according to clip count
+ok 6 - buildAudioMixArguments does not attenuate narration according to clip count
+  ---
+  duration_ms: 1.086481
+  type: 'test'
+  ...
+# Subtest: createTimelineArtifact removes ephemeral audio URLs without mutating playback data
+ok 7 - createTimelineArtifact removes ephemeral audio URLs without mutating playback data
+  ---
+  duration_ms: 0.826428
+  type: 'test'
+  ...
+# Subtest: report generation requests the grounded visual pipeline by default
+ok 8 - report generation requests the grounded visual pipeline by default
+  ---
+  duration_ms: 2.151394
+  type: 'test'
+  ...
+# Subtest: quiz answer and explanation switches are independent
+ok 9 - quiz answer and explanation switches are independent
+  ---
+  duration_ms: 6.849794
+  type: 'test'
+  ...
+# Subtest: quiz requires at least one supported question type
+ok 10 - quiz requires at least one supported question type
+  ---
+  duration_ms: 0.542867
+  type: 'test'
+  ...
+# Subtest: flashcard title remains plain text and all settings serialize
+ok 11 - flashcard title remains plain text and all settings serialize
+  ---
+  duration_ms: 0.468274
+  type: 'test'
+  ...
+# Subtest: game card count is required and bounded
+ok 12 - game card count is required and bounded
+  ---
+  duration_ms: 0.455679
+  type: 'test'
+  ...
+# Subtest: game duration and difficulty reach the command
+ok 13 - game duration and difficulty reach the command
+  ---
+  duration_ms: 0.57943
+  type: 'test'
+  ...
+# Subtest: report fields map to the durable report command
+ok 14 - report fields map to the durable report command
+  ---
+  duration_ms: 5.158329
+  type: 'test'
+  ...
+# Subtest: lesson plan effective generation fields are serialized
+ok 15 - lesson plan effective generation fields are serialized
+  ---
+  duration_ms: 0.651219
+  type: 'test'
+  ...
+# Subtest: blog tone and length reach the durable command
+ok 16 - blog tone and length reach the durable command
+  ---
+  duration_ms: 0.390857
+  type: 'test'
+  ...
+# Subtest: text definitions report field-specific validation errors
+ok 17 - text definitions report field-specific validation errors
+  ---
+  duration_ms: 0.456131
+  type: 'test'
+  ...
+# Subtest: mind-map description and depth are serialized
+ok 18 - mind-map description and depth are serialized
+  ---
+  duration_ms: 2.444898
+  type: 'test'
+  ...
+# Subtest: classroom voice and teaching settings reach the request
+ok 19 - classroom voice and teaching settings reach the request
+  ---
+  duration_ms: 7.380476
+  type: 'test'
+  ...
+# Subtest: factory and classroom page use the same definition
+ok 20 - factory and classroom page use the same definition
+  ---
+  duration_ms: 0.442209
+  type: 'test'
+  ...
+# Subtest: builds immutable Agent requests for every generation resource
+ok 21 - builds immutable Agent requests for every generation resource
+  ---
+  duration_ms: 2.974639
+  type: 'test'
+  ...
+# Subtest: selected sources are normalized without changing the user text
+ok 22 - selected sources are normalized without changing the user text
+  ---
+  duration_ms: 20.138026
+  type: 'test'
+  ...
+# Subtest: rejects empty requirements and invalid workspace or source snapshots
+ok 23 - rejects empty requirements and invalid workspace or source snapshots
+  ---
+  duration_ms: 1.329387
+  type: 'test'
+  ...
+# Subtest: normalization only trims and never substitutes examples
+ok 24 - normalization only trims and never substitutes examples
+  ---
+  duration_ms: 0.282602
+  type: 'test'
+  ...
+# Subtest: recent generation uses the subject as its title and the matching tool icon
+ok 25 - recent generation uses the subject as its title and the matching tool icon
+  ---
+  duration_ms: 5.020102
+  type: 'test'
+  ...
+# Subtest: legacy jobs fall back to their resource name without a generation suffix
+ok 26 - legacy jobs fall back to their resource name without a generation suffix
+  ---
+  duration_ms: 14.502263
+  type: 'test'
+  ...
+# Subtest: mind map uses the graph resource type expected by generation preflight
+ok 27 - mind map uses the graph resource type expected by generation preflight
+  ---
+  duration_ms: 2.149381
+  type: 'test'
+  ...
+# Subtest: renders one empty natural-language field with a non-submitted placeholder
+ok 28 - renders one empty natural-language field with a non-submitted placeholder
+  ---
+  duration_ms: 15.066439
+  type: 'test'
+  ...
+# Subtest: source summaries remain concise
+ok 29 - source summaries remain concise
+  ---
+  duration_ms: 0.349671
+  type: 'test'
+  ...
+# Subtest: draft keys isolate owner, course, scope, and resource type
+ok 30 - draft keys isolate owner, course, scope, and resource type
+  ---
+  duration_ms: 6.734285
+  type: 'test'
+  ...
+# Subtest: registry contains exactly eight distinct resources
+ok 31 - registry contains exactly eight distinct resources
+  ---
+  duration_ms: 4.955996
+  type: 'test'
+  ...
+# Subtest: every generation resource has teacher-facing copy
+ok 32 - every generation resource has teacher-facing copy
+  ---
+  duration_ms: 0.570725
+  type: 'test'
+  ...
+# Subtest: mind map is the only UI resource with a different canonical type
+ok 33 - mind map is the only UI resource with a different canonical type
+  ---
+  duration_ms: 0.368197
+  type: 'test'
+  ...
+# Subtest: rendered generation resources require an explicit allowlist
+ok 34 - rendered generation resources require an explicit allowlist
+  ---
+  duration_ms: 0.473331
+  type: 'test'
+  ...
+# Subtest: switching away from selected documents clears stale IDs
+ok 35 - switching away from selected documents clears stale IDs
+  ---
+  duration_ms: 4.617883
+  type: 'test'
+  ...
+# Subtest: selected-document mode preserves only explicit ready selections
+ok 36 - selected-document mode preserves only explicit ready selections
+  ---
+  duration_ms: 0.36325
+  type: 'test'
+  ...
+# Subtest: opening generation uses the documents selected in the left knowledge panel
+ok 37 - opening generation uses the documents selected in the left knowledge panel
+  ---
+  duration_ms: 0.389192
+  type: 'test'
+  ...
+# Subtest: opening generation without selected documents does not use knowledge by default
+ok 38 - opening generation without selected documents does not use knowledge by default
+  ---
+  duration_ms: 0.237964
+  type: 'test'
+  ...
+# Subtest: opening generation inherits automatic course retrieval when enabled
+ok 39 - opening generation inherits automatic course retrieval when enabled
+  ---
+  duration_ms: 0.584368
+  type: 'test'
+  ...
+# Subtest: student course sources are strictly select and preview only
+ok 40 - student course sources are strictly select and preview only
+  ---
+  duration_ms: 4.175715
+  type: 'test'
+  ...
+# Subtest: student personal sources allow owner management and retry only on failure
+ok 41 - student personal sources allow owner management and retry only on failure
+  ---
+  duration_ms: 0.617898
+  type: 'test'
+  ...
+# Subtest: student source actions never contain course mutations
+ok 42 - student source actions never contain course mutations
+  ---
+  duration_ms: 0.429743
+  type: 'test'
+  ...
+# Subtest: failed active history is detached before a new agent turn
+ok 43 - failed active history is detached before a new agent turn
+  ---
+  duration_ms: 5.243346
+  type: 'test'
+  ...
+# Subtest: failure for a non-active history does not clear current chat
+ok 44 - failure for a non-active history does not clear current chat
+  ---
+  duration_ms: 0.362367
+  type: 'test'
+  ...
+# Subtest: active recovery failure clears injected store state and detaches the id
+ok 45 - active recovery failure clears injected store state and detaches the id
+  ---
+  duration_ms: 0.554761
+  type: 'test'
+  ...
+# Subtest: non-active recovery failure leaves injected current chat state untouched
+ok 46 - non-active recovery failure leaves injected current chat state untouched
+  ---
+  duration_ms: 0.51206
+  type: 'test'
+  ...
+# Subtest: dismiss clears the local error and retry targets its failed conversation
+ok 47 - dismiss clears the local error and retry targets its failed conversation
+  ---
+  duration_ms: 0.357769
+  type: 'test'
+  ...
+# Subtest: conversation detail errors expose stable user messages
+ok 48 - conversation detail errors expose stable user messages
+  ---
+  duration_ms: 0.729925
+  type: 'test'
+  ...
+# Subtest: conversation detail request hides network and HTTP diagnostics
+ok 49 - conversation detail request hides network and HTTP diagnostics
+  ---
+  duration_ms: 84.333654
+  type: 'test'
+  ...
+# Subtest: slow A cannot overwrite fast B or clear B loading state
+ok 50 - slow A cannot overwrite fast B or clear B loading state
+  ---
+  duration_ms: 1.149206
+  type: 'test'
+  ...
+# Subtest: A failure cannot replace B success with a stale local error
+ok 51 - A failure cannot replace B success with a stale local error
+  ---
+  duration_ms: 0.878668
+  type: 'test'
+  ...
+# Subtest: newer same-conversation failure rejects an older success
+ok 52 - newer same-conversation failure rejects an older success
+  ---
+  duration_ms: 1.146571
+  type: 'test'
+  ...
+# Subtest: new conversation invalidates an in-flight history response
+ok 53 - new conversation invalidates an in-flight history response
+  ---
+  duration_ms: 0.426454
+  type: 'test'
+  ...
+# Subtest: clearing active recovery prevents an already-started background poll write
+ok 54 - clearing active recovery prevents an already-started background poll write
+  ---
+  duration_ms: 0.627234
+  type: 'test'
+  ...
+# Subtest: new conversation and switch invalidate an in-flight background poll
+ok 55 - new conversation and switch invalidate an in-flight background poll
+  ---
+  duration_ms: 0.531299
+  type: 'test'
+  ...
+# Subtest: a newer task in the same conversation invalidates an older poll
+ok 56 - a newer task in the same conversation invalidates an older poll
+  ---
+  duration_ms: 0.349754
+  type: 'test'
+  ...
+# Subtest: late pending task cannot bind after its send context is invalidated
+ok 57 - late pending task cannot bind after its send context is invalidated
+  ---
+  duration_ms: 0.730868
+  type: 'test'
+  ...
+# Subtest: late pending task binds while its original send context is current
+ok 58 - late pending task binds while its original send context is current
+  ---
+  duration_ms: 0.354369
+  type: 'test'
+  ...
+# Subtest: a history initialization that resolves after a send cannot clear the new messages
+ok 59 - a history initialization that resolves after a send cannot clear the new messages
+  ---
+  duration_ms: 0.523591
+  type: 'test'
+  ...
+# Subtest: ChatPanel empty state
+    # Subtest: replaces the component-library default with course-specific guidance
+    ok 1 - replaces the component-library default with course-specific guidance
+      ---
+      duration_ms: 1.936127
+      type: 'test'
+      ...
+    1..1
+ok 60 - ChatPanel empty state
+  ---
+  duration_ms: 3.760858
+  type: 'suite'
+  ...
+# Subtest: accepts only the original owner, course, and workspace scope
+ok 61 - accepts only the original owner, course, and workspace scope
+  ---
+  duration_ms: 2.19504
+  type: 'test'
+  ...
+# Subtest: recovery keeps the original account and maps graph back to its UI draft key
+ok 62 - recovery keeps the original account and maps graph back to its UI draft key
+  ---
+  duration_ms: 0.599864
+  type: 'test'
+  ...
+# Subtest: generation completion explains that the new resource is private
+ok 63 - generation completion explains that the new resource is private
+  ---
+  duration_ms: 2.104077
+  type: 'test'
+  ...
+# Subtest: shared generation completion names the course space
+ok 64 - shared generation completion names the course space
+  ---
+  duration_ms: 0.308771
+  type: 'test'
+  ...
+# Subtest: synchronous generation replaces legacy server copy with private visibility
+ok 65 - synchronous generation replaces legacy server copy with private visibility
+  ---
+  duration_ms: 0.419301
+  type: 'test'
+  ...
+# Subtest: polled generation keeps ordinary chat replies when no resource was created
+ok 66 - polled generation keeps ordinary chat replies when no resource was created
+  ---
+  duration_ms: 0.279053
+  type: 'test'
+  ...
+# Subtest: reading an existing report keeps the streamed explanation even with an attachment
+ok 67 - reading an existing report keeps the streamed explanation even with an attachment
+  ---
+  duration_ms: 0.263792
+  type: 'test'
+  ...
+# Subtest: selecting a parent knowledge node includes every descendant node
+ok 68 - selecting a parent knowledge node includes every descendant node
+  ---
+  duration_ms: 4.70395
+  type: 'test'
+  ...
+# Subtest: subtree collection is stable for leaf nodes and unknown scopes
+ok 69 - subtree collection is stable for leaf nodes and unknown scopes
+  ---
+  duration_ms: 0.422732
+  type: 'test'
+  ...
+# Subtest: strips embedding-only chapter context before source matching
+ok 70 - strips embedding-only chapter context before source matching
+  ---
+  duration_ms: 2.350123
+  type: 'test'
+  ...
+# Subtest: maps whitespace-normalized source content back to the complete raw range
+ok 71 - maps whitespace-normalized source content back to the complete raw range
+  ---
+  duration_ms: 1.07485
+  type: 'test'
+  ...
+# Subtest: does not degrade to repeated keyword highlighting when a chunk cannot align
+ok 72 - does not degrade to repeated keyword highlighting when a chunk cannot align
+  ---
+  duration_ms: 0.430915
+  type: 'test'
+  ...
+# Subtest: course knowledge tree renders child structure before root-level documents
+ok 73 - course knowledge tree renders child structure before root-level documents
+  ---
+  duration_ms: 8.91644
+  type: 'test'
+  ...
+# Subtest: course tree layout keeps child structure visually ahead of direct documents
+ok 74 - course tree layout keeps child structure visually ahead of direct documents
+  ---
+  duration_ms: 3.051781
+  type: 'test'
+  ...
+# Subtest: knowledge uploads register one global job and do not start a private poller
+ok 75 - knowledge uploads register one global job and do not start a private poller
+  ---
+  duration_ms: 8.814101
+  type: 'test'
+  ...
+# Subtest: knowledge documents expose lifecycle recovery and retrieval validation
+ok 76 - knowledge documents expose lifecycle recovery and retrieval validation
+  ---
+  duration_ms: 5.069299
+  type: 'test'
+  ...
+# Subtest: shared source panel keeps student personal and course permissions isolated
+ok 77 - shared source panel keeps student personal and course permissions isolated
+  ---
+  duration_ms: 4.174416
+  type: 'test'
+  ...
+# Subtest: video uploads delegate progress to the global recoverable job center
+ok 78 - video uploads delegate progress to the global recoverable job center
+  ---
+  duration_ms: 2.37254
+  type: 'test'
+  ...
+# Subtest: managed course documents use their public id instead of a preview URL
+ok 79 - managed course documents use their public id instead of a preview URL
+  ---
+  duration_ms: 2.349374
+  type: 'test'
+  ...
+# Subtest: legacy personal documents keep their storage key
+ok 80 - legacy personal documents keep their storage key
+  ---
+  duration_ms: 0.356617
+  type: 'test'
+  ...
+# Subtest: generation studio exposes all seven approved resource entries in order
+ok 81 - generation studio exposes all seven approved resource entries in order
+  ---
+  duration_ms: 4.781516
+  type: 'test'
+  ...
+# Subtest: every generation entry has visible user-facing copy and a stable accent
+ok 82 - every generation entry has visible user-facing copy and a stable accent
+  ---
+  duration_ms: 0.839098
+  type: 'test'
+  ...
+# Subtest: web documents fall back to the source website favicon
+ok 83 - web documents fall back to the source website favicon
+  ---
+  duration_ms: 2.478615
+  type: 'test'
+  ...
+# Subtest: legacy deep-research filenames retain enough information for a site icon
+ok 84 - legacy deep-research filenames retain enough information for a site icon
+  ---
+  duration_ms: 0.717044
+  type: 'test'
+  ...
+# Subtest: invalid and non-web URLs do not create favicon requests
+ok 85 - invalid and non-web URLs do not create favicon requests
+  ---
+  duration_ms: 0.353736
+  type: 'test'
+  ...
+# Subtest: only leaves are offered while duplicate topic names retain distinct paths
+ok 86 - only leaves are offered while duplicate topic names retain distinct paths
+  ---
+  duration_ms: 5.100489
+  type: 'test'
+  ...
+# Subtest: topic tree retains chapters for navigation and expands the selected topic path
+ok 87 - topic tree retains chapters for navigation and expands the selected topic path
+  ---
+  duration_ms: 1.144464
+  type: 'test'
+  ...
+# Subtest: classroom generation and video export use the global task source
+ok 88 - classroom generation and video export use the global task source
+  ---
+  duration_ms: 10.344952
+  type: 'test'
+  ...
+# Subtest: the global manager is mounted outside the keyed route subtree
+ok 89 - the global manager is mounted outside the keyed route subtree
+  ---
+  duration_ms: 3.381374
+  type: 'test'
+  ...
+# Subtest: chat and direct generation no longer poll chat tasks on private intervals
+ok 90 - chat and direct generation no longer poll chat tasks on private intervals
+  ---
+  duration_ms: 5.545506
+  type: 'test'
+  ...
+# Subtest: job cards stay inside the narrow task drawer
+ok 91 - job cards stay inside the narrow task drawer
+  ---
+  duration_ms: 12.010363
+  type: 'test'
+  ...
+# Subtest: the task center supports a shared inline trigger without duplicating its store
+ok 92 - the task center supports a shared inline trigger without duplicating its store
+  ---
+  duration_ms: 9.301397
+  type: 'test'
+  ...
+# Subtest: the task center renders three status totals and no task id copy action
+ok 93 - the task center renders three status totals and no task id copy action
+  ---
+  duration_ms: 4.625784
+  type: 'test'
+  ...
+# Subtest: course scope only exposes jobs belonging to the course it was opened from
+ok 94 - course scope only exposes jobs belonging to the course it was opened from
+  ---
+  duration_ms: 5.955521
+  type: 'test'
+  ...
+# Subtest: global scope groups all jobs by course and leaves unscoped jobs in a final bucket
+ok 95 - global scope groups all jobs by course and leaves unscoped jobs in a final bucket
+  ---
+  duration_ms: 0.956197
+  type: 'test'
+  ...
+# Subtest: course scope keeps an empty course group so the drawer can show a scoped empty state
+ok 96 - course scope keeps an empty course group so the drawer can show a scoped empty state
+  ---
+  duration_ms: 0.412132
+  type: 'test'
+  ...
+# Subtest: poll delay follows visibility, status and bounded network backoff
+ok 97 - poll delay follows visibility, status and bounded network backoff
+  ---
+  duration_ms: 5.3849
+  type: 'test'
+  ...
+# Subtest: only one tab owns the polling lease until it expires or releases
+ok 98 - only one tab owns the polling lease until it expires or releases
+  ---
+  duration_ms: 0.941599
+  type: 'test'
+  ...
+# Subtest: summarizeJobs reports completed, active, and failed counts
+ok 99 - summarizeJobs reports completed, active, and failed counts
+  ---
+  duration_ms: 6.337839
+  type: 'test'
+  ...
+# Subtest: getJobPrimaryAction returns only the action for the current state
+ok 100 - getJobPrimaryAction returns only the action for the current state
+  ---
+  duration_ms: 0.585871
+  type: 'test'
+  ...
+# Subtest: presentJobError maps stable codes to concise Chinese guidance
+ok 101 - presentJobError maps stable codes to concise Chinese guidance
+  ---
+  duration_ms: 0.441358
+  type: 'test'
+  ...
+# Subtest: presentJobError never exposes unknown technical error text
+ok 102 - presentJobError never exposes unknown technical error text
+  ---
+  duration_ms: 0.628508
+  type: 'test'
+  ...
+# Subtest: presentJobDetail replaces legacy English worker messages
+ok 103 - presentJobDetail replaces legacy English worker messages
+  ---
+  duration_ms: 0.616595
+  type: 'test'
+  ...
+# Subtest: builds an exact course material target
+ok 104 - builds an exact course material target
+  ---
+  duration_ms: 3.372931
+  type: 'test'
+  ...
+# Subtest: keeps classroom results on the classroom player
+ok 105 - keeps classroom results on the classroom player
+  ---
+  duration_ms: 0.46064
+  type: 'test'
+  ...
+# Subtest: does not offer a generic result link without an exact material
+ok 106 - does not offer a generic result link without an exact material
+  ---
+  duration_ms: 0.260006
+  type: 'test'
+  ...
+# Subtest: opens classroom video results in their classroom
+ok 107 - opens classroom video results in their classroom
+  ---
+  duration_ms: 0.27255
+  type: 'test'
+  ...
+# Subtest: revision jobs open the original material identity and read-only turns return to their conversation
+ok 108 - revision jobs open the original material identity and read-only turns return to their conversation
+  ---
+  duration_ms: 0.70035
+  type: 'test'
+  ...
+# Subtest: hydrates active and recent tasks into one deduplicated newest-first list
+ok 109 - hydrates active and recent tasks into one deduplicated newest-first list
+  ---
+  duration_ms: 27.892049
+  type: 'test'
+  ...
+# Subtest: emits a terminal transition exactly once
+ok 110 - emits a terminal transition exactly once
+  ---
+  duration_ms: 0.65907
+  type: 'test'
+  ...
+# Subtest: does not notify for terminal history received during initial hydration
+ok 111 - does not notify for terminal history received during initial hydration
+  ---
+  duration_ms: 0.55594
+  type: 'test'
+  ...
+# Subtest: course selectors keep jobs isolated and reset removes the previous user
+ok 112 - course selectors keep jobs isolated and reset removes the previous user
+  ---
+  duration_ms: 0.602007
+  type: 'test'
+  ...
+# Subtest: vite ignores backend runtime files that change while jobs are running
+ok 113 - vite ignores backend runtime files that change while jobs are running
+  ---
+  duration_ms: 5.023189
+  type: 'test'
+  ...
+# Subtest: resource quiz scenes forward answer submissions to the learning recorder
+ok 114 - resource quiz scenes forward answer submissions to the learning recorder
+  ---
+  duration_ms: 2.350488
+  type: 'test'
+  ...
+# Subtest: interactive scenes forward demo actions to the learning recorder
+ok 115 - interactive scenes forward demo actions to the learning recorder
+  ---
+  duration_ms: 0.485322
+  type: 'test'
+  ...
+# Subtest: sanitizes PPTX filenames for browsers and Windows
+ok 116 - sanitizes PPTX filenames for browsers and Windows
+  ---
+  duration_ms: 3.058106
+  type: 'test'
+  ...
+# Subtest: guards duplicate downloads and releases state after success
+ok 117 - guards duplicate downloads and releases state after success
+  ---
+  duration_ms: 1.86454
+  type: 'test'
+  ...
+# Subtest: releases state and skips saving when export fails
+ok 118 - releases state and skips saving when export fails
+  ---
+  duration_ms: 1.285559
+  type: 'test'
+  ...
+# Subtest: quiz submission persists all non-empty answers even when every answer is wrong
+ok 119 - quiz submission persists all non-empty answers even when every answer is wrong
+  ---
+  duration_ms: 4.243984
+  type: 'test'
+  ...
+# Subtest: quiz submission rejects a missing required answer
+ok 120 - quiz submission rejects a missing required answer
+  ---
+  duration_ms: 0.970432
+  type: 'test'
+  ...
+# Subtest: falls back to browser TTS when audio loading or playback fails
+ok 121 - falls back to browser TTS when audio loading or playback fails
+  ---
+  duration_ms: 6.062678
+  type: 'test'
+  ...
+# Subtest: falls back to deterministic reading dwell when browser TTS also fails
+ok 122 - falls back to deterministic reading dwell when browser TTS also fails
+  ---
+  duration_ms: 0.780374
+  type: 'test'
+  ...
+# Subtest: keeps paired focus active until narration ends and then clears it
+ok 123 - keeps paired focus active until narration ends and then clears it
+  ---
+  duration_ms: 22.609086
+  type: 'test'
+  ...
+# Subtest: clears orphan focus after the fixed timeout
+ok 124 - clears orphan focus after the fixed timeout
+  ---
+  duration_ms: 16.100342
+  type: 'test'
+  ...
+# Subtest: dispose cancels active narration and releases paired focus
+ok 125 - dispose cancels active narration and releases paired focus
+  ---
+  duration_ms: 0.990608
+  type: 'test'
+  ...
+# Subtest: cancelCurrent stops active narration and allows the next execution
+ok 126 - cancelCurrent stops active narration and allows the next execution
+  ---
+  duration_ms: 0.591909
+  type: 'test'
+  ...
+# Subtest: waits for controlled embedded video completion
+ok 127 - waits for controlled embedded video completion
+  ---
+  duration_ms: 0.54421
+  type: 'test'
+  ...
+# Subtest: dispose cancels active embedded video playback
+ok 128 - dispose cancels active embedded video playback
+  ---
+  duration_ms: 0.405232
+  type: 'test'
+  ...
+# Subtest: forwards widget actions through the active iframe controller
+ok 129 - forwards widget actions through the active iframe controller
+  ---
+  duration_ms: 1.34423
+  type: 'test'
+  ...
+# Subtest: selects an exact requested voice before the language fallback
+ok 130 - selects an exact requested voice before the language fallback
+  ---
+  duration_ms: 0.915891
+  type: 'test'
+  ...
+# Subtest: falls back to an available Chinese voice when the requested voice is absent
+ok 131 - falls back to an available Chinese voice when the requested voice is absent
+  ---
+  duration_ms: 0.299371
+  type: 'test'
+  ...
+# Subtest: narration advances only after each spoken sentence finishes
+ok 132 - narration advances only after each spoken sentence finishes
+  ---
+  duration_ms: 0.691854
+  type: 'test'
+  ...
+# Subtest: buildClassroomPlayerHash encodes course and classroom ids
+ok 133 - buildClassroomPlayerHash encodes course and classroom ids
+  ---
+  duration_ms: 3.65876
+  type: 'test'
+  ...
+# Subtest: classroom player links preserve catalog return context
+ok 134 - classroom player links preserve catalog return context
+  ---
+  duration_ms: 0.560262
+  type: 'test'
+  ...
+# Subtest: waitForClassroomGenerationJob reports progress and returns the classroom result
+ok 135 - waitForClassroomGenerationJob reports progress and returns the classroom result
+  ---
+  duration_ms: 2.956296
+  type: 'test'
+  ...
+# Subtest: waitForClassroomGenerationJob continues after a transient poll failure
+ok 136 - waitForClassroomGenerationJob continues after a transient poll failure
+  ---
+  duration_ms: 1.020947
+  type: 'test'
+  ...
+# Subtest: waitForClassroomGenerationJob stops after repeated poll failures
+ok 137 - waitForClassroomGenerationJob stops after repeated poll failures
+  ---
+  duration_ms: 1.48306
+  type: 'test'
+  ...
+# Subtest: waitForClassroomGenerationJob surfaces a failed generation job
+ok 138 - waitForClassroomGenerationJob surfaces a failed generation job
+  ---
+  duration_ms: 0.682139
+  type: 'test'
+  ...
+# Subtest: waitForClassroomGenerationJob rejects success without a classroom result
+ok 139 - waitForClassroomGenerationJob rejects success without a classroom result
+  ---
+  duration_ms: 0.619659
+  type: 'test'
+  ...
+# Subtest: waitForClassroomGenerationJob stops polling when aborted
+ok 140 - waitForClassroomGenerationJob stops polling when aborted
+  ---
+  duration_ms: 0.758638
+  type: 'test'
+  ...
+# Subtest: shared generation registry exposes one AI classroom entry
+ok 141 - shared generation registry exposes one AI classroom entry
+  ---
+  duration_ms: 50.179228
+  type: 'test'
+  ...
+# Subtest: classroom generation modal uses the current Ant Design lifecycle prop
+ok 142 - classroom generation modal uses the current Ant Design lifecycle prop
+  ---
+  duration_ms: 9.322934
+  type: 'test'
+  ...
+# Subtest: classroom generation entry delegates recovery to the global job store
+ok 143 - classroom generation entry delegates recovery to the global job store
+  ---
+  duration_ms: 2.80111
+  type: 'test'
+  ...
+# Subtest: saves and restores the latest classroom job for a course
+ok 144 - saves and restores the latest classroom job for a course
+  ---
+  duration_ms: 7.222646
+  type: 'test'
+  ...
+# Subtest: keeps pending classroom jobs isolated by course
+ok 145 - keeps pending classroom jobs isolated by course
+  ---
+  duration_ms: 0.623259
+  type: 'test'
+  ...
+# Subtest: a newer job replaces the previous job for the same course
+ok 146 - a newer job replaces the previous job for the same course
+  ---
+  duration_ms: 0.475575
+  type: 'test'
+  ...
+# Subtest: an old poll cannot clear a newer job for the same course
+ok 147 - an old poll cannot clear a newer job for the same course
+  ---
+  duration_ms: 0.512933
+  type: 'test'
+  ...
+# Subtest: ignores malformed recovery data
+ok 148 - ignores malformed recovery data
+  ---
+  duration_ms: 0.459075
+  type: 'test'
+  ...
+# Subtest: storage failures never interrupt classroom generation
+ok 149 - storage failures never interrupt classroom generation
+  ---
+  duration_ms: 0.589448
+  type: 'test'
+  ...
+# Subtest: resolves the three supported classroom scene kinds
+ok 150 - resolves the three supported classroom scene kinds
+  ---
+  duration_ms: 4.997699
+  type: 'test'
+  ...
+# Subtest: rejects mismatched content and distinguishes unsupported scene types
+ok 151 - rejects mismatched content and distinguishes unsupported scene types
+  ---
+  duration_ms: 0.491305
+  type: 'test'
+  ...
+# Subtest: presents teacher-facing titles and current-page narration without technical ids
+ok 152 - presents teacher-facing titles and current-page narration without technical ids
+  ---
+  duration_ms: 0.561743
+  type: 'test'
+  ...
+# Subtest: uses authored scene title and marks a page without actions as static
+ok 153 - uses authored scene title and marks a page without actions as static
+  ---
+  duration_ms: 0.30829
+  type: 'test'
+  ...
+# Subtest: patchInteractiveHtml injects sandbox-safe runtime support into head
+ok 154 - patchInteractiveHtml injects sandbox-safe runtime support into head
+  ---
+  duration_ms: 2.748461
+  type: 'test'
+  ...
+# Subtest: patchInteractiveHtml prepends runtime support when the document has no head
+ok 155 - patchInteractiveHtml prepends runtime support when the document has no head
+  ---
+  duration_ms: 0.597664
+  type: 'test'
+  ...
+# Subtest: patchInteractiveHtml bridges legacy OpenMAIC widget state across scripts
+ok 156 - patchInteractiveHtml bridges legacy OpenMAIC widget state across scripts
+  ---
+  duration_ms: 0.486965
+  type: 'test'
+  ...
+# Subtest: WidgetMessageBuffer preserves actions until the iframe is ready
+ok 157 - WidgetMessageBuffer preserves actions until the iframe is ready
+  ---
+  duration_ms: 3.502399
+  type: 'test'
+  ...
+# Subtest: widgetMessageForAction maps the OpenMAIC widget protocol
+ok 158 - widgetMessageForAction maps the OpenMAIC widget protocol
+  ---
+  duration_ms: 0.73589
+  type: 'test'
+  ...
+# Subtest: paragraph narration presents one sentence at a time
+ok 159 - paragraph narration presents one sentence at a time
+  ---
+  duration_ms: 5.421518
+  type: 'test'
+  ...
+# Subtest: entering another page disposes all playback owned by the previous page
+ok 160 - entering another page disposes all playback owned by the previous page
+  ---
+  duration_ms: 5.818777
+  type: 'test'
+  ...
+# Subtest: pause and replay operate only on the current page
+ok 161 - pause and replay operate only on the current page
+  ---
+  duration_ms: 0.785967
+  type: 'test'
+  ...
+# Subtest: completion succeeds once for the exact playing revision
+ok 162 - completion succeeds once for the exact playing revision
+  ---
+  duration_ms: 0.951018
+  type: 'test'
+  ...
+# Subtest: stale completion cannot finish a newly entered page
+ok 163 - stale completion cannot finish a newly entered page
+  ---
+  duration_ms: 0.457007
+  type: 'test'
+  ...
+# Subtest: leave and dispose are idempotent and reject further commands
+ok 164 - leave and dispose are idempotent and reject further commands
+  ---
+  duration_ms: 0.760677
+  type: 'test'
+  ...
+# Subtest: interrupt decorates the runtime checkpoint and resumes the bound revision
+ok 165 - interrupt decorates the runtime checkpoint and resumes the bound revision
+  ---
+  duration_ms: 0.874548
+  type: 'test'
+  ...
+# Subtest: rejects a runtime bound to a stale scene revision
+ok 166 - rejects a runtime bound to a stale scene revision
+  ---
+  duration_ms: 0.583921
+  type: 'test'
+  ...
+# Subtest: an interrupted checkpoint can only resume once
+ok 167 - an interrupted checkpoint can only resume once
+  ---
+  duration_ms: 0.369926
+  type: 'test'
+  ...
+# Subtest: page navigation disposes the bound concrete runtime
+ok 168 - page navigation disposes the bound concrete runtime
+  ---
+  duration_ms: 0.792885
+  type: 'test'
+  ...
+# Subtest: manual replay invalidates an interrupted checkpoint
+ok 169 - manual replay invalidates an interrupted checkpoint
+  ---
+  duration_ms: 1.046772
+  type: 'test'
+  ...
+# Subtest: uses timeline scene order and injected clock for action timestamps
+ok 170 - uses timeline scene order and injected clock for action timestamps
+  ---
+  duration_ms: 9.657322
+  type: 'test'
+  ...
+# Subtest: emits action end only after synchronous execution resolves
+ok 171 - emits action end only after synchronous execution resolves
+  ---
+  duration_ms: 9.619988
+  type: 'test'
+  ...
+# Subtest: stops stale runs without executing later actions or emitting their events
+ok 172 - stops stale runs without executing later actions or emitting their events
+  ---
+  duration_ms: 3.075222
+  type: 'test'
+  ...
+# Subtest: passes compiled focus concurrency to the paired narration action
+ok 173 - passes compiled focus concurrency to the paired narration action
+  ---
+  duration_ms: 1.156059
+  type: 'test'
+  ...
+# Subtest: suspending an in-flight action resumes that action from the beginning
+ok 174 - suspending an in-flight action resumes that action from the beginning
+  ---
+  duration_ms: 1.011068
+  type: 'test'
+  ...
+# Subtest: suspending between actions resumes at the next action
+ok 175 - suspending between actions resumes at the next action
+  ---
+  duration_ms: 0.968309
+  type: 'test'
+  ...
+# Subtest: resume rejects stale scene and action identities
+ok 176 - resume rejects stale scene and action identities
+  ---
+  duration_ms: 1.167436
+  type: 'test'
+  ...
+# Subtest: repeated suspend returns the same checkpoint without cancelling twice
+ok 177 - repeated suspend returns the same checkpoint without cancelling twice
+  ---
+  duration_ms: 0.482779
+  type: 'test'
+  ...
+# Subtest: completion from the pre-suspend run cannot advance the resumed cursor
+ok 178 - completion from the pre-suspend run cannot advance the resumed cursor
+  ---
+  duration_ms: 7.420309
+  type: 'test'
+  ...
+# Subtest: builds a valid PPTX ZIP and filters non-slide scenes
+ok 179 - builds a valid PPTX ZIP and filters non-slide scenes
+  ---
+  duration_ms: 75.66642
+  type: 'test'
+  ...
+# Subtest: sorts slide scenes by order without mutating the source
+ok 180 - sorts slide scenes by order without mutating the source
+  ---
+  duration_ms: 28.77553
+  type: 'test'
+  ...
+# Subtest: preserves background, element geometry, image data, and z-order
+ok 181 - preserves background, element geometry, image data, and z-order
+  ---
+  duration_ms: 30.902571
+  type: 'test'
+  ...
+# Subtest: exports styled text, basic shapes, lines, charts, and tables
+ok 182 - exports styled text, basic shapes, lines, charts, and tables
+  ---
+  duration_ms: 77.650652
+  type: 'test'
+  ...
+# Subtest: embeds an image background and omits unsupported elements safely
+ok 183 - embeds an image background and omits unsupported elements safely
+  ---
+  duration_ms: 22.450225
+  type: 'test'
+  ...
+# Subtest: converts LaTeX to editable PowerPoint math
+ok 184 - converts LaTeX to editable PowerPoint math
+  ---
+  duration_ms: 23.135155
+  type: 'test'
+  ...
+# Subtest: embeds editable formulas plus supported video and audio data
+ok 185 - embeds editable formulas plus supported video and audio data
+  ---
+  duration_ms: 53.519373
+  type: 'test'
+  ...
+# Subtest: keeps a video poster when media retrieval fails
+ok 186 - keeps a video poster when media retrieval fails
+  ---
+  duration_ms: 136.816543
+  type: 'test'
+  ...
+# Subtest: writes speech actions into speaker notes
+ok 187 - writes speech actions into speaker notes
+  ---
+  duration_ms: 23.101546
+  type: 'test'
+  ...
+# Subtest: grades objective questions and leaves short answers for self review
+ok 188 - grades objective questions and leaves short answers for self review
+  ---
+  duration_ms: 5.449994
+  type: 'test'
+  ...
+# Subtest: marks incomplete or extra objective selections incorrect
+ok 189 - marks incomplete or extra objective selections incorrect
+  ---
+  duration_ms: 0.661645
+  type: 'test'
+  ...
+# Subtest: persists a versioned quiz draft and removes malformed recovery data
+ok 190 - persists a versioned quiz draft and removes malformed recovery data
+  ---
+  duration_ms: 1.207156
+  type: 'test'
+  ...
+# Subtest: flushes only contiguous explanation playback and pauses during QA
+ok 191 - flushes only contiguous explanation playback and pauses during QA
+  ---
+  duration_ms: 7.445384
+  type: 'test'
+  ...
+# Subtest: scene switch captures the old interval and resets the new scene cursor
+ok 192 - scene switch captures the old interval and resets the new scene cursor
+  ---
+  duration_ms: 0.922629
+  type: 'test'
+  ...
+# Subtest: demo scenes emit behavior events and never explanation heartbeats
+ok 193 - demo scenes emit behavior events and never explanation heartbeats
+  ---
+  duration_ms: 1.013008
+  type: 'test'
+  ...
+# Subtest: long playback is split into server-safe ranges and repeated flush does not duplicate
+ok 194 - long playback is split into server-safe ranges and repeated flush does not duplicate
+  ---
+  duration_ms: 0.824233
+  type: 'test'
+  ...
+# Subtest: failed events persist in a versioned outbox and clear after retry
+ok 195 - failed events persist in a versioned outbox and clear after retry
+  ---
+  duration_ms: 2.283667
+  type: 'test'
+  ...
+# Subtest: a tracker rebuilt after refresh retries the exact persisted event ids and sequences
+ok 196 - a tracker rebuilt after refresh retries the exact persisted event ids and sequences
+  ---
+  duration_ms: 1.098603
+  type: 'test'
+  ...
+# Subtest: large recovered outboxes are delivered in server-safe batches
+ok 197 - large recovered outboxes are delivered in server-safe batches
+  ---
+  duration_ms: 5.284966
+  type: 'test'
+  ...
+# Subtest: compiles stable clip ids and absolute scene offsets
+ok 198 - compiles stable clip ids and absolute scene offsets
+  ---
+  duration_ms: 5.948193
+  type: 'test'
+  ...
+# Subtest: pairs pending spotlight and laser clips with the following speech
+ok 199 - pairs pending spotlight and laser clips with the following speech
+  ---
+  duration_ms: 0.783184
+  type: 'test'
+  ...
+# Subtest: keeps synchronous actions serial while focus actions do not advance time
+ok 200 - keeps synchronous actions serial while focus actions do not advance time
+  ---
+  duration_ms: 0.879736
+  type: 'test'
+  ...
+# Subtest: uses fixed duration for orphan focus actions
+ok 201 - uses fixed duration for orphan focus actions
+  ---
+  duration_ms: 0.454108
+  type: 'test'
+  ...
+# Subtest: skips live-only discussion actions in the linear timeline
+ok 202 - skips live-only discussion actions in the linear timeline
+  ---
+  duration_ms: 0.427147
+  type: 'test'
+  ...
+# Subtest: keeps source actions immutable
+ok 203 - keeps source actions immutable
+  ---
+  duration_ms: 0.676072
+  type: 'test'
+  ...
+# Subtest: records measured action start and end relative to each scene
+ok 204 - records measured action start and end relative to each scene
+  ---
+  duration_ms: 19.115959
+  type: 'test'
+  ...
+# Subtest: copies measured narration timing to its concurrent focus clips
+ok 205 - copies measured narration timing to its concurrent focus clips
+  ---
+  duration_ms: 2.289553
+  type: 'test'
+  ...
+# Subtest: preserves its template and returns independent snapshots
+ok 206 - preserves its template and returns independent snapshots
+  ---
+  duration_ms: 1.284788
+  type: 'test'
+  ...
+# Subtest: writes ordered multiline narration as SRT with millisecond precision
+ok 207 - writes ordered multiline narration as SRT with millisecond precision
+  ---
+  duration_ms: 3.702614
+  type: 'test'
+  ...
+# Subtest: merges measured single-scene timelines at cumulative offsets immutably
+ok 208 - merges measured single-scene timelines at cumulative offsets immutably
+  ---
+  duration_ms: 4.352794
+  type: 'test'
+  ...
+# Subtest: rejects overlapping scenes, overlapping narration, and clips past scene end
+ok 209 - rejects overlapping scenes, overlapping narration, and clips past scene end
+  ---
+  duration_ms: 1.595555
+  type: 'test'
+  ...
+# Subtest: waitForVideoExportJob reports progress and returns the video result
+ok 210 - waitForVideoExportJob reports progress and returns the video result
+  ---
+  duration_ms: 5.463844
+  type: 'test'
+  ...
+# Subtest: waitForVideoExportJob surfaces backend failures
+ok 211 - waitForVideoExportJob surfaces backend failures
+  ---
+  duration_ms: 1.442627
+  type: 'test'
+  ...
+# Subtest: waitForVideoExportJob rejects a success without video artifacts
+ok 212 - waitForVideoExportJob rejects a success without video artifacts
+  ---
+  duration_ms: 0.448468
+  type: 'test'
+  ...
+# Subtest: registers and unregisters a video by stable element id
+ok 213 - registers and unregisters a video by stable element id
+  ---
+  duration_ms: 2.469359
+  type: 'test'
+  ...
+# Subtest: degrades a missing video element without blocking playback
+ok 214 - degrades a missing video element without blocking playback
+  ---
+  duration_ms: 0.512537
+  type: 'test'
+  ...
+# Subtest: waits for ended and records the controlled playback state
+ok 215 - waits for ended and records the controlled playback state
+  ---
+  duration_ms: 0.908086
+  type: 'test'
+  ...
+# Subtest: completes with failed when the video emits an error
+ok 216 - completes with failed when the video emits an error
+  ---
+  duration_ms: 0.310497
+  type: 'test'
+  ...
+# Subtest: dispose cancels playback and unregisters every video
+ok 217 - dispose cancels playback and unregisters every video
+  ---
+  duration_ms: 0.447002
+  type: 'test'
+  ...
+# Subtest: selectVideoRenderScene keeps source order while skipping unsupported scenes
+ok 218 - selectVideoRenderScene keeps source order while skipping unsupported scenes
+  ---
+  duration_ms: 4.321754
+  type: 'test'
+  ...
+# Subtest: selectVideoRenderScene rejects an unavailable render index
+ok 219 - selectVideoRenderScene rejects an unavailable render index
+  ---
+  duration_ms: 0.959962
+  type: 'test'
+  ...
+# Subtest: completeVideoRenderSession merges measured scene timelines
+ok 220 - completeVideoRenderSession merges measured scene timelines
+  ---
+  duration_ms: 3.236243
+  type: 'test'
+  ...
+# Subtest: failVideoRenderSession exposes a stable error message
+ok 221 - failVideoRenderSession exposes a stable error message
+  ---
+  duration_ms: 0.395383
+  type: 'test'
+  ...
+# Subtest: parseChatReplyV2StreamChunk parses complete SSE frames and preserves remainder
+ok 222 - parseChatReplyV2StreamChunk parses complete SSE frames and preserves remainder
+  ---
+  duration_ms: 3.193251
+  type: 'test'
+  ...
+# Subtest: checked documents remain the retrieval scope without the full knowledge-base toggle
+ok 223 - checked documents remain the retrieval scope without the full knowledge-base toggle
+  ---
+  duration_ms: 4.624654
+  type: 'test'
+  ...
+# Subtest: checked documents remain authoritative when knowledge retrieval is enabled
+ok 224 - checked documents remain authoritative when knowledge retrieval is enabled
+  ---
+  duration_ms: 0.431544
+  type: 'test'
+  ...
+# Subtest: checked documents enable selected-document retrieval in the chat payload
+ok 225 - checked documents enable selected-document retrieval in the chat payload
+  ---
+  duration_ms: 0.590688
+  type: 'test'
+  ...
+# Subtest: knowledge retrieval without checked documents uses course-auto mode
+ok 226 - knowledge retrieval without checked documents uses course-auto mode
+  ---
+  duration_ms: 0.276484
+  type: 'test'
+  ...
+# Subtest: chat does not use knowledge when neither selection nor retrieval is enabled
+ok 227 - chat does not use knowledge when neither selection nor retrieval is enabled
+  ---
+  duration_ms: 0.28083
+  type: 'test'
+  ...
+# Subtest: generation factory action hints stay separate from the user message
+ok 228 - generation factory action hints stay separate from the user message
+  ---
+  duration_ms: 0.471798
+  type: 'test'
+  ...
+# Subtest: knowledge choices preserve duplicate labels and chapter paths
+ok 229 - knowledge choices preserve duplicate labels and chapter paths
+  ---
+  duration_ms: 2.637133
+  type: 'test'
+  ...
+# Subtest: classroom list requests one explicit personal or course space
+ok 230 - classroom list requests one explicit personal or course space
+  ---
+  duration_ms: 2.344497
+  type: 'test'
+  ...
+# Subtest: classroom QA paths encode course and classroom identifiers
+ok 231 - classroom QA paths encode course and classroom identifiers
+  ---
+  duration_ms: 3.160192
+  type: 'test'
+  ...
+# Subtest: authenticated audio fetch creates an object URL only after success
+ok 232 - authenticated audio fetch creates an object URL only after success
+  ---
+  duration_ms: 84.953056
+  type: 'test'
+  ...
+# Subtest: all formal resource types have explicit labels
+ok 233 - all formal resource types have explicit labels
+  ---
+  duration_ms: 2.611422
+  type: 'test'
+  ...
+# Subtest: classroom materials open the matching classroom player identity
+ok 234 - classroom materials open the matching classroom player identity
+  ---
+  duration_ms: 3.558376
+  type: 'test'
+  ...
+# Subtest: unknown materials stay in metadata preview and never route to video
+ok 235 - unknown materials stay in metadata preview and never route to video
+  ---
+  duration_ms: 1.608049
+  type: 'test'
+  ...
+# Subtest: filters mirror every formal generation type without invented groups
+ok 236 - filters mirror every formal generation type without invented groups
+  ---
+  duration_ms: 0.554623
+  type: 'test'
+  ...
+# Subtest: student resource filters hide teacher-only generation types
+ok 237 - student resource filters hide teacher-only generation types
+  ---
+  duration_ms: 0.430841
+  type: 'test'
+  ...
+# Subtest: private resources describe personal visibility instead of course scope
+ok 238 - private resources describe personal visibility instead of course scope
+  ---
+  duration_ms: 0.598497
+  type: 'test'
+  ...
+# Subtest: reads an exact material target from the resources hash
+ok 239 - reads an exact material target from the resources hash
+  ---
+  duration_ms: 5.649206
+  type: 'test'
+  ...
+# Subtest: rejects incomplete material targets
+ok 240 - rejects incomplete material targets
+  ---
+  duration_ms: 0.521936
+  type: 'test'
+  ...
+# Subtest: material keys keep equal ids in different resource types distinct
+ok 241 - material keys keep equal ids in different resource types distinct
+  ---
+  duration_ms: 0.385127
+  type: 'test'
+  ...
+# Subtest: unwrapCourseMaterials accepts unpaged and paged backend responses
+ok 242 - unwrapCourseMaterials accepts unpaged and paged backend responses
+  ---
+  duration_ms: 4.75269
+  type: 'test'
+  ...
+# Subtest: private unpublished material offers publish to course
+ok 243 - private unpublished material offers publish to course
+  ---
+  duration_ms: 4.712242
+  type: 'test'
+  ...
+# Subtest: changed private material offers update publication
+ok 244 - changed private material offers update publication
+  ---
+  duration_ms: 0.47338
+  type: 'test'
+  ...
+# Subtest: unchanged published private material reports published without another action
+ok 245 - unchanged published private material reports published without another action
+  ---
+  duration_ms: 0.310692
+  type: 'test'
+  ...
+# Subtest: viewer never receives publication or course management actions
+ok 246 - viewer never receives publication or course management actions
+  ---
+  duration_ms: 0.258429
+  type: 'test'
+  ...
+# Subtest: course material is labelled shared and manageable by teachers
+ok 247 - course material is labelled shared and manageable by teachers
+  ---
+  duration_ms: 0.452698
+  type: 'test'
+  ...
+# Subtest: applying a publication keeps the private source and upserts the shared snapshot
+ok 248 - applying a publication keeps the private source and upserts the shared snapshot
+  ---
+  duration_ms: 0.521279
+  type: 'test'
+  ...
+# Subtest: withdrawing a course snapshot keeps its personal source and clears publication state
+ok 249 - withdrawing a course snapshot keeps its personal source and clears publication state
+  ---
+  duration_ms: 0.439988
+  type: 'test'
+  ...
+# Subtest: resource QA paths encode every resource identity
+ok 250 - resource QA paths encode every resource identity
+  ---
+  duration_ms: 2.503078
+  type: 'test'
+  ...
+# Subtest: resource turn always sends the exact version, full scope, and anchor
+ok 251 - resource turn always sends the exact version, full scope, and anchor
+  ---
+  duration_ms: 91.660072
+  type: 'test'
+  ...
+# Subtest: protected API assets are loaded through the authenticated client
+ok 252 - protected API assets are loaded through the authenticated client
+  ---
+  duration_ms: 2.15275
+  type: 'test'
+  ...
+# Subtest: stable ID and server version are required; ownership is checked
+ok 253 - stable ID and server version are required; ownership is checked
+  ---
+  duration_ms: 5.080164
+  type: 'test'
+  ...
+# Subtest: intent is delivered once across route mount, unsubscribe and account clearing work
+ok 254 - intent is delivered once across route mount, unsubscribe and account clearing work
+  ---
+  duration_ms: 0.854101
+  type: 'test'
+  ...
+# Subtest: report serializes actual knowledge point after definition defaults
+ok 255 - report serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 3.707622
+  type: 'test'
+  ...
+# Subtest: lesson_plan serializes actual knowledge point after definition defaults
+ok 256 - lesson_plan serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.567015
+  type: 'test'
+  ...
+# Subtest: blog serializes actual knowledge point after definition defaults
+ok 257 - blog serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.598673
+  type: 'test'
+  ...
+# Subtest: quiz serializes actual knowledge point after definition defaults
+ok 258 - quiz serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.474
+  type: 'test'
+  ...
+# Subtest: flashcard serializes actual knowledge point after definition defaults
+ok 259 - flashcard serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.573921
+  type: 'test'
+  ...
+# Subtest: mind_map serializes actual knowledge point after definition defaults
+ok 260 - mind_map serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.379013
+  type: 'test'
+  ...
+# Subtest: game serializes actual knowledge point after definition defaults
+ok 261 - game serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.544282
+  type: 'test'
+  ...
+# Subtest: classroom serializes actual knowledge point after definition defaults
+ok 262 - classroom serializes actual knowledge point after definition defaults
+  ---
+  duration_ms: 0.565947
+  type: 'test'
+  ...
+# Subtest: teacher assessment analytics presentation
+    # Subtest: always shows the numerator and denominator
+    ok 1 - always shows the numerator and denominator
+      ---
+      duration_ms: 2.091231
+      type: 'test'
+      ...
+    # Subtest: uses actionable queue labels
+    ok 2 - uses actionable queue labels
+      ---
+      duration_ms: 0.483592
+      type: 'test'
+      ...
+    # Subtest: wires analytics and review into the teacher task page
+    ok 3 - wires analytics and review into the teacher task page
+      ---
+      duration_ms: 0.84673
+      type: 'test'
+      ...
+    1..3
+ok 263 - teacher assessment analytics presentation
+  ---
+  duration_ms: 5.719364
+  type: 'suite'
+  ...
+# Subtest: assessment authoring publication gate
+    # Subtest: blocks publication when no assessment draft exists
+    ok 1 - blocks publication when no assessment draft exists
+      ---
+      duration_ms: 4.288835
+      type: 'test'
+      ...
+    # Subtest: surfaces concrete quality failures
+    ok 2 - surfaces concrete quality failures
+      ---
+      duration_ms: 0.403993
+      type: 'test'
+      ...
+    # Subtest: allows a valid non-empty draft to publish
+    ok 3 - allows a valid non-empty draft to publish
+      ---
+      duration_ms: 0.247269
+      type: 'test'
+      ...
+    # Subtest: wires the four-step teacher flow without a legacy publish fallback
+    ok 4 - wires the four-step teacher flow without a legacy publish fallback
+      ---
+      duration_ms: 1.396413
+      type: 'test'
+      ...
+    1..4
+ok 264 - assessment authoring publication gate
+  ---
+  duration_ms: 8.623217
+  type: 'suite'
+  ...
+# Subtest: student assessment runner state
+    # Subtest: covers initial, active, review, retry, completion, and reveal states
+    ok 1 - covers initial, active, review, retry, completion, and reveal states
+      ---
+      duration_ms: 2.245657
+      type: 'test'
+      ...
+    # Subtest: is wired into the student learning task page
+    ok 2 - is wired into the student learning task page
+      ---
+      duration_ms: 1.042053
+      type: 'test'
+      ...
+    1..2
+ok 265 - student assessment runner state
+  ---
+  duration_ms: 5.832188
+  type: 'suite'
+  ...
+# Subtest: submitting and answering phases disable the composer
+ok 266 - submitting and answering phases disable the composer
+  ---
+  duration_ms: 2.316566
+  type: 'test'
+  ...
+# Subtest: presentation labels expose stable live status text
+ok 267 - presentation labels expose stable live status text
+  ---
+  duration_ms: 0.546069
+  type: 'test'
+  ...
+# Subtest: Classroom playback surface binds the runtime and exposes QA to its host
+ok 268 - Classroom playback surface binds the runtime and exposes QA to its host
+  ---
+  duration_ms: 0.76774
+  type: 'test'
+  ...
+# Subtest: the QA panel is a persistent non-dialog rail with optimistic messages
+ok 269 - the QA panel is a persistent non-dialog rail with optimistic messages
+  ---
+  duration_ms: 0.64407
+  type: 'test'
+  ...
+# Subtest: the persistent rail uses document flow on narrow screens
+ok 270 - the persistent rail uses document flow on narrow screens
+  ---
+  duration_ms: 0.571867
+  type: 'test'
+  ...
+# Subtest: a valid completion enters and plays the next page in order
+ok 271 - a valid completion enters and plays the next page in order
+  ---
+  duration_ms: 5.094827
+  type: 'test'
+  ...
+# Subtest: the final page completes without wrapping
+ok 272 - the final page completes without wrapping
+  ---
+  duration_ms: 0.448746
+  type: 'test'
+  ...
+# Subtest: a stale completion cannot navigate and a failed enter cannot play
+ok 273 - a stale completion cannot navigate and a failed enter cannot play
+  ---
+  duration_ms: 0.84838
+  type: 'test'
+  ...
+# Subtest: a second submit is rejected while a turn is active
+ok 274 - a second submit is rejected while a turn is active
+  ---
+  duration_ms: 4.3891
+  type: 'test'
+  ...
+# Subtest: the optimistic question is visible before the server turn arrives
+ok 275 - the optimistic question is visible before the server turn arrives
+  ---
+  duration_ms: 0.632197
+  type: 'test'
+  ...
+# Subtest: the durable server turn replaces the optimistic projection without duplication
+ok 276 - the durable server turn replaces the optimistic projection without duplication
+  ---
+  duration_ms: 0.486017
+  type: 'test'
+  ...
+# Subtest: a failed optimistic question remains visible and retry restores pending status
+ok 277 - a failed optimistic question remains visible and retry restores pending status
+  ---
+  duration_ms: 0.333911
+  type: 'test'
+  ...
+# Subtest: successful server audio follows submitting loading playing and resuming phases
+ok 278 - successful server audio follows submitting loading playing and resuming phases
+  ---
+  duration_ms: 3.085112
+  type: 'test'
+  ...
+# Subtest: TTS failure moves directly to browser answer playback
+ok 279 - TTS failure moves directly to browser answer playback
+  ---
+  duration_ms: 0.37454
+  type: 'test'
+  ...
+# Subtest: stale async results are ignored and retry keeps the same client turn id
+ok 280 - stale async results are ignored and retry keeps the same client turn id
+  ---
+  duration_ms: 0.442297
+  type: 'test'
+  ...
+# Subtest: the persistent panel starts ready while reset clears navigation state
+ok 281 - the persistent panel starts ready while reset clears navigation state
+  ---
+  duration_ms: 0.311397
+  type: 'test'
+  ...
+# Subtest: the ready panel does not pause; submit pauses and successful audio resumes once
+ok 282 - the ready panel does not pause; submit pauses and successful audio resumes once
+  ---
+  duration_ms: 15.122989
+  type: 'test'
+  ...
+# Subtest: a second question from the persistent panel creates a fresh interruption
+ok 283 - a second question from the persistent panel creates a fresh interruption
+  ---
+  duration_ms: 2.485038
+  type: 'test'
+  ...
+# Subtest: the persistent ready panel does not touch playback before submit
+ok 284 - the persistent ready panel does not touch playback before submit
+  ---
+  duration_ms: 0.504678
+  type: 'test'
+  ...
+# Subtest: invalid questions and checkpoint failures do not create optimistic turns
+ok 285 - invalid questions and checkpoint failures do not create optimistic turns
+  ---
+  duration_ms: 0.408757
+  type: 'test'
+  ...
+# Subtest: the optimistic question is committed before the deferred request resolves
+ok 286 - the optimistic question is committed before the deferred request resolves
+  ---
+  duration_ms: 2.643803
+  type: 'test'
+  ...
+# Subtest: server TTS failure uses browser speech before resuming
+ok 287 - server TTS failure uses browser speech before resuming
+  ---
+  duration_ms: 0.889864
+  type: 'test'
+  ...
+# Subtest: both speech paths failing waits for an explicit resume
+ok 288 - both speech paths failing waits for an explicit resume
+  ---
+  duration_ms: 0.59962
+  type: 'test'
+  ...
+# Subtest: stop answer disposes audio and resumes once
+ok 289 - stop answer disposes audio and resumes once
+  ---
+  duration_ms: 3.884953
+  type: 'test'
+  ...
+# Subtest: rejected stale checkpoint becomes an error without repeated resume
+ok 290 - rejected stale checkpoint becomes an error without repeated resume
+  ---
+  duration_ms: 1.230052
+  type: 'test'
+  ...
+# Subtest: navigation and dispose ignore late responses without audio or resume
+ok 291 - navigation and dispose ignore late responses without audio or resume
+  ---
+  duration_ms: 1.52498
+  type: 'test'
+  ...
+# Subtest: late answers from resource A cannot pollute resource B and A history reloads
+ok 292 - late answers from resource A cannot pollute resource B and A history reloads
+  ---
+  duration_ms: 6.628722
+  type: 'test'
+  ...
+# Subtest: static resource controller never claims playback interruption support
+ok 293 - static resource controller never claims playback interruption support
+  ---
+  duration_ms: 0.431444
+  type: 'test'
+  ...
+# Subtest: getWhiteColorKeyAlpha makes white and near-white pixels transparent
+ok 294 - getWhiteColorKeyAlpha makes white and near-white pixels transparent
+  ---
+  duration_ms: 2.378764
+  type: 'test'
+  ...
+# Subtest: getWhiteColorKeyAlpha preserves clear foreground pixels
+ok 295 - getWhiteColorKeyAlpha preserves clear foreground pixels
+  ---
+  duration_ms: 0.359782
+  type: 'test'
+  ...
+# Subtest: getWhiteColorKeyAlpha feathers pixels near the white key boundary
+ok 296 - getWhiteColorKeyAlpha feathers pixels near the white key boundary
+  ---
+  duration_ms: 0.375022
+  type: 'test'
+  ...
+# Subtest: applyWhiteColorKeyTransparency updates image alpha in place
+ok 297 - applyWhiteColorKeyTransparency updates image alpha in place
+  ---
+  duration_ms: 0.364018
+  type: 'test'
+  ...
+# Subtest: URL course wins over remembered course
+ok 298 - URL course wins over remembered course
+  ---
+  duration_ms: 5.582305
+  type: 'test'
+  ...
+# Subtest: student course routes provide the same course context
+ok 299 - student course routes provide the same course context
+  ---
+  duration_ms: 0.485634
+  type: 'test'
+  ...
+# Subtest: remembered course is only a home-page convenience
+ok 300 - remembered course is only a home-page convenience
+  ---
+  duration_ms: 0.839165
+  type: 'test'
+  ...
+# Subtest: malformed route values never become a course identity
+ok 301 - malformed route values never become a course identity
+  ---
+  duration_ms: 0.492452
+  type: 'test'
+  ...
+# Subtest: viewer is read-only while editors and owners can mutate
+ok 302 - viewer is read-only while editors and owners can mutate
+  ---
+  duration_ms: 0.393599
+  type: 'test'
+  ...
+# Subtest: course shell uses a top workbar without a sidebar or left drawer
+ok 303 - course shell uses a top workbar without a sidebar or left drawer
+  ---
+  duration_ms: 10.136014
+  type: 'test'
+  ...
+# Subtest: desktop workbar navigation is left aligned with readable labels
+ok 304 - desktop workbar navigation is left aligned with readable labels
+  ---
+  duration_ms: 8.092884
+  type: 'test'
+  ...
+# Subtest: course homepage and settings live only in the teacher course menu
+ok 305 - course homepage and settings live only in the teacher course menu
+  ---
+  duration_ms: 2.811681
+  type: 'test'
+  ...
+# Subtest: classroom playback is reusable by the standalone page and catalog viewer
+ok 306 - classroom playback is reusable by the standalone page and catalog viewer
+  ---
+  duration_ms: 9.409738
+  type: 'test'
+  ...
+# Subtest: focused playback renders only the stage and approved core controls
+ok 307 - focused playback renders only the stage and approved core controls
+  ---
+  duration_ms: 7.86718
+  type: 'test'
+  ...
+# Subtest: desktop classroom workspace is full-width with three semantic rails
+ok 308 - desktop classroom workspace is full-width with three semantic rails
+  ---
+  duration_ms: 17.895041
+  type: 'test'
+  ...
+# Subtest: responsive rails use two breakpoints and contain their own scrolling
+ok 309 - responsive rails use two breakpoints and contain their own scrolling
+  ---
+  duration_ms: 6.519684
+  type: 'test'
+  ...
+# Subtest: drawers expose controls, escape handling, and trigger focus restoration
+ok 310 - drawers expose controls, escape handling, and trigger focus restoration
+  ---
+  duration_ms: 3.039195
+  type: 'test'
+  ...
+# Subtest: contextual QA keeps resource binding without displaying a scope banner
+ok 311 - contextual QA keeps resource binding without displaying a scope banner
+  ---
+  duration_ms: 13.950294
+  type: 'test'
+  ...
+# Subtest: empty loading and error states do not render a question composer
+ok 312 - empty loading and error states do not render a question composer
+  ---
+  duration_ms: 16.426881
+  type: 'test'
+  ...
+# Subtest: curriculum tree drops the course root and preserves source order
+ok 313 - curriculum tree drops the course root and preserves source order
+  ---
+  duration_ms: 5.004822
+  type: 'test'
+  ...
+# Subtest: search retains matching leaf ancestors and removes unmatched siblings
+ok 314 - search retains matching leaf ancestors and removes unmatched siblings
+  ---
+  duration_ms: 0.70038
+  type: 'test'
+  ...
+# Subtest: catalog deep links encode and recover exact selection
+ok 315 - catalog deep links encode and recover exact selection
+  ---
+  duration_ms: 1.935461
+  type: 'test'
+  ...
+# Subtest: student leaf summaries use resource completion counts
+ok 316 - student leaf summaries use resource completion counts
+  ---
+  duration_ms: 0.428936
+  type: 'test'
+  ...
+# Subtest: teacher review state shows published and pending versions together
+ok 317 - teacher review state shows published and pending versions together
+  ---
+  duration_ms: 0.436272
+  type: 'test'
+  ...
+# Subtest: workspace targets keep catalog and personal classroom identities exclusive
+ok 318 - workspace targets keep catalog and personal classroom identities exclusive
+  ---
+  duration_ms: 5.647323
+  type: 'test'
+  ...
+# Subtest: workspace hashes write only parameters required by the active target
+ok 319 - workspace hashes write only parameters required by the active target
+  ---
+  duration_ms: 1.251989
+  type: 'test'
+  ...
+# Subtest: my classroom keeps personal classrooms and sorts newest first
+ok 320 - my classroom keeps personal classrooms and sorts newest first
+  ---
+  duration_ms: 25.538896
+  type: 'test'
+  ...
+# Subtest: my classroom exposes generation and failure states without treating them as playable
+ok 321 - my classroom exposes generation and failure states without treating them as playable
+  ---
+  duration_ms: 0.483676
+  type: 'test'
+  ...
+# Subtest: unlabelled option text submits canonical answer letters
+ok 322 - unlabelled option text submits canonical answer letters
+  ---
+  duration_ms: 2.975298
+  type: 'test'
+  ...
+# Subtest: overview has no QA target
+ok 323 - overview has no QA target
+  ---
+  duration_ms: 9.0998
+  type: 'test'
+  ...
+# Subtest: role-visible versions isolate static resource bindings
+ok 324 - role-visible versions isolate static resource bindings
+  ---
+  duration_ms: 0.894917
+  type: 'test'
+  ...
+# Subtest: practice and classroom expose their complete context scope
+ok 325 - practice and classroom expose their complete context scope
+  ---
+  duration_ms: 0.343378
+  type: 'test'
+  ...
+# Subtest: personal classroom waits for its playback controller without a resource version
+ok 326 - personal classroom waits for its playback controller without a resource version
+  ---
+  duration_ms: 0.520206
+  type: 'test'
+  ...
+# Subtest: course creation requires semantic fields used by knowledge planning
+ok 327 - course creation requires semantic fields used by knowledge planning
+  ---
+  duration_ms: 5.12411
+  type: 'test'
+  ...
+# Subtest: course creation normalizes objectives and leaves id generation to the server
+ok 328 - course creation normalizes objectives and leaves id generation to the server
+  ---
+  duration_ms: 0.573165
+  type: 'test'
+  ...
+# Subtest: normalizes a pasted course code for student enrollment
+ok 329 - normalizes a pasted course code for student enrollment
+  ---
+  duration_ms: 2.496365
+  type: 'test'
+  ...
+# Subtest: course workbar exposes the approved destinations in order
+ok 330 - course workbar exposes the approved destinations in order
+  ---
+  duration_ms: 5.237305
+  type: 'test'
+  ...
+# Subtest: overview and settings stay routable without occupying the workbar
+ok 331 - overview and settings stay routable without occupying the workbar
+  ---
+  duration_ms: 0.513382
+  type: 'test'
+  ...
+# Subtest: knowledge graph deep links belong to course knowledge
+ok 332 - knowledge graph deep links belong to course knowledge
+  ---
+  duration_ms: 0.332212
+  type: 'test'
+  ...
+# Subtest: current course knowledge view owns course uploads and embeds the reusable build card
+not ok 333 - current course knowledge view owns course uploads and embeds the reusable build card
+  ---
+  duration_ms: 33.547194
+  type: 'test'
+  location: '/home/zxqs_ep/Edu_AI/frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts:2:946'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /updateCourseKnowledgeBuildDraft/. Input:
+    
+    'import { useEffect, useMemo, useRef, useState } from "react";\n' +
+      '\n' +
+      'import { registerCreatedJob, useCourseJobs } from "../../../jobs/jobStore";\n' +
+      'import { isActiveJob } from "../../../jobs/types";\n' +
+      'import {\n' +
+      '  confirmCourseKnowledgeGraph,\n' +
+      '  generateCourseKnowledgeProposal,\n' +
+      '  selectCourseKnowledgeProposal,\n' +
+      '  getCourseKnowledgeBuild,\n' +
+      '  removeCourseKnowledgeTextbook,\n' +
+      '  retryCourseKnowledgeTextbook,\n' +
+      '  saveCourseKnowledgeGraphDraft,\n' +
+      '  startCourseKnowledgeBuild,\n' +
+      '  uploadCourseKnowledgeTextbook,\n' +
+      '} from "../../api/courses";\n' +
+      'import { ApiError } from "../../api/client";\n' +
+      'import type { CourseKnowledgeBuild, KnowledgeGraphNode } from "../../api/types";\n' +
+      'import { MaterialIcon } from "../../shared";\n' +
+      'import { CourseKnowledgeProposalView } from "./CourseKnowledgeProposalView";\n' +
+      'import { CourseKnowledgeGraphReviewStep } from "./CourseKnowledgeGraphReviewStep";\n' +
+      'import { CourseKnowledgeTextbookStep } from "./CourseKnowledgeTextbookStep";\n' +
+      'import { DEFAULT_COURSE_KNOWLEDGE_CONFIG } from "./courseKnowledgeBuildState";\n' +
+      'import { graphDraftEqual } from "./courseKnowledgeGraphDraft";\n' +
+      '\n' +
+      'type Props = {\n' +
+      '  courseId: string;\n' +
+      '  build: CourseKnowledgeBuild;\n' +
+      '  onBuildChange: (build: CourseKnowledgeBuild) => void;\n' +
+      '  onClose: () => void;\n' +
+      '};\n' +
+      '\n' +
+      'export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onClose }: Props) {\n' +
+      '  const [step, setStep] = useState<"proposal" | "textbooks" | "graph">(\n' +
+      '    build.graph_draft ? "graph" : build.knowledge_proposal ? "proposal" : "textbooks",\n' +
+      '  );\n' +
+      '  const config = build.config || DEFAULT_COURSE_KNOWLEDGE_CONFIG;\n' +
+      '  const [requirements, setRequirements] = useState(build.knowledge_proposal?.requirements || "");\n' +
+      '  const [saving, setSaving] = useState(false);\n' +
+      '  const [uploading, setUploading] = useState(false);\n' +
+      '  const [submittingGraph, setSubmittingGraph] = useState(false);\n' +
+      '  const [graphDraft, setGraphDraft] = useState<KnowledgeGraphNode | null>(build.graph_draft || null);\n' +
+      '  const lastSavedGraph = useRef<KnowledgeGraphNode | null>(build.graph_draft || null);\n' +
+      '  const [graphBusy, setGraphBusy] = useState(false);\n' +
+      '  const [error, setError] = useState("");\n' +
+      '  const jobs = useCourseJobs(courseId);\n' +
+      '  const relevantJobs = useMemo(\n' +
+      '    () => jobs.filter((job) => String(job.input_summary?.build_id || "") === build.build_id),\n' +
+      '    [build.build_id, jobs],\n' +
+      '  );\n' +
+      '  const activeGraphJob = relevantJobs.find((job) => job.kind === "generate_graph" && isActiveJob(job));\n' +
+      '  const latestRelevantJob = relevantJobs[0];\n' +
+      '\n' +
+      '\n' +
+      '  useEffect(() => {\n' +
+      '    if (!build.graph_draft) return;\n' +
+      '    const incomingGraphDraft = build.graph_draft;\n' +
+      '    const previouslySaved = lastSavedGraph.current;\n' +
+      '    lastSavedGraph.current = incomingGraphDraft;\n' +
+      '    setGraphDraft((current) => {\n' +
+      '      if (!current || !previouslySaved || graphDraftEqual(current, previouslySaved)) {\n' +
+      '        return incomingGraphDraft;\n' +
+      '      }\n' +
+      '      return current;\n' +
+      '    });\n' +
+      '    setStep("graph");\n' +
+      '  }, [build.graph_draft]);\n' +
+      '\n' +
+      '  useEffect(() => {\n' +
+      '    if (!latestRelevantJob) return;\n' +
+      '    let canceled = false;\n' +
+      '    void getCourseKnowledgeBuild(courseId, build.build_id)\n' +
+      '      .then((current) => {\n' +
+      '        if (!canceled) {\n' +
+      '          onBuildChange(current);\n' +
+      '          if (current.graph_draft) {\n' +
+      '            setSubmittingGraph(false);\n' +
+      '            setStep("graph");\n' +
+      '          }\n' +
+      '        }\n' +
+      '      })\n' +
+      '      .catch(() => undefined);\n' +
+      '    return () => { canceled = true; };\n' +
+      '  }, [build.build_id, courseId, latestRelevantJob, onBuildChange]);\n' +
+      '\n' +
+      '  function explain(reason: unknown, fallback: string) {\n' +
+      '    if (reason instanceof ApiError && reason.status === 409) {\n' +
+      '      return "方案已在其他页面或后台任务中更新，请重新加载最新版本后再操作。";\n' +
+      '    }\n' +
+      '    return reason instanceof Error ? reason.message : fallback;\n' +
+      '  }\n' +
+      '\n' +
+      '  async function chooseProposal(selection: { option_id?: string; item_ids?: string[] }) {\n' +
+      '    setSaving(true); setError("");\n' +
+      '    try {\n' +
+      '      const updated = await selectCourseKnowledgeProposal(courseId, build.build_id, build.revision, selection);\n' +
+      '      onBuildChange(updated); setGraphDraft(updated.graph_draft || null); setStep("graph");\n' +
+      '    } catch (reason) { setError(explain(reason, "选择方案失败")); }\n' +
+      '    finally { setSaving(false); }\n' +
+      '  }\n' +
+      '\n' +
+      '  async function upload(files: File[]) {\n' +
+      '    setUploading(true);\n' +
+      '    setError("");\n' +
+      '    try {\n' +
+      '      for (const file of files) {\n' +
+      '        const latest = await getCourseKnowledgeBuild(courseId, build.build_id);\n' +
+      '        const response = await uploadCourseKnowledgeTextbook(\n' +
+      '          courseId,\n' +
+      '          build.build_id,\n' +
+      '          latest.revision,\n' +
+      '          file,\n' +
+      '        );\n' +
+      '        registerCreatedJob(response.job);\n' +
+      '        onBuildChange(response.build);\n' +
+      '      }\n' +
+      '    } catch (reason) {\n' +
+      '      setError(explain(reason, "上传教材失败"));\n' +
+      '    } finally {\n' +
+      '      setUploading(false);\n' +
+      '    }\n' +
+      '  }\n' +
+      '\n' +
+      '  async function retry(textbookId: string) {\n' +
+      '    setError("");\n' +
+      '    try {\n' +
+      '      const latest = await getCourseKnowledgeBuild(courseId, build.build_id);\n' +
+      '      const response = await retryCourseKnowledgeTextbook(\n' +
+      '        courseId,\n' +
+      '        build.build_id,\n' +
+      '        textbookId,\n' +
+      '        latest.revision,\n' +
+      '      );\n' +
+      '      registerCreatedJob(response.job);\n' +
+      '      onBuildChange(response.build);\n' +
+      '    } catch (reason) {\n' +
+      '      setError(explain(reason, "重试教材解析失败"));\n' +
+      '    }\n' +
+      '  }\n' +
+      '\n' +
+      '  async function remove(textbookId: string) {\n' +
+      '    setError("");\n' +
+      '    try {\n' +
+      '      const latest = await getCourseKnowledgeBuild(courseId, build.build_id);\n' +
+      '      onBuildChange(await removeCourseKnowledgeTextbook(\n' +
+      '        courseId,\n' +
+      '        build.build_id,\n' +
+      '        textbookId,\n' +
+      '        latest.revision,\n' +
+      '      ));\n' +
+      '    } catch (reason) {\n' +
+      '      setError(explain(reason, "移除教材失败"));\n' +
+      '    }\n' +
+      '  }\n' +
+      '\n' +
+      '  async function generateGraph() {\n' +
+      '    setSubmittingGraph(true); setError("");\n' +
+      '    try {\n' +
+      '      const updated = await generateCourseKnowledgeProposal(courseId, build.build_id, build.revision, requirements);\n' +
+      '      onBuildChange(updated); setGraphDraft(null); setStep("proposal");\n' +
+      '    } catch (reason) { setError(explain(reason, "生成方案失败")); }\n' +
+      '    finally { setSubmittingGraph(false); }\n' +
+      '  }\n' +
+      '\n' +
+      '  async function saveGraph(root: KnowledgeGraphNode) {\n' +
+      '    setGraphBusy(true);\n' +
+      '    setError("");\n' +
+      '    try {\n' +
+      '      const updated = await saveCourseKnowledgeGraphDraft(\n' +
+      '        courseId,\n' +
+      '        build.build_id,\n' +
+      '        build.revision,\n' +
+      '        root,\n' +
+      '      );\n' +
+      '      onBuildChange(updated);\n' +
+      '      setGraphDraft(updated.graph_draft || root);\n' +
+      '      return updated.graph_draft || root;\n' +
+      '    } catch (reason) {\n' +
+      '      setError(explain(reason, "保存知识图谱草案失败"));\n' +
+      '      return root;\n' +
+      '    } finally {\n' +
+      '      setGraphBusy(false);\n' +
+      '    }\n' +
+      '  }\n' +
+      '\n' +
+      '  async function confirmAndStart(root: KnowledgeGraphNode) {\n' +
+      '    setGraphBusy(true);\n' +
+      '    setError("");\n' +
+      '    try {\n' +
+      '      let latest = build;\n' +
+      '      if (!latest.graph_draft || !graphDraftEqual(root, latest.graph_draft)) {\n' +
+      '        latest = await saveCourseKnowledgeGraphDraft(\n' +
+      '          courseId,\n' +
+      '          build.build_id,\n' +
+      '          latest.revision,\n' +
+      '          root,\n' +
+      '        );\n' +
+      '      }\n' +
+      '      const confirmed = await confirmCourseKnowledgeGraph(\n' +
+      '        courseId,\n' +
+      '        build.build_id,\n' +
+      '        latest.revision,\n' +
+      '      );\n' +
+      '      onBuildChange(confirmed);\n' +
+      '      const job = await startCourseKnowledgeBuild(courseId, build.build_id);\n' +
+      '      registerCreatedJob(job);\n' +
+      '      onClose();\n' +
+      '    } catch (reason) {\n' +
+      '      setError(explain(reason, "确认图谱并启动构建失败"));\n' +
+      '    } finally {\n' +
+      '      setGraphBusy(false);\n' +
+      '    }\n' +
+      '  }\n' +
+      '\n' +
+      '  const generating = submittingGraph || Boolean(activeGraphJob);\n' +
+      '\n' +
+      '  return (\n' +
+      '    <div className="course-kb-wizard" role="dialog" aria-modal="false" aria-labelledby="kb-wizard-title">\n' +
+      '      <header className="course-kb-wizard__header">\n' +
+      '        <div><h2 id="kb-wizard-title">{build.baseline_graph ? "更新课程知识库" : "创建课程知识库"}</h2></div>\n' +
+      '        <button type="button" aria-label="关闭构建向导" onClick={onClose}><MaterialIcon name="close" /></button>\n' +
+      '      </header>\n' +
+      '      <nav className="course-kb-wizard__steps" aria-label="更新步骤">\n' +
+      '        <span className={step === "textbooks" ? "is-active" : ""}>1 需求与教材</span>\n' +
+      '        <span className={step === "proposal" ? "is-active" : ""}>2 {build.baseline_graph ? "补充清单" : "大纲对比"}</span>\n' +
+      '        <span className={step === "graph" ? "is-active" : ""}>3 确认目录</span>\n' +
+      '      </nav>\n' +
+      '      {step === "proposal" && build.knowledge_proposal ? (\n' +
+      '        <CourseKnowledgeProposalView key={build.revision} proposal={build.knowledge_proposal} busy={saving} onSelect={selection => void chooseProposal(selection)} onBack={() => setStep("textbooks")} />\n' +
+      '      ) : step === "textbooks" ? (<>\n' +
+      '        <label className="course-kb-proposal__requirements">{build.baseline_graph ? "这次想补充什么？" : "这门课面向谁，希望覆盖哪些内容？"}\n' +
+      '          <textarea value={requirements} onChange={event => setRequirements(event.target.value)} maxLength={4000}\n' +
+      '            placeholder={build.baseline_graph ? "例如：检查现有资料，只补充循环结构的练习。留空则检查整体缺口。" : "可填写授课对象、学时或重点。留空则根据课程介绍和教学目标规划。"} />\n' +
+      '        </label>\n' +
+      '        <CourseKnowledgeTextbookStep\n' +
+      '          textbooks={build.textbooks || []}\n' +
+      '          uploading={uploading}\n' +
+      '          generating={generating}\n' +
+      '          generateLabel={build.baseline_graph ? "分析补充建议" : "生成三份大纲"}\n' +
+      '          onBack={onClose}\n' +
+      '          onUpload={(files) => void upload(files)}\n' +
+      '          onRetry={(id) => void retry(id)}\n' +
+      '          onRemove={(id) => void remove(id)}\n' +
+      '          onGenerate={() => void generateGraph()}\n' +
+      '        />\n' +
+      '      </>) : graphDraft && build.graph_draft ? (\n' +
+      '        <CourseKnowledgeGraphReviewStep\n' +
+      '          flexiblePlanning={Boolean(build.knowledge_proposal)}\n' +
+      '          root={graphDraft}\n' +
+      '          savedRoot={build.graph_draft}\n' +
+      '          baselineRoot={build.baseline_graph || null}\n' +
+      '          config={build.config || config}\n' +
+      '          textbooks={build.textbooks || []}\n' +
+      '          busy={graphBusy || generating}\n' +
+      '          onChange={setGraphDraft}\n' +
+      '          onBack={() => setStep(build.knowledge_proposal ? "proposal" : "textbooks")}\n' +
+      '          onSave={saveGraph}\n' +
+      '          onRegenerate={() => void generateGraph()}\n' +
+      '          onConfirmAndStart={(root) => void confirmAndStart(root)}\n' +
+      '        />\n' +
+      '      ) : null}\n' +
+      '\n' +
+      '      {build.graph_draft && step !== "graph" ? <div className="course-kb-wizard__ready"><MaterialIcon name="account_tree" /><div><strong>课程目录已准备好</strong><span>请检查课程目录，确认后开始补充学习资料。</span'... 353 more characters
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    import { useEffect, useMemo, useRef, useState } from "react";
+    
+    import { registerCreatedJob, useCourseJobs } from "../../../jobs/jobStore";
+    import { isActiveJob } from "../../../jobs/types";
+    import {
+      confirmCourseKnowledgeGraph,
+      generateCourseKnowledgeProposal,
+      selectCourseKnowledgeProposal,
+      getCourseKnowledgeBuild,
+      removeCourseKnowledgeTextbook,
+      retryCourseKnowledgeTextbook,
+      saveCourseKnowledgeGraphDraft,
+      startCourseKnowledgeBuild,
+      uploadCourseKnowledgeTextbook,
+    } from "../../api/courses";
+    import { ApiError } from "../../api/client";
+    import type { CourseKnowledgeBuild, KnowledgeGraphNode } from "../../api/types";
+    import { MaterialIcon } from "../../shared";
+    import { CourseKnowledgeProposalView } from "./CourseKnowledgeProposalView";
+    import { CourseKnowledgeGraphReviewStep } from "./CourseKnowledgeGraphReviewStep";
+    import { CourseKnowledgeTextbookStep } from "./CourseKnowledgeTextbookStep";
+    import { DEFAULT_COURSE_KNOWLEDGE_CONFIG } from "./courseKnowledgeBuildState";
+    import { graphDraftEqual } from "./courseKnowledgeGraphDraft";
+    
+    type Props = {
+      courseId: string;
+      build: CourseKnowledgeBuild;
+      onBuildChange: (build: CourseKnowledgeBuild) => void;
+      onClose: () => void;
+    };
+    
+    export function CourseKnowledgeBuildWizard({ courseId, build, onBuildChange, onClose }: Props) {
+      const [step, setStep] = useState<"proposal" | "textbooks" | "graph">(
+        build.graph_draft ? "graph" : build.knowledge_proposal ? "proposal" : "textbooks",
+      );
+      const config = build.config || DEFAULT_COURSE_KNOWLEDGE_CONFIG;
+      const [requirements, setRequirements] = useState(build.knowledge_proposal?.requirements || "");
+      const [saving, setSaving] = useState(false);
+      const [uploading, setUploading] = useState(false);
+      const [submittingGraph, setSubmittingGraph] = useState(false);
+      const [graphDraft, setGraphDraft] = useState<KnowledgeGraphNode | null>(build.graph_draft || null);
+      const lastSavedGraph = useRef<KnowledgeGraphNode | null>(build.graph_draft || null);
+      const [graphBusy, setGraphBusy] = useState(false);
+      const [error, setError] = useState("");
+      const jobs = useCourseJobs(courseId);
+      const relevantJobs = useMemo(
+        () => jobs.filter((job) => String(job.input_summary?.build_id || "") === build.build_id),
+        [build.build_id, jobs],
+      );
+      const activeGraphJob = relevantJobs.find((job) => job.kind === "generate_graph" && isActiveJob(job));
+      const latestRelevantJob = relevantJobs[0];
+    
+    
+      useEffect(() => {
+        if (!build.graph_draft) return;
+        const incomingGraphDraft = build.graph_draft;
+        const previouslySaved = lastSavedGraph.current;
+        lastSavedGraph.current = incomingGraphDraft;
+        setGraphDraft((current) => {
+          if (!current || !previouslySaved || graphDraftEqual(current, previouslySaved)) {
+            return incomingGraphDraft;
+          }
+          return current;
+        });
+        setStep("graph");
+      }, [build.graph_draft]);
+    
+      useEffect(() => {
+        if (!latestRelevantJob) return;
+        let canceled = false;
+        void getCourseKnowledgeBuild(courseId, build.build_id)
+          .then((current) => {
+            if (!canceled) {
+              onBuildChange(current);
+              if (current.graph_draft) {
+                setSubmittingGraph(false);
+                setStep("graph");
+              }
+            }
+          })
+          .catch(() => undefined);
+        return () => { canceled = true; };
+      }, [build.build_id, courseId, latestRelevantJob, onBuildChange]);
+    
+      function explain(reason: unknown, fallback: string) {
+        if (reason instanceof ApiError && reason.status === 409) {
+          return "方案已在其他页面或后台任务中更新，请重新加载最新版本后再操作。";
+        }
+        return reason instanceof Error ? reason.message : fallback;
+      }
+    
+      async function chooseProposal(selection: { option_id?: string; item_ids?: string[] }) {
+        setSaving(true); setError("");
+        try {
+          const updated = await selectCourseKnowledgeProposal(courseId, build.build_id, build.revision, selection);
+          onBuildChange(updated); setGraphDraft(updated.graph_draft || null); setStep("graph");
+        } catch (reason) { setError(explain(reason, "选择方案失败")); }
+        finally { setSaving(false); }
+      }
+    
+      async function upload(files: File[]) {
+        setUploading(true);
+        setError("");
+        try {
+          for (const file of files) {
+            const latest = await getCourseKnowledgeBuild(courseId, build.build_id);
+            const response = await uploadCourseKnowledgeTextbook(
+              courseId,
+              build.build_id,
+              latest.revision,
+              file,
+            );
+            registerCreatedJob(response.job);
+            onBuildChange(response.build);
+          }
+        } catch (reason) {
+          setError(explain(reason, "上传教材失败"));
+        } finally {
+          setUploading(false);
+        }
+      }
+    
+      async function retry(textbookId: string) {
+        setError("");
+        try {
+          const latest = await getCourseKnowledgeBuild(courseId, build.build_id);
+          const response = await retryCourseKnowledgeTextbook(
+            courseId,
+            build.build_id,
+            textbookId,
+            latest.revision,
+          );
+          registerCreatedJob(response.job);
+          onBuildChange(response.build);
+        } catch (reason) {
+          setError(explain(reason, "重试教材解析失败"));
+        }
+      }
+    
+      async function remove(textbookId: string) {
+        setError("");
+        try {
+          const latest = await getCourseKnowledgeBuild(courseId, build.build_id);
+          onBuildChange(await removeCourseKnowledgeTextbook(
+            courseId,
+            build.build_id,
+            textbookId,
+            latest.revision,
+          ));
+        } catch (reason) {
+          setError(explain(reason, "移除教材失败"));
+        }
+      }
+    
+      async function generateGraph() {
+        setSubmittingGraph(true); setError("");
+        try {
+          const updated = await generateCourseKnowledgeProposal(courseId, build.build_id, build.revision, requirements);
+          onBuildChange(updated); setGraphDraft(null); setStep("proposal");
+        } catch (reason) { setError(explain(reason, "生成方案失败")); }
+        finally { setSubmittingGraph(false); }
+      }
+    
+      async function saveGraph(root: KnowledgeGraphNode) {
+        setGraphBusy(true);
+        setError("");
+        try {
+          const updated = await saveCourseKnowledgeGraphDraft(
+            courseId,
+            build.build_id,
+            build.revision,
+            root,
+          );
+          onBuildChange(updated);
+          setGraphDraft(updated.graph_draft || root);
+          return updated.graph_draft || root;
+        } catch (reason) {
+          setError(explain(reason, "保存知识图谱草案失败"));
+          return root;
+        } finally {
+          setGraphBusy(false);
+        }
+      }
+    
+      async function confirmAndStart(root: KnowledgeGraphNode) {
+        setGraphBusy(true);
+        setError("");
+        try {
+          let latest = build;
+          if (!latest.graph_draft || !graphDraftEqual(root, latest.graph_draft)) {
+            latest = await saveCourseKnowledgeGraphDraft(
+              courseId,
+              build.build_id,
+              latest.revision,
+              root,
+            );
+          }
+          const confirmed = await confirmCourseKnowledgeGraph(
+            courseId,
+            build.build_id,
+            latest.revision,
+          );
+          onBuildChange(confirmed);
+          const job = await startCourseKnowledgeBuild(courseId, build.build_id);
+          registerCreatedJob(job);
+          onClose();
+        } catch (reason) {
+          setError(explain(reason, "确认图谱并启动构建失败"));
+        } finally {
+          setGraphBusy(false);
+        }
+      }
+    
+      const generating = submittingGraph || Boolean(activeGraphJob);
+    
+      return (
+        <div className="course-kb-wizard" role="dialog" aria-modal="false" aria-labelledby="kb-wizard-title">
+          <header className="course-kb-wizard__header">
+            <div><h2 id="kb-wizard-title">{build.baseline_graph ? "更新课程知识库" : "创建课程知识库"}</h2></div>
+            <button type="button" aria-label="关闭构建向导" onClick={onClose}><MaterialIcon name="close" /></button>
+          </header>
+          <nav className="course-kb-wizard__steps" aria-label="更新步骤">
+            <span className={step === "textbooks" ? "is-active" : ""}>1 需求与教材</span>
+            <span className={step === "proposal" ? "is-active" : ""}>2 {build.baseline_graph ? "补充清单" : "大纲对比"}</span>
+            <span className={step === "graph" ? "is-active" : ""}>3 确认目录</span>
+          </nav>
+          {step === "proposal" && build.knowledge_proposal ? (
+            <CourseKnowledgeProposalView key={build.revision} proposal={build.knowledge_proposal} busy={saving} onSelect={selection => void chooseProposal(selection)} onBack={() => setStep("textbooks")} />
+          ) : step === "textbooks" ? (<>
+            <label className="course-kb-proposal__requirements">{build.baseline_graph ? "这次想补充什么？" : "这门课面向谁，希望覆盖哪些内容？"}
+              <textarea value={requirements} onChange={event => setRequirements(event.target.value)} maxLength={4000}
+                placeholder={build.baseline_graph ? "例如：检查现有资料，只补充循环结构的练习。留空则检查整体缺口。" : "可填写授课对象、学时或重点。留空则根据课程介绍和教学目标规划。"} />
+            </label>
+            <CourseKnowledgeTextbookStep
+              textbooks={build.textbooks || []}
+              uploading={uploading}
+              generating={generating}
+              generateLabel={build.baseline_graph ? "分析补充建议" : "生成三份大纲"}
+              onBack={onClose}
+              onUpload={(files) => void upload(files)}
+              onRetry={(id) => void retry(id)}
+              onRemove={(id) => void remove(id)}
+              onGenerate={() => void generateGraph()}
+            />
+          </>) : graphDraft && build.graph_draft ? (
+            <CourseKnowledgeGraphReviewStep
+              flexiblePlanning={Boolean(build.knowledge_proposal)}
+              root={graphDraft}
+              savedRoot={build.graph_draft}
+              baselineRoot={build.baseline_graph || null}
+              config={build.config || config}
+              textbooks={build.textbooks || []}
+              busy={graphBusy || generating}
+              onChange={setGraphDraft}
+              onBack={() => setStep(build.knowledge_proposal ? "proposal" : "textbooks")}
+              onSave={saveGraph}
+              onRegenerate={() => void generateGraph()}
+              onConfirmAndStart={(root) => void confirmAndStart(root)}
+            />
+          ) : null}
+    
+          {build.graph_draft && step !== "graph" ? <div className="course-kb-wizard__ready"><MaterialIcon name="account_tree" /><div><strong>课程目录已准备好</strong><span>请检查课程目录，确认后开始补充学习资料。</span></div><button type="button" onClick={() => setStep("graph")}>开始审核</button></div> : null}
+          {build.graph_generation_error?.message ? <div className="course-kb-wizard__error" role="alert">{build.graph_generation_error.message}</div> : null}
+          {error ? <div className="course-kb-wizard__error" role="alert">{error}</div> : null}
+        </div>
+      );
+    }
+    
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/zxqs_ep/Edu_AI/frontend/src/stitch/course/knowledge/courseKnowledgeBuildIntegration.test.ts:42:10)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: first and update build wizards keep the continue action reachable
+ok 334 - first and update build wizards keep the continue action reachable
+  ---
+  duration_ms: 6.845001
+  type: 'test'
+  ...
+# Subtest: course resources and knowledge documents share the outer content scrollbar
+ok 335 - course resources and knowledge documents share the outer content scrollbar
+  ---
+  duration_ms: 2.434503
+  type: 'test'
+  ...
+# Subtest: course knowledge build card keeps the primary experience simple
+ok 336 - course knowledge build card keeps the primary experience simple
+  ---
+  duration_ms: 1.990602
+  type: 'test'
+  ...
+# Subtest: standard preset is the default and estimates sixteen leaves
+ok 337 - standard preset is the default and estimates sixteen leaves
+  ---
+  duration_ms: 4.791792
+  type: 'test'
+  ...
+# Subtest: preset selection remains editable and manual limits are validated
+ok 338 - preset selection remains editable and manual limits are validated
+  ---
+  duration_ms: 1.173796
+  type: 'test'
+  ...
+# Subtest: graph editor updates content without mutating source
+ok 339 - graph editor updates content without mutating source
+  ---
+  duration_ms: 5.722012
+  type: 'test'
+  ...
+# Subtest: graph editor adds, removes and reorders siblings
+ok 340 - graph editor adds, removes and reorders siblings
+  ---
+  duration_ms: 1.59376
+  type: 'test'
+  ...
+# Subtest: graph editor reparents only to a legal same-layer parent
+ok 341 - graph editor reparents only to a legal same-layer parent
+  ---
+  duration_ms: 1.072257
+  type: 'test'
+  ...
+# Subtest: graph stats report actual structure and textbook mappings
+ok 342 - graph stats report actual structure and textbook mappings
+  ---
+  duration_ms: 0.628793
+  type: 'test'
+  ...
+# Subtest: review model identifies baseline nodes and selects the first issue
+ok 343 - review model identifies baseline nodes and selects the first issue
+  ---
+  duration_ms: 0.885774
+  type: 'test'
+  ...
+# Subtest: tree search keeps ancestors and filters retain matching nodes
+ok 344 - tree search keeps ancestors and filters retain matching nodes
+  ---
+  duration_ms: 1.037472
+  type: 'test'
+  ...
+# Subtest: existing node structural edits are rejected but summaries remain editable
+ok 345 - existing node structural edits are rejected but summaries remain editable
+  ---
+  duration_ms: 0.66209
+  type: 'test'
+  ...
+# Subtest: initial knowledge tree shows only the root and its immediate children
+ok 346 - initial knowledge tree shows only the root and its immediate children
+  ---
+  duration_ms: 5.044257
+  type: 'test'
+  ...
+# Subtest: expanding a branch reveals one more level without expanding its descendants
+ok 347 - expanding a branch reveals one more level without expanding its descendants
+  ---
+  duration_ms: 0.639321
+  type: 'test'
+  ...
+# Subtest: collapsing a branch clears expansion state below that branch
+ok 348 - collapsing a branch clears expansion state below that branch
+  ---
+  duration_ms: 0.448671
+  type: 'test'
+  ...
+# Subtest: learning resource generation does not register a dedicated route
+ok 349 - learning resource generation does not register a dedicated route
+  ---
+  duration_ms: 14.958224
+  type: 'test'
+  ...
+# Subtest: knowledge build card opens learning resource generation in a compact modal
+ok 350 - knowledge build card opens learning resource generation in a compact modal
+  ---
+  duration_ms: 4.797427
+  type: 'test'
+  ...
+# Subtest: knowledge and resource configuration panels are mutually exclusive
+ok 351 - knowledge and resource configuration panels are mutually exclusive
+  ---
+  duration_ms: 2.076653
+  type: 'test'
+  ...
+# Subtest: compact resources use progressive disclosure and a fixed action bar
+ok 352 - compact resources use progressive disclosure and a fixed action bar
+  ---
+  duration_ms: 2.576592
+  type: 'test'
+  ...
+# Subtest: students keep read-only published resources
+ok 353 - students keep read-only published resources
+  ---
+  duration_ms: 1.989351
+  type: 'test'
+  ...
+# Subtest: teacher queues keep coverage and question blockers separate
+ok 354 - teacher queues keep coverage and question blockers separate
+  ---
+  duration_ms: 5.300023
+  type: 'test'
+  ...
+# Subtest: student classroom link carries the approved resource version
+ok 355 - student classroom link carries the approved resource version
+  ---
+  duration_ms: 3.079198
+  type: 'test'
+  ...
+# Subtest: progress copy keeps coverage and questions separate
+ok 356 - progress copy keeps coverage and questions separate
+  ---
+  duration_ms: 3.273731
+  type: 'test'
+  ...
+# Subtest: behavior-only resources never claim completion
+ok 357 - behavior-only resources never claim completion
+  ---
+  duration_ms: 0.389121
+  type: 'test'
+  ...
+# Subtest: standard classrooms open the existing classroom player
+ok 358 - standard classrooms open the existing classroom player
+  ---
+  duration_ms: 6.157139
+  type: 'test'
+  ...
+# Subtest: guides and practice resources open in a detail dialog
+ok 359 - guides and practice resources open in a detail dialog
+  ---
+  duration_ms: 0.39166
+  type: 'test'
+  ...
+# Subtest: resource body supports markdown and structured content
+ok 360 - resource body supports markdown and structured content
+  ---
+  duration_ms: 4.624141
+  type: 'test'
+  ...
+# Subtest: only managers can approve pending resources
+ok 361 - only managers can approve pending resources
+  ---
+  duration_ms: 0.411558
+  type: 'test'
+  ...
+# Subtest: knowledge leaves remain grouped in source chapter order
+ok 362 - knowledge leaves remain grouped in source chapter order
+  ---
+  duration_ms: 0.599458
+  type: 'test'
+  ...
+# Subtest: batch progress distinguishes running and partial failure
+ok 363 - batch progress distinguishes running and partial failure
+  ---
+  duration_ms: 0.642138
+  type: 'test'
+  ...
+# Subtest: review statuses have stable learner-facing labels
+ok 364 - review statuses have stable learner-facing labels
+  ---
+  duration_ms: 0.313597
+  type: 'test'
+  ...
+# Subtest: selection summary reports knowledge points and three resources per point
+ok 365 - selection summary reports knowledge points and three resources per point
+  ---
+  duration_ms: 0.338625
+  type: 'test'
+  ...
+# Subtest: chapter selection adds and removes only that chapter scope
+ok 366 - chapter selection adds and removes only that chapter scope
+  ---
+  duration_ms: 0.987392
+  type: 'test'
+  ...
+# Subtest: knowledge scope keeps only generated resources for the selected node subtree
+ok 367 - knowledge scope keeps only generated resources for the selected node subtree
+  ---
+  duration_ms: 1.148981
+  type: 'test'
+  ...
+# Subtest: completion evidence strength is monotonic
+ok 368 - completion evidence strength is monotonic
+  ---
+  duration_ms: 2.070567
+  type: 'test'
+  ...
+# Subtest: only assessed tasks require assessment authoring
+ok 369 - only assessed tasks require assessment authoring
+  ---
+  duration_ms: 0.41031
+  type: 'test'
+  ...
+# Subtest: does not expose the AI lecturer video player route
+ok 370 - does not expose the AI lecturer video player route
+  ---
+  duration_ms: 2.527203
+  type: 'test'
+  ...
+# Subtest: course navigation has one knowledge destination and graph is redirect-only
+ok 371 - course navigation has one knowledge destination and graph is redirect-only
+  ---
+  duration_ms: 1.059717
+  type: 'test'
+  ...
+# Subtest: course knowledge renders only the document library
+ok 372 - course knowledge renders only the document library
+  ---
+  duration_ms: 0.604995
+  type: 'test'
+  ...
+# Subtest: knowledge structure cannot restore a second upload workflow
+ok 373 - knowledge structure cannot restore a second upload workflow
+  ---
+  duration_ms: 0.610012
+  type: 'test'
+  ...
+# Subtest: generation factory uses one Agent prompt instead of resource-specific forms
+ok 374 - generation factory uses one Agent prompt instead of resource-specific forms
+  ---
+  duration_ms: 0.993862
+  type: 'test'
+  ...
+# Subtest: course identity never falls back to local storage on a course page
+ok 375 - course identity never falls back to local storage on a course page
+  ---
+  duration_ms: 0.393672
+  type: 'test'
+  ...
+# Subtest: course cards contain no random or decorative progress calculation
+ok 376 - course cards contain no random or decorative progress calculation
+  ---
+  duration_ms: 0.589133
+  type: 'test'
+  ...
+# Subtest: theme controls live in profile instead of a floating app control
+ok 377 - theme controls live in profile instead of a floating app control
+  ---
+  duration_ms: 0.564803
+  type: 'test'
+  ...
+# Subtest: workspace breakpoints use the measured content width
+ok 378 - workspace breakpoints use the measured content width
+  ---
+  duration_ms: 2.46216
+  type: 'test'
+  ...
+# Subtest: drawer layout reserves the full row for conversation
+ok 379 - drawer layout reserves the full row for conversation
+  ---
+  duration_ms: 0.590923
+  type: 'test'
+  ...
+# Subtest: compact layout never leaves both side panels expanded
+ok 380 - compact layout never leaves both side panels expanded
+  ---
+  duration_ms: 2.4204
+  type: 'test'
+  ...
+# Subtest: AI classroom page is coordinated by the role-safe curriculum catalog
+ok 381 - AI classroom page is coordinated by the role-safe curriculum catalog
+  ---
+  duration_ms: 10.563147
+  type: 'test'
+  ...
+# Subtest: AI classroom uses a focused workspace without a page toolbar or breadcrumb
+ok 382 - AI classroom uses a focused workspace without a page toolbar or breadcrumb
+  ---
+  duration_ms: 10.759018
+  type: 'test'
+  ...
+# Subtest: curriculum directory exposes keyboard tree semantics and visible statuses
+ok 383 - curriculum directory exposes keyboard tree semantics and visible statuses
+  ---
+  duration_ms: 7.884562
+  type: 'test'
+  ...
+# Subtest: personal classrooms stay at the bottom of the directory with local loading states
+ok 384 - personal classrooms stay at the bottom of the directory with local loading states
+  ---
+  duration_ms: 3.964741
+  type: 'test'
+  ...
+# Subtest: teacher reviews a selected version without hiding its preview
+ok 385 - teacher reviews a selected version without hiding its preview
+  ---
+  duration_ms: 3.674579
+  type: 'test'
+  ...
+# Subtest: resource learning activates only for a student with an exact approved version
+ok 386 - resource learning activates only for a student with an exact approved version
+  ---
+  duration_ms: 2.209299
+  type: 'test'
+  ...
+# Subtest: student reading and practice use explicit server learning evidence
+ok 387 - student reading and practice use explicit server learning evidence
+  ---
+  duration_ms: 10.230575
+  type: 'test'
+  ...
+# Subtest: course card presentation contains only factual metrics
+ok 388 - course card presentation contains only factual metrics
+  ---
+  duration_ms: 5.059166
+  type: 'test'
+  ...
+# Subtest: course home counts only personal resources
+ok 389 - course home counts only personal resources
+  ---
+  duration_ms: 12.916163
+  type: 'test'
+  ...
+# Subtest: course card omits developer-facing permission and revision fields
+ok 390 - course card omits developer-facing permission and revision fields
+  ---
+  duration_ms: 0.468334
+  type: 'test'
+  ...
+# Subtest: student course card prioritizes pending learning
+ok 391 - student course card prioritizes pending learning
+  ---
+  duration_ms: 0.490045
+  type: 'test'
+  ...
+# Subtest: course usage comes from user visits, never from content modification
+ok 392 - course usage comes from user visits, never from content modification
+  ---
+  duration_ms: 35.10946
+  type: 'test'
+  ...
+# Subtest: student course card separates pending learning from background jobs
+ok 393 - student course card separates pending learning from background jobs
+  ---
+  duration_ms: 4.851897
+  type: 'test'
+  ...
+# Subtest: teacher course card shows active learning tasks
+ok 394 - teacher course card shows active learning tasks
+  ---
+  duration_ms: 0.5464
+  type: 'test'
+  ...
+# Subtest: an unavailable overview is not presented as zero learning tasks
+ok 395 - an unavailable overview is not presented as zero learning tasks
+  ---
+  duration_ms: 0.465101
+  type: 'test'
+  ...
+# Subtest: course learning presentation
+    # Subtest: shows publish to teachers for a draft
+    ok 1 - shows publish to teachers for a draft
+      ---
+      duration_ms: 2.082297
+      type: 'test'
+      ...
+    # Subtest: shows continue to students for an in-progress task
+    ok 2 - shows continue to students for an in-progress task
+      ---
+      duration_ms: 0.486826
+      type: 'test'
+      ...
+    # Subtest: clamps progress and distinguishes empty and complete states
+    ok 3 - clamps progress and distinguishes empty and complete states
+      ---
+      duration_ms: 0.3467
+      type: 'test'
+      ...
+    # Subtest: keeps in-progress learning distinct from completion evidence
+    ok 4 - keeps in-progress learning distinct from completion evidence
+      ---
+      duration_ms: 0.538231
+      type: 'test'
+      ...
+    # Subtest: falls back legacy completed progress to self-reported without upgrading active work
+    ok 5 - falls back legacy completed progress to self-reported without upgrading active work
+      ---
+      duration_ms: 0.235683
+      type: 'test'
+      ...
+    # Subtest: shows resource evidence without changing task completion
+    ok 6 - shows resource evidence without changing task completion
+      ---
+      duration_ms: 0.286816
+      type: 'test'
+      ...
+    1..6
+ok 396 - course learning presentation
+  ---
+  duration_ms: 6.672864
+  type: 'suite'
+  ...
+# Subtest: learning resource destinations
+    # Subtest: routes standard resources to the curriculum classroom
+    ok 1 - routes standard resources to the curriculum classroom
+      ---
+      duration_ms: 1.492477
+      type: 'test'
+      ...
+    # Subtest: keeps non-standard resources in resource management
+    ok 2 - keeps non-standard resources in resource management
+      ---
+      duration_ms: 0.851887
+      type: 'test'
+      ...
+    1..2
+ok 397 - learning resource destinations
+  ---
+  duration_ms: 2.775864
+  type: 'suite'
+  ...
+# Subtest: quiz preview reads questions from generated material content
+ok 398 - quiz preview reads questions from generated material content
+  ---
+  duration_ms: 1.542209
+  type: 'test'
+  ...
+# Subtest: legacy top-level quiz questions remain supported
+ok 399 - legacy top-level quiz questions remain supported
+  ---
+  duration_ms: 0.242915
+  type: 'test'
+  ...
+# Subtest: course resources expose explicit rename pin and complete delete actions
+ok 400 - course resources expose explicit rename pin and complete delete actions
+  ---
+  duration_ms: 9.488149
+  type: 'test'
+  ...
+# Subtest: course resources recover the exact material selected by a task result
+ok 401 - course resources recover the exact material selected by a task result
+  ---
+  duration_ms: 4.894801
+  type: 'test'
+  ...
+# Subtest: personal resources load only the current user's private space
+ok 402 - personal resources load only the current user's private space
+  ---
+  duration_ms: 3.307628
+  type: 'test'
+  ...
+# Subtest: formal generated types have dedicated storage directories
+ok 403 - formal generated types have dedicated storage directories
+  ---
+  duration_ms: 2.614961
+  type: 'test'
+  ...
+# Subtest: text resources edit their markdown content directly
+ok 404 - text resources edit their markdown content directly
+  ---
+  duration_ms: 2.404001
+  type: 'test'
+  ...
+# Subtest: mind maps edit and save their structured content
+ok 405 - mind maps edit and save their structured content
+  ---
+  duration_ms: 3.171137
+  type: 'test'
+  ...
+# Subtest: structured editor reports invalid JSON instead of silently saving
+ok 406 - structured editor reports invalid JSON instead of silently saving
+  ---
+  duration_ms: 0.967485
+  type: 'test'
+  ...
+# Subtest: text resources export readable markdown
+ok 407 - text resources export readable markdown
+  ---
+  duration_ms: 2.630727
+  type: 'test'
+  ...
+# Subtest: structured resources export JSON
+ok 408 - structured resources export JSON
+  ---
+  duration_ms: 3.315911
+  type: 'test'
+  ...
+# Subtest: native quiz and flashcard exports preserve generated content
+ok 409 - native quiz and flashcard exports preserve generated content
+  ---
+  duration_ms: 0.871817
+  type: 'test'
+  ...
+# Subtest: mind map nodes can be renamed without changing stable IDs
+ok 410 - mind map nodes can be renamed without changing stable IDs
+  ---
+  duration_ms: 2.637088
+  type: 'test'
+  ...
+# Subtest: mind map children receive collision-free stable IDs
+ok 411 - mind map children receive collision-free stable IDs
+  ---
+  duration_ms: 3.266325
+  type: 'test'
+  ...
+# Subtest: mind map child can be removed but root cannot
+ok 412 - mind map child can be removed but root cannot
+  ---
+  duration_ms: 0.427542
+  type: 'test'
+  ...
+# Subtest: mind map export produces readable JSON with stable node IDs
+ok 413 - mind map export produces readable JSON with stable node IDs
+  ---
+  duration_ms: 2.406069
+  type: 'test'
+  ...
+# Subtest: mind map export rejects content without a root node
+ok 414 - mind map export rejects content without a root node
+  ---
+  duration_ms: 0.651483
+  type: 'test'
+  ...
+# Subtest: accessible course count presents the real successful response length
+ok 415 - accessible course count presents the real successful response length
+  ---
+  duration_ms: 1.546346
+  type: 'test'
+  ...
+# Subtest: failed course membership lookup is not presented as zero
+ok 416 - failed course membership lookup is not presented as zero
+  ---
+  duration_ms: 0.303729
+  type: 'test'
+  ...
+# Subtest: login is role-neutral and remember-account never persists a password
+ok 417 - login is role-neutral and remember-account never persists a password
+  ---
+  duration_ms: 0.826124
+  type: 'test'
+  ...
+# Subtest: profile obtains membership-backed courses instead of trusting profile course_count
+ok 418 - profile obtains membership-backed courses instead of trusting profile course_count
+  ---
+  duration_ms: 0.439293
+  type: 'test'
+  ...
+# Subtest: persisted knowledge links win over topic text and ambiguous or stale links remain discoverable
+ok 419 - persisted knowledge links win over topic text and ambiguous or stale links remain discoverable
+  ---
+  duration_ms: 4.89238
+  type: 'test'
+  ...
+# Subtest: missing course directory never drops resources
+ok 420 - missing course directory never drops resources
+  ---
+  duration_ms: 0.45044
+  type: 'test'
+  ...
+# Subtest: root and non-leaf resources live in separate collections after knowledge children
+ok 421 - root and non-leaf resources live in separate collections after knowledge children
+  ---
+  duration_ms: 0.533568
+  type: 'test'
+  ...
+# Subtest: a root without knowledge children still collects course resources
+ok 422 - a root without knowledge children still collects course resources
+  ---
+  duration_ms: 0.387919
+  type: 'test'
+  ...
+# Subtest: resource metadata exposes provenance without internal IDs
+ok 423 - resource metadata exposes provenance without internal IDs
+  ---
+  duration_ms: 26.028755
+  type: 'test'
+  ...
+# Subtest: preview constraint class is applied to rich content
+ok 424 - preview constraint class is applied to rich content
+  ---
+  duration_ms: 0.460528
+  type: 'test'
+  ...
+# Subtest: all generated resources select a factual preview
+ok 425 - all generated resources select a factual preview
+  ---
+  duration_ms: 0.311425
+  type: 'test'
+  ...
+# Subtest: preparation history survives overview visits and stays isolated by course and account
+ok 426 - preparation history survives overview visits and stays isolated by course and account
+  ---
+  duration_ms: 8.055884
+  type: 'test'
+  ...
+# Subtest: legacy last workspace migrates before an overview replaces the resume entry
+ok 427 - legacy last workspace migrates before an overview replaces the resume entry
+  ---
+  duration_ms: 0.703379
+  type: 'test'
+  ...
+# Subtest: account and role isolation, same-route query changes, and safe versioned fields
+ok 428 - account and role isolation, same-route query changes, and safe versioned fields
+  ---
+  duration_ms: 1.027006
+  type: 'test'
+  ...
+# Subtest: home/settings/login/foreign roles/URLs and corrupt storage cannot create history
+ok 429 - home/settings/login/foreign roles/URLs and corrupt storage cannot create history
+  ---
+  duration_ms: 0.712079
+  type: 'test'
+  ...
+# Subtest: canonical scope aliases are read using the existing workspace parser
+ok 430 - canonical scope aliases are read using the existing workspace parser
+  ---
+  duration_ms: 0.428488
+  type: 'test'
+  ...
+# Subtest: student materials and classroom parameters survive only on supported routes
+ok 431 - student materials and classroom parameters survive only on supported routes
+  ---
+  duration_ms: 0.746158
+  type: 'test'
+  ...
+# Subtest: live metadata validates the exact scope, missing scope falls back within the same course
+ok 432 - live metadata validates the exact scope, missing scope falls back within the same course
+  ---
+  duration_ms: 0.736124
+  type: 'test'
+  ...
+# Subtest: permission loss differs from network failure, including target lookups
+ok 433 - permission loss differs from network failure, including target lookups
+  ---
+  duration_ms: 1.057969
+  type: 'test'
+  ...
+# Subtest: deleted resources are not resolved by title and failed validation does not write history
+ok 434 - deleted resources are not resolved by title and failed validation does not write history
+  ---
+  duration_ms: 0.909948
+  type: 'test'
+  ...
+# Subtest: a page data failure cannot be mistaken for a successful visit
+ok 435 - a page data failure cannot be mistaken for a successful visit
+  ---
+  duration_ms: 0.963863
+  type: 'test'
+  ...
+# Subtest: generation catalog preserves authenticated server order and ignores duplicates
+ok 436 - generation catalog preserves authenticated server order and ignores duplicates
+  ---
+  duration_ms: 3.1336
+  type: 'test'
+  ...
+# Subtest: generation catalog rejects unknown tool ids instead of widening access
+ok 437 - generation catalog rejects unknown tool ids instead of widening access
+  ---
+  duration_ms: 0.319553
+  type: 'test'
+  ...
+# Subtest: teacher and student catalogs match the exact product matrices
+ok 438 - teacher and student catalogs match the exact product matrices
+  ---
+  duration_ms: 0.36346
+  type: 'test'
+  ...
+# Subtest: role course links preserve the shared page while selecting the correct workspace route
+ok 439 - role course links preserve the shared page while selecting the correct workspace route
+  ---
+  duration_ms: 3.774741
+  type: 'test'
+  ...
+# Subtest: student course links ignore legacy knowledge views and keep scope values
+ok 440 - student course links ignore legacy knowledge views and keep scope values
+  ---
+  duration_ms: 0.582935
+  type: 'test'
+  ...
+# Subtest: role home links return to the correct global workspace
+ok 441 - role home links return to the correct global workspace
+  ---
+  duration_ms: 0.470647
+  type: 'test'
+  ...
+# Subtest: role course links preserve an exact resource version
+ok 442 - role course links preserve an exact resource version
+  ---
+  duration_ms: 0.337928
+  type: 'test'
+  ...
+# Subtest: role classroom links forward catalog selection for both workspaces
+ok 443 - role classroom links forward catalog selection for both workspaces
+  ---
+  duration_ms: 0.371111
+  type: 'test'
+  ...
+# Subtest: role defaults enter their own workspace
+ok 444 - role defaults enter their own workspace
+  ---
+  duration_ms: 1.579536
+  type: 'test'
+  ...
+# Subtest: students share account pages but cannot enter teacher workspace routes
+ok 445 - students share account pages but cannot enter teacher workspace routes
+  ---
+  duration_ms: 0.529384
+  type: 'test'
+  ...
+# Subtest: teacher and admin cannot accidentally enter student workspace routes
+ok 446 - teacher and admin cannot accidentally enter student workspace routes
+  ---
+  duration_ms: 0.212187
+  type: 'test'
+  ...
+# Subtest: student home reuses the teacher course catalog presentation
+ok 447 - student home reuses the teacher course catalog presentation
+  ---
+  duration_ms: 5.920833
+  type: 'test'
+  ...
+# Subtest: student personal center follows the shared course header action position
+ok 448 - student personal center follows the shared course header action position
+  ---
+  duration_ms: 3.510917
+  type: 'test'
+  ...
+# Subtest: student learning home omits the global navigation sidebar
+ok 449 - student learning home omits the global navigation sidebar
+  ---
+  duration_ms: 1.437344
+  type: 'test'
+  ...
+# Subtest: student course knowledge exposes exploration but no course writes
+ok 450 - student course knowledge exposes exploration but no course writes
+  ---
+  duration_ms: 3.200291
+  type: 'test'
+  ...
+# Subtest: personal knowledge exposes owner management but never course publication
+ok 451 - personal knowledge exposes owner management but never course publication
+  ---
+  duration_ms: 0.239054
+  type: 'test'
+  ...
+# Subtest: legacy unowned history is ignored and student history records verified locations only
+ok 452 - legacy unowned history is ignored and student history records verified locations only
+  ---
+  duration_ms: 3.231967
+  type: 'test'
+  ...
+# Subtest: student resource personal space has owner actions but never publication actions
+ok 453 - student resource personal space has owner actions but never publication actions
+  ---
+  duration_ms: 3.22777
+  type: 'test'
+  ...
+# Subtest: student resource course space is read-only
+ok 454 - student resource course space is read-only
+  ---
+  duration_ms: 0.231077
+  type: 'test'
+  ...
+# Subtest: student classroom creation and mutation stay in personal space
+ok 455 - student classroom creation and mutation stay in personal space
+  ---
+  duration_ms: 0.19806
+  type: 'test'
+  ...
+# Subtest: student resource space accepts mine or course and rejects combined modes
+ok 456 - student resource space accepts mine or course and rejects combined modes
+  ---
+  duration_ms: 0.588323
+  type: 'test'
+  ...
+# Subtest: student navigation exposes the learning destinations in order
+ok 457 - student navigation exposes the learning destinations in order
+  ---
+  duration_ms: 3.175431
+  type: 'test'
+  ...
+# Subtest: course destinations keep course context while personal knowledge remains global
+ok 458 - course destinations keep course context while personal knowledge remains global
+  ---
+  duration_ms: 0.936018
+  type: 'test'
+  ...
+# Subtest: student location sanitizes course id and ignores legacy knowledge views
+ok 459 - student location sanitizes course id and ignores legacy knowledge views
+  ---
+  duration_ms: 0.829598
+  type: 'test'
+  ...
+# Subtest: student classroom links preserve catalog node and resource targets
+ok 460 - student classroom links preserve catalog node and resource targets
+  ---
+  duration_ms: 0.38108
+  type: 'test'
+  ...
+# Subtest: student navigation has no teacher management or future placeholder entries
+ok 461 - student navigation has no teacher management or future placeholder entries
+  ---
+  duration_ms: 1.446488
+  type: 'test'
+  ...
+# Subtest: teacher sidebar exposes the approved learning destinations in order
+ok 462 - teacher sidebar exposes the approved learning destinations in order
+  ---
+  duration_ms: 3.100225
+  type: 'test'
+  ...
+# Subtest: teacher course hashes carry an encoded course id
+ok 463 - teacher course hashes carry an encoded course id
+  ---
+  duration_ms: 1.111503
+  type: 'test'
+  ...
+# Subtest: course knowledge links keep identity and ignore legacy view parameters
+ok 464 - course knowledge links keep identity and ignore legacy view parameters
+  ---
+  duration_ms: 0.458928
+  type: 'test'
+  ...
+# Subtest: teacher course hashes carry an exact generated material target
+ok 465 - teacher course hashes carry an exact generated material target
+  ---
+  duration_ms: 0.291689
+  type: 'test'
+  ...
+# Subtest: teacher course hashes fall back safely when the course id is unavailable
+ok 466 - teacher course hashes fall back safely when the course id is unavailable
+  ---
+  duration_ms: 0.205349
+  type: 'test'
+  ...
+# Subtest: profile appearance settings expose four accessible themes
+ok 467 - profile appearance settings expose four accessible themes
+  ---
+  duration_ms: 1.743184
+  type: 'test'
+  ...
+# Subtest: appearance settings keep the existing persisted theme pipeline
+not ok 468 - appearance settings keep the existing persisted theme pipeline
+  ---
+  duration_ms: 4.871538
+  type: 'test'
+  location: '/home/zxqs_ep/Edu_AI/frontend/src/stitch/theme/ThemeAppearanceSettings.test.ts:2:1832'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /localStorage\.setItem\(["']stitch-theme["'],\s*theme\)/u. Input:
+    
+    'import { browserStorage } from "./resume/browserStorage";\n' +
+      'import { ResumeTracker } from "./resume/ResumeTracker";\n' +
+      'import {\n' +
+      '  Component,\n' +
+      '  Suspense,\n' +
+      '  lazy,\n' +
+      '  useEffect,\n' +
+      '  useLayoutEffect,\n' +
+      '  useState,\n' +
+      '  type ErrorInfo,\n' +
+      '  type ReactNode,\n' +
+      '} from "react";\n' +
+      'import { LoginPage } from "./pages/LoginPage";\n' +
+      'import { backendCourseToSummary } from "./api/courses";\n' +
+      'import {\n' +
+      '  AuthSessionProvider,\n' +
+      '  AUTH_STORAGE_KEY,\n' +
+      '  normalizeAuthUser,\n' +
+      '  parseStoredAuthSession,\n' +
+      '  type AuthUser,\n' +
+      '} from "./authSession";\n' +
+      'import {\n' +
+      '  CourseRouteProvider,\n' +
+      '  useCourseRoute,\n' +
+      '} from "./course/CourseRouteProvider";\n' +
+      'import {\n' +
+      '  AppShellProvider,\n' +
+      '  routeHref,\n' +
+      '  routes,\n' +
+      '  type CourseSummary,\n' +
+      '  type RouteKey,\n' +
+      '  type ThemeName,\n' +
+      '} from "./shared";\n' +
+      'import { login, verifyToken } from "../services/auth";\n' +
+      'import { isCourseWorkspaceRoute } from "./course/courseNavigation";\n' +
+      'import { isStudentRoute, type StudentRoute } from "./student/routes/studentRoutes";\n' +
+      'import { defaultHashForRole, resolveRoleHash } from "./shared/routes/roleRouteResolver";\n' +
+      '\n' +
+      'const WorkspaceOverviewPage = lazy(() => import("./pages/WorkspaceOverview").then((module) => ({ default: module.WorkspaceOverviewPage })));\n' +
+      'const CourseResourcesPage = lazy(() => import("./pages/CourseResources").then((module) => ({ default: module.CourseResourcesPage })));\n' +
+      'const CourseLearningPage = lazy(() => import("./pages/CourseLearning").then((module) => ({ default: module.CourseLearningPage })));\n' +
+      'const AIWorkspacePage = lazy(() => import("./pages/AIWorkspace").then((module) => ({ default: module.AIWorkspacePage })));\n' +
+      'const HomeDashboardPage = lazy(() => import("./pages/HomeDashboard").then((module) => ({ default: module.HomeDashboardPage })));\n' +
+      'const CourseKnowledgePage = lazy(() => import("./pages/CourseKnowledge").then((module) => ({ default: module.CourseKnowledgePage })));\n' +
+      'const LegacyKnowledgeGraphRedirect = lazy(() => import("./pages/CourseKnowledge").then((module) => ({ default: module.LegacyKnowledgeGraphRedirect })));\n' +
+      'const CourseDetailPage = lazy(() => import("./pages/CourseDetail").then((module) => ({ default: module.CourseDetailPage })));\n' +
+      'const CourseListPage = lazy(() => import("./pages/CourseDetail").then((module) => ({ default: module.CourseListPage })));\n' +
+      'const CourseEditPage = lazy(() => import("./pages/CourseEdit").then((module) => ({ default: module.CourseEditPage })));\n' +
+      'const ProfilePage = lazy(() => import("./pages/Profile").then((module) => ({ default: module.ProfilePage })));\n' +
+      'const RuntimeSettingsPage = lazy(() => import("./pages/RuntimeSettings").then((module) => ({ default: module.RuntimeSettingsPage })));\n' +
+      'const PlayerSmokePage = lazy(() => import("./pages/_dev/PlayerSmoke").then((module) => ({ default: module.PlayerSmokePage })));\n' +
+      'const ClassroomVideoRenderPage = lazy(() => import("./pages/_dev/ClassroomVideoRender").then((module) => ({ default: module.ClassroomVideoRenderPage })));\n' +
+      'const ClassroomStudioPage = lazy(() => import("./pages/ClassroomStudio").then((module) => ({ default: module.ClassroomStudioPage })));\n' +
+      'const ClassroomPlayerPage = lazy(() => import("./pages/ClassroomPlayer").then((module) => ({ default: module.ClassroomPlayerPage })));\n' +
+      'const StudentApp = lazy(() => import("./student/StudentApp").then((module) => ({ default: module.StudentApp })));\n' +
+      'const GlobalJobManager = lazy(() => import("../jobs/GlobalJobManager").then((module) => ({ default: module.GlobalJobManager })));\n' +
+      'const CourseShell = lazy(() => import("./course/CourseShell").then((module) => ({ default: module.CourseShell })));\n' +
+      '\n' +
+      'const pages = [\n' +
+      '  [routes.profile, "Profile", ProfilePage],\n' +
+      '  [routes.settings, "Runtime Settings", RuntimeSettingsPage],\n' +
+      '  [routes.home, "Home", HomeDashboardPage],\n' +
+      '  [routes.course, "Course List", CourseListPage],\n' +
+      '  [routes.courseDetail, "Course Detail", CourseDetailPage],\n' +
+      '  [routes.learning, "Course Learning", CourseLearningPage],\n' +
+      '  [routes.workspace, "Workspace", WorkspaceOverviewPage],\n' +
+      '  [routes.resources, "Personal Resources", CourseResourcesPage],\n' +
+      '  [routes.ai, "AI Workspace", AIWorkspacePage],\n' +
+      '  [routes.graph, "Knowledge Graph", LegacyKnowledgeGraphRedirect],\n' +
+      '  [routes.knowledge, "Course Knowledge", CourseKnowledgePage],\n' +
+      '  [routes.edit, "Course Edit", CourseEditPage],\n' +
+      '  [routes.playerSmoke, "Player Smoke (dev)", PlayerSmokePage],\n' +
+      '  [routes.videoRender, "Video Render", ClassroomVideoRenderPage],\n' +
+      '  [routes.classroomStudio, "Classroom Studio", ClassroomStudioPage],\n' +
+      '  [routes.classroomPlayer, "Classroom Player", ClassroomPlayerPage],\n' +
+      '] as const;\n' +
+      '\n' +
+      'type AppRouteKey = RouteKey | StudentRoute;\n' +
+      '\n' +
+      'class RouteErrorBoundary extends Component<\n' +
+      '  { children: ReactNode },\n' +
+      '  { error: Error | null }\n' +
+      '> {\n' +
+      '  state = { error: null as Error | null };\n' +
+      '\n' +
+      '  static getDerivedStateFromError(error: Error) {\n' +
+      '    return { error };\n' +
+      '  }\n' +
+      '\n' +
+      '  componentDidCatch(error: Error, info: ErrorInfo) {\n' +
+      '    console.error("Route rendering failed", error, info);\n' +
+      '  }\n' +
+      '\n' +
+      '  render() {\n' +
+      '    if (!this.state.error) return this.props.children;\n' +
+      '\n' +
+      '    return (\n' +
+      '      <main className="grid min-h-screen place-items-center bg-slate-50 px-6 text-center text-slate-700">\n' +
+      '        <section className="max-w-lg rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">\n' +
+      '          <h1 className="text-xl font-semibold text-slate-900">页面加载失败</h1>\n' +
+      '          <p className="mt-3 text-sm leading-6">\n' +
+      '            页面模块没有正常启动。请刷新后重试；如果问题持续出现，请将下方信息提供给管理员。\n' +
+      '          </p>\n' +
+      '          <pre className="mt-4 overflow-auto rounded-lg bg-slate-100 p-3 text-left text-xs text-slate-600">\n' +
+      '            {this.state.error.message}\n' +
+      '          </pre>\n' +
+      '          <button\n' +
+      '            type="button"\n' +
+      '            className="mt-5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"\n' +
+      '            onClick={() => window.location.reload()}\n' +
+      '          >\n' +
+      '            重新加载\n' +
+      '          </button>\n' +
+      '        </section>\n' +
+      '      </main>\n' +
+      '    );\n' +
+      '  }\n' +
+      '}\n' +
+      '\n' +
+      'function DeferredGlobalJobManager({\n' +
+      '  enabled,\n' +
+      '  showLauncher,\n' +
+      '  currentCourseId,\n' +
+      '  currentCourseTitle,\n' +
+      '}: {\n' +
+      '  enabled: boolean;\n' +
+      '  showLauncher: boolean;\n' +
+      '  currentCourseId: string | null;\n' +
+      '  currentCourseTitle: string | null;\n' +
+      '}) {\n' +
+      '  const [ready, setReady] = useState(false);\n' +
+      '\n' +
+      '  useEffect(() => {\n' +
+      '    const timer = window.setTimeout(() => setReady(true), 1_500);\n' +
+      '    return () => window.clearTimeout(timer);\n' +
+      '  }, []);\n' +
+      '\n' +
+      '  return ready ? (\n' +
+      '    <Suspense fallback={null}>\n' +
+      '      <GlobalJobManager\n' +
+      '        enabled={enabled}\n' +
+      '        showLauncher={showLauncher}\n' +
+      '        currentCourseId={currentCourseId}\n' +
+      '        currentCourseTitle={currentCourseTitle}\n' +
+      '      />\n' +
+      '    </Suspense>\n' +
+      '  ) : null;\n' +
+      '}\n' +
+      '\n' +
+      'function getCurrentRoute(): AppRouteKey {\n' +
+      '  const hash = window.location.hash.replace(/^#/, "");\n' +
+      '  const route = hash.split("?")[0];\n' +
+      '  if (isStudentRoute(route)) return route;\n' +
+      '  return pages.some(([id]) => id === route) ? route as RouteKey : routes.home;\n' +
+      '}\n' +
+      '\n' +
+      'function isFixtureVideoRenderRoute(): boolean {\n' +
+      '  if (getCurrentRoute() !== routes.videoRender) return false;\n' +
+      '  const query = window.location.hash.split("?")[1] ?? "";\n' +
+      '  return new URLSearchParams(query).get("fixture") === "1";\n' +
+      '}\n' +
+      '\n' +
+      'function getStoredTheme(): ThemeName {\n' +
+      '  const stored = browserStorage.getItem("stitch-theme");\n' +
+      '  return stored === "forest" || stored === "sunset" || stored === "dark" ? stored : "ocean";\n' +
+      '}\n' +
+      '\n' +
+      'function getStoredCourse(): CourseSummary | null {\n' +
+      '  const raw = browserStorage.getItem("stitch-course");\n' +
+      '\n' +
+      '  if (!raw) return null;\n' +
+      '\n' +
+      '  try {\n' +
+      '    return JSON.parse(raw) as CourseSummary;\n' +
+      '  } catch {\n' +
+      '    return null;\n' +
+      '  }\n' +
+      '}\n' +
+      '\n' +
+      'function getStoredAuth() {\n' +
+      '  const session = parseStoredAuthSession(\n' +
+      '    browserStorage.getItem(AUTH_STORAGE_KEY),\n' +
+      '  );\n' +
+      '  if (!session) {\n' +
+      '    browserStorage.removeItem(AUTH_STORAGE_KEY);\n' +
+      '  }\n' +
+      '  return session;\n' +
+      '}\n' +
+      '\n' +
+      'function resetRouteScrollPosition() {\n' +
+      '  window.scrollTo({ top: 0, left: 0, behavior: "auto" });\n' +
+      '  document.documentElement.scrollTop = 0;\n' +
+      '  document.body.scrollTop = 0;\n' +
+      '  document.querySelectorAll("[data-route-scroll-root]").forEach((element) => {\n' +
+      '    if (element instanceof HTMLElement) {\n' +
+      '      element.scrollTop = 0;\n' +
+      '      element.scrollLeft = 0;\n' +
+      '    }\n' +
+      '  });\n' +
+      '}\n' +
+      '\n' +
+      'export default function App() {\n' +
+      '  const [current, setCurrent] = useState<AppRouteKey>(getCurrentRoute);\n' +
+      '  const [rememberedCourse, setRememberedCourse] = useState<CourseSummary | null>(getStoredCourse);\n' +
+      '  const [theme, setTheme] = useState<ThemeName>(getStoredTheme);\n' +
+      '  const [authReady, setAuthReady] = useState(false);\n' +
+      '  const [authenticated, setAuthenticated] = useState(false);\n' +
+      '  const [authUser, setAuthUser] = useState<AuthUser | null>(null);\n' +
+      '\n' +
+      '  useEffect(() => {\n' +
+      '    if (!window.location.hash) {\n' +
+      '      window.location.hash = routeHref(routes.home);\n' +
+      '    }\n' +
+      '\n' +
+      '    const syncRoute = () => {\n' +
+      '      setCurrent(getCurrentRoute());\n' +
+      '    };\n' +
+      '    window.addEventListener("hashchange", syncRoute);\n' +
+      '    return () => window.removeEventListener("hashchange", syncRoute);\n' +
+      '  }, []);\n' +
+      '\n' +
+      '  useEffect(() => {\n' +
+      '    const previousScrollRestoration = window.history.scrollRestoration;\n' +
+      '    window.history.scrollRestoration = "manual";\n' +
+      '    return () => {\n' +
+      '      window.history.scrollRestoration = previousScrollRestoration;\n' +
+      '    };\n' +
+      '  }, []);\n' +
+      '\n' +
+      '  useLayoutEffect(() => {\n' +
+      '    resetRouteScrollPosition();\n' +
+      '    const frameId = window.requestAnimationFrame(resetRouteScrollPosition);\n' +
+      '    return () => window.cancelAnimationFrame(frameId);\n' +
+      '  }, [current]);\n' +
+      '\n' +
+      '  useEffect(() => {\n' +
+      '    browserStorage.setItem("stitch-theme", theme);\n' +
+      '    document.documentElement.dataset.theme = theme;\n' +
+      '  }, [theme]);\n' +
+      '\n' +
+      '  useEffect(() => {\n' +
+      '    let cancelled = false;\n' +
+      '\n' +
+      '    async function run() {\n' +
+      '      const stored = getStoredAuth();\n' +
+      '\n' +
+      '      if (!stored?.token) {\n' +
+      '        if (!cancelled) {\n' +
+      '          setAuthenticated(false);\n' +
+      '          setAuthReady(true);\n' +
+      '        }\n' +
+      '        return;\n' +
+      '      }\n' +
+      '\n' +
+      '      try {\n' +
+      '        const result = await verifyToken(stored.token);\n' +
+      '        if (!cancelled) {\n' +
+      '          const verifiedUser = normalizeAuthUser(result.user);\n' +
+      '          if (result.valid && verifiedUser) {\n' +
+      '            setAuthUser(verifiedUser);\n' +
+      '            setAuthenticated(true);\n' +
+      '          } else {\n' +
+      '            browserStorage.removeItem(AUTH_STORAGE_KEY);\n' +
+      '            setAuthUser(null);\n' +
+      '            setAuthenticated(false);\n' +
+      '    '... 5811 more characters
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    import { browserStorage } from "./resume/browserStorage";
+    import { ResumeTracker } from "./resume/ResumeTracker";
+    import {
+      Component,
+      Suspense,
+      lazy,
+      useEffect,
+      useLayoutEffect,
+      useState,
+      type ErrorInfo,
+      type ReactNode,
+    } from "react";
+    import { LoginPage } from "./pages/LoginPage";
+    import { backendCourseToSummary } from "./api/courses";
+    import {
+      AuthSessionProvider,
+      AUTH_STORAGE_KEY,
+      normalizeAuthUser,
+      parseStoredAuthSession,
+      type AuthUser,
+    } from "./authSession";
+    import {
+      CourseRouteProvider,
+      useCourseRoute,
+    } from "./course/CourseRouteProvider";
+    import {
+      AppShellProvider,
+      routeHref,
+      routes,
+      type CourseSummary,
+      type RouteKey,
+      type ThemeName,
+    } from "./shared";
+    import { login, verifyToken } from "../services/auth";
+    import { isCourseWorkspaceRoute } from "./course/courseNavigation";
+    import { isStudentRoute, type StudentRoute } from "./student/routes/studentRoutes";
+    import { defaultHashForRole, resolveRoleHash } from "./shared/routes/roleRouteResolver";
+    
+    const WorkspaceOverviewPage = lazy(() => import("./pages/WorkspaceOverview").then((module) => ({ default: module.WorkspaceOverviewPage })));
+    const CourseResourcesPage = lazy(() => import("./pages/CourseResources").then((module) => ({ default: module.CourseResourcesPage })));
+    const CourseLearningPage = lazy(() => import("./pages/CourseLearning").then((module) => ({ default: module.CourseLearningPage })));
+    const AIWorkspacePage = lazy(() => import("./pages/AIWorkspace").then((module) => ({ default: module.AIWorkspacePage })));
+    const HomeDashboardPage = lazy(() => import("./pages/HomeDashboard").then((module) => ({ default: module.HomeDashboardPage })));
+    const CourseKnowledgePage = lazy(() => import("./pages/CourseKnowledge").then((module) => ({ default: module.CourseKnowledgePage })));
+    const LegacyKnowledgeGraphRedirect = lazy(() => import("./pages/CourseKnowledge").then((module) => ({ default: module.LegacyKnowledgeGraphRedirect })));
+    const CourseDetailPage = lazy(() => import("./pages/CourseDetail").then((module) => ({ default: module.CourseDetailPage })));
+    const CourseListPage = lazy(() => import("./pages/CourseDetail").then((module) => ({ default: module.CourseListPage })));
+    const CourseEditPage = lazy(() => import("./pages/CourseEdit").then((module) => ({ default: module.CourseEditPage })));
+    const ProfilePage = lazy(() => import("./pages/Profile").then((module) => ({ default: module.ProfilePage })));
+    const RuntimeSettingsPage = lazy(() => import("./pages/RuntimeSettings").then((module) => ({ default: module.RuntimeSettingsPage })));
+    const PlayerSmokePage = lazy(() => import("./pages/_dev/PlayerSmoke").then((module) => ({ default: module.PlayerSmokePage })));
+    const ClassroomVideoRenderPage = lazy(() => import("./pages/_dev/ClassroomVideoRender").then((module) => ({ default: module.ClassroomVideoRenderPage })));
+    const ClassroomStudioPage = lazy(() => import("./pages/ClassroomStudio").then((module) => ({ default: module.ClassroomStudioPage })));
+    const ClassroomPlayerPage = lazy(() => import("./pages/ClassroomPlayer").then((module) => ({ default: module.ClassroomPlayerPage })));
+    const StudentApp = lazy(() => import("./student/StudentApp").then((module) => ({ default: module.StudentApp })));
+    const GlobalJobManager = lazy(() => import("../jobs/GlobalJobManager").then((module) => ({ default: module.GlobalJobManager })));
+    const CourseShell = lazy(() => import("./course/CourseShell").then((module) => ({ default: module.CourseShell })));
+    
+    const pages = [
+      [routes.profile, "Profile", ProfilePage],
+      [routes.settings, "Runtime Settings", RuntimeSettingsPage],
+      [routes.home, "Home", HomeDashboardPage],
+      [routes.course, "Course List", CourseListPage],
+      [routes.courseDetail, "Course Detail", CourseDetailPage],
+      [routes.learning, "Course Learning", CourseLearningPage],
+      [routes.workspace, "Workspace", WorkspaceOverviewPage],
+      [routes.resources, "Personal Resources", CourseResourcesPage],
+      [routes.ai, "AI Workspace", AIWorkspacePage],
+      [routes.graph, "Knowledge Graph", LegacyKnowledgeGraphRedirect],
+      [routes.knowledge, "Course Knowledge", CourseKnowledgePage],
+      [routes.edit, "Course Edit", CourseEditPage],
+      [routes.playerSmoke, "Player Smoke (dev)", PlayerSmokePage],
+      [routes.videoRender, "Video Render", ClassroomVideoRenderPage],
+      [routes.classroomStudio, "Classroom Studio", ClassroomStudioPage],
+      [routes.classroomPlayer, "Classroom Player", ClassroomPlayerPage],
+    ] as const;
+    
+    type AppRouteKey = RouteKey | StudentRoute;
+    
+    class RouteErrorBoundary extends Component<
+      { children: ReactNode },
+      { error: Error | null }
+    > {
+      state = { error: null as Error | null };
+    
+      static getDerivedStateFromError(error: Error) {
+        return { error };
+      }
+    
+      componentDidCatch(error: Error, info: ErrorInfo) {
+        console.error("Route rendering failed", error, info);
+      }
+    
+      render() {
+        if (!this.state.error) return this.props.children;
+    
+        return (
+          <main className="grid min-h-screen place-items-center bg-slate-50 px-6 text-center text-slate-700">
+            <section className="max-w-lg rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+              <h1 className="text-xl font-semibold text-slate-900">页面加载失败</h1>
+              <p className="mt-3 text-sm leading-6">
+                页面模块没有正常启动。请刷新后重试；如果问题持续出现，请将下方信息提供给管理员。
+              </p>
+              <pre className="mt-4 overflow-auto rounded-lg bg-slate-100 p-3 text-left text-xs text-slate-600">
+                {this.state.error.message}
+              </pre>
+              <button
+                type="button"
+                className="mt-5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                onClick={() => window.location.reload()}
+              >
+                重新加载
+              </button>
+            </section>
+          </main>
+        );
+      }
+    }
+    
+    function DeferredGlobalJobManager({
+      enabled,
+      showLauncher,
+      currentCourseId,
+      currentCourseTitle,
+    }: {
+      enabled: boolean;
+      showLauncher: boolean;
+      currentCourseId: string | null;
+      currentCourseTitle: string | null;
+    }) {
+      const [ready, setReady] = useState(false);
+    
+      useEffect(() => {
+        const timer = window.setTimeout(() => setReady(true), 1_500);
+        return () => window.clearTimeout(timer);
+      }, []);
+    
+      return ready ? (
+        <Suspense fallback={null}>
+          <GlobalJobManager
+            enabled={enabled}
+            showLauncher={showLauncher}
+            currentCourseId={currentCourseId}
+            currentCourseTitle={currentCourseTitle}
+          />
+        </Suspense>
+      ) : null;
+    }
+    
+    function getCurrentRoute(): AppRouteKey {
+      const hash = window.location.hash.replace(/^#/, "");
+      const route = hash.split("?")[0];
+      if (isStudentRoute(route)) return route;
+      return pages.some(([id]) => id === route) ? route as RouteKey : routes.home;
+    }
+    
+    function isFixtureVideoRenderRoute(): boolean {
+      if (getCurrentRoute() !== routes.videoRender) return false;
+      const query = window.location.hash.split("?")[1] ?? "";
+      return new URLSearchParams(query).get("fixture") === "1";
+    }
+    
+    function getStoredTheme(): ThemeName {
+      const stored = browserStorage.getItem("stitch-theme");
+      return stored === "forest" || stored === "sunset" || stored === "dark" ? stored : "ocean";
+    }
+    
+    function getStoredCourse(): CourseSummary | null {
+      const raw = browserStorage.getItem("stitch-course");
+    
+      if (!raw) return null;
+    
+      try {
+        return JSON.parse(raw) as CourseSummary;
+      } catch {
+        return null;
+      }
+    }
+    
+    function getStoredAuth() {
+      const session = parseStoredAuthSession(
+        browserStorage.getItem(AUTH_STORAGE_KEY),
+      );
+      if (!session) {
+        browserStorage.removeItem(AUTH_STORAGE_KEY);
+      }
+      return session;
+    }
+    
+    function resetRouteScrollPosition() {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      document.querySelectorAll("[data-route-scroll-root]").forEach((element) => {
+        if (element instanceof HTMLElement) {
+          element.scrollTop = 0;
+          element.scrollLeft = 0;
+        }
+      });
+    }
+    
+    export default function App() {
+      const [current, setCurrent] = useState<AppRouteKey>(getCurrentRoute);
+      const [rememberedCourse, setRememberedCourse] = useState<CourseSummary | null>(getStoredCourse);
+      const [theme, setTheme] = useState<ThemeName>(getStoredTheme);
+      const [authReady, setAuthReady] = useState(false);
+      const [authenticated, setAuthenticated] = useState(false);
+      const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+    
+      useEffect(() => {
+        if (!window.location.hash) {
+          window.location.hash = routeHref(routes.home);
+        }
+    
+        const syncRoute = () => {
+          setCurrent(getCurrentRoute());
+        };
+        window.addEventListener("hashchange", syncRoute);
+        return () => window.removeEventListener("hashchange", syncRoute);
+      }, []);
+    
+      useEffect(() => {
+        const previousScrollRestoration = window.history.scrollRestoration;
+        window.history.scrollRestoration = "manual";
+        return () => {
+          window.history.scrollRestoration = previousScrollRestoration;
+        };
+      }, []);
+    
+      useLayoutEffect(() => {
+        resetRouteScrollPosition();
+        const frameId = window.requestAnimationFrame(resetRouteScrollPosition);
+        return () => window.cancelAnimationFrame(frameId);
+      }, [current]);
+    
+      useEffect(() => {
+        browserStorage.setItem("stitch-theme", theme);
+        document.documentElement.dataset.theme = theme;
+      }, [theme]);
+    
+      useEffect(() => {
+        let cancelled = false;
+    
+        async function run() {
+          const stored = getStoredAuth();
+    
+          if (!stored?.token) {
+            if (!cancelled) {
+              setAuthenticated(false);
+              setAuthReady(true);
+            }
+            return;
+          }
+    
+          try {
+            const result = await verifyToken(stored.token);
+            if (!cancelled) {
+              const verifiedUser = normalizeAuthUser(result.user);
+              if (result.valid && verifiedUser) {
+                setAuthUser(verifiedUser);
+                setAuthenticated(true);
+              } else {
+                browserStorage.removeItem(AUTH_STORAGE_KEY);
+                setAuthUser(null);
+                setAuthenticated(false);
+              }
+            }
+          } catch {
+            if (!cancelled) {
+              browserStorage.removeItem(AUTH_STORAGE_KEY);
+              setAuthUser(null);
+              setAuthenticated(false);
+            }
+          } finally {
+            if (!cancelled) {
+              setAuthReady(true);
+            }
+          }
+        }
+    
+        void run();
+        return () => {
+          cancelled = true;
+        };
+      }, []);
+    
+      useLayoutEffect(() => {
+        if (!authReady || !authenticated || !authUser) return;
+        const nextHash = resolveRoleHash(authUser.role, window.location.hash);
+        if (nextHash !== window.location.hash) {
+          window.location.replace(nextHash);
+        }
+      }, [authReady, authenticated, authUser, current]);
+    
+      async function handleLogin(payload: { username: string; password: string }) {
+        const result = await login(payload.username, payload.password);
+        const loggedInUser = normalizeAuthUser(result.user);
+        if (!loggedInUser) throw new Error("登录用户角色无效");
+        browserStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(result));
+        window.location.hash = defaultHashForRole(loggedInUser.role);
+        setAuthUser(loggedInUser);
+        setAuthenticated(true);
+        setAuthReady(true);
+      }
+    
+      function handleLogout() {
+        browserStorage.removeItem(AUTH_STORAGE_KEY);
+        setAuthUser(null);
+        setAuthenticated(false);
+        setAuthReady(true);
+        window.location.hash = routeHref(routes.home);
+      }
+    
+      return (
+        <AuthSessionProvider user={authUser} authenticated={authenticated}>
+          <CourseRouteProvider
+            enabled={authenticated}
+            rememberedCourseId={rememberedCourse?.id}
+          >
+            <AppPresentation
+              current={current}
+              rememberedCourse={rememberedCourse}
+              setRememberedCourse={setRememberedCourse}
+              theme={theme}
+              setTheme={setTheme}
+              authReady={authReady}
+              authenticated={authenticated}
+              authUser={authUser}
+              handleLogin={handleLogin}
+              handleLogout={handleLogout}
+            />
+          </CourseRouteProvider>
+        </AuthSessionProvider>
+      );
+    }
+    
+    function AppPresentation({
+      current,
+      rememberedCourse,
+      setRememberedCourse,
+      theme,
+      setTheme,
+      authReady,
+      authenticated,
+      authUser,
+      handleLogin,
+      handleLogout,
+    }: {
+      current: AppRouteKey;
+      rememberedCourse: CourseSummary | null;
+      setRememberedCourse: (course: CourseSummary | null) => void;
+      theme: ThemeName;
+      setTheme: (theme: ThemeName) => void;
+      authReady: boolean;
+      authenticated: boolean;
+      authUser: AuthUser | null;
+      handleLogin: (payload: { username: string; password: string }) => Promise<void>;
+      handleLogout: () => void;
+    }) {
+      const routeCourse = useCourseRoute();
+      const selectedCourse = routeCourse.course
+        ? backendCourseToSummary(routeCourse.course, 0)
+        : null;
+    
+      useEffect(() => {
+        if (!routeCourse.course) return;
+        const remembered = backendCourseToSummary(routeCourse.course, 0);
+        browserStorage.setItem("stitch-course", JSON.stringify(remembered));
+        setRememberedCourse(remembered);
+      }, [routeCourse.course, setRememberedCourse]);
+    
+      const ActivePage = pages.find(([id]) => id === current)?.[2] ?? HomeDashboardPage;
+      const isStandaloneDevRoute = current === routes.playerSmoke || isFixtureVideoRenderRoute();
+      const isVideoRenderRoute = current === routes.videoRender;
+      const isCourseRoute = isCourseWorkspaceRoute(current);
+      const isStudentWorkspace = isStudentRoute(current);
+      const authorizedHash = authUser ? resolveRoleHash(authUser.role, window.location.hash) : window.location.hash;
+      const routeAuthorized = !authenticated || !authUser || authorizedHash === window.location.hash;
+      const shellCourse = routeCourse.courseId
+        ? selectedCourse
+        : current === routes.home || isStudentWorkspace
+          ? selectedCourse ?? rememberedCourse
+          : null;
+      const jobCenterCourseId = current === routes.home ? null : routeCourse.courseId;
+      const jobCenterCourseTitle = jobCenterCourseId
+        ? routeCourse.course?.title ?? null
+        : null;
+    
+      function rememberCourse(course: CourseSummary | null) {
+        setRememberedCourse(course);
+        if (course) {
+          browserStorage.setItem("stitch-course", JSON.stringify(course));
+        }
+      }
+    
+      return (
+        <AppShellProvider
+          selectedCourse={shellCourse}
+          setSelectedCourse={rememberCourse}
+          theme={theme}
+          setTheme={setTheme}
+          logout={handleLogout}
+        >
+          <RouteErrorBoundary key={current}>
+          <Suspense fallback={<div className="grid min-h-screen place-items-center text-sm text-slate-500">正在加载页面…</div>}>
+            {isStandaloneDevRoute ? (
+              // Dev-only: no backend dependency, so it skips the auth gate.
+              <ActivePage />
+            ) : !authReady ? (
+              <div className="grid min-h-screen place-items-center text-sm text-slate-500">Loading...</div>
+            ) : authenticated && !routeAuthorized ? (
+              <div className="grid min-h-screen place-items-center text-sm text-slate-500">正在进入对应工作区…</div>
+            ) : authenticated ? (
+              <>
+                <ResumeTracker />
+                <DeferredGlobalJobManager
+                  enabled={!isVideoRenderRoute}
+                  showLauncher={authUser?.role !== "student" && !isCourseRoute && !isStudentWorkspace}
+                  currentCourseId={jobCenterCourseId}
+                  currentCourseTitle={jobCenterCourseTitle}
+                />
+                <div key={current} className="route-stage">
+                  {isStudentWorkspace ? (
+                    <StudentApp current={current} />
+                  ) : isCourseRoute ? (
+                    <CourseShell activeRoute={current}>
+                      <ActivePage />
+                    </CourseShell>
+                  ) : (
+                    <ActivePage />
+                  )}
+                </div>
+              </>
+            ) : (
+              <LoginPage onLogin={handleLogin} />
+            )}
+          </Suspense>
+          </RouteErrorBoundary>
+        </AppShellProvider>
+      );
+    }
+    
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (/home/zxqs_ep/Edu_AI/frontend/src/stitch/theme/ThemeAppearanceSettings.test.ts:23:10)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: queue keeps the first pending request instead of overwriting it
+ok 469 - queue keeps the first pending request instead of overwriting it
+  ---
+  duration_ms: 34.679563
+  type: 'test'
+  ...
+# Subtest: consume is idempotent and only removes the matching request
+ok 470 - consume is idempotent and only removes the matching request
+  ---
+  duration_ms: 0.628645
+  type: 'test'
+  ...
+# Subtest: explicit clear can guard against clearing a newer request
+ok 471 - explicit clear can guard against clearing a newer request
+  ---
+  duration_ms: 0.468663
+  type: 'test'
+  ...
+1..471
+# tests 483
+# suites 6
+# pass 481
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3118.460252
+ ELIFECYCLE  Test failed. See above for more details.

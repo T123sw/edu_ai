@@ -6,10 +6,66 @@ from datetime import datetime, timezone
 import pytest
 
 from app.services.course_knowledge_graph_generator import (
+    CourseKnowledgeGraphModelAdapter,
     CourseKnowledgeGraphGenerationError,
     generate_course_knowledge_graph_draft,
     regenerate_course_knowledge_graph_module,
 )
+
+
+class _ModelResponse:
+    @staticmethod
+    def raise_for_status():
+        return None
+
+    @staticmethod
+    def json():
+        return {"choices": [{"message": {"content": '{"root": {}}'}}]}
+
+
+def test_default_model_adapter_uses_central_completion_endpoint(monkeypatch):
+    captured = {}
+    monkeypatch.setattr(
+        "app.services.course_knowledge_graph_generator.runtime_config_resolver.resolve",
+        lambda *args, **kwargs: {
+            "base_url": "https://api.deepseek.example/v1",
+            "api_key": "stale-runtime-key",
+            "model": "deepseek-chat",
+            "timeout_seconds": 120,
+        },
+    )
+
+    def route(base_url, api_key):
+        captured["requested"] = (base_url, api_key)
+        return "http://127.0.0.1:43123/v1", "local-transport-token"
+
+    def post(url, **kwargs):
+        captured["url"] = url
+        captured["authorization"] = kwargs["headers"]["Authorization"]
+        return _ModelResponse()
+
+    monkeypatch.setattr(
+        "app.services.deepseek_key_failover.completion_endpoint",
+        route,
+    )
+    monkeypatch.setattr(
+        "app.services.course_knowledge_graph_generator.httpx.post",
+        post,
+    )
+
+    content, model = CourseKnowledgeGraphModelAdapter().complete(
+        [{"role": "user", "content": "build graph"}],
+        owner_user_id="teacher-1",
+    )
+
+    assert content == '{"root": {}}'
+    assert model == "deepseek-chat"
+    assert captured["requested"] == (
+        "https://api.deepseek.example/v1",
+        "stale-runtime-key",
+    )
+    assert captured["url"] == "http://127.0.0.1:43123/v1/chat/completions"
+    assert captured["authorization"] == "Bearer local-transport-token"
 
 
 def _build(*, preset: str = "standard", textbooks=None):

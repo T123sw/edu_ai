@@ -125,6 +125,7 @@ async def _build_research_context(
     rag_top_k: int,
     rag_system: Optional[Any],
     resolved_source: Optional[Any] = None,
+    include_knowledge_graph: bool = True,
 ) -> Optional[str]:
     if resolved_source is None:
         rag_context = await anyio.to_thread.run_sync(
@@ -143,7 +144,7 @@ async def _build_research_context(
     # 不需要像 RAG 那样丢线程池（不会有明显阻塞）。
     kg_context = (
         None
-        if resolved_source is not None and resolved_source.mode == "none"
+        if not include_knowledge_graph or (resolved_source is not None and resolved_source.mode == "none")
         else fetch_knowledge_graph_context(
             course_storage_manager=course_storage_manager,
             course_id=course_id,
@@ -165,6 +166,8 @@ def _make_on_sidecar_succeeded(
     source_job_id: Optional[str] = None,
     material_id: Optional[str] = None,
     material_metadata: Optional[dict[str, Any]] = None,
+    enable_tts: bool = True,
+    tts_voice: Optional[str] = None,
 ):
     async def _on_sidecar_succeeded(result: dict[str, Any]) -> dict[str, Any]:
         # `result` here is the job envelope's slim {classroomId, url,
@@ -186,13 +189,43 @@ def _make_on_sidecar_succeeded(
             active_client=active_client,
             course_storage_manager=course_storage_manager,
         )
-        await synthesize_classroom_speech_audio(
-            scenes=full_classroom.get("scenes") or [],
-            course_id=course_id,
-            classroom_id=classroom_id,
-            course_storage_manager=course_storage_manager,
-            tts_service=OpenMaicTtsService(client=active_client),
+        metadata = dict(material_metadata or {})
+        task_tts_options = metadata.pop("_tts_options", None)
+        harness_config = dict(metadata.get('harness_config') or {})
+        review_required = (
+            metadata.get('review_policy') == 'required'
+            or bool(harness_config.get('harness_review_required'))
         )
+        if review_required:
+            from app.chat.harness.reviewed_resource import review_classroom
+            content, audit = await anyio.to_thread.run_sync(partial(review_classroom,
+                {'stage': full_classroom['stage'], 'scenes': full_classroom['scenes']}, harness_config))
+            full_classroom.update(content)
+            metadata['generation_state'] = {'resource_review': audit}
+        if isinstance(task_tts_options, dict):
+            should_synthesize_tts = bool(task_tts_options.get("enabled", False))
+            selected_voice = str(task_tts_options.get("voice") or "").strip() or None
+        elif harness_config:
+            should_synthesize_tts = bool(
+                (harness_config.get('classroom_options') or {}).get(
+                    'enable_tts', False
+                )
+            )
+            selected_voice = tts_voice
+        else:
+            should_synthesize_tts = enable_tts
+            selected_voice = tts_voice
+        if should_synthesize_tts:
+            await synthesize_classroom_speech_audio(
+                scenes=full_classroom.get("scenes") or [],
+                course_id=course_id,
+                classroom_id=classroom_id,
+                course_storage_manager=course_storage_manager,
+                tts_service=OpenMaicTtsService(voice=selected_voice),
+            )
+        if review_required:
+            from app.chat.harness.reviewed_resource import digest
+            metadata['generation_state']['resource_review']['content_sha256'] = digest('classroom', full_classroom)
         return persist_classroom_result(
             course_storage_manager=course_storage_manager,
             course_id=course_id,
@@ -204,7 +237,7 @@ def _make_on_sidecar_succeeded(
             source_snapshot=source_snapshot,
             source_job_id=source_job_id,
             material_id=material_id,
-            material_metadata=material_metadata,
+            material_metadata=metadata,
         )
 
     return _on_sidecar_succeeded
@@ -220,6 +253,7 @@ async def generate_classroom_for_course(
     pdf_content: Optional[dict[str, Any]] = None,
     enable_web_search: bool = False,
     enable_tts: bool = True,
+    voice: Optional[str] = None,
     rag_top_k: int = DEFAULT_RAG_TOP_K,
     scope_type: Optional[str] = None,
     scope_id: Optional[str] = None,
@@ -234,10 +268,9 @@ async def generate_classroom_for_course(
     立即拿到 queued 状态的 job 再让前端轮询。这个函数留给测试/脚本等愿意
     等的调用方。
 
-    `enable_tts` 默认开启（D1，SPEC-04 §5）：sidecar 侧需要配置至少一个
-    server-managed TTS provider（如 `TTS_QWEN_API_KEY`），否则 sidecar 会
-    静默跳过配音生成（不报错，只是 audioUrl 不会出现），前端自动退回浏览器
-    TTS/静音等待兜底，不影响功能完整性，只是没有真人配音。
+    `enable_tts` 默认开启（D1，SPEC-04 §5）：sidecar 只生成课堂文本和动作，
+    成功回调再由 Edu_AI 使用运行时 TTS 配置生成配音；单条失败时不写入
+    audioUrl，前端自动退回浏览器 TTS/静音等待兜底。
     """
     active_client = client or get_openmaic_client(owner_user_id=owner)
     research_context = await _build_research_context(
@@ -255,6 +288,8 @@ async def generate_classroom_for_course(
         owner=owner,
         scope_type=scope_type,
         scope_id=scope_id,
+        enable_tts=enable_tts,
+        tts_voice=voice,
     )
 
     return await start_generate_classroom_job(
@@ -293,7 +328,7 @@ async def submit_classroom_generation_job(
     objectives: Optional[list[str]] = None,
     duration_minutes: int = 25,
     teaching_style: str = "guided",
-    voice: str = "alloy",
+    voice: str = "vivian",
     include_visuals: bool = True,
     research_bundle_id: str | None = None,
     idempotency_key: str | None = None,
@@ -360,8 +395,11 @@ async def submit_classroom_generation_job(
     from app.services.runtime_config_resolver import runtime_config_resolver
 
     runtime_snapshot = runtime_config_resolver.capture_snapshot(str(owner or ""))
-    if enable_tts and voice:
-        runtime_snapshot["voice"] = voice
+    task_material_metadata = dict(material_metadata or {})
+    task_material_metadata["_tts_options"] = {
+        "enabled": bool(enable_tts),
+        "voice": voice if enable_tts else "",
+    }
 
     return enqueue_platform_task(
         job=job,
@@ -389,7 +427,7 @@ async def submit_classroom_generation_job(
             "research_bundle_id": str(research_bundle_id or ""),
             "idempotency_key": normalized_key,
             "material_id": str(material_id or ""),
-            "material_metadata": dict(material_metadata or {}),
+            "material_metadata": task_material_metadata,
             "deadline_seconds": max(1, int(deadline_seconds)),
             "execution_timeout_seconds": (
                 max(1, int(execution_timeout_seconds))

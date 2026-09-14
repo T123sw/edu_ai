@@ -1,0 +1,633 @@
+{
+  "kind": "lesson_plan",
+  "conversation_id": "resource-e2e-lesson_plan-4d741534",
+  "turns": [
+    {
+      "question": "请生成一份面向大学初学者、15分钟的“数组随机访问”教案，包含具体课堂活动和评价。资料使用通用知识即可，无需检索。",
+      "events": [
+        {
+          "type": "metadata",
+          "payload": {
+            "conversation_id": "resource-e2e-lesson_plan-4d741534",
+            "runtime": "deepseek-harness",
+            "trace": {
+              "path": "deepseek-harness"
+            }
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "thinking",
+            "label": "正在处理请求"
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "select_workspace",
+            "tool_name": "select_workspace",
+            "call_id": "5446e95939694a14aa518a911ada5916",
+            "args": {
+              "scope_type": "course",
+              "topic": "数组随机访问"
+            }
+          }
+        },
+        {
+          "type": "status",
+          "payload": {
+            "stage": "skill",
+            "label": "正在加载任务流程"
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "select_workspace",
+            "tool_name": "select_workspace",
+            "call_id": "5446e95939694a14aa518a911ada5916",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            }
+          }
+        },
+        {
+          "type": "tool_call",
+          "payload": {
+            "tool": "draft_resource_outline",
+            "tool_name": "draft_resource_outline",
+            "call_id": "63aa90b54fab486d92fd06a3aee70f09",
+            "args": {
+              "resource_type": "lesson_plan",
+              "subject": "数组随机访问",
+              "audience": "大学初学者（数据结构课程，无编程基础要求）",
+              "requirements": "课时 15 分钟。教学目标须可观察、可评价：理解数组连续存储与下标到地址的映射，能根据首地址与元素大小手算任意下标元素地址，能说明随机访问 O(1) 的前提与边界。须包含具体课堂活动（可执行的提问、手算练习或配对活动）与形成性评价证据。资料使用通用知识，无需检索。",
+              "section_count": 4
+            }
+          }
+        },
+        {
+          "type": "tool_result",
+          "payload": {
+            "tool": "draft_resource_outline",
+            "tool_name": "draft_resource_outline",
+            "call_id": "63aa90b54fab486d92fd06a3aee70f09",
+            "ok": true,
+            "summary": "工具执行完成",
+            "result": {
+              "ok": true,
+              "tool": "draft_resource_outline",
+              "data": {
+                "outline_id": "outline_9964a3cbb59b4809965b249e73f9d106",
+                "revision": 1,
+                "created_request_id": "be2c3e7e75974b0d8fc1dfdaaf10604c",
+                "resource_type": "lesson_plan",
+                "subject": "数组随机访问",
+                "audience": "大学初学者（数据结构课程，无编程基础要求）",
+                "requirements": "课时 15 分钟。教学目标须可观察、可评价：理解数组连续存储与下标到地址的映射，能根据首地址与元素大小手算任意下标元素地址，能说明随机访问 O(1) 的前提与边界。须包含具体课堂活动（可执行的提问、手算练习或配对活动）与形成性评价证据。资料使用通用知识，无需检索。",
+                "workspace": {
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "organization_id": null,
+                "classroom_options": {},
+                "quality": {
+                  "structural": "pass",
+                  "objective_coverage": false,
+                  "coverage_method": "not_performed",
+                  "semantic_review": "deferred_to_generation",
+                  "review": null
+                },
+                "chapters": [
+                  {
+                    "title": "导入与目标",
+                    "duration_minutes": 2.0,
+                    "teacher_activity": "展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。",
+                    "student_activity": "观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。",
+                    "assessment": "通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "连续存储与地址映射",
+                    "duration_minutes": 5.0,
+                    "teacher_activity": "用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。",
+                    "student_activity": "跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。",
+                    "assessment": "巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "手算练习与随机访问前提",
+                    "duration_minutes": 5.0,
+                    "teacher_activity": "给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。",
+                    "student_activity": "独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。",
+                    "assessment": "收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "边界与总结",
+                    "duration_minutes": 3.0,
+                    "teacher_activity": "提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。",
+                    "student_activity": "回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。",
+                    "assessment": "通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。",
+                    "unit_indices": []
+                  }
+                ],
+                "markdown": "# 数组随机访问：教案方案\n\n教学目标：\n- 能用自己的话说明数组元素在抽象地址空间中连续存放的含义，并指出该连续性不要求底层物理内存页连续。\n- 能根据首地址、元素大小和下标，使用公式 地址 = 首地址 + 下标 × 元素大小 手算任意下标元素的地址，并说明元素大小指完整元素占用空间。\n- 能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法，且计数方式为地址计算与一次内存访问。\n- 能指出随机访问的边界：下标越界、元素大小不固定或需先查找位置时，不能直接套用 O(1) 随机访问结论。\n\n课堂总时长：15 分钟\n\n## 1. 导入与目标（2 分钟）\n- 教师活动：展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。\n- 学生任务：观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。\n- 评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。\n\n## 2. 连续存储与地址映射（5 分钟）\n- 教师活动：用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。\n- 学生任务：跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。\n- 评价证据：巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。\n\n## 3. 手算练习与随机访问前提（5 分钟）\n- 教师活动：给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。\n- 学生任务：独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。\n- 评价证据：收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。\n\n## 4. 边界与总结（3 分钟）\n- 教师活动：提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。\n- 学生任务：回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。\n- 评价证据：通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "status": "awaiting_approval",
+                "job_id": null
+              }
+            },
+            "outline_markdown": "# 数组随机访问：教案方案\n\n教学目标：\n- 能用自己的话说明数组元素在抽象地址空间中连续存放的含义，并指出该连续性不要求底层物理内存页连续。\n- 能根据首地址、元素大小和下标，使用公式 地址 = 首地址 + 下标 × 元素大小 手算任意下标元素的地址，并说明元素大小指完整元素占用空间。\n- 能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法，且计数方式为地址计算与一次内存访问。\n- 能指出随机访问的边界：下标越界、元素大小不固定或需先查找位置时，不能直接套用 O(1) 随机访问结论。\n\n课堂总时长：15 分钟\n\n## 1. 导入与目标（2 分钟）\n- 教师活动：展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。\n- 学生任务：观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。\n- 评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。\n\n## 2. 连续存储与地址映射（5 分钟）\n- 教师活动：用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。\n- 学生任务：跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。\n- 评价证据：巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。\n\n## 3. 手算练习与随机访问前提（5 分钟）\n- 教师活动：给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。\n- 学生任务：独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。\n- 评价证据：收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。\n\n## 4. 边界与总结（3 分钟）\n- 教师活动：提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。\n- 学生任务：回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。\n- 评价证据：通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。",
+            "resource_type": "lesson_plan",
+            "subject": "数组随机访问"
+          }
+        },
+        {
+          "type": "result",
+          "payload": {
+            "message": {
+              "role": "assistant",
+              "content": "# 数组随机访问：教案方案\n\n教学目标：\n- 能用自己的话说明数组元素在抽象地址空间中连续存放的含义，并指出该连续性不要求底层物理内存页连续。\n- 能根据首地址、元素大小和下标，使用公式 地址 = 首地址 + 下标 × 元素大小 手算任意下标元素的地址，并说明元素大小指完整元素占用空间。\n- 能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法，且计数方式为地址计算与一次内存访问。\n- 能指出随机访问的边界：下标越界、元素大小不固定或需先查找位置时，不能直接套用 O(1) 随机访问结论。\n\n课堂总时长：15 分钟\n\n## 1. 导入与目标（2 分钟）\n- 教师活动：展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。\n- 学生任务：观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。\n- 评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。\n\n## 2. 连续存储与地址映射（5 分钟）\n- 教师活动：用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。\n- 学生任务：跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。\n- 评价证据：巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。\n\n## 3. 手算练习与随机访问前提（5 分钟）\n- 教师活动：给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。\n- 学生任务：独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。\n- 评价证据：收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。\n\n## 4. 边界与总结（3 分钟）\n- 教师活动：提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。\n- 学生任务：回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。\n- 评价证据：通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。\n\n方案第 1 版。可以提出修改意见，或告诉我按此结构继续。"
+            },
+            "conversation": {
+              "conversation_id": "resource-e2e-lesson_plan-4d741534"
+            },
+            "action": {
+              "name": "generate.lesson_plan"
+            },
+            "artifacts": [],
+            "workflow": {
+              "type": "lesson_plan",
+              "status": "awaiting_confirm",
+              "stage": "outline"
+            },
+            "sources": [],
+            "trace": {
+              "path": "deepseek-harness",
+              "model_runtime": "dsh",
+              "request_id": "be2c3e7e75974b0d8fc1dfdaaf10604c",
+              "tool_events": [
+                {
+                  "ok": true,
+                  "tool": "select_workspace",
+                  "data": {
+                    "course_id": "resource-e2e-course",
+                    "course_title": "数据结构验收课程",
+                    "scope_type": "course",
+                    "scope_id": null,
+                    "scope_title": "数据结构验收课程",
+                    "scope_path": [
+                      "数据结构验收课程"
+                    ],
+                    "resolution": "resolved",
+                    "explicit_course": true,
+                    "update_workspace": false,
+                    "topic": "数组随机访问"
+                  }
+                },
+                {
+                  "ok": true,
+                  "tool": "draft_resource_outline",
+                  "data": {
+                    "outline_id": "outline_9964a3cbb59b4809965b249e73f9d106",
+                    "revision": 1,
+                    "created_request_id": "be2c3e7e75974b0d8fc1dfdaaf10604c",
+                    "resource_type": "lesson_plan",
+                    "subject": "数组随机访问",
+                    "audience": "大学初学者（数据结构课程，无编程基础要求）",
+                    "requirements": "课时 15 分钟。教学目标须可观察、可评价：理解数组连续存储与下标到地址的映射，能根据首地址与元素大小手算任意下标元素地址，能说明随机访问 O(1) 的前提与边界。须包含具体课堂活动（可执行的提问、手算练习或配对活动）与形成性评价证据。资料使用通用知识，无需检索。",
+                    "workspace": {
+                      "scope_type": "course",
+                      "scope_id": null
+                    },
+                    "organization_id": null,
+                    "classroom_options": {},
+                    "quality": {
+                      "structural": "pass",
+                      "objective_coverage": false,
+                      "coverage_method": "not_performed",
+                      "semantic_review": "deferred_to_generation",
+                      "review": null
+                    },
+                    "chapters": [
+                      {
+                        "title": "导入与目标",
+                        "duration_minutes": 2.0,
+                        "teacher_activity": "展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。",
+                        "student_activity": "观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。",
+                        "assessment": "通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。",
+                        "unit_indices": []
+                      },
+                      {
+                        "title": "连续存储与地址映射",
+                        "duration_minutes": 5.0,
+                        "teacher_activity": "用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。",
+                        "student_activity": "跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。",
+                        "assessment": "巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。",
+                        "unit_indices": []
+                      },
+                      {
+                        "title": "手算练习与随机访问前提",
+                        "duration_minutes": 5.0,
+                        "teacher_activity": "给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。",
+                        "student_activity": "独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。",
+                        "assessment": "收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。",
+                        "unit_indices": []
+                      },
+                      {
+                        "title": "边界与总结",
+                        "duration_minutes": 3.0,
+                        "teacher_activity": "提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。",
+                        "student_activity": "回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。",
+                        "assessment": "通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。",
+                        "unit_indices": []
+                      }
+                    ],
+                    "markdown": "# 数组随机访问：教案方案\n\n教学目标：\n- 能用自己的话说明数组元素在抽象地址空间中连续存放的含义，并指出该连续性不要求底层物理内存页连续。\n- 能根据首地址、元素大小和下标，使用公式 地址 = 首地址 + 下标 × 元素大小 手算任意下标元素的地址，并说明元素大小指完整元素占用空间。\n- 能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法，且计数方式为地址计算与一次内存访问。\n- 能指出随机访问的边界：下标越界、元素大小不固定或需先查找位置时，不能直接套用 O(1) 随机访问结论。\n\n课堂总时长：15 分钟\n\n## 1. 导入与目标（2 分钟）\n- 教师活动：展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。\n- 学生任务：观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。\n- 评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。\n\n## 2. 连续存储与地址映射（5 分钟）\n- 教师活动：用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。\n- 学生任务：跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。\n- 评价证据：巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。\n\n## 3. 手算练习与随机访问前提（5 分钟）\n- 教师活动：给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。\n- 学生任务：独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。\n- 评价证据：收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。\n\n## 4. 边界与总结（3 分钟）\n- 教师活动：提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。\n- 学生任务：回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。\n- 评价证据：通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。",
+                    "evidence_ids": [],
+                    "source_policy": {
+                      "allow_rag": true,
+                      "allow_web": true,
+                      "selected_doc_ids": [],
+                      "scope_type": "course",
+                      "scope_id": null
+                    },
+                    "status": "awaiting_approval",
+                    "job_id": null,
+                    "presented_revision": 1,
+                    "presented_request_id": "be2c3e7e75974b0d8fc1dfdaaf10604c"
+                  }
+                }
+              ],
+              "agent_memory_write": {
+                "candidate_count": 0,
+                "accepted_count": 0,
+                "written_count": 0,
+                "rejected_count": 0,
+                "shadow_candidate_count": 0,
+                "provider": "rules",
+                "provider_status": "disabled",
+                "memory_ids": []
+              }
+            },
+            "harness_outline": {
+              "outline_id": "outline_9964a3cbb59b4809965b249e73f9d106",
+              "revision": 1,
+              "subject": "数组随机访问"
+            },
+            "workspace_context": {
+              "course_id": "resource-e2e-course",
+              "course_title": "数据结构验收课程",
+              "scope_type": "course",
+              "scope_id": null,
+              "scope_title": "数据结构验收课程",
+              "scope_path": [
+                "数据结构验收课程"
+              ],
+              "resolution": "resolved",
+              "explicit_course": true,
+              "update_workspace": false
+            },
+            "interaction_state": {
+              "version": 1,
+              "foreground": "plan:outline_9964a3cbb59b4809965b249e73f9d106",
+              "tasks": {
+                "plan:outline_9964a3cbb59b4809965b249e73f9d106": {
+                  "id": "plan:outline_9964a3cbb59b4809965b249e73f9d106",
+                  "kind": "lesson_plan",
+                  "revision": 1,
+                  "status": "awaiting_confirm"
+                }
+              }
+            },
+            "status_card": {
+              "mode": "workflow",
+              "status_label": "等待你确认并继续",
+              "workflow_label": "教案",
+              "topics": [
+                "请生成一份"
+              ],
+              "goal": "整理教案",
+              "issues": [
+                "学生任务：回答越界问题"
+              ],
+              "confirmed_facts": [
+                "包含具体课堂活动和评价",
+                "资料使用通用知识即可"
+              ],
+              "student_signals": [
+                "评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答",
+                "配对讨论随机访问 O(1) 的前提",
+                "听取配对讨论"
+              ],
+              "evidence_points": [
+                "能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法",
+                "学生任务：观察数组示意",
+                "评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答",
+                "## 3. 手算练习与随机访问前提（5 分钟）"
+              ],
+              "evidence_details": [
+                {
+                  "content": "能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                },
+                {
+                  "content": "学生任务：观察数组示意",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                },
+                {
+                  "content": "评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                },
+                {
+                  "content": "## 3. 手算练习与随机访问前提（5 分钟）",
+                  "source_type": "assistant_message",
+                  "confidence": "low",
+                  "source_message_count": 1
+                }
+              ],
+              "extra_constraints": [],
+              "source_labels": [
+                "当前会话",
+                "当前课程"
+              ],
+              "waiting_label": "等待你确认并继续",
+              "suggested_actions": [
+                "确认并继续",
+                "调整要求"
+              ],
+              "audience": "大学初学者、15分钟的“数组随机访问”教案",
+              "allow_rag": true,
+              "allow_web": true
+            }
+          }
+        },
+        {
+          "type": "done",
+          "payload": {
+            "conversation_id": "resource-e2e-lesson_plan-4d741534"
+          }
+        }
+      ],
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "# 数组随机访问：教案方案\n\n教学目标：\n- 能用自己的话说明数组元素在抽象地址空间中连续存放的含义，并指出该连续性不要求底层物理内存页连续。\n- 能根据首地址、元素大小和下标，使用公式 地址 = 首地址 + 下标 × 元素大小 手算任意下标元素的地址，并说明元素大小指完整元素占用空间。\n- 能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法，且计数方式为地址计算与一次内存访问。\n- 能指出随机访问的边界：下标越界、元素大小不固定或需先查找位置时，不能直接套用 O(1) 随机访问结论。\n\n课堂总时长：15 分钟\n\n## 1. 导入与目标（2 分钟）\n- 教师活动：展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。\n- 学生任务：观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。\n- 评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。\n\n## 2. 连续存储与地址映射（5 分钟）\n- 教师活动：用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。\n- 学生任务：跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。\n- 评价证据：巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。\n\n## 3. 手算练习与随机访问前提（5 分钟）\n- 教师活动：给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。\n- 学生任务：独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。\n- 评价证据：收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。\n\n## 4. 边界与总结（3 分钟）\n- 教师活动：提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。\n- 学生任务：回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。\n- 评价证据：通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。\n\n方案第 1 版。可以提出修改意见，或告诉我按此结构继续。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-lesson_plan-4d741534"
+        },
+        "action": {
+          "name": "generate.lesson_plan"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "lesson_plan",
+          "status": "awaiting_confirm",
+          "stage": "outline"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "be2c3e7e75974b0d8fc1dfdaaf10604c",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "draft_resource_outline",
+              "data": {
+                "outline_id": "outline_9964a3cbb59b4809965b249e73f9d106",
+                "revision": 1,
+                "created_request_id": "be2c3e7e75974b0d8fc1dfdaaf10604c",
+                "resource_type": "lesson_plan",
+                "subject": "数组随机访问",
+                "audience": "大学初学者（数据结构课程，无编程基础要求）",
+                "requirements": "课时 15 分钟。教学目标须可观察、可评价：理解数组连续存储与下标到地址的映射，能根据首地址与元素大小手算任意下标元素地址，能说明随机访问 O(1) 的前提与边界。须包含具体课堂活动（可执行的提问、手算练习或配对活动）与形成性评价证据。资料使用通用知识，无需检索。",
+                "workspace": {
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "organization_id": null,
+                "classroom_options": {},
+                "quality": {
+                  "structural": "pass",
+                  "objective_coverage": false,
+                  "coverage_method": "not_performed",
+                  "semantic_review": "deferred_to_generation",
+                  "review": null
+                },
+                "chapters": [
+                  {
+                    "title": "导入与目标",
+                    "duration_minutes": 2.0,
+                    "teacher_activity": "展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。",
+                    "student_activity": "观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。",
+                    "assessment": "通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "连续存储与地址映射",
+                    "duration_minutes": 5.0,
+                    "teacher_activity": "用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。",
+                    "student_activity": "跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。",
+                    "assessment": "巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "手算练习与随机访问前提",
+                    "duration_minutes": 5.0,
+                    "teacher_activity": "给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。",
+                    "student_activity": "独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。",
+                    "assessment": "收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。",
+                    "unit_indices": []
+                  },
+                  {
+                    "title": "边界与总结",
+                    "duration_minutes": 3.0,
+                    "teacher_activity": "提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。",
+                    "student_activity": "回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。",
+                    "assessment": "通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。",
+                    "unit_indices": []
+                  }
+                ],
+                "markdown": "# 数组随机访问：教案方案\n\n教学目标：\n- 能用自己的话说明数组元素在抽象地址空间中连续存放的含义，并指出该连续性不要求底层物理内存页连续。\n- 能根据首地址、元素大小和下标，使用公式 地址 = 首地址 + 下标 × 元素大小 手算任意下标元素的地址，并说明元素大小指完整元素占用空间。\n- 能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法，且计数方式为地址计算与一次内存访问。\n- 能指出随机访问的边界：下标越界、元素大小不固定或需先查找位置时，不能直接套用 O(1) 随机访问结论。\n\n课堂总时长：15 分钟\n\n## 1. 导入与目标（2 分钟）\n- 教师活动：展示一个长度为 5 的整型数组示意，提问“若已知第 0 个元素地址，能否不逐个查看就说出第 3 个元素地址”，并板书本节目标与手算公式。\n- 学生任务：观察数组示意，尝试口头回答教师提问，记录公式 地址 = 首地址 + 下标 × 元素大小。\n- 评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答，判断是否意识到下标可直接用于地址计算。\n\n## 2. 连续存储与地址映射（5 分钟）\n- 教师活动：用抽象地址空间图讲解数组元素连续存放，说明连续指抽象地址连续而非物理页连续；以首地址 1000、元素大小 4 为例，推导下标 0、1、2、3 的地址，并强调元素大小是完整元素占用空间。\n- 学生任务：跟随推导在纸上写出下标 0 至 3 的地址，同桌互相检查计算过程，并用自己的话解释“连续存储”的含义。\n- 评价证据：巡视学生草稿，抽查 2 份计算，确认地址分别为 1000、1004、1008、1012，且能区分抽象连续与物理连续。\n\n## 3. 手算练习与随机访问前提（5 分钟）\n- 教师活动：给出新参数：首地址 2000、元素大小 8，要求计算下标 5 的地址；随后提问“这个计算为什么是 O(1)”，引导学生说出已知首地址、元素大小固定、下标合法、计数方式为地址计算加一次访问。\n- 学生任务：独立完成手算，写出 2000 + 5 × 8 = 2040；配对讨论随机访问 O(1) 的前提，并举例说明若元素大小不固定或需先查找位置则不能直接套用。\n- 评价证据：收取或抽查学生手算结果，确认 2040 正确；听取配对讨论，判断是否能说出至少两个 O(1) 前提。\n\n## 4. 边界与总结（3 分钟）\n- 教师活动：提问“下标为 -1 或等于数组长度时还能直接计算吗”，说明越界访问不属于合法随机访问；总结公式、O(1) 前提和边界，并布置一道课后自测题：首地址 500、元素大小 2，求下标 10 的地址。\n- 学生任务：回答越界问题，复述随机访问 O(1) 的前提与边界，记录课后自测题。\n- 评价证据：通过出口条让学生写出一个 O(1) 前提和一个边界条件，当堂快速查看是否覆盖“下标合法”和“元素大小固定”。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                },
+                "status": "awaiting_approval",
+                "job_id": null,
+                "presented_revision": 1,
+                "presented_request_id": "be2c3e7e75974b0d8fc1dfdaaf10604c"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "harness_outline": {
+          "outline_id": "outline_9964a3cbb59b4809965b249e73f9d106",
+          "revision": 1,
+          "subject": "数组随机访问"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "interaction_state": {
+          "version": 1,
+          "foreground": "plan:outline_9964a3cbb59b4809965b249e73f9d106",
+          "tasks": {
+            "plan:outline_9964a3cbb59b4809965b249e73f9d106": {
+              "id": "plan:outline_9964a3cbb59b4809965b249e73f9d106",
+              "kind": "lesson_plan",
+              "revision": 1,
+              "status": "awaiting_confirm"
+            }
+          }
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "等待你确认并继续",
+          "workflow_label": "教案",
+          "topics": [
+            "请生成一份"
+          ],
+          "goal": "整理教案",
+          "issues": [
+            "学生任务：回答越界问题"
+          ],
+          "confirmed_facts": [
+            "包含具体课堂活动和评价",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [
+            "评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答",
+            "配对讨论随机访问 O(1) 的前提",
+            "听取配对讨论"
+          ],
+          "evidence_points": [
+            "能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法",
+            "学生任务：观察数组示意",
+            "评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答",
+            "## 3. 手算练习与随机访问前提（5 分钟）"
+          ],
+          "evidence_details": [
+            {
+              "content": "能说明随机访问 O(1) 的前提：已知首地址、元素大小固定、下标合法",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            },
+            {
+              "content": "学生任务：观察数组示意",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            },
+            {
+              "content": "评价证据：通过举手或随机点名收集 2 至 3 名学生的口头回答",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            },
+            {
+              "content": "## 3. 手算练习与随机访问前提（5 分钟）",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            }
+          ],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "waiting_label": "等待你确认并继续",
+          "suggested_actions": [
+            "确认并继续",
+            "调整要求"
+          ],
+          "audience": "大学初学者、15分钟的“数组随机访问”教案",
+          "allow_rag": true,
+          "allow_web": true
+        }
+      },
+      "elapsed_seconds": 18.04,
+      "task_submitted_seconds": null
+    }
+  ],
+  "passed": true,
+  "plan_only_verified": true
+}

@@ -1,0 +1,320 @@
+{
+  "title": "数组随机访问",
+  "content": {
+    "game_type": "drag_match",
+    "template_id": "drag-match",
+    "game_data": {
+      "title": "数组随机访问：概念配对",
+      "pairs": [
+        {
+          "id": "pair1",
+          "left": "数组随机访问",
+          "right": "已知下标后，直接计算目标元素地址并访问，不需要先访问前面所有元素"
+        },
+        {
+          "id": "pair2",
+          "left": "地址公式 base + i × size",
+          "right": "首地址为 base、下标为 i（从0开始）、每个元素占 size 字节时，元素 i 的地址"
+        },
+        {
+          "id": "pair3",
+          "left": "随机访问依赖的前提",
+          "right": "元素等长，且在抽象地址空间中连续存放"
+        },
+        {
+          "id": "pair4",
+          "left": "长度 n 的数组（下标从0开始）",
+          "right": "合法下标为 0 到 n-1，访问下标 n 属于越界"
+        }
+      ]
+    },
+    "html_path": "resource-e2e-admin/resource-e2e-course/game-34e0cdff8c7976ce/index.html",
+    "html_url": "/api/chat/v2/games/html?path=resource-e2e-admin%2Fresource-e2e-course%2Fgame-34e0cdff8c7976ce%2Findex.html"
+  },
+  "generation_state": {
+    "resource_review": {
+      "decision": "pass",
+      "method": "model_review",
+      "resource_type": "game",
+      "content_sha256": "9409769a989c01ea78c5eeede56c092d394983d5010dd19b9704cf32452a7d10",
+      "checks": [
+        {
+          "criterion": "requirements",
+          "passed": true,
+          "reason": "游戏类型和模板匹配：game_type 为 drag_match，template_id 为 drag-match，game_data 符合 drag-match schema。用户要求的4对概念与解释已包含，且左右项一一对应、无歧义；未引入检索或外部资料，符合通用知识要求。规则说明、可操作任务和反馈不属于当前 schema 可承载字段，按原生模板负责渲染交互的合同，不将数据层未含 UI 文案判为缺陷。"
+        },
+        {
+          "criterion": "correctness",
+          "passed": true,
+          "reason": "逐对核验：pair1 将数组随机访问定义为按下标直接计算地址并访问、无需先访问前面所有元素，正确；pair2 的 base+i×size 公式在0基、等长、连续存放前提下成立，右项对符号解释准确；pair3 将前提限定为元素等长且在抽象地址空间连续存放，与抽象内存模型一致；pair4 长度 n 数组0基合法下标为0到n-1且访问下标 n 越界，正确。未发现数值、边界或表述错误。"
+        },
+        {
+          "criterion": "examples",
+          "passed": true,
+          "reason": "该资源为拖拽配对游戏，核验对象为配对任务而非习题。4个左侧项均可匹配到唯一右侧项，右侧无重复；判分依据即 pairs 中的 id 对应关系，可完整通关。无选项、题干计算或解析需要逐题求解，因此未发现任务路径或答案对接错误。"
+        },
+        {
+          "criterion": "teaching_structure",
+          "passed": true,
+          "reason": "4对内容从随机访问定义、地址公式、成立前提到边界/下标范围，形成围绕主题的合理递进，适合大学初学者；单次拖拽配对数量为4对，难度和时长合理，不涉及未要求的多维数组、缓存、分页或具体语言细节。"
+        },
+        {
+          "criterion": "sources",
+          "passed": true,
+          "reason": "已确认方案明确本轮使用通用知识且无需检索；research_sources 为空、各单元 evidence_ids 为空，与方案一致。无外部来源需要核验，不构成来源缺失。"
+        },
+        {
+          "criterion": "completeness",
+          "passed": true,
+          "reason": "game_data 包含 title 和要求的4对 pairs，且覆盖随机访问定义、公式、前提、下标范围；未遗漏已确认范围中的核心对象，也未扩展到不要求的多维布局、动态扩容或系统实现细节。当前数据层不负责承载规则/反馈文案，模板 schema 字段已完全满足。"
+        }
+      ],
+      "version": 2,
+      "history": [
+        {
+          "version": 1,
+          "decision": "revise",
+          "structural_issues": [
+            "unsupported_game_type: game_type must be exactly one of category_sort, drag_match, memory_flip"
+          ]
+        },
+        {
+          "version": 2,
+          "content_sha256": "9409769a989c01ea78c5eeede56c092d394983d5010dd19b9704cf32452a7d10",
+          "decision": "pass",
+          "review": {
+            "checks": [
+              {
+                "criterion": "requirements",
+                "passed": true,
+                "reason": "游戏类型和模板匹配：game_type 为 drag_match，template_id 为 drag-match，game_data 符合 drag-match schema。用户要求的4对概念与解释已包含，且左右项一一对应、无歧义；未引入检索或外部资料，符合通用知识要求。规则说明、可操作任务和反馈不属于当前 schema 可承载字段，按原生模板负责渲染交互的合同，不将数据层未含 UI 文案判为缺陷。"
+              },
+              {
+                "criterion": "correctness",
+                "passed": true,
+                "reason": "逐对核验：pair1 将数组随机访问定义为按下标直接计算地址并访问、无需先访问前面所有元素，正确；pair2 的 base+i×size 公式在0基、等长、连续存放前提下成立，右项对符号解释准确；pair3 将前提限定为元素等长且在抽象地址空间连续存放，与抽象内存模型一致；pair4 长度 n 数组0基合法下标为0到n-1且访问下标 n 越界，正确。未发现数值、边界或表述错误。"
+              },
+              {
+                "criterion": "examples",
+                "passed": true,
+                "reason": "该资源为拖拽配对游戏，核验对象为配对任务而非习题。4个左侧项均可匹配到唯一右侧项，右侧无重复；判分依据即 pairs 中的 id 对应关系，可完整通关。无选项、题干计算或解析需要逐题求解，因此未发现任务路径或答案对接错误。"
+              },
+              {
+                "criterion": "teaching_structure",
+                "passed": true,
+                "reason": "4对内容从随机访问定义、地址公式、成立前提到边界/下标范围，形成围绕主题的合理递进，适合大学初学者；单次拖拽配对数量为4对，难度和时长合理，不涉及未要求的多维数组、缓存、分页或具体语言细节。"
+              },
+              {
+                "criterion": "sources",
+                "passed": true,
+                "reason": "已确认方案明确本轮使用通用知识且无需检索；research_sources 为空、各单元 evidence_ids 为空，与方案一致。无外部来源需要核验，不构成来源缺失。"
+              },
+              {
+                "criterion": "completeness",
+                "passed": true,
+                "reason": "game_data 包含 title 和要求的4对 pairs，且覆盖随机访问定义、公式、前提、下标范围；未遗漏已确认范围中的核心对象，也未扩展到不要求的多维布局、动态扩容或系统实现细节。当前数据层不负责承载规则/反馈文案，模板 schema 字段已完全满足。"
+              }
+            ],
+            "blocking_issues": [],
+            "suggestions": [
+              "若最终渲染页面没有内置的规则说明和即时反馈，建议在模板交互文案层明确“将左侧概念拖到右侧对应解释”并给出匹配成功/失败提示；这属于渲染层补充而非 game_data 字段。",
+              "pair2 的右项可考虑补上“且数组连续存放”，让地址公式成立前提更自足；不过当前由 pair3 补充前提，不会造成实质判分错误。"
+            ]
+          }
+        }
+      ],
+      "suggestions": [
+        "若最终渲染页面没有内置的规则说明和即时反馈，建议在模板交互文案层明确“将左侧概念拖到右侧对应解释”并给出匹配成功/失败提示；这属于渲染层补充而非 game_data 字段。",
+        "pair2 的右项可考虑补上“且数组连续存放”，让地址公式成立前提更自足；不过当前由 pair3 补充前提，不会造成实质判分错误。"
+      ]
+    }
+  },
+  "source": {
+    "selected_doc_ids": [],
+    "rag_index_keys": []
+  },
+  "schema_version": 2,
+  "version": 1,
+  "material_type": "game",
+  "material_id": "game-34e0cdff8c7976ce",
+  "course_id": "resource-e2e-course",
+  "scope_type": "course",
+  "scope_id": null,
+  "owner_user_id": "resource-e2e-admin",
+  "created_by": "resource-e2e-admin",
+  "visibility": "private",
+  "source_job_id": "job_a0458906fd6d431f",
+  "config_snapshot_id": "cfg_d804f49d6f6103cf",
+  "source_snapshot": {
+    "mode": "none",
+    "requested_document_ids": [],
+    "documents": [],
+    "resolved_at": "2026-09-10T06:28:44.565321+00:00"
+  },
+  "config_snapshot": {
+    "allow_rag": true,
+    "audience": "大学初学者",
+    "classroom_options": {},
+    "confirmed_outline": "",
+    "entrypoint": "agent",
+    "focus": "拖拽配对互动游戏：4对概念与解释，围绕\"数组随机访问\"。使用通用知识，无需检索。要求左右项一一对应、无歧义，含规则说明、可操作任务、正确配对与反馈。",
+    "harness_approval_request_id": "bed103b0b2ff4041b6b0ff9435531ec3",
+    "harness_chapters": [],
+    "harness_conversation_id": "resource-e2e-game-9b178fb8",
+    "harness_evidence_ids": [],
+    "harness_execution_context": {
+      "decision": {
+        "interpreted_by": "model",
+        "outline_id": "direct_org_75483e202c044f558231acc7bf9b5194",
+        "request_id": "bed103b0b2ff4041b6b0ff9435531ec3",
+        "revision": 1,
+        "user_message": "请生成面向大学初学者的“数组随机访问”拖拽配对互动游戏，包含4对概念与解释。资料使用通用知识即可，无需检索。"
+      },
+      "stage": "write_and_review_game",
+      "working_memory": {}
+    },
+    "harness_interaction_mode": "direct",
+    "harness_organization": {
+      "audience": "大学初学者",
+      "evidence_ids": [],
+      "limitations": [
+        "本轮为内部知识准备，不输出成品游戏页面、拖拽交互数据或完整题目卡。",
+        "未检索外部资料，仅使用通用知识；证据列表为空，因此各单元未引用证据ID。",
+        "不展开动态数组扩容、多维数组行主序/列主序、缓存行、分页和具体语言运行时实现。",
+        "地址公式以抽象内存模型为准，真实系统耗时受缓存、分页、编译器优化等影响，不能由常数时间地址计算直接推出实际耗时恒定。",
+        "不同编程语言的下标范围、负索引和越界行为不同，本材料只给出通用边界，不替代具体语言规范。"
+      ],
+      "model_review": {
+        "checks": [
+          {
+            "claim": "前提适用性：地址公式 base + i × size 的前提（元素等长、下标从0开始、从 base 连续存放）被正确限定，未泛化为所有下标约定。",
+            "passed": true,
+            "reason": "单元2明确写出三个前提，并指出下标从1开始时需先换算为从0开始的偏移；单元5进一步区分0基与1基的合法范围。未把0基约定强加给所有语言。"
+          },
+          {
+            "claim": "内部推理一致性：随机访问的常数时间地址计算与真实系统耗时被正确区分，未由抽象模型推出物理耗时恒定。",
+            "passed": true,
+            "reason": "单元3说明地址计算步骤数不随长度增长，同时误区指出缓存命中、分页、内存带宽会影响实际耗时；limitations 也重申不能由常数时间地址计算推出实际耗时恒定。抽象操作次数与真实耗时的界限一致。"
+          },
+          {
+            "claim": "具体例子：数值推导正确，且与说明不矛盾。",
+            "passed": true,
+            "reason": "单元1：1000 + 4×{0,1,2,3} = 1000、1004、1008、1012、1016，正确。单元2：2000 + 3×8 = 2024，正确；check 中 base=500、size=4、下标6（0基）为 500+24=524，1基同一元素对应 i=5，换算逻辑正确。单元4：a[999999] 为第100万个元素，与单链表走100万步的对比在0基下标下一致。"
+          },
+          {
+            "claim": "边界与学习目标覆盖：下标范围、越界、负索引差异、连续地址不等于物理连续等边界被覆盖，且与 objectives 对应。",
+            "passed": true,
+            "reason": "单元5给出长度 n 时0基合法下标0..n-1、1基合法下标1..n，并指出下标5对长度5数组越界；单元1区分抽象地址连续与物理页连续；单元5指出负索引语义因语言而异。各单元 objective_indices 覆盖 objectives 的0、1、2、3项。"
+          },
+          {
+            "claim": "来源示例的前提是否被错误泛化。",
+            "passed": true,
+            "reason": "无外部来源示例（evidence 为空），材料仅使用通用知识；内部示例的前提均在单元内显式给出（等长、连续、下标约定），未发现把某语言或某实现的前提泛化为普遍规则。"
+          }
+        ],
+        "issues": [],
+        "passed": true
+      },
+      "objectives": [
+        "能用自己的话解释“数组随机访问”的含义，并说明它依赖连续存储和等长元素这两个前提",
+        "能写出并代入一维数组元素地址公式，由首地址、下标和元素大小计算指定元素的地址",
+        "能区分随机访问与顺序访问，并说明为什么数组按下标访问通常不需要从头逐个遍历",
+        "能识别数组随机访问的常见边界与误区，包括下标范围、元素大小含义、连续地址不等于物理连续等"
+      ],
+      "organization_id": "org_75483e202c044f558231acc7bf9b5194",
+      "prerequisites": [
+        "知道变量、数据类型和内存地址的直观含义",
+        "知道数组是一组同类型元素的集合",
+        "能理解下标从0开始或从1开始的常见约定",
+        "具备基本算术运算能力，能代入公式做简单计算"
+      ],
+      "requirements": "拖拽配对互动游戏：4对概念与解释，围绕\"数组随机访问\"。使用通用知识，无需检索。要求左右项一一对应、无歧义，含规则说明、可操作任务、正确配对与反馈。",
+      "resource_type": "game",
+      "scope": "围绕“数组随机访问”这一主题，为大学初学者准备拖拽配对游戏所需的知识材料。范围限定为：数组的连续存储抽象、下标到元素位置的地址计算、随机访问的含义与前提、随机访问与顺序访问的对比、常见边界与误区。不展开动态数组扩容、多维数组内存布局、缓存与分页等系统实现细节，也不涉及具体编程语言的完整语法。",
+      "source_policy": {
+        "allow_rag": true,
+        "allow_web": true,
+        "scope_id": null,
+        "scope_type": "course",
+        "selected_doc_ids": []
+      },
+      "subject": "数组随机访问",
+      "units": [
+        {
+          "check": "判断：数组在抽象地址空间中连续，是否意味着它在物理内存中也一定连续？请说明理由。",
+          "evidence_ids": [],
+          "example": "一个长度为5的整型数组，若每个元素占4字节，首地址为1000，则抽象地址依次为1000、1004、1008、1012、1016。",
+          "explanation": "数组在抽象模型中把一组同类型元素放在一段连续编号的存储单元里。每个元素占用相同大小的空间，元素按顺序一个接一个排列。这里的“连续”指抽象地址空间中的连续，不保证底层物理内存页连续。",
+          "misconception": "把“数组地址连续”直接说成“物理内存一定连续”。虚拟地址连续可以映射到不连续的物理页。",
+          "objective_indices": [
+            0,
+            3
+          ],
+          "title": "数组的连续存储抽象"
+        },
+        {
+          "check": "已知 base=500，size=4，求下标6的元素地址；若下标从1开始计数，同一个元素对应公式中的 i 应取多少？",
+          "evidence_ids": [],
+          "example": "base=2000，size=8，i=3，则地址为2000+3×8=2024。",
+          "explanation": "对一维数组，若首元素地址为 base，下标为 i，每个元素占用 size 字节，则元素 i 的地址为 base + i × size。公式成立的前提是：元素等长、下标从0开始、数组从 base 开始连续存放。若下标从1开始，则需先换算为从0开始的偏移。",
+          "misconception": "把 size 理解成“字段个数”或“有效数据长度”，而不是完整元素占用的字节数。结构体数组的步长是 sizeof(元素类型)，已包含对齐填充。",
+          "objective_indices": [
+            1,
+            3
+          ],
+          "title": "下标到地址的公式"
+        },
+        {
+          "check": "为什么数组能按下标直接定位元素，而单链表通常不能？请从“是否连续、是否等长”角度回答。",
+          "evidence_ids": [],
+          "example": "长度100万和长度10的数组，只要 base、size 和 i 已知，计算元素 i 地址都只需一次乘法和一次加法。",
+          "explanation": "随机访问指给定下标后，可以直接计算出目标元素地址并访问，不需要先访问前面所有元素。它依赖两个前提：元素等长，且存储连续。满足这两个前提时，访问任意下标元素的地址计算步骤数不随数组长度增长。",
+          "misconception": "把“地址计算是常数时间”等同于“真实系统耗时恒定”。缓存命中、分页、内存带宽等会影响实际耗时。",
+          "objective_indices": [
+            0,
+            2
+          ],
+          "title": "随机访问的含义与前提"
+        },
+        {
+          "check": "判断：数组支持随机访问，所以数组中间插入元素也一定是常数时间。这句话对吗？为什么？",
+          "evidence_ids": [],
+          "example": "在数组中读取 a[999999] 可直接计算地址；在单链表中找第100万个节点通常要从头沿 next 指针走100万步。",
+          "explanation": "顺序访问需要从某个位置开始逐个前进，访问第 k 个元素通常要先经过前 k-1 个元素。随机访问则利用地址公式直接跳到目标位置。数组支持随机访问，不意味着所有操作都高效；在中间插入或删除元素仍可能需要移动大量元素。",
+          "misconception": "认为“数组随机访问快”就等于“数组所有操作都快”。查找、插入、删除的代价要分别分析。",
+          "objective_indices": [
+            2,
+            3
+          ],
+          "title": "随机访问与顺序访问的对比"
+        },
+        {
+          "check": "长度 n 的数组，若下标从0开始，最后一个元素的下标是什么？若下标从1开始，最后一个元素的下标又是什么？",
+          "evidence_ids": [],
+          "example": "长度5的数组，从0开始计数时合法下标为0、1、2、3、4；下标5越界。",
+          "explanation": "长度为 n 的数组，若下标从0开始，合法下标是0到n-1；若下标从1开始，合法下标是1到n。访问越界元素不属于数组随机访问，可能读到无关数据或引发错误。不同语言对负索引语义不同：有的语言不支持，有的语言用负数表示从末尾计数。",
+          "misconception": "把“下标从0开始”当成所有语言的统一规则，或把某语言的负索引语义套到所有语言。",
+          "objective_indices": [
+            3
+          ],
+          "title": "边界、下标范围与常见误区"
+        }
+      ]
+    },
+    "harness_outline_id": "direct_org_75483e202c044f558231acc7bf9b5194",
+    "harness_outline_revision": 1,
+    "harness_review_required": true,
+    "length_hint": "拖拽配对互动游戏：4对概念与解释，围绕\"数组随机访问\"。使用通用知识，无需检索。要求左右项一一对应、无歧义，含规则说明、可操作任务、正确配对与反馈。",
+    "research_context": "",
+    "research_sources": [],
+    "resource_type": "game",
+    "subject": "数组随机访问",
+    "title": "数组随机访问"
+  },
+  "status": "ready",
+  "created_at": "2026-09-10T06:31:46.317949",
+  "updated_at": "2026-09-10T06:31:46.317949",
+  "is_pinned": false,
+  "pinned_at": null,
+  "content_hash": "6f1384aadc960e17f62b5336eb971b8eba5281aece30e02d8fe6bda637e37582"
+}

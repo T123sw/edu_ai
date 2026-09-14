@@ -61,6 +61,7 @@ def _seed_classroom(materials: PostgresMaterialRepository, *, valid: bool = True
             "current_review_status": "pending",
             "review_status": "pending",
             "version": 2,
+            "content_hash": "classroom-v2-hash",
             "scenes": scenes,
         }
     )
@@ -76,6 +77,8 @@ def test_approving_classroom_freezes_manifest_before_student_visibility(review_f
         reviewer_id="teacher-1",
         decision="approved",
         reason="",
+        expected_version=2,
+        expected_content_hash="classroom-v2-hash",
     )
 
     manifest = learning.get_manifest("course-1", "classroom-1", 2)
@@ -95,6 +98,8 @@ def test_manifest_failure_leaves_classroom_pending(review_fixture) -> None:
             reviewer_id="teacher-1",
             decision="approved",
             reason="",
+            expected_version=2,
+            expected_content_hash="classroom-v2-hash",
         )
 
     assert error.value.code == "LEARNING_MANIFEST_INVALID"
@@ -116,6 +121,7 @@ def test_non_classroom_review_keeps_existing_behavior(review_fixture) -> None:
             "current_review_status": "pending",
             "review_status": "pending",
             "version": 1,
+            "content_hash": "guide-v1-hash",
             "content": "guide",
         }
     )
@@ -126,6 +132,8 @@ def test_non_classroom_review_keeps_existing_behavior(review_fixture) -> None:
         reviewer_id="teacher-1",
         decision="approved",
         reason="",
+        expected_version=1,
+        expected_content_hash="guide-v1-hash",
     )
 
     assert result["approved_version"] == 1
@@ -145,6 +153,7 @@ def test_approving_practice_freezes_question_only_manifest(review_fixture) -> No
             "current_review_status": "pending",
             "review_status": "pending",
             "version": 1,
+            "content_hash": "practice-v1-hash",
             "content": {
                 "questions": [
                     {"id": "q1", "type": "single", "answer": "B"},
@@ -159,6 +168,8 @@ def test_approving_practice_freezes_question_only_manifest(review_fixture) -> No
         reviewer_id="teacher-1",
         decision="approved",
         reason="",
+        expected_version=1,
+        expected_content_hash="practice-v1-hash",
     )
 
     manifest = learning.get_manifest("course-1", "practice-1", 1)
@@ -166,3 +177,32 @@ def test_approving_practice_freezes_question_only_manifest(review_fixture) -> No
     assert manifest is not None
     assert manifest.completion_rule == "questions_only"
     assert manifest.required_question_ids == ("q1",)
+
+
+def test_review_rejects_version_or_hash_that_was_not_previewed(review_fixture) -> None:
+    service, materials, _learning = review_fixture
+    _seed_classroom(materials)
+
+    with pytest.raises(StandardResourceRuleError) as error:
+        service.review(
+            course_id="course-1",
+            material_id="classroom-1",
+            reviewer_id="teacher-1",
+            decision="approved",
+            reason="",
+            expected_version=1,
+            expected_content_hash="classroom-v2-hash",
+        )
+    assert error.value.code == "VERSION_CHANGED"
+
+    with pytest.raises(StandardResourceRuleError) as error:
+        service.review(
+            course_id="course-1",
+            material_id="classroom-1",
+            reviewer_id="teacher-1",
+            decision="approved",
+            reason="",
+            expected_version=2,
+            expected_content_hash="different-hash",
+        )
+    assert error.value.code == "VERSION_CHANGED"

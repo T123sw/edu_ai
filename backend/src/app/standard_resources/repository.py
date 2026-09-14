@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from sqlalchemy import select
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import IntegrityError
 
 from app.database import (
     Material,
@@ -54,6 +55,11 @@ class StandardResourceRepository:
             "standard_kind": item.standard_kind,
             "material_type": item.material_type,
             "material_id": item.material_id,
+            "action": item.action,
+            "base_version": item.base_version,
+            "material_version": item.material_version,
+            "content_hash": item.content_hash,
+            "generation_context": dict(item.generation_context or {}),
             "status": item.status,
             "job_id": item.job_id,
             "attempt_count": item.attempt_count,
@@ -73,6 +79,9 @@ class StandardResourceRepository:
             "batch_id": batch.batch_id,
             "course_id": batch.course_id,
             "created_by": batch.created_by,
+            "idempotency_key": batch.idempotency_key,
+            "graph_version": batch.graph_version,
+            "generation_mode": batch.generation_mode,
             "status": batch.status,
             "total_items": batch.total_items,
             "queued_items": batch.queued_items,
@@ -91,50 +100,114 @@ class StandardResourceRepository:
         course_id: str,
         created_by: str,
         leaves: list[LeafNode],
+        planned_items: list[dict[str, Any]] | None = None,
+        idempotency_key: str | None = None,
+        graph_version: str = "legacy",
+        generation_mode: str = "regenerate_all",
     ) -> dict[str, Any]:
         if not leaves:
             raise StandardResourceRuleError(
                 "NO_LEAF_SELECTED", "At least one leaf knowledge point is required"
             )
-        batch_id = f"standard-batch-{uuid4().hex}"
-        now = _now()
-        item_count = len(leaves) * len(STANDARD_KINDS)
-        with database_session(engine=self._engine) as session:
-            batch = StandardResourceBatch(
-                batch_id=batch_id,
-                course_id=str(course_id).strip(),
-                created_by=str(created_by).strip(),
-                status="queued",
-                total_items=item_count,
-                queued_items=item_count,
-                running_items=0,
-                succeeded_items=0,
-                failed_items=0,
-                created_at=now,
-                updated_at=now,
+        normalized_key = str(idempotency_key or "").strip()
+        if normalized_key:
+            existing = self.find_batch_by_idempotency(
+                course_id=course_id, idempotency_key=normalized_key
             )
-            session.add(batch)
-            for leaf in leaves:
-                for kind in STANDARD_KINDS:
+            if existing is not None:
+                return {**existing, "_was_created": False}
+        batch_id = f"standard-batch-{uuid4().hex}"
+        normalized_key = normalized_key or batch_id
+        now = _now()
+        specs = list(planned_items or [])
+        if not specs:
+            specs = [
+                {
+                    "leaf_id": leaf.leaf_id,
+                    "leaf_title": leaf.title,
+                    "standard_kind": kind.value,
+                    "material_type": standard_material_type(kind),
+                    "material_id": stable_material_id(leaf.leaf_id, kind),
+                    "action": "generate",
+                    "base_version": None,
+                    "generation_context": {"path_titles": list(leaf.path_titles)},
+                }
+                for leaf in leaves
+                for kind in STANDARD_KINDS
+            ]
+        item_count = len(specs)
+        try:
+            with database_session(engine=self._engine) as session:
+                batch = StandardResourceBatch(
+                    batch_id=batch_id,
+                    course_id=str(course_id).strip(),
+                    created_by=str(created_by).strip(),
+                    idempotency_key=normalized_key,
+                    graph_version=str(graph_version or "legacy"),
+                    generation_mode=str(generation_mode or "regenerate_all"),
+                    status="queued",
+                    total_items=item_count,
+                    queued_items=item_count,
+                    running_items=0,
+                    succeeded_items=0,
+                    failed_items=0,
+                    created_at=now,
+                    updated_at=now,
+                )
+                session.add(batch)
+                for spec in specs:
+                    leaf_id = str(spec["leaf_id"])
+                    kind = str(spec["standard_kind"])
                     session.add(
                         StandardResourceBatchItem(
                             batch_item_id=f"standard-item-{uuid4().hex}",
                             batch_id=batch_id,
-                            leaf_id=leaf.leaf_id,
-                            leaf_title=leaf.title,
-                            standard_kind=kind.value,
-                            material_type=standard_material_type(kind),
-                            material_id=stable_material_id(leaf.leaf_id, kind),
+                            leaf_id=leaf_id,
+                            leaf_title=str(spec["leaf_title"]),
+                            standard_kind=kind,
+                            material_type=str(spec["material_type"]),
+                            material_id=str(spec["material_id"]),
+                            action=str(spec.get("action") or "generate"),
+                            base_version=spec.get("base_version"),
+                            active_slot_key=f"{course_id}:{leaf_id}:{kind}",
+                            generation_context=dict(spec.get("generation_context") or {}),
                             status="queued",
                             attempt_count=0,
                             created_at=now,
                             updated_at=now,
                         )
                     )
+        except IntegrityError as exc:
+            duplicate = self.find_batch_by_idempotency(
+                course_id=course_id, idempotency_key=normalized_key
+            )
+            if duplicate is not None:
+                return {**duplicate, "_was_created": False}
+            raise StandardResourceRuleError(
+                "SLOT_GENERATION_ACTIVE",
+                "A selected knowledge resource is already being generated",
+            ) from exc
         result = self.get_batch(course_id=course_id, batch_id=batch_id)
         if result is None:
             raise RuntimeError("failed to persist standard resource batch")
-        return result
+        return {**result, "_was_created": True}
+
+    def find_batch_by_idempotency(
+        self, *, course_id: str, idempotency_key: str
+    ) -> dict[str, Any] | None:
+        normalized_key = str(idempotency_key or "").strip()
+        if not normalized_key:
+            return None
+        with database_session(engine=self._engine) as session:
+            batch_id = session.scalar(
+                select(StandardResourceBatch.batch_id).where(
+                    StandardResourceBatch.course_id == str(course_id).strip(),
+                    StandardResourceBatch.idempotency_key == normalized_key,
+                )
+            )
+        if not batch_id:
+            return None
+        return self.get_batch(course_id=course_id, batch_id=str(batch_id))
 
     def get_batch(self, *, course_id: str, batch_id: str) -> dict[str, Any] | None:
         with database_session(engine=self._engine) as session:
@@ -151,6 +224,35 @@ class StandardResourceRepository:
             ).all()
             return self._batch_payload(batch, items)
 
+    def list_batches(self, *, course_id: str, limit: int = 10) -> list[dict[str, Any]]:
+        with database_session(engine=self._engine) as session:
+            batches = session.scalars(
+                select(StandardResourceBatch)
+                .where(StandardResourceBatch.course_id == course_id)
+                .order_by(StandardResourceBatch.created_at.desc())
+                .limit(max(1, min(int(limit), 50)))
+            ).all()
+            return [
+                self._batch_payload(
+                    batch,
+                    session.scalars(
+                        select(StandardResourceBatchItem)
+                        .where(StandardResourceBatchItem.batch_id == batch.batch_id)
+                        .order_by(StandardResourceBatchItem.leaf_id, StandardResourceBatchItem.standard_kind)
+                    ).all(),
+                )
+                for batch in batches
+            ]
+
+    def active_slot_keys(self, *, course_id: str) -> set[str]:
+        prefix = f"{course_id}:%"
+        with database_session(engine=self._engine) as session:
+            return set(session.scalars(
+                select(StandardResourceBatchItem.active_slot_key).where(
+                    StandardResourceBatchItem.active_slot_key.like(prefix)
+                )
+            ).all())
+
     def mark_submitted(self, *, batch_item_id: str, job_id: str) -> None:
         now = _now()
         with database_session(engine=self._engine) as session:
@@ -165,6 +267,34 @@ class StandardResourceRepository:
             item.updated_at = now
             self._recount(session, item.batch_id, now=now)
 
+    def claim_retry(self, *, course_id: str, batch_item_id: str) -> dict[str, Any]:
+        """Atomically reserve a failed slot before resubmitting it."""
+        now = _now()
+        try:
+            with database_session(engine=self._engine) as session:
+                item = session.get(StandardResourceBatchItem, batch_item_id)
+                if item is None:
+                    raise StandardResourceRuleError(
+                        "BATCH_ITEM_NOT_FOUND", "Batch item was not found"
+                    )
+                if item.status != "failed":
+                    raise StandardResourceRuleError(
+                        "BATCH_ITEM_NOT_RETRYABLE", "Only failed batch items can be retried"
+                    )
+                item.active_slot_key = f"{course_id}:{item.leaf_id}:{item.standard_kind}"
+                item.status = "queued"
+                item.error = None
+                item.finished_at = None
+                item.updated_at = now
+                self._recount(session, item.batch_id, now=now)
+                payload = self._item_payload(item)
+        except IntegrityError as exc:
+            raise StandardResourceRuleError(
+                "SLOT_GENERATION_ACTIVE",
+                "This knowledge resource is already being generated",
+            ) from exc
+        return payload
+
     def mark_failed(
         self, *, batch_item_id: str, code: str, message: str
     ) -> None:
@@ -175,11 +305,18 @@ class StandardResourceRepository:
                 raise StandardResourceRuleError("BATCH_ITEM_NOT_FOUND", "Batch item was not found")
             item.status = "failed"
             item.error = {"code": str(code), "message": str(message)}
+            item.active_slot_key = None
             item.finished_at = now
             item.updated_at = now
             self._recount(session, item.batch_id, now=now)
 
-    def mark_succeeded(self, *, batch_item_id: str) -> None:
+    def mark_succeeded(
+        self,
+        *,
+        batch_item_id: str,
+        material_version: int | None = None,
+        content_hash: str | None = None,
+    ) -> None:
         now = _now()
         with database_session(engine=self._engine) as session:
             item = session.get(StandardResourceBatchItem, batch_item_id)
@@ -187,6 +324,9 @@ class StandardResourceRepository:
                 raise StandardResourceRuleError("BATCH_ITEM_NOT_FOUND", "Batch item was not found")
             item.status = "succeeded"
             item.error = None
+            item.material_version = material_version
+            item.content_hash = str(content_hash or "").strip() or None
+            item.active_slot_key = None
             item.finished_at = now
             item.updated_at = now
             self._recount(session, item.batch_id, now=now)
@@ -231,6 +371,8 @@ class StandardResourceRepository:
         reviewer_id: str,
         decision: str,
         reason: str = "",
+        expected_version: int | None = None,
+        expected_content_hash: str | None = None,
     ) -> dict[str, Any]:
         return self.review_material_with_manifest(
             course_id=course_id,
@@ -239,6 +381,8 @@ class StandardResourceRepository:
             decision=decision,
             reason=reason,
             manifest=None,
+            expected_version=expected_version,
+            expected_content_hash=expected_content_hash,
         )
 
     def review_material_with_manifest(
@@ -250,6 +394,8 @@ class StandardResourceRepository:
         decision: str,
         reason: str = "",
         manifest: ResourceLearningManifestRecord | None,
+        expected_version: int | None = None,
+        expected_content_hash: str | None = None,
     ) -> dict[str, Any]:
         normalized_decision = str(decision).strip().lower()
         if normalized_decision not in {"approved", "rejected"}:
@@ -272,6 +418,14 @@ class StandardResourceRepository:
             if material is None:
                 raise StandardResourceRuleError(
                     "STANDARD_RESOURCE_NOT_FOUND", "Standard resource was not found"
+                )
+            if expected_version is not None and material.version != int(expected_version):
+                raise StandardResourceRuleError(
+                    "VERSION_CHANGED", "The resource changed after it was previewed"
+                )
+            if expected_content_hash and material.content_hash != str(expected_content_hash):
+                raise StandardResourceRuleError(
+                    "VERSION_CHANGED", "The resource changed after it was previewed"
                 )
             version = session.scalar(
                 select(MaterialVersion).where(
@@ -377,30 +531,63 @@ class StandardResourceRepository:
     def list_pending_material_ids_in_batch(
         self, *, course_id: str, batch_id: str
     ) -> list[str]:
+        return [
+            item["material_id"]
+            for item in self.list_pending_targets_in_batch(
+                course_id=course_id, batch_id=batch_id
+            )
+        ]
+
+    def list_pending_targets_in_batch(
+        self, *, course_id: str, batch_id: str
+    ) -> list[dict[str, Any]]:
         with database_session(engine=self._engine) as session:
-            return list(
-                session.scalars(
-                    select(Material.material_id).where(
+            items = session.scalars(
+                select(StandardResourceBatchItem).where(
+                    StandardResourceBatchItem.batch_id == batch_id,
+                    StandardResourceBatchItem.status == "succeeded",
+                    StandardResourceBatchItem.material_version.is_not(None),
+                )
+            ).all()
+            result: list[dict[str, Any]] = []
+            for item in items:
+                material = session.scalar(
+                    select(Material).where(
                         Material.course_id == course_id,
-                        Material.generation_batch_id == batch_id,
+                        Material.material_type == item.material_type,
+                        Material.material_id == item.material_id,
                         Material.origin_type == "standard",
                         Material.current_review_status == "pending",
                     )
-                ).all()
-            )
+                )
+                if (
+                    material is not None
+                    and material.version == item.material_version
+                    and material.content_hash == item.content_hash
+                ):
+                    result.append(
+                        {
+                            "material_id": item.material_id,
+                            "version": item.material_version,
+                            "content_hash": item.content_hash,
+                        }
+                    )
+            return result
 
     def approve_pending_in_batch(
         self, *, course_id: str, batch_id: str, reviewer_id: str
     ) -> list[dict[str, Any]]:
-        material_ids = self.list_pending_material_ids_in_batch(
+        targets = self.list_pending_targets_in_batch(
             course_id=course_id, batch_id=batch_id
         )
         return [
             self.review_material(
                 course_id=course_id,
-                material_id=material_id,
+                material_id=target["material_id"],
                 reviewer_id=reviewer_id,
                 decision="approved",
+                expected_version=int(target["version"]),
+                expected_content_hash=str(target["content_hash"]),
             )
-            for material_id in material_ids
+            for target in targets
         ]

@@ -396,6 +396,11 @@
   color: #b91c1c;
 }
 
+.course-kb-builder__quality li.is-decision .material-symbols-rounded,
+.course-kb-builder__quality li.is-decision strong {
+  color: #a16207;
+}
+
 .course-kb-wizard {
   display: grid;
   gap: 16px;
@@ -1434,5 +1439,19 @@
 .course-kb-proposal__items input { margin-top: 5px; }
 .course-kb-proposal__items small { display: block; margin-top: 8px; color: var(--course-shell-muted); }
 .course-kb-proposal__requirements { display: grid; gap: 10px; font-size: 15px; }
-.course-kb-proposal__requirements textarea { width: 100%; min-height: 100px; padding: 12px; border: 1px solid var(--course-shell-line); border-radius: 10px; resize: vertical; font: inherit; }
+.course-kb-proposal__requirements > strong { font-size: 16px; }
+.course-kb-proposal__requirements textarea { width: 100%; min-height: 160px; padding: 12px; border: 1px solid var(--course-shell-line); border-radius: 10px; resize: vertical; font: inherit; line-height: 1.65; }
+.course-kb-proposal__requirements textarea::placeholder { color: var(--course-shell-muted); opacity: .9; }
+.course-kb-intent { display: grid; gap: 14px; padding: 16px; border: 1px solid color-mix(in srgb, var(--course-shell-primary) 28%, var(--course-shell-line)); border-radius: 12px; background: color-mix(in srgb, var(--course-shell-primary) 5%, transparent); }
+.course-kb-intent__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.course-kb-intent__heading h4 { margin: 0 0 4px; font-size: 16px; }
+.course-kb-intent__heading p { margin: 0; font-size: 13px; }
+.course-kb-intent__heading > span { flex: none; padding: 4px 8px; border-radius: 999px; background: var(--course-shell-primary); color: white; font-size: 12px; }
+.course-kb-intent__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; margin: 0; }
+.course-kb-intent__grid > div { min-width: 0; }
+.course-kb-intent__grid dt { margin-bottom: 3px; color: var(--course-shell-muted); font-size: 12px; }
+.course-kb-intent__grid dd { margin: 0; overflow-wrap: anywhere; line-height: 1.55; }
+.course-kb-intent__notice { padding: 10px 12px; border-radius: 8px; background: color-mix(in srgb, #f59e0b 12%, transparent); font-size: 13px; line-height: 1.6; }
+.course-kb-intent__notice strong { margin-right: 8px; }
+@media(max-width: 767px) { .course-kb-intent__grid { grid-template-columns: 1fr; } }
 @media(max-width: 1100px) { .course-kb-proposal__options { grid-template-columns: 1fr; } }

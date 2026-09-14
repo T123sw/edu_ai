@@ -61,3 +61,19 @@ test('chat does not use knowledge when neither selection nor retrieval is enable
   assert.equal(payload.source_mode, 'none');
   assert.equal(payload.allow_rag, false);
 });
+
+test('generation factory action hints stay separate from the user message', () => {
+  const payload = buildChatReplyPayload({
+    question: '生成 8 道二叉树习题',
+    allowRag: false,
+    allowWeb: true,
+    selectedDocIds: [],
+    actionHint: 'generate.quiz',
+    entryMode: 'generation_factory',
+  });
+
+  assert.equal(payload.question, '生成 8 道二叉树习题');
+  assert.equal(payload.action_hint, 'generate.quiz');
+  assert.equal(payload.entry_mode, 'generation_factory');
+  assert.doesNotMatch(payload.question, /generate\.quiz/);
+});

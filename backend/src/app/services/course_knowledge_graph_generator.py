@@ -12,7 +12,6 @@ from typing import Any
 
 import httpx
 
-from app.persistence.dependencies import get_postgres_knowledge_repository
 from app.persistence.postgres_knowledge_repository import (
     KnowledgeBuildRevisionConflict,
 )
@@ -41,6 +40,16 @@ _ALLOWED_NODE_TYPES = {
 _PLACEHOLDER_LABEL = re.compile(
     r"^(?:\d+|第?[一二三四五六七八九十百0-9]+(?:章|节|单元)|知识点|课程|模块)$"
 )
+
+
+def get_postgres_knowledge_repository():
+    """Resolve persistence lazily so pure graph validators stay import-safe."""
+
+    from app.persistence.dependencies import (
+        get_postgres_knowledge_repository as resolve_repository,
+    )
+
+    return resolve_repository()
 
 
 class CourseKnowledgeGraphGenerationError(RuntimeError):
@@ -83,12 +92,13 @@ class CourseKnowledgeGraphModelAdapter:
                 "GRAPH_MODEL_UNAVAILABLE",
                 "知识图谱生成所需的模型配置不完整",
             )
-        if base_url.endswith("/chat/completions"):
-            endpoint = base_url
-        else:
-            if not base_url.endswith(("/v1", "/api/v1")):
-                base_url = f"{base_url}/v1"
-            endpoint = f"{base_url}/chat/completions"
+        base_url = base_url.removesuffix("/chat/completions").rstrip("/")
+        if not base_url.endswith(("/v1", "/api/v1")):
+            base_url = f"{base_url}/v1"
+        from app.services.deepseek_key_failover import completion_endpoint
+
+        base_url, api_key = completion_endpoint(base_url, api_key)
+        endpoint = f"{base_url.rstrip('/')}/chat/completions"
         try:
             response = httpx.post(
                 endpoint,

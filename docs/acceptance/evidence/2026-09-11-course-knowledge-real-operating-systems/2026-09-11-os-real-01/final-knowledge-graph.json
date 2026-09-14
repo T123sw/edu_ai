@@ -1,0 +1,307 @@
+{
+  "root": {
+    "id": "course-os-brief",
+    "data": {
+      "type": "course",
+      "summary": "8 课时操作系统基础课程，覆盖进程与线程、CPU 调度、进程同步、死锁和虚拟内存五大核心模块。",
+      "node_count": 23,
+      "document_count": 4,
+      "builder_version": "course-kb-plan-v2",
+      "source_build_id": "kb-31de16bb46264788904fc74e40b777ed",
+      "publication_status": "published"
+    },
+    "label": "操作系统（简明）",
+    "children": [
+      {
+        "id": "mod-os-brief-process",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "进程与线程的基本概念、状态转换与调度基础。"
+        },
+        "label": "进程与线程",
+        "children": [
+          {
+            "id": "kp-os-brief-process-concept",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程定义、进程控制块与三态模型。",
+              "document_ids": [
+                "doc-b95182d5fbc2495f893a9ef67efd5773",
+                "doc-904599101b8e452f83e4b114b0387d48",
+                "doc-4c5c6f5a1434479483f910ff77c3ab09"
+              ]
+            },
+            "label": "进程的概念与状态",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-thread",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "线程的概念及其与进程的区别。",
+              "document_ids": [
+                "doc-a55ffbc0fc7f4a9b8af17b20499d6d33",
+                "doc-91690698e97e42408ec3ab9c944072d4",
+                "doc-f8f6ab142d82438b9a939e9114e14afb"
+              ]
+            },
+            "label": "线程",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-process-context",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "进程上下文切换的基本过程与开销来源。",
+              "document_ids": [
+                "doc-c5bea0a604234bc2af851b9a53656dce",
+                "doc-69c472f3f88a4b96b8aa2c49af5d1c55",
+                "doc-1735020f598d4bc1ba8f1d9e455f123e"
+              ]
+            },
+            "label": "上下文切换",
+            "children": []
+          },
+          {
+            "id": "kp_618be1caef254d29b5f6973081e00486",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "教师明确要求新增该知识点。现有“进程与线程”模块仅覆盖进程概念、线程与上下文切换，未涉及操作系统对进程组的资源限制与隔离机制；cgroups 是进程资源管理在 Linux 中的典型实现，与课程“进程”主线衔接自然。已有文档均无标题与摘要，无法确认是否已覆盖该内容，此判断为待教师核对的推断。",
+              "document_ids": [
+                "doc-8967fe8bc83b41c2ad8158ecd649dd54",
+                "doc-0d6a57d7a25b47c49dc128d7da9d818c",
+                "doc-de5d429549534258aae4b1542b4ef57d",
+                "doc-1f8f32342c6c4fe5b3ca321a9ca78e01"
+              ]
+            },
+            "label": "Linux cgroups 与容器资源隔离",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sched",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "常见 CPU 调度算法及其性能指标计算。"
+        },
+        "label": "CPU 调度",
+        "children": [
+          {
+            "id": "kp-os-brief-sched-metrics",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "周转时间、等待时间与响应时间的定义与计算。",
+              "document_ids": [
+                "doc-58df032b5007475e8e69f1e079ea0f1a",
+                "doc-3390c623016b489e85de7b81d3aaef08",
+                "doc-8e2a41d4ed4e49dd948732afbebfdaca"
+              ]
+            },
+            "label": "调度性能指标",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-fcfs",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FCFS 算法思想与等待时间计算。",
+              "document_ids": [
+                "doc-6f7223662d9c40fb9026e2a53d6b00cf",
+                "doc-46d4966d2d70419e9e28144cc10674ac",
+                "doc-6908241f351c400eb30b643c4a25d4b8"
+              ]
+            },
+            "label": "先来先服务调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-sjf",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "SJF 算法思想与等待时间计算。",
+              "document_ids": [
+                "doc-f720f0d76fcb4a32a63c953f807f8dde",
+                "doc-8ae748d5f7ef48a89f81da379867cece",
+                "doc-9d13f8606f7a495b905500e1ae5a9259"
+              ]
+            },
+            "label": "短作业优先调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-rr",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "RR 算法思想与时间片对性能的影响。",
+              "document_ids": [
+                "doc-582ca39cb3fb480eabb23bbc2cec92c0",
+                "doc-cb80869849ac47ba80ac54aefb596b58",
+                "doc-5d96904639df42ca9d8d74f3a0f00100"
+              ]
+            },
+            "label": "时间片轮转调度",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sched-priority",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "优先级调度思想与饥饿问题。",
+              "document_ids": [
+                "doc-14e2207dc638403781f23ed243cb16e5",
+                "doc-3ae69e29b1cf40038e659b86fc0d9911",
+                "doc-a4a71e3093124f18a19c7a11da9b2f2b"
+              ]
+            },
+            "label": "优先级调度",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-sync",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "临界区问题与信号量机制解决典型同步问题。"
+        },
+        "label": "进程同步",
+        "children": [
+          {
+            "id": "kp-os-brief-sync-critical",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "临界区、互斥与同步的基本概念。",
+              "document_ids": [
+                "doc-c3ad1ffde71d4e8f8546acdd7598d098",
+                "doc-41d1e540063e45e09cd50d6c23c731f2",
+                "doc-0711f67fd93641c18cf160875264100f"
+              ]
+            },
+            "label": "临界区问题",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-semaphore",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "信号量的定义与 P、V 操作语义。",
+              "document_ids": [
+                "doc-d8c5a3697e68424e819b159f7d8dd587",
+                "doc-31ff60489d6c4e5984a7bdd74992736b",
+                "doc-3fe61fd071e3450e9425f9f2c65d50a6"
+              ]
+            },
+            "label": "信号量",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-sync-producer-consumer",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "用信号量解决生产者-消费者问题的基本方法。",
+              "document_ids": [
+                "doc-f68a136c20f4412483bcce8fb2b68742",
+                "doc-51dd8b9306fb4024b62eec287fc62310",
+                "doc-c640a914aa3f4081adc0ea0a035ade1d"
+              ]
+            },
+            "label": "生产者-消费者问题",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-deadlock",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "死锁的产生条件与基本处理策略。"
+        },
+        "label": "死锁",
+        "children": [
+          {
+            "id": "kp-os-brief-deadlock-conditions",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "互斥、占有并等待、非抢占与循环等待四个条件。",
+              "document_ids": [
+                "doc-3a47538159f5433088eee40b38fdd3e5",
+                "doc-daeddb8006944cbe8abde1eb01aed512",
+                "doc-135d75349ea345e1b537bf41ee97b36e"
+              ]
+            },
+            "label": "死锁产生的必要条件",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-deadlock-handling",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "预防、避免、检测与恢复的基本思路。",
+              "document_ids": [
+                "doc-3ae2d5658d0f40b983f6e4da2d9a9eb9",
+                "doc-9cc548d4022247669c6f623695a04251",
+                "doc-f1356628f8ac4ddba30b3b8fa55d376b"
+              ]
+            },
+            "label": "死锁处理策略",
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "mod-os-brief-vm",
+        "data": {
+          "type": "knowledge_module",
+          "summary": "分页、缺页与页面置换算法的基本原理。"
+        },
+        "label": "虚拟内存",
+        "children": [
+          {
+            "id": "kp-os-brief-vm-paging",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "页、页框与页表的基本概念及地址转换。",
+              "document_ids": [
+                "doc-2546807387fa484d9e27c117e75e0a19",
+                "doc-2e91069cfc38475a97690576caf0f000",
+                "doc-1b9f695dd65f4d25a1740efd50b2fddf"
+              ]
+            },
+            "label": "分页",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-pagefault",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "缺页中断的处理流程。",
+              "document_ids": [
+                "doc-370095ab54b04c4780c7f3bfd6a14578",
+                "doc-9b20cc0739be43c5ae26fcdcf416b38f",
+                "doc-fdb165f8f1dd46e79d859ad4c177bc77"
+              ]
+            },
+            "label": "缺页",
+            "children": []
+          },
+          {
+            "id": "kp-os-brief-vm-replacement",
+            "data": {
+              "type": "knowledge_point",
+              "summary": "FIFO、LRU 与 OPT 的基本思想与缺页次数计算。",
+              "document_ids": [
+                "doc-9d962726b9684b5fa2f1d4e7db2aeb55",
+                "doc-aa821010249d4ebfad2c351ff57be28c",
+                "doc-5e19c491c70144baa109bb24d79ca16a",
+                "doc-5e83c2b7dd4a418ead3660827ef93a33"
+              ]
+            },
+            "label": "页面置换算法",
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+}

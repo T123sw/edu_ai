@@ -1,0 +1,864 @@
+{
+  "kind": "flashcard",
+  "conversation_id": "resource-e2e-flashcard-55a667ba",
+  "turns": [
+    {
+      "question": "请生成4张面向大学初学者的“数组随机访问”问答闪卡，每张正面一个问题，背面答案与解释。资料使用通用知识即可，无需检索。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "正在生成闪卡，完成后会在这里显示。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-flashcard-55a667ba"
+        },
+        "action": {
+          "name": "generate.flashcard"
+        },
+        "artifacts": [],
+        "workflow": {
+          "type": "flashcard",
+          "status": "running",
+          "stage": "generating"
+        },
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "64e8d7808fee43ebb40924cd8aba6b55",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "select_workspace",
+              "data": {
+                "course_id": "resource-e2e-course",
+                "course_title": "数据结构验收课程",
+                "scope_type": "course",
+                "scope_id": null,
+                "scope_title": "数据结构验收课程",
+                "scope_path": [
+                  "数据结构验收课程"
+                ],
+                "resolution": "resolved",
+                "explicit_course": true,
+                "update_workspace": false,
+                "topic": "数组随机访问"
+              }
+            },
+            {
+              "ok": true,
+              "tool": "organize_resource_content",
+              "data": {
+                "scope": "面向大学初学者的数组随机访问基础问答闪卡，覆盖随机访问概念、时间复杂度、O(1)访问原因及寻址原理。不涉及缓存、分页、虚拟内存等底层实现细节。",
+                "prerequisites": [
+                  "了解数组的基本定义和下标概念",
+                  "理解大O时间复杂度的基本含义"
+                ],
+                "objectives": [
+                  "能用自己的话解释数组随机访问的含义",
+                  "能说出数组随机访问的时间复杂度并说明其含义",
+                  "能解释为什么数组能在O(1)时间内访问任意元素",
+                  "能根据数组起始地址和元素大小计算指定下标元素的地址"
+                ],
+                "units": [
+                  {
+                    "title": "随机访问概念",
+                    "explanation": "随机访问指在任意时刻直接访问数据结构中任意位置的元素，无需按顺序遍历。数组支持通过下标直接定位元素，因此具备随机访问能力。",
+                    "example": "int arr[5] = {10, 20, 30, 40, 50}; 直接使用 arr[3] 即可获取 40，无需从 arr[0] 开始逐个查找。",
+                    "misconception": "随机访问不是指随机选择元素，而是指访问任意指定位置的时间与位置无关。",
+                    "check": "链表是否支持随机访问？为什么？",
+                    "objective_indices": [
+                      0
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "时间复杂度",
+                    "explanation": "数组随机访问的时间复杂度为 O(1)，即无论数组多大，访问任意下标元素所需的基本操作次数恒定（与数组长度无关）。这里的操作次数指计算地址并读取一次内存。",
+                    "example": "访问长度为 100 的数组的第 50 个元素，与访问长度为 10000 的数组的第 5000 个元素，所需操作次数相同。",
+                    "misconception": "O(1) 表示实际耗时完全恒定。实际上，真实系统受缓存、内存层次等因素影响，耗时可能有波动，但渐近复杂度仍为常数。",
+                    "check": "为什么说数组访问时间与数组大小无关？",
+                    "objective_indices": [
+                      1
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "O(1) 访问的原因",
+                    "explanation": "数组在内存中是一段连续存储空间，每个元素大小相同。通过下标可立即计算出目标元素的地址，无需遍历或比较，因此能在常数时间内完成访问。",
+                    "example": "数组 a 的起始地址为 1000，每个 int 占 4 字节，则 a[3] 的地址为 1000 + 3×4 = 1012，直接读取该地址即可。",
+                    "misconception": "连续地址仅指逻辑地址连续，不要求物理内存页连续。操作系统通过页表将虚拟地址映射到物理地址，但这对程序员透明，不影响随机访问的抽象模型。",
+                    "check": "如果数组元素大小不同（如结构体数组），是否仍能 O(1) 访问？前提是什么？",
+                    "objective_indices": [
+                      2
+                    ],
+                    "evidence_ids": []
+                  },
+                  {
+                    "title": "寻址原理",
+                    "explanation": "数组寻址公式为：元素地址 = 起始地址 + 下标 × 元素大小。该公式基于元素等宽和连续存储两个前提，通过一次乘法和一次加法即可定位。",
+                    "example": "double arr[10] 起始地址为 2000，double 占 8 字节，则 arr[7] 的地址为 2000 + 7×8 = 2056。",
+                    "misconception": "下标从 0 开始是 C 语言等常见约定，但并非所有语言如此（如 Pascal 可从 1 开始）。公式中的下标偏移需按语言实际规则调整。",
+                    "check": "若数组起始地址为 0x100，元素占 4 字节，计算 arr[5] 的地址。",
+                    "objective_indices": [
+                      3
+                    ],
+                    "evidence_ids": []
+                  }
+                ],
+                "limitations": [
+                  "本材料基于抽象数组模型，不涉及具体语言实现差异（如动态数组扩容、负索引等）。",
+                  "O(1) 复杂度分析基于随机访问模型，真实硬件性能受缓存、内存带宽等影响，但不在本闪卡范围内。",
+                  "寻址公式假设元素大小固定且数组连续存储，不适用于元素大小可变或非连续存储的数据结构。"
+                ],
+                "model_review": {
+                  "passed": true,
+                  "checks": [
+                    {
+                      "claim": "前提适用性：材料明确限定于抽象数组模型，不涉及具体语言实现差异，且寻址公式假设元素大小固定、连续存储。",
+                      "reason": "各单元均给出适用前提（如元素等宽、连续存储），limitations 也声明不涉及动态数组、负索引等，未将结论泛化到所有语言或实现。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "内部推理一致性：随机访问概念、O(1) 复杂度、O(1) 原因、寻址公式四者逻辑连贯，无矛盾。",
+                      "reason": "概念单元说明直接定位；复杂度单元说明操作次数恒定；原因单元解释连续存储和等宽元素使地址可计算；寻址单元给出公式。各单元相互支撑，无冲突。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "具体例子正确性：所有示例的地址计算和访问结果均正确。",
+                      "reason": "例1：arr[3] 访问 40 正确（下标3对应第4个元素）。例2：1000 + 3×4 = 1012 正确。例3：2000 + 7×8 = 2056 正确。检查题：0x100 + 5×4 = 0x114，虽未给出答案但公式正确。",
+                      "passed": true
+                    },
+                    {
+                      "claim": "边界与学习目标覆盖：4个单元分别对应4个学习目标，且边界处理合理。",
+                      "reason": "目标0由概念单元覆盖，目标1由复杂度单元覆盖，目标2由原因单元覆盖，目标3由寻址单元覆盖。边界上，复杂度单元区分抽象模型与真实硬件，原因单元区分逻辑连续与物理连续，寻址单元说明下标起始约定因语言而异，均未越界。",
+                      "passed": true
+                    }
+                  ],
+                  "issues": []
+                },
+                "organization_id": "org_53fb4937a7b149388d1a263e47a5a0f9",
+                "resource_type": "flashcard",
+                "subject": "数组随机访问",
+                "audience": "大学初学者",
+                "requirements": "生成4张面向大学初学者的\"数组随机访问\"问答闪卡，每张正面一个问题，背面答案与解释；内容覆盖随机访问概念、时间复杂度、为什么能 O(1) 访问、寻址原理等基础要点；使用通用知识即可，无需检索。",
+                "evidence_ids": [],
+                "source_policy": {
+                  "allow_rag": true,
+                  "allow_web": true,
+                  "selected_doc_ids": [],
+                  "scope_type": "course",
+                  "scope_id": null
+                }
+              }
+            },
+            {
+              "ok": true,
+              "tool": "submit_resource_direct",
+              "data": {
+                "task_id": "job_ea06e116ec504218",
+                "status": "submitted",
+                "workflow_type": "flashcard"
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "task_id": "job_ea06e116ec504218",
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "数据结构验收课程",
+          "scope_path": [
+            "数据结构验收课程"
+          ],
+          "resolution": "resolved",
+          "explicit_course": true,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成闪卡",
+          "workflow_label": "闪卡",
+          "topics": [
+            "请生成4张"
+          ],
+          "goal": "生成闪卡",
+          "issues": [
+            "每张正面一个问题"
+          ],
+          "confirmed_facts": [
+            "每张正面一个问题",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [],
+          "evidence_details": [],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”问答闪卡",
+          "allow_rag": true,
+          "allow_web": true
+        }
+      }
+    },
+    {
+      "question": "刚才生成的资源完成了吗？请读取它并概括内容。",
+      "result": {
+        "message": {
+          "role": "assistant",
+          "content": "完成了，《数组随机访问基础问答》闪卡已经可以查看。共 4 张卡片，内容概括如下：\n\n1. **随机访问的概念**——先区分随机访问（直接定位任意位置，与位置无关）与顺序访问（须从头遍历），并说明数组属随机访问、链表属顺序访问。\n2. **时间复杂度 O(1)**——无论数组多长，访问任意下标所需的基本操作次数恒定（算地址 + 读一次内存），与数组长度无关。\n3. **为什么能 O(1) 访问**——连续存储 + 元素等宽，用起始地址与下标直接算出目标地址即可读取，无需遍历比较；卡片还注明连续指逻辑地址连续，不要求物理页连续。\n4. **寻址计算实例**——起始地址 0x100、每元素 4 字节时，arr[5] 地址为 0x100 + 5 × 4 = 0x114，并提示公式前提是元素等宽、存储连续。\n\n每张正面是独立的检索问题，背面先给结论再作简要解释，适合初学者逐张翻转自测。"
+        },
+        "conversation": {
+          "conversation_id": "resource-e2e-flashcard-55a667ba"
+        },
+        "action": {
+          "name": "chat.reply"
+        },
+        "artifacts": [
+          {
+            "artifact_id": "flashcard-d971dfed7148339c",
+            "artifact_type": "flashcard",
+            "title": "数组随机访问",
+            "content": {
+              "title": "数组随机访问基础问答",
+              "cards": [
+                {
+                  "id": "c1",
+                  "front": "什么是数组的“随机访问”？它与顺序访问有何不同？",
+                  "back": "随机访问指能直接访问数据结构中任意指定位置的元素，所需时间与位置无关。数组通过下标直接定位元素，属于随机访问；链表必须从头节点开始逐个遍历才能到达目标位置，属于顺序访问。"
+                },
+                {
+                  "id": "c2",
+                  "front": "数组随机访问的时间复杂度是多少？这个复杂度意味着什么？",
+                  "back": "数组随机访问的时间复杂度为 O(1)。这意味着无论数组长度是 100 还是 10000，访问任意下标元素所需的基本操作次数（计算地址并读取一次内存）都恒定不变，与数组大小无关。"
+                },
+                {
+                  "id": "c3",
+                  "front": "为什么数组能在 O(1) 时间内访问任意位置的元素？",
+                  "back": "因为数组在内存中是一段连续存储空间，且每个元素大小相同。只要知道起始地址和下标，就能通过公式立即算出目标元素的地址并直接读取，无需遍历或比较。注意：这里的连续指逻辑地址连续，不要求物理内存页连续。"
+                },
+                {
+                  "id": "c4",
+                  "front": "若数组起始地址为 0x100，每个元素占 4 字节，arr[5] 的地址是多少？请写出计算过程。",
+                  "back": "地址 = 起始地址 + 下标 × 元素大小 = 0x100 + 5 × 4 = 0x100 + 0x14 = 0x114。该公式成立的前提是元素等宽且数组连续存储。"
+                }
+              ]
+            }
+          }
+        ],
+        "workflow": null,
+        "sources": [],
+        "trace": {
+          "path": "deepseek-harness",
+          "model_runtime": "dsh",
+          "request_id": "1b3771fb13094f3baef71689e917d32a",
+          "tool_events": [
+            {
+              "ok": true,
+              "tool": "query_resource_job",
+              "data": {
+                "task_id": "job_ea06e116ec504218",
+                "resource_type": "flashcard",
+                "status": "succeeded",
+                "progress": 100,
+                "title": "数组随机访问",
+                "result_ref": {
+                  "resource_type": "course_material",
+                  "course_id": "resource-e2e-course",
+                  "material_type": "flashcard",
+                  "material_id": "flashcard-d971dfed7148339c"
+                },
+                "verification": {
+                  "decision": "pass",
+                  "checks": "version_bound_resource_review"
+                },
+                "failure_reason": null,
+                "artifact": {
+                  "artifact_id": "flashcard-d971dfed7148339c",
+                  "artifact_type": "flashcard",
+                  "title": "数组随机访问",
+                  "content": {
+                    "title": "数组随机访问基础问答",
+                    "cards": [
+                      {
+                        "id": "c1",
+                        "front": "什么是数组的“随机访问”？它与顺序访问有何不同？",
+                        "back": "随机访问指能直接访问数据结构中任意指定位置的元素，所需时间与位置无关。数组通过下标直接定位元素，属于随机访问；链表必须从头节点开始逐个遍历才能到达目标位置，属于顺序访问。"
+                      },
+                      {
+                        "id": "c2",
+                        "front": "数组随机访问的时间复杂度是多少？这个复杂度意味着什么？",
+                        "back": "数组随机访问的时间复杂度为 O(1)。这意味着无论数组长度是 100 还是 10000，访问任意下标元素所需的基本操作次数（计算地址并读取一次内存）都恒定不变，与数组大小无关。"
+                      },
+                      {
+                        "id": "c3",
+                        "front": "为什么数组能在 O(1) 时间内访问任意位置的元素？",
+                        "back": "因为数组在内存中是一段连续存储空间，且每个元素大小相同。只要知道起始地址和下标，就能通过公式立即算出目标元素的地址并直接读取，无需遍历或比较。注意：这里的连续指逻辑地址连续，不要求物理内存页连续。"
+                      },
+                      {
+                        "id": "c4",
+                        "front": "若数组起始地址为 0x100，每个元素占 4 字节，arr[5] 的地址是多少？请写出计算过程。",
+                        "back": "地址 = 起始地址 + 下标 × 元素大小 = 0x100 + 5 × 4 = 0x100 + 0x14 = 0x114。该公式成立的前提是元素等宽且数组连续存储。"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "agent_memory_write": {
+            "candidate_count": 0,
+            "accepted_count": 0,
+            "written_count": 0,
+            "rejected_count": 0,
+            "shadow_candidate_count": 0,
+            "provider": "rules",
+            "provider_status": "disabled",
+            "memory_ids": []
+          }
+        },
+        "verification": {
+          "decision": "pass",
+          "checks": "version_bound_resource_review"
+        },
+        "workspace_context": {
+          "course_id": "resource-e2e-course",
+          "course_title": "数据结构验收课程",
+          "scope_type": "course",
+          "scope_id": null,
+          "scope_title": "",
+          "scope_path": [],
+          "resolution": "needs_clarification",
+          "explicit_course": false,
+          "update_workspace": false
+        },
+        "status_card": {
+          "mode": "workflow",
+          "status_label": "正在生成闪卡",
+          "workflow_label": "闪卡",
+          "topics": [
+            "刚才生成的资源完成了吗",
+            "请读取它并概括内容",
+            "请生成4张"
+          ],
+          "goal": "生成闪卡",
+          "issues": [
+            "每张正面是独立的检索问题",
+            "每张正面一个问题"
+          ],
+          "confirmed_facts": [
+            "每张正面一个问题",
+            "资料使用通用知识即可"
+          ],
+          "student_signals": [],
+          "evidence_points": [
+            "并提示公式前提是元素等宽、存储连续"
+          ],
+          "evidence_details": [
+            {
+              "content": "并提示公式前提是元素等宽、存储连续",
+              "source_type": "assistant_message",
+              "confidence": "low",
+              "source_message_count": 1
+            }
+          ],
+          "extra_constraints": [],
+          "source_labels": [
+            "当前会话",
+            "当前课程"
+          ],
+          "active_artifact_label": "当前产物：闪卡",
+          "suggested_actions": [
+            "继续生成"
+          ],
+          "audience": "大学初学者的“数组随机访问”问答闪卡",
+          "allow_rag": true,
+          "allow_web": true
+        }
+      }
+    }
+  ],
+  "direct_generation_verified": true,
+  "job": {
+    "schema_version": 2,
+    "version": 6,
+    "edu_job_id": "job_ea06e116ec504218",
+    "kind": "generate_flashcard",
+    "status": "succeeded",
+    "step": "completed",
+    "progress": 100,
+    "message": "生成完成，已保存到“我的资源”，仅你可见。",
+    "owner_user_id": "resource-e2e-admin",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "input_summary": {
+      "title": "数组随机访问",
+      "resource_type": "flashcard",
+      "source_mode": "none",
+      "selected_doc_ids": [],
+      "config": {
+        "entrypoint": "agent",
+        "resource_type": "flashcard",
+        "audience": "大学初学者",
+        "title": "数组随机访问",
+        "subject": "数组随机访问",
+        "confirmed_outline": "",
+        "focus": "生成4张面向大学初学者的\"数组随机访问\"问答闪卡，每张正面一个问题，背面答案与解释；内容覆盖随机访问概念、时间复杂度、为什么能 O(1) 访问、寻址原理等基础要点；使用通用知识即可，无需检索。",
+        "length_hint": "生成4张面向大学初学者的\"数组随机访问\"问答闪卡，每张正面一个问题，背面答案与解释；内容覆盖随机访问概念、时间复杂度、为什么能 O(1) 访问、寻址原理等基础要点；使用通用知识即可，无需检索。",
+        "allow_rag": true,
+        "research_context": "",
+        "research_sources": [],
+        "harness_outline_id": "direct_org_53fb4937a7b149388d1a263e47a5a0f9",
+        "harness_outline_revision": 1,
+        "harness_conversation_id": "resource-e2e-flashcard-55a667ba",
+        "harness_chapters": [],
+        "classroom_options": {},
+        "harness_organization": {
+          "scope": "面向大学初学者的数组随机访问基础问答闪卡，覆盖随机访问概念、时间复杂度、O(1)访问原因及寻址原理。不涉及缓存、分页、虚拟内存等底层实现细节。",
+          "prerequisites": [
+            "了解数组的基本定义和下标概念",
+            "理解大O时间复杂度的基本含义"
+          ],
+          "objectives": [
+            "能用自己的话解释数组随机访问的含义",
+            "能说出数组随机访问的时间复杂度并说明其含义",
+            "能解释为什么数组能在O(1)时间内访问任意元素",
+            "能根据数组起始地址和元素大小计算指定下标元素的地址"
+          ],
+          "units": [
+            {
+              "title": "随机访问概念",
+              "explanation": "随机访问指在任意时刻直接访问数据结构中任意位置的元素，无需按顺序遍历。数组支持通过下标直接定位元素，因此具备随机访问能力。",
+              "example": "int arr[5] = {10, 20, 30, 40, 50}; 直接使用 arr[3] 即可获取 40，无需从 arr[0] 开始逐个查找。",
+              "misconception": "随机访问不是指随机选择元素，而是指访问任意指定位置的时间与位置无关。",
+              "check": "链表是否支持随机访问？为什么？",
+              "objective_indices": [
+                0
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "时间复杂度",
+              "explanation": "数组随机访问的时间复杂度为 O(1)，即无论数组多大，访问任意下标元素所需的基本操作次数恒定（与数组长度无关）。这里的操作次数指计算地址并读取一次内存。",
+              "example": "访问长度为 100 的数组的第 50 个元素，与访问长度为 10000 的数组的第 5000 个元素，所需操作次数相同。",
+              "misconception": "O(1) 表示实际耗时完全恒定。实际上，真实系统受缓存、内存层次等因素影响，耗时可能有波动，但渐近复杂度仍为常数。",
+              "check": "为什么说数组访问时间与数组大小无关？",
+              "objective_indices": [
+                1
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "O(1) 访问的原因",
+              "explanation": "数组在内存中是一段连续存储空间，每个元素大小相同。通过下标可立即计算出目标元素的地址，无需遍历或比较，因此能在常数时间内完成访问。",
+              "example": "数组 a 的起始地址为 1000，每个 int 占 4 字节，则 a[3] 的地址为 1000 + 3×4 = 1012，直接读取该地址即可。",
+              "misconception": "连续地址仅指逻辑地址连续，不要求物理内存页连续。操作系统通过页表将虚拟地址映射到物理地址，但这对程序员透明，不影响随机访问的抽象模型。",
+              "check": "如果数组元素大小不同（如结构体数组），是否仍能 O(1) 访问？前提是什么？",
+              "objective_indices": [
+                2
+              ],
+              "evidence_ids": []
+            },
+            {
+              "title": "寻址原理",
+              "explanation": "数组寻址公式为：元素地址 = 起始地址 + 下标 × 元素大小。该公式基于元素等宽和连续存储两个前提，通过一次乘法和一次加法即可定位。",
+              "example": "double arr[10] 起始地址为 2000，double 占 8 字节，则 arr[7] 的地址为 2000 + 7×8 = 2056。",
+              "misconception": "下标从 0 开始是 C 语言等常见约定，但并非所有语言如此（如 Pascal 可从 1 开始）。公式中的下标偏移需按语言实际规则调整。",
+              "check": "若数组起始地址为 0x100，元素占 4 字节，计算 arr[5] 的地址。",
+              "objective_indices": [
+                3
+              ],
+              "evidence_ids": []
+            }
+          ],
+          "limitations": [
+            "本材料基于抽象数组模型，不涉及具体语言实现差异（如动态数组扩容、负索引等）。",
+            "O(1) 复杂度分析基于随机访问模型，真实硬件性能受缓存、内存带宽等影响，但不在本闪卡范围内。",
+            "寻址公式假设元素大小固定且数组连续存储，不适用于元素大小可变或非连续存储的数据结构。"
+          ],
+          "model_review": {
+            "passed": true,
+            "checks": [
+              {
+                "claim": "前提适用性：材料明确限定于抽象数组模型，不涉及具体语言实现差异，且寻址公式假设元素大小固定、连续存储。",
+                "reason": "各单元均给出适用前提（如元素等宽、连续存储），limitations 也声明不涉及动态数组、负索引等，未将结论泛化到所有语言或实现。",
+                "passed": true
+              },
+              {
+                "claim": "内部推理一致性：随机访问概念、O(1) 复杂度、O(1) 原因、寻址公式四者逻辑连贯，无矛盾。",
+                "reason": "概念单元说明直接定位；复杂度单元说明操作次数恒定；原因单元解释连续存储和等宽元素使地址可计算；寻址单元给出公式。各单元相互支撑，无冲突。",
+                "passed": true
+              },
+              {
+                "claim": "具体例子正确性：所有示例的地址计算和访问结果均正确。",
+                "reason": "例1：arr[3] 访问 40 正确（下标3对应第4个元素）。例2：1000 + 3×4 = 1012 正确。例3：2000 + 7×8 = 2056 正确。检查题：0x100 + 5×4 = 0x114，虽未给出答案但公式正确。",
+                "passed": true
+              },
+              {
+                "claim": "边界与学习目标覆盖：4个单元分别对应4个学习目标，且边界处理合理。",
+                "reason": "目标0由概念单元覆盖，目标1由复杂度单元覆盖，目标2由原因单元覆盖，目标3由寻址单元覆盖。边界上，复杂度单元区分抽象模型与真实硬件，原因单元区分逻辑连续与物理连续，寻址单元说明下标起始约定因语言而异，均未越界。",
+                "passed": true
+              }
+            ],
+            "issues": []
+          },
+          "organization_id": "org_53fb4937a7b149388d1a263e47a5a0f9",
+          "resource_type": "flashcard",
+          "subject": "数组随机访问",
+          "audience": "大学初学者",
+          "requirements": "生成4张面向大学初学者的\"数组随机访问\"问答闪卡，每张正面一个问题，背面答案与解释；内容覆盖随机访问概念、时间复杂度、为什么能 O(1) 访问、寻址原理等基础要点；使用通用知识即可，无需检索。",
+          "evidence_ids": [],
+          "source_policy": {
+            "allow_rag": true,
+            "allow_web": true,
+            "selected_doc_ids": [],
+            "scope_type": "course",
+            "scope_id": null
+          }
+        },
+        "harness_review_required": true,
+        "harness_interaction_mode": "direct",
+        "harness_execution_context": {
+          "stage": "write_and_review_flashcard",
+          "decision": {
+            "request_id": "64e8d7808fee43ebb40924cd8aba6b55",
+            "user_message": "请生成4张面向大学初学者的“数组随机访问”问答闪卡，每张正面一个问题，背面答案与解释。资料使用通用知识即可，无需检索。",
+            "outline_id": "direct_org_53fb4937a7b149388d1a263e47a5a0f9",
+            "revision": 1,
+            "interpreted_by": "model"
+          },
+          "working_memory": {}
+        },
+        "harness_approval_request_id": "64e8d7808fee43ebb40924cd8aba6b55",
+        "harness_evidence_ids": []
+      },
+      "config_snapshot_id": "cfg_1d6585f466aa9149",
+      "idempotency_key": "dsh:6b7506de9676f75d17bf03bfe920ab0ceb67d0b0c8110332073f9ac09e1548c3",
+      "source": "teacher-generation-factory"
+    },
+    "result_ref": {
+      "resource_type": "course_material",
+      "course_id": "resource-e2e-course",
+      "material_type": "flashcard",
+      "material_id": "flashcard-d971dfed7148339c"
+    },
+    "retry_of_job_id": null,
+    "parent_job_id": null,
+    "error_message": null,
+    "error": null,
+    "error_code": null,
+    "retryable": false,
+    "cancelable": false,
+    "created_at": "2026-09-09T04:22:19.913713+00:00",
+    "started_at": "2026-09-09T04:22:20.138300+00:00",
+    "finished_at": "2026-09-09T04:23:59.958311+00:00",
+    "updated_at": "2026-09-09T04:23:59.958311+00:00"
+  },
+  "material": {
+    "title": "数组随机访问",
+    "content": {
+      "title": "数组随机访问基础问答",
+      "cards": [
+        {
+          "id": "c1",
+          "front": "什么是数组的“随机访问”？它与顺序访问有何不同？",
+          "back": "随机访问指能直接访问数据结构中任意指定位置的元素，所需时间与位置无关。数组通过下标直接定位元素，属于随机访问；链表必须从头节点开始逐个遍历才能到达目标位置，属于顺序访问。"
+        },
+        {
+          "id": "c2",
+          "front": "数组随机访问的时间复杂度是多少？这个复杂度意味着什么？",
+          "back": "数组随机访问的时间复杂度为 O(1)。这意味着无论数组长度是 100 还是 10000，访问任意下标元素所需的基本操作次数（计算地址并读取一次内存）都恒定不变，与数组大小无关。"
+        },
+        {
+          "id": "c3",
+          "front": "为什么数组能在 O(1) 时间内访问任意位置的元素？",
+          "back": "因为数组在内存中是一段连续存储空间，且每个元素大小相同。只要知道起始地址和下标，就能通过公式立即算出目标元素的地址并直接读取，无需遍历或比较。注意：这里的连续指逻辑地址连续，不要求物理内存页连续。"
+        },
+        {
+          "id": "c4",
+          "front": "若数组起始地址为 0x100，每个元素占 4 字节，arr[5] 的地址是多少？请写出计算过程。",
+          "back": "地址 = 起始地址 + 下标 × 元素大小 = 0x100 + 5 × 4 = 0x100 + 0x14 = 0x114。该公式成立的前提是元素等宽且数组连续存储。"
+        }
+      ]
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "flashcard",
+        "content_sha256": "28fbf9881a9b6ffadf1463c74e8377c025ba63ecd3e558e4a3d904f16794dd83",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "资源类型为闪卡，面向大学初学者，中文，共4张，聚焦数组随机访问概念、时间复杂度、O(1)访问原因和寻址原理；内容基于通用知识，无外部检索，符合用户要求。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "逐卡核验：c1 随机访问定义正确，数组通过下标直接定位、链表按索引需顺序遍历；c2 O(1)及基本操作次数与数组长度无关正确；c3 连续存储、等宽元素、地址公式、逻辑连续不等于物理连续均正确；c4 计算 0x100 + 5×4 = 0x100 + 0x14 = 0x114，前提等宽且连续，结果正确。已确认方案中的知识断言与正文一致且无误。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "闪卡无额外习题或示例。核验问答对应：c1 问概念与顺序访问差异，背面给出对应解释；c2 问复杂度及含义，背面给出对应解释；c3 问 O(1) 原因，背面给出连续存储与等宽元素的原理；c4 问地址计算，背面给出公式、步骤和结果。每张卡问答对应准确。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "4张卡每张只练一个主要记忆点；正面是能独立理解的检索问题，未泄露答案；背面先给简洁答案，再给必要解释；卡片不依赖前一张，可单独翻转使用，符合闪卡资源合同。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "用户明确要求使用通用知识无需检索，内容未引用外部资料，也未虚构引用；来源维度不适用，按无来源通用知识通过。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "4张卡覆盖核心要求：c1 随机访问概念、c2 时间复杂度、c3 为什么能 O(1) 访问、c4 寻址原理；数量为4张，受众、语言和覆盖要点均符合要求。"
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "28fbf9881a9b6ffadf1463c74e8377c025ba63ecd3e558e4a3d904f16794dd83",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "资源类型为闪卡，面向大学初学者，中文，共4张，聚焦数组随机访问概念、时间复杂度、O(1)访问原因和寻址原理；内容基于通用知识，无外部检索，符合用户要求。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "逐卡核验：c1 随机访问定义正确，数组通过下标直接定位、链表按索引需顺序遍历；c2 O(1)及基本操作次数与数组长度无关正确；c3 连续存储、等宽元素、地址公式、逻辑连续不等于物理连续均正确；c4 计算 0x100 + 5×4 = 0x100 + 0x14 = 0x114，前提等宽且连续，结果正确。已确认方案中的知识断言与正文一致且无误。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "闪卡无额外习题或示例。核验问答对应：c1 问概念与顺序访问差异，背面给出对应解释；c2 问复杂度及含义，背面给出对应解释；c3 问 O(1) 原因，背面给出连续存储与等宽元素的原理；c4 问地址计算，背面给出公式、步骤和结果。每张卡问答对应准确。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "4张卡每张只练一个主要记忆点；正面是能独立理解的检索问题，未泄露答案；背面先给简洁答案，再给必要解释；卡片不依赖前一张，可单独翻转使用，符合闪卡资源合同。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "用户明确要求使用通用知识无需检索，内容未引用外部资料，也未虚构引用；来源维度不适用，按无来源通用知识通过。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "4张卡覆盖核心要求：c1 随机访问概念、c2 时间复杂度、c3 为什么能 O(1) 访问、c4 寻址原理；数量为4张，受众、语言和覆盖要点均符合要求。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "c1 背面可将“链表必须从头节点开始逐个遍历”细化为“单链表按索引访问时通常从头节点开始顺序查找；双向链表或已知节点位置时起点/访问方式不同”，以避免对链表类型的过度概括。",
+                "c2 背面可补充一句“O(1) 指抽象模型下的基本操作次数不随 n 增长，真实硬件实际耗时可能受缓存、内存带宽等影响”，进一步防止对常数时间的常见误解。"
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "c1 背面可将“链表必须从头节点开始逐个遍历”细化为“单链表按索引访问时通常从头节点开始顺序查找；双向链表或已知节点位置时起点/访问方式不同”，以避免对链表类型的过度概括。",
+          "c2 背面可补充一句“O(1) 指抽象模型下的基本操作次数不随 n 增长，真实硬件实际耗时可能受缓存、内存带宽等影响”，进一步防止对常数时间的常见误解。"
+        ]
+      }
+    },
+    "source": {
+      "selected_doc_ids": [],
+      "rag_index_keys": []
+    },
+    "schema_version": 2,
+    "version": 1,
+    "material_type": "flashcard",
+    "material_id": "flashcard-d971dfed7148339c",
+    "course_id": "resource-e2e-course",
+    "scope_type": "course",
+    "scope_id": null,
+    "owner_user_id": "resource-e2e-admin",
+    "created_by": "resource-e2e-admin",
+    "visibility": "private",
+    "source_job_id": "job_ea06e116ec504218",
+    "config_snapshot_id": "cfg_1d6585f466aa9149",
+    "source_snapshot": {
+      "mode": "none",
+      "requested_document_ids": [],
+      "documents": [],
+      "resolved_at": "2026-09-09T04:22:20.162812+00:00"
+    },
+    "config_snapshot": {
+      "allow_rag": true,
+      "audience": "大学初学者",
+      "classroom_options": {},
+      "confirmed_outline": "",
+      "entrypoint": "agent",
+      "focus": "生成4张面向大学初学者的\"数组随机访问\"问答闪卡，每张正面一个问题，背面答案与解释；内容覆盖随机访问概念、时间复杂度、为什么能 O(1) 访问、寻址原理等基础要点；使用通用知识即可，无需检索。",
+      "harness_approval_request_id": "64e8d7808fee43ebb40924cd8aba6b55",
+      "harness_chapters": [],
+      "harness_conversation_id": "resource-e2e-flashcard-55a667ba",
+      "harness_evidence_ids": [],
+      "harness_execution_context": {
+        "decision": {
+          "interpreted_by": "model",
+          "outline_id": "direct_org_53fb4937a7b149388d1a263e47a5a0f9",
+          "request_id": "64e8d7808fee43ebb40924cd8aba6b55",
+          "revision": 1,
+          "user_message": "请生成4张面向大学初学者的“数组随机访问”问答闪卡，每张正面一个问题，背面答案与解释。资料使用通用知识即可，无需检索。"
+        },
+        "stage": "write_and_review_flashcard",
+        "working_memory": {}
+      },
+      "harness_interaction_mode": "direct",
+      "harness_organization": {
+        "audience": "大学初学者",
+        "evidence_ids": [],
+        "limitations": [
+          "本材料基于抽象数组模型，不涉及具体语言实现差异（如动态数组扩容、负索引等）。",
+          "O(1) 复杂度分析基于随机访问模型，真实硬件性能受缓存、内存带宽等影响，但不在本闪卡范围内。",
+          "寻址公式假设元素大小固定且数组连续存储，不适用于元素大小可变或非连续存储的数据结构。"
+        ],
+        "model_review": {
+          "checks": [
+            {
+              "claim": "前提适用性：材料明确限定于抽象数组模型，不涉及具体语言实现差异，且寻址公式假设元素大小固定、连续存储。",
+              "passed": true,
+              "reason": "各单元均给出适用前提（如元素等宽、连续存储），limitations 也声明不涉及动态数组、负索引等，未将结论泛化到所有语言或实现。"
+            },
+            {
+              "claim": "内部推理一致性：随机访问概念、O(1) 复杂度、O(1) 原因、寻址公式四者逻辑连贯，无矛盾。",
+              "passed": true,
+              "reason": "概念单元说明直接定位；复杂度单元说明操作次数恒定；原因单元解释连续存储和等宽元素使地址可计算；寻址单元给出公式。各单元相互支撑，无冲突。"
+            },
+            {
+              "claim": "具体例子正确性：所有示例的地址计算和访问结果均正确。",
+              "passed": true,
+              "reason": "例1：arr[3] 访问 40 正确（下标3对应第4个元素）。例2：1000 + 3×4 = 1012 正确。例3：2000 + 7×8 = 2056 正确。检查题：0x100 + 5×4 = 0x114，虽未给出答案但公式正确。"
+            },
+            {
+              "claim": "边界与学习目标覆盖：4个单元分别对应4个学习目标，且边界处理合理。",
+              "passed": true,
+              "reason": "目标0由概念单元覆盖，目标1由复杂度单元覆盖，目标2由原因单元覆盖，目标3由寻址单元覆盖。边界上，复杂度单元区分抽象模型与真实硬件，原因单元区分逻辑连续与物理连续，寻址单元说明下标起始约定因语言而异，均未越界。"
+            }
+          ],
+          "issues": [],
+          "passed": true
+        },
+        "objectives": [
+          "能用自己的话解释数组随机访问的含义",
+          "能说出数组随机访问的时间复杂度并说明其含义",
+          "能解释为什么数组能在O(1)时间内访问任意元素",
+          "能根据数组起始地址和元素大小计算指定下标元素的地址"
+        ],
+        "organization_id": "org_53fb4937a7b149388d1a263e47a5a0f9",
+        "prerequisites": [
+          "了解数组的基本定义和下标概念",
+          "理解大O时间复杂度的基本含义"
+        ],
+        "requirements": "生成4张面向大学初学者的\"数组随机访问\"问答闪卡，每张正面一个问题，背面答案与解释；内容覆盖随机访问概念、时间复杂度、为什么能 O(1) 访问、寻址原理等基础要点；使用通用知识即可，无需检索。",
+        "resource_type": "flashcard",
+        "scope": "面向大学初学者的数组随机访问基础问答闪卡，覆盖随机访问概念、时间复杂度、O(1)访问原因及寻址原理。不涉及缓存、分页、虚拟内存等底层实现细节。",
+        "source_policy": {
+          "allow_rag": true,
+          "allow_web": true,
+          "scope_id": null,
+          "scope_type": "course",
+          "selected_doc_ids": []
+        },
+        "subject": "数组随机访问",
+        "units": [
+          {
+            "check": "链表是否支持随机访问？为什么？",
+            "evidence_ids": [],
+            "example": "int arr[5] = {10, 20, 30, 40, 50}; 直接使用 arr[3] 即可获取 40，无需从 arr[0] 开始逐个查找。",
+            "explanation": "随机访问指在任意时刻直接访问数据结构中任意位置的元素，无需按顺序遍历。数组支持通过下标直接定位元素，因此具备随机访问能力。",
+            "misconception": "随机访问不是指随机选择元素，而是指访问任意指定位置的时间与位置无关。",
+            "objective_indices": [
+              0
+            ],
+            "title": "随机访问概念"
+          },
+          {
+            "check": "为什么说数组访问时间与数组大小无关？",
+            "evidence_ids": [],
+            "example": "访问长度为 100 的数组的第 50 个元素，与访问长度为 10000 的数组的第 5000 个元素，所需操作次数相同。",
+            "explanation": "数组随机访问的时间复杂度为 O(1)，即无论数组多大，访问任意下标元素所需的基本操作次数恒定（与数组长度无关）。这里的操作次数指计算地址并读取一次内存。",
+            "misconception": "O(1) 表示实际耗时完全恒定。实际上，真实系统受缓存、内存层次等因素影响，耗时可能有波动，但渐近复杂度仍为常数。",
+            "objective_indices": [
+              1
+            ],
+            "title": "时间复杂度"
+          },
+          {
+            "check": "如果数组元素大小不同（如结构体数组），是否仍能 O(1) 访问？前提是什么？",
+            "evidence_ids": [],
+            "example": "数组 a 的起始地址为 1000，每个 int 占 4 字节，则 a[3] 的地址为 1000 + 3×4 = 1012，直接读取该地址即可。",
+            "explanation": "数组在内存中是一段连续存储空间，每个元素大小相同。通过下标可立即计算出目标元素的地址，无需遍历或比较，因此能在常数时间内完成访问。",
+            "misconception": "连续地址仅指逻辑地址连续，不要求物理内存页连续。操作系统通过页表将虚拟地址映射到物理地址，但这对程序员透明，不影响随机访问的抽象模型。",
+            "objective_indices": [
+              2
+            ],
+            "title": "O(1) 访问的原因"
+          },
+          {
+            "check": "若数组起始地址为 0x100，元素占 4 字节，计算 arr[5] 的地址。",
+            "evidence_ids": [],
+            "example": "double arr[10] 起始地址为 2000，double 占 8 字节，则 arr[7] 的地址为 2000 + 7×8 = 2056。",
+            "explanation": "数组寻址公式为：元素地址 = 起始地址 + 下标 × 元素大小。该公式基于元素等宽和连续存储两个前提，通过一次乘法和一次加法即可定位。",
+            "misconception": "下标从 0 开始是 C 语言等常见约定，但并非所有语言如此（如 Pascal 可从 1 开始）。公式中的下标偏移需按语言实际规则调整。",
+            "objective_indices": [
+              3
+            ],
+            "title": "寻址原理"
+          }
+        ]
+      },
+      "harness_outline_id": "direct_org_53fb4937a7b149388d1a263e47a5a0f9",
+      "harness_outline_revision": 1,
+      "harness_review_required": true,
+      "length_hint": "生成4张面向大学初学者的\"数组随机访问\"问答闪卡，每张正面一个问题，背面答案与解释；内容覆盖随机访问概念、时间复杂度、为什么能 O(1) 访问、寻址原理等基础要点；使用通用知识即可，无需检索。",
+      "research_context": "",
+      "research_sources": [],
+      "resource_type": "flashcard",
+      "subject": "数组随机访问",
+      "title": "数组随机访问"
+    },
+    "status": "ready",
+    "created_at": "2026-09-09T04:23:59.894364",
+    "updated_at": "2026-09-09T04:23:59.894364",
+    "is_pinned": false,
+    "pinned_at": null,
+    "content_hash": "e6740a2df5f7d52d0f6c5620d65fb0b9caf641ca6730973e3013a7a2b86c1a3c",
+    "artifact_paths": []
+  },
+  "passed": true,
+  "export_content_verified": true,
+  "browser_preview": true,
+  "accepted_by_manual_audit": true
+}

@@ -54,6 +54,7 @@ CLASSROOM_STEP_LABELS: dict[str, str] = {
     "generating_media": "生成媒体",
     "generating_tts": "合成配音",
     "persisting": "保存",
+    "reviewing": "核对内容",
     "completed": "完成",
     "failed": "失败",
 }
@@ -163,18 +164,27 @@ async def run_generate_classroom_job(
     """
     active_client = client or get_openmaic_client()
 
+    # A failed publication does not invalidate the completed sidecar artifact.
+    # An authorized durable retry can repeat review/persistence without buying
+    # another classroom generation. Ownership, course and original intent bind it.
+    resumed = None
+    previous = get_job(job.retry_of_job_id) if job.retry_of_job_id else None
+    if (previous and previous.owner_user_id == job.owner_user_id and previous.course_id == job.course_id
+            and previous.input_summary == job.input_summary and previous.sidecar_job_id
+            and previous.error_code in {'PERSIST_FAILED', 'VALIDATION_FAILED', 'GENERATION_DEADLINE_EXCEEDED', 'WORKER_LOST'}):
+        poll_url = active_client.config.base_url.rstrip('/') + '/api/generate-classroom/' + previous.sidecar_job_id
+        candidate = await active_client.poll_job(poll_url)
+        if candidate.get('status') == 'succeeded':
+            resumed = {**candidate, 'jobId': previous.sidecar_job_id, 'pollUrl': poll_url}
     try:
-        envelope = await active_client.generate_classroom(
+        envelope = resumed or await active_client.generate_classroom(
             requirement=requirement,
             research_context=research_context,
             pdf_content=pdf_content,
             enable_web_search=enable_web_search,
             enable_image=enable_image,
             enable_video=enable_video,
-            enable_tts=enable_tts,
-            tts_provider_id=Config.OPENMAIC_LIVE_TTS_PROVIDER,
-            tts_voice=Config.OPENMAIC_LIVE_TTS_VOICE,
-            tts_speed=Config.OPENMAIC_LIVE_TTS_SPEED,
+            enable_tts=False,  # SPEC-16 §2: TTS owned by Edu_AI backend
             agent_mode=agent_mode,
         )
     except OpenMaicError as exc:
@@ -192,7 +202,7 @@ async def run_generate_classroom_job(
         sidecar_job_id=envelope.get("jobId"),
         status=JobStatus.RUNNING,
         step=envelope.get("step", "queued"),
-        progress=envelope.get("progress", 0),
+        progress=min(int(envelope.get("progress", 0)), 90),
         message=envelope.get("message", ""),
     )
     assert updated is not None
@@ -202,8 +212,8 @@ async def run_generate_classroom_job(
             job.edu_job_id,
             status=JobStatus.RUNNING,
             step=step,
-            progress=progress,
-            message=message,
+            progress=min(progress, 90),
+            message=message if progress < 100 else "正在核对并保存课堂内容",
         )
 
     try:
@@ -242,6 +252,7 @@ async def run_generate_classroom_job(
     # 完成语义差异（SPEC-05 §2.2、AC-05-4/5）：sidecar succeeded 只是前置条件，
     # 还要后处理（P2-5 起=拉媒体+改写url+校验+落库）全部成功才置 edu_job=succeeded；
     # 后处理失败则 edu_job=failed，即便 sidecar 本身成功了。
+    update_job(job.edu_job_id, status=JobStatus.RUNNING, step="reviewing", progress=90, message="正在核对并保存课堂内容")
     try:
         result_ref = await on_sidecar_succeeded(final_envelope.get("result") or {})
     except Exception as exc:  # noqa: BLE001 — 后处理任何异常都必须落 edu_job=failed
@@ -297,7 +308,7 @@ async def start_generate_classroom_job(
         enable_web_search=enable_web_search,
         enable_image=enable_image,
         enable_video=enable_video,
-        enable_tts=enable_tts,
+        enable_tts=False,  # SPEC-16 §2: TTS owned by Edu_AI backend
         agent_mode=agent_mode,
         client=client,
         on_sidecar_succeeded=on_sidecar_succeeded,

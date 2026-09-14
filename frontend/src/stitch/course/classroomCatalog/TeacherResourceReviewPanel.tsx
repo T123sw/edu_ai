@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ApiError } from "../../api/client";
 import { reviewStandardResource } from "../../api/standardResources";
 import type { ClassroomCatalogResource } from "../../api/types";
 import { MaterialIcon } from "../../shared";
@@ -17,11 +18,14 @@ export function TeacherResourceReviewPanel({ courseId, resource, onChanged, onEr
     if (decision === "rejected" && !reason) { setMessage("请填写退回原因，便于后续修改。"); return; }
     setSubmitting(decision); setMessage(null);
     try {
-      await reviewStandardResource(courseId, resource.material_id, decision, reason);
+      const contentHash = String(resource.resource?.content_hash || "");
+      if (!resource.current_version || !contentHash) throw new Error("资源版本信息不完整，请刷新后重试");
+      await reviewStandardResource(courseId, resource.material_id, decision, resource.current_version, contentHash, reason);
       setMessage(decision === "approved" ? "已批准并发布" : "已退回修改");
       await onChanged(resource.material_id);
     } catch (value) {
       const detail = value instanceof Error ? value.message : "审核提交失败";
+      if (value instanceof ApiError && value.status === 409) await onChanged(resource.material_id);
       setMessage(detail); onError?.(detail);
     } finally { setSubmitting(null); }
   };

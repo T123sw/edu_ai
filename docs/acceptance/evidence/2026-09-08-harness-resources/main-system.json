@@ -1,0 +1,11 @@
+{
+  "action": {
+    "name": "chat.reply"
+  },
+  "message": {
+    "role": "assistant",
+    "content": "闪卡最适合用来复习需要快速回忆和反复巩固的事实性内容，比如术语定义、概念要点、易混知识点和基础公式。"
+  },
+  "runtime": "deepseek-harness",
+  "task_id": null
+}

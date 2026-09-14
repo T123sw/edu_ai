@@ -57,6 +57,7 @@
 .course-create input:focus,.course-create textarea:focus,.course-create select:focus { border-color: #3157d5; box-shadow: 0 0 0 3px rgba(49,87,213,.12); }
 .course-create [aria-invalid="true"] { border-color: #dc2626; }
 .course-create label small { color: #b91c1c; font-size: 12px; font-weight: 650; }
+.course-create input::placeholder,.course-create textarea::placeholder { color: #94a3b8; opacity: 1; }
 .course-create__row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
 .course-create__error { border-radius: 11px; background: #fff1f2; padding: 11px 13px; color: #b91c1c; font-size: 13px; }
 .course-create__actions { position: sticky; bottom: -26px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e7ebf2; background: #fff; padding-top: 18px; }

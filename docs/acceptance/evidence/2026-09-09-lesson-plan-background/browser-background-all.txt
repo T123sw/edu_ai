@@ -1,0 +1,29 @@
+[WebServer] (node:1718018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:1718046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 5 workers
+
+(node:1718077) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1718078) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1718079) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1718081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1718080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [compact1024] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives late-result (9.3s)
+  ✓   5 [desktop1920] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives late-result (9.4s)
+  ✓   1 [desktop1366] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives late-result (10.7s)
+  ✓   3 [compact1280] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives late-result (10.8s)
+  ✓   4 [desktop1440] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives late-result (11.0s)
+  ✓   6 [compact1024] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives disconnect (8.2s)
+  ✓   7 [desktop1920] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives disconnect (8.4s)
+  ✓   9 [compact1280] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives disconnect (8.1s)
+  ✓   8 [desktop1366] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives disconnect (8.3s)
+  ✓  10 [desktop1440] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives disconnect (8.1s)
+
+  10 passed (23.4s)

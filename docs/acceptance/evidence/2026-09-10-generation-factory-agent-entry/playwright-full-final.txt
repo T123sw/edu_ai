@@ -1,0 +1,173 @@
+[WebServer] (node:103054) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:103084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 615 tests using 4 workers
+
+(node:103158) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:103161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:103160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:103159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+  ✘    3 [desktop1366] › tests/e2e/classroom-catalog.spec.ts:4:5 › teacher reviews and publishes a resource from the curriculum directory (6.5s)
+(node:103735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    2 [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button inserts a title with server ID/version without starting a task (1366px) (8.9s)
+  ✓    4 [desktop1366] › tests/e2e/answer-markdown.spec.ts:16:7 › answer preserves complete Markdown structure with sources=false (9.4s)
+  ✘    1 [desktop1366] › tests/e2e/artifact-revision-jobs.spec.ts:3:5 › revision is tracked by the global task manager and returns version controls (13.5s)
+(node:104014) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    6 [desktop1366] › tests/e2e/artifact-revision.spec.ts:6:5 › resource button inserts a title with server ID/version without starting a task (390px) (6.0s)
+  ✓    7 [desktop1366] › tests/e2e/answer-markdown.spec.ts:16:7 › answer preserves complete Markdown structure with sources=true (6.1s)
+  ✓    8 [desktop1366] › tests/e2e/artifact-revision-jobs.spec.ts:27:5 › resource page exposes the retained original version (6.1s)
+  ✓   10 [desktop1366] › tests/e2e/classroom-experience.spec.ts:7:5 › shared overview, visible classroom review and teacher practice (5.8s)
+  ✓    9 [desktop1366] › tests/e2e/artifact-revision.spec.ts:35:5 › new lesson plan handoff clears a report reference before confirmation (6.7s)
+  ✓   11 [desktop1366] › tests/e2e/classroom-persistent-qa.spec.ts:129:7 › persistent classroom QA › shows the student turn immediately on the right and resumes after answering (4.8s)
+  ✓   13 [desktop1366] › tests/e2e/artifact-revision.spec.ts:70:5 › recent resources refreshes saved documents and shows their actual type (5.3s)
+  -   15 [desktop1366] › tests/e2e/classroom-realtime-qa.real.spec.ts:67:7 › real classroom QA acceptance › interrupts, speaks through protected audio, resumes, persists, and isolates
+  -   16 [desktop1366] › tests/e2e/classroom-realtime-qa.real.spec.ts:202:7 › real classroom QA acceptance › degraded server TTS falls back to browser speech and resumes
+  ✓   12 [desktop1366] › tests/e2e/classroom-experience.spec.ts:29:5 › subtitles follow individual sentences through playback and replay (8.6s)
+  ✘   14 [desktop1366] › tests/e2e/classroom-persistent-qa.spec.ts:161:7 › persistent classroom QA › automatically plays all pages in order and stops on the last page (8.7s)
+  ✘   17 [desktop1366] › tests/e2e/core-pages.spec.ts:4:5 › login explains the teacher workspace and exposes concrete errors inline (7.5s)
+(node:104415) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:104425) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   18 [desktop1366] › tests/e2e/classroom-experience.spec.ts:55:5 › student practice submits letter keys and multiple selections against the published version (7.0s)
+  ✓   21 [desktop1366] › tests/e2e/course-knowledge.spec.ts:3:5 › learning resource generation uses a compact progressive-disclosure modal (2.7s)
+  ✓   22 [desktop1366] › tests/e2e/course-knowledge.spec.ts:27:5 › course knowledge keeps one document uploader and the resource generation entry (2.2s)
+  ✘   20 [desktop1366] › tests/e2e/core-pages.spec.ts:20:5 › home renders one searchable factual course entry (6.3s)
+(node:104893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   19 [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:44:5 › 无教材：配置规模、模型生成图谱、人工确认后才检索并发布 (7.5s)
+  ✓   23 [desktop1366] › tests/e2e/course-knowledge.spec.ts:34:5 › course knowledge only displays the knowledge library, without generated course materials (2.0s)
+(node:104950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   24 [desktop1366] › tests/e2e/core-pages.spec.ts:33:5 › course overview presents course information and one workspace entry (1.4s)
+  ✓   27 [desktop1366] › tests/e2e/core-pages.spec.ts:46:5 › viewer settings is a factual read-only view (1.1s)
+  ✓   25 [desktop1366] › tests/e2e/course-knowledge.spec.ts:42:5 › legacy knowledge view parameters do not restore the retired graph canvas (2.8s)
+  ✓   29 [desktop1366] › tests/e2e/course-knowledge.spec.ts:50:5 › legacy graph links redirect into unified course knowledge (1.9s)
+  ✓   30 [desktop1366] › tests/e2e/course-knowledge.spec.ts:55:5 › knowledge browsing prioritizes the directory and searchable documents (2.2s)
+  ✓   31 [desktop1366] › tests/e2e/course-preparation-history.spec.ts:3:5 › overview retains the preparation topic and resumes it from the primary action (1.3s)
+  ✘   26 [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:61:5 › 有教材：教材解析参与模型图谱，并与网络和 AI 资料共同入库 (7.9s)
+(node:105523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   32 [desktop1366] › tests/e2e/course-preparation-history.spec.ts:24:5 › failed material lookup is distinguished from no generated materials (1.2s)
+  ✘   34 [desktop1366] › tests/e2e/course-shell.spec.ts:3:5 › course workspace has one stable navigation and main landmark (6.0s)
+(node:105816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   33 [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:85:5 › 已有知识库：增量生成只追加新节点并保留全部现有节点 (7.6s)
+(node:105980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   36 [desktop1366] › tests/e2e/course-knowledge-build-wizard.spec.ts:109:5 › 窄屏使用图谱与节点详情分页且页面无横向滚动 (7.5s)
+(node:106097) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   37 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:47:5 › all generation buttons open the same concise Agent prompt (6.6s)
+  ✓   38 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:90:5 › all factory buttons submit their canonical hint through the Agent stream (10.0s)
+  ✓   39 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:132:5 › factory submission enters the Agent stream with the exact brief and action hint (5.9s)
+  ✘   40 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:171:5 › personal documents checked on the left become the optional Agent source (6.1s)
+(node:106518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   41 [desktop1366] › tests/e2e/generation-factory-shell.spec.ts:191:5 › generation prompt keeps an unfinished brief for the same workspace (5.0s)
+  ✓   42 [desktop1366] › tests/e2e/generation-inline-preview.spec.ts:17:5 › recent file opens in a wider right panel and returns without navigation (5.9s)
+  ✓   43 [desktop1366] › tests/e2e/generation-inline-preview.spec.ts:39:5 › failed file read stays in place and can be retried (5.3s)
+  ✓   44 [desktop1366] › tests/e2e/generation-inline-preview.spec.ts:57:5 › reference inserts only the title and sends identity and hash; removing the draft reference clears it (5.1s)
+  ✘    5 [desktop1366] › tests/e2e/classroom-catalog.spec.ts:28:5 › compact classroom keeps the curriculum directory in a usable drawer (2.0m)
+(node:107056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   46 [desktop1366] › tests/e2e/classroom-catalog.spec.ts:43:5 › curriculum node toggles open and closed by its label (4.2s)
+  ✘   28 [desktop1366] › tests/e2e/course-lifecycle-actions.spec.ts:4:5 › course editor can delete one document from the selected knowledge node (2.0m)
+(node:107623) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   48 [desktop1366] › tests/e2e/course-lifecycle-actions.spec.ts:40:5 › course owner must enter the exact title before deleting a course (1.3s)
+  ✘   35 [desktop1366] › tests/e2e/course-shell.spec.ts:30:5 › course navigation keeps global actions and changes the task page (2.0m)
+(node:107884) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   50 [desktop1366] › tests/e2e/harness-resources.spec.ts:3:5 › mind map starts with an overview and preserves hidden nodes in export (5.3s)
+  ✓   51 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 教案 uses the appropriate interaction and submission progress (5.6s)
+  ✓   52 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 博客 uses the appropriate interaction and submission progress (5.3s)
+  ✓   53 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 习题 uses the appropriate interaction and submission progress (5.2s)
+  ✓   54 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 闪卡 uses the appropriate interaction and submission progress (5.3s)
+  ✓   55 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 思维导图 uses the appropriate interaction and submission progress (5.1s)
+  ✓   56 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › 互动游戏 uses the appropriate interaction and submission progress (5.2s)
+  ✓   57 [desktop1366] › tests/e2e/harness-resources.spec.ts:40:7 › AI 课堂 uses the appropriate interaction and submission progress (5.5s)
+  ✓   58 [desktop1366] › tests/e2e/harness-resources.spec.ts:81:5 › switching resource links in the same course opens the requested result (5.0s)
+  ✓   59 [desktop1366] › tests/e2e/harness-resources.spec.ts:104:5 › native quiz export matches preview and fresh flashcards start on the front (5.6s)
+  ✓   60 [desktop1366] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives late-result (7.1s)
+  ✘   45 [desktop1366] › tests/e2e/generation-practice-resources.spec.ts:14:5 › practice configurations are keyboard operable and auditable (2.0m)
+(node:109047) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   61 [desktop1366] › tests/e2e/harness-resources.spec.ts:137:7 › lesson task releases input before stream ends and survives disconnect (7.2s)
+  ✓   62 [desktop1366] › tests/e2e/home-resume.spec.ts:35:5 › teacher records successful scope changes, ignores home/profile, and resumes after refresh (5.9s)
+  ✘   47 [desktop1366] › tests/e2e/generation-text-resources.spec.ts:14:5 › long-form fields stay reachable and reach their exact requests (2.0m)
+(node:109215) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   64 [desktop1366] › tests/e2e/home-resume.spec.ts:54:5 › student has one compact entry and restores learning scope (7.1s)
+  ✓   66 [desktop1366] › tests/e2e/home-resume.spec.ts:69:5 › switching authenticated account never displays the prior account history (1.6s)
+  ✓   67 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › new storage does not produce false history or break the home (850ms)
+  ✓   68 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › corrupt storage does not produce false history or break the home (882ms)
+  ✓   65 [desktop1366] › tests/e2e/knowledge-context.spec.ts:14:5 › scope bar resolves server labels and selection preserves hash contract (6.1s)
+  ✓   69 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › legacy storage does not produce false history or break the home (827ms)
+  ✓   71 [desktop1366] › tests/e2e/home-resume.spec.ts:82:7 › blocked storage does not produce false history or break the home (827ms)
+  ✓   72 [desktop1366] › tests/e2e/home-resume.spec.ts:100:5 › course loss clears history, temporary failure preserves it and offers retry (1.2s)
+  ✓   73 [desktop1366] › tests/e2e/home-resume.spec.ts:117:5 › missing scope explicitly falls back to the same course (1.0s)
+  ✓   74 [desktop1366] › tests/e2e/home-resume.spec.ts:125:5 › unsafe stored route is hidden; unknown fields never appear in restored URLs (1.6s)
+  ✓   70 [desktop1366] › tests/e2e/knowledge-context.spec.ts:34:5 › clarification returns through result event and answer retains conversation (5.3s)
+  ✘   75 [desktop1366] › tests/e2e/home-resume.spec.ts:137:7 › teacher long course name stays readable at 390px and supports keyboard (1.2s)
+(node:109542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   76 [desktop1366] › tests/e2e/knowledge-context.spec.ts:54:5 › late reply cannot overwrite a newly selected scope (4.6s)
+  ✓   77 [desktop1366] › tests/e2e/home-resume.spec.ts:137:7 › student long course name stays readable at 390px and supports keyboard (6.8s)
+  ✓   78 [desktop1366] › tests/e2e/knowledge-context.spec.ts:76:5 › home resume restores the scope sent to the shared chat entry (5.9s)
+  ✓   79 [desktop1366] › tests/e2e/home-resume.spec.ts:156:5 › resource URL survives refresh and deletion falls back without choosing another material (5.7s)
+  ✓   81 [desktop1366] › tests/e2e/home-resume.spec.ts:175:5 › failed course and failed scope visits never overwrite the prior valid location (5.7s)
+  ✘   49 [desktop1366] › tests/e2e/generation-visual-resources.spec.ts:14:5 › visual resources use structured, shared, non-overflowing forms (2.0m)
+(node:110162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   82 [desktop1366] › tests/e2e/home-resume.spec.ts:189:5 › classroom replaceState updates are tracked and canonical route restores the exact resource (5.1s)
+  ✓   83 [desktop1366] › tests/e2e/knowledge-document-actions.spec.ts:3:5 › knowledge header shares one row and document actions open a menu (4.2s)
+  ✓   84 [desktop1366] › tests/e2e/knowledge-proposals.spec.ts:6:7 › knowledge proposals select, revise and confirm mode=create (3.0s)
+  ✓   85 [desktop1366] › tests/e2e/knowledge-tree-expansion.spec.ts:34:5 › knowledge directory labels reveal and collapse one level at a time (2.0s)
+  ✓   86 [desktop1366] › tests/e2e/knowledge-proposals.spec.ts:6:7 › knowledge proposals select, revise and confirm mode=supplement (3.0s)
+  ✓   87 [desktop1366] › tests/e2e/knowledge-tree-expansion.spec.ts:48:5 › course knowledge directory uses the same collapsed tree behavior (2.4s)
+  ✓   88 [desktop1366] › tests/e2e/knowledge-update-simple.spec.ts:4:5 › knowledge update begins with needs and optional textbooks (2.2s)
+  ✓   90 [desktop1366] › tests/e2e/local-launcher-smoke.spec.ts:4:5 › local launcher exposes frontend, backend, and OpenMAIC (1.4s)
+  ✓   91 [desktop1366] › tests/e2e/overflow-regression.spec.ts:24:5 › every approved page stays within the viewport without new React warnings (2.3s)
+  ✓   89 [desktop1366] › tests/e2e/knowledge-tree-expansion.spec.ts:61:5 › workspace directory labels toggle children and directly attached documents (5.5s)
+  ✘   92 [desktop1366] › tests/e2e/overflow-regression.spec.ts:43:5 › all eight generation configuration shells keep title and action reachable (10.4s)
+(node:110675) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   94 [desktop1366] › tests/e2e/overflow-regression.spec.ts:88:5 › loading, empty, error, and permission states remain usable (6.4s)
+(node:110780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   95 [desktop1366] › tests/e2e/resource-spaces.spec.ts:3:5 › keyboard publication flow preserves the personal source (6.1s)
+(node:110893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   96 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:3:5 › course resources constrain hostile content and focus on the document (4.6s)
+  ✘   97 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:33:5 › classroom player keeps core controls on the first screen (8.0s)
+(node:111292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   98 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:56:5 › teacher can edit and export a private generated report (4.8s)
+  ✓   99 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:78:5 › knowledge directory switches documents and reveals management actions on demand (5.3s)
+  ✓  100 [desktop1366] › tests/e2e/resources-and-classroom.spec.ts:105:5 › resource collections keep root and chapter documents from burying the curriculum (5.3s)
+  ✘   63 [desktop1366] › tests/e2e/keyboard-accessibility.spec.ts:31:5 › teacher completes the core workflow with the keyboard only (2.0m)
+(node:111958) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  101 [desktop1366] › tests/e2e/revision-draft-preview.spec.ts:6:5 › colored draft iterates, restores after refresh and saves the shown revision (15.3s)
+  ✓  102 [desktop1366] › tests/e2e/keyboard-accessibility.spec.ts:128:5 › critical text and primary actions meet WCAG AA contrast (5.1s)
+  ✘  103 [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:142:5 › student enters the isolated six-destination workspace and can ask with course knowledge (5.9s)
+(node:112142) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  105 [desktop1366] › tests/e2e/student-workspace-foundation.spec.ts:164:5 › course knowledge and course shared spaces stay read-only while personal spaces remain manageable (6.4s)
+(node:112245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

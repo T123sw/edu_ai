@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from app.auth import get_current_user
 from app.api.course_dependencies import get_course_access_service
 from app.chat.api import routes_v2 as routes_v2_module
+from app.chat.api.schemas_v2 import ChatReplyRequestV2
 from app.chat.api.routes_v2 import router as v2_router
 from app.services.course_access import CourseAccessDenied
 from core.config import Config
@@ -646,3 +647,25 @@ def test_reply_v2_report_intent_error_uses_workflow_trace(monkeypatch):
 
     assert response.status_code == 500
     assert response.json()["trace"]["path"] == "workflow"
+
+
+def test_all_generation_factory_hints_are_workflow_intents():
+    hints = [
+        "generate.report", "generate.lesson_plan", "generate.blog", "generate.quiz",
+        "generate.flashcard", "generate.graph", "generate.game", "generate.classroom",
+    ]
+    for hint in hints:
+        assert routes_v2_module._is_workflow_intent_from_reply(
+            ChatReplyRequestV2(question="自然语言要求", action_hint=hint)
+        )
+
+
+def test_reply_schema_rejects_unknown_action_hint():
+    from pydantic import ValidationError
+
+    try:
+        ChatReplyRequestV2(question="生成内容", action_hint="generate.unknown")
+    except ValidationError as error:
+        assert "action_hint" in str(error)
+    else:
+        raise AssertionError("unknown action hint must be rejected")

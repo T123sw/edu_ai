@@ -13,6 +13,8 @@ classroom_validation._looks_like_sidecar_local_url）。这个模块就是把音
 from __future__ import annotations
 
 import mimetypes
+import inspect
+import logging
 import os
 import re
 from uuid import uuid4
@@ -25,6 +27,7 @@ from app.services.openmaic_tts_service import OpenMaicTtsService
 from core.course_storage import CourseStorageManager
 
 _FALLBACK_EXTENSION = ".bin"
+log = logging.getLogger("classroom_media")
 
 
 def _extension_for(audio_url: str, content_type: Optional[str]) -> str:
@@ -102,27 +105,55 @@ async def synthesize_classroom_speech_audio(
                 "-",
                 str(action.get("audioId") or action.get("id") or uuid4().hex),
             ).strip("-") or uuid4().hex
-            audio, format_name = await service.synthesize(text=text, audio_id=safe_id)
-            safe_format = re.sub(r"[^A-Za-z0-9]+", "", format_name).lower() or "mp3"
-            if audio_dir is None:
-                audio_dir = course_storage_manager.get_classroom_audio_dir(
-                    course_id, classroom_id
-                )
-                audio_dir.mkdir(parents=True, exist_ok=True)
-            filename = f"{safe_id}.{safe_format}"
-            destination = audio_dir / filename
-            temporary = destination.with_name(f".{destination.name}.{uuid4().hex}.tmp")
             try:
-                with temporary.open("wb") as stream:
-                    stream.write(audio)
-                    stream.flush()
-                    os.fsync(stream.fileno())
-                os.replace(temporary, destination)
-            finally:
-                temporary.unlink(missing_ok=True)
-            action["audioId"] = safe_id
-            action["audioUrl"] = (
-                f"/api/courses/{course_id}/classrooms/{classroom_id}/audio/{filename}"
-            )
-            generated += 1
+                raw_speed = action.get("speed")
+                action_speed: float | None = None
+                if raw_speed not in (None, ""):
+                    action_speed = min(2.0, max(0.5, float(raw_speed)))
+                synthesize_kwargs: dict[str, Any] = {
+                    "text": text,
+                    "audio_id": safe_id,
+                }
+                # Keep injected legacy fakes/providers compatible while passing
+                # action speed to the provider-neutral production client.
+                if "speed" in inspect.signature(service.synthesize).parameters:
+                    synthesize_kwargs["speed"] = action_speed
+                audio, format_name = await service.synthesize(**synthesize_kwargs)
+                safe_format = (
+                    re.sub(r"[^A-Za-z0-9]+", "", format_name).lower() or "mp3"
+                )
+                if audio_dir is None:
+                    audio_dir = course_storage_manager.get_classroom_audio_dir(
+                        course_id, classroom_id
+                    )
+                    audio_dir.mkdir(parents=True, exist_ok=True)
+                filename = f"{safe_id}.{safe_format}"
+                destination = audio_dir / filename
+                temporary = destination.with_name(
+                    f".{destination.name}.{uuid4().hex}.tmp"
+                )
+                try:
+                    with temporary.open("wb") as stream:
+                        stream.write(audio)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    os.replace(temporary, destination)
+                finally:
+                    temporary.unlink(missing_ok=True)
+                action["audioId"] = safe_id
+                action["audioUrl"] = (
+                    f"/api/courses/{course_id}/classrooms/{classroom_id}/audio/"
+                    f"{filename}"
+                )
+                generated += 1
+            except Exception as exc:  # noqa: BLE001 - one clip must not fail the classroom
+                action.pop("audioUrl", None)
+                log.warning(
+                    "classroom_tts_action_failed classroom_id=%s scene_id=%s "
+                    "action_id=%s error_type=%s",
+                    classroom_id,
+                    scene.get("id"),
+                    action.get("id"),
+                    type(exc).__name__,
+                )
     return generated

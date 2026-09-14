@@ -1,0 +1,54 @@
+{
+  "quiz": {
+    "direct_generation_verified": true,
+    "passed": true,
+    "export_content_verified": true,
+    "browser_preview": true,
+    "accepted_by_manual_audit": true
+  },
+  "flashcard": {
+    "direct_generation_verified": true,
+    "passed": true,
+    "export_content_verified": true,
+    "browser_preview": true,
+    "accepted_by_manual_audit": true
+  },
+  "blog": {
+    "passed": true,
+    "browser_preview": true,
+    "accepted_by_manual_audit": true
+  },
+  "graph": {
+    "direct_generation_verified": true,
+    "passed": true,
+    "browser_preview": true,
+    "graph_interaction_verified": true,
+    "export_content_verified": true,
+    "accepted_by_manual_audit": true
+  },
+  "game": {
+    "direct_generation_verified": true,
+    "passed": true,
+    "game_interaction_verified": true,
+    "browser_preview": true,
+    "accepted_by_manual_audit": true
+  },
+  "lesson_plan": {
+    "pause_and_revision_verified": true,
+    "passed": true,
+    "browser_preview": true,
+    "accepted_by_manual_audit": true
+  },
+  "classroom": {
+    "passed": true,
+    "public_retry_verified": true,
+    "readback_recheck_verified": true,
+    "reused_sidecar_verified": true,
+    "classroom_navigation_verified": true,
+    "browser_preview": true,
+    "accepted_by_manual_audit": true,
+    "no_tts_verified": true,
+    "no_external_media_verified": true,
+    "uninterrupted_first_run_passed": false
+  }
+}
