@@ -39,8 +39,12 @@ function LearningApp({
   preview?: boolean;
   onLogout: () => void;
 }) {
+  // Separate showcase storage preserves any progress in the original preview.
+  const showcase =
+    !!preview && new URLSearchParams(location.search).get("demo") === "1";
   const { state, setState, shared, setShared, storageError } = useLearningStore(
-    `${preview ? "preview" : "user"}:${username}`,
+    `${preview ? "preview" : "user"}:${username}${showcase ? ":showcase" : ""}`,
+    showcase,
   );
   const { path, query } = useRoute();
   const [publish, setPublish] = useState(false);

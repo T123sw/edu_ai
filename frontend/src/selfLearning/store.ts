@@ -67,7 +67,10 @@ function validResource(v: unknown): boolean {
     typeof v.createdAt === "number"
   );
 }
-export function restoreState(raw: string | null): LearningState {
+export function restoreState(
+  raw: string | null,
+  showcase = false,
+): LearningState {
   try {
     const v: unknown = JSON.parse(raw || "null");
     if (
@@ -99,14 +102,14 @@ export function restoreState(raw: string | null): LearningState {
   } catch {
     /* Invalid demo data never blocks access to the preview. */
   }
-  return seedState();
+  return seedState(showcase);
 }
-export function useLearningStore(owner: string) {
+export function useLearningStore(owner: string, showcase = false) {
   const [state, setState] = useState<LearningState>(() => {
     try {
-      return restoreState(localStorage.getItem(storageKey(owner)));
+      return restoreState(localStorage.getItem(storageKey(owner)), showcase);
     } catch {
-      return seedState();
+      return seedState(showcase);
     }
   });
   const [storageError, setStorageError] = useState(false);

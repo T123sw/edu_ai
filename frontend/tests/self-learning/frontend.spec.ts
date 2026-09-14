@@ -1,5 +1,47 @@
 import { test, expect, type Page } from "playwright/test";
 
+test("showcase links connect populated homepage, classroom, studio and resource previews", async ({
+  page,
+}) => {
+  const apiRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/api/")) apiRequests.push(request.url());
+  });
+  await page.goto("/?preview=student&demo=1");
+  await expect(page.locator(".sl-class-card")).toHaveCount(6);
+  await page
+    .locator(".sl-class-card")
+    .filter({ hasText: "从零开始，理解 Agent" })
+    .click();
+  await expect(page).toHaveURL(/classroom\/sample-agent/);
+  await expect(
+    page.getByRole("heading", { name: "Agent 基础概念", exact: true }),
+  ).toBeVisible();
+  await panel(page, "目录");
+  await page.locator(".sl-rail-studio").click();
+  await expect(
+    page.getByRole("link", { name: "返回「从零开始，理解 Agent」" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "后台任务", exact: true }).click();
+  await expect(page.locator(".sl-job")).toHaveCount(4);
+  await page.getByRole("link", { name: "资源中心", exact: true }).click();
+  await expect(page.locator(".sl-output-card")).toHaveCount(4);
+  for (const title of [
+    "Agent 入门：概念、架构与应用场景",
+    "ReAct：从推理到工具调用",
+    "Python 数据分析学习路线",
+    "自主学习方法检查",
+  ]) {
+    await page.locator(".sl-output-card").filter({ hasText: title }).click();
+    await expect(page.getByRole("dialog", { name: title })).toBeVisible();
+    await page.getByRole("button", { name: "关闭弹窗" }).click();
+  }
+  await page.reload();
+  await expect(page.locator(".sl-output-card")).toHaveCount(4);
+  await noOverflow(page);
+  expect(apiRequests).toEqual([]);
+});
+
 test("playback advances during generation and pauses for Agent; progress resumes", async ({
   page,
 }) => {

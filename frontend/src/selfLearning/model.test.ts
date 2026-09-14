@@ -15,6 +15,24 @@ import {
 } from "./model";
 import { restoreState, storageKey } from "./store";
 
+test("showcase has independent classroom and workbench fixtures without resetting saved edits", () => {
+  const demo = seedState(true);
+  assert.equal(demo.rooms.length, 3);
+  assert.equal(demo.resources.length, 4);
+  assert.deepEqual(
+    demo.resources.map((r) => r.kind),
+    ["report", "video", "slides", "quiz"],
+  );
+  assert.ok(demo.jobs.every((j) => j.status === "done"));
+  const classroomIds = new Set(
+    demo.rooms.flatMap(allResources).map((r) => r.id),
+  );
+  assert.ok(demo.resources.every((r) => !classroomIds.has(r.id)));
+  demo.resources = [];
+  assert.equal(restoreState(JSON.stringify(demo), true).resources.length, 0);
+  assert.equal(seedState().resources.length, 0);
+});
+
 test("classroom prepares ordered resources monotonically, not workbench outputs", () => {
   const room = createClassroom("Agent 学习");
   let state = addClassroom(seedState(), room);

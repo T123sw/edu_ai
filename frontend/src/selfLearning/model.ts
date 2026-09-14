@@ -163,7 +163,7 @@ export function createClassroom(
   };
 }
 
-export function seedState(): LearningState {
+export function seedState(showcase = false): LearningState {
   const room = createClassroom(
     "我会 Python，希望系统学习 Agent，独立开发一个应用。",
     true,
@@ -182,7 +182,57 @@ export function seedState(): LearningState {
     "sample-python",
   );
   python.updatedAt -= 86400000;
-  return { version: 1, rooms: [room, python], resources: [], jobs: [] };
+  const state: LearningState = {
+    version: 1,
+    rooms: [room, python],
+    resources: [],
+    jobs: [],
+  };
+  if (!showcase) return state;
+  const design = createClassroom(
+    "培养设计思维，完成一个学习产品的交互原型。",
+    true,
+    "sample-design",
+  );
+  design.updatedAt -= 2 * 86400000;
+  state.rooms.push(design);
+  const examples: [ResourceKind, string][] = [
+    ["report", "Agent 入门：概念、架构与应用场景"],
+    ["video", "ReAct：从推理到工具调用"],
+    ["slides", "Python 数据分析学习路线"],
+    ["quiz", "自主学习方法检查"],
+  ];
+  state.resources = examples.map(([kind, title], i) => ({
+    id: `showcase-${kind}`,
+    title,
+    topic: title,
+    kind,
+    ready: true,
+    minutes: 6 + i,
+    createdAt: Date.now() - (i + 1) * 3600000,
+  }));
+  state.jobs = state.resources.map((resource) => ({
+    id: `showcase-job-${resource.kind}`,
+    title: resource.title,
+    resource,
+    status: "done",
+    elapsed: 6000,
+    duration: 6000,
+  }));
+  room.progress[resources[1].id] = {
+    ...emptyEvidence(),
+    note: "Agent 围绕目标组织推理与行动；工具提供与外部环境交互的能力。",
+  };
+  room.messages = [
+    {
+      id: "showcase-welcome",
+      role: "assistant",
+      text: "上次你已完成第一份视频讲解。现在可以阅读这份学习报告，试着用自己的话解释 Agent 与普通问答的区别。这是一条静态示例对话。",
+      resourceId: resources[1].id,
+      resourceTitle: resources[1].topic,
+    },
+  ];
+  return state;
 }
 
 export function sharedSeeds(): Classroom[] {
