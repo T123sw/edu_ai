@@ -1,14 +1,14 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './stitch/App';
-import { AuthProvider } from './context/AuthContext';
-import './stitch/styles.css';
-// Optional CJK @font-face rules for imported PPTX slides; falls back silently
-// to system fonts if the CDN (file.maic.chat) isn't reachable — see
-// @openmaic/renderer's README "Fonts" section.
-import '@openmaic/renderer/fonts.css';
+import { lazy, StrictMode, Suspense } from "react";
+import { createRoot } from "react-dom/client";
+const legacy =
+  new URLSearchParams(location.search).get("legacy") === "1" ||
+  /^#\/(video-render|player-smoke)/.test(location.hash) ||
+  /^#(video-render|player-smoke)/.test(location.hash);
+const Entry = legacy
+  ? lazy(() => import("./legacyEntry"))
+  : lazy(() => import("./selfLearning/App"));
 
-const container = document.getElementById('root');
+const container = document.getElementById("root");
 
 if (!container) {
   throw new Error("Root element '#root' was not found.");
@@ -16,8 +16,8 @@ if (!container) {
 
 createRoot(container).render(
   <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <Suspense fallback={<p>正在打开学习空间…</p>}>
+      <Entry />
+    </Suspense>
   </StrictMode>,
 );

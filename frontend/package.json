@@ -13,7 +13,10 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\"",
     "test:e2e": "playwright test",
-    "test:e2e:update": "playwright test --update-snapshots"
+    "test:e2e:update": "playwright test --update-snapshots",
+    "check:self-learning": "tsc -p tsconfig.self-learning.json && eslint src/selfLearning src/main.tsx src/legacyEntry.tsx",
+    "test:self-learning": "node --import tsx --test src/selfLearning/model.test.ts",
+    "test:e2e:self-learning": "playwright test -c playwright.self-learning.config.ts"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",

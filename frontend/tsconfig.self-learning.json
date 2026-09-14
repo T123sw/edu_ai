@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/selfLearning/**/*.ts",
+    "src/selfLearning/**/*.tsx",
+    "src/vite-env.d.ts"
+  ],
+  "exclude": ["src/selfLearning/**/*.test.ts"]
+}
