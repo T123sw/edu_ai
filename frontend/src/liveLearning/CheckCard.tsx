@@ -3,7 +3,7 @@ import { apiRequest } from '../stitch/api/client';
 import type { ResourceRef } from './readingContext';
 type Check = { check_id: string; item_type: string; prompt: { stem: string; options?: { id: string; text: string }[] } };
 type Attempt = { request_id: string; status: string; correct: boolean | null; feedback: string; answer: Record<string, unknown> };
-export function CheckCard({ resource, topicId, questionId }: { resource: ResourceRef; topicId: string; questionId: string }) {
+export function CheckCard({ resource, topicId, questionId, checkId }: { resource?: ResourceRef; topicId: string; questionId?: string; checkId?: string }) {
   const [check, setCheck] = useState<Check>();
   const [attempt, setAttempt] = useState<Attempt>();
   const [answer, setAnswer] = useState<Record<string, unknown>>({});
@@ -15,7 +15,7 @@ export function CheckCard({ resource, topicId, questionId }: { resource: Resourc
     let active = true;
     void (async () => {
       try {
-        const value = await apiRequest<Check>(`/api/self-learning/courses/${encodeURIComponent(resource.course_id)}/topics/${encodeURIComponent(topicId)}/checks`, { method: 'POST', body: JSON.stringify({ resource_ref: resource, question_id: questionId }) });
+        const value = checkId ? await apiRequest<Check>(`/api/self-learning/checks/${encodeURIComponent(checkId)}`) : await apiRequest<Check>(`/api/self-learning/courses/${encodeURIComponent(resource!.course_id)}/topics/${encodeURIComponent(topicId)}/checks`, { method: 'POST', body: JSON.stringify({ resource_ref: resource, question_id: questionId }) });
         const saved = await apiRequest<{ attempts: Attempt[] }>(`/api/self-learning/checks/${value.check_id}/attempts`);
         if (active) {
           setCheck(value); const previous = saved.attempts.at(-1);
@@ -29,7 +29,7 @@ export function CheckCard({ resource, topicId, questionId }: { resource: Resourc
     return () => { active = false; };
   // Resource identity is serialized so parent rerenders do not re-offer checks.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, topicId, questionId]);
+  }, [key, topicId, questionId, checkId]);
   const submit = async (skip = false) => {
     if (!check || busy) return;
     const body = { answer: skip ? {} : answer, skip }; const fingerprint = JSON.stringify(body);

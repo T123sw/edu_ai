@@ -1,6 +1,7 @@
 """Source-bound, tool-free summaries are derived caches; original messages remain intact."""
 import json
 import time
+from uuid import uuid4
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.database.models import ConversationMessage
@@ -31,14 +32,46 @@ class SummaryService:
             rows=db.scalars(select(ConversationMessage).where(ConversationMessage.conversation_id==session_id,
                 ConversationMessage.position<max(0,session.next_position-12)).order_by(ConversationMessage.position)).all()
             selected=[]; prior=old.content if valid_old else ''
+            source_digests={row.message_id:digest(row.content) for row in rows}
             for row in rows:
                 if row.message_id in prior_ids or not self.memory.permits_history(owner,row): continue
                 entry={'message_id':row.message_id,'role':row.role,'text':row.content}
-                if len(json.dumps([prior,*selected,entry],ensure_ascii=False).encode())>budget: break
+                if len(json.dumps([prior,*selected,entry],ensure_ascii=False).encode())>budget:
+                    if selected:break
+                    available=max(0,budget-len(json.dumps([prior],ensure_ascii=False).encode())-500)
+                    if available<100:break
+                    entry['text']=row.content.encode()[:available].decode('utf-8',errors='ignore')
+                    entry['truncated']=True
                 selected.append(entry)
             return {'owner':owner,'session_id':session_id,'source_revision':session.next_position,'memory_epoch':epoch,
                 'expected_revision':old.revision if old else 0,'previous_summary':prior,'messages':selected,
-                'source_ids':[*(old.source_ids if valid_old else []), *[{'message_id':m['message_id'],'digest':digest(m['text'])} for m in selected]]}
+                'source_ids':[*(old.source_ids if valid_old else []), *[{'message_id':m['message_id'],'digest':source_digests[m['message_id']]} for m in selected]]}
+
+    async def run_pending(self):
+        """Durable coalesced jobs share the session transaction with new answers."""
+        now=time.time();token=uuid4().hex
+        with self.repository._write('learning-summary-queue') as db:
+            rows=db.scalars(select(LearningTopicSession).where(
+                LearningTopicSession.import_metadata['summary_job']['pending'].as_boolean().is_(True))
+                .order_by(LearningTopicSession.session_id).with_for_update(skip_locked=True)).all()
+            selected=next((row for row in rows if row.import_metadata['summary_job'].get('lease_until',0)<=now and row.import_metadata['summary_job'].get('retry_after',0)<=now),None)
+            if selected is None:return False
+            job=dict(selected.import_metadata['summary_job']);revision=job['revision']
+            selected.import_metadata={**selected.import_metadata,'summary_job':{**job,'token':token,'lease_until':now+100}}
+            owner,sid=selected.owner,selected.session_id
+        failed=False
+        try:await self.refresh(owner,sid)
+        except Exception:
+            failed=True
+            import logging
+            logging.getLogger(__name__).exception('Learning summary refresh failed: %s',sid)
+        with self.repository._write('learning-summary-queue') as db:
+            row=db.scalar(select(LearningTopicSession).where(LearningTopicSession.session_id==sid).with_for_update())
+            job=dict(row.import_metadata['summary_job'])
+            if job.get('token')==token:
+                job.update(lease_until=0,pending=failed or job['revision']!=revision,retry_after=time.time()+60 if failed else 0)
+                row.import_metadata={**row.import_metadata,'summary_job':job}
+        return True
 
     def publish(self,snapshot,summary):
         if not summary.strip() or len(summary.encode())>12000: raise ValueError('INVALID_SUMMARY')

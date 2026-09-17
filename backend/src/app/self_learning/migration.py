@@ -39,6 +39,7 @@ class LearningImporter:
                 'legacy_session_id':payload.get('session_id'),'turn_ids':ids})
         return {'schema_version':1,'source':str(source),'sessions':sessions,'conflicts':conflicts,
             'unversioned_progress':data.get('unversioned_progress',[]),
+            'orphan_resources':data.get('orphan_resources',[]),'placeholder_notes':data.get('placeholder_notes',[]),
             'limitations':['仅导入源文件实际保留的历史；未保留历史不补造。','无准确资源版本的旧完成标记保留在审计报告中，不绑定当前版本。']}
 
     def import_records(self,report):

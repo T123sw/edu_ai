@@ -69,6 +69,21 @@ def expired(record):
 class MemoryLifecycle:
     def __init__(self, engine): self.engine = engine
 
+    def consume_changes(self,limit=100):
+        # Search currently uses SQL rows, including their stored embedding.
+        # Read guards take effect immediately; this durable cleanup removes the
+        # stale semantic index data without deleting historical audit content.
+        with Session(self.engine) as session,session.begin():
+            events=session.scalars(select(MemoryChangeEvent).where(MemoryChangeEvent.delivered.is_(False))
+                .order_by(MemoryChangeEvent.occurred_at).limit(limit).with_for_update(skip_locked=True)).all()
+            for event in events:
+                for record in session.scalars(select(AgentMemoryItem).where(
+                        AgentMemoryItem.subject_user_id==event.subject_user_id,AgentMemoryItem.memory_id.in_(event.affected_memory_ids))):
+                    if record.status!='active' or session.get(MemorySuppression,(event.subject_user_id,source_digest(record.source_id))):
+                        record.embedding=None;record.embedding_model=None
+                event.delivered=True
+            return len(events)
+
     def current_epoch(self, subject):
         with Session(self.engine) as session, session.begin():
             return lock_epoch(session, subject).epoch

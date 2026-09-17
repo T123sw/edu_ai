@@ -249,7 +249,8 @@ def version_material(course_id: str, kind: str, material_id: str, version: int, 
     if version < 1:
         raise HTTPException(422, '无效版本')
     material=exact_material(svc, user['username'], ResourceRef(course_id=course_id, material_type=kind, material_id=material_id, version=version))
-    return {**material,'learning_checks_enabled':bool(svc.checks)}
+    from app.self_learning.rollout import enabled
+    return {**material,'learning_checks_enabled':bool(svc.checks) and enabled(user['username'],course_id)}
 
 
 class CheckOffer(BaseModel):
@@ -281,6 +282,11 @@ def submit_check(check_id: str,payload: CheckAnswer,user=Depends(get_current_use
 @router.get('/checks/{check_id}/attempts')
 def check_attempts(check_id: str,user=Depends(get_current_user),svc=Depends(service)):
     return {'attempts':checks(svc).attempts(user['username'],check_id)}
+
+
+@router.get('/checks/{check_id}')
+def get_check(check_id: str,user=Depends(get_current_user),svc=Depends(service)):
+    return checks(svc).get(user['username'],check_id)
 
 
 def notification_service(svc):

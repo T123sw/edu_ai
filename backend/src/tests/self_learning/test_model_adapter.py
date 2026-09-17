@@ -58,3 +58,11 @@ def test_partial_response_does_not_fallback():
         assert failure.value.code == 'MODEL_CONNECTION_INTERRUPTED'
     asyncio.run(run())
     assert len(seen) == 1
+
+
+def test_complete_preserves_provider_usage_without_transport_metadata():
+    payload={'choices':[{'finish_reason':'stop','message':{'content':'{}'}}],
+             'usage':{'prompt_tokens':123,'completion_tokens':8,'total_tokens':131,'internal':'omit'}}
+    def factory(**kwargs):return httpx.AsyncClient(transport=httpx.MockTransport(lambda _:httpx.Response(200,json=payload)),**kwargs)
+    result=asyncio.run(LearningModelAdapter(Gateway(),factory).complete([],[],deadline=time.monotonic()+5))
+    assert result['model']=='test' and result['usage']=={'prompt_tokens':123,'completion_tokens':8,'total_tokens':131}

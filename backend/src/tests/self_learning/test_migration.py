@@ -16,3 +16,20 @@ def test_scan_repeat_import_and_unknown_versions_are_auditable(repository,tmp_pa
     assert importer.import_records(report)['created']==1
     assert importer.import_records(report)['created']==0
     assert importer.reconcile(report)['unexplained_differences']==[]
+
+
+def test_small_history_orphans_and_placeholder_notes_remain_auditable(repository,tmp_path):
+    turns=[{'turn_id':f'small-{i}','question':str(i),'answer_text':'保留原文'} for i in range(3)]
+    (tmp_path/'small.json').write_text(json.dumps({'turns':turns}))
+    source=tmp_path/'export.json'
+    source.write_text(json.dumps({'sessions':[{'owner':'alice','course_id':'course','topic_id':'a','path':'small.json'}],
+        'unversioned_progress':[{'resource_id':'orphan','completed':True}],
+        'orphan_resources':[{'resource_id':'orphan','reason':'missing_material'}],
+        'placeholder_notes':[{'resource_id':'pending:a','note':'placeholder'}]}))
+    report=LearningImporter.scan(source)
+    assert report['orphan_resources'][0]['resource_id']=='orphan'
+    assert report['placeholder_notes'][0]['resource_id']=='pending:a'
+    importer=LearningImporter(repository)
+    assert importer.import_records(report)['created']==1
+    assert importer.import_records(report)['created']==0
+    assert importer.reconcile(report)['unexplained_differences']==[]

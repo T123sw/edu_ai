@@ -166,7 +166,8 @@ class LearningService:
         if manifest:
             room['manifestRef'] = {'manifest_id': manifest['manifest_id'], 'version': manifest['version']}
             room['routeVersion'] = manifest['route_version']
-        room['agentRuntime'] = bool(self.turns)
+        from .rollout import enabled
+        room['agentRuntime'] = bool(self.turns) and enabled(owner,course_id)
         room['progressPersistence'] = bool(self.progress_service)
         room['progressOwner'] = owner if self.progress_service else None
         if self.progress_service and include_progress:

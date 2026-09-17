@@ -23,6 +23,8 @@ class TurnService:
                 'preparation_receipts': list((turn.get('checkpoint',{}).get('packet',{}).get('preparation_receipts',{}) or turn.get('checkpoint',{}).get('recovered_preparations',{})).values())}
 
     def accept(self, owner, course, topic, request):
+        from .rollout import require_scope
+        require_scope(owner,course)
         if not request.question.strip():
             raise HTTPException(422, '请输入问题')
         ContextBuilder(self.learning).authorize(owner, course, topic, request.reading_context.model_dump(mode='json'))

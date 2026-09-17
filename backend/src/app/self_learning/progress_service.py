@@ -53,8 +53,9 @@ class ProgressService:
             # Message-derived self assessments are introduced with P4 provenance validation.
             raise HTTPException(422, '当前仅支持界面直接自评')
         try:
+            evidence = self.evidence_reader(actor.user_id, course_id, view) if self.evidence_reader else []
             return self.repository.record(actor.user_id, course_id, topic_id, event,
-                                          lambda snapshot: self.project(view, snapshot))
+                                          lambda snapshot: self.project(view, snapshot, evidence))
         except ProgressConflict as exc:
             raise HTTPException(409, exc.detail) from exc
 

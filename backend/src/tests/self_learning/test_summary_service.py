@@ -46,3 +46,36 @@ def test_deleted_preference_invalidates_old_summary_and_late_publish(summary):
     repo.invalidate(memory_id=preference.memory_id,subject_user_id='alice',reason='user_requested')
     assert service.read('alice',sid) is None
     with pytest.raises(MemoryChanged): service.publish(late,'迟到的旧偏好摘要')
+
+
+def test_oversized_message_does_not_permanently_block_summary(summary):
+    service,sid=summary
+    with service.repository._write(sid) as db:
+        db.get(ConversationMessage,'msg-0').content='长段中文学习问题。'*10000
+    snapshot=service.capture('alice',sid,budget=2000)
+    # The first small introduction may form one batch; the following batch must advance.
+    service.publish(snapshot,'第一批摘要')
+    next_batch=service.capture('alice',sid,budget=2000)
+    assert next_batch['messages'] and next_batch['messages'][0].get('truncated')
+    service.publish(next_batch,'长消息的有界片段摘要')
+    assert service.read('alice',sid) is not None
+
+
+@pytest.mark.asyncio
+async def test_summary_job_survives_restart_and_does_not_clear_newer_work(summary):
+    service,sid=summary
+    with service.repository._write(sid) as db:
+        row=db.get(LearningTopicSession,sid)
+        row.import_metadata={**row.import_metadata,'summary_job':{'pending':True,'revision':31}}
+    async def refresh(owner,session_id):
+        with service.repository._write(sid) as db:
+            row=db.get(LearningTopicSession,sid)
+            row.import_metadata={**row.import_metadata,'summary_job':{**row.import_metadata['summary_job'],'revision':33}}
+    service.refresh=refresh
+    assert await service.run_pending()
+    with Session(service.engine) as db:
+        assert db.get(LearningTopicSession,sid).import_metadata['summary_job']['pending']
+    async def done(*args):return False
+    service.refresh=done
+    assert await service.run_pending()
+    assert not await service.run_pending()

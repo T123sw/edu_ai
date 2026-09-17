@@ -58,6 +58,14 @@ class PrepareMaterial(Contract):
     changes: list[str] = Field(default_factory=list,max_length=10)
 
 
+class OfferCheck(Contract):
+    resource_handle: Identifier
+    question_id: str | None = Field(default=None,max_length=200)
+    stem: str = Field(default='',max_length=2000)
+    source_quote: str = Field(default='',max_length=4000)
+    objective_ids: list[Identifier] = Field(default_factory=list,max_length=8)
+
+
 class ToolResult(Contract):
     ok: bool
     data: dict | None = None
@@ -93,6 +101,8 @@ class LearningTools:
             if any(marker in turn['request']['question'] for marker in ('记住','长期','以后都','始终')):
                 specs.append(ToolSpec('update_learning_preference','仅按本轮用户原话和明确长期作用域保存偏好；一次性要求不保存，范围不清先询问',UpdatePreference,self.update_preference,effect='write',min_phase=4))
         from .preparation_adapter import requests_saved_work
+        if getattr(learning,'checks',None):
+            specs.append(ToolSpec('offer_understanding_check','用户要求检查理解时调用。优先用当前节点 quiz 的 question_id；没有合适题目时，提供一道短答题 stem、逐字 source_quote 评分依据和当前 objective_ids。保存成功后才能展示检查，不能自行判定用户已掌握。',OfferCheck,self.offer_check,effect='write',min_phase=4))
         if getattr(learning, 'prepared_courses', None) and requests_saved_work(turn['request']['question']):
             specs.append(ToolSpec('prepare_learning_material','仅在用户明确要求生成保存、补充或修订资料时提交后台准备任务；解释问题不调用。只修改当前阅读资料/节点。',PrepareMaterial,self.prepare,effect='write',min_phase=5))
         self.registry = {s.name: s for s in specs}
@@ -135,6 +145,18 @@ class LearningTools:
         result=PreparationAdapter(self.learning).submit(self.turn,args.operation,args.goal,resource_type=args.resource_type,changes=args.changes)
         self.packet.setdefault('preparation_receipts',{})[result['preparation_id']]=result
         return ToolResult(ok=True,data={'preparation':result}).model_dump()
+
+    def offer_check(self,args):
+        raw=self.packet['handles'].get(args.resource_handle)
+        if raw is None:raise ValueError('UNKNOWN_RESOURCE')
+        ref=ResourceRef.model_validate(raw)
+        if args.question_id:
+            result=self.learning.checks.offer(self.turn['owner'],self.turn['course_id'],self.turn['topic_id'],raw,args.question_id)
+        else:
+            if not args.stem.strip():raise ValueError('QUESTION_REQUIRED')
+            result=self.learning.checks.offer_immediate(self.turn,ref,stem=args.stem,source_quote=args.source_quote,objective_ids=args.objective_ids)
+        self.packet.setdefault('understanding_checks',{})[result['check_id']]=result
+        return ToolResult(ok=True,data={'check':result}).model_dump()
 
     def read(self, args):
         raw = self.packet['handles'].get(args.resource_handle)

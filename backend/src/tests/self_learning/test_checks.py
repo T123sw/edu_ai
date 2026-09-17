@@ -78,3 +78,23 @@ def test_checks_enabled_retires_independent_legacy_grading(checks):
     with pytest.raises(HTTPException) as error:
         checks.learning.practice('course','alice','quiz-a',1,{'q1':'A'})
     assert error.value.status_code==409
+
+
+def test_immediate_check_is_persisted_scoped_and_never_leaks_rubric(checks):
+    from app.self_learning.contracts import ResourceRef
+    original=checks.learning.sessions._chapter
+    def chapter(*args):
+        room,node=original(*args)
+        return room,{**node,'objectives':[{'objective_id':'a:o1','text':'职责划分'}]}
+    checks.learning.sessions._chapter=chapter
+    turn={'owner':'alice','course_id':'course','topic_id':'a','turn_id':'immediate-turn'}
+    ref=ResourceRef(course_id='course',material_type='quiz',material_id='quiz-a',version=1)
+    check=checks.offer_immediate(turn,ref,stem='请用自己的话解释职责划分。',source_quote='模型选择，服务端执行。',objective_ids=['a:o1'])
+    assert checks.get('alice',check['check_id'])==check
+    assert '模型选择' not in str(check) and 'rubric' not in check
+    assert checks.offer_immediate(turn,ref,stem='重试不能改变原题',source_quote='模型选择，服务端执行。',objective_ids=['a:o1'])==check
+    saved=checks.submit('alice',check['check_id'],uuid4(),{'text':'模型决定，应用执行'})
+    assert saved['status']=='pending_review' and saved['correct'] is None
+    with pytest.raises(HTTPException):checks.get('bob',check['check_id'])
+    with pytest.raises(HTTPException):checks.offer_immediate({**turn,'turn_id':'other'},ref,stem='问题',source_quote='虚构原文',objective_ids=['a:o1'])
+    with pytest.raises(HTTPException):checks.offer_immediate({**turn,'turn_id':'other'},ref,stem='问题',source_quote='模型选择，服务端执行。',objective_ids=['b:o1'])

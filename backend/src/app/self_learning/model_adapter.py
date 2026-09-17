@@ -84,7 +84,11 @@ class LearningModelAdapter:
                                     body.extend(chunk)
                                     if len(body) > 2_000_000:
                                         raise AgentFailure('MODEL_PROTOCOL_ERROR')
-                                return self.parse(strict_json(body))
+                                data=strict_json(body)
+                                parsed=self.parse(data)
+                                usage=data.get('usage') or {}
+                                return {**parsed,'model':model,'usage':{k:v for k,v in usage.items()
+                                    if k in ('prompt_tokens','completion_tokens','total_tokens') and type(v) is int and v>=0}}
                     except httpx.HTTPError as exc:
                         logging.getLogger(__name__).warning('Learning model attempt failed model=%s error=%s status=%s',
                             model, type(exc).__name__, exc.response.status_code if isinstance(exc, httpx.HTTPStatusError) else None)

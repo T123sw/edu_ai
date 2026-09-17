@@ -114,6 +114,9 @@ class TurnRepository(SessionRepository):
                 db.refresh(session, with_for_update=True)
                 self._append(db, session, row.turn_id + ':assistant', 'assistant', result['answer_markdown'], 'assistant_content',
                     {'request_id': row.request_id, 'resource_id': row.request['reading_context']['resource_ref']['material_id'], 'answer_result': result})
+                if result.get('memory_context') is not None:
+                    job=session.import_metadata.get('summary_job',{})
+                    session.import_metadata={**session.import_metadata,'summary_job':{**job,'pending':True,'revision':session.next_position}}
 
     def control(self, owner, tid, operation):
         with self._write('learning-answer-queue') as db:

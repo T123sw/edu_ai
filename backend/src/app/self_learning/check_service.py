@@ -24,6 +24,8 @@ class CheckService:
         self.repository = SessionRepository(engine)
 
     def offer(self, owner, course, topic, resource_ref, question_id):
+        from .rollout import require_scope
+        require_scope(owner,course)
         room, chapter = self.learning.sessions._chapter(owner, course, topic)
         ref = ResourceRef.model_validate(resource_ref)
         if ref.course_id != course or ref.material_type != 'quiz' or not any(r.get('remote') and
@@ -48,6 +50,41 @@ class CheckService:
                     source_ref=source,content_digest=content_digest,item=asdict(item),created_at=time.time())
                 db.add(row); db.flush()
             elif row.content_digest!=content_digest: raise HTTPException(409,'题目版本内容已变化')
+            return self.public(row)
+
+    def offer_immediate(self, turn, ref, *, stem, source_quote, objective_ids):
+        """A generated short question is evidence only after this snapshot commits."""
+        from .context_builder import ContextBuilder
+        owner,course,topic=turn['owner'],turn['course_id'],turn['topic_id']
+        ContextBuilder(self.learning).authorize(owner,course,topic,{'resource_ref':ref.model_dump()})
+        _,chapter=self.learning.sessions._chapter(owner,course,topic)
+        allowed={o['objective_id'] for o in chapter.get('objectives',[])}
+        if not objective_ids or not set(objective_ids)<=allowed:
+            raise HTTPException(422,'检查必须对应当前节点的学习目标')
+        material=exact_material(self.learning,owner,ref)
+        text=material_text(material)
+        if not source_quote.strip() or source_quote not in text:
+            raise HTTPException(422,'检查评价依据必须来自实际资料原文')
+        sid=self.learning.sessions.enter(owner,course,topic)['session_id']
+        source={**ref.model_dump(),'question_id':'immediate:'+turn['turn_id']}
+        check_id='check_'+digest([owner,sid,source])[:40]
+        question={'id':source['question_id'],'type':'short_answer','stem':stem,'answer':source_quote,
+                  'explanation':'依据引用资料评价本题；不据此推断整体掌握。'}
+        item=asdict(normalize_question(question,assessment_version_id=check_id,position=1,
+            knowledge_point_ids=[topic],source_ref=source,created_origin='generated'))
+        item['rubric']['learning_objective_ids']=objective_ids
+        with self.repository._write(check_id) as db:
+            row=db.get(LearningCheckRecord,check_id)
+            if row is None:
+                row=LearningCheckRecord(check_id=check_id,owner=owner,session_id=sid,course_id=course,topic_id=topic,
+                    source_ref=source,content_digest=hashlib.sha256(text.encode()).hexdigest(),item=item,created_at=time.time())
+                db.add(row);db.flush()
+            else:self._authorize(owner,row)
+            return self.public(row)
+
+    def get(self,owner,check_id):
+        with Session(self.engine) as db:
+            row=db.get(LearningCheckRecord,check_id);self._authorize(owner,row)
             return self.public(row)
 
     @staticmethod
@@ -167,7 +204,9 @@ class CheckService:
                 graded_ids={r.source_ref['question_id'] for a,r in rows if r.source_ref['material_id']==ref.material_id and r.source_ref['version']==ref.version and a.result.get('evidence_ref')}
                 # A single correct answer cannot stand for every objective of a quiz.
                 covered=bool(question_ids) and question_ids<=graded_ids
+                objectives=(check.item['rubric'].get('learning_objective_ids',[]) if check.item['created_origin']=='generated'
+                            else resource.objective_ids if covered else [])
                 result.append({'evidence_ref':attempt.result['evidence_ref'],'topic_id':check.topic_id,
-                    'resource_ref':ref.model_dump(),'objective_ids':resource.objective_ids if covered else [],
+                    'resource_ref':ref.model_dump(),'objective_ids':objectives,
                     'correct':attempt.result['correct'],'evaluation_method':attempt.result['evaluation_method']})
             return result

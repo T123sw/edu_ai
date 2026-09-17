@@ -21,6 +21,7 @@ class LearningAgentRuntime:
         self.model_factory = model_factory or (lambda owner: LearningModelAdapter(learning.model_factory(owner)))
         self.stopping = Event()
         self.thread = None
+        self.maintenance_thread = None
 
     async def execute(self, claim):
         builder = ContextBuilder(self.learning)
@@ -66,6 +67,7 @@ class LearningAgentRuntime:
             state['rounds'] += 1
             self.repository.save(claim, state)
             reply = await model.complete(packet['messages'], tools.schemas() if state['tools'] < 6 and not state['repair_used'] else [], deadline=deadline)
+            state.setdefault('model_usage',[]).append({'model':reply.get('model'),'usage':reply.get('usage',{})})
             if memory:
                 try: memory.validate(claim['owner'], packet['memory_context'])
                 except MemoryChanged: continue
@@ -113,7 +115,7 @@ class LearningAgentRuntime:
                     raise AgentFailure('SOURCE_CHANGED')
             observation={**answer.observation.model_dump(),'source_refs':[claim['turn_id']+':user'],'evaluator':'model','status':'hypothesis'} if answer.observation else None
             return {**answer.model_dump(), 'observation':observation,'citations': citations, 'role_version': packet['role_version'],
-                    'source_revision': packet['source_revision'], 'model_rounds': state['rounds'], 'tool_attempts': state['tools'], 'memory_context': packet.get('memory_context'), 'preparation_receipts': list(packet.get('preparation_receipts',{}).values())}
+                    'source_revision': packet['source_revision'], 'model_rounds': state['rounds'], 'tool_attempts': state['tools'], 'model_usage':state.get('model_usage',[]), 'memory_context': packet.get('memory_context'), 'preparation_receipts': list(packet.get('preparation_receipts',{}).values()), 'understanding_checks':list(packet.get('understanding_checks',{}).values())}
         raise AgentFailure('MODEL_BUDGET_EXHAUSTED')
 
     async def guarded(self, claim):
@@ -141,12 +143,6 @@ class LearningAgentRuntime:
         try:
             result = asyncio.run(self.guarded(claim))
             self.repository.finish(claim, result=result)
-            summaries=getattr(self.learning,'summaries',None)
-            if summaries:
-                try: asyncio.run(summaries.refresh(claim['owner'],claim['session_id']))
-                except Exception:
-                    import logging
-                    logging.getLogger(__name__).exception('Learning summary refresh failed: %s',claim['session_id'])
         except LostLease:
             pass
         except Exception as exc:
@@ -171,8 +167,22 @@ class LearningAgentRuntime:
                     self.stopping.wait(.5)
         self.thread = Thread(target=poll, name='learning-answer-worker', daemon=True)
         self.thread.start()
+        if getattr(self.learning,'summaries',None):
+            def maintain():
+                while not self.stopping.is_set():
+                    try:
+                        self.learning.memory_adapter.lifecycle.consume_changes()
+                        asyncio.run(self.learning.summaries.run_pending())
+                    except Exception:
+                        import logging
+                        logging.getLogger(__name__).exception('Learning maintenance failed')
+                    self.stopping.wait(1)
+            self.maintenance_thread=Thread(target=maintain,name='learning-maintenance-worker',daemon=True)
+            self.maintenance_thread.start()
 
     def stop(self, grace_seconds=10):
         self.stopping.set()
         if self.thread:
             self.thread.join(timeout=grace_seconds)
+        if self.maintenance_thread:
+            self.maintenance_thread.join(timeout=grace_seconds)

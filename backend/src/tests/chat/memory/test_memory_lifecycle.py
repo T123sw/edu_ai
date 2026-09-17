@@ -80,3 +80,16 @@ def test_explicit_confirmation_after_delete_uses_new_source(repo):
     b = service.confirm_profile_fact(actor='alice', profile_axis='language', value='中文')
     assert b.status == 'active'
     assert b.source_id != a.source_id
+
+
+def test_change_outbox_cleans_only_invalid_index_and_is_replay_safe(repo):
+    from sqlalchemy.orm import Session
+    from app.database.models import AgentMemoryItem
+    old=repo.upsert_memory(draft(embedding=[1.0,0.0],embedding_model='test'))
+    repo.invalidate(memory_id=old.memory_id,subject_user_id='alice',reason='user_deleted')
+    assert repo.search(subject_user_id='alice',course_id=None,query='讲解简洁',limit=5)==[]
+    assert repo.lifecycle.consume_changes()>0
+    assert repo.lifecycle.consume_changes()==0
+    with Session(repo._engine) as db:
+        row=db.get(AgentMemoryItem,old.memory_id)
+        assert row.embedding is None and row.content=='讲解简洁'
