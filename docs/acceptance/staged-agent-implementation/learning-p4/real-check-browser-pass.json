@@ -1,0 +1,127 @@
+{
+  "config": {
+    "argv": [
+      "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/node",
+      "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/node_modules/playwright/cli.js",
+      "test",
+      "-c",
+      "playwright.check-real.config.ts"
+    ],
+    "configFile": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/playwright.check-real.config.ts",
+    "rootDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/check-real",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+        "testIgnore": [],
+        "testMatch": [
+          "check-real.spec.ts"
+        ],
+        "timeout": 240000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/check-real/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "check-real.spec.ts",
+      "file": "check-real.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real immediate check, saved answer, reload and model evaluation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 26974,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T14:03:33.258Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/check-real/check-real-real-immediate--431c9-reload-and-model-evaluation/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4e46e355208b727bdbc5-d8cf87d5a8691d6b157d",
+          "file": "check-real.spec.ts",
+          "line": 6,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-17T14:03:32.434Z",
+    "duration": 29017.944,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

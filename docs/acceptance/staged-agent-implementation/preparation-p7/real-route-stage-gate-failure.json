@@ -1,0 +1,28 @@
+{
+  "preparation_id": "prep_2cd655ef54d84e2f8da7e8001ab6596f",
+  "attempt_no": 1,
+  "status": "failed",
+  "stage": "normalize",
+  "revision": 5,
+  "error_code": "STEP_FAILED",
+  "result_ref": null,
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "deadline": "2026-09-17T15:03:05.274102+00:00"
+  }
+}

@@ -201,7 +201,10 @@ class LifecycleRepository(PreparationRepository):
             if stage not in TRANSITIONS.get(attempt.stage, set()):
                 raise ValueError('ILLEGAL_STAGE_TRANSITION')
             required = REQUIRED.get(stage)
-            if required and not run.checkpoint.get(required):
+            retained_review=(stage=='review' and prep.request_payload.get('operation')=='adjust_course'
+                and bool(run.checkpoint.get('retained_node_ids')) and run.checkpoint.get('resource_specs')==[]
+                and set(run.checkpoint['retained_node_ids'])=={n['node_key'] for n in run.checkpoint.get('plan',{}).get('nodes',[])})
+            if required and not run.checkpoint.get(required) and not retained_review:
                 raise ValueError('STAGE_PREREQUISITE_MISSING:' + required)
             if stage == 'research_scope' and attempt.stage == 'normalize':
                 if prep.request_payload.get('uploads') or not reason:

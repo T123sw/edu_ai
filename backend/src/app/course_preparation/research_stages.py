@@ -52,6 +52,9 @@ class ResearchStages:
             checkpoint['target_snapshot']=self.repository.authorizer.targets.read(context.owner_user_id,request.target)
             checkpoint=self.memory.prepare(context,checkpoint,request)
             checkpoint['route_only_adjustment']=True
+            base=checkpoint['target_snapshot']['manifest']
+            checkpoint['brief']={'goal':request.goal,'audience':base['audience'],'language':request.overrides.language or 'zh-CN',
+                'total_minutes':request.overrides.total_minutes or base['estimated_minutes'],'assumptions':base.get('assumptions',[])}
             return StepResult(checkpoint,'research_scope',reason='NO_UPLOADS')
         checkpoint,state=self._decision(context,dict(context.checkpoint))
         if state.brief is None: return StepResult(checkpoint)
@@ -80,7 +83,10 @@ class ResearchStages:
         return StepResult(checkpoint,'research_scope' if len(completed)==len(request.uploads) else None)
 
     def research_scope(self,context):
-        if context.checkpoint.get('route_only_adjustment'):return StepResult(dict(context.checkpoint),'plan')
+        if context.checkpoint.get('route_only_adjustment'):
+            checkpoint=dict(context.checkpoint)
+            checkpoint['research_summary']={'overview':'保留已交付资料及其来源；本次只修改路径安排，不引入新知识。','findings':[]}
+            return StepResult(checkpoint,'plan')
         checkpoint,state=self._decision(context,dict(context.checkpoint))
         return StepResult(checkpoint,'plan' if state.phase=='plan' else None)
 
