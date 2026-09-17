@@ -42,7 +42,9 @@ def graph_leaves(graph):
 
 
 class LearningService:
-    def __init__(self, manager=None, store=None, memberships=None, model_factory=gateway, session_repository=None, progress_repository=None, turn_repository=None):
+    def __init__(self, manager=None, store=None, memberships=None, model_factory=gateway, session_repository=None, progress_repository=None, turn_repository=None, prepared_courses=None):
+        from .prepared_courses import configured_prepared_courses
+        self.prepared_courses = prepared_courses or configured_prepared_courses()
         self.manager = manager or course_service._get_manager()
         self.store = store or LearningStore()
         if memberships is None:
@@ -64,6 +66,8 @@ class LearningService:
         self.turns = TurnService(self, self.turn_repository) if self.turn_repository else None
 
     def require(self, course_id, owner):
+        prepared = self.prepared_courses.lookup(owner, course_id) if self.prepared_courses else None
+        if prepared: return prepared
         info = self.manager.get_course_info(course_id)
         membership = self.memberships.get(course_id, owner)
         if not info or not membership:
@@ -72,6 +76,8 @@ class LearningService:
 
     def material(self, course_id, kind, material_id, owner):
         self.require(course_id, owner)
+        if self.prepared_courses and self.prepared_courses.lookup(owner, course_id):
+            return self.prepared_courses.material(owner, course_id, kind, material_id)
         material = self.manager.get_generated_material(course_id, kind, material_id, owner_user_id=owner)
         if not material:
             raise HTTPException(404, '资源不存在或无权访问')
@@ -96,8 +102,13 @@ class LearningService:
     def room(self, course_id, owner, include_progress=True):
         info, member = self.require(course_id, owner)
         overlay = self.store.get(owner, course_id)
+        manifest = self.prepared_courses.manifest(owner, course_id) if self.prepared_courses else None
         leaves = graph_leaves(self.manager.get_knowledge_graph(course_id)) or [{'id': course_id, 'title': info['title']}]
         materials = self.manager.list_generated_materials(course_id, owner_user_id=owner, space='all', aggregate=True)
+        if manifest:
+            leaves = [{'id': n['node_id'], 'title': n['title'], 'objectives': n['objectives'], 'checks': n['checks']} for n in manifest['nodes']]
+            materials = [self.prepared_courses.material(owner, course_id, r['resource_type'], r['resource_id'], r['version'])
+                         for n in manifest['nodes'] for r in n['resources']]
         from app.services.job_store import get_job
         def ready(material):
             job = get_job(material['source_job_id']) if material.get('source_job_id') else None
@@ -145,6 +156,9 @@ class LearningService:
                 'practice': overlay.get('practice', {}), 'canPublish': member.role == 'owner', 'resources': [self.resource(m) for m in by_id.values()
                   if m.get('visibility') == 'private' and not m.get('learning_course_resource') and not m.get('sourceResourceId')]}
 
+        if manifest:
+            room['manifestRef'] = {'manifest_id': manifest['manifest_id'], 'version': manifest['version']}
+            room['routeVersion'] = manifest['route_version']
         room['agentRuntime'] = bool(self.turns)
         room['progressPersistence'] = bool(self.progress_service)
         room['progressOwner'] = owner if self.progress_service else None
@@ -174,6 +188,12 @@ class LearningService:
                 info = self.manager.get_course_info(membership.course_id)
                 if info.get('created_by') == owner or self.store.get(owner, membership.course_id).get('updatedAt'):
                     rooms.append(room)
+        existing_ids = {r['id'] for r in rooms}
+        for course_id in self.prepared_courses.list(owner) if self.prepared_courses else []:
+            if course_id not in existing_ids:
+                room = self.room(course_id, owner)
+                resources.extend(room.pop('resources'))
+                rooms.append(room)
         shared = []
         for info in self.manager.list_course_infos():
             if self.store.get('__published__', info['id']).get('published'):

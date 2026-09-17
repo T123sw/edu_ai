@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, UploadFile, File
 from pydantic import BaseModel, Field
 from app.api.course_research import current_user
 from app.course_preparation.contracts import IdempotencyConflict, PreparationNotFound
@@ -45,6 +45,32 @@ def submit(payload: PreparationRequest, actor=Depends(owner), svc=Depends(servic
     return execute(lambda: svc.submit(actor, payload))
 
 
+@router.get('')
+def list_preparations(actor=Depends(owner), svc=Depends(service)):
+    return execute(lambda: {'preparations': svc.list(actor)})
+
+
+@router.post('/uploads', status_code=201)
+async def upload(file: UploadFile = File(...), actor=Depends(owner), svc=Depends(service)):
+    from pathlib import Path
+    from app.services.personal_knowledge_service import PersonalKnowledgeService
+    from app.course_preparation.adapters.documents import PersonalDocumentReader
+    from app.course_preparation.adapters.document_store import DocumentStore
+    if Path(file.filename or '').suffix.lower() not in {'.pdf', '.doc', '.docx', '.md', '.txt'}:
+        raise HTTPException(422, '支持 PDF、DOC、DOCX、Markdown 和 TXT 文件')
+    data = await file.read(30 * 1024 * 1024 + 1)
+    await file.close()
+    if not data or len(data) > 30 * 1024 * 1024:
+        raise HTTPException(422, '文件不能为空，且不能超过 30 MB')
+    def create():
+        personal = PersonalKnowledgeService()
+        from app.course_preparation.adapters.memory import PreparationMemory
+        username = PreparationMemory(svc.repository).subject(actor)
+        record = personal.create_document(owner_user_id=username, filename=Path(file.filename).name, file_data=data)
+        return DocumentStore(svc.repository.engine, PersonalDocumentReader(personal)).register(actor, record['id'])
+    return execute(create)
+
+
 @router.get('/{preparation_id}')
 def get(preparation_id: str, actor=Depends(owner), svc=Depends(service)):
     return execute(lambda: svc.get(actor, preparation_id))
@@ -63,3 +89,8 @@ def retry(preparation_id: str, actor=Depends(owner), svc=Depends(service)):
 @router.get('/{preparation_id}/events')
 def events(preparation_id: str, after: int = Query(0, ge=0), actor=Depends(owner), svc=Depends(service)):
     return execute(lambda: {'events': [e.model_dump(mode='json') for e in svc.events(actor, preparation_id, after)]})
+
+
+@router.get('/{preparation_id}/intermediates')
+def intermediates(preparation_id: str, actor=Depends(owner), svc=Depends(service)):
+    return execute(lambda: svc.intermediates(actor, preparation_id))

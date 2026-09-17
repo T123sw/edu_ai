@@ -9,6 +9,8 @@ def exact_material(learning, owner, ref: ResourceRef):
     current = learning.material(ref.course_id, ref.material_type, ref.material_id, owner)
     if current.get('version') == ref.version:
         return current
+    if getattr(learning, 'prepared_courses', None) and learning.prepared_courses.lookup(owner, ref.course_id):
+        return learning.prepared_courses.material(owner, ref.course_id, ref.material_type, ref.material_id, ref.version)
     if learning.manager._material_uses_postgres():
         old = learning.manager._material_repository().get_version(ref.course_id, ref.material_type, ref.material_id, ref.version)
     else:

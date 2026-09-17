@@ -59,12 +59,13 @@ class ProgressService:
 
 def for_learning_service(learning, repository):
     def resource(actor, ref):
-        material = learning.material(ref.course_id, ref.material_type, ref.material_id, actor.user_id)
+        from .resource_reader import exact_material
+        material = exact_material(learning, actor.user_id, ref)
         if material.get('version') != ref.version:
             raise HTTPException(409, '资料版本已变化，请刷新后重试')
         return material
     reader = CourseReader(authorize=lambda actor, course: learning.require(course, actor.user_id),
-        load_manifest=lambda *_: None,
+        load_manifest=lambda actor, course, ref: learning.prepared_courses.manifest(actor.user_id, course, ref) if getattr(learning, 'prepared_courses', None) else None,
         load_legacy=lambda actor, course: learning.room(course, actor.user_id, include_progress=False),
         load_resource=resource)
     return ProgressService(reader, repository)

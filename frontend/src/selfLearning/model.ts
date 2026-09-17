@@ -49,6 +49,8 @@ export type Message = {
   answerResult?: { citations: { citation_id: string; resource_ref: import('../liveLearning/readingContext').ResourceRef }[] };
 };
 export type Classroom = {
+  manifestRef?: { manifest_id: string; version: number };
+  routeVersion?: number;
   id: string;
   title: string;
   goal: string;

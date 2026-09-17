@@ -24,3 +24,21 @@ class PreparationService:
 
     def events(self, owner, preparation_id, after=0):
         return self.repository.events(owner_user_id=owner, preparation_id=preparation_id, after=after)
+
+    def list(self, owner, limit=50):
+        from sqlalchemy import select
+        from sqlalchemy.orm import Session
+        from app.database.models import CoursePreparationRecord
+        with Session(self.repository.engine) as session:
+            ids = list(session.scalars(select(CoursePreparationRecord.preparation_id).where(
+                CoursePreparationRecord.owner_user_id == owner).order_by(CoursePreparationRecord.created_at.desc()).limit(limit)))
+        return [self.get(owner, pid) for pid in ids]
+
+    def intermediates(self, owner, preparation_id):
+        from sqlalchemy.orm import Session
+        from app.database.models import PreparationExecution
+        public = self.get(owner, preparation_id)
+        with Session(self.repository.engine) as session:
+            run = session.get(PreparationExecution, (preparation_id, public['attempt_no']))
+            checkpoint = run.checkpoint if run else {}
+            return {key: checkpoint[key] for key in ('brief', 'research_summary', 'plan', 'node_evidence', 'quality', 'candidate_manifest') if key in checkpoint}
