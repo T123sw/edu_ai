@@ -132,7 +132,8 @@ class ResearchAgent:
     def _execute(self, name, args, request, state, *, timeout, reserve):
         if name == 'save_preparation_brief':
             unique([r.requirement_id for r in args.requirements], '要求ID')
-            if any(r.source_quote not in request.goal for r in args.requirements):
+            request_texts=[request.goal,*getattr(request,'requested_changes',())]
+            if any(not any(r.source_quote in text for text in request_texts) for r in args.requirements):
                 raise ValueError('要求原话必须在本次用户需求中实际出现')
             if request.overrides.total_minutes and args.total_minutes != request.overrides.total_minutes:
                 raise ValueError('必须遵守本次明确设置的学习时间')

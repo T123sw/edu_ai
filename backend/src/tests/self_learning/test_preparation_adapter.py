@@ -24,7 +24,7 @@ def test_explicit_save_handoff_binds_original_turn_and_request_replay():
     assert calls[0][1].origin.message_id=='turn:user'
     assert calls[0][1].target.node_id=='node' and calls[0][1].target.base_manifest_version==3
     adapter.submit(turn,'supplement_node','工具失败案例',changes=['保留原资料'])
-    assert not calls[-1][1].requested_changes and '保留原资料' in calls[-1][1].goal
+    assert not calls[-1][1].requested_changes and calls[-1][1].goal==turn['request']['question']
     with pytest.raises(Exception): adapter.submit(turn,'adjust_course','更换全部路径',changes=['重新排课'])
     turn['request']['question']='只解释这个概念，不要生成'
     with pytest.raises(Exception): adapter.submit(turn,'supplement_node','工具失败案例')

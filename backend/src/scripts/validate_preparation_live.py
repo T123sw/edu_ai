@@ -3,12 +3,15 @@ import argparse,json,time,subprocess
 from pathlib import Path
 from uuid import uuid4
 import httpx
-p=argparse.ArgumentParser();p.add_argument('--name',required=True);p.add_argument('--goal',required=True);p.add_argument('--minutes',type=int,default=30);p.add_argument('--classroom',action='store_true');a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--name',required=True);p.add_argument('--goal',required=True);p.add_argument('--minutes',type=int,default=30);p.add_argument('--classroom',action='store_true');p.add_argument('--upload');a=p.parse_args()
 root=Path(__file__).resolve().parents[3];creds=json.loads((root/'artifacts/full-application/credentials.json').read_text());out=root/'artifacts'/'frozen-acceptance'/a.name;out.mkdir(parents=True,exist_ok=False)
 def save(name,value): (out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2))
 save('version.json',{'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'started_at':time.time(),'goal':a.goal})
 client=httpx.Client(base_url='http://127.0.0.1:8027',headers={'Authorization':'Bearer '+creds['token']},timeout=60)
-request={'request_id':str(uuid4()),'operation':'create_course','goal':a.goal,'overrides':{'total_minutes':a.minutes,'required_resource_types':['classroom'] if a.classroom else []},'source_policy':{'mode':'open'}};save('request.json',request)
+request={'request_id':str(uuid4()),'operation':'create_course','goal':a.goal,'overrides':{'total_minutes':a.minutes,'required_resource_types':['classroom'] if a.classroom else []},'source_policy':{'mode':'open'}}
+if a.upload:
+ source=Path(a.upload);r=client.post('/api/course-preparations/uploads',files={'file':(source.name,source.read_bytes())});r.raise_for_status();ref=r.json();save('upload.json',ref);request['uploads']=[{**ref,'usage':'primary'}];request['source_policy']={'mode':'uploaded_only'}
+save('request.json',request)
 r=client.post('/api/course-preparations',json=request);r.raise_for_status();receipt=r.json();save('receipt.json',receipt)
 r=client.post('/api/course-preparations',json=request);r.raise_for_status();assert r.json()['preparation_id']==receipt['preparation_id']
 path='/api/course-preparations/'+receipt['preparation_id'];previous=None

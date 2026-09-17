@@ -1,0 +1,251 @@
+{
+  "config": {
+    "argv": [
+      "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/node",
+      "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/node_modules/playwright/cli.js",
+      "test",
+      "-c",
+      "playwright.preparation.config.ts"
+    ],
+    "configFile": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/playwright.preparation.config.ts",
+    "rootDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/preparation",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+        "testIgnore": [],
+        "testMatch": [
+          "preparation.spec.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/preparation/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm dev --host 127.0.0.1 --port 5197 --strictPort",
+      "url": "http://127.0.0.1:5197",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "preparation.spec.ts",
+      "file": "preparation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "retry and refresh keep request identity; entry requires committed result",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6369,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T13:24:18.791Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/preparation/preparation-retry-and-refr-77a67-y-requires-committed-result/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47ff6f7eed4fa2ee7144-0bb0177e0efc9d28e48d",
+          "file": "preparation.spec.ts",
+          "line": 3,
+          "column": 5
+        },
+        {
+          "title": "background running task remains controllable after refresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2248,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T13:24:25.499Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/preparation/preparation-background-run-6097d--controllable-after-refresh/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47ff6f7eed4fa2ee7144-a5ee2b1a7816e0dacdd2",
+          "file": "preparation.spec.ts",
+          "line": 40,
+          "column": 7
+        },
+        {
+          "title": "background failed task remains controllable after refresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2576,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T13:24:27.820Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/preparation/preparation-background-fai-60ecc--controllable-after-refresh/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47ff6f7eed4fa2ee7144-c60a83368a58f42a386b",
+          "file": "preparation.spec.ts",
+          "line": 40,
+          "column": 7
+        },
+        {
+          "title": "creation waits for the selected upload and includes its immutable reference",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1828,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T13:24:30.490Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/preparation/preparation-creation-waits-62b7c-des-its-immutable-reference/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "47ff6f7eed4fa2ee7144-f005ce653c4c3f8b8135",
+          "file": "preparation.spec.ts",
+          "line": 69,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-17T13:24:14.866Z",
+    "duration": 17683.168999999998,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

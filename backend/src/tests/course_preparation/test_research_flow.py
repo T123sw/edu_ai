@@ -301,3 +301,16 @@ def test_end_of_source_is_explicit_and_read_tool_unmounted_when_exhausted():
     assert evidence.total_chars==len(evidence.content) and evidence.next_offset is None
     assert 'fetch_source' not in [t['function']['name'] for t in agent.tools('research',state)]
     assert 'save_research_summary' in [t['function']['name'] for t in agent.tools('research',state)]
+
+
+def test_brief_quote_can_reference_explicit_route_changes():
+    from app.course_preparation.schemas import PreparationRequest
+    from app.course_preparation.research_contracts import ResearchBrief
+    request=PreparationRequest(request_id=uuid4(),operation='adjust_course',goal='调整学习路径',
+        target={'course_id':'course','base_manifest_version':1,'base_route_version':1},requested_changes=['理解递归终止条件'])
+    agent=ResearchAgent.__new__(ResearchAgent)
+    state=ResearchState()
+    agent._execute('save_preparation_brief',ResearchBrief.model_validate(brief()),request,state,timeout=10,reserve=lambda _:None)
+    invalid=ResearchBrief.model_validate({**brief(),'requirements':[{'requirement_id':'r','text':'虚构要求','source_quote':'从未要求的内容'}]})
+    with pytest.raises(ValueError,match='要求原话'):
+        agent._execute('save_preparation_brief',invalid,request,state,timeout=10,reserve=lambda _:None)

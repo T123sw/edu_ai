@@ -59,8 +59,9 @@ class PreparationAdapter:
                 exact_material(self.learning,turn['owner'],ref)
                 target.update(resource_id=ref.material_id,base_resource_version=ref.version)
             if operation=='adjust_course': target['base_route_version']=manifest['route_version']
-        if changes and operation != 'adjust_course':
-            goal += '\n具体要求：' + '；'.join(changes)
+        # Preserve the original command as the authoritative requirement text.
+        # Model paraphrases must not drop constraints or become fabricated quotes.
+        goal = turn['request']['question']
         data={'operation':operation,'goal':goal,'target':target,'origin':{'conversation_id':turn['session_id'],'message_id':turn['turn_id']+':user'},
             'overrides':{'required_resource_types':[resource_type]},'requested_changes':list(changes) if operation=='adjust_course' else [],'source_policy':{'mode':'open'}}
         # Bind only to the durable original turn and complete command, never a model call ID.
