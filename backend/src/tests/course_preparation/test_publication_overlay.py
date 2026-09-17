@@ -63,3 +63,18 @@ def test_personal_revision_of_shared_course_keeps_public_and_old_refs(ready):
     with Session(repo.engine) as db:
         assert PreparedPublication.current(db,course).payload==old
         assert db.get(PreparedCoursePointer,('alice',course)).version==1
+
+
+def test_publication_rejects_mutated_body_without_public_pointer(ready):
+    from sqlalchemy import select
+    from app.database.models import MaterialVersion
+    from app.course_preparation.publication_models import PublishedPreparationPointer
+    repo,context,delivery=ready;course=delivery.commit(context).result_ref['course_id']
+    with Session(repo.engine) as db,db.begin():
+        db.get(User,'alice').role='teacher'
+        material=db.scalar(select(MaterialVersion).where(MaterialVersion.course_id==course))
+        material.payload={**material.payload,'preparation_artifact':{'content':'mutated'}}
+    with pytest.raises(ValueError,match='SOURCE_CONTENT_CHANGED'):
+        PreparedPublication(repo.engine).publish('alice',course)
+    with Session(repo.engine) as db:
+        assert db.get(PublishedPreparationPointer,course) is None

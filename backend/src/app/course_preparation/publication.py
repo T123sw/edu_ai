@@ -39,9 +39,15 @@ class PreparedPublication:
                 for resource in node['resources']:
                     old_id=resource['resource_id'];raw=db.scalar(select(MaterialVersion).where(MaterialVersion.course_id==course,MaterialVersion.material_type==resource['resource_type'],MaterialVersion.material_id==old_id,MaterialVersion.version==resource['version']))
                     if raw is None or raw.payload.get('owner_user_id')!=owner or raw.payload.get('content_hash')!=resource['content_sha256']:raise PermissionError('PUBLICATION_SOURCE_UNREADABLE')
+                    if (digest(raw.payload.get('preparation_artifact'))!=resource['content_sha256']
+                            or raw.payload.get('content')!=raw.payload['preparation_artifact'].get('content')):
+                        raise ValueError('PUBLICATION_SOURCE_CONTENT_CHANGED')
                     shared_id='shared_'+digest([course,old_id])[:32]
                     existing=db.scalar(select(MaterialVersion).where(MaterialVersion.course_id==course,MaterialVersion.material_type==resource['resource_type'],MaterialVersion.material_id==shared_id,MaterialVersion.version==resource['version']))
-                    if existing:payload=existing.payload
+                    if existing:
+                        payload=existing.payload
+                        actual=digest({'content':payload.get('content'),'title':payload.get('title'),'artifact_type':resource['resource_type']})
+                        if actual!=payload.get('content_hash'):raise ValueError('PUBLISHED_RESOURCE_CORRUPTED')
                     else:
                         payload=MaterialPublicationService(None)._snapshot_payload(source=raw.payload,material_type=resource['resource_type'],owner_user_id=owner,published_paths=[])
                         # Prepared bodies have already passed the native validator;

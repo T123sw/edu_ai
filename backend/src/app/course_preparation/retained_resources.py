@@ -18,6 +18,7 @@ def read_retained(repository,context,checkpoint):
                 if row is None or row.payload.get('content_hash')!=resource['content_sha256']:raise ValueError('RETAINED_RESOURCE_CHANGED')
                 if user is None or (row.payload.get('owner_user_id')!=user.username and row.payload.get('visibility')!='course'):raise PermissionError('RETAINED_RESOURCE_UNAVAILABLE')
                 artifact=row.payload.get('preparation_artifact') or {'content':row.payload['content'],'title':row.payload['title']}
+                if row.payload.get('content')!=artifact.get('content'):raise ValueError('RETAINED_RESOURCE_BODY_CHANGED')
                 actual=digest(artifact) if row.payload.get('preparation_artifact') else digest({'content':row.payload.get('content'),'title':row.payload.get('title'),'artifact_type':resource['resource_type']})
                 if actual!=resource['content_sha256']:raise ValueError('RETAINED_RESOURCE_BODY_CHANGED')
                 spec={'node_id':node['node_id'],'objectives':[o['text'] for o in node['objectives']]}
