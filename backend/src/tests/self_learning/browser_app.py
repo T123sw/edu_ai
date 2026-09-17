@@ -62,6 +62,12 @@ class Model:
     async def complete(self, messages, tools, deadline):
         import json
         question = messages[-1]['content']
+        if os.getenv('LEARNING_BROWSER_PREPARATION') == '1':
+            if messages[-1]['role'] == 'tool':
+                return {'calls': [], 'content': json.dumps({'answer_markdown':'准备任务已接收，可以继续学习，完成后从资料准备通知打开。','citation_ids':[]})}
+            if '生成并保存' in question or '修改当前' in question:
+                return {'content':'','calls':[{'id':'prepare','type':'function','function':{'name':'submit_preparation_request',
+                    'arguments':json.dumps({'operation':'revise_resource' if '修改当前' in question else 'supplement_node','goal':question,'resource_types':['report']})}}]}
         if '慢回答' in question:
             await asyncio.sleep(2)
         if '一次失败' in question and question not in self.failed_once:
@@ -97,6 +103,23 @@ if os.getenv('LEARNING_BROWSER_ENRICHMENT') == '1':
     svc.memory = MemoryAdapter(svc, engine)
     svc.summaries = SummaryService(svc, engine, svc.memory)
     svc.progress_service.repository.evidence_reader = svc.checks.evidence
+if os.getenv('LEARNING_BROWSER_PREPARATION') == '1':
+    from app.course_preparation.production_models import TABLES as PRODUCTION_TABLES
+    from app.course_preparation.production_service import ProductionService
+    from app.self_learning.preparation_adapter import PreparationAdapter
+    from app.database import User
+    from sqlalchemy.orm import Session
+    Base.metadata.create_all(engine, tables=[Base.metadata.tables[n] for n in (
+        'users','course_preparations','course_preparation_attempts','course_preparation_events',*PRODUCTION_TABLES)])
+    with Session(engine) as db, db.begin():
+        for name in ('alice','bob'):
+            db.add(User(user_id='fixture-'+name, username=name, password_hash='fixture-only', role='student'))
+    async def production_model(owner, system, data, snapshot):
+        if '检查者' in system:
+            return {'passed':True,'issues':[]}
+        await asyncio.sleep(3)
+        return {'title':'个人变量例子','content':'# 变量的新例子\n\n' + '例如先执行 x = 1，再执行 x = 2，x 的值变成 2。赋值会改变名称所绑定的值，和数学上的等式不同。可以逐行追踪变量，检查自己的理解。' * 3}
+    svc.preparations = PreparationAdapter(svc, ProductionService(svc, engine, model_json=production_model))
 # Explicit requirement fixture exercises P0 manifest projection through the real P2 API.
 manager.create_course_structure('manifest-fixture')
 manager.save_course_info('manifest-fixture', {'id': 'manifest-fixture', 'title': '核心与可选资料', 'created_by': 'alice'})

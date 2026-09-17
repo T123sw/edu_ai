@@ -5,6 +5,7 @@ import { agentReply, resourceEvidence, kindLabel, uid, updateRoom, type Classroo
 import { agentContext, chapterMessages, learningMemory } from "./learningMemory";
 import { Icon } from "./ui";
 import { useTopicSession } from '../liveLearning/learningClient';
+import { LearningNotifications } from '../liveLearning/LearningNotifications';
 import { CheckCard } from '../liveLearning/CheckCard';
 import { TeachingObservations } from '../liveLearning/TeachingObservations';
 import { LearningPreferences } from '../liveLearning/LearningPreferences';
@@ -113,7 +114,8 @@ export function LearningAgent({ room, resource, setState, onSelect, onEngage, on
       {pending[chapter.id] && <div className="sl-chat-thinking" role="status">{room.live ? "正在思考…" : "正在整理示例回复"}<span>•••</span></div>}
     </div>
     <div className="sl-chat-bottom">
-      {turns.turns[0]?.committed_effects?.length && ['failed', 'canceled'].includes(turns.turns[0].status) ? <p role="status">本轮已有操作保存，可在“检查与学习偏好”中查看；答疑未完成不会撤销这些操作。</p> : null}
+      {turns.turns[0]?.committed_effects?.length && ['failed', 'canceled'].includes(turns.turns[0].status) ? <p role="status">本轮已有操作保存，可在“资料准备”或“检查与学习偏好”中查看；答疑未完成不会撤销这些操作。</p> : null}
+      {room.preparationEnabled && <LearningNotifications key={`${room.sessionOwner}:${room.id}`} room={room} active={!!turns.active} onSelect={onSelect} />}
       {room.enrichmentEnabled && <details><summary>检查与学习偏好</summary><CheckCard key={`${room.sessionOwner}:${room.id}:${chapter.id}`} course={room.id} topic={chapter.id} owner={room.sessionOwner || ''} refreshKey={turnStatus} /><LearningPreferences key={`${room.sessionOwner}:${room.id}`} course={room.id} /><TeachingObservations key={`${room.sessionOwner}:${room.id}:${chapter.id}`} course={room.id} topic={chapter.id} refreshKey={turnStatus} /></details>}
       {room.agentRuntime && turns.turns[0]?.status === 'failed' && <p role="alert">{answerErrorMessage(turns.turns[0].error_code)}<button onClick={() => void turns.control(turns.turns[0].turn_id, 'retry')}>重试本次答疑</button></p>}
       {room.agentRuntime && turns.error && <p role="alert">{turns.error}</p>}

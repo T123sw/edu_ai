@@ -1246,3 +1246,63 @@ class TaskResourceEvidenceRefModel(Base):
     linked_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_now
     )
+
+
+class CoursePreparationRecord(Base):
+    __tablename__ = 'course_preparations'
+    __table_args__ = (
+        UniqueConstraint('owner_user_id', 'request_id', name='uq_course_preparation_request'),
+        CheckConstraint('current_attempt_no >= 1 AND revision >= 1', name='positive_revision'),
+        CheckConstraint("operation IN ('create_course', 'supplement_node', 'revise_resource', 'adjust_course')",
+                        name='valid_operation'),
+    )
+
+    preparation_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    owner_user_id: Mapped[str] = mapped_column(String(160), ForeignKey('users.user_id'), nullable=False)
+    request_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    request_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    operation: Mapped[str] = mapped_column(String(32), nullable=False)
+    request_payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    current_attempt_no: Mapped[int] = mapped_column(Integer, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class CoursePreparationAttemptRecord(Base):
+    __tablename__ = 'course_preparation_attempts'
+    __table_args__ = (
+        CheckConstraint('attempt_no >= 1', name='positive_attempt'),
+        CheckConstraint("status IN ('accepted', 'running', 'checking', 'succeeded', 'failed', 'canceled')",
+                        name='valid_status'),
+        CheckConstraint("stage IN ('normalize', 'ingest', 'research_scope', 'plan', 'research_nodes', "
+                        "'produce', 'review', 'repair', 'commit')", name='valid_stage'),
+    )
+
+    preparation_id: Mapped[str] = mapped_column(
+        String(200), ForeignKey('course_preparations.preparation_id', ondelete='CASCADE'), primary_key=True)
+    attempt_no: Mapped[int] = mapped_column(Integer, primary_key=True)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    stage: Mapped[str] = mapped_column(String(32), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class CoursePreparationEventRecord(Base):
+    __tablename__ = 'course_preparation_events'
+    __table_args__ = (
+        UniqueConstraint('preparation_id', 'sequence', name='uq_course_preparation_event_sequence'),
+        ForeignKeyConstraint(['preparation_id', 'attempt_no'],
+                             ['course_preparation_attempts.preparation_id', 'course_preparation_attempts.attempt_no'],
+                             ondelete='CASCADE'),
+        CheckConstraint('sequence >= 1 AND revision >= 1', name='positive_sequence'),
+        CheckConstraint("event_type IN ('accepted', 'stage_changed', 'child_updated', 'check_finished', "
+                        "'cancel_requested', 'succeeded', 'failed', 'canceled')", name='valid_event_type'),
+    )
+
+    event_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    preparation_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    attempt_no: Mapped[int] = mapped_column(Integer, nullable=False)
+    sequence: Mapped[int] = mapped_column(Integer, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

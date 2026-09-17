@@ -1,0 +1,22 @@
+F
+=================================== FAILURES ===================================
+_____________ test_real_storage_delivery_only_after_commit[sqlite] _____________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7fbceb58cb90>
+
+    def test_real_storage_delivery_only_after_commit(preparation):
+        before=preparation.learning.room('course','alice',include_progress=False)
+        source,result=submit_and_run(preparation)
+        ref=result['result']['resource_refs'][0]
+        after=preparation.learning.room('course','alice',include_progress=False)
+>       assert after['selectedId']==before['selectedId']
+E       AssertionError: assert 'prep_efc4021...c421aba80_1_0' == 'doc'
+E         
+E         - doc
+E         + prep_efc4021d00fb4643b06058dc421aba80_1_0
+
+backend/src/tests/self_learning/test_preparation_adapter.py:79: AssertionError
+=========================== short test summary info ============================
+FAILED backend/src/tests/self_learning/test_preparation_adapter.py::test_real_storage_delivery_only_after_commit[sqlite]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 16 deselected in 17.92s

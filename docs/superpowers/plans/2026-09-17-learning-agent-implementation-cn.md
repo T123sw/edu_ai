@@ -34,7 +34,7 @@
 | P2 | 阅读、完成、自评分离；不聊天完整学习路径 | P1 | 已完成隔离验收；业务环境未启用 |
 | P3 | 版本化阅读定位、异步答疑、受限工具运行 | P1/P2 | 已完成隔离验收与三个真实模型问题；业务环境未启用 |
 | P4 | 检查与目标证据、可管理偏好及摘要 | P3 | 已完成隔离验收；默认关闭 |
-| P5 | 准备 Agent 任务交接、通知、版本连续性 | P3/P4；准备侧真实提交接口 | 待实施 |
+| P5 | 准备 Agent 任务交接、通知、版本连续性 | P3/P4；准备侧真实提交接口 | 已实现、隔离验收 |
 | P6 | 旧数据迁移、真实模型与并发验收、分范围切换 | P0—P5 | 待实施 |
 
 P0 不改变用户流程；P1 验证会话；P2 首次形成无聊天可用闭环；P3 开始验收 Agent 教学与工具；P4/P5 分别扩展证据、资源准备。每阶段独立记录结果，失败时修复本阶段，不用后续功能掩盖未通过的基础约束。
@@ -343,9 +343,9 @@ def test_deleted_preference_never_reappears(memory, alice, existing_preference):
 
 **Interfaces:** `PreparationAdapter.submit(actor, source_turn_id, request) -> PreparationReceipt`；外部字段完全采用准备设计第 9.2/9.3 节，包括 operation、target、origin、learning_context、overrides。
 
-- [ ] 测试解释不建任务、明确保存才提交、目标歧义不猜写入、同请求重放、提交响应丢失后恢复、共享资料个人修订。
-- [ ] 执行 `python -m pytest tests/self_learning/test_preparation_adapter.py -q` 确认失败。
-- [ ] 从当前轮次恢复用户、会话和请求范围；交给准备服务幂等接收。准备接口不可用时工具返回真实 unavailable，不模拟 succeeded。
+- [x] 测试解释不建任务、明确保存才提交、目标歧义不猜写入、同请求重放、提交响应丢失后恢复、共享资料个人修订。
+- [x] 执行 `python -m pytest tests/self_learning/test_preparation_adapter.py -q` 确认失败。
+- [x] 从当前轮次恢复用户、会话和请求范围；交给准备服务幂等接收。准备接口不可用时工具返回真实 unavailable，不模拟 succeeded。
 
 ```python
 def test_replay_preserves_preparation(adapter, alice, source_turn, supplement):
@@ -354,7 +354,7 @@ def test_replay_preserves_preparation(adapter, alice, source_turn, supplement):
     assert first.preparation_id == replay.preparation_id
 ```
 
-- [ ] 对接真实准备服务运行一次补充资源任务，核对 origin/目标/权限和真实 task receipt。
+- [x] 对接真实准备服务运行一次补充资源任务，核对 origin/目标/权限和真实 task receipt。
 
 ### Task 5.2：通知消费与新版本阅读
 
@@ -362,9 +362,9 @@ def test_replay_preserves_preparation(adapter, alice, source_turn, supplement):
 
 **Interfaces:** `NotificationService.consume(event) -> bool`、`list(actor, course_id, after=None) -> NotificationPage`、`mark_read(actor, notification_id)`；结果绑定只读准备侧 manifest，不调用旧 attach。
 
-- [ ] 测试同事件两次、旧 attempt 迟到、事件先于前端轮询、当前会话正在回答、用户已切节点、结果撤权、版本冲突。
-- [ ] 运行新测试验证失败。
-- [ ] 按事件 ID 与 attempt/revision 去重，通知与聊天分开；用户主动打开新版本时映射可靠位置，无映射明确从章节或开头恢复。
+- [x] 测试同事件两次、旧 attempt 迟到、事件先于前端轮询、当前会话正在回答、用户已切节点、结果撤权、版本冲突。
+- [x] 运行新测试验证失败。
+- [x] 按事件 ID 与 attempt/revision 去重，通知与聊天分开；用户主动打开新版本时映射可靠位置，无映射明确从章节或开头恢复。
 
 ```python
 def test_duplicate_notification_is_one_record(notifications, succeeded_event):
@@ -373,7 +373,9 @@ def test_duplicate_notification_is_one_record(notifications, succeeded_event):
     assert len(notifications.list(succeeded_event.actor, 'course').items) == 1
 ```
 
-- [ ] 端到端验证后台任务期间继续答疑，结果完成不切页面、不复制旧完成标记、不重复挂资源；更新 P5 验收。
+- [x] 端到端验证后台任务期间继续答疑，结果完成不切页面、不复制旧完成标记、不重复挂资源；更新 P5 验收。
+
+2026-09-17：P5 已完成，见 [P5 验收](../../acceptance/2026-09-17-learning-agent-p5-cn.md)。准备侧真实模型生成/修订、浏览器后台交付与 39 项最终回归通过。旧课程采用个人补充 manifest，不宣称整课 ready。
 
 ## P6：迁移与整体验收
 

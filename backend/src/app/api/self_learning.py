@@ -315,3 +315,26 @@ def update_teaching_observation(turn_id: str, payload: ObservationUpdate, user=D
             row.status = payload.status
             checks.bump_facts(db, user['username'], row.course_id, row.topic_id, turn_id)
         return {'turn_id':turn_id, 'status':row.status}
+
+@router.get('/courses/{course_id}/preparations')
+def preparation_tasks(course_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    return {'items': enrichment(svc, 'preparations').list(user['username'], course_id)}
+
+@router.get('/preparations/{preparation_id}')
+def preparation_status(preparation_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    return enrichment(svc, 'preparations').get(user['username'], preparation_id)
+
+class PreparationControl(Contract):
+    action: Literal['cancel','retry']
+
+@router.post('/preparations/{preparation_id}/control')
+def control_preparation(preparation_id: str, payload: PreparationControl, user=Depends(get_current_user), svc=Depends(service)):
+    return enrichment(svc, 'preparations').service.control(user['username'], preparation_id, payload.action)
+
+@router.get('/courses/{course_id}/notifications')
+def preparation_notifications(course_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    return enrichment(svc, 'preparations').notifications.list(user['username'], course_id)
+
+@router.post('/notifications/{notification_id}/read')
+def read_preparation_notification(notification_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    return enrichment(svc, 'preparations').notifications.mark_read(user['username'], notification_id)

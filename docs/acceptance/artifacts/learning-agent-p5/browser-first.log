@@ -1,0 +1,63 @@
+[WebServer] INFO:     Started server process [569753]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
+[WebServer] (node:569809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:569822) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:569895) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Building prefix dict from the default dictionary ...
+[WebServer] Loading model from cache /tmp/jieba.cache
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Loading model cost 0.885 seconds.
+[WebServer] Prefix dict has been built successfully.
+  ✘  1 tests/live-learning/preparation-handoff.spec.ts:2:5 › background preparation allows questions; delivery never switches reading; revision is personal (18.8s)
+
+
+  1) tests/live-learning/preparation-handoff.spec.ts:2:5 › background preparation allows questions; delivery never switches reading; revision is personal 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('region', { name: '资料准备通知' }).getByText('新资料已准备好', { exact: true })
+    Expected: 2
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for getByRole('region', { name: '资料准备通知' }).getByText('新资料已准备好', { exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      21 |   await expect(page.frameLocator('iframe.sl-live-material').getByRole('heading', { name: '变量的新例子' })).toBeVisible();
+      22 |   await ask('请修改当前这份文档，增加一个例子并保存个人版本');
+    > 23 |   await expect(notices.getByText('新资料已准备好', { exact: true })).toHaveCount(2);
+         |                                                               ^
+      24 |   await expect(page.frameLocator('iframe.sl-live-material').getByRole('heading', { name: '变量的新例子' })).toBeVisible();
+      25 |   await page.reload();
+      26 |   await expect(page.getByRole('button', { name: '节点 A 核心文档', exact: true })).toBeVisible();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/live-learning/preparation-handoff.spec.ts:23:63
+
+    Error Context: test-results/learning-preparation/preparation-handoff-backgr-1200a-eading-revision-is-personal/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/learning-preparation/preparation-handoff-backgr-1200a-eading-revision-is-personal/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/learning-preparation/preparation-handoff-backgr-1200a-eading-revision-is-personal/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/live-learning/preparation-handoff.spec.ts:2:5 › background preparation allows questions; delivery never switches reading; revision is personal 

@@ -199,6 +199,8 @@ class LearningAgentRuntime:
         if self.thread and self.thread.is_alive():
             return
         self.stopping.clear()
+        if getattr(self.learning, 'preparations', None):
+            self.learning.preparations.service.start()
         if getattr(self.learning, 'summaries', None):
             self.learning.summaries.start()
         def poll():
@@ -214,6 +216,8 @@ class LearningAgentRuntime:
 
     def stop(self, grace_seconds=10):
         self.stopping.set()
+        if getattr(self.learning, 'preparations', None):
+            self.learning.preparations.service.stop()
         if getattr(self.learning, 'summaries', None):
             self.learning.summaries.stop(grace_seconds=1)
         if self.thread:

@@ -34,7 +34,4 @@ class TeachingObservation(Contract):
 AnswerResult.model_rebuild()
 
 
-class AgentFailure(Exception):
-    def __init__(self, code):
-        self.code = code
-        super().__init__(code)
+from app.chat.bounded_completion import CompletionFailure as AgentFailure

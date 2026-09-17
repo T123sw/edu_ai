@@ -1,0 +1,6 @@
+Building prefix dict from the default dictionary ...
+Loading model from cache /tmp/jieba.cache
+Loading model cost 0.811 seconds.
+Prefix dict has been built successfully.
+{"status": "succeeded", "seconds": 24.24, "operation": "supplement_node"}
+{"status": "succeeded", "seconds": 21.14, "operation": "revise_resource"}

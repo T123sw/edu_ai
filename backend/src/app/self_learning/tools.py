@@ -66,6 +66,17 @@ class OfferCheck(Contract):
     preferred_form: Literal['choice', 'short_answer'] = 'choice'
 
 
+class SubmitPreparation(Contract):
+    operation: Literal['supplement_node', 'revise_resource']
+    goal: str = Field(min_length=1, max_length=2000)
+    resource_types: list[Literal['report', 'quiz']] = Field(default_factory=lambda: ['report'], min_length=1, max_length=2)
+    resource_handle: Identifier | None = None
+
+
+class GetPreparation(Contract):
+    preparation_id: Identifier
+
+
 class ToolResult(Contract):
     ok: bool
     data: dict | None = None
@@ -104,6 +115,9 @@ class LearningTools:
                 ToolSpec('update_learning_preference', '仅依据当前用户明确长期设置/删除原话修改指定作用域偏好；value 必须直接出现在原话中', UpdatePreference, self.preference_update, effect='write', min_phase=4)])
         if getattr(learning, 'checks', None):
             specs.append(ToolSpec('offer_understanding_check', '用户愿意检查时提供一道可跳过的理解检查；保存题目不代表已作答或已掌握', OfferCheck, self.offer_check, effect='write', min_phase=4, timeout_seconds=30))
+        if getattr(learning, 'preparations', None):
+            specs.extend([ToolSpec('submit_preparation_request', '仅依据用户当前明确保存/生成资料或修改当前资料的请求提交后台准备任务；目标不清先询问。收据accepted不是交付成功', SubmitPreparation, self.submit_preparation, effect='write', min_phase=5),
+                ToolSpec('get_preparation_status', '读取本人准备任务真实状态；成功后用户自行打开，不自动跳转', GetPreparation, self.preparation_status, min_phase=5)])
         self.registry = MappingProxyType({s.name: s for s in specs})
         if len(self.registry) != len(specs) or any(s.effect not in {'read', 'write'} or not callable(s.handler) for s in specs):
             raise ValueError('invalid learning registry')
@@ -158,6 +172,15 @@ class LearningTools:
         with Session(self.learning.session_repository.engine) as db:
             receipt = db.get(LearningEnrichmentReceipt, (self.turn['owner'], operation_id))
             return bool(receipt and receipt.result.get('memory_epoch') == current_epoch)
+
+    def submit_preparation(self, args, operation_id):
+        return self.learning.preparations.submit(self.turn, args.model_dump(), self.packet, operation_id)
+
+    def preparation_status(self, args):
+        result = self.learning.preparations.get(self.turn['owner'], args.preparation_id)
+        if result['target']['course_id'] != self.turn['course_id']:
+            raise HTTPException(404)
+        return ToolResult(ok=True, data=result).model_dump()
 
     def preferences(self, args):
         result = self.learning.memory.read(self.turn['owner'], self.turn['course_id'])

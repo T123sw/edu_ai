@@ -131,3 +131,5 @@ class LearningAgentOutbox(Base):
 
 # Register P4 tables on the same application metadata for migration/test tooling.
 from . import enrichment_models as _enrichment_models
+
+from app.course_preparation import production_models  # noqa: F401

@@ -62,7 +62,7 @@ class LearningService:
         from .turn_service import configured_turn_repository, TurnService
         self.turn_repository = turn_repository or configured_turn_repository(self.session_repository)
         self.turns = TurnService(self, self.turn_repository) if self.turn_repository else None
-        self.checks = self.memory = self.summaries = None
+        self.checks = self.memory = self.summaries = self.preparations = None
         import os
         if os.getenv('LEARNING_ENRICHMENT_V1_ENABLED', '').lower() in {'true', '1'}:
             if not self.turns or not self.progress_service:
@@ -75,6 +75,16 @@ class LearningService:
             self.memory = MemoryAdapter(self, engine)
             self.summaries = SummaryService(self, engine, self.memory)
             self.progress_service.repository.evidence_reader = self.checks.evidence
+
+        if os.getenv('LEARNING_PREPARATION_V1_ENABLED', '').lower() in {'true', '1'}:
+            if not self.turns or not self.memory:
+                raise RuntimeError('P5 requires P3/P4 persistence')
+            from sqlalchemy import inspect
+            from app.course_preparation.production_service import ProductionService
+            from .preparation_adapter import PreparationAdapter
+            if not inspect(self.session_repository.engine).has_table('course_production_runs'):
+                raise RuntimeError('Apply migration 20260917_0028 before enabling preparation handoff')
+            self.preparations = PreparationAdapter(self, ProductionService(self, self.session_repository.engine))
 
     def require(self, course_id, owner):
         info = self.manager.get_course_info(course_id)
@@ -115,14 +125,21 @@ class LearningService:
         def ready(material):
             job = get_job(material['source_job_id']) if material.get('source_job_id') else None
             return job is None or str(getattr(job.status, 'value', job.status)) == 'succeeded'
-        materials = [m for m in materials if ready(m)]
+        delivered = self.preparations.service.resources(owner, course_id) if self.preparations else []
+        from app.course_preparation.production_service import digest as delivery_digest
+        material_by_id = {m.get('material_id'): m for m in materials}
+        delivered_ids = {r['material_id'] for r in delivered if (m := material_by_id.get(r['material_id']))
+            and m.get('version') == r['version'] and delivery_digest(self.material(course_id, r['material_type'], r['material_id'], owner)) == r['content_hash']}
+        materials = [m for m in materials if ready(m) and (not m.get('preparation_draft') or m.get('material_id') in delivered_ids)]
+        # Keep original selection fallback stable when a new delivery arrives.
+        materials.sort(key=lambda m: m.get('material_id') in delivered_ids)
         by_id = {m.get('material_id'): m for m in materials}
         chapters, messages = [], []
         for leaf in leaves:
             items = []
             for material in materials:
                 # Ordinary personal work appears only after explicitly adding it to learning.
-                if not (material.get('visibility') == 'course' or material.get('learning_course_resource')):
+                if not (material.get('visibility') == 'course' or material.get('learning_course_resource') or material.get('material_id') in delivered_ids):
                     continue
                 target = material.get('scope_id') or leaves[0]['id']
                 if target == leaf['id']:
@@ -156,8 +173,9 @@ class LearningService:
                 'sourceId': course_id if info.get('created_by') != owner else None,
                 'publisher': info.get('created_by'), 'live': True,
                 'practice': overlay.get('practice', {}), 'canPublish': member.role == 'owner', 'resources': [self.resource(m) for m in by_id.values()
-                  if m.get('visibility') == 'private' and not m.get('learning_course_resource') and not m.get('sourceResourceId')]}
+                  if m.get('visibility') == 'private' and not m.get('learning_course_resource') and not m.get('sourceResourceId') and m.get('material_id') not in delivered_ids]}
 
+        room['preparationEnabled'] = bool(self.preparations)
         room['agentRuntime'] = bool(self.turns)
         room['enrichmentEnabled'] = bool(self.checks and self.memory)
         room['progressPersistence'] = bool(self.progress_service)

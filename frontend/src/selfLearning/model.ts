@@ -64,6 +64,7 @@ export type Classroom = {
   live?: boolean;
   agentRuntime?: boolean;
   enrichmentEnabled?: boolean;
+  preparationEnabled?: boolean;
   progressPersistence?: boolean;
   progressOwner?: string;
   learningProjection?: Projection;

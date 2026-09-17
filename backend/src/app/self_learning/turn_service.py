@@ -33,6 +33,14 @@ class TurnService:
                 effects.extend({'kind': 'preference', 'field': row.result['field'], 'scope': row.result['scope']} for row in db.scalars(
                     select(LearningEnrichmentReceipt).where(LearningEnrichmentReceipt.owner == turn['owner'], LearningEnrichmentReceipt.operation_id.startswith(prefix, autoescape=True))))
             value['committed_effects'] = effects
+        if getattr(self.learning, 'preparations', None):
+            from sqlalchemy import select
+            from sqlalchemy.orm import Session
+            from app.course_preparation.production_models import ProductionRun
+            with Session(self.repository.engine) as db:
+                value.setdefault('committed_effects', []).extend({'kind':'preparation', 'preparation_id':row.preparation_id}
+                    for row in db.scalars(select(ProductionRun).where(ProductionRun.owner == turn['owner'],
+                        ProductionRun.operation_id.startswith(turn['turn_id'] + ':', autoescape=True))))
         return value
 
     def accept(self, owner, course, topic, request):

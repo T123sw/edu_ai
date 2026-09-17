@@ -1,0 +1,38 @@
+......FF......................                                           [100%]
+=================================== FAILURES ===================================
+_____________ test_real_storage_delivery_only_after_commit[sqlite] _____________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7f312270b9b0>
+
+    def test_real_storage_delivery_only_after_commit(preparation):
+        before=preparation.learning.room('course','alice',include_progress=False)
+        source,result=submit_and_run(preparation)
+        ref=result['result']['resource_refs'][0]
+        after=preparation.learning.room('course','alice',include_progress=False)
+>       assert after['selectedId']==before['selectedId']
+E       AssertionError: assert 'prep_8b01808...678edd0fe_1_0' == 'doc'
+E         
+E         - doc
+E         + prep_8b018084af504e7fbef2ac1678edd0fe_1_0
+
+backend/src/tests/self_learning/test_preparation_adapter.py:79: AssertionError
+___________ test_real_storage_delivery_only_after_commit[postgresql] ___________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7f3122783a40>
+
+    def test_real_storage_delivery_only_after_commit(preparation):
+        before=preparation.learning.room('course','alice',include_progress=False)
+        source,result=submit_and_run(preparation)
+        ref=result['result']['resource_refs'][0]
+        after=preparation.learning.room('course','alice',include_progress=False)
+>       assert after['selectedId']==before['selectedId']
+E       AssertionError: assert 'prep_7e327a5...48fa2de2d_1_0' == 'doc'
+E         
+E         - doc
+E         + prep_7e327a5a5d2641fb9d0d2c848fa2de2d_1_0
+
+backend/src/tests/self_learning/test_preparation_adapter.py:79: AssertionError
+=========================== short test summary info ============================
+FAILED backend/src/tests/self_learning/test_preparation_adapter.py::test_real_storage_delivery_only_after_commit[sqlite]
+FAILED backend/src/tests/self_learning/test_preparation_adapter.py::test_real_storage_delivery_only_after_commit[postgresql]
+2 failed, 28 passed in 176.29s (0:02:56)
