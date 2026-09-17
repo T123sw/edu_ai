@@ -1420,3 +1420,23 @@ class PreparationDocumentVersion(Base):
     parsed: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
 
+
+class PreparationArtifact(Base):
+    __tablename__ = 'preparation_artifacts'
+    artifact_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    preparation_id: Mapped[str] = mapped_column(ForeignKey('course_preparations.preparation_id'), nullable=False, index=True)
+    action_id: Mapped[str] = mapped_column(ForeignKey('preparation_actions.action_id'), nullable=False, unique=True)
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), nullable=False)
+    resource_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    resource_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    resource_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    spec: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    spec_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False)
+    lease_token: Mapped[str | None] = mapped_column(String(160))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    content: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    content_digest: Mapped[str | None] = mapped_column(String(64))
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+

@@ -45,6 +45,7 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
         raise ReportReviewFailed('reviewed_report_requires_outline_chapters')
     specification = {
         'subject': payload.subject,
+        'preparation_policy': getattr(payload, 'preparation_policy', None),
         'current_execution': getattr(payload, 'harness_execution_context', {'stage': 'write_and_review_report'}),
         'requirements': getattr(payload, 'focus', ''),
         'outline': chapters,
@@ -59,7 +60,7 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
     external_review = {'previous_content_sha256':digest(initial_body), 'feedback':list(initial_feedback or [])} if initial_body else None
     for version in range(1, 4):
         body = gateway.chat([
-            {'role':'system','content': '撰写完整教学报告正文，输出 Markdown；语言服从用户已确认要求，未指定时沿用对话语言。严格保留确认大纲各章标题和顺序，标题使用 ##；'
+            {'role':'system','content': ('本任务依据服务端课程准备自动策略，章节为 Agent 的教学方案，不代表用户确认。无需确认大纲。' if getattr(payload, 'preparation_policy', None) else '') + '撰写完整教学报告正文，输出 Markdown；语言服从用户已确认要求，未指定时沿用对话语言。严格保留确认大纲各章标题和顺序，标题使用 ##；'
              'current_execution 是当前已提交任务和模型依据用户消息作出的推进决定。历史 requirements 中的先给大纲等阶段要求不代表当前仍停留在大纲；以当前执行阶段和已确认内容约束撰写完整正文。'
              '结合结构化内容组织的受众、先修、目标、例子与检查题，展开解释与推理，不重复输出大纲。'
              '有证据才引用真实提供的来源链接，区分来源结论与教学设计，资料不足写明限制。'
