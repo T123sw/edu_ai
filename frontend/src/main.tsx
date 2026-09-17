@@ -6,7 +6,15 @@ const legacy =
   /^#(video-render|player-smoke)/.test(location.hash);
 const Entry = legacy
   ? lazy(() => import("./legacyEntry"))
-  : lazy(() => import("./selfLearning/App"));
+  : new URLSearchParams(location.search).get("account") === "1"
+    ? lazy(() => import("./liveLearning/AccountEntry"))
+  : new URLSearchParams(location.search).get("liveWorkbench") === "1"
+    ? lazy(() => import("./liveLearning/WorkbenchEntry"))
+  : new URLSearchParams(location.search).get("learningPlayer") === "1"
+    ? lazy(() => import("./liveLearning/MaterialEntry"))
+  : new URLSearchParams(location.search).get("workspace") === "1"
+    ? lazy(() => import("./learningWorkspaceEntry"))
+    : lazy(() => import("./selfLearning/App"));
 
 const container = document.getElementById("root");
 

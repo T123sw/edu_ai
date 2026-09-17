@@ -1,0 +1,79 @@
+.sl-task-launcher { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 7px 12px; border: 1px solid #e5e7ef; border-radius: 20px; background: #ffffffb8; box-shadow: 0 2px 5px #38425d03; font-size: 12px; color: #7c8194; white-space: nowrap; }
+.sl-task-launcher:hover { color: #7864bd; background: #fff; border-color: #d9d1ed; }
+.sl-task-launcher.is-active { color: #7c66bb; }
+.sl-task-launcher b { min-width: 19px; height: 19px; display: grid; place-items: center; padding: 0 5px; border-radius: 10px; background: #ebe5fa; font-size: 10px; font-weight: 500; }
+.sl-task-launcher > i { width: 6px; height: 6px; border-radius: 50%; background: #d6a074; }
+.sl-task-launcher:focus-visible,
+.sl-task-center button:focus-visible,
+.sl-task-center a:focus-visible,
+.sl-task-center summary:focus-visible { outline: 2px solid #a491d6; outline-offset: 3px; }
+.sl-modal:has(.sl-task-center) { width: min(680px, calc(100vw - 32px)); max-height: min(820px, calc(100dvh - 48px)); border: 1px solid #e7e6ef; border-radius: 22px; overflow: hidden; box-shadow: 0 24px 90px #30354c22; }
+.sl-modal:has(.sl-task-center)::backdrop { background: #252d4733; backdrop-filter: blur(6px); }
+.sl-modal:has(.sl-task-center) > header { padding: 22px 26px 14px; border: 0; position: static; }
+.sl-modal:has(.sl-task-center) > header h2 { color: #484c63; font-size: 18px; font-weight: 600; }
+.sl-modal:has(.sl-task-center) > header .sl-icon-button { background: #f6f6fa; border-radius: 50%; width: 30px; height: 30px; min-height: 30px; color: #8d91a3; }
+.sl-task-center { display: flex; flex-direction: column; max-height: calc(min(820px, 100dvh - 48px) - 66px); color: #50566b; }
+.sl-task-summary { display: flex; align-items: center; gap: 12px; margin: 0 26px 22px; padding: 17px; background: linear-gradient(110deg, #f4f0fc, #f5f8fc); border: 1px solid #ece9f6; border-radius: 14px; flex-shrink: 0; }
+.sl-task-summary-icon { flex-shrink: 0; width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid #e7def7; border-radius: 13px; color: #9580c9; background: #ffffffbd; }
+.sl-task-summary h3 { margin: 0; font-size: 13px; font-weight: 500; color: #665b80; }
+.sl-task-summary p { margin: 6px 0 0; font-size: 11px; line-height: 1.6; color: #9691a6; }
+.sl-task-sync { display: flex; align-items: center; gap: 5px; margin-left: auto; flex-shrink: 0; font-size: 10px; color: #a09cac; }
+.sl-task-sync i { width: 5px; height: 5px; border-radius: 50%; background: #8ab8a3; }
+.sl-task-filters { display: flex; gap: 5px; margin: 0 26px 18px; padding: 4px; border-radius: 11px; background: #f5f6f9; flex-shrink: 0; }
+.sl-task-filters button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; padding: 9px 6px; font-size: 12px; color: #9297a7; white-space: nowrap; }
+.sl-task-filters button[aria-pressed="true"] { background: #fff; color: #7d67b5; box-shadow: 0 2px 6px #44415d09; }
+.sl-task-filters button span { font-size: 10px; font-variant-numeric: tabular-nums; }
+.sl-task-list { padding: 0 26px 20px; overflow-y: auto; min-height: 220px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #e1dbea transparent; }
+.sl-task-card { --task-accent: #9782c6; --task-tint: #f1ecfa; border: 1px solid #e9eaf1; border-radius: 14px; padding: 17px; background: #fff; }
+.sl-task-card + .sl-task-card { margin-top: 12px; }
+.sl-task-card.done { --task-accent: #72a38e; --task-tint: #edf6f1; }
+.sl-task-card.failed { --task-accent: #bf8c70; --task-tint: #fbf0e9; }
+.sl-task-card.muted { --task-accent: #959aac; --task-tint: #f1f3f7; }
+.sl-task-card-top { display: flex; align-items: center; gap: 11px; }
+.sl-task-kind { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; border-radius: 11px; background: var(--task-tint); color: var(--task-accent); }
+.sl-task-name { min-width: 0; }
+.sl-task-name h3 { margin: 0; font-size: 13px; font-weight: 500; color: #555a70; }
+.sl-task-name p { margin: 5px 0 0; font-size: 11px; color: #9b9eac; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sl-task-status { display: flex; align-items: center; gap: 5px; margin-left: auto; flex-shrink: 0; font-size: 10px; padding: 5px 8px; border-radius: 6px; color: var(--task-accent); background: var(--task-tint); }
+.sl-task-status i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+.sl-task-message { margin: 14px 0 0; color: #8a8f9f; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.sl-task-progress { margin-top: 14px; }
+.sl-task-progress-label { display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: #a0a2b0; margin-bottom: 8px; }
+.sl-task-progress-label strong { color: #9180bb; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.sl-task-track { height: 5px; overflow: hidden; background: #f0eef6; border-radius: 4px; }
+.sl-task-track > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #c0b3e0, #a18ccf); transition: width .4s ease; }
+.sl-task-error { margin-top: 14px; padding: 10px 12px; background: #fcf7f3; border-radius: 8px; font-size: 11px; color: #af876f; }
+.sl-task-error summary { cursor: pointer; }
+.sl-task-error p { margin: 9px 0 0; line-height: 1.7; color: #9b8374; overflow-wrap: anywhere; white-space: pre-wrap; }
+.sl-task-actions { display: flex; justify-content: flex-end; margin-top: 14px; gap: 10px; }
+.sl-task-actions button,
+.sl-task-actions a { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; color: #8e77b8; background: #f5f1fb; border: 1px solid #eae3f5; border-radius: 8px; padding: 7px 11px; text-decoration: none; }
+.sl-task-actions button:hover,
+.sl-task-actions a:hover { background: #eee7f8; }
+.sl-task-actions button:disabled { opacity: .5; cursor: wait; }
+.sl-task-retry-note { display: inline-flex; align-items: center; gap: 5px; color: #77a18b; font-size: 11px; }
+.sl-task-inline-error { font-size: 11px; color: #b47969; margin: 12px 0 0; line-height: 1.6; overflow-wrap: anywhere; }
+.sl-task-empty { min-height: 235px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.sl-task-empty > span { display: grid; place-items: center; width: 65px; height: 65px; background: #f5f2fb; color: #b2a3ce; border: 1px solid #ede7f6; border-radius: 20px; margin-bottom: 18px; }
+.sl-task-empty h3 { margin: 0; font-size: 14px; font-weight: 500; color: #777b8e; }
+.sl-task-empty p { margin: 10px 0 0; font-size: 12px; color: #a4a7b5; line-height: 1.8; }
+.sl-task-footer { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 14px 20px; background: #fafafe; border-top: 1px solid #eff0f5; color: #a5a8b7; font-size: 10px; flex-shrink: 0; }
+@media (max-width: 700px) {
+  .sl-task-launcher { min-height: 32px; padding: 6px 10px; font-size: 11px; }
+  .sl-modal:has(.sl-task-center) { width: calc(100vw - 24px); max-height: calc(100dvh - 32px); border-radius: 18px; }
+  .sl-modal:has(.sl-task-center) > header { padding: 18px 18px 14px; }
+  .sl-task-center { max-height: calc(100dvh - 94px); }
+  .sl-task-summary { margin: 0 16px 16px; padding: 12px; gap: 10px; }
+  .sl-task-summary h3 { font-size: 12px; }
+  .sl-task-summary-icon { width: 35px; height: 35px; }
+  .sl-task-sync { display: none; }
+  .sl-task-filters { margin: 0 16px 14px; gap: 2px; }
+  .sl-task-filters button { font-size: 11px; gap: 5px; }
+  .sl-task-list { padding: 0 16px 16px; min-height: 160px; }
+  .sl-task-card { padding: 13px; }
+  .sl-task-status { font-size: 9px; padding: 5px 6px; }
+  .sl-task-name h3 { font-size: 12px; }
+  .sl-task-name p { font-size: 10px; }
+  .sl-task-kind { width: 33px; height: 33px; }
+  .sl-task-footer { padding: 12px; font-size: 9px; }
+}

@@ -54,9 +54,17 @@ def create_app(
         runtime = durable_runtime_factory()
         runtime.start()
         app.state.durable_job_runtime = runtime
+        learning_runtime = None
         try:
+            from app.self_learning.turn_service import build_learning_runtime
+            learning_runtime = build_learning_runtime()
+            if learning_runtime:
+                learning_runtime.start()
+            app.state.learning_agent_runtime = learning_runtime
             yield
         finally:
+            if learning_runtime:
+                learning_runtime.stop(grace_seconds=10)
             runtime.stop(grace_seconds=10)
 
     app = FastAPI(
@@ -96,6 +104,9 @@ def create_app(
     app.include_router(video_router)
     app.include_router(blog_agent_router, prefix="/api/blog")
     app.include_router(deepsearch_router)
+
+    from app.api.self_learning import router as self_learning_router
+    app.include_router(self_learning_router)
 
     # lazy imports to avoid circular import via app/api/__init__.py
     from app.api.courses import router as courses_router

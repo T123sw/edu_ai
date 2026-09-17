@@ -1,0 +1,5 @@
+.review-label { font-size: 11px; color: #9688a7; white-space: nowrap; }
+.review-missing { padding: 80px; text-align: center; }
+.review-completed { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; align-items: center; gap: 18px; padding: 14px 20px; border: 1px solid #e5dcef; border-radius: 12px; background: #fff; box-shadow: 0 8px 30px #65527720; color: #72637e; font-size: 12px; white-space: nowrap; }
+.review-completed a, .review-completed button { color: #8064b1; }
+@media (max-width: 700px) { .review-label { font-size: 9px; } }

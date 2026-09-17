@@ -43,6 +43,8 @@ class PostgresConversationRepository:
         course_id, scope_type, scope_id = _scope_fields(state)
         with database_session(engine=self._engine) as session:
             record = session.get(Conversation, conversation_id)
+            if record is not None and (record.state or {}).get('learning_session'):
+                raise ValueError('Learning topic sessions must use the append-only learning repository')
             if record is None:
                 record = Conversation(conversation_id=conversation_id)
                 session.add(record)

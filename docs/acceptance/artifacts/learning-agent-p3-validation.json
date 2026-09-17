@@ -1,0 +1,32 @@
+{
+  "phase": "P3",
+  "date": "2026-09-17",
+  "record_type": "captured tool output summary",
+  "backend": {
+    "command": "python -m pytest tests/self_learning tests/test_self_learning.py tests/database/test_alembic_revision_chain.py -q",
+    "passed": 113,
+    "skipped": 1,
+    "seconds": 151.58,
+    "warning": "Alembic legacy path_separator deprecation"
+  },
+  "frontend": {
+    "unit_passed": 9,
+    "progress_browser_passed": 11,
+    "agent_browser_passed": 3,
+    "scoped_types": "passed",
+    "scoped_eslint": "passed"
+  },
+  "real_model_artifact": "learning-agent-p3-real-model.json",
+  "db_restart_artifact": "learning-agent-p3-db-restart.json",
+  "implementation_fixes": [
+    "tool_calls no longer aliases mutable pending queue",
+    "strict final JSON fence unwrapping",
+    "direct cancellable async transport",
+    "initial reading scroll/end marker timing"
+  ],
+  "verification_script_corrections": [
+    "restart preflight disposes fixture connection before checking other clients",
+    "restart assertion uses public message text field"
+  ],
+  "business_database_migrated": false
+}

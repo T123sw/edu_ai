@@ -1,0 +1,12 @@
+{
+  "database": "PostgreSQL 14 isolated temporary cluster",
+  "actual_stop_start": true,
+  "checkpoint_retained": true,
+  "expired_lease_reclaimed": true,
+  "attempt": 2,
+  "old_worker_fenced": true,
+  "user_message_count": 1,
+  "final_answer_count": 1,
+  "outbox_count": 1,
+  "status": "passed"
+}

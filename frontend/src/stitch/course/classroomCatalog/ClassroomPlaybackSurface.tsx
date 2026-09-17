@@ -36,7 +36,7 @@ import { useClassroomInterruption } from "../../classroomQa/useClassroomInterrup
 import { shouldTrackResourceLearning } from "../../pages/classroomResourceLearning";
 import type { WorkspaceQaRegistration } from "./workspaceQaBinding";
 
-export type ClassroomQaBinding = WorkspaceQaRegistration & {
+export type ClassroomQaBinding = Omit<WorkspaceQaRegistration, 'kind'> & {
   kind: "classroom" | "personal_classroom";
   version: number | null;
 };
@@ -44,6 +44,11 @@ export type ClassroomQaBinding = WorkspaceQaRegistration & {
 export type ClassroomPlaybackSurfaceProps = {
   courseId: string;
   classroomId: string;
+  initialScene?: number;
+  initialSceneId?: string;
+  externallyPaused?: boolean;
+  onPositionChange?: (scene: number) => void;
+  onReadingContext?: (sceneId: string, version: number, reachedEnd: boolean) => void;
   resourceVersion?: number;
   mode: "manage" | "learn";
   catalogNodeId?: string | null;
@@ -84,6 +89,11 @@ export function ClassroomPlaybackSurface({
   kind = "classroom",
   qaTargetKey,
   onQaControllerChange,
+  initialScene = 0,
+  initialSceneId,
+  externallyPaused = false,
+  onPositionChange,
+  onReadingContext,
 }: ClassroomPlaybackSurfaceProps) {
   const { user } = useAuthSession();
   const { courseRole } = useCourseRoute();
@@ -91,7 +101,7 @@ export function ClassroomPlaybackSurface({
   const tracksResourceLearning = shouldTrackResourceLearning({
     role: user?.role,
     courseRole,
-    resourceVersion,
+    resourceVersion: resourceVersion ?? null,
   });
   const [material, setMaterial] = useState<ClassroomMaterial | null>(null);
   const [loading, setLoading] = useState(true);
@@ -127,6 +137,14 @@ export function ClassroomPlaybackSurface({
     pageRevision: playback.revision,
     enabled: Boolean(courseId && classroomId && material),
   });
+  useEffect(() => { if (externallyPaused) controller.pause(); }, [controller, externallyPaused]);
+  useEffect(() => { if (playback.sceneIndex >= 0) onPositionChange?.(playback.sceneIndex); }, [playback.sceneIndex, onPositionChange]);
+  useEffect(() => {
+    const scene = material?.scenes?.[playback.sceneIndex];
+    if (scene && material?.version) onReadingContext?.(scene.id, material.version, playback.status === 'completed' && playback.sceneIndex === (material.scenes?.length ?? 0) - 1);
+  }, [material, playback.sceneIndex, playback.status, onReadingContext]);
+  const initialSceneRef = useRef(initialScene);
+  const initialSceneIdRef = useRef(initialSceneId);
   const qaLocksPlayback = playback.status === "interrupted";
 
   useEffect(() => {
@@ -140,6 +158,7 @@ export function ClassroomPlaybackSurface({
     setError(null);
     getClassroom(courseId, classroomId, resourceVersion ?? undefined)
       .then((data) => {
+        if (resourceVersion !== undefined && data.version !== resourceVersion) throw new Error("资料版本已变化，请刷新后重新打开");
         if (!cancelled) setMaterial(data);
       })
       .catch((err) => {
@@ -171,7 +190,8 @@ export function ClassroomPlaybackSurface({
   );
 
   useEffect(() => {
-    if (scenes.length > 0) void controller.enter(0);
+    const located = initialSceneIdRef.current ? scenes.findIndex(s => s.id === initialSceneIdRef.current) : -1;
+    if (scenes.length > 0) void controller.enter(located >= 0 ? located : Math.min(Math.max(0, Math.floor(initialSceneRef.current)), scenes.length - 1));
     else controller.leave();
   }, [controller, scenes]);
 

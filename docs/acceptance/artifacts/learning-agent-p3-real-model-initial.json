@@ -1,0 +1,56 @@
+{
+  "model": "deepseek-v4-pro",
+  "configuration_source": "environment",
+  "temperature": 0.2,
+  "max_output_tokens": 2000,
+  "runtime_deadline_seconds": 90,
+  "questions": [
+    {
+      "question": "用一个简单例子解释我选中的这句话。",
+      "status": "failed",
+      "error_code": "MODEL_UNAVAILABLE",
+      "seconds": 3.09,
+      "answer": null
+    },
+    {
+      "question": "square(3) 为什么得到 9？只给一步提示，不要展开完整教程。",
+      "status": "succeeded",
+      "error_code": null,
+      "seconds": 2.86,
+      "answer": {
+        "citations": [
+          {
+            "title": "函数、参数与返回值",
+            "locator": null,
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "8136236fa3a041890df838d483340ca320b4428fe8676eac53669742f64a1643",
+            "resource_ref": {
+              "version": 2,
+              "course_id": "learning-fixture",
+              "material_id": "a-core",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "model_rounds": 1,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 0,
+        "answer_markdown": "把 `square(3)` 里的 `3` 代入函数定义 `def square(x): return x * x` 中的 `x`，于是 `x * x` 就变成了 `3 * 3`。",
+        "source_revision": 0,
+        "suggested_action_ids": []
+      }
+    },
+    {
+      "question": "请先查阅课程其他资料，再说明闭包是什么，并引用课程中的例子。",
+      "status": "failed",
+      "error_code": "MODEL_UNAVAILABLE",
+      "seconds": 2.32,
+      "answer": null
+    }
+  ]
+}

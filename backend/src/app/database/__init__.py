@@ -49,7 +49,11 @@ from .models import (
 )
 from .session import DatabaseNotConfigured, database_session
 
+from app.self_learning.db_models import LearningAgentTurn, LearningTopicSession
+
 __all__ = [
+    "LearningAgentTurn",
+    "LearningTopicSession",
     "Base",
     "AgentMemoryAuditEvent",
     "AgentMemoryItem",
