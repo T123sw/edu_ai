@@ -314,3 +314,10 @@ def test_brief_quote_can_reference_explicit_route_changes():
     invalid=ResearchBrief.model_validate({**brief(),'requirements':[{'requirement_id':'r','text':'虚构要求','source_quote':'从未要求的内容'}]})
     with pytest.raises(ValueError,match='要求原话'):
         agent._execute('save_preparation_brief',invalid,request,state,timeout=10,reserve=lambda _:None)
+
+
+def test_finding_supports_multiple_sources_with_a_bounded_reference_list():
+    from app.course_preparation.research_contracts import ReferencedFinding
+    from pydantic import ValidationError
+    assert len(ReferencedFinding(finding_id='f',claim='多来源依据',citation_refs=[f'q{i}_1' for i in range(5)]).citation_refs)==5
+    with pytest.raises(ValidationError):ReferencedFinding(finding_id='f',claim='多来源依据',citation_refs=[f'q{i}_1' for i in range(9)])

@@ -61,7 +61,7 @@ class Citation(Contract):
 class Finding(Contract):
     finding_id: Identifier
     claim: ShortText
-    citations: tuple[Citation, ...] = Field(min_length=1, max_length=4)
+    citations: tuple[Citation, ...] = Field(min_length=1, max_length=8)
 
 
 class ResearchSummary(Contract):
@@ -140,4 +140,4 @@ class FinalizeSummary(Contract):
 class ReferencedFinding(Contract):
     finding_id: Identifier
     claim: ShortText
-    citation_refs: tuple[Identifier,...]=Field(min_length=1,max_length=4)
+    citation_refs: tuple[Identifier,...]=Field(min_length=1,max_length=8)

@@ -2,7 +2,7 @@
 自主完成当前用户意图，不请求用户批准大纲。信息不足时说明合理假设，不编造用户要求。
 
 每次只调用一个本阶段挂载的工具，不用自然语言结尾代替工具动作。
-intent：理解主题、基础、时间、语言、排除项和可展示能力。requirements 拆出原话中的每项要求，source_quote 必须逐字来自 request.goal；未给总时间默认60分钟。当前 overrides 优先。
+intent：理解主题、基础、时间、语言、排除项和可展示能力。requirements 拆出原话中的每项要求，source_quote 必须逐字来自 request.goal 或 request.requested_changes 的某一条；未给总时间默认60分钟。当前 overrides 优先。
 research：根据目标自主选择查询。优先大学、官方文档和可信教材，避免内容营销、聚合摘要和与目标仅标题相似的页面。存在上传候选时先用 candidate_id 调 fetch_source 读取；上传已覆盖目标就直接汇总。只有存在具体证据缺口且 source_policy 允许网络时才调用 search_sources，再 fetch_source 取得正文。uploaded_only 时禁止任何网络补充。一个来源不足以覆盖目标时继续搜索并阅读，不机械固定来源数量。
 汇总：所有 finding 必须基于已读 evidence，citation.quote 必须是 content 中实际存在的连续短片段，保留 source_id。不能把搜索 snippet 当成正文，不能捏造来源或以背景常识补缺失证据。overview 综合 findings，区分事实依据、推导和教学组织建议。发现核心缺口就继续检索。
 plan：按基础和先修关系排列知识点。每节点写可观察目标、预计学习分钟数、活动和一道自测方式，并关联需求、研究结论和支持它的来源。全部节点时间不超过总时间。避免为了凑节点重复主题；路径必须覆盖 request.goal 全部核心要求和排除项。node_key 用稳定短标识，修订保留未变节点的 key。无环、先修在前。
@@ -28,3 +28,5 @@ remaining_budget 是剩余预算。证据覆盖当前用户目标就应转入汇
 读取结果给出 total_chars 和 next_offset。next_offset 为 null 表示已到正文末尾，不能继续增加 offset_chars；该来源全部已读时转入记录结论/汇总。
 
 已有课程操作：existing_target 是当前已授权版本快照，不是网络事实依据。supplement_node/revise_resource 只能生成一个节点，node_key 必须严格等于 request.target.node_id，保留该节点既有 objectives 文本；此次时间限制只用于该节点。不得改动其他节点、课程目标或路线。adjust_course 可按 requested_changes 调整路线，未改变的节点必须逐字保留 node_key 和 objectives 文本；仅调整顺序、时长或标题时不要改写目标，原资料将按准确版本保留。仍须研究真实来源并独立审阅，不能把旧课程正文当成已核验事实。
+
+每条研究结论最多关联8个实际已读的 citation_refs，只选支持该结论所必需的片段；需要更多依据时拆分结论，不重复提交超长引用列表。所有引用仍必须通过服务端原文核验。
