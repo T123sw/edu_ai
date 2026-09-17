@@ -21,18 +21,20 @@ def configured_progress_repository():
 
 
 class ProgressService:
-    def __init__(self, reader, repository):
+    def __init__(self, reader, repository, evidence_reader=None):
         self.reader, self.repository = reader, repository
+        self.evidence_reader = evidence_reader
 
     @staticmethod
-    def project(view, snapshot):
-        facts = LearningFacts(**{k: snapshot[k] for k in ('resources', 'self_assessments', 'facts_revision')})
-        return {**snapshot, 'manifest_ref': view.manifest_ref.model_dump(mode='json') if view.manifest_ref else None, 'topics': [project_topic(t, facts).model_dump(mode='json') for t in view.topics],
+    def project(view, snapshot, evidence=()):
+        facts = LearningFacts(**{k: snapshot[k] for k in ('resources', 'self_assessments', 'facts_revision')}, check_evidence=list(evidence))
+        return {**snapshot, 'check_evidence': list(evidence), 'manifest_ref': view.manifest_ref.model_dump(mode='json') if view.manifest_ref else None, 'topics': [project_topic(t, facts).model_dump(mode='json') for t in view.topics],
                 'next_actions': {t.topic_id: [a.model_dump(mode='json') for a in next_actions(view, facts, t.topic_id)] for t in view.topics}}
 
     def read(self, actor, course_id):
         view = self.reader.read(actor, course_id)
-        return self.project(view, self.repository.read(actor.user_id, course_id))
+        evidence = self.evidence_reader(actor.user_id, course_id, view) if self.evidence_reader else []
+        return self.project(view, self.repository.read(actor.user_id, course_id), evidence)
 
     def record(self, actor, course_id, topic_id, event):
         # Authorization, current manifest and resource version checks precede replay.
@@ -68,4 +70,4 @@ def for_learning_service(learning, repository):
         load_manifest=lambda actor, course, ref: learning.prepared_courses.manifest(actor.user_id, course, ref) if getattr(learning, 'prepared_courses', None) else None,
         load_legacy=lambda actor, course: learning.room(course, actor.user_id, include_progress=False),
         load_resource=resource)
-    return ProgressService(reader, repository)
+    return ProgressService(reader, repository, lambda owner, course, view: learning.checks.evidence(owner, course, view) if getattr(learning, 'checks', None) else [])

@@ -14,7 +14,13 @@ def project_topic(topic: TopicView, facts: LearningFacts) -> TopicProjection:
         s.opened or s.reached_end or s.completed or s.locator is not None
         for r in topic.resources if (s := states.get(r.resource_ref.key)) is not None
     ) or self_assessment != 'unset' or bool(facts.open_questions.get(topic.topic_id))
-    return TopicProjection(topic_id=topic.topic_id,
+    evidence = [e for e in facts.check_evidence if e.topic_id == topic.topic_id and e.resource_ref.key in {r.resource_ref.key for r in topic.resources}]
+    supported = {o for e in evidence if e.correct for o in e.objective_ids}
+    contradicted = {o for e in evidence if not e.correct for o in e.objective_ids}
+    objectives = {o.objective_id for o in topic.objectives}
+    judgment = ('mixed' if supported and contradicted else 'needs_review' if contradicted else
+                'evidence_supports' if objectives and objectives <= supported else 'unverified')
+    return TopicProjection(topic_id=topic.topic_id, judgment=judgment,
         progress='core_completed' if core_done else 'in_progress' if started else 'not_started',
         self_assessment=self_assessment, completed_core=completed,
         total_core=len(core) if policy_known and core else None, facts_revision=facts.facts_revision)

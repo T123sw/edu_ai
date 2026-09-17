@@ -1,0 +1,127 @@
+{
+  "config": {
+    "argv": [
+      "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/node",
+      "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/node_modules/playwright/cli.js",
+      "test",
+      "-c",
+      "playwright.agent-full.config.ts"
+    ],
+    "configFile": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/playwright.agent-full.config.ts",
+    "rootDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/agent-full",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+        "testIgnore": [],
+        "testMatch": [
+          "agent-full.spec.ts"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/agent-full/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "agent-full.spec.ts",
+      "file": "agent-full.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real login, report/classroom/quiz, answer and refresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 77748,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T12:24:30.796Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/agent-full/agent-full-real-login-repo-e1ea3-oom-quiz-answer-and-refresh/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c1f012133863ec8bce7e-1ed81a1aff88cdadf12b",
+          "file": "agent-full.spec.ts",
+          "line": 7,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-17T12:24:30.012Z",
+    "duration": 80145.38399999999,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

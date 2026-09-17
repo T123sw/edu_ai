@@ -143,11 +143,21 @@ class ResourceState(Contract):
     locator: Locator | None = None
 
 
+class CheckEvidence(Contract):
+    evidence_ref: str
+    topic_id: Identifier
+    resource_ref: ResourceRef
+    objective_ids: list[Identifier]
+    correct: bool
+    evaluation_method: Literal['deterministic', 'model']
+
+
 class LearningFacts(Contract):
     resources: list[ResourceState] = Field(default_factory=list)
     self_assessments: dict[str, Literal['understood', 'needs_review', 'unset']] = Field(default_factory=dict)
     open_questions: dict[str, list[str]] = Field(default_factory=dict)
     completed_activity_ids: list[str] = Field(default_factory=list)
+    check_evidence: list[CheckEvidence] = Field(default_factory=list)
     facts_revision: Annotated[int, Field(strict=True, ge=0)] = 0
 
     @model_validator(mode='after')

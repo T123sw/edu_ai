@@ -4,7 +4,8 @@ from dataclasses import dataclass
 import json
 from typing import Annotated, Literal
 from pydantic import Field, ValidationError
-from sqlalchemy import select
+from sqlalchemy import select, or_
+from app.chat.memory.repository import _tokens
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.database import ConversationMessage
@@ -39,6 +40,24 @@ class ReadSummary(Contract):
     include_open_questions: bool = True
 
 
+class ReadPreferences(Contract):
+    pass
+
+
+class UpdatePreference(Contract):
+    axis: Literal['language','response_detail','learning_style','prior_knowledge','available_minutes']
+    value: str = Field(min_length=1,max_length=1000)
+    scope: Literal['global','current_course']
+    source_quote: str = Field(min_length=1,max_length=2000)
+
+
+class PrepareMaterial(Contract):
+    operation: Literal['create_course','supplement_node','revise_resource','adjust_course']
+    goal: str = Field(min_length=1,max_length=2000)
+    resource_type: Literal['report','quiz','classroom'] = 'report'
+    changes: list[str] = Field(default_factory=list,max_length=10)
+
+
 class ToolResult(Contract):
     ok: bool
     data: dict | None = None
@@ -69,8 +88,15 @@ class LearningTools:
                  ToolSpec('search_course_resources', '搜索当前可读课程资料，结果不代表已读正文', SearchResources, self.resources),
                  ToolSpec('read_course_learning_summary', '读取本人当前课程的学习事实和自评，不推断掌握', ReadSummary, self.summary),
                  ToolSpec('search_learning_history', '搜索本人当前课程对话的短片段', SearchHistory, self.history)]
+        if getattr(learning,'memory_adapter',None):
+            specs.append(ToolSpec('read_learning_preferences','读取本人全局及当前课程有效偏好，本次要求优先',ReadPreferences,self.preferences))
+            if any(marker in turn['request']['question'] for marker in ('记住','长期','以后都','始终')):
+                specs.append(ToolSpec('update_learning_preference','仅按本轮用户原话和明确长期作用域保存偏好；一次性要求不保存，范围不清先询问',UpdatePreference,self.update_preference,effect='write',min_phase=4))
+        from .preparation_adapter import requests_saved_work
+        if getattr(learning, 'prepared_courses', None) and requests_saved_work(turn['request']['question']):
+            specs.append(ToolSpec('prepare_learning_material','仅在用户明确要求生成保存、补充或修订资料时提交后台准备任务；解释问题不调用。只修改当前阅读资料/节点。',PrepareMaterial,self.prepare,effect='write',min_phase=5))
         self.registry = {s.name: s for s in specs}
-        if len(self.registry) != len(specs) or any(s.effect != 'read' or not callable(s.handler) for s in specs):
+        if len(self.registry) != len(specs) or any(s.effect not in ('read','write') or not callable(s.handler) for s in specs):
             raise ValueError('invalid P3 registry')
         json.dumps(self.schemas())
 
@@ -93,6 +119,22 @@ class LearningTools:
             return ToolResult(ok=False, error={'code': 'INVALID_ARGUMENTS', 'message': '工具参数无效', 'retryable': False}).model_dump()
         except HTTPException:
             return ToolResult(ok=False, error={'code': 'ACCESS_OR_VERSION_UNAVAILABLE', 'message': '当前资料或版本不可读取', 'retryable': False}).model_dump()
+
+    def preferences(self,args):
+        return ToolResult(ok=True,data=self.learning.memory_adapter.read(self.turn['owner'],self.turn['course_id'])).model_dump()
+
+    def update_preference(self,args):
+        memory=self.learning.memory_adapter
+        result=memory.confirm_from_turn(self.turn,args.axis,args.value,args.scope,args.source_quote,self.packet['memory_context']['memory_epoch'])
+        # Own explicit write is acknowledged, then all context is rebuilt before
+        # the next model step; old history cannot reintroduce superseded values.
+        return ToolResult(ok=True,data=result).model_dump()
+
+    def prepare(self, args):
+        from .preparation_adapter import PreparationAdapter
+        result=PreparationAdapter(self.learning).submit(self.turn,args.operation,args.goal,resource_type=args.resource_type,changes=args.changes)
+        self.packet.setdefault('preparation_receipts',{})[result['preparation_id']]=result
+        return ToolResult(ok=True,data={'preparation':result}).model_dump()
 
     def read(self, args):
         raw = self.packet['handles'].get(args.resource_handle)
@@ -136,13 +178,17 @@ class LearningTools:
                 except HTTPException:
                     continue
                 text = material_text(material)
-                at = (resource['title'] + '\n' + text).casefold().find(args.query.casefold())
-                if at < 0:
+                haystack = (resource['title'] + '\n' + text).casefold()
+                terms = _tokens(args.query) or {args.query.casefold()}
+                matched = terms & _tokens(haystack)
+                score = len(matched) / len(terms) + (2 if args.query.casefold() in haystack else 0)
+                if score <= 0:
                     continue
                 handle = 'res_' + digest(ref.model_dump())[:24]
                 self.packet['handles'][handle] = ref.model_dump()
                 snippet = excerpt(material, query=args.query, max_chars=500)['excerpt']
-                items.append({'resource_handle': handle, 'title': resource['title'], 'topic_id': topic['id'], 'snippet': snippet})
+                items.append({'resource_handle': handle, 'title': resource['title'], 'topic_id': topic['id'], 'snippet': snippet, 'relevance': score})
+        items.sort(key=lambda item: (-item['relevance'], item['topic_id'], item['resource_handle']))
         return self.page(args, items)
 
     def summary(self, args):
@@ -156,15 +202,20 @@ class LearningTools:
         allowed = {t['id'] for t in self.room()['chapters']}
         if args.topic_ids:
             allowed &= set(args.topic_ids)
+        terms = sorted(_tokens(args.query) or {args.query.casefold()})
         with Session(self.learning.session_repository.engine) as db:
             rows = db.execute(select(ConversationMessage, LearningTopicSession.topic_id).join(LearningTopicSession,
                 LearningTopicSession.session_id == ConversationMessage.conversation_id).where(
                 LearningTopicSession.owner == self.turn['owner'], LearningTopicSession.course_id == self.turn['course_id'],
-                LearningTopicSession.topic_id.in_(allowed), ConversationMessage.content.contains(args.query, autoescape=True)
+                LearningTopicSession.topic_id.in_(allowed), or_(*[ConversationMessage.content.contains(term, autoescape=True) for term in terms])
             ).order_by(ConversationMessage.occurred_at.desc(), ConversationMessage.message_id).limit(200)).all()
             items = []
             for message, topic in rows:
-                at = message.content.casefold().find(args.query.casefold())
+                memory = getattr(self.learning, 'memory_adapter', None)
+                if memory and not memory.permits_history(self.turn['owner'], message): continue
+                matched = [term for term in terms if term in message.content.casefold()]
+                at = min((message.content.casefold().find(term) for term in matched), default=0)
                 items.append({'message_ids': [message.message_id], 'topic_id': topic, 'session_ref': message.conversation_id,
-                    'excerpt': message.content[max(0, at - 100):max(0, at - 100) + 600], 'occurred_at': message.occurred_at.isoformat()})
+                    'excerpt': message.content[max(0, at - 100):max(0, at - 100) + 600], 'occurred_at': message.occurred_at.isoformat(), 'relevance': len(matched) / len(terms)})
+        items.sort(key=lambda item: (-item['relevance'], item['message_ids'][0]))
         return self.page(args, items)

@@ -34,6 +34,8 @@ class MemoryPolicyDecision(BaseModel):
 
 class MemoryRecordDraft(BaseModel):
     expected_epoch: int | None = None
+    expected_memory_id: str | None = None
+    expected_revision: str | None = None
     subject_user_id: str
     owner_user_id: str
     course_id: str | None = None

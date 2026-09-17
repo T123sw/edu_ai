@@ -31,6 +31,17 @@ class LearningAgentRuntime:
         model = self.model_factory(claim['owner'])
         deadline = time.monotonic() + max(0, claim['deadline'] - self.repository.clock())
         while state['rounds'] < 8:
+            memory = getattr(self.learning, 'memory_adapter', None)
+            if memory:
+                from app.chat.memory.lifecycle import MemoryChanged
+                try:
+                    if not packet.get('memory_context'): raise MemoryChanged('MEMORY_CONTEXT_NOT_CAPTURED')
+                    memory.validate(claim['owner'], packet['memory_context'])
+                except MemoryChanged:
+                    packet = builder.build(claim)
+                    state.update(packet=packet, pending=[], repair_used=False)
+                    tools = LearningTools(self.learning, claim, packet)
+                    self.repository.save(claim, state)
             builder.authorize(claim['owner'], claim['course_id'], claim['topic_id'], claim['request']['reading_context'])
             while state['pending']:
                 call = state['pending'][0]
@@ -49,16 +60,27 @@ class LearningAgentRuntime:
             state['rounds'] += 1
             self.repository.save(claim, state)
             reply = await model.complete(packet['messages'], tools.schemas() if state['tools'] < 6 and not state['repair_used'] else [], deadline=deadline)
+            if memory:
+                try: memory.validate(claim['owner'], packet['memory_context'])
+                except MemoryChanged: continue
             if reply['calls']:
                 if state['tools'] >= 6 or state['repair_used']:
                     raise AgentFailure('TOOL_BUDGET_EXHAUSTED')
+                writes=[call for call in reply['calls'] if tools.registry.get(call['function']['name']) and tools.registry[call['function']['name']].effect=='write']
+                if writes and len(reply['calls'])!=1: raise AgentFailure('TOOL_WRITE_BATCH_FORBIDDEN')
                 packet['messages'].append({'role': 'assistant', 'content': reply['content'] or None, 'tool_calls': reply['calls']})
                 state['pending'] = reply['calls']
                 self.repository.save(claim, state)
                 continue
             try:
                 answer = AnswerResult.model_validate(strict_json(reply['content']))
-                if set(answer.citation_ids) - set(packet['citations']) or answer.suggested_action_ids:
+                if answer.observation:
+                    room=self.learning.room(claim['course_id'],claim['owner'])
+                    chapter=next(c for c in room['chapters'] if c['id']==claim['topic_id'])
+                    objectives={o['objective_id'] for o in chapter.get('objectives',[])}
+                    if answer.observation.source_quote not in claim['request']['question'] or not set(answer.observation.objective_ids)<=objectives:
+                        raise ValueError('observation source not current user or objective')
+                if set(answer.citation_ids) - set(packet['citations']) or set(answer.suggested_action_ids)-set(packet.get('preparation_receipts',{})):
                     raise ValueError('unknown reference')
             except ValueError:
                 if state['repair_used']:
@@ -73,8 +95,9 @@ class LearningAgentRuntime:
                 material = exact_material(self.learning, claim['owner'], ResourceRef.model_validate(citation['resource_ref']))
                 if hashlib.sha256(material_text(material).encode()).hexdigest() != citation['content_hash']:
                     raise AgentFailure('SOURCE_CHANGED')
-            return {**answer.model_dump(), 'citations': citations, 'role_version': packet['role_version'],
-                    'source_revision': packet['source_revision'], 'model_rounds': state['rounds'], 'tool_attempts': state['tools']}
+            observation={**answer.observation.model_dump(),'source_refs':[claim['turn_id']+':user'],'evaluator':'model','status':'hypothesis'} if answer.observation else None
+            return {**answer.model_dump(), 'observation':observation,'citations': citations, 'role_version': packet['role_version'],
+                    'source_revision': packet['source_revision'], 'model_rounds': state['rounds'], 'tool_attempts': state['tools'], 'memory_context': packet.get('memory_context'), 'preparation_receipts': list(packet.get('preparation_receipts',{}).values())}
         raise AgentFailure('MODEL_BUDGET_EXHAUSTED')
 
     async def guarded(self, claim):
@@ -102,6 +125,12 @@ class LearningAgentRuntime:
         try:
             result = asyncio.run(self.guarded(claim))
             self.repository.finish(claim, result=result)
+            summaries=getattr(self.learning,'summaries',None)
+            if summaries:
+                try: asyncio.run(summaries.refresh(claim['owner'],claim['session_id']))
+                except Exception:
+                    import logging
+                    logging.getLogger(__name__).exception('Learning summary refresh failed: %s',claim['session_id'])
         except LostLease:
             pass
         except Exception as exc:

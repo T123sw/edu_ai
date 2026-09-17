@@ -1,0 +1,18 @@
+{
+  "started_at": "2026-09-17T12:31:00.406258+00:00",
+  "finished_at": "2026-09-17T12:31:30.544377+00:00",
+  "command": [
+    "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python",
+    "-m",
+    "pytest",
+    "tests/self_learning/test_projections.py",
+    "tests/self_learning/test_checks.py",
+    "tests/self_learning/test_progress_service.py",
+    "-q"
+  ],
+  "exit_code": 0,
+  "log": "20260917T123100406232Z-pytest.txt",
+  "sha256": "8d9c349fff04e035627f124ded39145d26c74abdd1051a953609443ec8e05dce",
+  "base_commit": "d7fa296755330ea46286f72182398e0a8b9be5ce",
+  "python": "3.12.14"
+}

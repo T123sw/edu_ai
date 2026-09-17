@@ -120,3 +120,48 @@ class LearningAgentToolCall(Base):
     turn_id: Mapped[str] = mapped_column(ForeignKey('learning_answer_runs.turn_id', ondelete='CASCADE'), primary_key=True)
     operation_id: Mapped[str] = mapped_column(String(80), primary_key=True)
     payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+
+
+class LearningCheckRecord(Base):
+    __tablename__ = 'learning_checks'
+    check_id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    owner: Mapped[str] = mapped_column(String(160), nullable=False)
+    session_id: Mapped[str] = mapped_column(ForeignKey('learning_topic_sessions.session_id'), nullable=False)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    topic_id: Mapped[str] = mapped_column(String(240), nullable=False)
+    source_ref: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    content_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    item: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False)
+
+
+class LearningCheckAttempt(Base):
+    __tablename__ = 'learning_check_attempts'
+    owner: Mapped[str] = mapped_column(String(160), primary_key=True)
+    request_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    check_id: Mapped[str] = mapped_column(ForeignKey('learning_checks.check_id'), nullable=False)
+    payload_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    answer: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    result: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False)
+
+
+class LearningSummaryRecord(Base):
+    __tablename__ = 'learning_summaries'
+    owner: Mapped[str] = mapped_column(String(160), primary_key=True)
+    session_id: Mapped[str] = mapped_column(ForeignKey('learning_topic_sessions.session_id'), primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    source_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    memory_epoch: Mapped[int] = mapped_column(Integer, nullable=False)
+    source_ids: Mapped[list] = mapped_column(JSON_PAYLOAD, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class LearningNotification(Base):
+    __tablename__ = 'learning_notifications'
+    event_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    owner: Mapped[str] = mapped_column(String(160), nullable=False)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    read_at: Mapped[float | None] = mapped_column(Float)
+    created_at: Mapped[float] = mapped_column(Float, nullable=False)

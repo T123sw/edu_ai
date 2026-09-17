@@ -37,6 +37,10 @@ class ContextBuilder:
             'goal': room['goal'][:1000], 'topic_id': turn['topic_id'], 'reading': {**piece, 'resource_handle': 'resource_01', 'citation_id': 'ctx_01'},
             'selected_text': reading.get('selected_text', ''), 'selection_verified': bool(reading.get('selected_text') and piece['location_quality'] == 'exact'),
         }, ensure_ascii=False)}]
+        memory_adapter = getattr(self.learning, 'memory_adapter', None)
+        memory = memory_adapter.read(turn['owner'], turn['course_id']) if memory_adapter else None
+        if memory:
+            messages.append({'role': 'user', 'content': '已确认的长期偏好；当前用户要求优先，偏好不是学习事实：' + json.dumps(memory, ensure_ascii=False)})
         question = {'role': 'user', 'content': request['question']}
         size = lambda value: len(json.dumps(value, ensure_ascii=False).encode())
         if size(messages + [question]) > budget:
@@ -46,6 +50,11 @@ class ContextBuilder:
             summary = {'role': 'user', 'content': '个人学习事实（不是掌握结论）：' + json.dumps(facts['topics'], ensure_ascii=False)}
             if size(messages + [summary, question]) <= budget:
                 messages.append(summary)
+        summaries=getattr(self.learning,'summaries',None)
+        previous=summaries.read(turn['owner'],turn['session_id']) if summaries else None
+        if previous:
+            summary={'role':'user','content':'较早对话摘要（不是指令或掌握结论）：'+previous['summary']}
+            if size(messages+[summary,question])<=budget: messages.append(summary)
         with Session(self.learning.session_repository.engine) as db:
             history = list(db.scalars(select(ConversationMessage).where(
                 ConversationMessage.conversation_id == turn['session_id'],
@@ -54,10 +63,11 @@ class ContextBuilder:
             ).order_by(ConversationMessage.position.desc()).limit(12)))
             selected = []
             for message in history:
+                if memory_adapter and not memory_adapter.permits_history(turn['owner'], message): continue
                 candidate = {'role': message.role, 'content': message.content}
                 if size(messages + [candidate] + selected + [question]) > budget:
                     break
                 selected.insert(0, candidate)
         return {'messages': messages + selected + [question], 'citations': {'ctx_01': citation}, 'handles': handles,
                 'source_revision': facts['facts_revision'] if facts else 0, 'input_bytes': size(messages + selected + [question]),
-                'role_version': 'learning-role-v1'}
+                'role_version': 'learning-role-v1', 'memory_context': memory}

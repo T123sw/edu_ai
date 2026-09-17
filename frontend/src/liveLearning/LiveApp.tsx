@@ -13,6 +13,7 @@ import '../selfLearning/review.css';
 import './live.css';
 import { TaskCenter, TaskLauncher, type LearningJob } from './TaskCenter';
 
+import { PreparationNotifications } from './PreparationNotifications';
 import { PreparationOptionsForm, PreparationTasks, defaultOptions, submitPreparation } from './Preparation';
 
 type State = LearningState & { shared: Room[]; serverJobs: LearningJob[] };
@@ -130,7 +131,7 @@ export default function LiveApp() {
   }}>
     <header className={home ? 'sl-home-account' : 'sl-header'}>
       {!home && <><a href="#/" aria-label="返回首页"><Brand /></a><span className="sl-live-title">{room?.title}</span><nav className="sl-main-nav" aria-label="主导航"><a className={!library ? 'active' : ''} href={room ? `#/classroom/${room.id}` : '#/'}>AI 课堂</a><a href={workbench()}>工作台</a><a className={library ? 'active' : ''} href={`#/resources${room ? '?classroom=' + room.id : ''}`}>资源中心</a></nav></>}
-      <div className="sl-live-account"><TaskLauncher jobs={data.serverJobs} open={tasks} onClick={() => setTasks(true)} /><a className="sl-avatar" aria-label="个人中心" title={user?.username} href="?account=1#profile">{user?.username.slice(0, 1)}</a></div>
+      <div className="sl-live-account"><PreparationNotifications key={user?.username} owner={user?.username || ''} /><TaskLauncher jobs={data.serverJobs} open={tasks} onClick={() => setTasks(true)} /><a className="sl-avatar" aria-label="个人中心" title={user?.username} href="?account=1#profile">{user?.username.slice(0, 1)}</a></div>
     </header>
     {error && <div className="sl-live-error" role="alert">{error}<button onClick={() => void action(async () => { await flush(); await refresh(); })}>刷新状态</button><button aria-label="关闭提示" onClick={() => setError('')}>×</button></div>}
     {busy && <div className="sl-live-busy" role="status">{busy}</div>}

@@ -9,7 +9,7 @@ from uuid import uuid4
 from sqlalchemy import or_, select
 from sqlalchemy.engine import Engine
 
-from app.chat.memory.lifecycle import (MemoryLifecycle, MemoryChanged, MemorySuppressed, lock_epoch, suppress, changed, source_digest)
+from app.chat.memory.lifecycle import (MemoryLifecycle, MemoryChanged, MemorySuppressed, lock_epoch, suppress, changed, source_digest, revision)
 from app.database.models import MemorySuppression
 
 from app.chat.memory.domain import MemoryRecord, MemoryRecordDraft, ProfileFact
@@ -85,6 +85,11 @@ class SqlAlchemyMemoryRepository:
             watermark = lock_epoch(session, draft.subject_user_id)
             if draft.expected_epoch is not None and draft.expected_epoch != watermark.epoch:
                 raise MemoryChanged('MEMORY_EPOCH_CHANGED')
+            if draft.expected_memory_id:
+                previous = session.get(AgentMemoryItem, draft.expected_memory_id)
+                if (previous is None or previous.subject_user_id != draft.subject_user_id
+                        or previous.status != 'active' or revision(previous) != draft.expected_revision):
+                    raise MemoryChanged('MEMORY_REVISION_CHANGED')
             if session.get(MemorySuppression, (draft.subject_user_id, source_digest(draft.source_id))):
                 raise MemorySuppressed('MEMORY_SOURCE_SUPPRESSED')
             affected = []
@@ -339,12 +344,14 @@ class SqlAlchemyMemoryRepository:
             ).all()
             return [self._to_profile(record) for record in records]
 
-    def invalidate(self, *, memory_id: str, subject_user_id: str, reason: str) -> bool:
+    def invalidate(self, *, memory_id: str, subject_user_id: str, reason: str, expected_revision: str | None = None) -> bool:
         with database_session(engine=self._engine) as session:
             watermark = lock_epoch(session, subject_user_id)
             record = session.get(AgentMemoryItem, memory_id)
             if record is None or record.subject_user_id != subject_user_id:
                 return False
+            if expected_revision is not None and revision(record) != expected_revision:
+                raise MemoryChanged('MEMORY_REVISION_CHANGED')
             if record.status == 'invalidated': return True
             for source in set([record.source_id, *record.structured_payload.get('_source_ids', [])]):
                 suppress(session, subject_user_id, source, watermark.epoch + 1)

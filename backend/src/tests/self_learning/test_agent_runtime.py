@@ -141,3 +141,30 @@ def test_tool_budget_and_checkpoint_recovery(agent_service):
     LearningAgentRuntime(svc, svc.turn_repository, lambda _: model).run_once()
     assert svc.turns.get('alice', first['turn_id'])['error_code'] == 'TOOL_BUDGET_EXHAUSTED'
     assert len(model.messages) == 7
+
+
+def test_preference_deleted_during_generation_rebuilds_before_publishing(agent_service):
+    from app.self_learning.memory_adapter import MemoryAdapter
+    from app.chat.memory.domain import MemoryRecordDraft
+    svc=agent_service
+    Base.metadata.create_all(svc.session_repository.engine,tables=[Base.metadata.tables[n] for n in (
+        'agent_memory_epochs','agent_memory_items','agent_memory_suppressions','agent_memory_dependencies',
+        'agent_memory_changes','user_profile_facts','agent_memory_audit_events')])
+    svc.memory_adapter=MemoryAdapter(svc.session_repository.engine)
+    memory=svc.memory_adapter.repository.upsert_memory(MemoryRecordDraft(subject_user_id='alice',owner_user_id='alice',
+        memory_type='preference',fact_kind='preference',content='讲解简洁',confidence=1,source_type='user_confirmation',
+        source_id='explicit-preference',source_span='讲解简洁',profile_axis='response_detail'))
+    class ChangingModel(Model):
+        async def complete(self,messages,tools,deadline):
+            self.messages.append(json.dumps(messages,ensure_ascii=False))
+            if len(self.messages)==1:
+                svc.memory_adapter.repository.invalidate(memory_id=memory.memory_id,subject_user_id='alice',reason='user_deleted')
+                return {'content':json.dumps({'answer_markdown':'基于旧偏好的迟到回答'}),'calls':[]}
+            return {'content':json.dumps({'answer_markdown':'基于当前上下文的回答','citation_ids':['ctx_01']}),'calls':[]}
+    model=ChangingModel()
+    turn=accept(svc)
+    LearningAgentRuntime(svc,svc.turn_repository,lambda _:model).run_once()
+    result=svc.turns.get('alice',turn['turn_id'])
+    assert result['status']=='succeeded' and result['result']['answer_markdown']=='基于当前上下文的回答'
+    assert '讲解简洁' in model.messages[0] and '讲解简洁' not in model.messages[1]
+    assert result['result']['model_rounds']==2

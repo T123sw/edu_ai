@@ -65,3 +65,15 @@ def test_unresolved_issue_never_removes_continue(topic):
     actions = next_actions(course, state, 'a')
     assert actions[0].kind == 'resolve_question'
     assert any(a.kind == 'continue' for a in actions)
+
+
+def test_evidence_is_version_bound_and_requires_all_objectives(topic):
+    from app.self_learning.contracts import ObjectiveView
+    topic=topic.model_copy(update={'objectives':[ObjectiveView(objective_id='o1',text='解释'),ObjectiveView(objective_id='o2',text='应用')]})
+    ref=topic.resources[0].resource_ref
+    evidence={'evidence_ref':'attempt:1','topic_id':topic.topic_id,'resource_ref':ref,'objective_ids':['o1'],'correct':True,'evaluation_method':'deterministic'}
+    assert project_topic(topic,LearningFacts(check_evidence=[evidence])).judgment=='unverified'
+    evidence['objective_ids']=['o1','o2']
+    assert project_topic(topic,LearningFacts(check_evidence=[evidence])).judgment=='evidence_supports'
+    evidence['resource_ref']=ref.model_copy(update={'version':99})
+    assert project_topic(topic,LearningFacts(check_evidence=[evidence])).judgment=='unverified'

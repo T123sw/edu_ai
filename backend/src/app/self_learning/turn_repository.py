@@ -102,6 +102,10 @@ class TurnRepository(SessionRepository):
 
     def finish(self, claim, result=None, error=None):
         with self._write('learning-answer-queue') as db:
+            if result and result.get('memory_context'):
+                from app.chat.memory.lifecycle import lock_epoch, MemoryChanged
+                if lock_epoch(db, claim['owner']).epoch != result['memory_context']['memory_epoch']:
+                    raise MemoryChanged('MEMORY_CHANGED_BEFORE_ANSWER_COMMIT')
             row = self._fenced(db, claim)
             row.result, row.error_code = result, error
             row.status = row.stage = 'failed' if error else 'succeeded'

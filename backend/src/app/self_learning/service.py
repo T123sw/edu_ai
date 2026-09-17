@@ -64,6 +64,13 @@ class LearningService:
         from .turn_service import configured_turn_repository, TurnService
         self.turn_repository = turn_repository or configured_turn_repository(self.session_repository)
         self.turns = TurnService(self, self.turn_repository) if self.turn_repository else None
+        import os
+        from .memory_adapter import MemoryAdapter
+        from .check_service import CheckService
+        self.checks = CheckService(self, self.session_repository.engine) if self.sessions and os.getenv('LEARNING_CHECKS_V1_ENABLED', '').lower() in {'true','1'} else None
+        self.memory_adapter = MemoryAdapter(self.session_repository.engine) if self.session_repository and os.getenv('LEARNING_MEMORY_V1_ENABLED', '').lower() in {'true', '1'} else None
+        from .summary_service import SummaryService
+        self.summaries = SummaryService(self) if self.memory_adapter else None
 
     def require(self, course_id, owner):
         prepared = self.prepared_courses.lookup(owner, course_id) if self.prepared_courses else None

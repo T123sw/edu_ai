@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import { getQuizQuestions } from '../stitch/pages/courseMaterialPreviewData';
 import type { CourseMaterial } from '../stitch/api/types';
+import { CheckCard } from './CheckCard';
 type Result = { version: number; answers: Record<string, string>; correct: number; graded: number; feedback: { id: string; correct: boolean | null; answer: string; explanation: string }[] };
 export function LiveQuiz({ material }: { material: CourseMaterial }) {
+  if ((material as CourseMaterial & { learning_checks_enabled?: boolean }).learning_checks_enabled) return <div>{getQuizQuestions(material).map((q, i) => <CheckCard key={String(q.id || i)} questionId={String(q.id || i)} topicId={material.scope_id || ''} resource={{ course_id: material.course_id, material_type: 'quiz', material_id: material.material_id, version: material.version || 1 }} />)}</div>;
+  return <LegacyQuiz material={material} />;
+}
+function LegacyQuiz({ material }: { material: CourseMaterial }) {
   const questions = getQuizQuestions(material);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<Result>();

@@ -228,4 +228,59 @@ def control_answer(turn_id: str, operation: Literal['retry', 'cancel'], user=Dep
 def version_material(course_id: str, kind: str, material_id: str, version: int, user=Depends(get_current_user), svc=Depends(service)):
     if version < 1:
         raise HTTPException(422, '无效版本')
-    return exact_material(svc, user['username'], ResourceRef(course_id=course_id, material_type=kind, material_id=material_id, version=version))
+    material=exact_material(svc, user['username'], ResourceRef(course_id=course_id, material_type=kind, material_id=material_id, version=version))
+    return {**material,'learning_checks_enabled':bool(svc.checks)}
+
+
+class CheckOffer(BaseModel):
+    resource_ref: ResourceRef
+    question_id: str = Field(min_length=1,max_length=200)
+
+
+class CheckAnswer(BaseModel):
+    request_id: UUID
+    answer: dict = Field(default_factory=dict)
+    skip: bool = False
+
+
+def checks(svc):
+    if not svc.checks: raise HTTPException(503,'学习检查尚未启用')
+    return svc.checks
+
+
+@router.post('/courses/{course_id}/topics/{topic_id}/checks')
+def offer_check(course_id: str,topic_id: str,payload: CheckOffer,user=Depends(get_current_user),svc=Depends(service)):
+    return checks(svc).offer(user['username'],course_id,topic_id,payload.resource_ref.model_dump(),payload.question_id)
+
+
+@router.post('/checks/{check_id}/attempts')
+def submit_check(check_id: str,payload: CheckAnswer,user=Depends(get_current_user),svc=Depends(service)):
+    return checks(svc).submit(user['username'],check_id,payload.request_id,payload.answer,skip=payload.skip)
+
+
+@router.get('/checks/{check_id}/attempts')
+def check_attempts(check_id: str,user=Depends(get_current_user),svc=Depends(service)):
+    return {'attempts':checks(svc).attempts(user['username'],check_id)}
+
+
+def notification_service(svc):
+    if not svc.prepared_courses: raise HTTPException(503,'课程准备通知尚未启用')
+    from app.self_learning.notifications import NotificationService
+    return NotificationService(svc.prepared_courses.engine)
+
+
+@router.get('/notifications')
+def preparation_notifications(user=Depends(get_current_user),svc=Depends(service)):
+    return {'items':notification_service(svc).list(user['username'])}
+
+
+@router.post('/notifications/{event_id}/read')
+def read_preparation_notification(event_id: str,user=Depends(get_current_user),svc=Depends(service)):
+    try: notification_service(svc).mark_read(user['username'],event_id)
+    except PermissionError as exc: raise HTTPException(404,'通知不可访问') from exc
+    return {'read':True}
+
+
+@router.post('/checks/{check_id}/attempts/{request_id}/evaluate')
+async def evaluate_check(check_id: str,request_id: UUID,user=Depends(get_current_user),svc=Depends(service)):
+    return await checks(svc).evaluate(user['username'],check_id,request_id)

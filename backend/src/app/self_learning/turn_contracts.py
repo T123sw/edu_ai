@@ -17,12 +17,18 @@ class AnswerRequest(Contract):
     reading_context: ReadingSnapshot
 
 
+class TeachingObservation(Contract):
+    kind: Literal['confusion','explanation_attempt']
+    text: str = Field(min_length=1,max_length=1000)
+    source_quote: str = Field(min_length=1,max_length=2000)
+    objective_ids: list[Identifier] = Field(default_factory=list,max_length=8)
+
+
 class AnswerResult(Contract):
     answer_markdown: Annotated[str, Field(min_length=1, max_length=16000)]
     citation_ids: list[Identifier] = Field(default_factory=list, max_length=8)
     suggested_action_ids: list[Identifier] = Field(default_factory=list, max_length=8)
-    # P4 introduces persisted observations with explicit provenance.
-    observation: None = None
+    observation: TeachingObservation | None = None
 
 
 class AgentFailure(Exception):

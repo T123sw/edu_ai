@@ -3,6 +3,7 @@
 Lock order: memory epoch, preparation, course pointer. User changes never lock
 preparations: consumers check dependencies synchronously before accepting output.
 """
+from datetime import datetime, timezone
 import hashlib
 import json
 from sqlalchemy import select
@@ -57,6 +58,14 @@ def revision(record):
     return hashlib.sha256(json.dumps(value, ensure_ascii=False).encode()).hexdigest()
 
 
+def expired(record):
+    now = datetime.now(timezone.utc)
+    start = record.valid_from
+    end = record.valid_until
+    return ((start is not None and start.replace(tzinfo=start.tzinfo or timezone.utc) > now)
+            or (end is not None and end.replace(tzinfo=end.tzinfo or timezone.utc) <= now))
+
+
 class MemoryLifecycle:
     def __init__(self, engine): self.engine = engine
 
@@ -73,7 +82,7 @@ class MemoryLifecycle:
                 AgentMemoryItem.profile_axis.is_not(None))).all()
             values = {}
             for record in sorted(records, key=lambda r: (r.course_id is not None, r.updated_at, r.memory_id)):
-                if record.course_id not in (None, course_id): continue
+                if record.course_id not in (None, course_id) or expired(record): continue
                 if fields is not None and record.profile_axis not in fields: continue
                 # Preparation reads explicit preferences; inferred memories stay out.
                 if record.fact_kind not in ('fact', 'preference'): continue
@@ -99,7 +108,7 @@ class MemoryLifecycle:
         for memory_id, expected in refs.items():
             record = session.get(AgentMemoryItem, memory_id)
             if (record is None or record.subject_user_id != subject or record.status != 'active'
-                    or revision(record) != expected
+                    or expired(record) or revision(record) != expected
                     or session.get(MemorySuppression, (subject, source_digest(record.source_id)))):
                 raise MemoryChanged('MEMORY_DEPENDENCY_INVALID')
 
