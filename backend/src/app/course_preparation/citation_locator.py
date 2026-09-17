@@ -5,7 +5,7 @@ import re
 def visible_with_offsets(text):
     positions = list(range(len(text)))
     # Keep link labels and inline code text, never rewrite words or operators.
-    for pattern in (r'\[([^\]\n]+)\]\([^\n]*?\)', r'`([^`\n]+)`'):
+    for pattern in (r'\[([^\]\n]+)\]\([^\n]*?\)', r'`([^`\n]+)`', r'(?<![\w*])\*\*([^\s*](?:[^*\n]*?[^\s*])?)\*\*(?![\w*])', r'(?<![\w*])\*([^\s*](?:[^*\n]*?[^\s*])?)\*(?![\w*])'):
         for match in reversed(list(re.finditer(pattern, text))):
             start, end = match.span()
             left, right = match.span(1)

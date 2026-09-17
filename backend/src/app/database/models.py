@@ -1376,3 +1376,47 @@ class PreparationAction(Base):
     status: Mapped[str] = mapped_column(String(24), nullable=False)
     receipt: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class MemoryEpoch(Base):
+    __tablename__ = 'agent_memory_epochs'
+    subject_user_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    epoch: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class MemorySuppression(Base):
+    __tablename__ = 'agent_memory_suppressions'
+    subject_user_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    source_digest: Mapped[str] = mapped_column(String(64), primary_key=True)
+    source_id: Mapped[str] = mapped_column(Text, nullable=False)
+    epoch: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class MemoryDependency(Base):
+    __tablename__ = 'agent_memory_dependencies'
+    subject_user_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    consumer_ref: Mapped[str] = mapped_column(String(300), primary_key=True)
+    epoch: Mapped[int] = mapped_column(Integer, nullable=False)
+    source_refs: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    valid: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+
+class MemoryChangeEvent(Base):
+    __tablename__ = 'agent_memory_changes'
+    subject_user_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    epoch: Mapped[int] = mapped_column(Integer, primary_key=True)
+    affected_memory_ids: Mapped[list] = mapped_column(JSON_PAYLOAD, nullable=False)
+    delivered: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class PreparationDocumentVersion(Base):
+    __tablename__ = 'preparation_document_versions'
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), primary_key=True)
+    document_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    content_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    filename: Mapped[str] = mapped_column(String(500), nullable=False)
+    parsed: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+

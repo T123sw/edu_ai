@@ -76,3 +76,21 @@ def test_search_snippet_is_not_body(monkeypatch):
 def test_malformed_envelope_is_a_protocol_error(data):
     with pytest.raises(ValueError):
         ResearchModelAdapter.parse(data, {'search_sources'})
+
+
+def test_each_fallback_is_charged_to_parent_budget(runtime_engine):
+    from tests.course_preparation.test_runtime_foundation import repo,request
+    from app.course_preparation.budget_meter import PreparationModelMeter
+    repository=repo(runtime_engine); task=repository.submit('alice',request()); context=repository.claim('worker',preparation_id=task['preparation_id'])
+    calls=[]
+    def handle(request):
+        calls.append(request)
+        return httpx.Response(503) if len(calls)==1 else httpx.Response(200,json={**response(),'usage':{'total_tokens':100}})
+    gateway=SimpleNamespace(candidates=[{'api_base':'https://one.test','model_name':'fixture'},{'api_base':'https://two.test','model_name':'fixture'}],_thinking_params=lambda _: {},_build_headers=lambda _: {})
+    adapter=ResearchModelAdapter(gateway,meter=PreparationModelMeter(repository,context),client_factory=lambda **kw:httpx.Client(transport=httpx.MockTransport(handle),**kw))
+    adapter.decide({'phase':'research'},[{'function':{'name':'search_sources'}}],timeout=10)
+    budget=repository.get_public('alice',task['preparation_id'])['budget']
+    assert budget['consumed']['calls']==2
+    assert budget['consumed']['tokens']>100  # Unknown failed-provider use is conservative.
+    assert budget['reserved']['calls']==0
+    assert budget['consumed']['cost_micro_usd']>0

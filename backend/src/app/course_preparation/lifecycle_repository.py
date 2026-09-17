@@ -22,7 +22,7 @@ class NoProgress(RuntimeError): pass
 TRANSITIONS = {
     'normalize': {'ingest', 'research_scope'}, 'ingest': {'research_scope'},
     'research_scope': {'plan'}, 'plan': {'research_scope', 'research_nodes'},
-    'research_nodes': {'produce'}, 'produce': {'review'}, 'review': {'repair', 'commit'},
+    'research_nodes': {'produce', 'research_scope'}, 'produce': {'review'}, 'review': {'repair', 'commit'},
     'repair': {'research_nodes', 'produce', 'review'}, 'commit': set(),
 }
 REQUIRED = {'ingest': 'brief', 'research_scope': 'brief', 'plan': 'research_summary',
@@ -148,10 +148,10 @@ class LifecycleRepository(PreparationRepository):
                 stage=attempt.stage, operation=prep.operation, source_policy=prep.request_payload['source_policy']['mode'],
                 checkpoint=run.checkpoint, capabilities=tuple(capabilities), deadline=aware(budget.deadline).isoformat())
 
-    def checkpoint(self, context, value):
+    def checkpoint(self, context, value, *, count_no_progress=True):
         with Session(self.engine) as session, session.begin():
             prep, attempt, run, budget = self._locked(session, context)
-            if digest(run.checkpoint) == digest(value):
+            if count_no_progress and digest(run.checkpoint) == digest(value):
                 if run.no_progress >= 2:
                     raise NoProgress('NO_PROGRESS')
                 run.no_progress += 1
@@ -160,6 +160,27 @@ class LifecycleRepository(PreparationRepository):
             run.checkpoint = value
             run.lease_until = self.clock() + timedelta(seconds=150)
             prep.revision += 1
+
+    def restart_for_memory(self, context, subject):
+        from app.chat.memory.lifecycle import lock_epoch
+        with Session(self.engine) as session, session.begin():
+            watermark = lock_epoch(session, subject)
+            prep, attempt, run, _ = self._locked(session, context)
+            previous = run.checkpoint
+            state = dict(previous.get('research_state', {}))
+            # Preserve spent decisions, reads, evidence and action ledger. Rebuild
+            # only derived context; completed old child outputs remain drafts.
+            state.update(phase='intent', brief=None, summary=None, path=None, review=None, errors=0, last_error=None)
+            discarded = {key:previous[key] for key in ('plan','artifacts','quality','memory_refs') if key in previous}
+            run.checkpoint = {key:previous[key] for key in ('config_snapshot','ingested_documents') if key in previous}
+            run.checkpoint.update(research_state=state, invalidated_drafts=[*previous.get('invalidated_drafts', []), discarded],
+                                  context_rebuild_epoch=watermark.epoch)
+            attempt.stage = 'normalize'
+            attempt.status = 'running'
+            run.no_progress = 0
+            run.lease_token, run.lease_until, run.worker_id = None, None, None
+            run.wake_at = self.clock()
+            self._event(session, prep, attempt, 'stage_changed', {'stage':'normalize','reason':'MEMORY_DEPENDENCY_CHANGED'})
 
     def heartbeat(self, context):
         with Session(self.engine) as session, session.begin():
@@ -237,23 +258,27 @@ class LifecycleRepository(PreparationRepository):
         cost = BudgetCost.model_validate(cost.model_dump())
         with Session(self.engine) as session, session.begin():
             prep, _, _, budget = self._locked(session, context)
-            old = session.scalar(select(Action).where(Action.preparation_id == prep.preparation_id, Action.action_key == key))
-            if old:
-                if old.kind != kind or old.payload_digest != digest(payload):
-                    raise ValueError('ACTION_PAYLOAD_CONFLICT')
-                return self._action_view(old, replay=True)
-            limits, reserved, consumed = budget.limits, dict(budget.reserved), budget.consumed
-            for metric, amount in cost.model_dump().items():
-                if consumed[metric] + reserved[metric] + amount > limits[metric]:
-                    raise BudgetExceeded('BUDGET_EXHAUSTED:' + metric)
-                reserved[metric] += amount
-            budget.reserved = reserved
-            action = Action(action_id='paction_' + uuid4().hex, preparation_id=prep.preparation_id,
-                            action_key=key, kind=kind, payload_digest=digest(payload), payload=payload,
-                            reserved=cost.model_dump(), status='pending', created_at=self.clock())
-            session.add(action)
-            session.flush()
-            return self._action_view(action, replay=False)
+            return self._reserve_action(session, prep, budget, key, kind, payload, cost)
+
+    def _reserve_action(self, session, prep, budget, key, kind, payload, cost):
+        old = session.scalar(select(Action).where(Action.preparation_id == prep.preparation_id, Action.action_key == key))
+        if old:
+            if old.kind != kind or old.payload_digest != digest(payload):
+                raise ValueError('ACTION_PAYLOAD_CONFLICT')
+            return self._action_view(old, replay=True)
+        limits, reserved, consumed = budget.limits, dict(budget.reserved), budget.consumed
+        for metric, amount in cost.model_dump().items():
+            if consumed[metric] + reserved[metric] + amount > limits[metric]:
+                raise BudgetExceeded('BUDGET_EXHAUSTED:' + metric)
+            reserved[metric] += amount
+        budget.reserved = reserved
+        action = Action(action_id='paction_' + uuid4().hex, preparation_id=prep.preparation_id,
+                        action_key=key, kind=kind, payload_digest=digest(payload), payload=payload,
+                        reserved=cost.model_dump(), status='pending', created_at=self.clock())
+        session.add(action)
+        session.flush()
+        return self._action_view(action, replay=False)
+
 
     @staticmethod
     def _action_view(action, replay):
@@ -263,21 +288,24 @@ class LifecycleRepository(PreparationRepository):
     def finish_action(self, context, action_id, receipt, actual=None, *, failed=False):
         with Session(self.engine) as session, session.begin():
             prep, attempt, _, budget = self._locked(session, context)
-            action = session.get(Action, action_id)
-            if action is None or action.preparation_id != prep.preparation_id:
-                raise ValueError('ACTION_NOT_OWNED')
-            if action.status != 'pending':
-                if action.receipt != receipt:
-                    raise ValueError('ACTION_RECEIPT_CONFLICT')
-                return action.receipt
-            spent = (BudgetCost.model_validate(actual.model_dump()).model_dump() if actual else action.reserved)
-            reserved, consumed = dict(budget.reserved), dict(budget.consumed)
-            for metric, amount in spent.items():
-                if amount > action.reserved[metric]:
-                    raise BudgetExceeded('USAGE_EXCEEDS_RESERVED_UPPER_BOUND')
-                reserved[metric] -= action.reserved[metric]
-                consumed[metric] += amount
-            budget.reserved, budget.consumed = reserved, consumed
-            action.status, action.receipt, action.consumed = ('failed' if failed else 'completed'), receipt, spent
-            self._event(session, prep, attempt, 'child_updated', {'action_id': action_id, 'status': action.status})
-            return receipt
+            return self._settle_action(session, prep, attempt, budget, action_id, receipt, actual, failed=failed)
+
+    def _settle_action(self, session, prep, attempt, budget, action_id, receipt, actual=None, *, failed=False):
+        action = session.get(Action, action_id)
+        if action is None or action.preparation_id != prep.preparation_id:
+            raise ValueError('ACTION_NOT_OWNED')
+        if action.status != 'pending':
+            if action.receipt != receipt:
+                raise ValueError('ACTION_RECEIPT_CONFLICT')
+            return action.receipt
+        spent = (BudgetCost.model_validate(actual.model_dump()).model_dump() if actual else action.reserved)
+        reserved, consumed = dict(budget.reserved), dict(budget.consumed)
+        for metric, amount in spent.items():
+            if amount > action.reserved[metric]:
+                raise BudgetExceeded('USAGE_EXCEEDS_RESERVED_UPPER_BOUND')
+            reserved[metric] -= action.reserved[metric]
+            consumed[metric] += amount
+        budget.reserved, budget.consumed = reserved, consumed
+        action.status, action.receipt, action.consumed = ('failed' if failed else 'completed'), receipt, spent
+        self._event(session, prep, attempt, 'child_updated', {'action_id': action_id, 'status': action.status})
+        return receipt

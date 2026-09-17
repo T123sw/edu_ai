@@ -2,7 +2,13 @@
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from threading import Event, Thread
+from .adapters.memory import ContextRebuilt
 from .lifecycle_repository import BudgetExceeded, NoProgress, StaleLease
+
+
+@dataclass(frozen=True)
+class DeliveryResult:
+    result_ref: dict
 
 
 @dataclass(frozen=True)
@@ -45,22 +51,29 @@ class PreparationRunner:
             if context.deadline and datetime.fromisoformat(context.deadline) <= datetime.now(timezone.utc):
                 raise BudgetExceeded('DEADLINE_EXCEEDED')
             result = handler(context)
+            if isinstance(result, DeliveryResult):
+                public = self.repository.get_public(context.owner_user_id, preparation_id)
+                if public['status'] != 'succeeded' or public['result_ref'] != result.result_ref:
+                    raise ValueError('UNCOMMITTED_DELIVERY_RECEIPT')
+                return {'delivered': True, 'result_ref': result.result_ref}
             if not isinstance(result, StepResult):
                 raise ValueError('INVALID_STAGE_RESULT')
             if canceled():
                 self.repository.cancel(context.owner_user_id, preparation_id)
                 return {'canceled': True}
-            self.repository.checkpoint(context, result.checkpoint)
+            self.repository.checkpoint(context, result.checkpoint, count_no_progress=not result.wait_seconds)
             if result.next_stage:
                 context = self.repository.transition(context, result.next_stage, reason=result.reason)
             self.repository.release(context, delay_seconds=result.wait_seconds)
             return {'claimed': True, 'stage': context.stage, 'waiting': result.wait_seconds > 0}
+        except ContextRebuilt:
+            return {'context_rebuilt': True}
         except StaleLease:
             return {'stale': True}
         except Exception as exc:
             code = ('BUDGET_EXHAUSTED' if isinstance(exc, BudgetExceeded) else
                     'NO_PROGRESS' if isinstance(exc, NoProgress) else
-                    'SOURCE_OR_OWNER_UNAVAILABLE' if isinstance(exc, PermissionError) else 'STEP_FAILED')
+                    'SOURCE_OR_OWNER_UNAVAILABLE' if isinstance(exc, PermissionError) else getattr(exc, 'code', 'STEP_FAILED'))
             try:
                 self.repository.fail(context, code)
             except StaleLease:

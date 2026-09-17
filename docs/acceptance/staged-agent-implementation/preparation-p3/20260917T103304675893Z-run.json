@@ -1,0 +1,20 @@
+{
+  "started_at": "2026-09-17T10:33:04.675921+00:00",
+  "finished_at": "2026-09-17T10:33:09.767462+00:00",
+  "command": [
+    "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python",
+    "-m",
+    "pytest",
+    "tests/chat/memory/test_memory_lifecycle.py",
+    "tests/chat/memory/test_memory_repository.py",
+    "tests/chat/memory/test_memory_e2e.py",
+    "tests/chat/memory/test_memory_api_e2e.py",
+    "tests/database/test_alembic_revision_chain.py",
+    "-q"
+  ],
+  "exit_code": 0,
+  "log": "20260917T103304675893Z-pytest.txt",
+  "sha256": "048655b6fb19035d29f02936e4c985832af5de38a09998055b8c4fd287253631",
+  "base_commit": "481765d20949fa59c1d73c5ee9304f24a1394d0c",
+  "python": "3.12.14"
+}

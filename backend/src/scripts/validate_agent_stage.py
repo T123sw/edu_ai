@@ -12,12 +12,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--stage', required=True)
     parser.add_argument('tests', nargs='+')
-    args = parser.parse_args()
+    args, pytest_options = parser.parse_known_args()
     root = Path(__file__).resolve().parents[3]
     output = root / 'docs/acceptance/staged-agent-implementation' / args.stage
     output.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
-    command = [sys.executable, '-m', 'pytest', *args.tests, '-q']
+    command = [sys.executable, '-m', 'pytest', *args.tests, *pytest_options, '-q']
     started = datetime.now(timezone.utc)
     result = subprocess.run(command, cwd=root / 'backend/src', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     log = output / f'{stamp}-pytest.txt'

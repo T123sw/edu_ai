@@ -21,3 +21,12 @@ def test_whitespace_only_differences_preserve_original_newlines():
 
 def test_ambiguous_normalized_match_is_not_accepted():
     assert locate_quote('The `base case` stops it. The `base case` stops it.', 'The base case stops it.') is None
+
+
+def test_emphasis_is_presentation_but_omitted_explanations_are_not():
+    from app.course_preparation.citation_locator import locate_quote
+    source='The model **does not execute** the tool. It only *decides* which tool.'
+    assert locate_quote(source,'model does not execute the tool')=='model **does not execute** the tool'
+    assert locate_quote(source,'only decides which tool')=='only *decides* which tool'
+    assert locate_quote('the description (a concrete example) and schema','the description and schema') is None
+    assert locate_quote('a * b * c is multiplication','a b c is multiplication') is None

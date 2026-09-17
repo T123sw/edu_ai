@@ -9,6 +9,9 @@ from uuid import uuid4
 from sqlalchemy import or_, select
 from sqlalchemy.engine import Engine
 
+from app.chat.memory.lifecycle import (MemoryLifecycle, MemoryChanged, MemorySuppressed, lock_epoch, suppress, changed, source_digest)
+from app.database.models import MemorySuppression
+
 from app.chat.memory.domain import MemoryRecord, MemoryRecordDraft, ProfileFact
 from app.database import (
     AgentMemoryAuditEvent,
@@ -60,6 +63,7 @@ def _cosine(left: list[float] | None, right: list[float] | None) -> float:
 class SqlAlchemyMemoryRepository:
     def __init__(self, engine: Engine):
         self._engine = engine
+        self.lifecycle = MemoryLifecycle(engine)
 
     @staticmethod
     def _fingerprint(draft: MemoryRecordDraft) -> str:
@@ -78,6 +82,12 @@ class SqlAlchemyMemoryRepository:
         fingerprint = self._fingerprint(draft)
         now = _utc_now()
         with database_session(engine=self._engine) as session:
+            watermark = lock_epoch(session, draft.subject_user_id)
+            if draft.expected_epoch is not None and draft.expected_epoch != watermark.epoch:
+                raise MemoryChanged('MEMORY_EPOCH_CHANGED')
+            if session.get(MemorySuppression, (draft.subject_user_id, source_digest(draft.source_id))):
+                raise MemorySuppressed('MEMORY_SOURCE_SUPPRESSED')
+            affected = []
             record = session.scalar(
                 select(AgentMemoryItem).where(
                     AgentMemoryItem.fingerprint == fingerprint
@@ -99,18 +109,24 @@ class SqlAlchemyMemoryRepository:
                 ).all()
                 for item in previous:
                     if record is None or item.memory_id != record.memory_id:
+                        affected.append(item.memory_id)
+                        for source in set([item.source_id, *item.structured_payload.get('_source_ids', [])]):
+                            suppress(session, draft.subject_user_id, source, watermark.epoch + 1)
                         item.status = "superseded"
                         item.updated_at = now
             if record is not None:
                 record.evidence_count += 1
                 record.confidence = max(record.confidence, draft.confidence)
+                history = set([record.source_id, *record.structured_payload.get('_source_ids', []), draft.source_id])
+                record.structured_payload = {**record.structured_payload, '_source_ids': sorted(history)}
                 record.source_id = draft.source_id
                 record.source_span = draft.source_span
                 record.status = "active"
                 record.updated_at = now
                 self._upsert_profile(session, record, draft, now)
                 session.flush()
-                return self._to_memory(record)
+                changed(session, watermark, [*affected, record.memory_id])
+                return self._to_memory(record).model_copy(update={'memory_epoch': watermark.epoch})
 
             record = AgentMemoryItem(
                 memory_id=f"mem-{uuid4().hex}",
@@ -122,7 +138,7 @@ class SqlAlchemyMemoryRepository:
                 memory_type=draft.memory_type,
                 fact_kind=draft.fact_kind,
                 content=draft.content,
-                structured_payload=dict(draft.structured_payload),
+                structured_payload={**draft.structured_payload, '_source_ids': [draft.source_id]},
                 confidence=draft.confidence,
                 importance=draft.importance,
                 visibility=draft.visibility,
@@ -146,7 +162,8 @@ class SqlAlchemyMemoryRepository:
             session.flush()
             self._upsert_profile(session, record, draft, now)
             session.flush()
-            return self._to_memory(record)
+            changed(session, watermark, [*affected, record.memory_id])
+            return self._to_memory(record).model_copy(update={'memory_epoch': watermark.epoch})
 
     def add_episode(
         self,
@@ -324,9 +341,14 @@ class SqlAlchemyMemoryRepository:
 
     def invalidate(self, *, memory_id: str, subject_user_id: str, reason: str) -> bool:
         with database_session(engine=self._engine) as session:
+            watermark = lock_epoch(session, subject_user_id)
             record = session.get(AgentMemoryItem, memory_id)
             if record is None or record.subject_user_id != subject_user_id:
                 return False
+            if record.status == 'invalidated': return True
+            for source in set([record.source_id, *record.structured_payload.get('_source_ids', [])]):
+                suppress(session, subject_user_id, source, watermark.epoch + 1)
+            changed(session, watermark, [record.memory_id])
             record.status = "invalidated"
             record.updated_at = _utc_now()
             if record.profile_axis:

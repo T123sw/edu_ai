@@ -262,3 +262,32 @@ def test_quote_resolution_requires_unique_exact_match_on_same_read_page(same_pag
         with pytest.raises(ValueError, match='不匹配'):
             agent._execute('save_research_summary', ResearchSummary.model_validate(draft),
                            request(), state, timeout=10, reserve=None)
+
+
+def test_incremental_findings_keep_verified_sources_and_finalize_by_id():
+    from app.course_preparation.research_contracts import Finding,FinalizeSummary
+    agent=ResearchAgent(model=Model(),sources=Sources(),incremental_findings=True)
+    state=ResearchState()
+    for _ in range(3): state=agent.step(request(),state)
+    found=Finding.model_validate(summary(state.evidence[0].source_id)['findings'][0])
+    state=agent._execute('record_research_finding',found,request(),state,timeout=1,reserve=None)
+    assert state.phase=='research' and state.summary is None
+    assert state.draft_findings[0].citations[0].quote in state.evidence[0].content
+    with pytest.raises(ValueError): agent._execute('record_research_finding',found,request(),state,timeout=1,reserve=None)
+    final=agent._execute('finalize_research_summary',FinalizeSummary(overview='递归终止',finding_ids=['f1']),request(),state,timeout=1,reserve=None)
+    assert final.phase=='plan' and final.summary.findings==(found,)
+    assert 'save_research_summary' not in [t['function']['name'] for t in agent.tools('research',state)]
+
+
+def test_evidence_handles_bind_actual_raw_text_and_reject_unknown_handles():
+    from app.course_preparation.research_contracts import ReferencedFinding
+    from app.course_preparation.evidence_spans import span_registry
+    agent=ResearchAgent(model=Model(),sources=Sources())
+    state=ResearchState()
+    for _ in range(3): state=agent.step(request(),state)
+    registry=span_registry(state); handle=next(iter(registry))
+    decision=ReferencedFinding(finding_id='f1',claim='终止条件避免无限调用',citation_refs=[handle])
+    result=agent._execute('record_evidence_finding',decision,request(),state,timeout=1,reserve=None)
+    assert result.draft_findings[0].citations[0].quote in state.evidence[0].content
+    bad=decision.model_copy(update={'citation_refs':('q999_1',)})
+    with pytest.raises(ValueError): agent._execute('record_evidence_finding',bad,request(),state,timeout=1,reserve=None)

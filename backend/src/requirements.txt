@@ -43,3 +43,6 @@ jsonschema>=4.20
 tiktoken>=0.12.0,<1
 markdown-it-py>=4.0.0,<5
 markdownify>=1.2.2,<2
+
+# Preparation checks PDF page coverage; OCR remains the configured parser.
+pypdf>=5,<7

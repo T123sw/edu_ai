@@ -1,0 +1,19 @@
+{
+  "started_at": "2026-09-17T10:39:57.044793+00:00",
+  "finished_at": "2026-09-17T10:40:38.241794+00:00",
+  "command": [
+    "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python",
+    "-m",
+    "pytest",
+    "tests/course_preparation",
+    "tests/chat/memory",
+    "--ignore=tests/chat/memory/test_memory_langmem_live_integration.py",
+    "--ignore=tests/chat/memory/test_memory_postgres_integration.py",
+    "-q"
+  ],
+  "exit_code": 0,
+  "log": "20260917T103957044761Z-pytest.txt",
+  "sha256": "a6968e54449041c6215444bdbd283cb6635018717a358ed0ea46cf334bde2bdf",
+  "base_commit": "481765d20949fa59c1d73c5ee9304f24a1394d0c",
+  "python": "3.12.14"
+}

@@ -4,6 +4,9 @@ class PreparationService:
         self.repository, self.wake = repository, wake
 
     def submit(self, owner, request, **options):
+        if 'config_snapshot' not in options:
+            snapshot = getattr(self, 'snapshot_factory', None)
+            if snapshot: options['config_snapshot'] = snapshot(owner)
         value = self.repository.submit(owner, request, **options)
         self.wake(value['preparation_id'])
         return value

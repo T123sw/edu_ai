@@ -108,6 +108,7 @@ class ResearchState(Contract):
     candidates: tuple[Candidate, ...] = ()
     evidence: tuple[SourceEvidence, ...] = ()
     summary: ResearchSummary | None = None
+    draft_findings: tuple[Finding, ...] = ()
     path: LearningPath | None = None
     review: PathReview | None = None
     calls: int = 0
@@ -126,3 +127,15 @@ class SearchArgs(Contract):
 class FetchArgs(Contract):
     candidate_id: Identifier
     offset_chars: int = Field(default=0, ge=0, le=200000)
+
+
+class FinalizeSummary(Contract):
+    overview: ShortText
+    finding_ids: tuple[Identifier, ...] = Field(min_length=1,max_length=12)
+    limitations: tuple[ShortText, ...] = Field(default=(),max_length=8)
+
+
+class ReferencedFinding(Contract):
+    finding_id: Identifier
+    claim: ShortText
+    citation_refs: tuple[Identifier,...]=Field(min_length=1,max_length=4)
