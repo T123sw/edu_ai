@@ -310,3 +310,22 @@ def read_preparation_notification(event_id: str,user=Depends(get_current_user),s
 @router.post('/checks/{check_id}/attempts/{request_id}/evaluate')
 async def evaluate_check(check_id: str,request_id: UUID,user=Depends(get_current_user),svc=Depends(service)):
     return await checks(svc).evaluate(user['username'],check_id,request_id)
+
+
+class ObservationUpdate(BaseModel):
+    status: Literal['resolved','retracted']
+    expected_revision: int = Field(ge=0)
+
+
+@router.get('/courses/{course_id}/topics/{topic_id}/observations')
+def observations(course_id: str,topic_id: str,user=Depends(get_current_user),svc=Depends(service)):
+    from app.self_learning.observations import ObservationService
+    if not svc.sessions:raise HTTPException(503,'持久化学习会话尚未启用')
+    return {'items':ObservationService(svc).list(user['username'],course_id,topic_id)}
+
+
+@router.post('/courses/{course_id}/topics/{topic_id}/observations/{message_id}')
+def update_observation(course_id: str,topic_id: str,message_id: str,payload: ObservationUpdate,user=Depends(get_current_user),svc=Depends(service)):
+    from app.self_learning.observations import ObservationService
+    if not svc.sessions:raise HTTPException(503,'持久化学习会话尚未启用')
+    return ObservationService(svc).update(user['username'],course_id,topic_id,message_id,payload.status,payload.expected_revision)

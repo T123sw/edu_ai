@@ -12,8 +12,13 @@ from .resource_reader import exact_material
 
 
 def requests_saved_work(question):
-    if any(term in question for term in ('不要生成','无需生成','不要保存','不需要保存','只解释','仅解释')): return False
-    return any(term in question for term in ('保存','生成一份','补充资料','修订资料','修改这份','调整学习路径','调整课程','创建课程'))
+    for clause in re.split(r'[，。；;\n]',question):
+        if any(term in clause for term in ('不要','不需要','无需','不必','只解释','仅解释')):continue
+        # Persisting an immediate check/answer is a learning fact, not a request
+        # to generate a course resource. Its own check tool owns that write.
+        clause=re.sub(r'保存(?:检查题|作答|答案|即时题)','',clause)
+        if any(term in clause for term in ('保存','生成一份','补充资料','修订资料','修改这份','调整学习路径','调整课程','创建课程')):return True
+    return False
 
 
 class PreparationAdapter:

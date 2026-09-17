@@ -1,3 +1,4 @@
+import { ObservationCard } from '../liveLearning/ObservationCard';
 import { CheckCard } from '../liveLearning/CheckCard';
 import { useAnswerTurns, type ReadingSnapshot } from '../liveLearning/agentTurns';
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
@@ -104,7 +105,7 @@ export function LearningAgent({ room, resource, setState, onSelect, onEngage, on
     <div className="sl-chat-history" ref={conversation} role="log" aria-label="当前知识点对话记录" data-session-id={session.sessionId}>
       {session.hasOlder && <button disabled={session.loading} onClick={() => { olderScrollHeight.current = conversation.current?.scrollHeight ?? null; void session.loadOlder(); }}>加载更早的对话</button>}
       {!room.sessionPersistence && <div className="sl-chat-bubble assistant"><span className="sl-chat-author"><Icon name="spark" size={14} />学习 Agent</span><p>我会一直在这里，陪你学完这堂课。</p><p>现在我们聊「{chapter.title}」。你可以随时提问；回来时，这里的对话会接着保留。</p></div>}
-      {messages.map(m => <div key={m.id} data-message-kind={m.kind} className={`sl-chat-bubble ${m.role}`}><span className="sl-chat-author">{m.role === "user" ? "你" : "学习 Agent"}<small>{m.resourceTitle}</small></span><p>{m.text}</p>{m.answerResult?.citations?.map(c => <small key={c.citation_id}>来源：{c.resource_ref.material_id} · v{c.resource_ref.version}</small>)}{m.answerResult?.understanding_checks?.map(check => <CheckCard key={check.check_id} checkId={check.check_id} topicId={check.topic_id} />)}</div>)}
+      {messages.map(m => <div key={m.id} data-message-kind={m.kind} className={`sl-chat-bubble ${m.role}`}><span className="sl-chat-author">{m.role === "user" ? "你" : "学习 Agent"}<small>{m.resourceTitle}</small></span><p>{m.text}</p>{m.answerResult?.citations?.map(c => <small key={c.citation_id}>来源：{c.resource_ref.material_id} · v{c.resource_ref.version}</small>)}{m.answerResult?.observation && <ObservationCard courseId={room.id} topicId={chapter.id} messageId={m.id} text={m.answerResult.observation.text} />}{m.answerResult?.understanding_checks?.map(check => <CheckCard key={check.check_id} checkId={check.check_id} topicId={check.topic_id} />)}</div>)}
       {turns.active && <div role="status">{turns.active.stage === "reading_resources" ? "正在读取资料…" : turns.active.status === "accepted" ? "问题已接收，等待处理…" : "正在组织回答…"}<button onClick={() => void turns.control(turns.active!.turn_id, "cancel")}>取消本次答疑</button></div>}
       {pending[chapter.id] && <div className="sl-chat-thinking" role="status">{room.live ? "正在思考…" : "正在整理示例回复"}<span>•••</span></div>}
     </div>

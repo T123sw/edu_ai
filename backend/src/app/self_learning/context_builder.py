@@ -50,6 +50,10 @@ class ContextBuilder:
         memory = memory_adapter.read(turn['owner'], turn['course_id']) if memory_adapter else None
         if memory:
             messages.append({'role': 'user', 'content': '已确认的长期偏好；当前用户要求优先，偏好不是学习事实：' + json.dumps(memory, ensure_ascii=False)})
+        from .observations import ObservationService
+        observations=ObservationService(self.learning).list(turn['owner'],turn['course_id'],turn['topic_id'])
+        if observations:
+            messages.append({'role':'user','content':'教学观察与用户最新处理状态；resolved/retracted 不再视为当前困难：'+json.dumps([{k:(str(v)[:200] if k=='text' else v) for k,v in o.items() if k in ('message_id','status','kind','text','revision')} for o in observations[:8]],ensure_ascii=False)})
         question = {'role': 'user', 'content': request['question']}
         size = lambda value: len(json.dumps(value, ensure_ascii=False).encode())
         if size(messages + [question]) > budget:

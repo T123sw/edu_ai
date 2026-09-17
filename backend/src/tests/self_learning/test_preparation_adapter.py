@@ -29,3 +29,14 @@ def test_explicit_save_handoff_binds_original_turn_and_request_replay():
     turn['request']['question']='只解释这个概念，不要生成'
     with pytest.raises(Exception): adapter.submit(turn,'supplement_node','工具失败案例')
     assert len(calls)==3
+
+
+@pytest.mark.parametrize('question,expected',[
+ ('请先保存检查题，让我在作答卡中回答，不要创建或保存课程资料。',False),
+ ('无需重新生成或保存任何资料，只解释。',False),
+ ('请保存作答，不要生成新课程。',False),
+ ('请修改这份报告并保存，不要修改其他资料。',True),
+ ('请保存一套面试练习。',True),
+])
+def test_negated_course_writes_and_check_persistence_are_not_resource_requests(question,expected):
+    assert requests_saved_work(question) is expected

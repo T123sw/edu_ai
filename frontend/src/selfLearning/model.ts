@@ -46,7 +46,7 @@ export type Message = {
   kind?: string;
   position?: number;
   sessionId?: string;
-  answerResult?: { understanding_checks?: { check_id: string; topic_id: string }[]; citations: { citation_id: string; resource_ref: import('../liveLearning/readingContext').ResourceRef }[] };
+  answerResult?: { observation?: { text: string; status: string } | null; understanding_checks?: { check_id: string; topic_id: string }[]; citations: { citation_id: string; resource_ref: import('../liveLearning/readingContext').ResourceRef }[] };
 };
 export type Classroom = {
   manifestRef?: { manifest_id: string; version: number };

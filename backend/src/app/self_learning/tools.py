@@ -220,7 +220,14 @@ class LearningTools:
         if not self.learning.progress_service:
             return ToolResult(ok=True, data={'nodes': [], 'facts_revision': 0}).model_dump()
         projection = self.learning.progress_service.read(Actor(user_id=self.turn['owner']), self.turn['course_id'])
-        return ToolResult(ok=True, data={'nodes': [t for t in projection['topics'] if not args.topic_ids or t['topic_id'] in args.topic_ids],
+        nodes=[dict(t) for t in projection['topics'] if not args.topic_ids or t['topic_id'] in args.topic_ids]
+        if args.include_open_questions:
+            from .observations import ObservationService
+            observations=ObservationService(self.learning)
+            for node in nodes:
+                node['open_questions']=[{'message_id':o['message_id'],'text':o['text'],'status':'hypothesis'} for o in observations.list(
+                    self.turn['owner'],self.turn['course_id'],node['topic_id']) if o['status']=='hypothesis' and o['kind']=='confusion']
+        return ToolResult(ok=True, data={'nodes': nodes,
                                         'facts_revision': projection['facts_revision']}).model_dump()
 
     def history(self, args):
