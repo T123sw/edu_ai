@@ -98,3 +98,33 @@ def test_immediate_check_is_persisted_scoped_and_never_leaks_rubric(checks):
     with pytest.raises(HTTPException):checks.get('bob',check['check_id'])
     with pytest.raises(HTTPException):checks.offer_immediate({**turn,'turn_id':'other'},ref,stem='问题',source_quote='虚构原文',objective_ids=['a:o1'])
     with pytest.raises(HTTPException):checks.offer_immediate({**turn,'turn_id':'other'},ref,stem='问题',source_quote='模型选择，服务端执行。',objective_ids=['b:o1'])
+
+
+def test_immediate_check_uses_server_citation_without_model_retyping(checks):
+    from app.self_learning.tools import LearningTools
+    from app.self_learning.resource_reader import exact_material,excerpt
+    from app.self_learning.contracts import ResourceRef
+    import json
+    original=checks.learning.sessions._chapter
+    def chapter(*args):
+        room,node=original(*args);return room,{**node,'objectives':[{'objective_id':'a:o1','text':'职责划分'}]}
+    checks.learning.sessions._chapter=chapter;checks.learning.checks=checks
+    ref=ResourceRef(course_id='course',material_type='quiz',material_id='quiz-a',version=1)
+    source=excerpt(exact_material(checks.learning,'alice',ref))
+    turn={'owner':'alice','course_id':'course','topic_id':'a','turn_id':'citation-check','request':{'question':'请检查理解'}}
+    packet={'handles':{'resource_01':ref.model_dump()},'citations':{'ctx_01':{'resource_ref':ref.model_dump(),'content_hash':source['content_hash'],'locator':None}}}
+    tools=LearningTools(checks.learning,turn,packet)
+    call={'id':'c1','type':'function','function':{'name':'offer_understanding_check','arguments':json.dumps({'resource_handle':'resource_01','reference_citation_id':'ctx_01','stem':'请解释工具执行职责。','objective_ids':['a:o1']})}}
+    result=tools.dispatch(call)
+    assert result['ok'] and result['data']['check']['check_id'] in packet['understanding_checks']
+    assert 'scoring_key' not in str(result)
+
+
+def test_old_check_attempts_remain_readable_after_current_topic_changes(checks):
+    check=offer(checks);rid=uuid4()
+    saved=checks.submit('alice',check['check_id'],rid,{'selected_option_id':'opt-1'})
+    def unavailable(*args):raise HTTPException(409,'当前节点或版本已变化')
+    checks.learning.sessions._chapter=unavailable
+    assert checks.attempts('alice',check['check_id'])==[saved]
+    assert checks.get('alice',check['check_id'])['allow_submission'] is False
+    with pytest.raises(HTTPException):checks.submit('alice',check['check_id'],uuid4(),{'selected_option_id':'opt-1'})

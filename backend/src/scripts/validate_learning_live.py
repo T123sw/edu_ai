@@ -3,7 +3,7 @@ import argparse,json,time
 from pathlib import Path
 from uuid import uuid4
 import httpx
-p=argparse.ArgumentParser();p.add_argument('--question',required=True);p.add_argument('--name',required=True);p.add_argument('--expect-preparation',action='store_true');p.add_argument('--current-version',action='store_true');p.add_argument('--credentials');p.add_argument('--course-id')
+p=argparse.ArgumentParser();p.add_argument('--question',required=True);p.add_argument('--name',required=True);p.add_argument('--expect-preparation',action='store_true');p.add_argument('--current-version',action='store_true');p.add_argument('--credentials');p.add_argument('--course-id');p.add_argument('--expect-check',action='store_true')
 a=p.parse_args();root=Path(__file__).resolve().parents[3]/'artifacts'/'full-application'
 c=json.loads(Path(a.credentials).read_text() if a.credentials else (root/'credentials.json').read_text());state=json.loads((root/'state.json').read_text())
 if a.course_id:c['course_id']=a.course_id
@@ -25,4 +25,7 @@ for i in range(150):
 print(json.dumps(turn,ensure_ascii=False),flush=True)
 if a.expect_preparation:
  assert turn.get('preparation_receipts'), 'Save request did not return a durable preparation receipt'
+if a.expect_check:
+ assert (turn.get('result') or {}).get('understanding_checks'), 'Check request did not persist an understanding check'
+ assert not turn.get('preparation_receipts'), 'Immediate check unexpectedly created course preparation'
 raise SystemExit(0 if turn['status']=='succeeded' else 1)

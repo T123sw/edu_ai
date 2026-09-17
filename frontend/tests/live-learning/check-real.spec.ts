@@ -1,0 +1,27 @@
+import { test, expect } from 'playwright/test';
+import { readFileSync } from 'node:fs';
+const credentials = JSON.parse(readFileSync('../artifacts/full-application/credentials.json', 'utf8'));
+const turn = JSON.parse(readFileSync(`../artifacts/full-application/${process.env.AGENT_CHECK_RUN || 'immediate-check-03'}/turn.json`, 'utf8'));
+const room = JSON.parse(readFileSync('../artifacts/frozen-acceptance/interview-fresh-02/learning-room.json', 'utf8'));
+test('real immediate check, saved answer, reload and model evaluation', async ({ page }, info) => {
+  expect(turn.status).toBe('succeeded'); expect(turn.result.understanding_checks).toHaveLength(1);
+  expect(turn.preparation_receipts).toHaveLength(0);
+  const check = turn.result.understanding_checks[0]; const errors: string[] = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/'); await page.getByLabel('账号', { exact: true }).fill(credentials.username);
+  await page.getByLabel('密码', { exact: true }).fill(credentials.password);
+  await page.getByRole('button', { name: /^登\s*录$/ }).click();
+  await expect(page.getByRole('heading', { name: '最近学习' })).toBeVisible();
+  const report = room.chapters[0].resources.find((r: any) => r.remote.materialType === 'report');
+  await page.goto(`/#/classroom/${room.id}?resource=${report.id}`);
+  const card = page.getByRole('group', { name: check.prompt.stem, exact: true });
+  await card.getByLabel('检查题答案').fill('模型根据上下文选择工具并生成结构化参数；应用程序解析和校验参数，实际执行函数或 API，处理错误并格式化结果，再把结果返回模型继续回答。模型不直接执行函数。');
+  await card.getByRole('button', { name: '保存作答', exact: true }).click();
+  await expect(card.getByRole('status')).toContainText('答案已保存'); await page.reload();
+  await expect(card.getByLabel('检查题答案')).toHaveValue(/模型根据上下文/);
+  await card.getByRole('button', { name: '评价已保存答案' }).click();
+  await expect(card.getByRole('status')).toContainText(/本题证据|本题建议/, { timeout: 120000 });
+  await page.screenshot({ path: info.outputPath('check-evaluated.png') });
+  await page.reload(); await expect(card.getByRole('status')).toContainText(/本题证据|本题建议/);
+  expect(errors).toEqual([]);
+});

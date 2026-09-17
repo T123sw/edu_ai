@@ -50,7 +50,8 @@ class CheckService:
                     source_ref=source,content_digest=content_digest,item=asdict(item),created_at=time.time())
                 db.add(row); db.flush()
             elif row.content_digest!=content_digest: raise HTTPException(409,'题目版本内容已变化')
-            return self.public(row)
+            current=any(r.get('remote') and r['remote']['materialId']==ref.material_id and r['remote']['version']==ref.version for r in chapter['resources'])
+            return {**self.public(row),'allow_submission':current}
 
     def offer_immediate(self, turn, ref, *, stem, source_quote, objective_ids):
         """A generated short question is evidence only after this snapshot commits."""
@@ -80,23 +81,27 @@ class CheckService:
                     source_ref=source,content_digest=hashlib.sha256(text.encode()).hexdigest(),item=item,created_at=time.time())
                 db.add(row);db.flush()
             else:self._authorize(owner,row)
-            return self.public(row)
+            return {**self.public(row),'allow_submission':True}
 
     def get(self,owner,check_id):
         with Session(self.engine) as db:
-            row=db.get(LearningCheckRecord,check_id);self._authorize(owner,row)
-            return self.public(row)
+            row=db.get(LearningCheckRecord,check_id);self._authorize(owner,row,current=False)
+            try:self._authorize(owner,row);current=True
+            except HTTPException:current=False
+            return {**self.public(row),'allow_submission':current}
 
     @staticmethod
     def public(row):
         return {'check_id':row.check_id,'session_id':row.session_id,'topic_id':row.topic_id,
                 'source_ref':row.source_ref,'item_type':row.item['item_type'],'prompt':row.item['prompt']}
 
-    def _authorize(self, owner, row):
+    def _authorize(self, owner, row, *, current=True):
         if row is None or row.owner!=owner: raise HTTPException(404,'检查不存在或无权访问')
-        _,chapter=self.learning.sessions._chapter(owner,row.course_id,row.topic_id)
-        if not any(r.get('remote') and r['remote']['materialId']==row.source_ref['material_id'] and r['remote']['version']==row.source_ref['version'] for r in chapter['resources']):
-            raise HTTPException(409,'检查所依据的当前资料版本已变化')
+        self.learning.require(row.course_id,owner)
+        if current:
+            _,chapter=self.learning.sessions._chapter(owner,row.course_id,row.topic_id)
+            if not any(r.get('remote') and r['remote']['materialId']==row.source_ref['material_id'] and r['remote']['version']==row.source_ref['version'] for r in chapter['resources']):
+                raise HTTPException(409,'检查所依据的当前资料版本已变化')
         source={k:v for k,v in row.source_ref.items() if k!='question_id'}
         material=exact_material(self.learning,owner,ResourceRef.model_validate(source))
         if hashlib.sha256(material_text(material).encode()).hexdigest()!=row.content_digest:
@@ -140,7 +145,7 @@ class CheckService:
 
     def attempts(self,owner,check_id):
         with Session(self.engine) as db:
-            self._authorize(owner,db.get(LearningCheckRecord,check_id))
+            self._authorize(owner,db.get(LearningCheckRecord,check_id),current=False)
             return [r.result for r in db.scalars(select(LearningCheckAttempt).where(
                 LearningCheckAttempt.owner==owner,LearningCheckAttempt.check_id==check_id).order_by(LearningCheckAttempt.created_at))]
 

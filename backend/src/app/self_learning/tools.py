@@ -63,6 +63,7 @@ class OfferCheck(Contract):
     question_id: str | None = Field(default=None,max_length=200)
     stem: str = Field(default='',max_length=2000)
     source_quote: str = Field(default='',max_length=4000)
+    reference_citation_id: Identifier | None = None
     objective_ids: list[Identifier] = Field(default_factory=list,max_length=8)
 
 
@@ -102,7 +103,7 @@ class LearningTools:
                 specs.append(ToolSpec('update_learning_preference','仅按本轮用户原话和明确长期作用域保存偏好；一次性要求不保存，范围不清先询问',UpdatePreference,self.update_preference,effect='write',min_phase=4))
         from .preparation_adapter import requests_saved_work
         if getattr(learning,'checks',None):
-            specs.append(ToolSpec('offer_understanding_check','用户要求检查理解时调用。优先用当前节点 quiz 的 question_id；没有合适题目时，提供一道短答题 stem、逐字 source_quote 评分依据和当前 objective_ids。保存成功后才能展示检查，不能自行判定用户已掌握。',OfferCheck,self.offer_check,effect='write',min_phase=4))
+            specs.append(ToolSpec('offer_understanding_check','用户要求检查理解时调用。优先用当前节点 quiz 的 question_id；没有合适题目时，提供短答题 stem、已有 reference_citation_id（如 ctx_01）和当前 objective_ids，服务端回读原文作为评价依据，无需重新抄写。也可提供连续逐字 source_quote，不能改写或拼接。保存成功后才展示检查。',OfferCheck,self.offer_check,effect='write',min_phase=4))
         if getattr(learning, 'prepared_courses', None) and requests_saved_work(turn['request']['question']):
             specs.append(ToolSpec('prepare_learning_material','仅在用户明确要求生成保存、补充或修订资料时提交后台准备任务；解释问题不调用。只修改当前阅读资料/节点。',PrepareMaterial,self.prepare,effect='write',min_phase=5))
         self.registry = {s.name: s for s in specs}
@@ -127,7 +128,9 @@ class LearningTools:
             return ToolResult.model_validate(spec.handler(args)).model_dump(mode='json')
         except (ValidationError, ValueError, TypeError, KeyError):
             return ToolResult(ok=False, error={'code': 'INVALID_ARGUMENTS', 'message': '工具参数无效', 'retryable': False}).model_dump()
-        except HTTPException:
+        except HTTPException as exc:
+            if exc.status_code==422:
+                return ToolResult(ok=False,error={'code':'INVALID_ARGUMENTS','message':str(exc.detail)[:1000],'retryable':False}).model_dump()
             return ToolResult(ok=False, error={'code': 'ACCESS_OR_VERSION_UNAVAILABLE', 'message': '当前资料或版本不可读取', 'retryable': False}).model_dump()
 
     def preferences(self,args):
@@ -154,7 +157,14 @@ class LearningTools:
             result=self.learning.checks.offer(self.turn['owner'],self.turn['course_id'],self.turn['topic_id'],raw,args.question_id)
         else:
             if not args.stem.strip():raise ValueError('QUESTION_REQUIRED')
-            result=self.learning.checks.offer_immediate(self.turn,ref,stem=args.stem,source_quote=args.source_quote,objective_ids=args.objective_ids)
+            quote=args.source_quote
+            if args.reference_citation_id:
+                citation=self.packet['citations'].get(args.reference_citation_id)
+                if citation is None or citation['resource_ref']!=raw:raise ValueError('UNKNOWN_REFERENCE')
+                source=excerpt(exact_material(self.learning,self.turn['owner'],ref),locator=citation.get('locator'),max_chars=4000)
+                if source['content_hash']!=citation['content_hash']:raise HTTPException(409,'引用版本已变化')
+                quote=source['excerpt']
+            result=self.learning.checks.offer_immediate(self.turn,ref,stem=args.stem,source_quote=quote,objective_ids=args.objective_ids)
         self.packet.setdefault('understanding_checks',{})[result['check_id']]=result
         return ToolResult(ok=True,data={'check':result}).model_dump()
 
