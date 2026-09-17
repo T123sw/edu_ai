@@ -64,3 +64,37 @@ for (const initial of ['running', 'failed']) {
     expect(page.url()).not.toContain('/classroom/');
   });
 }
+
+
+test('creation waits for the selected upload and includes its immutable reference', async ({ page }) => {
+  let release: () => void = () => {}; const gate = new Promise<void>(resolve => { release = resolve; });
+  const requests: any[] = [];
+  await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ token: 'test', user: { username: 'alice', role: 'student' } })));
+  await page.route('**/api/**', async route => {
+    const path = new URL(route.request().url()).pathname;
+    if (!path.startsWith('/api/')) return route.continue();
+    if (path.endsWith('/auth/verify')) return route.fulfill({ json: { valid: true, user: { username: 'alice', role: 'student' } } });
+    if (path.endsWith('/self-learning/state')) return route.fulfill({ json: { version: 1, rooms: [], resources: [], jobs: [], serverJobs: [], shared: [] } });
+    if (path.endsWith('/course-preparations/uploads')) {
+      await gate;
+      return route.fulfill({ json: { document_id: 'uploaded-interview', version: 1 } });
+    }
+    if (path === '/api/course-preparations' && route.request().method() === 'POST') {
+      requests.push(route.request().postDataJSON());
+      return route.fulfill({ status: 202, json: { preparation_id: 'upload-task', status: 'accepted', stage: 'normalize', revision: 1 } });
+    }
+    return route.fulfill({ json: { preparations: [], items: [] } });
+  });
+  await page.goto('/');
+  await page.getByLabel('学习知识点与目标').fill('只根据上传资料学习 Agent');
+  await page.getByLabel('添加资料').setInputFiles({ name: 'agent.md', mimeType: 'text/markdown', buffer: Buffer.from('# Agent interview') });
+  await expect(page.getByText('正在上传…')).toBeVisible();
+  await page.getByRole('button', { name: '开始学习' }).click();
+  await expect(page.getByRole('alert')).toContainText('资料仍在上传');
+  expect(requests).toHaveLength(0);
+  release();
+  await expect(page.getByLabel('资料 1 用途')).toBeVisible();
+  await page.getByRole('button', { name: '开始学习' }).click();
+  await expect.poll(() => requests.length).toBe(1);
+  expect(requests[0].uploads).toEqual([{ document_id: 'uploaded-interview', version: 1, usage: 'primary' }]);
+});

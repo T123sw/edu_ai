@@ -9,7 +9,7 @@ type Intermediate = { brief?: { goal?: string }; research_summary?: { findings?:
 type Task = { preparation_id: string; status: string; stage: string; revision: number; error_code?: string; result_ref?: { course_ready: boolean; course_id: string } };
 const labels: Record<string, string> = { normalize: '理解学习目标', ingest: '读取上传资料', research_scope: '搜索并核验资料', plan: '规划学习路径', research_nodes: '检查各节点依据', produce: '生成学习资料', review: '检查课程质量', repair: '修复资料', commit: '保存课程' };
 
-export function PreparationOptionsForm({ value, onChange }: { value: PreparationOptions; onChange: (v: PreparationOptions) => void }) {
+export function PreparationOptionsForm({ value, onChange, onUploadingChange }: { value: PreparationOptions; onChange: (v: PreparationOptions) => void; onUploadingChange?: (value: boolean) => void }) {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
   return <fieldset disabled={uploading} className="sl-preparation-options"><legend>学习安排与资料</legend>
@@ -18,10 +18,10 @@ export function PreparationOptionsForm({ value, onChange }: { value: Preparation
     <label><input type="checkbox" checked={value.overrides.required_resource_types.includes('classroom')} onChange={e => onChange({ ...value, overrides: { ...value.overrides, required_resource_types: e.target.checked ? ['classroom'] : [] } })} />同时生成讲解课堂</label>
     <label>添加资料<input type="file" accept=".pdf,.doc,.docx,.md,.txt" onChange={async e => {
       const file = e.target.files?.[0]; if (!file) return;
-      setUploading(true); setError('');
+      setUploading(true); onUploadingChange?.(true); setError('');
       try { const body = new FormData(); body.append('file', file); const ref = await apiRequest<UploadRef>(`${base}/uploads`, { method: 'POST', body }); onChange({ ...value, uploads: [...value.uploads, { ...ref, usage: 'primary' }], source_policy: { mode: value.source_policy.mode === 'open' ? 'uploads_preferred' : value.source_policy.mode } }); }
       catch (c) { setError(c instanceof Error ? c.message : '上传失败'); }
-      finally { setUploading(false); }
+      finally { setUploading(false); onUploadingChange?.(false); }
     }} /></label>
     {uploading && <span role="status">正在上传…</span>}
     {value.uploads.map((ref, index) => <div key={`${ref.document_id}:${ref.version}`}>资料 {index + 1} <select aria-label={`资料 ${index + 1} 用途`} value={ref.usage} onChange={e => onChange({ ...value, uploads: value.uploads.map((r, i) => i === index ? { ...r, usage: e.target.value as UploadRef['usage'] } : r) })}><option value="primary">主要学习资料</option><option value="reference">参考资料</option></select><button type="button" onClick={() => onChange({ ...value, uploads: value.uploads.filter((_, i) => i !== index) })}>移除</button></div>)}

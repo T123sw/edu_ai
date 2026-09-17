@@ -1,0 +1,24 @@
+import { test, expect } from 'playwright/test';
+import { readFileSync } from 'node:fs';
+const credentials = JSON.parse(readFileSync('../artifacts/full-application/preference-credentials.json', 'utf8'));
+test('real account can correct and delete a preference with refresh persistence', async ({ page }, info) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/?account=1');
+  await page.getByLabel('账号', { exact: true }).fill(credentials.username);
+  await page.getByLabel('密码', { exact: true }).fill(credentials.password);
+  await page.getByRole('button', { name: /^登\s*录$/ }).click();
+  const preferences = page.getByRole('region', { name: '学习偏好' });
+  await expect(preferences.getByLabel('讲解详略')).toHaveValue('讲解简洁');
+  await preferences.getByLabel('讲解详略').fill('先举例，再解释原理');
+  await preferences.getByRole('button', { name: '保存更正' }).click();
+  await page.waitForResponse(r => r.url().endsWith('/agent-memory/preferences') && r.status() === 200);
+  await page.reload();
+  await expect(preferences.getByLabel('讲解详略')).toHaveValue('先举例，再解释原理');
+  await page.screenshot({ path: info.outputPath('preference-edited.png') });
+  await preferences.getByRole('button', { name: '删除偏好' }).click();
+  await expect(preferences.getByText('暂无已记录的全局学习偏好。')).toBeVisible();
+  await page.reload();
+  await expect(preferences.getByText('暂无已记录的全局学习偏好。')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('preference-deleted.png') });
+  expect(errors).toEqual([]);
+});

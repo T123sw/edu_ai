@@ -3,10 +3,11 @@ import argparse,json,time
 from pathlib import Path
 from uuid import uuid4
 import httpx
-p=argparse.ArgumentParser();p.add_argument('--question',required=True);p.add_argument('--name',required=True);p.add_argument('--expect-preparation',action='store_true');p.add_argument('--current-version',action='store_true')
+p=argparse.ArgumentParser();p.add_argument('--question',required=True);p.add_argument('--name',required=True);p.add_argument('--expect-preparation',action='store_true');p.add_argument('--current-version',action='store_true');p.add_argument('--credentials');p.add_argument('--course-id')
 a=p.parse_args();root=Path(__file__).resolve().parents[3]/'artifacts'/'full-application'
-c=json.loads((root/'credentials.json').read_text());state=json.loads((root/'state.json').read_text())
-room=next(r for r in state['rooms'] if r['id']==c['course_id']);chapter=room['chapters'][0]
+c=json.loads(Path(a.credentials).read_text() if a.credentials else (root/'credentials.json').read_text());state=json.loads((root/'state.json').read_text())
+if a.course_id:c['course_id']=a.course_id
+room=next((r for r in state['rooms'] if r['id']==c['course_id']),state['rooms'][0]);chapter=room['chapters'][0]
 resource=next(r['remote'] for r in chapter['resources'] if r['remote']['materialType']=='report')
 out=root/a.name;out.mkdir(exist_ok=False)
 client=httpx.Client(base_url='http://127.0.0.1:8027',headers={'Authorization':'Bearer '+c['token']},timeout=120)
