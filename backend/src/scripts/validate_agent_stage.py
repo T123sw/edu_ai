@@ -19,18 +19,23 @@ def main():
     stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
     command = [sys.executable, '-m', 'pytest', *args.tests, *pytest_options, '-q']
     started = datetime.now(timezone.utc)
-    result = subprocess.run(command, cwd=root / 'backend/src', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     log = output / f'{stamp}-pytest.txt'
-    log.write_bytes(result.stdout)
+    with log.open('wb') as stream:
+        try:
+            result = subprocess.run(command, cwd=root / 'backend/src', stdout=stream, stderr=subprocess.STDOUT)
+            returncode = result.returncode
+        except KeyboardInterrupt:
+            returncode = 130
+    stdout = log.read_bytes()
     record = {'started_at': started.isoformat(), 'finished_at': datetime.now(timezone.utc).isoformat(),
-              'command': command, 'exit_code': result.returncode, 'log': log.name,
-              'sha256': hashlib.sha256(result.stdout).hexdigest(),
+              'command': command, 'exit_code': returncode, 'log': log.name,
+              'sha256': hashlib.sha256(stdout).hexdigest(),
               'base_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root).decode().strip(),
               'python': sys.version.split()[0]}
     (output / f'{stamp}-run.json').write_text(json.dumps(record, indent=2) + '\n')
-    print('\n'.join(result.stdout.decode(errors='replace').splitlines()[-45:]))
+    print('\n'.join(stdout.decode(errors='replace').splitlines()[-45:]))
     print('Saved:', log)
-    raise SystemExit(result.returncode)
+    raise SystemExit(returncode)
 
 
 if __name__ == '__main__':

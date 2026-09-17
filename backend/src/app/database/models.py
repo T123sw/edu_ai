@@ -1440,3 +1440,33 @@ class PreparationArtifact(Base):
     error_code: Mapped[str | None] = mapped_column(String(80))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
 
+
+class PreparedManifestVersion(Base):
+    __tablename__ = 'prepared_manifest_versions'
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    manifest_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    preparation_id: Mapped[str] = mapped_column(ForeignKey('course_preparations.preparation_id'), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    content_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class PreparedCoursePointer(Base):
+    __tablename__ = 'prepared_course_pointers'
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class PreparationDeliveryEvent(Base):
+    __tablename__ = 'preparation_delivery_events'
+    event_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    preparation_id: Mapped[str] = mapped_column(ForeignKey('course_preparations.preparation_id'), nullable=False, unique=True)
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), nullable=False)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    manifest_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    delivered: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)

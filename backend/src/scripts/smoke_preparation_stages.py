@@ -2,6 +2,7 @@
 import argparse
 from datetime import datetime, timezone
 import json
+import time
 from pathlib import Path
 from uuid import uuid4
 from sqlalchemy import create_engine
@@ -16,6 +17,9 @@ def main():
     parser.add_argument('--upload',action='append',default=[])
     parser.add_argument('--uploaded-only',action='store_true')
     parser.add_argument('--log-dir',required=True)
+    parser.add_argument('--resume-preparation')
+    parser.add_argument('--full',action='store_true')
+    parser.add_argument('--classroom',action='store_true')
     args=parser.parse_args()
     if 'edu_ai_agent_stage' not in args.database_url: raise ValueError('Use the dedicated stage test database')
     from core.config import Config
@@ -34,9 +38,17 @@ def main():
     from app.course_preparation.schemas import PreparationRequest
     from app.course_preparation.runtime_contracts import BudgetLimits
     engine=create_engine(args.database_url)
-    owner='stage-smoke-'+uuid4().hex
-    with Session(engine) as session,session.begin():
-        session.add(User(user_id=owner,username=owner,password_hash='disabled-live-test-account',role='student'))
+    if args.resume_preparation:
+        from app.database.models import CoursePreparationRecord
+        with Session(engine) as session:
+            record=session.get(CoursePreparationRecord,args.resume_preparation)
+            if record is None or not record.owner_user_id.startswith('stage-smoke-'): raise ValueError('Only isolated smoke tasks can be resumed')
+            owner=record.owner_user_id
+        if args.upload: raise ValueError('Resume preserves original source references')
+    else:
+        owner='stage-smoke-'+uuid4().hex
+        with Session(engine) as session,session.begin():
+            session.add(User(user_id=owner,username=owner,password_hash='disabled-live-test-account',role='student'))
     personal=PersonalKnowledgeService()
     documents=DocumentStore(engine,PersonalDocumentReader(personal))
     uploads=[]
@@ -53,24 +65,46 @@ def main():
     stages=ResearchStages(repo,factory,documents,memory=memory,node_reviewer=check_node)
     runner=PreparationRunner(repo,stages.handlers())
     request=PreparationRequest(request_id=uuid4(),operation='create_course',goal=args.goal,uploads=uploads,
-        overrides={'total_minutes':args.minutes},source_policy={'mode':'uploaded_only' if args.uploaded_only else 'uploads_preferred' if uploads else 'open'})
-    task=repo.submit(owner,request,config_snapshot=runtime_config_resolver.capture_snapshot(owner),
-                     limits=BudgetLimits(seconds=1800,cost_micro_usd=20_000_000))
+        overrides={'total_minutes':args.minutes,'required_resource_types':['classroom'] if args.classroom else []},source_policy={'mode':'uploaded_only' if args.uploaded_only else 'uploads_preferred' if uploads else 'open'})
+    if args.resume_preparation:
+        task=repo.get_public(owner,args.resume_preparation)
+        if task['status']=='failed': task=repo.retry(owner,args.resume_preparation)
+        request=repo.get(owner_user_id=owner,preparation_id=args.resume_preparation).request
+    else:
+        task=repo.submit(owner,request,config_snapshot=runtime_config_resolver.capture_snapshot(owner),
+                         limits=BudgetLimits(seconds=1800,cost_micro_usd=20_000_000))
     output=Path(args.log_dir); output.mkdir(parents=True,exist_ok=False)
     def write(name,value): (output/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
     write('request.json',request.model_dump(mode='json'))
-    write('run.json',{'owner':owner,'preparation_id':task['preparation_id'],'started_at':datetime.now(timezone.utc).isoformat(),'scope':'P3 research only','course_ready':False})
+    write('run.json',{'owner':owner,'preparation_id':task['preparation_id'],'started_at':datetime.now(timezone.utc).isoformat(),'scope':'full preparation' if args.full else 'P3 research only','course_ready':False})
+    pool=None
+    if args.full:
+        from app.chat.tasks.task_store import TaskStore
+        from app.course_preparation.pipeline import build_pipeline
+        from app.course_preparation.adapters.generation import PreparationResourceHandler
+        from app.services.durable_task_handlers import DurableTaskHandlerRegistry
+        from app.services.durable_executor_pool import DurableExecutorPool
+        from app.services.job_completion_service import JobCompletionService
+        store=TaskStore(str(output/'tasks.db'))
+        pipeline=build_pipeline(store)
+        runner=pipeline.runner
+        registry=DurableTaskHandlerRegistry()
+        registry.register('preparation_resource',1,PreparationResourceHandler(lambda:pipeline))
+        pool=DurableExecutorPool(task_store=store,handler_registry=registry,
+            completion_service=JobCompletionService(task_store=store),worker_count=2)
+        pool.start()
     from app.database.models import PreparationExecution, PreparationAction
     from sqlalchemy import select
-    for step in range(100):
+    for step in range(1800 if args.full else 100):
         public=repo.get_public(owner,task['preparation_id'])
-        if public['status'] in ('failed','canceled') or public['stage']=='produce': break
+        if public['status'] in ('failed','canceled','succeeded') or (not args.full and public['stage']=='produce'): break
         result=runner.run_step(task['preparation_id'],worker_id=f'smoke-{step}')
         with Session(engine) as session:
             execution=session.get(PreparationExecution,(task['preparation_id'],public['attempt_no']))
             checkpoint=execution.checkpoint
         write(f'{step:03d}-{public["stage"]}.json',{'result':result,'checkpoint':checkpoint})
         print(step,public['stage'],result,flush=True)
+        if result.get('waiting'): time.sleep(2)
     final=repo.get_public(owner,task['preparation_id'])
     write('final.json',final)
     events=[]
@@ -82,7 +116,9 @@ def main():
     with Session(engine) as session:
         actions=session.scalars(select(PreparationAction).where(PreparationAction.preparation_id==task['preparation_id'])).all()
         write('actions.json',[{'kind':a.kind,'payload':a.payload,'status':a.status,'receipt':a.receipt,'reserved':a.reserved,'consumed':a.consumed} for a in actions])
+    if pool: pool.stop(timeout_seconds=10)
+    if final['status']=='succeeded': write('manifest.json',pipeline.delivery.read(owner,final['result_ref']['course_id']))
     print(json.dumps(final,ensure_ascii=False),flush=True)
-    raise SystemExit(0 if final['stage']=='produce' and final['status']=='running' else 1)
+    raise SystemExit(0 if (final['status']=='succeeded' if args.full else final['stage']=='produce' and final['status']=='running') else 1)
 
 if __name__=='__main__': main()
