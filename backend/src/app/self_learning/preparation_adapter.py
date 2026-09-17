@@ -12,6 +12,14 @@ from .resource_reader import exact_material
 
 
 def requests_saved_work(question):
+    # A future intention is not authorization to submit this turn. These
+    # whole-request deferrals take precedence over an earlier "want to save".
+    if re.search(r'(?:不要|无需|不需要|暂不|先不)(?:创建|提交|启动)(?:任何)?(?:准备|后台)?任务',question):
+        return False
+    if re.search(r'(?:选定|确定|明确|确认|决定).{0,16}(?:后|之后)再(?:提交|生成|保存|修改)',question):
+        return False
+    if re.search(r'(?:还没|尚未)(?:决定|确定|选定).{0,24}(?:哪|第一|第二|目标)',question):
+        return False
     for clause in re.split(r'[，。；;\n]',question):
         if any(term in clause for term in ('不要','不需要','无需','不必','只解释','仅解释')):continue
         # Persisting an immediate check/answer is a learning fact, not a request

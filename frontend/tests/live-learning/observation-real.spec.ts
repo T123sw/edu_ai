@@ -1,0 +1,22 @@
+import { test, expect } from 'playwright/test';
+import { readFileSync } from 'node:fs';
+const credentials = JSON.parse(readFileSync('../artifacts/full-application/credentials.json', 'utf8'));
+const room = JSON.parse(readFileSync('../artifacts/frozen-acceptance/interview-final-01/learning-room.json', 'utf8'));
+const turn = JSON.parse(readFileSync('../artifacts/full-application/observation-final/turn.json', 'utf8'));
+test('real sourced observation can be resolved and survives reload', async ({ page }, info) => {
+  expect(turn.status).toBe('succeeded'); expect(turn.result.observation).toBeTruthy();
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
+  await page.goto('/'); await page.getByLabel('账号', { exact: true }).fill(credentials.username);
+  await page.getByLabel('密码', { exact: true }).fill(credentials.password);
+  await page.getByRole('button', { name: /^登\s*录$/ }).click();
+  await expect(page.getByRole('heading', { name: '最近学习' })).toBeVisible();
+  const report = room.chapters[0].resources.find((r: any) => r.remote.materialType === 'report');
+  await page.goto(`/#/classroom/${room.id}?resource=${report.id}`);
+  await expect(page.getByText(`待验证的教学观察：${turn.result.observation.text}`, { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: '这个问题已解决', exact: true }).click();
+  await expect(page.getByText(/你已确认解决/)).toBeVisible();
+  await page.reload(); await expect(page.getByText(/你已确认解决/)).toBeVisible();
+  await expect(page.getByRole('button', { name: '这个问题已解决', exact: true })).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('resolved-observation.png') });
+  expect(errors).toEqual([]);
+});

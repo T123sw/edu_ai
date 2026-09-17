@@ -37,6 +37,9 @@ def test_explicit_save_handoff_binds_original_turn_and_request_replay():
  ('请保存作答，不要生成新课程。',False),
  ('请修改这份报告并保存，不要修改其他资料。',True),
  ('请保存一套面试练习。',True),
+ ('我想修改课程里某一份学习报告并保存，但还没决定改第一份还是第二份。先列出候选报告及所在节点，让我选定目标后再提交；本轮不要创建准备任务。',False),
+ ('我想保存一份报告，等我确定目标后再提交。',False),
+ ('请保存一份练习，不要创建后台任务。',False),
 ])
 def test_negated_course_writes_and_check_persistence_are_not_resource_requests(question,expected):
     assert requests_saved_work(question) is expected

@@ -194,3 +194,32 @@ def test_saved_work_without_actual_tool_receipt_cannot_claim_success(agent_servi
     result=svc.turns.get('alice',turn['turn_id'])
     assert result['status']=='failed' and result['error_code']=='PREPARATION_NOT_SUBMITTED'
     assert result['result'] is None and result['preparation_receipts']==[]
+
+
+def test_scope_rollback_keeps_new_progress_authoritative(agent_service,monkeypatch):
+    from app.self_learning.contracts import Actor
+    from tests.self_learning.test_progress_repository import event
+    svc=agent_service
+    svc.progress_service.record(Actor(user_id='alice'),'course','a',event())
+    svc.store.put('alice','course',{'progress':{'doc':{'completed':False}}})
+    monkeypatch.setenv('LEARNING_V1_SCOPE_JSON','{"users":[]}')
+    room=svc.room('course','alice')
+    assert room['agentRuntime'] is False and room['progressPersistence'] is True
+    assert room['progress']['doc']['completed'] is True
+    with pytest.raises(HTTPException) as denied:accept(svc)
+    assert denied.value.status_code==503
+    with pytest.raises(HTTPException) as old:
+        svc.answer('course','alice','a','doc','解释',str(uuid4()))
+    assert old.value.status_code==409
+
+
+def test_deferred_save_can_answer_without_preparation_receipt(agent_service):
+    from types import SimpleNamespace
+    svc=agent_service
+    svc.prepared_courses=SimpleNamespace(lookup=lambda *_:None,manifest=lambda *_:None)
+    reply={'content':json.dumps({'answer_markdown':'请先选择报告 A 或报告 B。','citation_ids':[]}), 'calls':[]}
+    turn=accept(svc,request('我想修改学习报告并保存，先列出候选，让我选定目标后再提交；本轮不要创建准备任务。'))
+    LearningAgentRuntime(svc,svc.turn_repository,lambda _:Model([reply])).run_once()
+    result=svc.turns.get('alice',turn['turn_id'])
+    assert result['status']=='succeeded' and result['preparation_receipts']==[]
+    assert result['result']['model_rounds']==1 and result['result']['tool_attempts']==0
