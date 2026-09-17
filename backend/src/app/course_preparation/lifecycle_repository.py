@@ -128,6 +128,8 @@ class LifecycleRepository(PreparationRepository):
                 self.authorizer.authorize(prep.owner_user_id, PreparationRequest.model_validate(prep.request_payload))
             except (PermissionError, LookupError):
                 error = 'SOURCE_OR_OWNER_UNAVAILABLE'
+            except RevisionConflict:
+                error = 'MANIFEST_BASE_CHANGED'
             if aware(budget.deadline) <= now:
                 error = 'DEADLINE_EXCEEDED'
             if run.input_digest != prep.request_sha256:

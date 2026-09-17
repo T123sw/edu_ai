@@ -1,6 +1,7 @@
 """Owner-authorized document reads with immutable byte hashes and parse defects."""
 from dataclasses import dataclass
 import hashlib
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -32,6 +33,21 @@ class DocumentParser:
         if len(data) > 30 * 1024 * 1024: raise DocumentUnreadable('DOCUMENT_TOO_LARGE')
         source_hash = hashlib.sha256(data).hexdigest()
         defects, units = [], []
+        antiword = os.getenv('PREPARATION_ANTIWORD_BIN') or shutil.which('antiword')
+        if suffix == '.doc' and not self.doc_converter and not (shutil.which('libreoffice') or shutil.which('soffice')) and antiword:
+            with tempfile.TemporaryDirectory(prefix='preparation-doc-') as tmp:
+                path=Path(tmp)/'source.doc'; path.write_bytes(data)
+                env=dict(os.environ)
+                mappings=os.getenv('PREPARATION_ANTIWORD_MAPS')
+                if mappings: env['ANTIWORDHOME']=mappings
+                try:
+                    result=subprocess.run([antiword,'-m','UTF-8.txt',str(path)],capture_output=True,check=True,timeout=60,env=env)
+                    text=result.stdout.decode('utf-8')
+                except (OSError,subprocess.SubprocessError,UnicodeError) as exc:
+                    raise DocumentUnreadable('DOC_PARSE_FAILED') from exc
+                parsed=self.parse(text.encode(),filename='converted.txt')
+                return ParsedDocument(parsed.content,'antiword-text-v1',source_hash,parsed.units,
+                    ('DOC_PARSER_WARNING',) if result.stderr.strip() else ())
         if suffix in ('.md','.markdown','.txt'):
             try: content = data.decode('utf-8-sig')
             except UnicodeError as exc: raise DocumentUnreadable('DOCUMENT_ENCODING_INVALID') from exc

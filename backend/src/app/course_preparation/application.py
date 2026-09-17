@@ -19,7 +19,10 @@ class PreparationApplication:
         self.bridge.start()
 
     def stop(self, grace_seconds=5):
+        global _active
         self.bridge.stop(grace_seconds)
+        if _active is self:
+            _active = None
 
 
 def application():

@@ -63,6 +63,8 @@ def create_app(
             if research_runtime:
                 research_runtime.start()
             app.state.course_research_runtime = research_runtime
+            from app.course_preparation.application import start_for_app
+            preparation_runtime = start_for_app(app, getattr(runtime, 'task_store', None))
             from app.self_learning.turn_service import build_learning_runtime
             learning_runtime = build_learning_runtime()
             if learning_runtime:
@@ -72,6 +74,8 @@ def create_app(
         finally:
             if learning_runtime:
                 learning_runtime.stop(grace_seconds=10)
+            if preparation_runtime:
+                preparation_runtime.stop(grace_seconds=5)
             if research_runtime:
                 research_runtime.stop(grace_seconds=10)
             runtime.stop(grace_seconds=10)

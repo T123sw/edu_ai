@@ -1,0 +1,7 @@
+{
+  "source": "https://raw.githubusercontent.com/apache/poi/trunk/test-data/document/simple.doc",
+  "sha256": "4876e828e62d490fa188c7c4e47013e2e0dfdf02f5903dfd374bc0d2b2049ca1",
+  "parser": "antiword-text-v1",
+  "content": "\nThis is a simple file created with Word 97-SR2.\n",
+  "defects": []
+}

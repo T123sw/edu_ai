@@ -124,3 +124,13 @@ def test_unknown_read_retry_consumes_another_call(runtime_engine):
     service.begin_action(claim, 'tool:read1', 'read', {'arguments': {'value': 1}, 'tool_set_digest': mounted.digest}, BudgetCost(calls=1))
     ToolDispatcher(registry, service).dispatch(claim, [ToolCall(call_id='read1', name='read', arguments={'value': 1})])
     assert service.get_public('alice', claim.preparation_id)['budget']['consumed']['calls'] == 2
+
+
+def test_changed_target_fails_claim_instead_of_remaining_queued(runtime_engine):
+    service=repo(runtime_engine)
+    task=service.submit('alice',request())
+    def changed(*_): raise RevisionConflict('MANIFEST_BASE_CHANGED')
+    service.authorizer.authorize=changed
+    assert service.claim('worker') is None
+    result=service.get_public('alice',task['preparation_id'])
+    assert result['status']=='failed' and result['error_code']=='MANIFEST_BASE_CHANGED'

@@ -24,4 +24,5 @@ class ResourceSpec(Contract):
     delivery_resource_id: Identifier | None = None
     delivery_resource_version: int = Field(default=1, ge=1)
     source_resource_ref: dict | None = None
+    original_content: dict | str | None = None
     preparation_policy: str='automatic_personal_draft_v1'

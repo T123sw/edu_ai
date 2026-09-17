@@ -23,7 +23,7 @@ class DeliveryService:
             checkpoint=context.checkpoint
             lock_epoch(session,checkpoint['memory_subject'])
             MemoryLifecycle.validate_refs_in_session(session,checkpoint['memory_subject'],checkpoint['memory_refs'])
-            prep,attempt,run,_=self.repository._locked(session,context)
+            prep,attempt,run,budget=self.repository._locked(session,context)
             checkpoint=run.checkpoint
             quality=checkpoint.get('quality',{})
             if (attempt.stage!='commit' or quality.get('decision')!='pass' or quality.get('rule_version')!=RULE_VERSION
@@ -99,6 +99,14 @@ class DeliveryService:
             if pointer is None:
                 session.add(Pointer(owner_user_id=prep.owner_user_id,course_id=manifest.course_id,version=manifest.version))
             else: pointer.version=manifest.version
+            # A crashed provider call has unknown usage. At terminal delivery
+            # settle its full reservation instead of leaving invisible debt or
+            # claiming zero cost. Late output cannot publish after success.
+            from app.database.models import PreparationAction
+            for action in session.scalars(select(PreparationAction).where(PreparationAction.preparation_id==prep.preparation_id,
+                    PreparationAction.status=='pending',PreparationAction.kind=='model_completion')):
+                self.repository._settle_action(session,prep,attempt,budget,action.action_id,
+                    {'usage':'unknown','cost_basis':'reserved_upper_bound','reason':'prior_provider_completion_not_observed'},failed=True)
             result={'course_id':manifest.course_id,'manifest_id':manifest.manifest_id,'manifest_version':manifest.version,'course_ready':True}
             attempt.status='succeeded'; run.result_ref=result; run.lease_token=None; run.lease_until=None
             self.repository._event(session,prep,attempt,'succeeded',result)

@@ -1,4 +1,5 @@
 """Durable resource jobs write private drafts and return exact readback receipts."""
+import json
 from datetime import datetime
 from types import SimpleNamespace
 from .memory import PreparationMemory
@@ -58,8 +59,8 @@ def automatic_payload(spec,artifact):
     # No confirmed_outline or fabricated user confirmation is sent.
     return SimpleNamespace(resource_type=spec.resource_type,title=spec.title,subject=spec.title,
         audience=spec.audience,focus=f'语言：{spec.language}；学习时间：{spec.minutes} 分钟；目标：'+ '；'.join(spec.objectives)+
-            '。学习检查：'+spec.learning_check+'。需修复：'+'；'.join(spec.revision_feedback),
-        research_context='\n\n'.join(f"[{e['source_id']}] {e['claim']}\n原文：{e['quote']}\n来源：{e['url']}" for e in spec.evidence),
+            '。学习检查：'+spec.learning_check+'。需修复：'+'；'.join(spec.revision_feedback)+('。这是对现有资料的修订，请保留未要求修改的正确内容与结构。' if spec.original_content else ''),
+        research_context='\n\n'.join(f"[{e['source_id']}] {e['claim']}\n原文：{e['quote']}\n来源：{e['url']}" for e in spec.evidence)+('\n现有资料全文（修改基线，不是额外事实来源）：\n'+json.dumps(spec.original_content,ensure_ascii=False) if spec.original_content else ''),
         research_sources=[{'url':e['url'],'source_id':e['source_id']} for e in spec.evidence],
         harness_chapters=[{'title':'概念与机制'},{'title':'案例与面试表达'},{'title':'学习检查'}],
         harness_execution_context={'stage':'write_and_review','authorization':'preparation_automatic_policy',

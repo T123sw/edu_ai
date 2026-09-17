@@ -41,6 +41,7 @@ class ProductionStages:
                         required=request.operation!='supplement_node',
                         delivery_resource_id=(request.target.resource_id if request.operation=='revise_resource' and target['source_owner']==context.owner_user_id else None),
                         delivery_resource_version=(request.target.base_resource_version+1 if request.operation=='revise_resource' and target['source_owner']==context.owner_user_id else 1),
+                        original_content=(target.get('resource_content') if request.operation=='revise_resource' else None),
                         source_resource_ref=({'course_id':request.target.course_id,**target['resource']} if request.operation=='revise_resource' else None))
                     specifications.append(spec.model_dump(mode='json'))
             checkpoint['resource_specs']=specifications

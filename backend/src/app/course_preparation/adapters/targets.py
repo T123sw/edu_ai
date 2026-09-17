@@ -1,7 +1,7 @@
 """Current membership and exact committed versions authorize existing-course work."""
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from app.database.models import User,CourseMembership,PreparedCoursePointer,PreparedManifestVersion,ConversationMessage
+from app.database.models import User,CourseMembership,PreparedCoursePointer,PreparedManifestVersion,ConversationMessage,MaterialVersion
 from ..tool_registry import digest
 from ..manifest import CourseManifest
 from ..lifecycle_repository import RevisionConflict
@@ -36,7 +36,16 @@ class TargetStore:
         resource=next((r for r in node['resources'] if r['resource_id']==target.resource_id),None) if node else None
         if target.resource_id and (resource is None or resource['version']!=target.base_resource_version):
             raise RevisionConflict('RESOURCE_BASE_CHANGED')
-        return {'manifest':manifest,'node':node,'resource':resource,'source_owner':row.owner_user_id}
+        resource_content=None
+        if resource:
+            material=session.scalar(select(MaterialVersion).where(MaterialVersion.course_id==target.course_id,
+                MaterialVersion.material_type==resource['resource_type'],MaterialVersion.material_id==resource['resource_id'],MaterialVersion.version==resource['version']))
+            if material is None or material.payload.get('content_hash')!=resource['content_sha256']:
+                raise PermissionError('TARGET_RESOURCE_UNAVAILABLE')
+            if material.payload.get('owner_user_id')!=user.username and material.payload.get('visibility')!='course':
+                raise PermissionError('TARGET_RESOURCE_NOT_READABLE')
+            resource_content=material.payload.get('preparation_artifact',{}).get('content',material.payload.get('content'))
+        return {'manifest':manifest,'node':node,'resource':resource,'source_owner':row.owner_user_id,'resource_content':resource_content}
 
     def authorize(self,owner,request):
         snapshot=self.read(owner,request.target)

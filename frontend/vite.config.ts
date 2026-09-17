@@ -33,6 +33,8 @@ export const BACKEND_RUNTIME_WATCH_IGNORES = [
 ];
 
 export default defineConfig(({ command, mode }) => ({
+  // Worktrees may share node_modules; optimizer output must belong to this checkout.
+  cacheDir: path.resolve(process.cwd(), '../artifacts/vite-cache'),
   // Production is served behind Nginx, including when accessed via SSH tunnels.
   // Keep explicit build configuration, but never default to the browser's localhost.
   define: command === 'build' ? {
@@ -132,5 +134,4 @@ export default defineConfig(({ command, mode }) => ({
     },
   },
 }));
-
 
