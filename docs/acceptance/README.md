@@ -1,5 +1,9 @@
 # OpenMAIC 迁移验收索引
 
+- [2026-09-17：学习 Agent P2](2026-09-17-learning-agent-p2-cn.md)：版本化事实、完成与自评分离、无需聊天的继续学习及隔离测试。业务环境未启用。
+
+- [2026-09-17：课程准备 Agent 研究与学习路径阶段](2026-09-17-course-preparation-research-path-cn.md)：真实检索与正文引用、路径与审阅、持久化任务/API；整课资源尚未交付。
+
 [课程知识库 Agent 工作流程验收](2026-09-10-course-knowledge-agent-workflow-acceptance-cn.md)：新建课程自动交接、增量方案、状态查询、显式重试、人工确认边界和浏览器 E2E 已完成自动化验收；真实链路结果见下一项。
 
 [操作系统课程知识库真实端到端验收](2026-09-11-course-knowledge-real-operating-systems-cn.md)：真实模型、真实外网和真实发布链路已跑通；新建与增量数据链路通过，来源权威性和教师逐项需求满足度有条件通过。

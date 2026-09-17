@@ -18,6 +18,10 @@ from .models import (
     Course,
     CourseMembership,
     CourseObjective,
+    CourseResearchRunRecord,
+    CoursePreparationRecord,
+    CoursePreparationAttemptRecord,
+    CoursePreparationEventRecord,
     DurableTaskModel,
     JobEvent,
     JobRecord,
@@ -48,9 +52,12 @@ from .models import (
     UserProfileFact,
 )
 from .session import DatabaseNotConfigured, database_session
+from app.self_learning.db_models import LearningAgentTurn, LearningTopicSession
 
 __all__ = [
     "Base",
+    "LearningTopicSession",
+    "LearningAgentTurn",
     "AgentMemoryAuditEvent",
     "AgentMemoryItem",
     "AppStateRecord",
@@ -68,6 +75,10 @@ __all__ = [
     "Course",
     "CourseMembership",
     "CourseObjective",
+    "CourseResearchRunRecord",
+    "CoursePreparationRecord",
+    "CoursePreparationAttemptRecord",
+    "CoursePreparationEventRecord",
     "DurableTaskModel",
     "JobEvent",
     "JobRecord",

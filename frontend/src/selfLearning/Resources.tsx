@@ -5,16 +5,19 @@ import { Empty, Icon, Modal } from "./ui";
 
 export function Resources({
   resources,
+  classroomId,
   resourceId,
   onRename,
   onRemove,
 }: {
   resources: LearningResource[];
+  classroomId?: string;
   resourceId?: string;
   onRename: (id: string, title: string) => void;
   onRemove: (id: string) => void;
 }) {
   const [filter, setFilter] = useState("all");
+  const studioHref = classroomId ? `#/studio?classroom=${classroomId}` : "#/studio";
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(resourceId);
   const current = resources.find((r) => r.id === selected);
@@ -45,7 +48,7 @@ export function Resources({
           <h1>让每一次创作，有处安放。</h1>
           <p>工作台生成的报告、讲解和课件，都在这里。</p>
         </div>
-        <a className="sl-primary" href="#/studio">
+        <a className="sl-primary" href={studioHref}>
           <Icon name="spark" size={17} />
           创作资源
         </a>
@@ -115,7 +118,7 @@ export function Resources({
               : "在工作台创作，完成后会自动收进这里。课堂学习资料仍保留在对应课堂。"
           }
           action={
-            <a className="sl-primary" href="#/studio">
+            <a className="sl-primary" href={studioHref}>
               前往工作台 <Icon name="arrow" size={17} />
             </a>
           }

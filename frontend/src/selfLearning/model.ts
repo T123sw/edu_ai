@@ -1,3 +1,4 @@
+import type { Projection } from '../liveLearning/learningState';
 // Local interaction adapter. Replace this boundary with server operations at integration.
 export type ResourceKind = "report" | "video" | "slides" | "quiz";
 export const kindLabel: Record<ResourceKind, string> = {
@@ -14,6 +15,14 @@ export type LearningResource = {
   ready: boolean;
   minutes: number;
   createdAt: number;
+  courseId?: string;
+  chapterId?: string;
+  version?: number;
+  pinned?: boolean;
+  sourceResourceId?: string;
+  content?: string;
+  live?: boolean;
+  remote?: { materialType: string; materialId: string; courseId: string; version: number; visibility: string };
 };
 export type Chapter = {
   id: string;
@@ -22,6 +31,7 @@ export type Chapter = {
 };
 export type Evidence = {
   completed: boolean;
+  locator?: import('../liveLearning/readingContext').Locator;
   position: number;
   note: string;
   answer?: number;
@@ -32,6 +42,11 @@ export type Message = {
   text: string;
   resourceId: string;
   resourceTitle: string;
+  chapterId?: string;
+  kind?: string;
+  position?: number;
+  sessionId?: string;
+  answerResult?: { citations: { citation_id: string; resource_ref: import('../liveLearning/readingContext').ResourceRef }[] };
 };
 export type Classroom = {
   id: string;
@@ -45,6 +60,16 @@ export type Classroom = {
   updatedAt: number;
   publisher?: string;
   sourceId?: string;
+  understanding?: Record<string, "review" | "understood">;
+  live?: boolean;
+  agentRuntime?: boolean;
+  progressPersistence?: boolean;
+  progressOwner?: string;
+  learningProjection?: Projection;
+  sessionPersistence?: boolean;
+  sessionOwner?: string;
+  canPublish?: boolean;
+  practice?: Record<string, { correct: number; graded: number }>;
 };
 export type GenerationJob = {
   id: string;
@@ -64,12 +89,23 @@ export type LearningState = {
 export const uid = (): string => {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
   // LAN HTTP previews are not secure contexts: randomUUID may be unavailable.
-  return `local-${Array.from(crypto.getRandomValues(new Uint32Array(4)), (n) => n.toString(16).padStart(8, "0")).join("")}`;
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128;
+  const hex = Array.from(bytes, n => n.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 };
 export const allResources = (room: Classroom) =>
   room.chapters.flatMap((c) => c.resources);
 export const completion = (room: Classroom) =>
-  allResources(room).filter((r) => room.progress[r.id]?.completed).length;
+  allResources(room).filter((r) => resourceEvidence(room, r).completed).length;
+export function resourceEvidence(room: Classroom, resource: LearningResource): Evidence {
+  const legacy = room.progress[resource.id] || emptyEvidence();
+  if (!room.progressPersistence || !resource.remote) return legacy;
+  const ref = resource.remote;
+  const state = room.learningProjection?.resources.find(s => s.resource_ref.course_id === ref.courseId && s.resource_ref.material_type === ref.materialType && s.resource_ref.material_id === ref.materialId && s.resource_ref.version === ref.version);
+  return { note: legacy.note, completed: state?.completed || false, locator: state?.locator || undefined,
+    position: state?.locator?.kind === 'document' ? state.locator.scroll_top : 0 };
+}
 export const emptyEvidence = (): Evidence => ({
   completed: false,
   position: 0,
@@ -267,6 +303,7 @@ export function startShared(
     sourceId: template.id,
     progress: {},
     messages: [],
+    understanding: {},
     selectedId: allResources(template)[0].id,
     updatedAt: Date.now(),
   };

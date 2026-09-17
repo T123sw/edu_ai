@@ -3,6 +3,8 @@
   "include": [
     "src/selfLearning/**/*.ts",
     "src/selfLearning/**/*.tsx",
+    "src/liveLearning/LiveApp.tsx",
+    "src/liveLearning/learningClient.ts",
     "src/vite-env.d.ts"
   ],
   "exclude": ["src/selfLearning/**/*.test.ts"]

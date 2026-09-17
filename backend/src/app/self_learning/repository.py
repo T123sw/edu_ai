@@ -1,0 +1,19 @@
+"""Session storage boundary; authentication and course access belong to the service."""
+from typing import Protocol
+
+
+class SessionMissing(Exception):
+    pass
+
+
+class SessionConflict(Exception):
+    pass
+
+
+class SessionRepositoryPort(Protocol):
+    def find(self, owner: str, course_id: str, topic_id: str) -> dict | None: ...
+    def ensure_session(self, owner: str, course_id: str, topic_id: str, introduction: str, legacy=(), *, legacy_session_id=None) -> dict: ...
+    def messages(self, owner: str, session_id: str, before=None, limit=50) -> dict: ...
+    def recent_turns(self, owner: str, session_id: str, limit=6) -> list[dict]: ...
+    def begin_turn(self, owner: str, session_id: str, request_id: str, question: str, resource_id: str, now=None) -> dict: ...
+    def finish_turn(self, owner: str, session_id: str, request_id: str, token: str, *, answer=None, error=None, now=None) -> bool: ...

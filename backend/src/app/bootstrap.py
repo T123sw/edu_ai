@@ -54,9 +54,25 @@ def create_app(
         runtime = durable_runtime_factory()
         runtime.start()
         app.state.durable_job_runtime = runtime
+        research_runtime = None
+        learning_runtime = None
         try:
+            from app.course_preparation.research_dependencies import build_runtime
+            research_runtime = build_runtime()
+            if research_runtime:
+                research_runtime.start()
+            app.state.course_research_runtime = research_runtime
+            from app.self_learning.turn_service import build_learning_runtime
+            learning_runtime = build_learning_runtime()
+            if learning_runtime:
+                learning_runtime.start()
+            app.state.learning_agent_runtime = learning_runtime
             yield
         finally:
+            if learning_runtime:
+                learning_runtime.stop(grace_seconds=10)
+            if research_runtime:
+                research_runtime.stop(grace_seconds=10)
             runtime.stop(grace_seconds=10)
 
     app = FastAPI(
@@ -98,6 +114,8 @@ def create_app(
     app.include_router(deepsearch_router)
 
     # lazy imports to avoid circular import via app/api/__init__.py
+    from app.api.course_research import router as course_research_router
+    from app.api.self_learning import router as self_learning_router
     from app.api.courses import router as courses_router
     from app.api.learning import router as learning_router
     from app.api.standard_resources import router as standard_resources_router
@@ -115,6 +133,8 @@ def create_app(
     from app.api.searched_images import router as searched_images_router
     from modules.rag_v2.api import router as rag_router
 
+    app.include_router(course_research_router)
+    app.include_router(self_learning_router)
     app.include_router(courses_router)
     app.include_router(learning_router)
     app.include_router(standard_resources_router)

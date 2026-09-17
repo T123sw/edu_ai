@@ -20,6 +20,7 @@ function validRoom(v: unknown): v is Classroom {
     typeof v.goal === "string" &&
     typeof v.tone === "string" &&
     typeof v.selectedId === "string" &&
+    (v.understanding === undefined || (object(v.understanding) && Object.values(v.understanding).every(value => value === "review" || value === "understood"))) &&
     typeof v.updatedAt === "number" &&
     Number.isFinite(v.updatedAt) &&
     object(v.progress) &&
@@ -105,6 +106,7 @@ export function restoreState(
   return seedState(showcase);
 }
 export function useLearningStore(owner: string, showcase = false) {
+  const sharedKey = owner.startsWith("review:") ? `${SHARED_KEY}:review` : SHARED_KEY;
   const [state, setState] = useState<LearningState>(() => {
     try {
       return restoreState(localStorage.getItem(storageKey(owner)), showcase);
@@ -115,7 +117,7 @@ export function useLearningStore(owner: string, showcase = false) {
   const [storageError, setStorageError] = useState(false);
   const [shared, setShared] = useState<Classroom[]>(() => {
     try {
-      const v: unknown = JSON.parse(localStorage.getItem(SHARED_KEY) || "null");
+      const v: unknown = JSON.parse(localStorage.getItem(sharedKey) || "null");
       if (Array.isArray(v) && v.every(validRoom)) return v;
     } catch {
       /* Use demo catalog. */
@@ -132,11 +134,11 @@ export function useLearningStore(owner: string, showcase = false) {
   }, [owner, state]);
   useEffect(() => {
     try {
-      localStorage.setItem(SHARED_KEY, JSON.stringify(shared));
+      localStorage.setItem(sharedKey, JSON.stringify(shared));
     } catch {
       setStorageError(true);
     }
-  }, [shared]);
+  }, [shared, sharedKey]);
   useEffect(() => {
     const timer = window.setInterval(
       () => setState((s) => advanceJobs(s, 1000)),

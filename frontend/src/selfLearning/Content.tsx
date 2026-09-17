@@ -1,10 +1,14 @@
+import type { ReadingSnapshot } from '../liveLearning/agentTurns';
+import { acceptReadingMessage, resourceRef, refKey } from '../liveLearning/readingContext';
 import { useEffect, useRef, useState } from "react";
-import { emptyEvidence, type Evidence, type LearningResource } from "./model";
+import ReactMarkdown from "react-markdown";
+import { emptyEvidence, uid, type Evidence, type LearningResource } from "./model";
 import { Icon } from "./ui";
 
 // Shared by the reader and Markdown export so exported examples match the preview.
 // eslint-disable-next-line react-refresh/only-export-components
 export function reportParagraphs(resource: LearningResource): string[] {
+  if (resource.content) return resource.content.split(/\n\s*\n/).map(p => p.trim()).filter(p => p && !p.startsWith("#"));
   const agent = /agent|react|mcp|工具调用/i.test(resource.topic);
   if (agent)
     return [
@@ -33,12 +37,28 @@ export function LearningContent({
   evidence = emptyEvidence(),
   onEvidence,
   paused = false,
+  onReading,
+  onReadingSnapshot,
 }: {
   resource: LearningResource;
   evidence?: Evidence;
   onEvidence?: (patch: Partial<Evidence>) => void;
   paused?: boolean;
+  onReadingSnapshot?: (snapshot: ReadingSnapshot) => void;
+  onReading?: (type: string, payload: Record<string, unknown>) => void;
 }) {
+  const channel = useRef(uid());
+  const stream = useRef(uid());
+  const sequence = useRef(0);
+  const opened = useRef(false);
+  const reachedEnd = useRef(false);
+  const onSnapshotRef = useRef(onReadingSnapshot);
+  onSnapshotRef.current = onReadingSnapshot;
+  const initialLocator = useRef(evidence.locator);
+  const onReadingRef = useRef(onReading);
+  onReadingRef.current = onReading;
+  const frame = useRef<HTMLIFrameElement>(null);
+  const initialPosition = useRef(evidence.position);
   const [playing, setPlaying] = useState(false);
   const [localPosition, setLocalPosition] = useState(evidence.position);
   const [choice, setChoice] = useState<number | undefined>(evidence.answer);
@@ -69,19 +89,52 @@ export function LearningContent({
     }, 1000);
     return () => clearTimeout(timer);
   }, [playing, position]);
+  useEffect(() => {
+    frame.current?.contentWindow?.postMessage({ type: 'learning-pause', paused }, location.origin);
+  }, [paused]);
+  useEffect(() => {
+    const receive = (event: MessageEvent) => {
+      if (event.origin !== location.origin || event.source !== frame.current?.contentWindow) return;
+      const ref = resourceRef(resource);
+      if ((onReadingRef.current || onSnapshotRef.current) && ref) {
+        if (event.data?.type === 'learning-context-request') {
+          frame.current?.contentWindow?.postMessage({ type: 'learning-context-init', channel_id: channel.current, resource_ref: ref, stream_id: stream.current }, location.origin);
+        } else if (event.data?.type === 'learning-context-ready' && event.data.channel_id === channel.current && event.data.resource_ref && refKey(event.data.resource_ref) === refKey(ref)) {
+          if (!opened.current) { opened.current = true; onReadingRef.current?.('resource_opened', {}); }
+        } else if (opened.current && acceptReadingMessage(event.data, channel.current, ref, sequence.current)) {
+          sequence.current = event.data.sequence;
+          onSnapshotRef.current?.({ resource_ref: ref, locator: event.data.locator, selected_text: event.data.selected_text || '' });
+          onReadingRef.current?.('reading_position_set', { stream_id: stream.current, sequence: sequence.current, locator: event.data.locator });
+          if (event.data.reached_end && !reachedEnd.current) { reachedEnd.current = true; onReadingRef.current?.('resource_end_reached', { locator: event.data.locator }); }
+        }
+        return;
+      }
+      if (event.data?.type !== 'learning-position') return;
+      const position = event.data.position;
+      if (typeof position === 'number' && Number.isFinite(position) && position >= 0) onEvidenceRef.current?.({ position });
+    };
+    window.addEventListener('message', receive);
+    return () => window.removeEventListener('message', receive);
+  }, [resource]);
+  if (resource.remote) {
+    const params = new URLSearchParams({ course_id: resource.remote.courseId, material_id: resource.remote.materialId,
+      material_type: resource.remote.materialType, version: String(resource.remote.version), visibility: resource.remote.visibility, position: String(initialPosition.current) });
+    if (initialLocator.current?.kind === 'classroom') params.set('scene_id', initialLocator.current.scene_id);
+    return <iframe ref={frame} onLoad={() => frame.current?.contentWindow?.postMessage({ type: 'learning-pause', paused }, location.origin)} className="sl-live-material" title={resource.title} src={`?learningPlayer=1#ai?${params}`} />;
+  }
   if (!resource.ready)
     return (
       <div className="sl-preparing" role="status">
         <span className="sl-orbit">
           <Icon name="spark" size={35} />
         </span>
-        <h2>正在为你准备这一节</h2>
+        <h2>{resource.live ? "本节内容尚未就绪" : "正在为你准备这一节"}</h2>
         <p>
           学习路径已整理好，内容将在这里陆续出现。
           <br />
           也可以先与右侧的 Agent 聊聊你的学习目标。
         </p>
-        <small>本地生成流程演示</small>
+        <small>{resource.live ? "可在后台任务中查看生成进度或重试" : "本地生成流程演示"}</small>
       </div>
     );
   const paragraphs = reportParagraphs(resource);
@@ -218,7 +271,7 @@ export function LearningContent({
   return (
     <article className="sl-article">
       <span className="sl-eyebrow">LEARNING NOTES · 学习报告</span>
-      <h1>{resource.topic}</h1>
+      <h1>{resource.content ? resource.title : resource.topic}</h1>
       <p className="sl-article-lead">把知识拆开看，再把它们连接起来。</p>
       <div className="sl-article-meta">
         <span>
@@ -227,6 +280,7 @@ export function LearningContent({
         <span>示例内容</span>
       </div>
       <hr />
+      {resource.content ? <ReactMarkdown>{resource.content.replace(/^#\s+[^\n]+\n?/, "")}</ReactMarkdown> : <>
       <h2>01 / 从一个问题开始</h2>
       <p>{paragraphs[0]}</p>
       <div className="sl-callout">
@@ -248,6 +302,7 @@ export function LearningContent({
       <p>
         用三句话总结：它解决什么问题？它如何工作？你打算在什么情境下使用它？
       </p>
+      </>}
       <p className="sl-demo-note">
         报告为本地预置示例。正式生成时将展示对应的检索来源与引用。
       </p>

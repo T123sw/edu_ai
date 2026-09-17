@@ -250,7 +250,7 @@ export function Studio({
                       href={
                         job.roomId
                           ? `#/classroom/${job.roomId}`
-                          : `#/resources?resource=${job.resource?.id}`
+                          : `#/resources?resource=${job.resource?.id}${room ? `&classroom=${room.id}` : ""}`
                       }
                     >
                       查看 <Icon name="arrow" size={16} />

@@ -575,7 +575,11 @@ class GenerationTaskHandler:
             command.get("review_policy") == "required"
             or bool(config.get("harness_review_required"))
         )
-        if review_required and resource_type != 'report':
+        if review_required:
+            payload.review_policy = 'required'
+        if review_required and resource_type == 'report':
+            generator = _AgentReportGenerationAdapter()
+        elif review_required:
             from app.chat.harness.reviewed_resource import ReviewedResourceGenerator
             generator = ReviewedResourceGenerator(progress=context.progress)
         else:

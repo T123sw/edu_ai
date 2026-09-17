@@ -1,5 +1,7 @@
 # OpenMAIC 迁移规格索引
 
+> **当前开发方向（2026-09-17）**：以[课程准备 Agent 主设计](../architecture/2026-09-17-course-preparation-agent-design-cn.md)和[学习辅导 Agent 主设计](../architecture/2026-09-17-learning-agent-design-cn.md)作为后续系统设计基线。两份设计已确认、待实施；下文保留既有规格与当时实施状态，不能据此恢复已被新设计替代的人工确认、上传限制或会话组织方式。
+
 最近更新：2026-09-11
 
 状态：Phase 0–6 与 AI 课堂实时问答已完成；连续授课与常驻问答体验优化、课程知识库可配置图谱先行构建待最终签收；Agent Memory V2 待实施

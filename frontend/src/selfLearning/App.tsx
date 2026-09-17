@@ -1,19 +1,23 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { Home } from "./Home";
+import { LoginPage } from "../stitch/pages/LoginPage";
 import { Classroom } from "./Classroom";
-import { Studio } from "./Studio";
-import { Resources } from "./Resources";
+import { ResourceCenter } from "./Library";
+import { addToLearning } from "./library";
+import { createLearningSession, reviewEnabled, reviewOwner, reviewRole, reviewWorkbenchHref } from "./review";
 import { PublishDialog } from "./PublishDialog";
 import {
   addClassroom,
   createClassroom,
   startShared,
+  updateRoom,
   type Classroom as Room,
 } from "./model";
 import { useLearningStore } from "./store";
 import { Brand, Empty, Icon } from "./ui";
 import "./styles.css";
+import "./review.css";
 
 function useRoute() {
   const [hash, setHash] = useState(window.location.hash);
@@ -32,31 +36,35 @@ function LearningApp({
   username,
   role,
   preview,
+  review = false,
   onLogout,
 }: {
   username: string;
   role?: string;
   preview?: boolean;
+  review?: boolean;
   onLogout: () => void;
 }) {
   // Separate showcase storage preserves any progress in the original preview.
   const showcase =
-    !!preview && new URLSearchParams(location.search).get("demo") === "1";
-  const { state, setState, shared, setShared, storageError } = useLearningStore(
-    `${preview ? "preview" : "user"}:${username}${showcase ? ":showcase" : ""}`,
-    showcase,
-  );
+    review || (!!preview && new URLSearchParams(location.search).get("demo") === "1");
+  const owner = review ? reviewOwner() : `${preview ? "preview" : "user"}:${username}${showcase ? ":showcase" : ""}`;
+  const { state, setState, shared, setShared, storageError } = useLearningStore(owner, showcase);
+  const [workbenchSession] = useState(() => review ? undefined : createLearningSession(owner, role));
   const { path, query } = useRoute();
   const [publish, setPublish] = useState(false);
   const [account, setAccount] = useState(false);
   const [notice, setNotice] = useState("");
   const roomId = path.startsWith("/classroom/")
     ? path.slice("/classroom/".length)
-    : "";
+    : query.get("classroom") || "";
   const room = state.rooms.find((r) => r.id === roomId);
   const home = path === "/";
   const studio = path === "/studio";
   const resources = path === "/resources";
+  const PageHeader = home ? "div" : "header";
+  const workbenchRoom = room || state.rooms[0];
+  const workbenchHref = workbenchRoom ? reviewWorkbenchHref(workbenchRoom, undefined, workbenchSession) : "#/";
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(""), 4500);
@@ -65,16 +73,21 @@ function LearningApp({
   function open(value: Room, isShared?: boolean) {
     if (isShared) {
       const [next, copy] = startShared(state, value);
-      setState(next);
+      setState(updateRoom(next, copy.id, r => ({ ...r, updatedAt: Date.now() })));
       location.hash = `/classroom/${copy.id}`;
-    } else location.hash = `/classroom/${value.id}`;
+    } else {
+      setState(s => updateRoom(s, value.id, r => ({ ...r, updatedAt: Date.now() })));
+      location.hash = `/classroom/${value.id}`;
+    }
   }
   return (
-    <div className={`sl-app ${room ? "in-classroom" : ""}`}>
-      <header className="sl-header">
-        <a className="sl-home-link" href="#/" aria-label="Edu AI 首页">
-          <Brand />
-        </a>
+    <div className={`sl-app ${review ? "frontend-review" : ""} ${room && !studio && !resources ? "in-classroom" : ""} ${!home ? "in-course-workspace" : ""}`}>
+      <PageHeader className={home ? "sl-home-account" : "sl-header"}>
+        {!home && (
+          <a className="sl-home-link" href="#/" aria-label="Edu AI 首页">
+            <Brand />
+          </a>
+        )}
         {room ? (
           <div className="sl-class-title">
             <a href="#/" aria-label="返回首页">
@@ -83,24 +96,25 @@ function LearningApp({
             <span>{room.title}</span>
             <small>自主学习课堂</small>
           </div>
-        ) : (
+        ) : null}
+        {!home && (
           <nav className="sl-main-nav" aria-label="主导航">
             <a
-              href="#/"
-              className={home ? "active" : ""}
-              aria-current={home ? "page" : undefined}
+              href={room ? `#/classroom/${room.id}` : "#/"}
+              className={!studio && !resources ? "active" : ""}
+              aria-current={!studio && !resources ? "page" : undefined}
             >
-              课堂
+              AI 课堂
             </a>
             <a
-              href="#/studio"
+              href={workbenchHref}
               className={studio ? "active" : ""}
               aria-current={studio ? "page" : undefined}
             >
               工作台
             </a>
             <a
-              href="#/resources"
+              href={room ? `#/resources?classroom=${room.id}` : "#/resources"}
               className={resources ? "active" : ""}
               aria-current={resources ? "page" : undefined}
             >
@@ -109,7 +123,8 @@ function LearningApp({
           </nav>
         )}
         <div className="sl-account">
-          <span className="sl-preview-label">交互预览</span>
+          {review && <span className="sl-review-label">前端预览</span>}
+          {!home && <span className="sl-preview-label">交互预览</span>}
           <button
             className="sl-avatar"
             aria-label="账户菜单"
@@ -137,7 +152,7 @@ function LearningApp({
             </div>
           )}
         </div>
-      </header>
+      </PageHeader>
       {storageError && (
         <div className="sl-storage-alert" role="alert">
           浏览器存储不可用，本次学习记录可能无法在刷新后保留。
@@ -156,10 +171,11 @@ function LearningApp({
           onOpen={open}
           onPublish={() => setPublish(true)}
         />
-      ) : room ? (
+      ) : room && !studio && !resources ? (
         <Classroom
           key={room.id}
           room={room}
+          workbenchHref={workbenchHref}
           resourceId={query.get("resource") || undefined}
           setState={setState}
           onSelect={(id) => {
@@ -167,14 +183,18 @@ function LearningApp({
           }}
         />
       ) : studio ? (
-        <Studio
-          state={state}
-          setState={setState}
-          classroomId={query.get("classroom") || undefined}
-        />
+        workbenchRoom ? <WorkbenchRedirect href={workbenchHref} /> : <Empty title="先选择一堂课" text="工作台会沿用课堂的资料和知识点。" action={<a className="sl-primary" href="#/">返回首页</a>} />
       ) : resources ? (
-        <Resources
+        <ResourceCenter
           key={query.get("resource") || "library"}
+          classroomId={room?.id}
+          room={room}
+          workbenchHref={workbenchHref}
+          workbenchForResource={id => workbenchRoom ? reviewWorkbenchHref(workbenchRoom, id, workbenchSession) : "#/"}
+          onAddToLearning={(resource, chapterId) => {
+            if (room) setState(s => addToLearning(s, room.id, chapterId, resource));
+          }}
+          onPin={(id) => setState(s => ({ ...s, resources: s.resources.map(r => r.id === id ? { ...r, pinned: !r.pinned } : r) }))}
           resources={state.resources}
           resourceId={query.get("resource") || undefined}
           onRename={(id, title) =>
@@ -224,12 +244,14 @@ function LearningApp({
     </div>
   );
 }
+function WorkbenchRedirect({ href }: { href: string }) {
+  useEffect(() => { location.replace(href); }, [href]);
+  return <p role="status">正在打开工作台…</p>;
+}
+const LiveApp = lazy(() => import("../liveLearning/LiveApp"));
+
 function AuthenticatedEntry() {
-  const { user, authReady, login, logout } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const { user, authReady, login } = useAuth();
   if (!authReady)
     return (
       <div className="sl-auth-loading" role="status">
@@ -237,93 +259,20 @@ function AuthenticatedEntry() {
         <p>正在恢复登录…</p>
       </div>
     );
-  if (user)
-    return (
-      <LearningApp
-        key={user.username}
-        username={user.username}
-        role={user.role}
-        onLogout={logout}
-      />
-    );
-  return (
-    <main className="sl-login">
-      <a href="#/">
-        <Brand />
-      </a>
-      <div className="sl-login-card">
-        <span className="sl-eyebrow">YOUR NEXT CHAPTER STARTS HERE</span>
-        <h1>欢迎回来，继续探索。</h1>
-        <p>一份好奇，一个目标，一堂属于你的课。</p>
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (busy) return;
-            setBusy(true);
-            setError("");
-            try {
-              await login(username.trim(), password);
-            } catch (cause) {
-              setError(
-                cause instanceof Error ? cause.message : "登录失败，请稍后重试",
-              );
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <label className="sl-field">
-            账号
-            <input
-              autoComplete="username"
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="输入你的账号"
-            />
-          </label>
-          <label className="sl-field">
-            密码
-            <input
-              autoComplete="current-password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="输入密码"
-            />
-          </label>
-          {error && (
-            <p className="sl-error" role="alert">
-              {error}
-            </p>
-          )}
-          <button
-            className="sl-primary"
-            disabled={busy || !username.trim() || !password}
-          >
-            {busy ? "正在登录…" : "进入学习空间"}
-            <Icon name="arrow" size={17} />
-          </button>
-        </form>
-        <p className="sl-login-caption">
-          沿用现有账号登录 · 新版学习流程为本地交互预览
-        </p>
-        {import.meta.env.DEV && (
-          <div className="sl-dev-links">
-            <span>仅开发环境</span>
-            <a href="?preview=student">预览学生界面</a>
-            <a href="?preview=teacher">预览教师界面</a>
-          </div>
-        )}
-        <a className="sl-text-button" href="?legacy=1">
-          返回原版界面
-        </a>
-      </div>
-    </main>
-  );
+  if (user) return <Suspense fallback={<p role="status">正在打开学习空间…</p>}><LiveApp key={user.username} /></Suspense>;
+  return <LoginPage onLogin={async ({ username, password }) => {
+    await login(username.trim(), password);
+  }} />;
 }
 export default function SelfLearningEntry() {
+  if (reviewEnabled()) return <LearningApp
+    key={reviewRole()}
+    username={reviewRole() === "teacher" ? "预览教师" : "探索者"}
+    role={reviewRole()}
+    preview
+    review
+    onLogout={() => location.assign(location.pathname)}
+  />;
   const preview = import.meta.env.DEV
     ? new URLSearchParams(location.search).get("preview")
     : null;

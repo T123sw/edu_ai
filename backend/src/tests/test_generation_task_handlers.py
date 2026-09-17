@@ -11,6 +11,12 @@ from app.services.generation_source_resolver import (
 from core.course_storage import CourseStorageManager
 
 
+@pytest.fixture(autouse=True)
+def isolated_persistence(monkeypatch):
+    for kind in ['JOB', 'TASK', 'COURSE', 'COURSE_MEMBERSHIP', 'MATERIAL', 'KNOWLEDGE', 'APP_STATE']:
+        monkeypatch.setenv(kind + '_PERSISTENCE_MODE', 'json')
+
+
 RESOURCE_CASES = [
     ("report", {"question": "Write report"}),
     ("lesson_plan", {"subject": "Sorting", "grade": "Grade 7"}),
@@ -368,3 +374,22 @@ def test_required_review_policy_selects_reviewed_generator_without_outline_marke
     assert reviewed.payload.review_policy == "required"
     assert direct.payload is None
     assert result["saved"] is True
+
+
+def test_factory_report_uses_reviewed_adapter_before_any_material_is_saved(tmp_path, monkeypatch):
+    manager = CourseStorageManager(root_path=str(tmp_path))
+    manager.create_course_structure('course-1')
+    direct = FakeGenerationService('report')
+    captured = []
+    def generate(payload):
+        captured.append(payload)
+        return '# Python\n\nx=1', {'report_review': {'decision': 'pass'}}
+    monkeypatch.setattr('app.chat.harness.reviewed_report.generate_reviewed_report', generate)
+    monkeypatch.setattr('app.chat.harness.reviewed_report.verified_review', lambda artifact: True)
+    handler = GenerationTaskHandler(course_storage_manager=manager, service_factories={'report': lambda: direct})
+    context = DurableExecutionContext(task_id='job-factory-report', owner_user_id='teacher-a', course_id='course-1', config_snapshot_id='cfg-report', progress=lambda *args: None, is_cancel_requested=lambda: False)
+    result = handler({'resource_type': 'report', 'course_id': 'course-1', 'scope_type': 'course', 'source_mode': 'none', 'selected_doc_ids': [], 'review_policy': 'required', 'material_id': 'reviewed-factory-report', 'config': {'entrypoint': 'generation_factory', 'subject': 'Python', 'focus': 'x=1', 'harness_chapters': [{'title': '变量'}]}}, context)
+    assert direct.payload is None
+    assert captured[0].subject == 'Python'
+    assert captured[0].review_policy == 'required'
+    assert result['saved'] is True

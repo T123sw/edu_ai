@@ -2,6 +2,8 @@
 
 > **每次启动必读**：先阅读 [项目总览地图.md](./项目总览地图.md)，了解项目结构、模块职责与当前进展，再开始工作。
 
+> **后续开发主方向（2026-09-17）**：涉及 Agent、课程创建或学习流程时，先阅读[课程准备 Agent 主设计](docs/architecture/2026-09-17-course-preparation-agent-design-cn.md)和[学习辅导 Agent 主设计](docs/architecture/2026-09-17-learning-agent-design-cn.md)。两份文档是已确认、待实施的设计基线；与旧产品设计冲突时以其明确替代的规则为准，不把目标能力当作已上线能力。
+
 <skills_system priority="10">
 
 ## Available Skills

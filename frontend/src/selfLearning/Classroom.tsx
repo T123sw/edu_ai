@@ -1,3 +1,4 @@
+import type { ReadingSnapshot } from '../liveLearning/agentTurns';
 import {
   useEffect,
   useRef,
@@ -6,46 +7,56 @@ import {
   type SetStateAction,
 } from "react";
 import {
-  agentReply,
   allResources,
   completion,
-  emptyEvidence,
+  resourceEvidence,
   kindLabel,
-  uid,
   updateEvidence,
   updateRoom,
   type Classroom as Room,
   type LearningState,
-  type Message,
 } from "./model";
 import { LearningContent } from "./Content";
 import { Icon } from "./ui";
+import { useLearningProgress } from '../liveLearning/learningState';
+import { resourceRef, refKey } from '../liveLearning/readingContext';
+import { LearningAgent } from "./LearningAgent";
 
 export function Classroom({
-  room,
+  room: inputRoom,
   resourceId,
   setState,
   onSelect,
+  workbenchHref,
+  onAsk,
 }: {
   room: Room;
   resourceId?: string;
   setState: Dispatch<SetStateAction<LearningState>>;
   onSelect: (id: string) => void;
+  workbenchHref?: string;
+  onAsk?: (chapterId: string, resourceId: string, text: string) => Promise<void>;
 }) {
+  const facts = useLearningProgress(inputRoom);
+  const room = facts.room;
   const resources = allResources(room);
   const resource =
     resources.find((r) => r.id === resourceId) ||
     resources.find((r) => r.id === room.selectedId) ||
     resources[0];
+  const [snapshots, setSnapshots] = useState<Record<string, ReadingSnapshot>>({});
   const [panel, setPanel] = useState("learn");
-  const [question, setQuestion] = useState("");
-  const [pending, setPending] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [chatActive, setChatActive] = useState(false);
-  const conversation = useRef<HTMLDivElement>(null);
+  const [directoryCollapsed, setDirectoryCollapsed] = useState(false);
+  const [closedChapters, setClosedChapters] = useState<string[]>([]);
   const reading = useRef<HTMLDivElement>(null);
-  const replyTimer = useRef<ReturnType<typeof setTimeout>>();
-  const evidence = room.progress[resource.id] || emptyEvidence();
+  const evidence = resourceEvidence(room, resource);
+  const chapter = room.chapters.find(c => c.resources.some(r => r.id === resource.id))!;
+  const syncing = facts.pending.some(p => p.event.type === 'resource_completion_set' && p.event.resource_ref && resourceRef(resource) && refKey(p.event.resource_ref) === refKey(resourceRef(resource)!));
+  const currentRef = resourceRef(resource);
+  const nextRef = room.learningProjection?.next_actions[chapter.id]?.find(a => a.kind === 'continue' && a.resource_ref && (!currentRef || refKey(a.resource_ref) !== refKey(currentRef)))?.resource_ref;
+  const nextResource = (nextRef && resources.find(r => r.remote && refKey(resourceRef(r)!) === refKey(nextRef))) || resources[resources.findIndex(r => r.id === resource.id) + 1];
   const index = resources.findIndex((r) => r.id === resource.id);
   useEffect(() => {
     setState((s) =>
@@ -62,11 +73,6 @@ export function Classroom({
       element.scrollTop =
         evidence.position; /* Restore only when opening a resource. */
   }, [resource.id]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    const el = conversation.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [room.messages.length, pending]);
-  useEffect(() => () => clearTimeout(replyTimer.current), []);
   function patch(value: Partial<typeof evidence>) {
     setState((s) => updateEvidence(s, room.id, resource.id, value));
   }
@@ -75,41 +81,8 @@ export function Classroom({
     onSelect(id);
     setPanel("learn");
   }
-  function ask(text: string) {
-    if (!text.trim() || pending) return;
-    const captured = resource;
-    const answer = agentReply(room, captured, text.trim());
-    const message: Message = {
-      id: uid(),
-      role: "user",
-      text: text.trim(),
-      resourceId: captured.id,
-      resourceTitle: captured.topic,
-    };
-    setState((s) =>
-      updateRoom(s, room.id, (r) => ({
-        ...r,
-        messages: [...r.messages, message],
-      })),
-    );
-    setQuestion("");
-    setPending(true);
-    setChatActive(true);
-    replyTimer.current = setTimeout(() => {
-      setState((s) =>
-        updateRoom(s, room.id, (r) => ({
-          ...r,
-          messages: [
-            ...r.messages,
-            { ...message, id: uid(), role: "assistant", text: answer },
-          ],
-        })),
-      );
-      setPending(false);
-    }, 750);
-  }
   return (
-    <main className={`sl-classroom panel-${panel}`}>
+    <main className={`sl-classroom panel-${panel} ${directoryCollapsed ? "directory-collapsed" : ""}`}>
       <nav className="sl-mobile-panels" aria-label="课堂面板">
         {[
           ["directory", "menu", "目录"],
@@ -131,6 +104,7 @@ export function Classroom({
         <div className="sl-rail-heading">
           <h2>课堂目录</h2>
           <span>{room.chapters.length} 个主题</span>
+          <button className="sl-icon-button sl-desktop-control" aria-label="收起课堂目录" onClick={() => setDirectoryCollapsed(true)}><Icon name="back" size={16} /></button>
         </div>
         <div className="sl-route-progress">
           <div>
@@ -150,11 +124,12 @@ export function Classroom({
         <div className="sl-directory-scroll">
           {room.chapters.map((chapter, n) => (
             <section key={chapter.id}>
-              <h3>
+              <button className="sl-chapter-heading" aria-expanded={!closedChapters.includes(chapter.id)} onClick={() => setClosedChapters(s => s.includes(chapter.id) ? s.filter(id => id !== chapter.id) : [...s, chapter.id])}>
                 <span>{String(n + 1).padStart(2, "0")}</span>
                 {chapter.title}
-              </h3>
-              {chapter.resources.map((r) => (
+                <Icon name="chevron" size={13} />
+              </button>
+              {!closedChapters.includes(chapter.id) && chapter.resources.map((r) => (
                 <button
                   key={r.id}
                   className={`sl-resource-row ${r.id === resource.id ? "active" : ""}`}
@@ -164,10 +139,10 @@ export function Classroom({
                 >
                   <Icon name={r.kind} size={17} />
                   <span>
-                    {kindLabel[r.kind]}
+                    {r.sourceResourceId ? r.title : kindLabel[r.kind]}
                     <small>{r.ready ? `${r.minutes} 分钟` : "正在准备"}</small>
                   </span>
-                  {room.progress[r.id]?.completed ? (
+                  {resourceEvidence(room, r).completed ? (
                     <span className="sl-done">
                       <Icon name="check" size={15} />
                     </span>
@@ -179,7 +154,7 @@ export function Classroom({
             </section>
           ))}
         </div>
-        <a href={`#/studio?classroom=${room.id}`} className="sl-rail-studio">
+        <a href={workbenchHref || `#/studio?classroom=${room.id}`} className="sl-rail-studio">
           <Icon name="studio" size={17} />
           <span>
             需要更多学习资源？<small>前往工作台</small>
@@ -189,6 +164,8 @@ export function Classroom({
       </aside>
       <section className="sl-reader">
         <div className="sl-reader-toolbar">
+          <div className="sl-reader-tools">
+          {directoryCollapsed && <button className="sl-icon-button sl-desktop-control" aria-label="展开课堂目录" onClick={() => setDirectoryCollapsed(false)}><Icon name="menu" size={17} /></button>}
           <span>
             {String(
               room.chapters.findIndex((c) =>
@@ -198,6 +175,8 @@ export function Classroom({
             <i>/</i>
             {kindLabel[resource.kind]}
           </span>
+          </div>
+          <div className="sl-reader-tools">
           <button
             className={`sl-text-button ${noteOpen ? "active" : ""}`}
             onClick={() => setNoteOpen(!noteOpen)}
@@ -205,17 +184,20 @@ export function Classroom({
             <Icon name="report" size={16} />
             我的笔记
           </button>
+          </div>
         </div>
         <div
           className="sl-reader-scroll"
           ref={reading}
           onScroll={(e) => {
-            if (resource.kind === "report")
+            if (!room.progressPersistence && resource.kind === "report")
               patch({ position: e.currentTarget.scrollTop });
           }}
         >
           <LearningContent
-            key={resource.id}
+            key={`${resource.id}:${resource.remote?.version}`}
+            onReadingSnapshot={room.agentRuntime ? snapshot => setSnapshots(s => ({ ...s, [refKey(snapshot.resource_ref)]: snapshot })) : undefined}
+            onReading={room.progressPersistence ? (type, payload) => facts.enqueue(chapter.id, type, resource, payload) : undefined}
             resource={resource}
             evidence={evidence}
             onEvidence={patch}
@@ -230,11 +212,12 @@ export function Classroom({
                 placeholder="用自己的话记下这一节的收获…"
                 onChange={(e) => patch({ note: e.target.value })}
               />
-              <small>自动保存在此浏览器 · 仅自己可见</small>
+              <small>{room.live ? "自动保存到账号 · 仅自己可见" : "自动保存在此浏览器 · 仅自己可见"}</small>
             </section>
           )}
         </div>
-        <footer className="sl-reader-footer">
+        {room.progressPersistence && facts.error && <div role="alert">学习记录未同步：{facts.error}<button onClick={facts.retry}>重试保存</button>{facts.pending.some(p => p.blocked) && <button onClick={facts.discardConflicts}>放弃冲突操作并刷新</button>}<small>可以继续阅读其他资料。</small></div>}
+        <footer className={`sl-reader-footer ${room.progressPersistence ? "sl-versioned-progress" : ""}`}>
           <button
             className="sl-text-button"
             disabled={index === 0}
@@ -243,7 +226,11 @@ export function Classroom({
             <Icon name="back" size={16} />
             上一份
           </button>
-          <span className="sl-reading-fact">
+          {room.progressPersistence ? <>
+            <span className="sl-reading-fact" role="status">{evidence.completed ? '资料已学完，理解尚未验证' : '按自己的节奏，慢慢来'}{facts.pending.length > 0 && (facts.error ? ' · 未同步' : ' · 保存中…')}</span>
+            {resource.ready && <button className="sl-primary" disabled={syncing} onClick={() => facts.enqueue(chapter.id, 'resource_completion_set', resource, { completed: !evidence.completed })}>{evidence.completed ? '撤销学完' : '本资料已学完'}</button>}
+            <button className="sl-primary" disabled={!nextResource} onClick={() => nextResource && select(nextResource.id)}>{nextResource ? '继续学习' : '已到最后一份'}</button>
+          </> : <>          <span className="sl-reading-fact">
             {evidence.completed ? "已标记完成学习" : "按自己的节奏，慢慢来"}
           </span>
           {resource.ready && !evidence.completed ? (
@@ -262,107 +249,11 @@ export function Classroom({
               {index === resources.length - 1 ? "已到最后一份" : "下一份资源"}
               <Icon name="arrow" size={17} />
             </button>
-          )}
+          )}</>}
+
         </footer>
       </section>
-      <aside className="sl-agent">
-        <div className="sl-rail-heading">
-          <h2>
-            <span className="sl-agent-symbol">
-              <Icon name="spark" size={18} />
-            </span>
-            学习 Agent
-          </h2>
-          <span className="sl-local-tag">演示</span>
-        </div>
-        <div className="sl-context">
-          <span>
-            <i />
-            当前学习上下文
-          </span>
-          <strong>{resource.topic}</strong>
-          <small>
-            {resource.kind === "video"
-              ? `讲解位置 00:${String(Math.floor(evidence.position)).padStart(2, "0")}`
-              : kindLabel[resource.kind]}{" "}
-            · {evidence.completed ? "已标记完成" : "学习中"}
-            {evidence.answer !== undefined
-              ? ` · 检查${evidence.answer === 1 ? "正确" : "待回顾"}`
-              : ""}
-          </small>
-        </div>
-        <div className="sl-chat-history" ref={conversation}>
-          <div className="sl-chat-bubble assistant">
-            <span className="sl-chat-author">
-              <Icon name="spark" size={14} />
-              学习 Agent
-            </span>
-            <p>
-              我们从「{resource.topic}」开始。你的目标是：{room.goal}
-            </p>
-            <p>
-              你可以边学边问。我会根据阅读位置、完成记录和检查结果，陪你梳理下一步。
-            </p>
-          </div>
-          {room.messages.map((m) => (
-            <div key={m.id} className={`sl-chat-bubble ${m.role}`}>
-              <span className="sl-chat-author">
-                {m.role === "user" ? "你" : "学习 Agent"}
-                <small>{m.resourceTitle}</small>
-              </span>
-              <p>{m.text}</p>
-            </div>
-          ))}
-          {pending && (
-            <div className="sl-chat-thinking" role="status">
-              正在整理示例回复<span>•••</span>
-            </div>
-          )}
-        </div>
-        <div className="sl-chat-bottom">
-          <div className="sl-quick-questions">
-            {["举个例子", "接下来学什么？"].map((q) => (
-              <button key={q} disabled={pending} onClick={() => ask(q)}>
-                {q}
-              </button>
-            ))}
-          </div>
-          <form
-            className="sl-chat-composer"
-            onSubmit={(e) => {
-              e.preventDefault();
-              ask(question);
-            }}
-          >
-            <textarea
-              aria-label="向学习 Agent 提问"
-              placeholder="哪里不明白？我们一起看看…"
-              value={question}
-              maxLength={1000}
-              onChange={(e) => setQuestion(e.target.value)}
-              onFocus={() => setChatActive(true)}
-              onKeyDown={(e) => {
-                if (
-                  e.key === "Enter" &&
-                  !e.shiftKey &&
-                  !e.nativeEvent.isComposing
-                ) {
-                  e.preventDefault();
-                  ask(question);
-                }
-              }}
-            />
-            <button
-              className="sl-send"
-              aria-label="发送问题"
-              disabled={!question.trim() || pending}
-            >
-              <Icon name="arrow" size={18} />
-            </button>
-          </form>
-          <small>本地示例回复 · 学习记录不会被发布</small>
-        </div>
-      </aside>
+      <LearningAgent readingSnapshot={currentRef ? snapshots[refKey(currentRef)] || { resource_ref: currentRef, selected_text: "", locator: evidence.locator } : undefined} room={room} resource={resource} setState={setState} onSelect={onSelect} onEngage={() => setChatActive(true)} onAsk={onAsk} onSelfAssessment={room.progressPersistence ? (value) => facts.enqueue(chapter.id, 'self_assessment_set', undefined, { value }) : undefined} selfAssessmentPending={facts.pending.some(p => p.topic === chapter.id && p.event.type === 'self_assessment_set')} />
     </main>
   );
 }
