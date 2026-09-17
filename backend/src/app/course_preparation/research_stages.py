@@ -18,6 +18,8 @@ class ResearchStages:
 
     def _decision(self,context,checkpoint):
         request=self._request(context)
+        if request.target and 'target_snapshot' not in checkpoint:
+            checkpoint={**checkpoint, 'target_snapshot':self.repository.authorizer.targets.read(context.owner_user_id,request.target)}
         if self.memory:
             checkpoint=self.memory.prepare(context,checkpoint,request)
         state=ResearchState.model_validate(checkpoint.get('research_state',{}))

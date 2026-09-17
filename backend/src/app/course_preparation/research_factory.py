@@ -36,7 +36,7 @@ def research_factory(repository,documents,memory):
         agent.max_calls=60
         agent.incremental_findings=True
         agent.source_policy=request.source_policy.mode
-        agent.extra_context={'preferences':checkpoint.get('memory_view',{}),
+        agent.extra_context={'preferences':checkpoint.get('memory_view',{}), 'existing_target':checkpoint.get('target_snapshot'),
             'preference_rule':'本次 request 明确要求优先；偏好仅调整教学表达，不能作为来源或掌握事实'}
         agent.sources=MeteredSources(repository,context,PolicySources(owner=context.owner_user_id,request=request,
             documents=documents,web=agent.sources))

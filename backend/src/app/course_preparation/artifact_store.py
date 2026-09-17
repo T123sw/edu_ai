@@ -1,10 +1,12 @@
 """Private child generation facts, worker fencing and shared parent accounting."""
+from copy import deepcopy
 from datetime import timedelta
 from uuid import uuid4
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.database.models import (PreparationArtifact as Artifact, CoursePreparationRecord as Prep,
-    CoursePreparationAttemptRecord as Attempt, PreparationBudget as Budget, PreparationAction as Action)
+    CoursePreparationAttemptRecord as Attempt, PreparationBudget as Budget, PreparationAction as Action,
+    PreparationExecution, CourseMembership, User)
 from app.chat.memory.lifecycle import lock_epoch, MemoryLifecycle
 from .schemas import PreparationRequest
 from .generation_contracts import ResourceSpec
@@ -22,6 +24,8 @@ class ArtifactStore:
         artifact_id='artifact_'+digest(action_id)[:32]
         with Session(self.engine) as session,session.begin():
             prep,_,_,_=self.repository._locked(session,context)
+            user=session.get(User,prep.owner_user_id)
+            if user is None or spec.memory_subject!=user.username: raise PermissionError('MEMORY_SUBJECT_NOT_OWNED')
             action=session.get(Action,action_id)
             if action is None or action.preparation_id!=prep.preparation_id: raise PermissionError('ACTION_NOT_OWNED')
             row=session.get(Artifact,artifact_id)
@@ -29,9 +33,22 @@ class ArtifactStore:
                 if row.spec_digest!=digest(spec.model_dump(mode='json')): raise ValueError('RESOURCE_SPEC_CHANGED')
                 return self.view(row)
             row=Artifact(artifact_id=artifact_id,preparation_id=prep.preparation_id,action_id=action_id,
-                owner_user_id=prep.owner_user_id,resource_id='resource_'+digest(action_id)[:32],resource_version=1,
+                owner_user_id=prep.owner_user_id,resource_id=spec.delivery_resource_id or 'resource_'+digest(action_id)[:32],resource_version=spec.delivery_resource_version,
                 resource_type=spec.resource_type,spec=spec.model_dump(mode='json'),spec_digest=digest(spec.model_dump(mode='json')),
                 status='pending',created_at=self.repository.clock())
+            # Reuse only an exact specification and verified content from a
+            # previously committed course still accessible to this owner.
+            candidates=session.scalars(select(Artifact).where(Artifact.owner_user_id==prep.owner_user_id,
+                Artifact.spec_digest==row.spec_digest,Artifact.status=='draft').order_by(Artifact.created_at.desc())).all()
+            for cached in candidates:
+                original=session.get(Prep,cached.preparation_id)
+                execution=session.get(PreparationExecution,(original.preparation_id,original.current_attempt_no))
+                result=execution.result_ref or {}
+                if not result.get('course_ready') or session.get(CourseMembership,(result.get('course_id'),prep.owner_user_id)) is None: continue
+                if cached.content is None or digest(cached.content)!=cached.content_digest: continue
+                MemoryLifecycle.validate_refs_in_session(session,spec.memory_subject,spec.memory_refs)
+                row.content=deepcopy(cached.content); row.content_digest=cached.content_digest; row.status='draft'
+                break
             session.add(row); session.flush()
             return self.view(row)
 
@@ -92,7 +109,17 @@ class ArtifactStore:
 
     def finish_action(self,context,action_id,receipt,actual=None,*,failed=False):
         with Session(self.engine) as session,session.begin():
-            _,prep,attempt,budget=self._locked(session,context)
+            # Accounting for an already-started provider request may finish after
+            # cancellation. This settles cost only and cannot save a resource.
+            prep=session.scalar(select(Prep).where(Prep.preparation_id==context['preparation_id']).with_for_update())
+            row=session.scalar(select(Artifact).where(Artifact.artifact_id==context['artifact_id']).with_for_update().execution_options(populate_existing=True))
+            action=session.get(Action,action_id)
+            if row is None or row.owner_user_id!=context['owner_user_id'] or row.lease_token!=context['lease_token']:
+                raise StaleLease('STALE_ARTIFACT_LEASE')
+            if action is None or not action.action_key.startswith('child:'+row.artifact_id+':'):
+                raise PermissionError('ACTION_NOT_OWNED')
+            attempt=session.get(Attempt,(prep.preparation_id,prep.current_attempt_no))
+            budget=session.get(Budget,prep.preparation_id)
             return self.repository._settle_action(session,prep,attempt,budget,action_id,receipt,actual,failed=failed)
 
     def save(self,context,artifact):

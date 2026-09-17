@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--resume-preparation')
     parser.add_argument('--full',action='store_true')
     parser.add_argument('--classroom',action='store_true')
+    parser.add_argument('--task-db')
     args=parser.parse_args()
     if 'edu_ai_agent_stage' not in args.database_url: raise ValueError('Use the dedicated stage test database')
     from core.config import Config
@@ -85,7 +86,7 @@ def main():
         from app.services.durable_task_handlers import DurableTaskHandlerRegistry
         from app.services.durable_executor_pool import DurableExecutorPool
         from app.services.job_completion_service import JobCompletionService
-        store=TaskStore(str(output/'tasks.db'))
+        store=TaskStore(args.task_db or str(output/'tasks.db'))
         pipeline=build_pipeline(store)
         runner=pipeline.runner
         registry=DurableTaskHandlerRegistry()

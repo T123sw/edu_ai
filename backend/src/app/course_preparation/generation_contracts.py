@@ -21,4 +21,7 @@ class ResourceSpec(Contract):
     memory_epoch: int=Field(ge=0)
     config_snapshot: dict=Field(default_factory=dict)
     revision_feedback: tuple[ShortText,...]=Field(default=(),max_length=10)
+    delivery_resource_id: Identifier | None = None
+    delivery_resource_version: int = Field(default=1, ge=1)
+    source_resource_ref: dict | None = None
     preparation_policy: str='automatic_personal_draft_v1'

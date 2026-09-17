@@ -20,15 +20,28 @@ class ProductionStages:
             kinds=list(dict.fromkeys(['report','quiz',*request.overrides.required_resource_types]))
             if any(k not in ('report','quiz','classroom') for k in kinds):
                 raise ResearchError('RESOURCE_TYPE_UNAVAILABLE','当前完整准备链路支持报告、习题和课堂')
+            target = checkpoint.get('target_snapshot')
+            if request.operation in ('supplement_node','revise_resource'):
+                nodes=checkpoint['plan']['nodes']
+                if len(nodes)!=1 or nodes[0]['node_key']!=request.target.node_id:
+                    raise ResearchError('TARGET_SCOPE_CHANGED','局部请求不能改变其他学习节点')
+                if nodes[0]['objectives'] != [o['text'] for o in target['node']['objectives']]:
+                    raise ResearchError('TARGET_OBJECTIVES_CHANGED','局部资料请求不能修改节点目标')
+                kinds = list(request.overrides.required_resource_types) or ['report']
+                if request.operation=='revise_resource': kinds=[target['resource']['resource_type']]
             specifications=[]
             for node in checkpoint['plan']['nodes']:
                 for kind in kinds:
                     spec=ResourceSpec(node_id=node['node_key'],title=node['title'],resource_type=kind,
-                        objectives=node['objectives'],objective_ids=[node['node_key']+':o'+str(i+1) for i in range(len(node['objectives']))],
+                        objectives=node['objectives'],objective_ids=([o['objective_id'] for o in target['node']['objectives']] if request.operation in ('supplement_node','revise_resource') else [node['node_key']+':o'+str(i+1) for i in range(len(node['objectives']))]),
                         evidence=checkpoint['node_evidence'][node['node_key']],language=checkpoint['brief']['language'],
                         audience=checkpoint['brief']['audience'],minutes=node['minutes'],learning_check=node['self_check'],
                         memory_subject=checkpoint['memory_subject'],memory_refs=checkpoint['memory_refs'],
-                        memory_epoch=checkpoint['memory_view']['memory_epoch'],config_snapshot=checkpoint['config_snapshot'])
+                        memory_epoch=checkpoint['memory_view']['memory_epoch'],config_snapshot=checkpoint['config_snapshot'],
+                        required=request.operation!='supplement_node',
+                        delivery_resource_id=(request.target.resource_id if request.operation=='revise_resource' and target['source_owner']==context.owner_user_id else None),
+                        delivery_resource_version=(request.target.base_resource_version+1 if request.operation=='revise_resource' and target['source_owner']==context.owner_user_id else 1),
+                        source_resource_ref=({'course_id':request.target.course_id,**target['resource']} if request.operation=='revise_resource' else None))
                     specifications.append(spec.model_dump(mode='json'))
             checkpoint['resource_specs']=specifications
         valid_keys={digest(s) for s in specifications}

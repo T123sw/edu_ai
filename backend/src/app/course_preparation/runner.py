@@ -71,6 +71,8 @@ class PreparationRunner:
         except StaleLease:
             return {'stale': True}
         except Exception as exc:
+            import logging
+            logging.getLogger(__name__).exception('Preparation step failed: task=%s stage=%s', preparation_id, context.stage)
             code = ('BUDGET_EXHAUSTED' if isinstance(exc, BudgetExceeded) else
                     'NO_PROGRESS' if isinstance(exc, NoProgress) else
                     'SOURCE_OR_OWNER_UNAVAILABLE' if isinstance(exc, PermissionError) else getattr(exc, 'code', 'STEP_FAILED'))

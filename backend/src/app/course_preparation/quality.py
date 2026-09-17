@@ -1,4 +1,6 @@
 """Source, route, native content and whole-course gates with targeted repairs."""
+from typing import Literal
+from copy import deepcopy
 from pydantic import Field,model_validator
 from .schemas import Contract,Identifier,ShortText
 from .manifest import CourseManifest
@@ -16,7 +18,7 @@ class DeliveryIssue(Contract):
 
 
 class CourseReview(Contract):
-    decision: str
+    decision: Literal['pass', 'fail']
     checked_node_ids: tuple[Identifier,...]=Field(min_length=1,max_length=12)
     issues: tuple[DeliveryIssue,...]=Field(default=(),max_length=12)
     limitations: tuple[ShortText,...]=Field(default=(),max_length=12)
@@ -28,11 +30,37 @@ class CourseReview(Contract):
 
 def check_digest(checkpoint):
     return digest({'rules':RULE_VERSION,'brief':checkpoint['brief'],'plan':checkpoint['plan'],
-        'evidence':checkpoint['node_evidence'],'memory_refs':checkpoint.get('memory_refs',{}),
+        'target_snapshot':checkpoint.get('target_snapshot'),'evidence':checkpoint['node_evidence'],'memory_refs':checkpoint.get('memory_refs',{}),
         'artifacts':[(r['artifact_id'],r['spec_digest'],r['content_digest'],r['status']) for r in checkpoint['artifacts']]})
 
 
+def local_manifest(context, checkpoint, request):
+    base = deepcopy(checkpoint['target_snapshot']['manifest'])
+    node = next(n for n in base['nodes'] if n['node_id'] == request.target.node_id)
+    old = checkpoint['target_snapshot']['resource']
+    for artifact in checkpoint['artifacts']:
+        resource = {'resource_id': artifact['resource_id'], 'resource_type': artifact['resource_type'],
+            'version': artifact['resource_version'], 'content_sha256': artifact['content_digest'],
+            'purpose': request.goal, 'required': old['required'] if old else False,
+            'order': old['order'] if old else max((r['order'] for r in node['resources']), default=0)+1,
+            'objective_ids': old['objective_ids'] if old else [o['objective_id'] for o in node['objectives']],
+            'source_refs': list(dict.fromkeys(e['source_id'] for e in artifact['spec']['evidence']))}
+        if old:
+            node['resources'] = [resource if r['resource_id']==old['resource_id'] else r for r in node['resources']]
+            for check in node['checks']:
+                if check['resource_id']==old['resource_id']:
+                    check.update(resource_id=resource['resource_id'],resource_version=resource['version'])
+        else: node['resources'].append(resource)
+    base.update(manifest_id='manifest_'+digest([context.owner_user_id,base['course_id']])[:32],
+        version=request.target.base_manifest_version+1, space='personal',
+        created_by_preparation_id=context.preparation_id, quality_report_id='quality_'+check_digest(checkpoint),
+        limitations=list(dict.fromkeys([*base.get('limitations',[]),*checkpoint.get('quality',{}).get('limitations',[])])))
+    return CourseManifest.model_validate(base)
+
+
 def candidate_manifest(context,checkpoint,request):
+    if request.operation in ('supplement_node','revise_resource'):
+        return local_manifest(context,checkpoint,request)
     course_id=request.target.course_id if request.target else 'learn-'+context.preparation_id.removeprefix('prep_')
     version=request.target.base_manifest_version+1 if request.target else 1
     nodes=[]
@@ -75,18 +103,41 @@ class QualityStages:
             return StepResult(checkpoint,'repair')
         candidate_manifest(context,checkpoint,request)
         model=self.model_factory(context,request,checkpoint).model
-        tool={'type':'function','function':{'name':'review_course_delivery','description':'审阅实际完整课程资源和路径，逐节点检查；阻塞问题指出需修订的 artifact_ids。',
+        reviews = dict(checkpoint.get('node_quality_reviews', {}))
+        current_digest = check_digest(checkpoint)
+        if checkpoint.get('node_quality_digest') != current_digest:
+            reviews = {}
+        unchecked = next((node for node in checkpoint['plan']['nodes'] if node['node_key'] not in reviews), None)
+        selected_artifacts = [r for r in artifacts if unchecked is None or r['spec']['node_id'] == unchecked['node_key']]
+        tool={'type':'function','function':{'name':'review_course_delivery','description':'审阅资料与学习目标；逐节点检查，阻塞问题指出需要修订的 artifact_ids。',
             'parameters':CourseReview.model_json_schema()}}
+        if unchecked:
+            review_context = {'review_scope': '完整节点资源；检查该节点全部目标、引用、练习与跨资料一致性',
+                'node': unchecked, 'node_evidence': checkpoint['node_evidence'][unchecked['node_key']],
+                'artifacts': [{'artifact_id': r['artifact_id'], 'node_id': r['spec']['node_id'], 'kind': r['resource_type'],
+                              'content': r['content']['content']} for r in selected_artifacts]}
+        else:
+            # Every full body has a digest-bound node review. The final pass checks
+            # ordering and cross-node coverage using these reviews, not truncated bodies.
+            review_context = {'review_scope': '整课衔接、目标覆盖、先修顺序和重复内容；全部正文已分别审阅',
+                'node_reviews': reviews,
+                'artifacts': [{'artifact_id': r['artifact_id'], 'node_id': r['spec']['node_id'],
+                              'kind': r['resource_type'], 'objectives': r['spec']['objectives'],
+                              'content_digest': r['content_digest']} for r in artifacts]}
         decision,args=model.decide({'phase':'course_review','request':request.model_dump(mode='json'),
-            'brief':checkpoint['brief'],'path':checkpoint['plan'],'node_evidence':checkpoint['node_evidence'],
-            'artifacts':[{'artifact_id':r['artifact_id'],'node_id':r['spec']['node_id'],'kind':r['resource_type'],'content':r['content']['content']} for r in artifacts]},[tool],timeout=90)
+            'brief':checkpoint['brief'],'path':checkpoint['plan'], **review_context},[tool],timeout=90)
         self.memory.validate(context,checkpoint)
         if decision!='review_course_delivery': raise ResearchError('COURSE_REVIEW_INVALID','审阅工具不合法')
         review=CourseReview.model_validate(args)
-        if set(review.checked_node_ids)!={n['node_key'] for n in checkpoint['plan']['nodes']}:
+        expected_nodes = {unchecked['node_key']} if unchecked else {n['node_key'] for n in checkpoint['plan']['nodes']}
+        if set(review.checked_node_ids)!=expected_nodes:
             raise ResearchError('COURSE_REVIEW_INCOMPLETE','审阅未覆盖全部节点')
         allowed={r['artifact_id'] for r in artifacts}
         if any(not set(issue.artifact_ids)<=allowed for issue in review.issues): raise ValueError('UNKNOWN_REPAIR_TARGET')
+        if unchecked and review.decision == 'pass':
+            reviews[unchecked['node_key']] = review.model_dump(mode='json')
+            checkpoint.update(node_quality_reviews=reviews, node_quality_digest=current_digest)
+            return StepResult(checkpoint)
         checkpoint['quality']={**review.model_dump(mode='json'),'input_digest':check_digest(checkpoint),'rule_version':RULE_VERSION}
         if review.decision=='pass':
             checkpoint['candidate_manifest']=candidate_manifest(context,checkpoint,request).model_dump(mode='json')

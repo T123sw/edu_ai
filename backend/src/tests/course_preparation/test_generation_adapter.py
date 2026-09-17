@@ -79,3 +79,35 @@ def test_succeeded_job_without_reviewed_content_is_not_ready(generation):
     with Session(repo.engine) as session,session.begin():
         session.get(PreparationArtifact,receipt['artifact_id']).content=None
     with pytest.raises(ValueError,match='CONTENT_MISSING'): adapter.read_result('alice',receipt)
+
+
+def test_nested_native_classroom_is_verified_against_actual_stage_and_scenes(generation):
+    from app.course_preparation.adapters.classroom import TeachingScript,native_classroom
+    from app.chat.harness.reviewed_resource import CRITERIA,digest as review_digest
+    repo,context,adapter=generation
+    value={**spec(),'resource_type':'classroom'}
+    action=repo.begin_action(context,'classroom','generate_resource',value,BudgetCost(calls=1))
+    receipt=adapter.submit(context,value,action['action_id'])
+    child=adapter.artifacts.claim('alice',receipt['artifact_id'])
+    script=TeachingScript(slides=[{'title':f'第{i}页','points':['模型选择工具，程序执行'],
+        'narration':'模型根据工具描述选择调用，服务端检查权限、参数和预算后执行，将真实结果回传给模型。'*3} for i in range(2)])
+    content=native_classroom(script,'课堂',child['resource_id'])
+    audit={'decision':'pass','method':'model_review','resource_type':'classroom','content_sha256':review_digest('classroom',content),
+        'checks':[{'criterion':c,'passed':True,'reason':'完整核验通过'} for c in CRITERIA],
+        'scene_checks':[{'scene_index':i,'screen_passed':True,'screen_reasoning':'已核验当前投屏',
+            'speech_checks':[{'action_index':0,'passed':True,'reasoning':'已核验完整讲解'}]} for i in range(2)]}
+    adapter.artifacts.save(child,{'artifact_type':'classroom','title':'课堂','content':content,'generation_state':{'resource_review':audit}})
+    assert adapter.read_result('alice',receipt)['status']=='draft'
+
+
+def test_inflight_usage_settles_after_parent_cancel_without_publishing(generation):
+    repo,context,adapter=generation
+    _,receipt=submit(generation)
+    child=adapter.artifacts.claim('alice',receipt['artifact_id'])
+    action=adapter.artifacts.begin_action(child,'provider','model_completion',{},BudgetCost(calls=1,tokens=100))
+    repo.cancel('alice',context.preparation_id)
+    adapter.artifacts.finish_action(child,action['action_id'],{'reported':True},BudgetCost(calls=1,tokens=60))
+    public=repo.get_public('alice',context.preparation_id)
+    assert public['status']=='canceled' and public['budget']['consumed']['tokens']==60
+    assert public['budget']['reserved']['tokens']==0
+    with pytest.raises(StaleLease): adapter.artifacts.save(child,{'content':'late'})

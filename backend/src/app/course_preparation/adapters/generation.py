@@ -47,7 +47,8 @@ class GenerationAdapter:
         if artifact['resource_type']=='report': valid=verified_review(artifact['content'])
         else:
             validate_resource(artifact['resource_type'],artifact['content']['content'])
-            valid=verified_resource(artifact['content'],artifact['resource_type'])
+            checked={**artifact['content'],**artifact['content']['content']} if artifact['resource_type']=='classroom' else artifact['content']
+            valid=verified_resource(checked,artifact['resource_type'])
         if not valid: raise ValueError('ARTIFACT_REVIEW_MISSING_OR_STALE')
         return artifact
 

@@ -35,7 +35,12 @@ class DeliveryService:
             if manifest.created_by_preparation_id!=prep.preparation_id: raise ValueError('MANIFEST_TASK_MISMATCH')
             pointer=session.scalar(select(Pointer).where(Pointer.owner_user_id==prep.owner_user_id,Pointer.course_id==manifest.course_id).with_for_update())
             expected=prep.request_payload.get('target',{}).get('base_manifest_version',0) if prep.request_payload.get('target') else 0
-            if (pointer.version if pointer else 0)!=expected or manifest.version!=expected+1:
+            base_snapshot=None
+            if expected:
+                from .adapters.targets import TargetStore
+                base_snapshot=TargetStore(self.engine).read_in_session(session,prep.owner_user_id,PreparationRequest.model_validate(prep.request_payload).target)
+                if checkpoint.get('target_snapshot')!=base_snapshot: raise RevisionConflict('TARGET_SNAPSHOT_CHANGED')
+            if (pointer.version if pointer else base_snapshot['manifest']['version'] if base_snapshot else 0)!=expected or manifest.version!=expected+1:
                 raise RevisionConflict('MANIFEST_BASE_CHANGED')
             actor=session.get(User,prep.owner_user_id)
             if actor is None or actor.is_disabled: raise PermissionError('OWNER_UNAVAILABLE')
@@ -52,8 +57,17 @@ class DeliveryService:
                     raise ValueError('MANIFEST_RESOURCE_MISMATCH')
                 # Revalidate the child's own dependency set, including late drafts.
                 MemoryLifecycle.validate_refs_in_session(session,row.spec['memory_subject'],row.spec['memory_refs'])
-            if set(manifest_resources)!={r['resource_id'] for r in artifacts.values()}:
-                raise ValueError('MANIFEST_RESOURCE_SET_MISMATCH')
+            generated_ids={r['resource_id'] for r in artifacts.values()}
+            retained={key:value for key,value in manifest_resources.items() if key not in generated_ids}
+            base_resources={r['resource_id']:r for n in base_snapshot['manifest']['nodes'] for r in n['resources']} if base_snapshot else {}
+            for key,resource in retained.items():
+                if base_resources.get(key)!=resource.model_dump(mode='json'):
+                    raise ValueError('UNVERIFIED_RETAINED_RESOURCE')
+                from app.database.models import MaterialVersion
+                stored=session.scalar(select(MaterialVersion).where(MaterialVersion.course_id==manifest.course_id,
+                    MaterialVersion.material_type==resource.resource_type,MaterialVersion.material_id==key,MaterialVersion.version==resource.version))
+                if stored is None or stored.payload.get('content_hash')!=resource.content_sha256:
+                    raise ValueError('RETAINED_RESOURCE_UNAVAILABLE')
             course=session.get(Course,manifest.course_id)
             now=self.repository.clock()
             if course is None:

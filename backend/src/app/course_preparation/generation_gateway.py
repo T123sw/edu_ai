@@ -27,6 +27,7 @@ class GenerationGateway:
             if str(candidate['model_name']).lower().startswith('deepseek-v4'): extra={**extra,'thinking':{'type':'disabled'}}
             payload={'model':candidate['model_name'],'messages':messages,'temperature':temperature,
                      'max_tokens':max_tokens,'stream':False,**extra}
+            settled=False
             try:
                 deadline=time.monotonic()+timeout
                 with self.client_factory(timeout=httpx.Timeout(timeout,connect=min(10,timeout))) as client:
@@ -38,6 +39,7 @@ class GenerationGateway:
                             if len(body)>2_000_000 or time.monotonic()>deadline: raise ValueError('MODEL_RESPONSE_LIMIT')
                         data=json.loads(body)
                 self.meter.finish(action,usage=data.get('usage'),response_data=data)
+                settled=True
                 choices=data.get('choices')
                 if not isinstance(choices,list) or len(choices)!=1 or choices[0].get('finish_reason')!='stop':
                     raise ValueError('MODEL_RESPONSE_INCOMPLETE')
@@ -45,6 +47,9 @@ class GenerationGateway:
                 if not isinstance(text,str) or not text.strip(): raise ValueError('MODEL_RESPONSE_EMPTY')
                 return text
             except httpx.HTTPError:
-                self.meter.finish(action,failed=True)
+                if not settled: self.meter.finish(action,failed=True)
                 continue
+            except Exception:
+                if not settled: self.meter.finish(action,failed=True)
+                raise
         raise ResearchError('PROVIDER_UNAVAILABLE','生成模型服务不可用')

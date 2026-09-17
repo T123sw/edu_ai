@@ -18,7 +18,9 @@ from .delivery import DeliveryService
 def build_pipeline(task_store):
     from app.services.personal_knowledge_service import PersonalKnowledgeService
     db=engine(); documents=DocumentStore(db,PersonalDocumentReader(PersonalKnowledgeService()))
-    repo=LifecycleRepository(db,authorizer=PreparationReferenceAuthorizer(db,documents))
+    from .adapters.targets import TargetStore
+    targets=TargetStore(db)
+    repo=LifecycleRepository(db,authorizer=PreparationReferenceAuthorizer(db,documents,targets=targets))
     memory=PreparationMemory(repo); factory=research_factory(repo,documents,memory)
     def reviewer(context,checkpoint,state,node):
         request=repo.get(owner_user_id=context.owner_user_id,preparation_id=context.preparation_id).request
