@@ -31,6 +31,11 @@ class SessionService:
     def _chapter(self, owner, course_id, topic_id):
         room = self.learning.room(course_id, owner)
         chapter = next((c for c in room['chapters'] if c['id'] == topic_id), None)
+        if chapter is None and self.learning.prepared_courses:
+            node=self.learning.prepared_courses.historical_topic(owner,course_id,topic_id)
+            if node:
+                chapter={'id':topic_id,'title':node['title'],'objectives':node['objectives'],'resources':[
+                    self.learning.resource(self.learning.prepared_courses.material(owner,course_id,r['resource_type'],r['resource_id'],r['version'])) for r in node['resources']]}
         if chapter is None:
             raise HTTPException(404, '知识点不存在或无权访问')
         return room, chapter

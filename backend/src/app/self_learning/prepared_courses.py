@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from app.database.models import User, Course, CourseMembership, PreparedCoursePointer
+from app.database.models import User, Course, CourseMembership, PreparedCoursePointer, PreparedManifestVersion
 from app.course_preparation.delivery import DeliveryService
 from app.persistence.postgres_material_repository import PostgresMaterialRepository
 
@@ -63,6 +63,22 @@ class PreparedCourses:
         if not value or value.get('owner_user_id') != username:
             raise HTTPException(404, '资料不存在或无权访问')
         return value
+
+    def historical_topic(self, username, course_id, topic_id, ref=None):
+        if self.lookup(username, course_id) is None:
+            return None
+        from app.course_preparation.tool_registry import digest
+        with Session(self.engine) as session:
+            owner=self.identity(session,username).user_id
+            rows=session.scalars(select(PreparedManifestVersion).where(
+                PreparedManifestVersion.owner_user_id==owner,PreparedManifestVersion.course_id==course_id
+            ).order_by(PreparedManifestVersion.version.desc()))
+            for row in rows:
+                if digest(row.payload)!=row.content_digest: raise HTTPException(409,'历史课程版本校验失败')
+                node=next((n for n in row.payload['nodes'] if n['node_id']==topic_id),None)
+                if node and (ref is None or any(r['resource_id']==ref.material_id and r['resource_type']==ref.material_type and r['version']==ref.version for r in node['resources'])):
+                    return node
+        return None
 
 
 def configured_prepared_courses():

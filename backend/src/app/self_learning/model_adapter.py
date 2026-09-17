@@ -2,6 +2,7 @@
 import asyncio
 import json
 import time
+import logging
 import httpx
 from .turn_contracts import AgentFailure
 
@@ -69,6 +70,8 @@ class LearningModelAdapter:
                     payload = {'model': model, 'messages': messages, 'stream': False, 'max_tokens': 2000, 'temperature': 0.2, **extra}
                     if tools:
                         payload.update(tools=tools, tool_choice='auto', parallel_tool_calls=False)
+                    else:
+                        payload['response_format'] = {'type': 'json_object'}
                     try:
                         timeout = max(.01, deadline - time.monotonic())
                         async with self.client_factory(timeout=httpx.Timeout(timeout, connect=min(10, timeout))) as client:
@@ -83,6 +86,8 @@ class LearningModelAdapter:
                                         raise AgentFailure('MODEL_PROTOCOL_ERROR')
                                 return self.parse(strict_json(body))
                     except httpx.HTTPError as exc:
+                        logging.getLogger(__name__).warning('Learning model attempt failed model=%s error=%s status=%s',
+                            model, type(exc).__name__, exc.response.status_code if isinstance(exc, httpx.HTTPStatusError) else None)
                         if received:
                             raise AgentFailure('MODEL_CONNECTION_INTERRUPTED') from exc
                         continue

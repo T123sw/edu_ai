@@ -60,6 +60,10 @@ def test_read_tools_and_unknown_tool_budget(agent_service):
     result = svc.turns.get('alice', first['turn_id'])
     assert result['status'] == 'succeeded' and result['result']['tool_attempts'] == 1, result
     assert 'tool_call_id' in model.messages[-1]
+    transcript = json.loads(model.messages[-1])
+    assistant = next(m for m in transcript if m.get('tool_calls'))
+    assert assistant['tool_calls'] == [call]
+    assert next(m for m in transcript if m['role'] == 'tool')['tool_call_id'] == call['id']
     claim = svc.turn_repository.get('alice', first['turn_id'])
     tools = LearningTools(svc, claim, ContextBuilder(svc).build(claim))
     call['function']['name'] = 'submit_preparation_request'
@@ -168,3 +172,12 @@ def test_preference_deleted_during_generation_rebuilds_before_publishing(agent_s
     assert result['status']=='succeeded' and result['result']['answer_markdown']=='基于当前上下文的回答'
     assert '讲解简洁' in model.messages[0] and '讲解简洁' not in model.messages[1]
     assert result['result']['model_rounds']==2
+
+
+def test_async_runtime_retires_legacy_synchronous_answer(agent_service):
+    from fastapi import HTTPException
+    from uuid import uuid4
+    svc=agent_service
+    with pytest.raises(HTTPException) as error:
+        svc.answer('course','alice','a','解释工具',uuid4(),'doc')
+    assert error.value.status_code==409

@@ -71,3 +71,10 @@ async def test_evaluation_failure_preserves_answer_and_retry_is_idempotent(check
     assert result['correct'] is True and result['evaluation_method']=='model'
     assert await checks.evaluate('alice',check['check_id'],rid,model=good)==result
     assert good.calls==1 and len(checks.attempts('alice',check['check_id']))==1
+
+
+def test_checks_enabled_retires_independent_legacy_grading(checks):
+    checks.learning.checks=checks
+    with pytest.raises(HTTPException) as error:
+        checks.learning.practice('course','alice','quiz-a',1,{'q1':'A'})
+    assert error.value.status_code==409

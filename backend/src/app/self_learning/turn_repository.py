@@ -127,5 +127,6 @@ class TurnRepository(SessionRepository):
                     LearningAnswerRun.status.in_(['accepted', 'running']))):
                     raise SessionConflict('当前知识点已有执行中的轮次')
                 row.status = row.stage = 'accepted'
-                row.error_code, row.deadline, row.checkpoint = None, 0, {}
+                receipts=row.checkpoint.get('packet',{}).get('preparation_receipts',{}) or row.checkpoint.get('recovered_preparations',{})
+                row.error_code, row.deadline, row.checkpoint = None, 0, {'recovered_preparations':receipts} if receipts else {}
             return self.view(row)

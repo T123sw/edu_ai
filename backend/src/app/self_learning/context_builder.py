@@ -20,6 +20,12 @@ class ContextBuilder:
         room = self.learning.room(course, owner)
         chapter = next((c for c in room['chapters'] if c['id'] == topic), None)
         ref = ResourceRef.model_validate(snapshot['resource_ref'])
+        if getattr(self.learning,'prepared_courses',None) and (not chapter or not any(r.get('remote') and r['remote']['materialType']==ref.material_type and r['remote']['materialId']==ref.material_id for r in chapter['resources'])):
+            node=self.learning.prepared_courses.historical_topic(owner,course,topic,ref)
+            if node:
+                chapter={'id':topic,'title':node['title'],'objectives':node['objectives'],'resources':[
+                    self.learning.resource(self.learning.prepared_courses.material(owner,course,r['resource_type'],r['resource_id'],r['version'])) for r in node['resources']]}
+                room={**room,'chapters':[chapter,*[c for c in room['chapters'] if c['id']!=topic]]}
         if not chapter or ref.course_id != course or not any(r.get('remote') and
             r['remote']['materialType'] == ref.material_type and r['remote']['materialId'] == ref.material_id for r in chapter['resources']):
             raise HTTPException(404, '阅读对象不属于当前知识点')

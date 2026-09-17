@@ -25,7 +25,13 @@ class LearningAgentRuntime:
     async def execute(self, claim):
         builder = ContextBuilder(self.learning)
         builder.authorize(claim['owner'], claim['course_id'], claim['topic_id'], claim['request']['reading_context'])
-        state = copy.deepcopy(claim['checkpoint']) or {'packet': builder.build(claim), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
+        state = copy.deepcopy(claim['checkpoint'])
+        if not state.get('packet'):
+            recovered = state.get('recovered_preparations', {})
+            state = {'packet': builder.build(claim), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
+            if recovered:
+                state['packet']['preparation_receipts'] = recovered
+                state['packet']['messages'].insert(-1, {'role':'user','content':'本轮已提交的真实后台任务回执：'+json.dumps(recovered,ensure_ascii=False)})
         packet = state['packet']
         tools = LearningTools(self.learning, claim, packet)
         model = self.model_factory(claim['owner'])
@@ -69,7 +75,9 @@ class LearningAgentRuntime:
                 writes=[call for call in reply['calls'] if tools.registry.get(call['function']['name']) and tools.registry[call['function']['name']].effect=='write']
                 if writes and len(reply['calls'])!=1: raise AgentFailure('TOOL_WRITE_BATCH_FORBIDDEN')
                 packet['messages'].append({'role': 'assistant', 'content': reply['content'] or None, 'tool_calls': reply['calls']})
-                state['pending'] = reply['calls']
+                # Execution consumes this queue; preserve the assistant's immutable
+                # tool-call transcript for the next provider request.
+                state['pending'] = copy.deepcopy(reply['calls'])
                 self.repository.save(claim, state)
                 continue
             try:

@@ -19,7 +19,8 @@ class TurnService:
 
     @staticmethod
     def public(turn):
-        return {k: turn[k] for k in ('turn_id', 'session_id', 'request_id', 'topic_id', 'status', 'stage', 'attempt', 'result', 'error_code')}
+        return {**{k: turn[k] for k in ('turn_id', 'session_id', 'request_id', 'topic_id', 'status', 'stage', 'attempt', 'result', 'error_code')},
+                'preparation_receipts': list((turn.get('checkpoint',{}).get('packet',{}).get('preparation_receipts',{}) or turn.get('checkpoint',{}).get('recovered_preparations',{})).values())}
 
     def accept(self, owner, course, topic, request):
         if not request.question.strip():

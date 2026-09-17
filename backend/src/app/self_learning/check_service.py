@@ -146,6 +146,10 @@ class CheckService:
             rows=db.execute(select(LearningCheckAttempt,LearningCheckRecord).join(LearningCheckRecord,
                 LearningCheckRecord.check_id==LearningCheckAttempt.check_id).where(LearningCheckRecord.owner==owner,
                 LearningCheckRecord.course_id==course).order_by(LearningCheckAttempt.created_at.desc(),LearningCheckAttempt.request_id)).all()
+            latest={}
+            for attempt,check in rows:
+                latest.setdefault(check.check_id,(attempt,check))
+            rows=list(latest.values())
             seen=set(); result=[]
             for attempt,check in rows:
                 if check.check_id in seen: continue

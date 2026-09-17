@@ -143,7 +143,10 @@ class LearningTools:
         ref = ResourceRef.model_validate(raw)
         room = self.room()
         if not any(r.get('remote') and r['remote']['materialType'] == ref.material_type and r['remote']['materialId'] == ref.material_id for c in room['chapters'] for r in c['resources']):
-            raise HTTPException(404)
+            if ref.model_dump()!=self.turn['request']['reading_context']['resource_ref']:
+                raise HTTPException(404)
+            from .context_builder import ContextBuilder
+            ContextBuilder(self.learning).authorize(self.turn['owner'],ref.course_id,self.turn['topic_id'],self.turn['request']['reading_context'])
         material = exact_material(self.learning, self.turn['owner'], ref)
         piece = excerpt(material, locator=args.locator.model_dump(exclude_none=True) if args.locator else None, query=args.query, max_chars=args.max_chars)
         cid = 'ctx_' + str(len(self.packet['citations']) + 1).zfill(2)

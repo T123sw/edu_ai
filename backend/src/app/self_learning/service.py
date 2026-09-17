@@ -264,6 +264,8 @@ class LearningService:
         return self.room(course_id, owner)
 
     def practice(self, course_id, owner, material_id, version, answers):
+        if self.checks:
+            raise HTTPException(409, '已切换到版本化理解检查，请通过检查作答入口提交')
         material = self.material(course_id, 'quiz', material_id, owner)
         if version != int(material.get('version') or 1):
             raise HTTPException(409, '练习内容已更新，请刷新后重新作答')
@@ -335,6 +337,8 @@ class LearningService:
         return snapshot
 
     def answer(self, course_id, owner, chapter_id, question, request_id, resource_id):
+        if self.turns:
+            raise HTTPException(409, '已切换到异步学习答疑，请通过 Agent 轮次入口提问')
         room = self.room(course_id, owner)
         chapter = next((c for c in room['chapters'] if c['id'] == chapter_id), None)
         if not chapter or resource_id not in {r['id'] for r in chapter['resources']}:
