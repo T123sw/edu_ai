@@ -1,0 +1,76 @@
+{
+  "turn_id": "answer-52892731b4334e5fb1187a6119d0d599",
+  "session_id": "learning-1078124ebb4f77018d0c8f6d7912c0928442436953870b98ff17b4155787bf49",
+  "request_id": "e7540cbe-5b30-4aec-b981-f2dd2dee37c9",
+  "topic_id": "responsibility_boundary",
+  "status": "succeeded",
+  "stage": "succeeded",
+  "attempt": 1,
+  "result": {
+    "citations": [
+      {
+        "locator": null,
+        "citation_id": "ctx_02",
+        "content_hash": "88e2f76ceee2680515207bec2b38c1908ea5a6279c1413f05939d2090292ad7f",
+        "resource_ref": {
+          "version": 1,
+          "course_id": "learn-c4190d1bdbf8421d9d1c9c3955d850a4",
+          "material_id": "resource_5c43005426192cd7abf7d2956248f51a",
+          "material_type": "report"
+        }
+      }
+    ],
+    "model_usage": [
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 7204,
+          "prompt_tokens": 7125,
+          "completion_tokens": 79
+        }
+      },
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 8328,
+          "prompt_tokens": 8236,
+          "completion_tokens": 92
+        }
+      },
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 11563,
+          "prompt_tokens": 10917,
+          "completion_tokens": 646
+        }
+      },
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 9952,
+          "prompt_tokens": 9243,
+          "completion_tokens": 709
+        }
+      }
+    ],
+    "observation": null,
+    "citation_ids": [
+      "ctx_02"
+    ],
+    "model_rounds": 4,
+    "role_version": "learning-role-v1",
+    "tool_attempts": 2,
+    "memory_context": {
+      "preferences": {},
+      "memory_epoch": 0
+    },
+    "answer_markdown": "已读取下一知识点「工具失败处理与可观测性」的资料（来源 ctx_02）。\n\n## 职责边界为什么会影响失败处理\n\n关键在于：**失败处理是开发者代码的职责，不是模型的职责。** 上一知识点已经明确，模型只生成结构化调用请求，解析、校验、执行、错误处理、结果格式化这五个环节全在代码里。所以当工具调用失败时，模型本身既不会、也不应该去“处理”失败——它只能被动接收代码回传的观察结果。\n\n这个边界直接决定了失败处理的两个设计原则：\n\n1. **失败必须被代码捕获并分类，而不是让模型去猜。** 模型不知道 API 返回了 429 还是 401，它只知道你回传给它的观察是什么。如果代码把错误吞掉、回传一个空观察，模型就会基于“成功”的假象继续作答——这正是上一知识点里“静默部分成功”的失败模式。\n\n2. **失败处理是分层的工程机制，模型不参与。** 重试+指数退避+抖动、多提供商回退链、熔断器，这三层防线全部运行在 agent loop 的代码里。模型只负责在收到观察后决定“下一步怎么办”，而“怎么重试、何时切换、何时熔断”这些决策是代码做的。\n\n一句话总结：**模型负责“决定调用什么”，代码负责“调用失败后怎么办”。** 如果边界不清，把失败处理的责任推给模型，就会出现“模型收到空观察后自信地报告成功”这类最隐蔽的故障。\n\n---\n\n## 面试例子\n\n> “在函数调用里，模型只负责生成调用请求，失败处理完全落在开发者代码上。比如我的 Agent 调用一个天气 API，模型正确生成了 `get_weather` 的调用参数，但 API 返回了 429 限流。\n>\n> 这时候模型是不知道发生了什么的——它只能看到我回传给它的观察。所以我的代码要先做分层处理：429 是瞬时错误，走 Layer 1 的重试加指数退避和抖动，避免多个实例同时重试形成重试风暴；如果重试三次还是失败，说明这个提供商在持续降级，就切到 Layer 2 的备用提供商；如果整个依赖链路都不可用，就触发 Layer 3 的熔断器，快速失败而不是让每个请求都等超时。\n>\n> 关键点是：这些重试、回退、熔断的决策都是代码做的，模型不参与。而且失败信息必须作为观察回传给模型，否则模型会基于‘没有报错’的假象，自信地告诉用户一个错误结果。所以职责边界直接影响失败处理——模型负责决定调用什么，代码负责调用失败后怎么办，以及把失败如实回传给模型。”\n\n这个回答把两个知识点串起来了：既展示了分层失败处理机制，又点明了“失败处理是代码职责、必须回传观察”这一边界，能体现你对 Agent 工程本质的理解。\n\n来源：ctx_02（工具失败处理与可观测性报告）。",
+    "source_revision": 8,
+    "preparation_receipts": [],
+    "suggested_action_ids": [],
+    "understanding_checks": []
+  },
+  "error_code": null,
+  "preparation_receipts": []
+}

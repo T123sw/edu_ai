@@ -33,3 +33,32 @@ def test_full_bodies_are_reviewed_one_node_at_a_time_before_course_gate(monkeypa
         assert result.next_stage==expected
         context.checkpoint=result.checkpoint
     assert len(calls)==3
+
+
+def test_malformed_review_is_repaired_before_any_commit(monkeypatch):
+    import app.course_preparation.quality as module
+    from app.course_preparation.research_agent import ResearchError
+    import pytest
+    monkeypatch.setattr(module.ResearchState,'model_validate',lambda _:SimpleNamespace(path={}))
+    monkeypatch.setattr(module.ResearchAgent,'_validate_path',lambda *_:None)
+    monkeypatch.setattr(module,'candidate_manifest',lambda *_:SimpleNamespace(model_dump=lambda **_:{'checked':True}))
+    spec={'node_id':'a','objectives':['a']}
+    artifact={'artifact_id':'a','spec':spec,'spec_digest':digest(spec),'status':'draft','content_digest':digest('body'),'resource_type':'report','content':{'content':'body'}}
+    cp={'research_state':{},'resource_specs':[spec],'generation_receipts':{digest(spec):{}},'brief':{},'plan':{'nodes':[{'node_key':'a'}]},'node_evidence':{'a':[]}}
+    calls=[]
+    class Model:
+        valid=False
+        def decide(self,context,tools,**kwargs):
+            calls.append(context)
+            return 'review_course_delivery',({'decision':'pass','checked_node_ids':['a']} if self.valid else {'json':'{"decision":"pass"}'})
+    model=Model();request=PreparationRequest(request_id=uuid4(),operation='create_course',goal='学习')
+    stages=QualityStages(SimpleNamespace(get=lambda **_:SimpleNamespace(request=request)),SimpleNamespace(read_result=lambda *_:artifact),SimpleNamespace(validate=lambda *_:None),lambda *_:SimpleNamespace(model=model))
+    context=SimpleNamespace(checkpoint=cp,owner_user_id='alice',preparation_id='prep')
+    first=stages.review(context);assert first.next_stage is None and not first.checkpoint.get('quality')
+    context.checkpoint=first.checkpoint
+    second=stages.review(context);context.checkpoint=second.checkpoint
+    assert calls[-1]['last_schema_error']
+    with pytest.raises(ResearchError,match='COURSE_REVIEW_INVALID'):stages.review(context)
+    model.valid=True
+    result=stages.review(context)
+    assert 'a' in result.checkpoint['node_quality_reviews'] and result.next_stage is None

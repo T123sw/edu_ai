@@ -1,7 +1,7 @@
 """Source, route, native content and whole-course gates with targeted repairs."""
 from typing import Literal
 from copy import deepcopy
-from pydantic import Field,model_validator
+from pydantic import Field,model_validator,ValidationError
 from .schemas import Contract,Identifier,ShortText
 from .manifest import CourseManifest
 from .research_contracts import ResearchState
@@ -139,10 +139,21 @@ class QualityStages:
                               'kind': r['resource_type'], 'objectives': r['spec']['objectives'],
                               'content_digest': r['content_digest']} for r in artifacts]}
         decision,args=model.decide({'phase':'course_review','request':request.model_dump(mode='json'),
-            'brief':checkpoint['brief'],'path':checkpoint['plan'],'route_only_adjustment':checkpoint.get('route_only_adjustment',False), **review_context},[tool],timeout=90)
+            'brief':checkpoint['brief'],'path':checkpoint['plan'],'route_only_adjustment':checkpoint.get('route_only_adjustment',False),
+            'last_schema_error':checkpoint.get('review_schema_error'), **review_context},[tool],timeout=90)
         self.memory.validate(context,checkpoint)
         if decision!='review_course_delivery': raise ResearchError('COURSE_REVIEW_INVALID','审阅工具不合法')
-        review=CourseReview.model_validate(args)
+        try:review=CourseReview.model_validate(args)
+        except ValidationError as exc:
+            scope=unchecked['node_key'] if unchecked else '__course__'
+            attempts=dict(checkpoint.get('review_schema_repairs',{}))
+            attempts[scope]=attempts.get(scope,0)+1
+            if attempts[scope]>2:raise ResearchError('COURSE_REVIEW_INVALID','审阅响应两次修正后仍不符合契约') from exc
+            checkpoint.update(review_schema_repairs=attempts,review_schema_error={'scope':scope,
+                'errors':[{'path':list(e['loc']),'message':e['msg']} for e in exc.errors(include_input=False)],
+                'rejected_arguments':args,'instruction':'只修改工具参数结构，直接提供 decision、checked_node_ids、issues、limitations，不要包装在 json 字符串字段中。未通过合法审阅前不会交付。'})
+            return StepResult(checkpoint)
+        checkpoint.pop('review_schema_error',None)
         expected_nodes = {unchecked['node_key']} if unchecked else {n['node_key'] for n in checkpoint['plan']['nodes']}
         if set(review.checked_node_ids)!=expected_nodes:
             raise ResearchError('COURSE_REVIEW_INCOMPLETE','审阅未覆盖全部节点')

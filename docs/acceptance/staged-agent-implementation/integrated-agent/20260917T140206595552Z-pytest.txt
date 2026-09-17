@@ -1,0 +1,13 @@
+.......................................s............................s... [ 17%]
+........s..................................s............................ [ 35%]
+............................................s........................... [ 53%]
+........................................................................ [ 70%]
+..................................................................s..... [ 88%]
+.......................s..........s...........                           [100%]
+=============================== warnings summary ===============================
+tests/database/test_alembic_revision_chain.py::test_alembic_revision_chain_has_unique_revisions_and_one_head
+  /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/alembic/config.py:604: DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces, commas, and colons for prepend_sys_path.  Consider adding path_separator=os to Alembic config.
+    util.warn_deprecated(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+398 passed, 8 skipped, 1 warning in 347.97s (0:05:47)

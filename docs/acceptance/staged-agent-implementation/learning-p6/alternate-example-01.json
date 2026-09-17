@@ -1,0 +1,60 @@
+{
+  "turn_id": "answer-3a34abb1514847a69d9f0cde50d59ece",
+  "session_id": "learning-1078124ebb4f77018d0c8f6d7912c0928442436953870b98ff17b4155787bf49",
+  "request_id": "83da2ea6-75df-4885-9eb3-2e632ae9b357",
+  "topic_id": "responsibility_boundary",
+  "status": "succeeded",
+  "stage": "succeeded",
+  "attempt": 1,
+  "result": {
+    "citations": [
+      {
+        "locator": null,
+        "citation_id": "ctx_01",
+        "content_hash": "473ad98b2eb734ecc7a73dec744f3706b748fa20d6e342e522868bcc79b2e7b2",
+        "resource_ref": {
+          "version": 1,
+          "course_id": "learn-c4190d1bdbf8421d9d1c9c3955d850a4",
+          "material_id": "resource_57fcffbe9b8ad2dfea5efb70873b844c",
+          "material_type": "report"
+        }
+      }
+    ],
+    "model_usage": [
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 7587,
+          "prompt_tokens": 7249,
+          "completion_tokens": 338
+        }
+      },
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 5658,
+          "prompt_tokens": 5267,
+          "completion_tokens": 391
+        }
+      }
+    ],
+    "observation": null,
+    "citation_ids": [
+      "ctx_01"
+    ],
+    "model_rounds": 2,
+    "role_version": "learning-role-v1",
+    "tool_attempts": 0,
+    "memory_context": {
+      "preferences": {},
+      "memory_epoch": 0
+    },
+    "answer_markdown": "## 电商库存查询例子（面试表达）\n\n> “假设用户问‘SKU 是 A-1001 的这件商品现在还有多少库存’。模型在这一步做的事情是：判断需要调用库存查询工具，然后生成一个结构化调用请求，比如 `{\"tool\": \"check_inventory\", \"parameters\": {\"sku\": \"A-1001\"}}`。到这里模型的工作就结束了——它只是‘填了表’，没有去查任何数据库。\n>\n> 接下来全是应用代码的职责。代码先做**校验**：检查 `sku` 是不是必填、格式对不对、有没有被注入恶意字符串。比如模型可能自信地输出 `sku` 为空，或者把参数名写成了 `sku_id`，这些都要靠校验代码拦住，而不是指望模型自己发现。\n>\n> 校验通过后，代码才真正**执行**：拿着 `A-1001` 去查库存表或调用库存服务。这一步模型完全不参与，数据库连没连上、返回的是 200 还是超时，模型一概不知。\n>\n> 所以区别一句话就能说清：**模型负责‘决定查什么、用什么参数’，应用负责‘这个参数能不能用、以及真的去查’。** 模型选对了工具、参数也合理，但如果校验漏了边界条件、或者执行时数据库挂了没处理，Agent 照样失败——而这不是模型推理错误，是代码环节的问题。”\n\n这个例子的价值在于：它用一个面试官熟悉的业务场景，把“模型填表 vs 代码办事”的边界讲得具体、可验证，而不是停留在抽象概念上。",
+    "source_revision": 8,
+    "preparation_receipts": [],
+    "suggested_action_ids": [],
+    "understanding_checks": []
+  },
+  "error_code": null,
+  "preparation_receipts": []
+}
