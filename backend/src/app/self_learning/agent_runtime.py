@@ -82,6 +82,14 @@ class LearningAgentRuntime:
                 continue
             try:
                 answer = AnswerResult.model_validate(strict_json(reply['content']))
+                if 'prepare_learning_material' in tools.registry and not packet.get('preparation_receipts'):
+                    if state.get('handoff_repair_used'):
+                        raise AgentFailure('PREPARATION_NOT_SUBMITTED')
+                    state.update(handoff_repair_used=True, repair_used=False)
+                    packet['messages'].append({'role':'assistant','content':reply['content']})
+                    packet['messages'].append({'role':'user','content':'本轮用户明确要求保存或修订资料，但本轮没有真实准备任务回执。历史回答不代表当前任务已执行。必须先调用 prepare_learning_material 并取得真实回执，不能声称已提交或已完成。'})
+                    self.repository.save(claim,state)
+                    continue
                 if answer.observation:
                     room=self.learning.room(claim['course_id'],claim['owner'])
                     chapter=next(c for c in room['chapters'] if c['id']==claim['topic_id'])

@@ -58,3 +58,42 @@ def test_supplement_delivery_keeps_old_exact_resource_and_advances_pointer(ready
     assert latest['nodes'][0]['resources'][0]==original['nodes'][0]['resources'][0]
     assert len(latest['nodes'][0]['resources'])==2
     assert delivery.read('alice',course,1)==original
+
+
+def test_two_local_deliveries_from_same_base_have_one_winner(ready):
+    import pytest
+    from threading import Barrier
+    from concurrent.futures import ThreadPoolExecutor
+    from app.course_preparation.adapters.targets import TargetStore
+    from app.course_preparation.artifact_store import ArtifactStore
+    from app.course_preparation.runtime_contracts import BudgetCost
+    from app.course_preparation.quality import check_digest,RULE_VERSION
+    from app.course_preparation.lifecycle_repository import RevisionConflict
+    repo,original_context,delivery=ready
+    if repo.engine.dialect.name!='postgresql':pytest.skip('PostgreSQL concurrent version commit')
+    course=delivery.commit(original_context).result_ref['course_id']
+    def candidate():
+        request=PreparationRequest(request_id=uuid4(),operation='supplement_node',goal='增加案例',target={'course_id':course,'base_manifest_version':1,'node_id':'tools'})
+        task=repo.submit('alice',request);context=repo.claim('race',preparation_id=task['preparation_id'])
+        cp=deepcopy(original_context.checkpoint);spec={**cp['artifacts'][0]['spec'],'required':False}
+        action=repo.begin_action(context,'supplement','generate_resource',spec,BudgetCost(calls=1))
+        store=ArtifactStore(repo);draft=store.create(context,action['action_id'],spec);child=store.claim('alice',draft['artifact_id'])
+        if child:store.save(child,cp['artifacts'][0]['content'])
+        cp['artifacts']=[store.get('alice',draft['artifact_id'],content=True)]
+        cp['target_snapshot']=TargetStore(repo.engine).read('alice',request.target)
+        cp['quality']={'decision':'pass','input_digest':check_digest(cp),'rule_version':RULE_VERSION}
+        cp['candidate_manifest']=candidate_manifest(context,cp,request).model_dump(mode='json');repo.checkpoint(context,cp)
+        for stage in ('research_scope','plan','research_nodes','produce','review','commit'):
+            context=repo.transition(context,stage,reason='NO_UPLOADS' if stage=='research_scope' else None)
+        return context
+    first,second=candidate(),candidate();barrier=Barrier(2)
+    def commit(context):
+        barrier.wait()
+        try:delivery.commit(context);return 'succeeded'
+        except RevisionConflict:return 'conflict'
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures=[pool.submit(commit,context) for context in (first,second)]
+        assert sorted(f.result() for f in futures)==['conflict','succeeded']
+    latest=delivery.read('alice',course)
+    assert latest['version']==2 and len(latest['nodes'][0]['resources'])==2
+    assert delivery.read('alice',course,1)['version']==1

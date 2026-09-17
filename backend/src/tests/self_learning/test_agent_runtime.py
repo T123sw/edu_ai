@@ -181,3 +181,16 @@ def test_async_runtime_retires_legacy_synchronous_answer(agent_service):
     with pytest.raises(HTTPException) as error:
         svc.answer('course','alice','a','解释工具',uuid4(),'doc')
     assert error.value.status_code==409
+
+
+def test_saved_work_without_actual_tool_receipt_cannot_claim_success(agent_service):
+    from types import SimpleNamespace
+    svc=agent_service
+    svc.prepared_courses=SimpleNamespace(lookup=lambda *_:None,manifest=lambda *_:None)
+    claim={'content':json.dumps({'answer_markdown':'已提交并完成资料修订','citation_ids':[]}), 'calls':[]}
+    model=Model([claim,claim])
+    turn=accept(svc,request('请修改这份报告并保存新版本'))
+    LearningAgentRuntime(svc,svc.turn_repository,lambda _:model).run_once()
+    result=svc.turns.get('alice',turn['turn_id'])
+    assert result['status']=='failed' and result['error_code']=='PREPARATION_NOT_SUBMITTED'
+    assert result['result'] is None and result['preparation_receipts']==[]

@@ -34,3 +34,33 @@ test('retry and refresh keep request identity; entry requires committed result',
   await expect(page.getByRole('link', { name: '进入学习' })).toHaveAttribute('href', '#/classroom/course-test');
   expect(page.url()).not.toContain('/classroom/');
 });
+
+
+for (const initial of ['running', 'failed']) {
+  test(`background ${initial} task remains controllable after refresh`, async ({ page }) => {
+    let status = initial; const controls: string[] = [];
+    const task = () => ({ preparation_id: 'control-task', status, stage: 'research_scope', revision: 4, error_code: status === 'failed' ? 'MODEL_UNAVAILABLE' : null, result_ref: null });
+    await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ token: 'test', user: { username: 'alice', role: 'student' } })));
+    await page.route('**/api/**', async route => {
+      const path = new URL(route.request().url()).pathname;
+      if (!path.startsWith('/api/')) return route.continue();
+      if (path.endsWith('/auth/verify')) return route.fulfill({ json: { valid: true, user: { username: 'alice', role: 'student' } } });
+      if (path.endsWith('/self-learning/state')) return route.fulfill({ json: { version: 1, rooms: [], resources: [], jobs: [], serverJobs: [], shared: [] } });
+      if (path === '/api/course-preparations') return route.fulfill({ json: { preparations: [task()] } });
+      if (/control-task\/(cancel|retry)$/.test(path)) {
+        const action = path.split('/').at(-1)!; controls.push(action);
+        if (action === 'cancel') expect(route.request().postDataJSON().expected_revision).toBe(4);
+        status = action === 'cancel' ? 'canceled' : 'running';
+        return route.fulfill({ json: task() });
+      }
+      return route.fulfill({ json: { items: [] } });
+    });
+    await page.goto('/'); await page.reload();
+    await page.getByRole('button', { name: initial === 'failed' ? '继续重试' : '取消任务' }).click();
+    await expect.poll(() => controls).toEqual([initial === 'failed' ? 'retry' : 'cancel']);
+    await page.reload();
+    await expect(page.getByRole('link', { name: '进入学习' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '取消任务' })).toHaveCount(initial === 'failed' ? 1 : 0);
+    expect(page.url()).not.toContain('/classroom/');
+  });
+}
