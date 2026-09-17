@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import type { ResourceRef } from './readingContext';
+import { loadCheck } from './checkLoader';
 type Check = { allow_submission?: boolean; check_id: string; item_type: string; prompt: { stem: string; options?: { id: string; text: string }[] } };
 type Attempt = { request_id: string; status: string; correct: boolean | null; feedback: string; answer: Record<string, unknown> };
 export function CheckCard({ resource, topicId, questionId, checkId }: { resource?: ResourceRef; topicId: string; questionId?: string; checkId?: string }) {
@@ -13,10 +14,13 @@ export function CheckCard({ resource, topicId, questionId, checkId }: { resource
   const key = JSON.stringify(resource);
   useEffect(() => {
     let active = true;
-    void (async () => {
+    const controller = new AbortController();
+    void loadCheck(async () => {
+      if (!active) return;
       try {
-        const value = checkId ? await apiRequest<Check>(`/api/self-learning/checks/${encodeURIComponent(checkId)}`) : await apiRequest<Check>(`/api/self-learning/courses/${encodeURIComponent(resource!.course_id)}/topics/${encodeURIComponent(topicId)}/checks`, { method: 'POST', body: JSON.stringify({ resource_ref: resource, question_id: questionId }) });
-        const saved = await apiRequest<{ attempts: Attempt[] }>(`/api/self-learning/checks/${value.check_id}/attempts`);
+        const value = checkId ? await apiRequest<Check>(`/api/self-learning/checks/${encodeURIComponent(checkId)}`, { signal: controller.signal }) : await apiRequest<Check>(`/api/self-learning/courses/${encodeURIComponent(resource!.course_id)}/topics/${encodeURIComponent(topicId)}/checks`, { method: 'POST', signal: controller.signal, body: JSON.stringify({ resource_ref: resource, question_id: questionId }) });
+        if (!active) return;
+        const saved = await apiRequest<{ attempts: Attempt[] }>(`/api/self-learning/checks/${value.check_id}/attempts`, { signal: controller.signal });
         if (active) {
           setCheck(value); const previous = saved.attempts.at(-1);
           const pending = JSON.parse(localStorage.getItem(`learning-check-pending:${value.check_id}`) || 'null');
@@ -25,8 +29,8 @@ export function CheckCard({ resource, topicId, questionId, checkId }: { resource
           setAnswer(pending ? JSON.parse(pending.fingerprint).answer : previous?.answer || {});
         }
       } catch (e) { if (active) setError(e instanceof Error ? e.message : '检查读取失败'); }
-    })();
-    return () => { active = false; };
+    });
+    return () => { active = false; controller.abort(); };
   // Resource identity is serialized so parent rerenders do not re-offer checks.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, topicId, questionId, checkId]);

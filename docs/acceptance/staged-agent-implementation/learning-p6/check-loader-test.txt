@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: large quiz loads at most three checks and a failure releases its slot
+ok 1 - large quiz loads at most three checks and a failure releases its slot
+  ---
+  duration_ms: 15.330305
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 666.22551

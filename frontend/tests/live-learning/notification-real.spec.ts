@@ -1,0 +1,32 @@
+import { test, expect } from 'playwright/test';
+import { readFileSync } from 'node:fs';
+const credentials = JSON.parse(readFileSync('../artifacts/full-application/credentials.json', 'utf8'));
+const room = JSON.parse(readFileSync('../artifacts/frozen-acceptance/interview-final-01/learning-room.json', 'utf8'));
+test('delayed real delivery notice preserves another topic and unsent question', async ({ page }, info) => {
+  let released = false; let deliveries = 0;
+  await page.route('**/api/self-learning/notifications', async route => {
+    const response = await route.fetch(); const body = await response.json();
+    const items = body.items.filter((n: any) => n.course_id === room.id);
+    expect(items).toHaveLength(1);
+    if (released) deliveries++;
+    await route.fulfill({ response, json: { items: released ? items : [] } });
+  });
+  await page.goto('/'); await page.getByLabel('账号', { exact: true }).fill(credentials.username);
+  await page.getByLabel('密码', { exact: true }).fill(credentials.password);
+  await page.getByRole('button', { name: /^登\s*录$/ }).click();
+  await expect(page.getByRole('heading', { name: '最近学习' })).toBeVisible();
+  const report = room.chapters[1].resources.find((r: any) => r.remote.materialType === 'report');
+  await page.goto(`/#/classroom/${room.id}?resource=${report.id}`);
+  const log = page.getByRole('log', { name: '当前知识点对话记录' });
+  await expect(log).toHaveAttribute('data-session-id', /learning-/);
+  const session = await log.getAttribute('data-session-id'); const url = page.url();
+  const input = page.getByRole('textbox', { name: '向学习 Agent 提问' });
+  await input.fill('我正在整理工具失败恢复的问题，先保留输入。'); released = true;
+  await expect.poll(() => deliveries, { timeout: 20000 }).toBeGreaterThanOrEqual(2);
+  expect(page.url()).toBe(url); await expect(log).toHaveAttribute('data-session-id', session!);
+  await expect(input).toHaveValue('我正在整理工具失败恢复的问题，先保留输入。');
+  await page.getByRole('button', { name: '课程更新通知', exact: true }).click();
+  await expect(page.getByRole('button', { name: '打开新版本', exact: true })).toHaveCount(1);
+  expect(page.url()).toBe(url);
+  await page.screenshot({ path: info.outputPath('noninterrupting-real-notice.png') });
+});
