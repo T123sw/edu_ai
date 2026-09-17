@@ -223,3 +223,23 @@ def test_deferred_save_can_answer_without_preparation_receipt(agent_service):
     result=svc.turns.get('alice',turn['turn_id'])
     assert result['status']=='succeeded' and result['preparation_receipts']==[]
     assert result['result']['model_rounds']==1 and result['result']['tool_attempts']==0
+
+
+def test_topic_poll_revalidates_unique_sources_without_reloading_turns(agent_service,monkeypatch):
+    svc=agent_service
+    for _ in range(3):
+        accept(svc)
+        LearningAgentRuntime(svc,svc.turn_repository,lambda _:Model()).run_once()
+    original=ContextBuilder.authorize; calls=[]
+    def authorize(self,*args):
+        calls.append(args[-1]['resource_ref'])
+        return original(self,*args)
+    monkeypatch.setattr(ContextBuilder,'authorize',authorize)
+    monkeypatch.setattr(svc.turn_repository,'get',lambda *_:pytest.fail('poll must use scoped rows already loaded'))
+    assert len(svc.turns.list_topic('alice','course','a'))==3
+    assert len(calls)==1
+    svc.turns.list_topic('alice','course','a')
+    assert len(calls)==2  # no authorization cache across requests
+    def revoked(*_):raise HTTPException(404,'source revoked')
+    monkeypatch.setattr(ContextBuilder,'authorize',revoked)
+    with pytest.raises(HTTPException):svc.turns.list_topic('alice','course','a')

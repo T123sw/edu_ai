@@ -1,4 +1,5 @@
 import os
+import json
 from fastapi import HTTPException
 from .context_builder import ContextBuilder
 from .repository import SessionConflict, SessionMissing
@@ -44,7 +45,20 @@ class TurnService:
 
     def list_topic(self, owner, course, topic):
         session = self.learning.sessions.enter(owner, course, topic)
-        return [self.get(owner, t['turn_id']) for t in self.repository.list_topic(owner, session['session_id'])]
+        turns = self.repository.list_topic(owner, session['session_id'])
+        # The scoped repository already loaded these turns. Re-reading each
+        # row and whole course made polling grow with conversation length.
+        # Revalidate each distinct source version once per request, never cache
+        # authorization across requests or substitute a current version.
+        builder = ContextBuilder(self.learning)
+        authorized = set()
+        for turn in turns:
+            ref = turn['request']['reading_context']['resource_ref']
+            key = json.dumps([turn['course_id'], turn['topic_id'], ref], sort_keys=True)
+            if key not in authorized:
+                builder.authorize(owner,turn['course_id'],turn['topic_id'],turn['request']['reading_context'])
+                authorized.add(key)
+        return [self.public(turn) for turn in turns]
 
     def control(self, owner, tid, operation):
         self.get(owner, tid)
