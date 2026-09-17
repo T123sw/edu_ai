@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from app.database.models import User, Course, CourseMembership, PreparedCoursePointer, PreparedManifestVersion
 from app.course_preparation.delivery import DeliveryService
 from app.persistence.postgres_material_repository import PostgresMaterialRepository
+from app.course_preparation.publication import PreparedPublication
 
 
 class PreparedCourses:
@@ -25,7 +26,7 @@ class PreparedCourses:
         with Session(self.engine) as session:
             user = self.identity(session, username)
             pointer = session.get(PreparedCoursePointer, (user.user_id, course_id))
-            if pointer is None:
+            if pointer is None and PreparedPublication.current(session,course_id) is None:
                 return None
             member = session.get(CourseMembership, (course_id, user.user_id))
             course = session.get(Course, course_id)
@@ -38,16 +39,26 @@ class PreparedCourses:
     def list(self, username):
         with Session(self.engine) as session:
             user = self.identity(session, username)
-            return list(session.scalars(select(PreparedCoursePointer.course_id).join(CourseMembership,
+            private = list(session.scalars(select(PreparedCoursePointer.course_id).join(CourseMembership,
                 (CourseMembership.course_id == PreparedCoursePointer.course_id) &
                 (CourseMembership.user_id == PreparedCoursePointer.owner_user_id)).where(
                 PreparedCoursePointer.owner_user_id == user.user_id)))
+            shared=[course for course in session.scalars(select(CourseMembership.course_id).where(CourseMembership.user_id==user.user_id)) if PreparedPublication.current(session,course)]
+            return sorted(set(private+shared))
 
     def manifest(self, username, course_id, ref=None):
         if self.lookup(username, course_id) is None:
             return None
         with Session(self.engine) as session:
             owner = self.identity(session, username).user_id
+            if ref and ref.manifest_id.startswith('published_'):
+                public=PreparedPublication.current(session,course_id,ref.version)
+                if public is None or public.payload['manifest_id']!=ref.manifest_id:raise HTTPException(409,'共享课程版本不可访问')
+                return public.payload
+            if session.get(PreparedCoursePointer,(owner,course_id)) is None:
+                public=PreparedPublication.current(session,course_id,ref.version if ref else None)
+                if public is None or (ref and public.payload['manifest_id']!=ref.manifest_id):raise HTTPException(409,'共享课程版本不可访问')
+                return public.payload
         try:
             value = self.delivery.read(owner, course_id, ref.version if ref else None)
         except (PermissionError, LookupError) as exc:
@@ -60,7 +71,7 @@ class PreparedCourses:
         if self.lookup(username, course_id) is None:
             raise HTTPException(404, '课堂不存在或无权访问')
         value = self.materials.get_version(course_id, kind, material_id, version) if version else self.materials.get(course_id, kind, material_id)
-        if not value or value.get('owner_user_id') != username:
+        if not value or (value.get('owner_user_id') != username and value.get('visibility')!='course'):
             raise HTTPException(404, '资料不存在或无权访问')
         return value
 
@@ -78,6 +89,12 @@ class PreparedCourses:
                 node=next((n for n in row.payload['nodes'] if n['node_id']==topic_id),None)
                 if node and (ref is None or any(r['resource_id']==ref.material_id and r['resource_type']==ref.material_type and r['version']==ref.version for r in node['resources'])):
                     return node
+            from app.course_preparation.publication_models import PublishedPreparationManifest
+            if PreparedPublication.current(session,course_id):
+                for row in session.scalars(select(PublishedPreparationManifest).where(PublishedPreparationManifest.course_id==course_id).order_by(PublishedPreparationManifest.version.desc())):
+                    if digest(row.payload)!=row.content_digest:raise HTTPException(409,'历史共享版本校验失败')
+                    node=next((n for n in row.payload['nodes'] if n['node_id']==topic_id),None)
+                    if node and (ref is None or any(r['resource_id']==ref.material_id and r['resource_type']==ref.material_type and r['version']==ref.version for r in node['resources'])):return node
         return None
 
 

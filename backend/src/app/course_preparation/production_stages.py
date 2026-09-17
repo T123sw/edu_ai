@@ -30,7 +30,19 @@ class ProductionStages:
                 kinds = list(request.overrides.required_resource_types) or ['report']
                 if request.operation=='revise_resource': kinds=[target['resource']['resource_type']]
             specifications=[]
+            retained=[]
+            original_nodes={n['node_id']:n for n in target['manifest']['nodes']} if target else {}
+            command='\n'.join([request.goal,*request.requested_changes])
+            preserve_resources=any(text in command for text in ('保留原资料','保留现有资料','保留所有资料','保留已有资料','不修改资料','不重新生成资料'))
+            if request.operation=='adjust_course' and preserve_resources:
+                planned={n['node_key']:n for n in checkpoint['plan']['nodes']}
+                if set(planned)!=set(original_nodes) or any(planned[key]['objectives']!=[o['text'] for o in node['objectives']] for key,node in original_nodes.items()):
+                    raise ResearchError('TARGET_SCOPE_CHANGED','本次要求保留原资料，路径调整不能增删节点或改变其学习目标')
             for node in checkpoint['plan']['nodes']:
+                original=original_nodes.get(node['node_key'])
+                if request.operation=='adjust_course' and original and node['objectives']==[o['text'] for o in original['objectives']]:
+                    retained.append(node['node_key'])
+                    continue
                 for kind in kinds:
                     spec=ResourceSpec(node_id=node['node_key'],title=node['title'],resource_type=kind,
                         objectives=node['objectives'],objective_ids=([o['objective_id'] for o in target['node']['objectives']] if request.operation in ('supplement_node','revise_resource') else [node['node_key']+':o'+str(i+1) for i in range(len(node['objectives']))]),
@@ -45,6 +57,7 @@ class ProductionStages:
                         source_resource_ref=({'course_id':request.target.course_id,**target['resource']} if request.operation=='revise_resource' else None))
                     specifications.append(spec.model_dump(mode='json'))
             checkpoint['resource_specs']=specifications
+            checkpoint['retained_node_ids']=retained
         valid_keys={digest(s) for s in specifications}
         receipts={k:v for k,v in checkpoint.get('generation_receipts',{}).items() if k in valid_keys}
         results={k:v for k,v in checkpoint.get('artifact_results',{}).items() if k in valid_keys}

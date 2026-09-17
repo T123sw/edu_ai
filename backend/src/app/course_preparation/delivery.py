@@ -25,6 +25,9 @@ class DeliveryService:
             MemoryLifecycle.validate_refs_in_session(session,checkpoint['memory_subject'],checkpoint['memory_refs'])
             prep,attempt,run,budget=self.repository._locked(session,context)
             checkpoint=run.checkpoint
+            from .retained_resources import read_retained
+            if checkpoint.get('retained_node_ids') and read_retained(self.repository,context,checkpoint)!=checkpoint.get('retained_artifacts'):
+                raise ValueError('RETAINED_RESOURCE_CHANGED_BEFORE_DELIVERY')
             quality=checkpoint.get('quality',{})
             if (attempt.stage!='commit' or quality.get('decision')!='pass' or quality.get('rule_version')!=RULE_VERSION
                     or quality.get('input_digest')!=check_digest(checkpoint)):
@@ -68,6 +71,8 @@ class DeliveryService:
                     MaterialVersion.material_type==resource.resource_type,MaterialVersion.material_id==key,MaterialVersion.version==resource.version))
                 if stored is None or stored.payload.get('content_hash')!=resource.content_sha256:
                     raise ValueError('RETAINED_RESOURCE_UNAVAILABLE')
+                if stored.payload.get('owner_user_id')!=actor.username and stored.payload.get('visibility')!='course':
+                    raise PermissionError('RETAINED_RESOURCE_NOT_READABLE')
             course=session.get(Course,manifest.course_id)
             now=self.repository.clock()
             if course is None:

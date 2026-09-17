@@ -17,7 +17,7 @@ def ready(generation):
     repo,ctx,adapter=generation
     Base.metadata.create_all(repo.engine,tables=[Base.metadata.tables[n] for n in (
         'courses','course_memberships','materials','material_versions','artifact_files',
-        'prepared_manifest_versions','prepared_course_pointers','preparation_delivery_events')])
+        'prepared_manifest_versions','prepared_course_pointers','preparation_delivery_events','published_preparation_manifests','published_preparation_pointers')])
     _,receipt=submit(generation); child=adapter.artifacts.claim('alice',receipt['artifact_id'])
     body='## 概念与机制\n工具由服务端执行。\n## 案例与面试表达\n举例。\n## 学习检查\n解释工具执行的职责。'
     artifact={'artifact_type':'report','title':'工具调用','content':body,'generation_state':{'report_review':{'decision':'pass'}}}

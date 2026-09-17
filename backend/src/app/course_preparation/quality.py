@@ -31,6 +31,7 @@ class CourseReview(Contract):
 def check_digest(checkpoint):
     return digest({'rules':RULE_VERSION,'brief':checkpoint['brief'],'plan':checkpoint['plan'],
         'target_snapshot':checkpoint.get('target_snapshot'),'evidence':checkpoint['node_evidence'],'memory_refs':checkpoint.get('memory_refs',{}),
+        'retained_artifacts':[(r['artifact_id'],r['content_digest']) for r in checkpoint.get('retained_artifacts',[])],
         'artifacts':[(r['artifact_id'],r['spec_digest'],r['content_digest'],r['status']) for r in checkpoint['artifacts']]})
 
 
@@ -65,6 +66,11 @@ def candidate_manifest(context,checkpoint,request):
     version=request.target.base_manifest_version+1 if request.target else 1
     nodes=[]
     for i,node in enumerate(checkpoint['plan']['nodes']):
+        if node['node_key'] in checkpoint.get('retained_node_ids',[]):
+            retained=deepcopy(next(n for n in checkpoint['target_snapshot']['manifest']['nodes'] if n['node_id']==node['node_key']))
+            retained.update(title=node['title'],order=i+1,estimated_minutes=node['minutes'],prerequisite_node_ids=node['prerequisite_keys'])
+            nodes.append(retained)
+            continue
         objectives=[{'objective_id':node['node_key']+':o'+str(j+1),'text':text} for j,text in enumerate(node['objectives'])]
         artifacts=[r for r in checkpoint['artifacts'] if r['spec']['node_id']==node['node_key'] and r['status']=='draft']
         resources=[]; checks=[]
@@ -81,7 +87,7 @@ def candidate_manifest(context,checkpoint,request):
             'prerequisite_node_ids':node['prerequisite_keys'],'estimated_minutes':node['minutes'],'resources':resources,'checks':checks})
     return CourseManifest(manifest_id='manifest_'+digest([context.owner_user_id,course_id])[:32],course_id=course_id,
         version=version,route_version=(request.target.base_route_version+1 if request.target and request.target.base_route_version else version),
-        goal=request.goal,audience=checkpoint['brief']['audience'],estimated_minutes=sum(n['estimated_minutes'] for n in nodes),
+        goal=checkpoint['target_snapshot']['manifest']['goal'] if request.operation=='adjust_course' else request.goal,audience=checkpoint['brief']['audience'],estimated_minutes=sum(n['estimated_minutes'] for n in nodes),
         assumptions=checkpoint['brief'].get('assumptions',[]),nodes=nodes,quality_report_id='quality_'+check_digest(checkpoint),
         limitations=checkpoint.get('quality',{}).get('limitations',[]),created_by_preparation_id=context.preparation_id)
 
@@ -97,6 +103,9 @@ class QualityStages:
         request=self.repository.get(owner_user_id=context.owner_user_id,preparation_id=context.preparation_id).request
         artifacts=[self.generation.read_result(context.owner_user_id,checkpoint['generation_receipts'][digest(spec)]) for spec in checkpoint['resource_specs']]
         checkpoint['artifacts']=artifacts
+        from .retained_resources import read_retained
+        checkpoint['retained_artifacts']=read_retained(self.repository,context,checkpoint)
+        artifacts=[*artifacts,*checkpoint['retained_artifacts']]
         failed=[r for r in artifacts if r['status']!='draft']
         if failed:
             checkpoint['quality']={'decision':'fail','issues':[{'artifact_ids':[r['artifact_id']], 'reason':r.get('error_code') or 'RESOURCE_NOT_READY'} for r in failed]}
@@ -150,6 +159,8 @@ class QualityStages:
         affected={key:[] for issue in checkpoint['quality']['issues'] for key in issue['artifact_ids']}
         for issue in checkpoint['quality']['issues']:
             for key in issue['artifact_ids']: affected[key].append(issue['reason'])
+        if any(key.startswith('retained:') for key in affected):
+            raise ResearchError('RETAINED_CONTENT_REQUIRES_SEPARATE_REVISION','保留资料的内容检查未通过，需要明确修订该资料；不擅自重生成原资料')
         by_spec={r['spec_digest']:r for r in checkpoint['artifacts']}
         specifications=[]
         for spec in checkpoint['resource_specs']:

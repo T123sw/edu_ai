@@ -114,3 +114,4 @@ __all__ = [
 
 # Preparation runtime tables participate in migration metadata without loading services.
 from .models import PreparationExecution, PreparationBudget, PreparationAction
+from app.course_preparation.publication_models import PublishedPreparationManifest, PublishedPreparationPointer

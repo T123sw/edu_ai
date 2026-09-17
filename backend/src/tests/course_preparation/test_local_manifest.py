@@ -97,3 +97,44 @@ def test_two_local_deliveries_from_same_base_have_one_winner(ready):
     latest=delivery.read('alice',course)
     assert latest['version']==2 and len(latest['nodes'][0]['resources'])==2
     assert delivery.read('alice',course,1)['version']==1
+
+
+def test_route_only_adjustment_keeps_exact_resources_and_goal(ready):
+    repo,context,delivery=ready
+    course=delivery.commit(context).result_ref['course_id'];base=delivery.read('alice',course)
+    cp=deepcopy(context.checkpoint);old=base['nodes'][0]
+    cp['target_snapshot']={'manifest':base,'node':None,'resource':None,'source_owner':'alice'}
+    cp['plan']['nodes'][0].update(minutes=20,title='面试重点：工具调用')
+    cp['retained_node_ids']=[old['node_id']];cp['artifacts']=[]
+    request=PreparationRequest(request_id=uuid4(),operation='adjust_course',goal='调整时间并保留原资料',requested_changes=['调整工具调用学习时长到20分钟'],target={'course_id':course,'base_manifest_version':1,'base_route_version':1})
+    value=candidate_manifest(SimpleNamespace(owner_user_id='alice',preparation_id='route-only'),cp,request).model_dump(mode='json')
+    assert value['nodes'][0]['resources']==old['resources'] and value['nodes'][0]['checks']==old['checks']
+    assert value['goal']==base['goal'] and value['route_version']==2 and value['nodes'][0]['estimated_minutes']==20
+
+
+def test_route_only_production_submits_no_generation_jobs(ready):
+    from app.course_preparation.production_stages import ProductionStages
+    from app.course_preparation.adapters.targets import TargetStore
+    repo,original,delivery=ready;course=delivery.commit(original).result_ref['course_id']
+    request=PreparationRequest(request_id=uuid4(),operation='adjust_course',goal='调整时间',requested_changes=['时长改为20分钟'],target={'course_id':course,'base_manifest_version':1,'base_route_version':1})
+    task=repo.submit('alice',request);context=repo.claim('route-only',preparation_id=task['preparation_id'])
+    cp=deepcopy(original.checkpoint);cp['plan']['nodes'][0]['minutes']=20;cp['target_snapshot']=TargetStore(repo.engine).read('alice',request.target)
+    context=context.model_copy(update={'checkpoint':cp})
+    generation=SimpleNamespace()
+    result=ProductionStages(repo,generation,SimpleNamespace(validate=lambda *_:None)).produce(context)
+    assert result.next_stage=='review' and result.checkpoint['resource_specs']==[] and result.checkpoint['artifacts']==[]
+    assert result.checkpoint['retained_node_ids']==['tools']
+
+
+def test_preserving_resources_rejects_expanded_route(ready):
+    import pytest
+    from app.course_preparation.production_stages import ProductionStages
+    from app.course_preparation.adapters.targets import TargetStore
+    from app.course_preparation.research_agent import ResearchError
+    repo,original,delivery=ready;course=delivery.commit(original).result_ref['course_id']
+    request=PreparationRequest(request_id=uuid4(),operation='adjust_course',goal='调整时间，保留原资料',requested_changes=['时长改为20分钟'],target={'course_id':course,'base_manifest_version':1,'base_route_version':1})
+    task=repo.submit('alice',request);context=repo.claim('route-only',preparation_id=task['preparation_id'])
+    cp=deepcopy(original.checkpoint);cp['plan']['nodes'][0]['objectives']=['未经要求的新目标'];cp['target_snapshot']=TargetStore(repo.engine).read('alice',request.target)
+    context=context.model_copy(update={'checkpoint':cp})
+    with pytest.raises(ResearchError,match='保留原资料'):
+        ProductionStages(repo,SimpleNamespace(),SimpleNamespace(validate=lambda *_:None)).produce(context)

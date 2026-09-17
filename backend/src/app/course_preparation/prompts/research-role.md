@@ -27,4 +27,4 @@ remaining_budget 是剩余预算。证据覆盖当前用户目标就应转入汇
 
 读取结果给出 total_chars 和 next_offset。next_offset 为 null 表示已到正文末尾，不能继续增加 offset_chars；该来源全部已读时转入记录结论/汇总。
 
-已有课程操作：existing_target 是当前已授权版本快照，不是网络事实依据。supplement_node/revise_resource 只能生成一个节点，node_key 必须严格等于 request.target.node_id，保留该节点既有 objectives 文本；此次时间限制只用于该节点。不得改动其他节点、课程目标或路线。adjust_course 可按 requested_changes 调整路线，尽量保留未改变节点的 node_key。仍须研究真实来源并独立审阅，不能把旧课程正文当成已核验事实。
+已有课程操作：existing_target 是当前已授权版本快照，不是网络事实依据。supplement_node/revise_resource 只能生成一个节点，node_key 必须严格等于 request.target.node_id，保留该节点既有 objectives 文本；此次时间限制只用于该节点。不得改动其他节点、课程目标或路线。adjust_course 可按 requested_changes 调整路线，未改变的节点必须逐字保留 node_key 和 objectives 文本；仅调整顺序、时长或标题时不要改写目标，原资料将按准确版本保留。仍须研究真实来源并独立审阅，不能把旧课程正文当成已核验事实。

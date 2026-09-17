@@ -21,10 +21,15 @@ class TargetStore:
         pointer=session.get(PreparedCoursePointer,(owner,target.course_id))
         row=session.get(PreparedManifestVersion,(owner,target.course_id,pointer.version)) if pointer else None
         if row is None:
+            from ..publication import PreparedPublication
+            row=PreparedPublication.current(session,target.course_id)
+        if row is None:
             # Only explicitly course-scoped committed manifests may seed a personal overlay.
             rows=session.scalars(select(PreparedManifestVersion).where(PreparedManifestVersion.course_id==target.course_id,
                 PreparedManifestVersion.version==target.base_manifest_version)).all()
-            row=next((r for r in rows if r.payload.get('space')=='course'),None)
+            public=[r for r in rows if r.payload.get('space')=='course']
+            if len(public)>1:raise PermissionError('AMBIGUOUS_PUBLIC_MANIFEST')
+            row=public[0] if public else None
         if row is None: raise PermissionError('TARGET_MANIFEST_UNAVAILABLE')
         if row.version!=target.base_manifest_version: raise RevisionConflict('MANIFEST_BASE_CHANGED')
         if digest(row.payload)!=row.content_digest: raise ValueError('TARGET_MANIFEST_CORRUPTED')

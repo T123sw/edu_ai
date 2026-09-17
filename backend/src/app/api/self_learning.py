@@ -142,6 +142,12 @@ def publish(course_id: str, user=Depends(get_current_user), svc=Depends(service)
     _, membership = svc.require(course_id, user['username'])
     if user['role'] not in {'teacher', 'admin'} or membership.role != 'owner':
         raise HTTPException(403, '仅课堂所有者教师可以共享课堂')
+    if svc.prepared_courses and svc.prepared_courses.lookup(user['username'],course_id):
+        from app.course_preparation.publication import PreparedPublication
+        try: manifest=PreparedPublication(svc.prepared_courses.engine).publish(user['username'],course_id)
+        except PermissionError as exc:raise HTTPException(403,'当前课程不可发布') from exc
+        svc.store.put('__published__',course_id,{'published':True,'course_id':course_id})
+        return {'published':True,'manifest_version':manifest['version']}
     owned = svc.manager.list_generated_materials(course_id, owner_user_id=user['username'], space='mine', aggregate=True)
     originals = [m for m in owned if m.get('learning_course_resource') and m.get('visibility') == 'private']
     shared = svc.manager.list_generated_materials(course_id, owner_user_id=user['username'], space='course', aggregate=True)
@@ -156,6 +162,20 @@ def publish(course_id: str, user=Depends(get_current_user), svc=Depends(service)
 def join(course_id: str, user=Depends(get_current_user), svc=Depends(service)):
     if not svc.store.get('__published__', course_id).get('published') or not svc.manager.get_course_info(course_id):
         raise HTTPException(404, '共享课堂不存在')
+    if svc.prepared_courses:
+        from sqlalchemy.orm import Session
+        from app.course_preparation.publication import PreparedPublication
+        from app.database.models import CourseMembership
+        with Session(svc.prepared_courses.engine) as db,db.begin():
+            if PreparedPublication.current(db,course_id):
+                actor=svc.prepared_courses.identity(db,user['username'])
+                if db.get(CourseMembership,(course_id,actor.user_id)) is None:
+                    db.add(CourseMembership(course_id=course_id,user_id=actor.user_id,role='viewer'))
+                db.flush()
+                # Resolve the room after membership commit, using the immutable identity.
+                prepared=True
+            else:prepared=False
+        if prepared:return svc.room(course_id,user['username'])
     if not svc.memberships.get(course_id, user['username']):
         svc.memberships.upsert(course_id, user['username'], 'viewer', added_by=user['username'])
     svc.patch(course_id, user['username'], {})
