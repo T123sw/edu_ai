@@ -25,7 +25,7 @@
 
 ## 1. 阶段与依赖
 
-进入 P1 前阅读[Agent 运行、工具与记忆设计 V1](../../architecture/2026-09-17-learning-agent-runtime-design-cn.md)。运行设计已补齐；P0—P3 已分阶段实现并隔离验证，P4—P6 继续按下列任务执行。
+进入 P1 前阅读[Agent 运行、工具与记忆设计 V1](../../architecture/2026-09-17-learning-agent-runtime-design-cn.md)。运行设计已补齐；P0—P4 已分阶段实现并隔离验证，P5—P6 继续按下列任务执行。
 
 | 阶段 | 交付 | 依赖 | 当前状态 |
 | --- | --- | --- | --- |
@@ -33,7 +33,7 @@
 | P1 | 持久化知识点会话、一次导学、完整消息历史 | P0 | 已完成隔离验收；业务环境未启用 |
 | P2 | 阅读、完成、自评分离；不聊天完整学习路径 | P1 | 已完成隔离验收；业务环境未启用 |
 | P3 | 版本化阅读定位、异步答疑、受限工具运行 | P1/P2 | 已完成隔离验收与三个真实模型问题；业务环境未启用 |
-| P4 | 检查与目标证据、可管理偏好及摘要 | P3 | 待实施 |
+| P4 | 检查与目标证据、可管理偏好及摘要 | P3 | 已完成隔离验收；默认关闭 |
 | P5 | 准备 Agent 任务交接、通知、版本连续性 | P3/P4；准备侧真实提交接口 | 待实施 |
 | P6 | 旧数据迁移、真实模型与并发验收、分范围切换 | P0—P5 | 待实施 |
 
@@ -293,9 +293,9 @@ def test_late_worker_cannot_commit(turn_repo, claimed_turn):
 
 **Interfaces:** `CheckService.offer/submit`；`CheckView` 不包含答案，`AttemptView` 包含已保存的作答状态、评价方式、反馈与证据引用。
 
-- [ ] 写检查跳过无证据、答错不锁导航、重复提交只一个 attempt、题目版本变化、模型评价失败保留答案、无效选项拒绝的测试。
-- [ ] 执行 `python -m pytest tests/self_learning/test_checks.py -q` 验证失败。
-- [ ] 优先复用题库快照与作答；即时题单独保存。确定性客观批改按 option ID 比较，不用字符正则猜选项。
+- [x] 写检查跳过无证据、答错不锁导航、重复提交只一个 attempt、题目版本变化、模型评价失败保留答案、无效选项拒绝的测试。
+- [x] 执行 `python -m pytest tests/self_learning/test_checks.py -q` 验证失败。
+- [x] 优先复用题库快照与作答；即时题单独保存。确定性客观批改按 option ID 比较，不用字符正则猜选项。
 
 ```python
 def test_invalid_option_is_not_graded(checks, alice, check):
@@ -304,24 +304,24 @@ def test_invalid_option_is_not_graded(checks, alice, check):
                       {'request_id': 'attempt-1', 'option_ids': ['outside']})
 ```
 
-- [ ] 验证刷新可恢复原 attempt、前端不显示未持久化的已验证状态；P0 证据规则回归通过。
+- [x] 验证刷新可恢复原 attempt、前端不显示未持久化的已验证状态；P0 证据规则回归通过。
 
 ### Task 4.2：偏好生命周期与摘要失效
 
 **记忆决策补充：** 复用存储与审计，但不在学习回复结束时直接调用旧 `persist_turn` 激活抽取结果；新增显式scope处理、memory_epoch、来源抑制与依赖传播，遵循运行设计第6—8节。
 
-- [ ] 挂载 `read_learning_preferences` / `update_learning_preference`；校验当前原话、长期意图和作用域。教学 observation 在回答后校验保存，不注册独立写观察工具。
-- [ ] 新增 `test_memory_lifecycle.py` 覆盖删除时索引尚未清理、旧消息再次检索、旧后台摘要完成、回答正在生成四个并发情形，保证失效偏好不被重新注入。
-- [ ] 实现中文词项检索与稳定排序；上下文按实际tokenizer或保守字节上界计数，验证不会按中文字符数除4低估预算。
-- [ ] 新增 `test_summary_service.py` 验证无工具摘要、来源检查、CAS更新、保留近期完整轮次与全部原始历史；将真实模型教学质量评测纳入P6。
+- [x] 挂载 `read_learning_preferences` / `update_learning_preference`；校验当前原话、长期意图和作用域。教学 observation 在回答后校验保存，不注册独立写观察工具。
+- [x] 新增 `test_memory_lifecycle.py` 覆盖删除时索引尚未清理、旧消息再次检索、旧后台摘要完成、回答正在生成四个并发情形，保证失效偏好不被重新注入。
+- [x] 实现中文词项检索与稳定排序；上下文按实际tokenizer或保守字节上界计数，验证不会按中文字符数除4低估预算。
+- [x] 新增 `test_summary_service.py` 验证无工具摘要、来源检查、CAS更新、保留近期完整轮次与全部原始历史；将真实模型教学质量评测纳入P6。
 
 **Files:** 新增 `memory_adapter.py`、`tests/self_learning/test_memory_adapter.py`、`test_summary_invalidation.py`；适配 `app/chat/memory/service.py` 及已有管理 API；修改个人中心实际入口；新增 `frontend/tests/live-learning/learning-preferences.spec.ts`。
 
 **Interfaces:** `MemoryAdapter.read(...) -> MemoryContext`、`update_preference(actor, preference_id, value, expected_revision)`、`delete_preference(actor, preference_id, expected_revision)`；摘要以来源修订 CAS 更新。
 
-- [ ] 写当前要求覆盖偏好、一次性要求不自动持久化、跨用户隔离、删除传播到缓存/摘要/索引、旧后台摘要完成不能复活偏好用例。
-- [ ] 执行 `python -m pytest tests/self_learning/test_memory_adapter.py tests/self_learning/test_summary_invalidation.py -q` 确认失败。
-- [ ] 复用已有记忆服务并补齐来源失效检查，前端提供查看、更正和删除；长对话摘要不截掉原文。
+- [x] 写当前要求覆盖偏好、一次性要求不自动持久化、跨用户隔离、删除传播到缓存/摘要/索引、旧后台摘要完成不能复活偏好用例。
+- [x] 记忆/摘要新增测试先观察到缺模块失败后实现；实际集中在 `test_memory_lifecycle.py`、`test_summary_service.py`，未重复建立建议文件名。
+- [x] 复用已有记忆服务并补齐来源失效检查，前端提供查看、更正和删除；长对话摘要不截掉原文。
 
 ```python
 def test_deleted_preference_never_reappears(memory, alice, existing_preference):
@@ -331,7 +331,9 @@ def test_deleted_preference_never_reappears(memory, alice, existing_preference):
     assert existing_preference.value not in context.summary
 ```
 
-- [ ] 已有 memory 相关回归及新 E2E 通过；验证两次摘要更新乱序不覆盖新结果，更新 P4 验收。
+- [x] 已有 memory 相关回归及新 E2E 通过；验证两次摘要更新乱序不覆盖新结果，更新 P4 验收。
+
+实施落点与实际数量见[P4验收](../../acceptance/2026-09-17-learning-agent-p4-cn.md)。新迁移 `0027`，复用共享记忆表；启用默认关闭，所有失败/修复/通过日志保留。
 
 ## P5：准备任务交接和版本连续性
 

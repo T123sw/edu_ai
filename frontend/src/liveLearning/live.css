@@ -18,3 +18,8 @@
 @media (max-width: 760px) {
   .sl-live .sl-versioned-progress .sl-reading-fact { flex-basis: 100%; order: -1; }
 }
+.sl-check-card, .sl-preferences { padding: 14px; border: 1px solid #dce3ee; border-radius: 12px; background: white; margin: 10px 0; }
+.sl-check-card label, .sl-check-card small, .sl-preferences label { display: block; margin: 8px 0; }
+.sl-check-card button, .sl-preferences button { padding: 8px 10px; margin: 5px; border-radius: 8px; border: 1px solid #ccd5e4; }
+.sl-preferences input, .sl-preferences select { max-width: 100%; padding: 6px; }
+.sl-chat-bottom details[open] { max-height: 50vh; overflow: auto; }

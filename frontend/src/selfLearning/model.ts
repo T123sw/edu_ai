@@ -63,6 +63,7 @@ export type Classroom = {
   understanding?: Record<string, "review" | "understood">;
   live?: boolean;
   agentRuntime?: boolean;
+  enrichmentEnabled?: boolean;
   progressPersistence?: boolean;
   progressOwner?: string;
   learningProjection?: Projection;

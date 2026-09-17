@@ -111,12 +111,29 @@ class TurnRepository(SessionRepository):
 
     def finish(self, claim, result=None, error=None):
         with self._write('learning-answer-queue') as db:
+            if result and 'memory_epoch' in result:
+                # Serialize final publication with deletion, not only the last
+                # model-context read; deletion may race completion by milliseconds.
+                if self.engine.dialect.name == 'postgresql':
+                    import hashlib
+                    from sqlalchemy import text
+                    key = int.from_bytes(hashlib.sha256(('learning-memory:' + claim['owner']).encode()).digest()[:8], signed=True)
+                    db.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': key})
+                from .enrichment_models import LearningMemoryEpoch
+                from .turn_contracts import AgentFailure
+                epoch = db.get(LearningMemoryEpoch, claim['owner'])
+                if (epoch.epoch if epoch else 0) != result['memory_epoch']:
+                    raise AgentFailure('MEMORY_CONTEXT_CHANGED')
             row = self._fenced(db, claim)
             row.result, row.error_code = result, error
             row.status = row.stage = 'failed' if error else 'succeeded'
             db.add(LearningAgentOutbox(event_id=row.turn_id + ':' + str(row.attempt), turn_id=row.turn_id, owner=row.owner,
                 payload={'status': row.status, 'session_id': row.session_id, 'topic_id': row.topic_id, 'attempt': row.attempt}))
             if result:
+                if result.get('observation'):
+                    from .enrichment_models import LearningObservation
+                    db.add(LearningObservation(turn_id=row.turn_id, owner=row.owner, course_id=row.course_id,
+                        topic_id=row.topic_id, payload={**result['observation'], 'evaluator': 'model', 'status': 'hypothesis'}, status='hypothesis'))
                 session = self._owned(db, row.owner, row.session_id)
                 db.refresh(session, with_for_update=True)
                 self._append(db, session, row.turn_id + ':assistant', 'assistant', result['answer_markdown'], 'assistant_content',

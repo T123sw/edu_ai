@@ -71,13 +71,22 @@ def update_my_profile_fact(
     payload: ProfileFactUpdateRequest,
     current_user: dict = Depends(get_current_user),
 ):
+    import os
+    if os.getenv('LEARNING_ENRICHMENT_V1_ENABLED', '').lower() in {'1', 'true'}:
+        from app.self_learning.memory_adapter import FIELDS
+        if profile_axis in FIELDS.values():
+            raise HTTPException(status_code=409, detail='请使用个人中心的学习偏好入口，保留作用域和修订检查')
     service = _service()
-    memory = service.confirm_profile_fact(
-        actor={"user_id": _subject(current_user), "role": current_user.get("role")},
-        profile_axis=profile_axis,
-        value=payload.value,
-        course_id=payload.course_id,
-    )
+    from app.chat.memory.repository import ManagedLearningPreference
+    try:
+        memory = service.confirm_profile_fact(
+            actor={"user_id": _subject(current_user), "role": current_user.get("role")},
+            profile_axis=profile_axis,
+            value=payload.value,
+            course_id=payload.course_id,
+        )
+    except ManagedLearningPreference as exc:
+        raise HTTPException(status_code=409, detail='请使用有修订保护的学习偏好入口') from exc
     return {"memory": memory.model_dump(mode="json")}
 
 

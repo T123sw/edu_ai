@@ -2,10 +2,12 @@
 import base64
 from dataclasses import dataclass
 import json
+import asyncio
+import time
 from typing import Annotated, Literal
 from types import MappingProxyType
-from pydantic import Field, ValidationError
-from sqlalchemy import select
+from pydantic import Field, ValidationError, model_validator
+from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.database import ConversationMessage
@@ -14,6 +16,7 @@ from .contracts import Actor, Contract, Identifier, Locator, ResourceRef
 from .model_adapter import strict_json
 from .progress_repository import digest
 from .resource_reader import exact_material, excerpt, material_text
+from app.chat.memory.repository import _tokens
 
 
 class ReadExcerpt(Contract):
@@ -38,6 +41,29 @@ class SearchHistory(SearchResources):
 class ReadSummary(Contract):
     topic_ids: list[Identifier] = Field(default_factory=list, max_length=8)
     include_open_questions: bool = True
+
+
+class ReadPreferences(Contract):
+    fields: list[Literal['language', 'detail', 'example_order', 'prior_knowledge', 'available_minutes']] = Field(default_factory=list, max_length=5)
+
+
+class UpdatePreference(Contract):
+    operation: Literal['set', 'delete']
+    field: Literal['language', 'detail', 'example_order', 'prior_knowledge', 'available_minutes']
+    scope: Literal['global', 'course']
+    value: str | None = Field(default=None, max_length=600)
+    source_quote: str = Field(min_length=1, max_length=2000)
+    expected_revision: int | None = Field(default=None, ge=0)
+    @model_validator(mode='after')
+    def operation_value(self):
+        if self.operation == 'set' and not self.value or self.operation == 'delete' and self.value is not None:
+            raise ValueError('value is required only for set')
+        return self
+
+
+class OfferCheck(Contract):
+    objective_ids: list[Identifier] = Field(default_factory=list, max_length=8)
+    preferred_form: Literal['choice', 'short_answer'] = 'choice'
 
 
 class ToolResult(Contract):
@@ -73,9 +99,14 @@ class LearningTools:
                  ToolSpec('search_course_resources', '搜索当前可读课程资料，结果不代表已读正文', SearchResources, self.resources),
                  ToolSpec('read_course_learning_summary', '读取本人当前课程的学习事实和自评，不推断掌握', ReadSummary, self.summary),
                  ToolSpec('search_learning_history', '搜索本人当前课程对话的短片段', SearchHistory, self.history)]
+        if getattr(learning, 'memory', None):
+            specs.extend([ToolSpec('read_learning_preferences', '读取本人有效长期偏好；当前要求优先', ReadPreferences, self.preferences, min_phase=4),
+                ToolSpec('update_learning_preference', '仅依据当前用户明确长期设置/删除原话修改指定作用域偏好；value 必须直接出现在原话中', UpdatePreference, self.preference_update, effect='write', min_phase=4)])
+        if getattr(learning, 'checks', None):
+            specs.append(ToolSpec('offer_understanding_check', '用户愿意检查时提供一道可跳过的理解检查；保存题目不代表已作答或已掌握', OfferCheck, self.offer_check, effect='write', min_phase=4, timeout_seconds=30))
         self.registry = MappingProxyType({s.name: s for s in specs})
-        if len(self.registry) != len(specs) or any(s.effect != 'read' or not callable(s.handler) for s in specs):
-            raise ValueError('invalid P3 registry')
+        if len(self.registry) != len(specs) or any(s.effect not in {'read', 'write'} or not callable(s.handler) for s in specs):
+            raise ValueError('invalid learning registry')
         json.dumps(self.schemas())
 
     def schemas(self):
@@ -90,6 +121,8 @@ class LearningTools:
             spec = self.registry.get(name)
             if spec is None:
                 return ToolResult(ok=False, error={'code': 'UNKNOWN_TOOL', 'message': '本轮未挂载此工具', 'retryable': False}).model_dump()
+            if spec.effect != 'read':
+                return ToolResult(ok=False, error={'code': 'ASYNC_DISPATCH_REQUIRED', 'message': '写工具须使用有界幂等执行入口'}).model_dump()
             args = spec.input_model.model_validate(strict_json(call['function']['arguments']))
             self.learning.require(self.turn['course_id'], self.turn['owner'])
             return spec.output_model.model_validate(spec.handler(args)).model_dump(mode='json')
@@ -97,6 +130,51 @@ class LearningTools:
             return ToolResult(ok=False, error={'code': 'INVALID_ARGUMENTS', 'message': '工具参数无效', 'retryable': False}).model_dump()
         except HTTPException:
             return ToolResult(ok=False, error={'code': 'ACCESS_OR_VERSION_UNAVAILABLE', 'message': '当前资料或版本不可读取', 'retryable': False}).model_dump()
+
+    async def dispatch_write(self, call):
+        spec = self.registry[call['function']['name']]
+        try:
+            args = spec.input_model.model_validate(strict_json(call['function']['arguments']))
+            self.learning.require(self.turn['course_id'], self.turn['owner'])
+            operation_id = self.turn['turn_id'] + ':' + digest([spec.name, args.model_dump()])[:32]
+            result = spec.handler(args, operation_id)
+            if asyncio.iscoroutine(result):
+                result = await result
+            return ToolResult(ok=True, data=result).model_dump(mode='json')
+        except (ValueError, ValidationError, TypeError):
+            return ToolResult(ok=False, error={'code': 'INVALID_ARGUMENTS', 'message': '工具参数无效'}).model_dump()
+        except HTTPException as exc:
+            return ToolResult(ok=False, error={'code': 'WRITE_REJECTED', 'message': str(exc.detail), 'retryable': exc.status_code == 409}).model_dump()
+
+    def reconcile_memory_epoch(self, call, current_epoch):
+        if call['function']['name'] != 'update_learning_preference':
+            return False
+        from .enrichment_models import LearningEnrichmentReceipt
+        try:
+            args = UpdatePreference.model_validate(strict_json(call['function']['arguments']))
+        except ValueError:
+            return False
+        operation_id = self.turn['turn_id'] + ':' + digest(['update_learning_preference', args.model_dump()])[:32]
+        with Session(self.learning.session_repository.engine) as db:
+            receipt = db.get(LearningEnrichmentReceipt, (self.turn['owner'], operation_id))
+            return bool(receipt and receipt.result.get('memory_epoch') == current_epoch)
+
+    def preferences(self, args):
+        result = self.learning.memory.read(self.turn['owner'], self.turn['course_id'])
+        if args.fields:
+            result['items'] = [i for i in result['items'] if i['field'] in args.fields]
+        return ToolResult(ok=True, data=result).model_dump()
+
+    def preference_update(self, args, operation_id):
+        result = self.learning.memory.apply_explicit_request(self.turn, args.model_dump(), operation_id, self.packet.get('memory_epoch'))
+        self.packet['memory_epoch'] = result['memory_epoch']
+        return result
+
+    async def offer_check(self, args, operation_id):
+        result = await self.learning.checks.offer(self.turn['owner'], self.turn['course_id'], self.turn['topic_id'], operation_id,
+            objective_ids=args.objective_ids, preferred_form=args.preferred_form)
+        self.packet.setdefault('actions', {})[result['check_id']] = {'kind': 'understanding_check', **result}
+        return result
 
     def read(self, args):
         raw = self.packet['handles'].get(args.resource_handle)
@@ -144,13 +222,19 @@ class LearningTools:
                 except HTTPException:
                     continue
                 text = material_text(material)
-                at = (resource['title'] + '\n' + text).casefold().find(args.query.casefold())
-                if at < 0:
+                searchable = resource['title'] + '\n' + text
+                overlap = _tokens(searchable) & _tokens(args.query)
+                at = searchable.casefold().find(args.query.casefold())
+                if at < 0 and not overlap:
                     continue
                 handle = 'res_' + digest(ref.model_dump())[:24]
                 self.packet['handles'][handle] = ref.model_dump()
                 snippet = excerpt(material, query=args.query, max_chars=500)['excerpt']
-                items.append({'resource_handle': handle, 'title': resource['title'], 'topic_id': topic['id'], 'snippet': snippet})
+                items.append({'resource_handle': handle, 'title': resource['title'], 'topic_id': topic['id'], 'snippet': snippet,
+                              '_rank': (at >= 0, len(overlap))})
+        items.sort(key=lambda i: (-int(i['_rank'][0]), -i['_rank'][1], i['resource_handle']))
+        for item in items:
+            item.pop('_rank')
         return self.page(args, items)
 
     def summary(self, args):
@@ -164,16 +248,25 @@ class LearningTools:
         allowed = {t['id'] for t in self.room()['chapters']}
         if args.topic_ids:
             allowed &= set(args.topic_ids)
-        _, offset = self.cursor_scope(args)
+        query_tokens = sorted(_tokens(args.query))[:32]
         with Session(self.learning.session_repository.engine) as db:
             rows = db.execute(select(ConversationMessage, LearningTopicSession.topic_id).join(LearningTopicSession,
                 LearningTopicSession.session_id == ConversationMessage.conversation_id).where(
                 LearningTopicSession.owner == self.turn['owner'], LearningTopicSession.course_id == self.turn['course_id'],
-                LearningTopicSession.topic_id.in_(allowed), ConversationMessage.content.contains(args.query, autoescape=True)
-            ).order_by(ConversationMessage.occurred_at.desc(), ConversationMessage.message_id).offset(offset).limit(args.limit + 1)).all()
+                LearningTopicSession.topic_id.in_(allowed),
+                or_(ConversationMessage.content.contains(args.query, autoescape=True),
+                    *[ConversationMessage.content.contains(token, autoescape=True) for token in query_tokens])
+            ).order_by(ConversationMessage.occurred_at.desc(), ConversationMessage.message_id)).all()
+            memory = getattr(self.learning, 'memory', None)
             items = []
             for message, topic in rows:
+                if memory and memory.suppressed(self.turn['owner'], message.message_id, db):
+                    continue
                 at = message.content.casefold().find(args.query.casefold())
                 items.append({'role': message.role, 'message_ids': [message.message_id], 'topic_id': topic, 'session_ref': message.conversation_id,
-                    'excerpt': message.content[max(0, at - 100):max(0, at - 100) + 600], 'occurred_at': message.occurred_at.isoformat()})
-        return self.page(args, items, already_paged=True)
+                    'excerpt': message.content[max(0, at - 100):max(0, at - 100) + 600], 'occurred_at': message.occurred_at.isoformat(),
+                    '_rank': (at >= 0, len(set(query_tokens) & _tokens(message.content)))})
+        items.sort(key=lambda i: (-int(i['_rank'][0]), -i['_rank'][1], i['message_ids'][0]))
+        for item in items:
+            item.pop('_rank')
+        return self.page(args, items)

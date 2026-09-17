@@ -230,3 +230,88 @@ def version_material(course_id: str, kind: str, material_id: str, version: int, 
         raise HTTPException(422, '无效版本')
     material = exact_material(svc, user['username'], ResourceRef(course_id=course_id, material_type=kind, material_id=material_id, version=version))
     return {key: value for key, value in material.items() if key != 'revision_history'}
+
+# P4 routes use explicit persistent receipts; P3-only installations return 503.
+from app.self_learning.check_service import CheckSubmission
+from app.self_learning.contracts import Contract
+
+class OfferCheckRequest(Contract):
+    request_id: UUID
+    objective_ids: list[str] = Field(default_factory=list, max_length=8)
+    preferred_form: Literal['choice', 'short_answer'] = 'choice'
+
+class PreferenceRequest(Contract):
+    request_id: UUID
+    field: Literal['language', 'detail', 'example_order', 'prior_knowledge', 'available_minutes']
+    scope: Literal['global', 'course']
+    course_id: str | None = Field(default=None, max_length=200)
+    operation: Literal['set', 'delete']
+    value: str | None = Field(default=None, max_length=600)
+    expected_revision: int = Field(strict=True, ge=0)
+
+def enrichment(svc, component):
+    value = getattr(svc, component, None)
+    if value is None:
+        raise HTTPException(503, '检查与偏好功能尚未启用')
+    return value
+
+@router.get('/courses/{course_id}/topics/{topic_id}/checks')
+def list_checks(course_id: str, topic_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    return {'items': enrichment(svc, 'checks').list(user['username'], course_id, topic_id)}
+
+@router.post('/courses/{course_id}/topics/{topic_id}/checks')
+async def offer_check(course_id: str, topic_id: str, payload: OfferCheckRequest, user=Depends(get_current_user), svc=Depends(service)):
+    return await enrichment(svc, 'checks').offer(user['username'], course_id, topic_id, str(payload.request_id), payload.objective_ids, payload.preferred_form)
+
+@router.get('/checks/{check_id}')
+def get_check(check_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    return enrichment(svc, 'checks').get(user['username'], check_id)
+
+@router.post('/checks/{check_id}/attempts')
+async def submit_check(check_id: str, payload: CheckSubmission, user=Depends(get_current_user), svc=Depends(service)):
+    return await enrichment(svc, 'checks').submit(user['username'], check_id, payload)
+
+@router.post('/checks/{check_id}/attempts/{attempt_id}/evaluate')
+async def reevaluate_check(check_id: str, attempt_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    return await enrichment(svc, 'checks').evaluate(user['username'], check_id, attempt_id)
+
+@router.get('/preferences')
+def learning_preferences(course_id: str | None = None, user=Depends(get_current_user), svc=Depends(service)):
+    return enrichment(svc, 'memory').manage(user['username'], course_id)
+
+@router.post('/preferences')
+def change_learning_preference(payload: PreferenceRequest, user=Depends(get_current_user), svc=Depends(service)):
+    memory = enrichment(svc, 'memory')
+    if payload.operation == 'delete':
+        return memory.delete(user['username'], payload.course_id, payload.field, payload.scope, payload.expected_revision,
+            operation_id=str(payload.request_id))
+    return memory.update(user['username'], payload.course_id, payload.field, payload.scope, payload.value, payload.expected_revision,
+        operation_id=str(payload.request_id), explicit=True)
+
+class ObservationUpdate(Contract):
+    status: Literal['resolved', 'retracted']
+
+@router.get('/courses/{course_id}/topics/{topic_id}/observations')
+def teaching_observations(course_id: str, topic_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    from sqlalchemy import select
+    from sqlalchemy.orm import Session
+    from app.self_learning.enrichment_models import LearningObservation
+    checks = enrichment(svc, 'checks')
+    checks.topic(user['username'], course_id, topic_id)
+    with Session(checks.engine) as db:
+        return {'items':[{'turn_id': r.turn_id, **r.payload, 'status':r.status} for r in db.scalars(select(LearningObservation).where(
+            LearningObservation.owner == user['username'], LearningObservation.course_id == course_id, LearningObservation.topic_id == topic_id))]}
+
+@router.post('/observations/{turn_id}')
+def update_teaching_observation(turn_id: str, payload: ObservationUpdate, user=Depends(get_current_user), svc=Depends(service)):
+    from app.self_learning.enrichment_models import LearningObservation
+    checks = enrichment(svc, 'checks')
+    with checks._write('learning-observations:' + user['username']) as db:
+        row = db.get(LearningObservation, turn_id)
+        if row is None or row.owner != user['username']:
+            raise HTTPException(404, '教学观察不存在')
+        checks.topic(user['username'], row.course_id, row.topic_id)
+        if row.status != payload.status:
+            row.status = payload.status
+            checks.bump_facts(db, user['username'], row.course_id, row.topic_id, turn_id)
+        return {'turn_id':turn_id, 'status':row.status}

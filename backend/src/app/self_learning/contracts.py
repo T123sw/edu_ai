@@ -85,6 +85,7 @@ class ReadingContext(Contract):
 class ObjectiveView(Contract):
     objective_id: Identifier
     text: str
+    check_rule: dict | None = None
 
 
 class ResourceView(Contract):
@@ -103,6 +104,8 @@ class TopicView(Contract):
     objectives: list[ObjectiveView] = Field(default_factory=list)
     required_activity_ids: list[Identifier] = Field(default_factory=list)
     available_check_ids: list[Identifier] = Field(default_factory=list)
+    prerequisite_node_ids: list[Identifier] = Field(default_factory=list)
+    checks: list[dict] = Field(default_factory=list)
 
     @model_validator(mode='after')
     def unique_resources(self):
@@ -149,6 +152,7 @@ class LearningFacts(Contract):
     open_questions: dict[str, list[str]] = Field(default_factory=dict)
     completed_activity_ids: list[str] = Field(default_factory=list)
     facts_revision: Annotated[int, Field(strict=True, ge=0)] = 0
+    check_evidence: list[dict] = Field(default_factory=list)
 
     @model_validator(mode='after')
     def unique_states(self):
@@ -166,6 +170,8 @@ class TopicProjection(Contract):
     completed_core: int = 0
     total_core: int | None = None
     facts_revision: int = 0
+    evidence_refs: list[str] = Field(default_factory=list)
+    objective_judgments: list[dict] = Field(default_factory=list)
 
 
 class NextAction(Contract):

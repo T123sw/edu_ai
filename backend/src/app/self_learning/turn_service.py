@@ -20,9 +20,20 @@ class TurnService:
     def __init__(self, learning, repository):
         self.learning, self.repository = learning, repository
 
-    @staticmethod
-    def public(turn):
-        return {k: turn[k] for k in ('turn_id', 'session_id', 'request_id', 'topic_id', 'status', 'stage', 'attempt', 'result', 'error_code')}
+    def public(self, turn):
+        value = {k: turn[k] for k in ('turn_id', 'session_id', 'request_id', 'topic_id', 'status', 'stage', 'attempt', 'result', 'error_code')}
+        if getattr(self.learning, 'memory', None):
+            from sqlalchemy import select
+            from sqlalchemy.orm import Session
+            from .enrichment_models import LearningCheck, LearningEnrichmentReceipt
+            prefix = turn['turn_id'] + ':'
+            with Session(self.repository.engine) as db:
+                effects = [{'kind': 'understanding_check', 'check_id': row.check_id} for row in db.scalars(select(LearningCheck).where(
+                    LearningCheck.owner == turn['owner'], LearningCheck.request_id.startswith(prefix, autoescape=True)))]
+                effects.extend({'kind': 'preference', 'field': row.result['field'], 'scope': row.result['scope']} for row in db.scalars(
+                    select(LearningEnrichmentReceipt).where(LearningEnrichmentReceipt.owner == turn['owner'], LearningEnrichmentReceipt.operation_id.startswith(prefix, autoescape=True))))
+            value['committed_effects'] = effects
+        return value
 
     def accept(self, owner, course, topic, request):
         if not request.question.strip():

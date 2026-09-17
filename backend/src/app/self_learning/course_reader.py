@@ -83,6 +83,8 @@ class CourseReader:
             policy = 'explicit' if resources and all(r.required is not None for r in resources) else 'unknown'
             topics.append(TopicView(topic_id=node['node_id'], title=node['title'], resources=resources,
                 completion_policy=policy,
+                prerequisite_node_ids=node.get('prerequisite_node_ids', []),
+                checks=node.get('checks', []), available_check_ids=[c['check_id'] for c in node.get('checks', [])],
                 objectives=[ObjectiveView(**o) for o in node.get('objectives', [])],
                 required_activity_ids=node.get('required_activity_ids', [])))
             # Manifest check references are not automatically runnable checks.

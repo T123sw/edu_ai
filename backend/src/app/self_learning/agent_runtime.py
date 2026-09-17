@@ -24,6 +24,15 @@ class LearningAgentRuntime:
         self.thread = None
 
     async def call_tool(self, tools, packet, call, deadline):
+        spec = tools.registry.get(call['function']['name'])
+        if spec and spec.effect == 'write':
+            timeout = min(spec.timeout_seconds, deadline - time.monotonic())
+            if timeout <= 0:
+                raise AgentFailure('DEADLINE_EXCEEDED')
+            try:
+                return await asyncio.wait_for(tools.dispatch_write(call), timeout=timeout)
+            except TimeoutError:
+                return {'ok': False, 'error': {'code': 'TIMEOUT', 'message': '操作超时，可按原请求检查或重试', 'retryable': True}}
         # P3 handlers are reads only. Isolate their mutable reference registry so a
         # timed-out local I/O operation cannot change a later model context.
         snapshot = copy.deepcopy(packet)
@@ -46,7 +55,10 @@ class LearningAgentRuntime:
     async def execute(self, claim):
         builder = ContextBuilder(self.learning)
         builder.authorize(claim['owner'], claim['course_id'], claim['topic_id'], claim['request']['reading_context'])
-        state = copy.deepcopy(claim['checkpoint']) or {'packet': builder.build(claim), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
+        enrichment = bool(getattr(self.learning, 'memory', None))
+        schemas_size = len(json.dumps(LearningTools(self.learning, claim, {}).schemas(), ensure_ascii=False).encode())
+        context_budget = max(1000, 16000 - schemas_size - 256) if enrichment else 24000
+        state = copy.deepcopy(claim['checkpoint']) or {'packet': builder.build(claim, budget=context_budget), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
         packet = state['packet']
         tools = LearningTools(self.learning, claim, packet)
         if self.model_factory:
@@ -60,6 +72,16 @@ class LearningAgentRuntime:
             model = LearningModelAdapter.from_config(config)
         deadline = time.monotonic() + max(0, claim['deadline'] - self.repository.clock())
         while state['rounds'] < 8:
+            memory = getattr(self.learning, 'memory', None)
+            if memory:
+                current_epoch = memory.epoch(claim['owner'])
+                if current_epoch != packet.get('memory_epoch'):
+                    if state['pending'] and tools.reconcile_memory_epoch(state['pending'][0], current_epoch):
+                        # The previous worker committed this very preference write
+                        # before losing its checkpoint. Replay its receipt first.
+                        packet['memory_epoch'] = current_epoch
+                    else:
+                        raise AgentFailure('MEMORY_CONTEXT_CHANGED')
             builder.authorize(claim['owner'], claim['course_id'], claim['topic_id'], claim['request']['reading_context'])
             while state['pending']:
                 call = state['pending'][0]
@@ -71,15 +93,37 @@ class LearningAgentRuntime:
                     intent = {'operation_id': operation, 'call': call, 'status': 'intent'}
                     self.repository.save(claim, state, 'reading_resources', intent)
                     result = await self.call_tool(tools, packet, call, deadline)
+                    if call['function']['name'] == 'update_learning_preference' and result.get('ok') and result['data'].get('changed'):
+                        fresh = builder.build(claim, budget=context_budget)
+                        if fresh['memory_epoch'] != result['data']['memory_epoch']:
+                            raise AgentFailure('MEMORY_CONTEXT_CHANGED')
+                        # Rebuild after an explicit change; don't continue to
+                        # inject old preference text or suppressed source messages.
+                        index = max(i for i, m in enumerate(packet['messages']) if m.get('tool_calls'))
+                        tail = copy.deepcopy(packet['messages'][index:])
+                        tail[0]['content'] = None
+                        fresh['messages'].extend(tail)
+                        fresh['handles'].update(packet['handles'])
+                        fresh['citations'].update(packet['citations'])
+                        fresh['actions'] = packet.get('actions', {})
+                        packet.clear()
+                        packet.update(fresh)
                     self.repository.save(claim, state, 'reading_resources', {**intent, 'status': 'completed', 'result': result})
                 packet['messages'].append({'role': 'tool', 'tool_call_id': call['id'], 'content': json.dumps(result, ensure_ascii=False)})
                 state['pending'].pop(0)
                 self.repository.save(claim, state)
             state['rounds'] += 1
             self.repository.save(claim, state)
-            reply = await model.complete(packet['messages'], tools.schemas() if state['tools'] < 6 and not state['repair_used'] else [], deadline=deadline)
+            mounted = tools.schemas() if state['tools'] < 6 and not state['repair_used'] else []
+            if enrichment:
+                byte_size = lambda schema: len(json.dumps({'messages': packet['messages'], 'tools': schema}, ensure_ascii=False).encode())
+                if byte_size(mounted) > 16000:
+                    mounted = []  # reserve the remaining context for the final answer
+                if byte_size(mounted) > 16000:
+                    raise AgentFailure('CONTEXT_BUDGET_EXCEEDED')
+            reply = await model.complete(packet['messages'], mounted, deadline=deadline)
             if reply['calls']:
-                if state['tools'] >= 6 or state['repair_used']:
+                if not mounted or state['tools'] >= 6 or state['repair_used']:
                     raise AgentFailure('TOOL_BUDGET_EXHAUSTED')
                 packet['messages'].append({'role': 'assistant', 'content': reply['content'] or None, 'tool_calls': reply['calls']})
                 state['pending'] = copy.deepcopy(reply['calls'])
@@ -87,8 +131,16 @@ class LearningAgentRuntime:
                 continue
             try:
                 answer = AnswerResult.model_validate(answer_json(reply['content']))
-                if set(answer.citation_ids) - set(packet['citations']) or answer.suggested_action_ids:
+                if set(answer.citation_ids) - set(packet['citations']) or set(answer.suggested_action_ids) - set(packet.get('actions', {})):
                     raise ValueError('unknown reference')
+                if answer.observation:
+                    if not memory or set(answer.observation.source_message_ids) != {claim['turn_id'] + ':user'}:
+                        raise ValueError('unknown observation source')
+                    from .contracts import Actor
+                    course_view = self.learning.progress_service.reader.read(Actor(user_id=claim['owner']), claim['course_id'])
+                    objectives = {o.objective_id for t in course_view.topics if t.topic_id == claim['topic_id'] for o in t.objectives}
+                    if not set(answer.observation.objective_ids) <= objectives:
+                        raise ValueError('unknown observation objective')
             except ValueError:
                 if state['repair_used']:
                     raise AgentFailure('ANSWER_SCHEMA_INVALID')
@@ -103,6 +155,8 @@ class LearningAgentRuntime:
                 if hashlib.sha256(material_text(material).encode()).hexdigest() != citation['content_hash']:
                     raise AgentFailure('SOURCE_CHANGED')
             return {**answer.model_dump(), 'citations': citations, 'role_version': packet['role_version'],
+                    'actions': [packet['actions'][key] for key in answer.suggested_action_ids],
+                    **({'memory_epoch': packet['memory_epoch']} if memory else {}),
                     'source_revision': packet['source_revision'], 'model_rounds': state['rounds'], 'tool_attempts': state['tools']}
         raise AgentFailure('MODEL_BUDGET_EXHAUSTED')
 
@@ -145,6 +199,8 @@ class LearningAgentRuntime:
         if self.thread and self.thread.is_alive():
             return
         self.stopping.clear()
+        if getattr(self.learning, 'summaries', None):
+            self.learning.summaries.start()
         def poll():
             while not self.stopping.is_set():
                 try:
@@ -158,5 +214,7 @@ class LearningAgentRuntime:
 
     def stop(self, grace_seconds=10):
         self.stopping.set()
+        if getattr(self.learning, 'summaries', None):
+            self.learning.summaries.stop(grace_seconds=1)
         if self.thread:
             self.thread.join(timeout=grace_seconds)

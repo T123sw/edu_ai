@@ -128,3 +128,6 @@ class LearningAgentOutbox(Base):
     turn_id: Mapped[str] = mapped_column(ForeignKey('learning_answer_runs.turn_id', ondelete='CASCADE'), nullable=False)
     owner: Mapped[str] = mapped_column(String(160), nullable=False)
     payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+
+# Register P4 tables on the same application metadata for migration/test tooling.
+from . import enrichment_models as _enrichment_models

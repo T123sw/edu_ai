@@ -82,6 +82,21 @@ class Model:
 
 svc = LearningService(manager=manager, store=LearningStore(root), memberships=members,
     model_factory=lambda _: Model(), session_repository=SessionRepository(engine), progress_repository=ProgressRepository(engine), turn_repository=TurnRepository(engine) if os.getenv('LEARNING_BROWSER_AGENT') == '1' else None)
+if os.getenv('LEARNING_BROWSER_ENRICHMENT') == '1':
+    from app.self_learning.enrichment_models import TABLES as ENRICHMENT_TABLES
+    from app.self_learning.check_service import CheckService
+    from app.self_learning.memory_adapter import MemoryAdapter
+    from app.self_learning.summary_service import SummaryService
+    Base.metadata.create_all(engine, tables=[Base.metadata.tables[n] for n in (
+        'agent_memory_items', 'user_profile_facts', 'agent_memory_audit_events', *ENRICHMENT_TABLES)])
+    async def check_generator(data):
+        return {'form': 'choice', 'stem': '哪一个是变量赋值？', 'options': [
+            {'id':'option_1','text':'x = 1'}, {'id':'option_2','text':'print(x)'}],
+            'correct_option_ids':['option_1'], 'reference_answer':'', 'explanation':'赋值把值绑定给变量。'}
+    svc.checks = CheckService(svc, engine, generator=check_generator)
+    svc.memory = MemoryAdapter(svc, engine)
+    svc.summaries = SummaryService(svc, engine, svc.memory)
+    svc.progress_service.repository.evidence_reader = svc.checks.evidence
 # Explicit requirement fixture exercises P0 manifest projection through the real P2 API.
 manager.create_course_structure('manifest-fixture')
 manager.save_course_info('manifest-fixture', {'id': 'manifest-fixture', 'title': '核心与可选资料', 'created_by': 'alice'})

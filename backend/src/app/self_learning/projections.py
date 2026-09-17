@@ -14,7 +14,24 @@ def project_topic(topic: TopicView, facts: LearningFacts) -> TopicProjection:
         s.opened or s.reached_end or s.completed or s.locator is not None
         for r in topic.resources if (s := states.get(r.resource_ref.key)) is not None
     ) or self_assessment != 'unset' or bool(facts.open_questions.get(topic.topic_id))
-    return TopicProjection(topic_id=topic.topic_id,
+    judgments, evidence_refs = [], []
+    valid_refs = {r.resource_ref.key for r in topic.resources}
+    from .contracts import ResourceRef
+    for objective in topic.objectives:
+        evidence = [e for e in facts.check_evidence if e.get('topic_id') == topic.topic_id and objective.objective_id in e.get('objective_ids', [])
+                    and e.get('resource_ref') and ResourceRef.model_validate(e['resource_ref']).key in valid_refs
+                    and e.get('evaluator') in {'deterministic', 'model'} and e.get('rule_version')]
+        positive = {e.get('question_key', e['check_id']) for e in evidence if e['correct'] is True}
+        negative = any(e['correct'] is False for e in evidence)
+        rule = objective.check_rule or {}
+        enough = bool(rule.get('version') and type(rule.get('min_successes')) is int and rule['min_successes'] >= 1 and len(positive) >= rule['min_successes'])
+        judgment = 'mixed' if positive and negative else 'needs_review' if negative else 'evidence_supports' if enough else 'unverified'
+        refs = [e['attempt_id'] for e in evidence]
+        evidence_refs.extend(refs)
+        judgments.append({'objective_id': objective.objective_id, 'judgment': judgment, 'evidence_refs': refs, 'rule': rule or None})
+    states = {j['judgment'] for j in judgments}
+    judgment = 'mixed' if 'mixed' in states or {'needs_review', 'evidence_supports'} <= states else 'needs_review' if 'needs_review' in states else 'evidence_supports' if states == {'evidence_supports'} else 'unverified'
+    return TopicProjection(topic_id=topic.topic_id, judgment=judgment, evidence_refs=sorted(set(evidence_refs)), objective_judgments=judgments,
         progress='core_completed' if core_done else 'in_progress' if started else 'not_started',
         self_assessment=self_assessment, completed_core=completed,
         total_core=len(core) if policy_known and core else None, facts_revision=facts.facts_revision)

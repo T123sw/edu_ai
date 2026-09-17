@@ -1,5 +1,7 @@
 # 架构文档
 
+学习 Agent 最新状态：[P4 验收](../acceptance/2026-09-17-learning-agent-p4-cn.md)已完成；P5/P6 按阶段继续，业务环境未启用。
+
 本目录保存跨版本仍需遵守的架构契约：
 
 - [Agent 读取权限与跨对话记忆约定](2026-09-08-agent-access-memory-contract-cn.md)：用户确认的权限、任务定位、记忆生命周期和读写边界；区分已实现与待办。

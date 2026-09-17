@@ -26,7 +26,11 @@ class ProgressService:
 
     @staticmethod
     def project(view, snapshot):
-        facts = LearningFacts(**{k: snapshot[k] for k in ('resources', 'self_assessments', 'facts_revision')})
+        from .contracts import ResourceRef
+        valid_refs = {r.resource_ref.key for topic in view.topics for r in topic.resources}
+        evidence = snapshot.get('check_evidence', [])
+        activities = [e['activity_id'] for e in evidence if e.get('activity_id') and e.get('resource_ref') and ResourceRef.model_validate(e['resource_ref']).key in valid_refs]
+        facts = LearningFacts(**{k: snapshot[k] for k in ('resources', 'self_assessments', 'facts_revision')}, check_evidence=evidence, completed_activity_ids=activities)
         return {**snapshot, 'manifest_ref': view.manifest_ref.model_dump(mode='json') if view.manifest_ref else None, 'topics': [project_topic(t, facts).model_dump(mode='json') for t in view.topics],
                 'next_actions': {t.topic_id: [a.model_dump(mode='json') for a in next_actions(view, facts, t.topic_id)] for t in view.topics}}
 

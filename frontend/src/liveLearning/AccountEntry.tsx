@@ -5,6 +5,7 @@ import { AppShellProvider, type ThemeName } from '../stitch/shared';
 import { ProfilePage } from '../stitch/pages/Profile';
 import { LoginPage } from '../stitch/pages/LoginPage';
 import '../stitch/styles.css';
+import { LearningPreferences } from './LearningPreferences';
 
 const RuntimeSettingsPage = lazy(() => import('../stitch/pages/RuntimeSettings').then(module => ({ default: module.RuntimeSettingsPage })));
 
@@ -30,7 +31,7 @@ function Account() {
     <AuthSessionProvider user={{ ...user, role: user.role === 'teacher' || user.role === 'admin' ? user.role : 'student' }} authenticated>
       <AppShellProvider selectedCourse={null} setSelectedCourse={() => undefined} theme={theme} setTheme={setTheme} logout={() => { logout(); location.assign(location.pathname); }}>
         <Suspense fallback={<p role="status">正在打开服务配置…</p>}>
-          {hash.replace(/^#\/?/, '') === 'settings' ? <RuntimeSettingsPage /> : <ProfilePage homeHref={location.pathname} />}
+          {hash.replace(/^#\/?/, '') === 'settings' ? <RuntimeSettingsPage /> : <><ProfilePage homeHref={location.pathname} /><LearningPreferences key={user.username} /></>}
         </Suspense>
       </AppShellProvider>
     </AuthSessionProvider>

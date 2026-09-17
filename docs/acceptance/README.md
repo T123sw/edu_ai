@@ -1,5 +1,7 @@
 # OpenMAIC 迁移验收索引
 
+- [2026-09-17：学习 Agent P4](2026-09-17-learning-agent-p4-cn.md)：检查、显式偏好及删除传播、来源摘要与实际界面；测试日志完整保留，业务环境未启用。
+
 [课程知识库 Agent 工作流程验收](2026-09-10-course-knowledge-agent-workflow-acceptance-cn.md)：新建课程自动交接、增量方案、状态查询、显式重试、人工确认边界和浏览器 E2E 已完成自动化验收；真实链路结果见下一项。
 
 [操作系统课程知识库真实端到端验收](2026-09-11-course-knowledge-real-operating-systems-cn.md)：真实模型、真实外网和真实发布链路已跑通；新建与增量数据链路通过，来源权威性和教师逐项需求满足度有条件通过。

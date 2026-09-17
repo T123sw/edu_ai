@@ -3,8 +3,9 @@ import { apiRequest } from '../stitch/api/client';
 import { uid } from '../selfLearning/model';
 import type { ResourceRef, Locator } from './readingContext';
 export type ReadingSnapshot = { resource_ref: ResourceRef; locator?: Locator; selected_text: string };
-export type AnswerTurn = { turn_id: string; topic_id: string; request_id: string; status: 'accepted' | 'running' | 'succeeded' | 'failed' | 'canceled'; stage: string; error_code?: string };
+export type AnswerTurn = { turn_id: string; topic_id: string; request_id: string; status: 'accepted' | 'running' | 'succeeded' | 'failed' | 'canceled'; stage: string; error_code?: string; committed_effects?: { kind: string }[] };
 export function answerErrorMessage(code?: string): string {
+  if (code === 'MEMORY_CONTEXT_CHANGED') return '学习偏好已变化，本次旧回答未保存。可以按新偏好重试。';
   if (code === 'DEADLINE_EXCEEDED') return '本次回答超时，可以重试或继续阅读。';
   if (code === 'MODEL_UNAVAILABLE' || code === 'MODEL_CONNECTION_INTERRUPTED') return '模型暂时不可用，可以重试或继续阅读。';
   if (code === 'SOURCE_CHANGED' || code === 'CONTEXT_UNAVAILABLE') return '引用资料已变化或不可读取，请重新打开资料后提问。';

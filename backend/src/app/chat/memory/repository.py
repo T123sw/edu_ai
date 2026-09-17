@@ -57,6 +57,10 @@ def _cosine(left: list[float] | None, right: list[float] | None) -> float:
     return dot / (left_norm * right_norm) if left_norm and right_norm else 0.0
 
 
+class ManagedLearningPreference(ValueError):
+    pass
+
+
 class SqlAlchemyMemoryRepository:
     def __init__(self, engine: Engine):
         self._engine = engine
@@ -78,6 +82,18 @@ class SqlAlchemyMemoryRepository:
         fingerprint = self._fingerprint(draft)
         now = _utc_now()
         with database_session(engine=self._engine) as session:
+            if self._engine.dialect.name == 'postgresql':
+                from sqlalchemy import text
+                key = int.from_bytes(hashlib.sha256(('learning-memory:' + draft.subject_user_id).encode()).digest()[:8], signed=True)
+                session.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': key})
+            managed = session.scalars(select(AgentMemoryItem).where(
+                AgentMemoryItem.subject_user_id == draft.subject_user_id,
+                AgentMemoryItem.course_id == draft.course_id if draft.course_id else AgentMemoryItem.course_id.is_(None),
+                AgentMemoryItem.profile_axis == draft.profile_axis)).all() if draft.profile_axis else []
+            if any((item.structured_payload or {}).get('learning_field') for item in managed):
+                # Legacy background extraction must never resurrect or supersede
+                # explicitly managed learning preferences, including tombstones.
+                raise ManagedLearningPreference('Learning preferences require the explicit revisioned preference API')
             record = session.scalar(
                 select(AgentMemoryItem).where(
                     AgentMemoryItem.fingerprint == fingerprint
@@ -323,6 +339,15 @@ class SqlAlchemyMemoryRepository:
             return [self._to_profile(record) for record in records]
 
     def invalidate(self, *, memory_id: str, subject_user_id: str, reason: str) -> bool:
+        with database_session(engine=self._engine) as session:
+            managed = session.get(AgentMemoryItem, memory_id)
+            meta = dict(managed.structured_payload or {}) if managed and managed.subject_user_id == subject_user_id else {}
+            course = managed.course_id if meta else None
+        if meta.get('learning_field'):
+            from app.self_learning.memory_adapter import MemoryAdapter
+            MemoryAdapter(None, self._engine).delete(subject_user_id, course, meta['learning_field'],
+                'course' if course else 'global', meta['revision'], operation_id='legacy-delete:' + uuid4().hex)
+            return True
         with database_session(engine=self._engine) as session:
             record = session.get(AgentMemoryItem, memory_id)
             if record is None or record.subject_user_id != subject_user_id:

@@ -1,10 +1,10 @@
 # 学习辅导 Agent 详细技术设计 V1
 
-日期：2026-09-17。状态：详细技术设计 V1，分阶段实施中；P0 已完成；P1 会话持久化/API/前端恢复已完成隔离验收，P2 版本化事实与非聊天闭环已实现，见[P2验收](../acceptance/2026-09-17-learning-agent-p2-cn.md)；P3 阅读定位/受限工具/持久化答疑已通过隔离及真实模型验证，见[P3验收](../acceptance/2026-09-17-learning-agent-p3-cn.md)；业务环境未启用，P4—P6 待实施。依据[学习 Agent 主设计](2026-09-17-learning-agent-design-cn.md)、[课程准备 Agent 主设计](2026-09-17-course-preparation-agent-design-cn.md)和[读取与记忆约定](2026-09-08-agent-access-memory-contract-cn.md)。本文细化实现选择，不改变已确认的产品约束。执行顺序与任务清单见[分阶段实施计划](../superpowers/plans/2026-09-17-learning-agent-implementation-cn.md)，实际证据见[实施验收记录](../acceptance/2026-09-17-learning-agent-implementation-cn.md)。
+日期：2026-09-17。状态：详细技术设计 V1，分阶段实施中；P0 已完成；P1 会话持久化/API/前端恢复已完成隔离验收，P2 版本化事实与非聊天闭环已实现，见[P2验收](../acceptance/2026-09-17-learning-agent-p2-cn.md)；P3 阅读定位/受限工具/持久化答疑已通过隔离及真实模型验证，见[P3验收](../acceptance/2026-09-17-learning-agent-p3-cn.md)；P4 检查、显式偏好生命周期与来源摘要已隔离验收，见[P4记录](../acceptance/2026-09-17-learning-agent-p4-cn.md)；业务环境未启用，P5/P6 待实施。依据[学习 Agent 主设计](2026-09-17-learning-agent-design-cn.md)、[课程准备 Agent 主设计](2026-09-17-course-preparation-agent-design-cn.md)和[读取与记忆约定](2026-09-08-agent-access-memory-contract-cn.md)。本文细化实现选择，不改变已确认的产品约束。执行顺序与任务清单见[分阶段实施计划](../superpowers/plans/2026-09-17-learning-agent-implementation-cn.md)，实际证据见[实施验收记录](../acceptance/2026-09-17-learning-agent-implementation-cn.md)。
 
 ## 1. 架构决策
 
-运行层细节以[Agent 运行、工具与记忆设计 V1](2026-09-17-learning-agent-runtime-design-cn.md)为准：独立 function calling 循环、严格模型网关适配、服务端工具注册表，以及显式偏好写入和记忆失效协议。当前已完成 P0—P3 隔离验收；P3 只挂载四个只读工具，长期偏好、摘要及写工具仍按 P4/P5 推进。
+运行层细节以[Agent 运行、工具与记忆设计 V1](2026-09-17-learning-agent-runtime-design-cn.md)为准：独立 function calling 循环、严格模型网关适配、服务端工具注册表，以及显式偏好写入和记忆失效协议。当前已完成 P0—P4 隔离验收；P3 四个只读工具，P4 增加偏好读取/显式更新和理解检查，准备任务交接按 P5 推进。
 
 采用一个学习 Agent，配合确定性学习服务。学习 Agent 选择解释方式、检索必要上下文、分析困难、建议下一步；服务负责身份、对象归属、学习事实、会话、检查记录、任务和版本。课程准备 Agent 是独立业务角色，经持久化任务契约调用，不通过两个 Agent 互相聊天执行任务。
 

@@ -62,6 +62,19 @@ class LearningService:
         from .turn_service import configured_turn_repository, TurnService
         self.turn_repository = turn_repository or configured_turn_repository(self.session_repository)
         self.turns = TurnService(self, self.turn_repository) if self.turn_repository else None
+        self.checks = self.memory = self.summaries = None
+        import os
+        if os.getenv('LEARNING_ENRICHMENT_V1_ENABLED', '').lower() in {'true', '1'}:
+            if not self.turns or not self.progress_service:
+                raise RuntimeError('P4 requires learning answers and progress persistence')
+            from .check_service import CheckService
+            from .memory_adapter import MemoryAdapter
+            from .summary_service import SummaryService
+            engine = self.session_repository.engine
+            self.checks = CheckService(self, engine)
+            self.memory = MemoryAdapter(self, engine)
+            self.summaries = SummaryService(self, engine, self.memory)
+            self.progress_service.repository.evidence_reader = self.checks.evidence
 
     def require(self, course_id, owner):
         info = self.manager.get_course_info(course_id)
@@ -146,6 +159,7 @@ class LearningService:
                   if m.get('visibility') == 'private' and not m.get('learning_course_resource') and not m.get('sourceResourceId')]}
 
         room['agentRuntime'] = bool(self.turns)
+        room['enrichmentEnabled'] = bool(self.checks and self.memory)
         room['progressPersistence'] = bool(self.progress_service)
         room['progressOwner'] = owner if self.progress_service else None
         if self.progress_service and include_progress:

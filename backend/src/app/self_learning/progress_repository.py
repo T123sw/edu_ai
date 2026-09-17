@@ -26,7 +26,8 @@ class ProgressRepository(SessionRepository):
             LearningResourceState.owner == owner, LearningResourceState.course_id == course_id)).all()
         topics = db.scalars(select(LearningTopicState).where(
             LearningTopicState.owner == owner, LearningTopicState.course_id == course_id)).all()
-        return {'facts_revision': revision.revision if revision else 0,
+        return {**({'check_evidence': self.evidence_reader(db, owner, course_id)} if getattr(self, 'evidence_reader', None) else {}),
+                'facts_revision': revision.revision if revision else 0,
                 'resources': [{'resource_ref': r.resource_ref, **r.state} for r in resources],
                 'resource_revisions': [{'resource_ref': r.resource_ref, 'revision': r.revision} for r in resources],
                 'self_assessments': {t.topic_id: t.value for t in topics},

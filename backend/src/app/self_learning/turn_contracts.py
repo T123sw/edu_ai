@@ -21,8 +21,17 @@ class AnswerResult(Contract):
     answer_markdown: Annotated[str, Field(min_length=1, max_length=16000)]
     citation_ids: list[Identifier] = Field(default_factory=list, max_length=8)
     suggested_action_ids: list[Identifier] = Field(default_factory=list, max_length=8)
-    # P4 introduces persisted observations with explicit provenance.
-    observation: None = None
+    observation: 'TeachingObservation | None' = None
+
+
+class TeachingObservation(Contract):
+    kind: Literal['difficulty', 'open_question', 'helpful_explanation']
+    text: str = Field(min_length=1, max_length=1200)
+    source_message_ids: list[Identifier] = Field(min_length=1, max_length=8)
+    objective_ids: list[Identifier] = Field(default_factory=list, max_length=8)
+
+
+AnswerResult.model_rebuild()
 
 
 class AgentFailure(Exception):
