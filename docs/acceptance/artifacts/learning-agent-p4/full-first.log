@@ -1,0 +1,94 @@
+.......................................FF............................... [ 45%]
+............................................................s........... [ 91%]
+.............                                                            [100%]
+=================================== FAILURES ===================================
+_______ test_reading_version_changes_do_not_regrade_old_attempt[sqlite] ________
+
+checks = <app.self_learning.check_service.CheckService object at 0x7f33fa4ecda0>
+
+    def test_reading_version_changes_do_not_regrade_old_attempt(checks):
+        check = offer(checks)
+        attempt = submit(checks, check, option_ids=['option_1'])
+        checks.learning.manager.save_generated_material('course', 'quiz', 'quiz1', {'title':'新版', 'questions':[
+            {'stem':'新版问题', 'options':['甲','乙'], 'answer':'B'}], 'learning_course_resource':True},
+            owner_user_id='alice', visibility='course', scope_type='knowledge_point', scope_id='a')
+>       restored = checks.get('alice', check['check_id'])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend/src/tests/self_learning/test_checks.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+backend/src/app/self_learning/check_service.py:118: in get
+    row = self.owned(db, owner, check_id)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/self_learning/check_service.py:104: in owned
+    material = exact_material(self.learning, owner, ResourceRef.model_validate(row.source['resource_ref']))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+learning = <app.self_learning.service.LearningService object at 0x7f33fa58d520>
+owner = 'alice'
+ref = ResourceRef(course_id='course', material_type='quiz', material_id='quiz1', version=1)
+
+    def exact_material(learning, owner, ref: ResourceRef):
+        current = learning.material(ref.course_id, ref.material_type, ref.material_id, owner)
+        if current.get('version') == ref.version:
+            return current
+        if learning.manager._material_uses_postgres():
+            old = learning.manager._material_repository().get_version(ref.course_id, ref.material_type, ref.material_id, ref.version)
+        else:
+            old = current.get('revision_history', {}).get(str(ref.version))
+        if not old or old.get('version') != ref.version:
+>           raise HTTPException(409, '指定资料版本不可读取，请重新打开可用版本')
+E           fastapi.exceptions.HTTPException: 409: 指定资料版本不可读取，请重新打开可用版本
+
+backend/src/app/self_learning/resource_reader.py:17: HTTPException
+_____ test_reading_version_changes_do_not_regrade_old_attempt[postgresql] ______
+
+checks = <app.self_learning.check_service.CheckService object at 0x7f33fa58f3b0>
+
+    def test_reading_version_changes_do_not_regrade_old_attempt(checks):
+        check = offer(checks)
+        attempt = submit(checks, check, option_ids=['option_1'])
+        checks.learning.manager.save_generated_material('course', 'quiz', 'quiz1', {'title':'新版', 'questions':[
+            {'stem':'新版问题', 'options':['甲','乙'], 'answer':'B'}], 'learning_course_resource':True},
+            owner_user_id='alice', visibility='course', scope_type='knowledge_point', scope_id='a')
+>       restored = checks.get('alice', check['check_id'])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend/src/tests/self_learning/test_checks.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+backend/src/app/self_learning/check_service.py:118: in get
+    row = self.owned(db, owner, check_id)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/app/self_learning/check_service.py:104: in owned
+    material = exact_material(self.learning, owner, ResourceRef.model_validate(row.source['resource_ref']))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+learning = <app.self_learning.service.LearningService object at 0x7f33fa532240>
+owner = 'alice'
+ref = ResourceRef(course_id='course', material_type='quiz', material_id='quiz1', version=1)
+
+    def exact_material(learning, owner, ref: ResourceRef):
+        current = learning.material(ref.course_id, ref.material_type, ref.material_id, owner)
+        if current.get('version') == ref.version:
+            return current
+        if learning.manager._material_uses_postgres():
+            old = learning.manager._material_repository().get_version(ref.course_id, ref.material_type, ref.material_id, ref.version)
+        else:
+            old = current.get('revision_history', {}).get(str(ref.version))
+        if not old or old.get('version') != ref.version:
+>           raise HTTPException(409, '指定资料版本不可读取，请重新打开可用版本')
+E           fastapi.exceptions.HTTPException: 409: 指定资料版本不可读取，请重新打开可用版本
+
+backend/src/app/self_learning/resource_reader.py:17: HTTPException
+=============================== warnings summary ===============================
+tests/database/test_alembic_revision_chain.py::test_alembic_revision_chain_has_unique_revisions_and_one_head
+  /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/alembic/config.py:604: DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces, commas, and colons for prepend_sys_path.  Consider adding path_separator=os to Alembic config.
+    util.warn_deprecated(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED backend/src/tests/self_learning/test_checks.py::test_reading_version_changes_do_not_regrade_old_attempt[sqlite]
+FAILED backend/src/tests/self_learning/test_checks.py::test_reading_version_changes_do_not_regrade_old_attempt[postgresql]
+2 failed, 154 passed, 1 skipped, 1 warning in 336.88s (0:05:36)

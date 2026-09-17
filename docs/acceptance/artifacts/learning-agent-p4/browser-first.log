@@ -1,0 +1,59 @@
+[WebServer] INFO:     Started server process [555886]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
+[WebServer] (node:555927) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:555940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:555973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+  ✓  1 tests/live-learning/learning-preferences.spec.ts:2:5 › explicit course preference can be changed and deleted; another account cannot see it (6.2s)
+  ✘  2 tests/live-learning/understanding-check.spec.ts:2:5 › checks are optional; wrong answer survives reload without claiming mastery (8.1s)
+
+
+  1) tests/live-learning/understanding-check.spec.ts:2:5 › checks are optional; wrong answer survives reload without claiming mastery 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('客观批改 · 建议回顾本题', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('客观批改 · 建议回顾本题', { exact: true })
+
+
+       9 |   await page.getByLabel('print(x)', { exact:true }).check();
+      10 |   await page.getByRole('button', { name:'提交检查答案', exact:true }).click();
+    > 11 |   await expect(page.getByText('客观批改 · 建议回顾本题', { exact:true })).toBeVisible();
+         |                                                                 ^
+      12 |   await page.reload();
+      13 |   await page.getByText('检查与学习偏好', { exact:true }).click();
+      14 |   await expect(page.getByText('客观批改 · 建议回顾本题', { exact:true })).toBeVisible();
+        at /home/zxqs_ep/Edu_AI/frontend/tests/live-learning/understanding-check.spec.ts:11:65
+
+    Error Context: test-results/learning-enrichment/understanding-check-checks-6c341-ad-without-claiming-mastery/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/learning-enrichment/understanding-check-checks-6c341-ad-without-claiming-mastery/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/learning-enrichment/understanding-check-checks-6c341-ad-without-claiming-mastery/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/live-learning/understanding-check.spec.ts:2:5 › checks are optional; wrong answer survives reload without claiming mastery 
+  1 passed (26.7s)

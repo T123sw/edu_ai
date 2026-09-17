@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: late latest page does not discard loaded history or duplicate messages
+ok 1 - late latest page does not discard loaded history or duplicate messages
+  ---
+  duration_ms: 3.349113
+  type: 'test'
+  ...
+# Subtest: different session never merges private histories
+ok 2 - different session never merges private histories
+  ---
+  duration_ms: 0.25304
+  type: 'test'
+  ...
+# Subtest: reading and self assessment do not imply completion; old versions never carry over
+ok 3 - reading and self assessment do not imply completion; old versions never carry over
+  ---
+  duration_ms: 2.36842
+  type: 'test'
+  ...
+# Subtest: late receipt cannot roll back a newer server projection
+ok 4 - late receipt cannot roll back a newer server projection
+  ---
+  duration_ms: 0.270114
+  type: 'test'
+  ...
+# Subtest: persisted events are separated by owner and retain identities when reopening
+ok 5 - persisted events are separated by owner and retain identities when reopening
+  ---
+  duration_ms: 9.670977
+  type: 'test'
+  ...
+# Subtest: reading queue coalesces only unsent positions in the same stream; explicit actions survive
+ok 6 - reading queue coalesces only unsent positions in the same stream; explicit actions survive
+  ---
+  duration_ms: 1.771047
+  type: 'test'
+  ...
+# Subtest: bind observations to channel, full resource version and sequence
+ok 7 - bind observations to channel, full resource version and sequence
+  ---
+  duration_ms: 1.566145
+  type: 'test'
+  ...
+# Subtest: knowledge point conversations restore legacy messages and bound context without mixing transcripts
+ok 8 - knowledge point conversations restore legacy messages and bound context without mixing transcripts
+  ---
+  duration_ms: 3.818792
+  type: 'test'
+  ...
+# Subtest: global learning memory separates completion, quiz evidence and self assessment; shared learners start independently
+ok 9 - global learning memory separates completion, quiz evidence and self assessment; shared learners start independently
+  ---
+  duration_ms: 3.143947
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 580.924185

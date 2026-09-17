@@ -1,0 +1,16 @@
+
+==================================== ERRORS ====================================
+_________ ERROR collecting tests/self_learning/test_summary_service.py _________
+ImportError while importing test module '/home/zxqs_ep/Edu_AI/backend/src/tests/self_learning/test_summary_service.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../miniforge3/envs/edu-ai/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/src/tests/self_learning/test_summary_service.py:4: in <module>
+    from app.self_learning.summary_service import SummaryService
+E   ModuleNotFoundError: No module named 'app.self_learning.summary_service'
+=========================== short test summary info ============================
+ERROR backend/src/tests/self_learning/test_summary_service.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.15s
