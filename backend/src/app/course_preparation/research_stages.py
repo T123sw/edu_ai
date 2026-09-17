@@ -45,6 +45,14 @@ class ResearchStages:
         return checkpoint,state
 
     def normalize(self,context):
+        from .route_adjustment import eligible
+        request=self._request(context)
+        if eligible(request):
+            checkpoint=dict(context.checkpoint)
+            checkpoint['target_snapshot']=self.repository.authorizer.targets.read(context.owner_user_id,request.target)
+            checkpoint=self.memory.prepare(context,checkpoint,request)
+            checkpoint['route_only_adjustment']=True
+            return StepResult(checkpoint,'research_scope',reason='NO_UPLOADS')
         checkpoint,state=self._decision(context,dict(context.checkpoint))
         if state.brief is None: return StepResult(checkpoint)
         uploads=self._request(context).uploads
@@ -72,15 +80,22 @@ class ResearchStages:
         return StepResult(checkpoint,'research_scope' if len(completed)==len(request.uploads) else None)
 
     def research_scope(self,context):
+        if context.checkpoint.get('route_only_adjustment'):return StepResult(dict(context.checkpoint),'plan')
         checkpoint,state=self._decision(context,dict(context.checkpoint))
         return StepResult(checkpoint,'plan' if state.phase=='plan' else None)
 
     def plan(self,context):
+        if context.checkpoint.get('route_only_adjustment'):
+            from .route_adjustment import plan
+            return plan(self,context)
         checkpoint,state=self._decision(context,dict(context.checkpoint))
         if state.phase in ('intent','research'): return StepResult(checkpoint,'research_scope',reason='PATH_REVIEW_RESEARCH_REPAIR')
         return StepResult(checkpoint,'research_nodes' if state.phase=='done' else None)
 
     def research_nodes(self,context):
+        if context.checkpoint.get('route_only_adjustment'):
+            self.memory.validate(context,context.checkpoint)
+            return StepResult(dict(context.checkpoint),'produce')
         # The reviewed route defines the node-level source subset. Exact evidence
         # is rechecked here before generation receives any resource specification.
         checkpoint=dict(context.checkpoint)

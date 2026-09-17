@@ -14,7 +14,7 @@ def encoded_size(value):
 
 def context_packet(context, tools, *, max_tokens, output_tokens=6000):
     context=dict(context)
-    role_file={'review':'path-review.md','research_nodes':'node-research.md','course_review':'course-review.md'}.get(context['phase'],'research-role.md')
+    role_file={'route_adjustment':'route-adjustment.md','review':'path-review.md','research_nodes':'node-research.md','course_review':'course-review.md'}.get(context['phase'],'research-role.md')
     role=(PROMPTS/role_file).read_text()
     context['trace']=list(context.get('trace',()))[-6:]
     if context['phase']=='review':

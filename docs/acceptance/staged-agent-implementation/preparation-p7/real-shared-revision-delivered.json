@@ -1,0 +1,33 @@
+{
+  "preparation_id": "prep_0a5499b979ab4063adf7f425550ec794",
+  "attempt_no": 1,
+  "status": "succeeded",
+  "stage": "commit",
+  "revision": 80,
+  "error_code": null,
+  "result_ref": {
+    "course_id": "learn-90340b47ed044984a79e9452fd1c2bab",
+    "manifest_id": "manifest_18bfba1fdb170d0244f963c11f4f6ef7",
+    "course_ready": true,
+    "manifest_version": 2
+  },
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 22,
+      "tokens": 172071,
+      "cost_micro_usd": 1720710
+    },
+    "deadline": "2026-09-17T14:43:11.971898+00:00"
+  }
+}

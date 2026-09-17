@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v1'
+RULE_VERSION='preparation-delivery-v2'
 
 
 class DeliveryIssue(Contract):
@@ -30,6 +30,7 @@ class CourseReview(Contract):
 
 def check_digest(checkpoint):
     return digest({'rules':RULE_VERSION,'brief':checkpoint['brief'],'plan':checkpoint['plan'],
+        'route_only_adjustment':checkpoint.get('route_only_adjustment',False),
         'target_snapshot':checkpoint.get('target_snapshot'),'evidence':checkpoint['node_evidence'],'memory_refs':checkpoint.get('memory_refs',{}),
         'retained_artifacts':[(r['artifact_id'],r['content_digest']) for r in checkpoint.get('retained_artifacts',[])],
         'artifacts':[(r['artifact_id'],r['spec_digest'],r['content_digest'],r['status']) for r in checkpoint['artifacts']]})
@@ -98,9 +99,13 @@ class QualityStages:
 
     def review(self,context):
         checkpoint=dict(context.checkpoint); self.memory.validate(context,checkpoint)
-        state=ResearchState.model_validate(checkpoint['research_state'])
-        ResearchAgent._validate_path(state.path,state)
         request=self.repository.get(owner_user_id=context.owner_user_id,preparation_id=context.preparation_id).request
+        if checkpoint.get('route_only_adjustment'):
+            from .route_adjustment import validate
+            validate(request,checkpoint)
+        else:
+            state=ResearchState.model_validate(checkpoint['research_state'])
+            ResearchAgent._validate_path(state.path,state)
         artifacts=[self.generation.read_result(context.owner_user_id,checkpoint['generation_receipts'][digest(spec)]) for spec in checkpoint['resource_specs']]
         checkpoint['artifacts']=artifacts
         from .retained_resources import read_retained
@@ -134,7 +139,7 @@ class QualityStages:
                               'kind': r['resource_type'], 'objectives': r['spec']['objectives'],
                               'content_digest': r['content_digest']} for r in artifacts]}
         decision,args=model.decide({'phase':'course_review','request':request.model_dump(mode='json'),
-            'brief':checkpoint['brief'],'path':checkpoint['plan'], **review_context},[tool],timeout=90)
+            'brief':checkpoint['brief'],'path':checkpoint['plan'],'route_only_adjustment':checkpoint.get('route_only_adjustment',False), **review_context},[tool],timeout=90)
         self.memory.validate(context,checkpoint)
         if decision!='review_course_delivery': raise ResearchError('COURSE_REVIEW_INVALID','审阅工具不合法')
         review=CourseReview.model_validate(args)

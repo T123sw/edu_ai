@@ -1,0 +1,28 @@
+{
+  "preparation_id": "prep_43c76c174daf4f3c9dca16dbbf9cf8cd",
+  "attempt_no": 1,
+  "status": "failed",
+  "stage": "research_scope",
+  "revision": 16,
+  "error_code": "AGENT_NO_PROGRESS",
+  "result_ref": null,
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 4,
+      "tokens": 24897,
+      "cost_micro_usd": 248970
+    },
+    "deadline": "2026-09-17T14:50:59.913792+00:00"
+  }
+}
