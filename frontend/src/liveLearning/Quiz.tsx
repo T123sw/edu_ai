@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
+import { CheckCard } from './CheckCard';
 import { apiRequest } from '../stitch/api/client';
 import { getQuizQuestions } from '../stitch/pages/courseMaterialPreviewData';
 import type { CourseMaterial } from '../stitch/api/types';
 type Result = { version: number; answers: Record<string, string>; correct: number; graded: number; feedback: { id: string; correct: boolean | null; answer: string; explanation: string }[] };
-export function LiveQuiz({ material }: { material: CourseMaterial }) {
+function LegacyQuiz({ material }: { material: CourseMaterial }) {
   const questions = getQuizQuestions(material);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<Result>();
@@ -23,4 +24,30 @@ export function LiveQuiz({ material }: { material: CourseMaterial }) {
     {q.options?.length ? q.options.map((option, n) => <label key={n} style={{ display: 'block', padding: 8 }}><input type={q.type === "multiple_choice" ? "checkbox" : "radio"} name={id} value={String.fromCharCode(65 + n)} checked={(answers[id] || '').split(',').includes(String.fromCharCode(65 + n))} onChange={e => { setResult(undefined); const choice = e.target.value; const selected = (answers[id] || '').split(',').filter(Boolean); setAnswers({ ...answers, [id]: q.type === 'multiple_choice' ? (e.target.checked ? [...selected, choice] : selected.filter(a => a !== choice)).sort().join(',') : choice }); }} /> {option}</label>) : <textarea aria-label={`第 ${i + 1} 题答案`} value={answers[id] || ''} onChange={e => { setResult(undefined); setAnswers({ ...answers, [id]: e.target.value }); }} />}
     {feedback && <p>{feedback.correct === null ? '请对照参考答案自查' : feedback.correct ? '回答正确' : '建议回顾'} · 参考答案：{feedback.answer}<br />{feedback.explanation}</p>}
   </fieldset>; })}{error && <p role="alert">{error}</p>}<button disabled={busy || !questions.length} type="submit">{busy ? '正在保存…' : '提交练习'}</button>{result && <p role="status">已保存 · 自动批改 {result.graded} 题，答对 {result.correct} 题</p>}</form>;
+}
+
+export function LiveQuiz({ material }: { material: CourseMaterial }) {
+  const [mode, setMode] = useState<{ checks_enabled: boolean; owner: string }>();
+  const [checks, setChecks] = useState<{ topic_id: string; items: { check_id: string }[] }>();
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const controller = new AbortController();
+    const path = `/api/self-learning/courses/${encodeURIComponent(material.course_id)}/practice/${encodeURIComponent(material.material_id)}`;
+    async function load() {
+      try {
+        const value = await apiRequest<{ checks_enabled: boolean; owner: string }>(`${path}/mode`, { signal: controller.signal });
+        if (controller.signal.aborted) return;
+        setMode(value);
+        if (value.checks_enabled) {
+          const result = await apiRequest<{ topic_id: string; items: { check_id: string }[] }>(`${path}/checks`, { method: 'POST', body: JSON.stringify({ version: material.version }), signal: controller.signal });
+          if (!controller.signal.aborted) setChecks(result);
+        }
+      } catch (e) { if (!controller.signal.aborted) setError(e instanceof Error ? e.message : '练习暂不可用'); }
+    }
+    void load(); return () => controller.abort();
+  }, [material.course_id, material.material_id, material.version]);
+  if (error) return <p role="alert">{error}，可以继续阅读其他资料。</p>;
+  if (!mode) return <p>正在读取练习记录…</p>;
+  if (!mode.checks_enabled) return <LegacyQuiz material={material} />;
+  return <section aria-label="版本化练习">{checks?.items.map(check => <CheckCard key={check.check_id} checkId={check.check_id} owner={mode.owner} course={material.course_id} topic={checks.topic_id} />)}</section>;
 }

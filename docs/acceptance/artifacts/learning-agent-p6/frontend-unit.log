@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: late latest page does not discard loaded history or duplicate messages
+ok 1 - late latest page does not discard loaded history or duplicate messages
+  ---
+  duration_ms: 3.291991
+  type: 'test'
+  ...
+# Subtest: different session never merges private histories
+ok 2 - different session never merges private histories
+  ---
+  duration_ms: 0.262004
+  type: 'test'
+  ...
+# Subtest: reading and self assessment do not imply completion; old versions never carry over
+ok 3 - reading and self assessment do not imply completion; old versions never carry over
+  ---
+  duration_ms: 2.003527
+  type: 'test'
+  ...
+# Subtest: late receipt cannot roll back a newer server projection
+ok 4 - late receipt cannot roll back a newer server projection
+  ---
+  duration_ms: 0.244286
+  type: 'test'
+  ...
+# Subtest: persisted events are separated by owner and retain identities when reopening
+ok 5 - persisted events are separated by owner and retain identities when reopening
+  ---
+  duration_ms: 9.608862
+  type: 'test'
+  ...
+# Subtest: reading queue coalesces only unsent positions in the same stream; explicit actions survive
+ok 6 - reading queue coalesces only unsent positions in the same stream; explicit actions survive
+  ---
+  duration_ms: 1.766379
+  type: 'test'
+  ...
+# Subtest: bind observations to channel, full resource version and sequence
+ok 7 - bind observations to channel, full resource version and sequence
+  ---
+  duration_ms: 1.632704
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 575.51219

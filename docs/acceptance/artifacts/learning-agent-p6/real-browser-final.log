@@ -1,0 +1,26 @@
+[WebServer] INFO:     Started server process [593141]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
+[WebServer] (node:593294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:593347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:593385) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Building prefix dict from the default dictionary ...
+[WebServer] Loading model from cache /tmp/jieba.cache
+[WebServer] Loading model cost 0.927 seconds.
+[WebServer] Prefix dict has been built successfully.
+  ✓  1 tests/live-learning/agent-real.spec.ts:3:5 › real model: conversation, guided hint, check, saved quiz, document and personal revision (1.4m)
+
+  1 passed (1.7m)

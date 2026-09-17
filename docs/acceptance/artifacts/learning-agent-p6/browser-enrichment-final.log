@@ -1,0 +1,24 @@
+[WebServer] INFO:     Started server process [589135]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
+[WebServer] (node:589192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:589209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:589240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+  ✓  1 tests/live-learning/learning-preferences.spec.ts:2:5 › explicit course preference can be changed and deleted; another account cannot see it (5.7s)
+  ✓  2 tests/live-learning/learning-preferences.spec.ts:21:5 › the actual personal center exposes global learning preferences (1.2s)
+  ✓  3 tests/live-learning/understanding-check.spec.ts:2:5 › checks are optional; wrong answer survives reload without claiming mastery (5.5s)
+
+  3 passed (27.6s)

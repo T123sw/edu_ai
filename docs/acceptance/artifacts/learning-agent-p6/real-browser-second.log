@@ -1,0 +1,58 @@
+[WebServer] INFO:     Started server process [578814]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
+[WebServer] (node:578870) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:578883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:578919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Building prefix dict from the default dictionary ...
+[WebServer] Loading model from cache /tmp/jieba.cache
+[WebServer] Loading model cost 0.956 seconds.
+[WebServer] Prefix dict has been built successfully.
+  ✘  1 tests/live-learning/agent-real.spec.ts:3:5 › real model: conversation, guided hint, check, saved quiz, document and personal revision (2.3m)
+
+
+  1) tests/live-learning/agent-real.spec.ts:3:5 › real model: conversation, guided hint, check, saved quiz, document and personal revision 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "succeeded"
+    Received: "failed"
+
+    Call Log:
+    - Timeout 100000ms exceeded while waiting on the predicate
+
+      19 |       turn=items.find((t:{turn_id:string})=>!asked.has(t.turn_id));
+      20 |       return turn?.status;
+    > 21 |     },{timeout:100000,intervals:[500,1000,2000]}).toBe('succeeded');
+         |                                                   ^
+      22 |     asked.add(turn!.turn_id);
+      23 |     log.push({question,seconds:(Date.now()-start)/1000,turn});
+      24 |     return turn!;
+        at ask (/home/zxqs_ep/Edu_AI/frontend/tests/live-learning/agent-real.spec.ts:21:51)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/live-learning/agent-real.spec.ts:49:20
+
+    Error Context: test-results/learning-real/agent-real-real-model-conv-401ed-ument-and-personal-revision/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/learning-real/agent-real-real-model-conv-401ed-ument-and-personal-revision/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/learning-real/agent-real-real-model-conv-401ed-ument-and-personal-revision/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/live-learning/agent-real.spec.ts:3:5 › real model: conversation, guided hint, check, saved quiz, document and personal revision 

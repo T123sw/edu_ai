@@ -53,3 +53,5 @@
 - [Harness 知识点大纲优化验收](2026-09-07-harness-knowledge-outline-acceptance-cn.md)：五项能力、真实链路、最终审阅版大纲与自动质量限制。
 
 - [根角色与完整报告审阅流程](2026-09-08-reviewed-report-acceptance-cn.md)：正文生成、审阅、修订、版本交付门槛和真实样例。
+
+- [学习 Agent P6：迁移、切换与完整验收](2026-09-17-learning-agent-p6-cn.md)：真实模型与浏览器任务、并发、备份恢复及阶段日志。

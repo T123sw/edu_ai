@@ -1,0 +1,32 @@
+[WebServer] INFO:     Started server process [586758]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
+[WebServer] (node:586799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:586827) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:586860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+  ✓   1 tests/live-learning/agent-session.spec.ts:9:5 › A B A, same-topic material switch and refresh preserve one session/introduction (4.1s)
+  ✓   2 tests/live-learning/agent-session.spec.ts:31:5 › late answer remains in original topic and another account cannot see it (5.9s)
+  ✓   3 tests/live-learning/agent-session.spec.ts:52:5 › 150 stored turns can be paged all the way back without duplicates (3.8s)
+  ✓   4 tests/live-learning/quiet-learning.spec.ts:7:5 › quiet reading, acknowledged completion, self assessment, refresh and undo (7.3s)
+  ✓   5 tests/live-learning/quiet-learning.spec.ts:27:5 › offline completion retains event identity across reload, navigation stays available (3.2s)
+  ✓   6 tests/live-learning/quiet-learning.spec.ts:49:5 › model failure does not block completion or continuing (2.7s)
+  ✓   7 tests/live-learning/quiet-learning.spec.ts:59:5 › optional material does not prevent core completion and next-topic navigation (2.6s)
+  ✓   8 tests/live-learning/quiet-learning.spec.ts:69:5 › pending completion waits for receipt; account switch never sends old queue (8.3s)
+  ✓   9 tests/live-learning/quiet-learning.spec.ts:88:5 › material version mismatch does not emit reading observations (3.7s)
+  ✓  10 tests/live-learning/quiet-learning.spec.ts:100:5 › another device revision is surfaced and never silently overwritten (3.7s)
+  ✓  11 tests/live-learning/quiet-learning.spec.ts:117:5 › phone layout keeps saved status and continuing visible (1.5s)
+
+  11 passed (57.1s)

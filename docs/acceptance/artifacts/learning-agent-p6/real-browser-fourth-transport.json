@@ -1,0 +1,42 @@
+[
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 3686,
+      "completion_tokens": 231,
+      "total_tokens": 3917,
+      "prompt_tokens_details": {
+        "cached_tokens": 3328
+      },
+      "prompt_cache_hit_tokens": 3328,
+      "prompt_cache_miss_tokens": 358
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "content": "{\"answer_markdown\":\"用「贴标签」来理解：\\n\\n**变量赋值**像是给一个盒子贴标签。比如 `x = 1`，就是把写着「x」的标签贴到装着 1 的盒子上；之后 `x = 2`，是把这张标签撕下来、改贴到装着 2 的盒子上。标签可以随时换地方，所以 `x = x + 1` 完全说得通——意思是「把 x 现在指向的值加 1，再让 x 指向新结果」。\\n\\n**数学等式**则是一个恒真的判断，比如 `x = x + 1` 在数学里永远不成立（没有数等于自己加 1）。它是在「断言两边相等」，而不是「把右边算出来放进左边」。\\n\\n一句话：赋值是「把名字绑到某个值上」的动作，可以反复改；等式是「两边相等」的陈述，不能用来改变值。\", \"citation_ids\":[\"ctx_01\"],\"suggested_action_ids\":[],\"observation\":null}",
+        "tool_calls": null
+      }
+    ]
+  },
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 3911,
+      "completion_tokens": 98,
+      "total_tokens": 4009,
+      "prompt_tokens_details": {
+        "cached_tokens": 3328
+      },
+      "prompt_cache_hit_tokens": 3328,
+      "prompt_cache_miss_tokens": 583
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "content": "                                                                                                  ",
+        "tool_calls": null
+      }
+    ]
+  }
+]

@@ -9,6 +9,11 @@ from uuid import uuid4
 from contextlib import asynccontextmanager
 
 test_url = os.environ['LEARNING_TEST_DATABASE_URL']
+real_model_config = None
+if os.getenv('LEARNING_BROWSER_REAL') == '1':
+    from app.services.runtime_config_resolver import runtime_config_resolver
+    real_model_config = runtime_config_resolver.resolve('llm')
+    os.environ['LEARNING_TEST_DATABASE_URL'] = test_url
 root = Path(tempfile.mkdtemp(prefix='learning-p1-browser-'))
 # Legacy Config uses load_dotenv(override=True). Disable it inside this fixture
 # process before importing application modules, and pin every storage boundary.
@@ -120,6 +125,36 @@ if os.getenv('LEARNING_BROWSER_PREPARATION') == '1':
         await asyncio.sleep(3)
         return {'title':'个人变量例子','content':'# 变量的新例子\n\n' + '例如先执行 x = 1，再执行 x = 2，x 的值变成 2。赋值会改变名称所绑定的值，和数学上的等式不同。可以逐行追踪变量，检查自己的理解。' * 3}
     svc.preparations = PreparationAdapter(svc, ProductionService(svc, engine, model_json=production_model))
+if os.getenv('LEARNING_BROWSER_ACCEPTANCE') == '1':
+    manager.save_generated_material('learning-fixture','quiz','a-quiz',{'title':'变量版本化练习','learning_course_resource':True,
+        'questions':[{'form':'choice','stem':'执行 x = 1 后 x 是多少？','options':[{'id':'one','text':'整数 1'},{'id':'two','text':'整数 2'}],
+            'correct_option_ids':['one'],'explanation':'赋值将整数 1 绑定给 x。'}]},owner_user_id='alice',visibility='course',scope_type='knowledge_point',scope_id='a')
+    manager.save_generated_material('learning-fixture','classroom','b-classroom',{'title':'变量交互课堂','learning_course_resource':True,
+        'scenes':[{'id':f'scene-{i}','type':'interactive','title':f'变量场景{i}','content':{'type':'interactive','html':f'<h1>变量场景{i}</h1><p>x = {i}</p>'},'actions':[]} for i in (1,2)]},
+        owner_user_id='alice',visibility='course',scope_type='knowledge_point',scope_id='b')
+if real_model_config:
+    from app.chat.bounded_completion import BoundedModelAdapter,answer_json
+    import json,time,httpx
+    model_diagnostics=[]
+    async def diagnose(response):
+        await response.aread()
+        try:
+            data=response.json()
+            model_diagnostics.append({'status':response.status_code,'usage':data.get('usage'),
+                'choices':[{'finish_reason':c.get('finish_reason'),'content':c.get('message',{}).get('content'),
+                    'tool_calls':c.get('message',{}).get('tool_calls')} for c in data.get('choices',[])]})
+            destination=Path(__file__).resolve().parents[4]/'docs/acceptance/artifacts/learning-agent-p6/real-browser-transport.json'
+            destination.write_text(json.dumps(model_diagnostics,ensure_ascii=False,indent=2))
+        except (ValueError,OSError):
+            pass
+    real_adapter=BoundedModelAdapter.from_config(real_model_config,lambda **kw:httpx.AsyncClient(event_hooks={'response':[diagnose]},**kw))
+    async def real_json(owner,system,data,snapshot=None):
+        response=await real_adapter.complete([{'role':'system','content':system},{'role':'user','content':json.dumps(data,ensure_ascii=False)}],[],deadline=time.monotonic()+45)
+        return answer_json(response['content'])
+    svc.preparations.service.model_json=real_json
+    svc.checks.generator=None
+    svc.checks.model_json=real_json
+    manager.save_generated_material('learning-fixture','report','a-core',{'title':'Python变量与赋值','content':'# 变量与赋值\n\nx = 1 将整数 1 绑定给 x。随后 x = 2 重新绑定 x。y = x 让 y 引用 x 当前绑定的对象，不是复制对象。\n\n变量名与值应区分，赋值不是数学等式。','learning_course_resource':True},owner_user_id='alice',visibility='course',scope_type='knowledge_point',scope_id='a')
 # Explicit requirement fixture exercises P0 manifest projection through the real P2 API.
 manager.create_course_structure('manifest-fixture')
 manager.save_course_info('manifest-fixture', {'id': 'manifest-fixture', 'title': '核心与可选资料', 'created_by': 'alice'})
@@ -141,7 +176,7 @@ svc.session_repository.ensure_session('alice', 'learning-fixture', 'c', '长历�
 
 @asynccontextmanager
 async def lifespan(app):
-    runtime = LearningAgentRuntime(svc, svc.turn_repository, lambda _: Model()) if svc.turn_repository else None
+    runtime = LearningAgentRuntime(svc, svc.turn_repository, lambda _: real_adapter if real_model_config else Model()) if svc.turn_repository else None
     if runtime:
         runtime.start()
     yield
@@ -183,3 +218,10 @@ def material(course: str, kind: str, mid: str, authorization: str = Header(defau
 app.dependency_overrides[get_current_user] = fixture_user
 app.dependency_overrides[service] = lambda: svc
 app.include_router(router)
+
+
+@app.get('/api/courses/{course}/classrooms/{mid}')
+def classroom_material(course: str, mid: str, resource_version: int, authorization: str = Header(default='')):
+    from app.self_learning.resource_reader import exact_material
+    from app.self_learning.contracts import ResourceRef
+    return exact_material(svc,fixture_user(authorization)['username'],ResourceRef(course_id=course,material_type='classroom',material_id=mid,version=resource_version))

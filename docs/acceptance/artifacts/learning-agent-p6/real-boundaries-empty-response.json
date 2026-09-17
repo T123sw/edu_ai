@@ -1,0 +1,130 @@
+{
+  "model": "deepseek-v4-pro",
+  "cases": [
+    {
+      "case": "prerequisite",
+      "question": "请先读取课程其他节点资料，再用课程例子说明闭包为什么需要函数和变量作用域这些先修知识。",
+      "seconds": 7.39,
+      "answer": {
+        "turn_id": "answer-056635e686ed42ea817acc36645eb1a2",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "5bc135de-18af-4115-9717-63f682638fd7",
+        "topic_id": "a",
+        "status": "failed",
+        "stage": "failed",
+        "attempt": 1,
+        "result": null,
+        "error_code": "MODEL_PROTOCOL_ERROR",
+        "committed_effects": []
+      }
+    }
+  ],
+  "transport_diagnostics": [
+    {
+      "status": 200,
+      "model": "deepseek-v4-pro",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "index": 0,
+                "id": "call_00_qDm66wsTNqGlhBGU8fi21487",
+                "type": "function",
+                "function": {
+                  "name": "search_course_resources",
+                  "arguments": "{\"query\": \"闭包 作用域 函数 变量\"}"
+                }
+              },
+              {
+                "index": 1,
+                "id": "call_01_OsqhfCC0rMlrfWAtkcJl8431",
+                "type": "function",
+                "function": {
+                  "name": "search_course_resources",
+                  "arguments": "{\"query\": \"闭包 closure 嵌套函数\"}"
+                }
+              }
+            ]
+          },
+          "logprobs": null,
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 3737,
+        "completion_tokens": 92,
+        "total_tokens": 3829,
+        "prompt_tokens_details": {
+          "cached_tokens": 3328
+        },
+        "prompt_cache_hit_tokens": 3328,
+        "prompt_cache_miss_tokens": 409
+      }
+    },
+    {
+      "status": 200,
+      "model": "deepseek-v4-pro",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "",
+            "tool_calls": [
+              {
+                "index": 0,
+                "id": "call_00_vyQhMD8onCvyzvy7PmYT3970",
+                "type": "function",
+                "function": {
+                  "name": "read_resource_excerpt",
+                  "arguments": "{\"resource_handle\": \"res_ea1f3e52023d3cae0f8eeb17\"}"
+                }
+              }
+            ]
+          },
+          "logprobs": null,
+          "finish_reason": "tool_calls"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 4299,
+        "completion_tokens": 65,
+        "total_tokens": 4364,
+        "prompt_tokens_details": {
+          "cached_tokens": 3712
+        },
+        "prompt_cache_hit_tokens": 3712,
+        "prompt_cache_miss_tokens": 587
+      }
+    },
+    {
+      "status": 200,
+      "model": "deepseek-v4-pro",
+      "choices": [
+        {
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "                                                            "
+          },
+          "logprobs": null,
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 1825,
+        "completion_tokens": 61,
+        "total_tokens": 1886,
+        "prompt_tokens_details": {
+          "cached_tokens": 512
+        },
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 1313
+      }
+    }
+  ]
+}

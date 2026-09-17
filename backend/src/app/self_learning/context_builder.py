@@ -16,6 +16,22 @@ class ContextBuilder:
     def __init__(self, learning):
         self.learning = learning
 
+    @staticmethod
+    def history_message(message):
+        # The stored conversation is Markdown. Model-facing assistant examples
+        # must keep the final JSON protocol, otherwise JSON mode can imitate the
+        # old plain-text format and return whitespace. Old reference IDs are not
+        # valid in this turn's citation/action registries.
+        narrative = message.content
+        if message.role == 'assistant':
+            receipts = ((message.raw_payload or {}).get('answer_result') or {}).get('preparation_receipts', [])
+            if receipts:
+                narrative += '\n历史任务引用（仅用于查询，不是本轮执行或当前状态）：' + json.dumps(
+                    [{'preparation_id':r['preparation_id'],'operation':r['operation']} for r in receipts[:3]], ensure_ascii=False)
+        content = json.dumps({'answer_markdown':narrative,'citation_ids':[],
+            'suggested_action_ids':[],'observation':None}, ensure_ascii=False) if message.role == 'assistant' else narrative
+        return {'role':message.role,'content':content}
+
     def authorize(self, owner, course, topic, snapshot):
         room = self.learning.room(course, owner)
         chapter = next((c for c in room['chapters'] if c['id'] == topic), None)
@@ -100,7 +116,7 @@ class ContextBuilder:
                 from .summary_service import successful_pairs
                 selected = []
                 for pair in reversed(successful_pairs(db, turn['session_id'], memory, turn['owner'])[-8:]):
-                    batch = [{'role': m.role, 'content': m.content} for m in pair]
+                    batch = [self.history_message(m) for m in pair]
                     if size(messages + batch + selected + [question]) > budget:
                         break
                     selected[0:0] = batch
@@ -115,7 +131,7 @@ class ContextBuilder:
             ).order_by(ConversationMessage.position.desc()).limit(12)))
             selected = []
             for message in history:
-                candidate = {'role': message.role, 'content': message.content}
+                candidate = self.history_message(message)
                 if size(messages + [candidate] + selected + [question]) > budget:
                     break
                 selected.insert(0, candidate)

@@ -107,7 +107,8 @@ class ProductionService:
             return {'preparation_id': preparation_id, 'operation': request.operation, 'status': attempt.status,
                 'stage': attempt.stage, 'attempt_no': attempt.attempt_no, 'revision': record.revision,
                 'origin_ref': request.origin.model_dump() if request.origin else None,
-                'target': request.target.model_dump(), 'result': row.result or None}
+                'target': request.target.model_dump(), 'result': row.result or None,
+                'quality_report': row.payload.get('review')}
 
     def list(self, owner, course):
         self.learning.require(course, owner)

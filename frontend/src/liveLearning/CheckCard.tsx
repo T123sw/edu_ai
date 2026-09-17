@@ -3,7 +3,7 @@ import { apiRequest } from '../stitch/api/client';
 
 type Attempt = { attempt_id: string; status: string; option_ids: string[]; text: string; correct: boolean | null; feedback: string; evaluator: string | null };
 type Check = { check_id: string; question_version: number; source_available?: boolean; public_question: { form: 'choice' | 'short_answer'; stem: string; options: { id: string; text: string }[] }; attempts?: Attempt[] };
-export function CheckCard({ course, topic, owner, refreshKey }: { course: string; topic: string; owner: string; refreshKey?: string }) {
+export function CheckCard({ course, topic, owner, refreshKey, checkId }: { course: string; topic: string; owner: string; refreshKey?: string; checkId?: string }) {
   const [checks, setChecks] = useState<Check[]>([]);
   const [choice, setChoice] = useState<string[]>([]);
   const [answer, setAnswer] = useState('');
@@ -14,9 +14,9 @@ export function CheckCard({ course, topic, owner, refreshKey }: { course: string
   const authorized = useCallback(() => { try { return JSON.parse(localStorage.getItem('edu-ai-auth') || '{}').user?.username === owner; } catch { return false; } }, [owner]);
   const refresh = useCallback(async () => {
     if (!authorized()) return;
-    const result = await apiRequest<{ items: Check[] }>(path);
+    const result = checkId ? { items: [await apiRequest<Check>(`/api/self-learning/checks/${encodeURIComponent(checkId)}`)] } : await apiRequest<{ items: Check[] }>(path);
     if (alive.current && authorized()) setChecks(result.items);
-  }, [path, authorized]);
+  }, [path, authorized, checkId]);
   useEffect(() => { alive.current = true; void refresh().catch(e => setError(e.message)); return () => { alive.current = false; }; }, [refresh, refreshKey]);
   const check = checks[0];
   const attempt = check?.attempts?.[0];
@@ -59,7 +59,7 @@ export function CheckCard({ course, topic, owner, refreshKey }: { course: string
         {(attempt.status === 'evaluation_failed' || attempt.status === 'pending_evaluation') && <button disabled={busy} onClick={() => void run(() => apiRequest(`/api/self-learning/checks/${check.check_id}/attempts/${attempt.attempt_id}/evaluate`, { method: 'POST' }))}>重试评价</button>}
       </div>}
     </>}
-    {(!check || attempt) && <button disabled={busy} onClick={() => void run(offer)}>{busy ? '正在准备检查…' : check ? '再来一道检查' : '开始理解检查'}</button>}
+    {!checkId && (!check || attempt) && <button disabled={busy} onClick={() => void run(offer)}>{busy ? '正在准备检查…' : check ? '再来一道检查' : '开始理解检查'}</button>}
     {error && <p role="alert">{error}，仍可继续阅读。</p>}
   </section>;
 }

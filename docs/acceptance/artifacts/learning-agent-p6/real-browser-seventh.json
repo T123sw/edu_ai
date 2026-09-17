@@ -1,0 +1,583 @@
+[
+  {
+    "question": "请用一个生活中的简单例子解释变量赋值和数学等式的区别。",
+    "seconds": 9.765,
+    "turn": {
+      "turn_id": "answer-8aa5bec465314c1aba103967561d725b",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "2307986b-a8c5-4d51-a6cc-fb18a6367f3f",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "Python变量与赋值",
+            "locator": null,
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "9cba80175b57cf3831fc25eb07774ec5194614a80b386d3aafdb87ea2cdba60a",
+            "resource_ref": {
+              "version": 2,
+              "course_id": "learning-fixture",
+              "material_id": "a-core",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 0,
+        "answer_markdown": "用「贴标签」来理解：\n\n**变量赋值**：把一张标签贴到某个东西上，而且可以随时撕下来换贴到别处。\n\n- `x = 1`：把「x」这张标签贴在数字 1 上。\n- `x = 2`：把标签撕下来，改贴到数字 2 上。\n- `y = x`：再拿一张「y」标签，贴在 x 现在指着的那个东西（2）上。\n\n**数学等式**：像天平，两边必须永远相等，不能「重新贴」。\n\n- 数学里 `x = 1` 表示 x 就是 1，之后不能再变成 2，否则就矛盾了。\n\n所以关键区别是：程序里的 `=` 是「把名字指向某个值」的动作，可以反复改；数学里的 `=` 是「两边相等」的陈述，是固定不变的关系。",
+        "source_revision": 0,
+        "preparation_receipts": [],
+        "suggested_action_ids": []
+      },
+      "error_code": null,
+      "committed_effects": []
+    }
+  },
+  {
+    "question": "x = 1; y = x; x = 2。不要直接给答案，只给一步提示引导我判断 y 的值。",
+    "seconds": 4.236,
+    "turn": {
+      "turn_id": "answer-32e257731cf741ae8a07d4bd63aea27d",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "3380a6b7-def9-4a72-a1ea-a3a4fc3c1fff",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "Python变量与赋值",
+            "locator": null,
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "9cba80175b57cf3831fc25eb07774ec5194614a80b386d3aafdb87ea2cdba60a",
+            "resource_ref": {
+              "version": 2,
+              "course_id": "learning-fixture",
+              "material_id": "a-core",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 0,
+        "answer_markdown": "先想清楚 `y = x` 这一步发生时，x 指向的是哪个值？\n\n提示：`y = x` 是「让 y 引用 x 当时绑定的对象」，而不是「让 y 永远跟着 x 变」。所以关键看执行到 `y = x` 那一行时，x 还是 1 还是已经变成 2 了。",
+        "source_revision": 1,
+        "preparation_receipts": [],
+        "suggested_action_ids": []
+      },
+      "error_code": null,
+      "committed_effects": []
+    }
+  },
+  {
+    "question": "请提供一道可以跳过的理解检查，让我试着判断赋值。",
+    "seconds": 8.268,
+    "turn": {
+      "turn_id": "answer-b1e6b1384c70432898cda3a2c9836ac3",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "47a7aa53-94f2-4d5c-b4ab-8a8d224b20f5",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [
+          {
+            "kind": "understanding_check",
+            "check_id": "check-6116a09d7cab463ebc8b2e811db1e493",
+            "topic_id": "a",
+            "source_ref": {
+              "version": 1,
+              "course_id": "learning-fixture",
+              "material_id": "a-quiz",
+              "material_type": "quiz"
+            },
+            "objective_ids": [],
+            "public_question": {
+              "form": "choice",
+              "stem": "执行 x = 1 后 x 是多少？",
+              "options": [
+                {
+                  "id": "one",
+                  "text": "整数 1"
+                },
+                {
+                  "id": "two",
+                  "text": "整数 2"
+                }
+              ]
+            },
+            "question_version": 1,
+            "source_available": true
+          }
+        ],
+        "citations": [],
+        "observation": null,
+        "citation_ids": [],
+        "memory_epoch": 0,
+        "model_rounds": 3,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 2,
+        "answer_markdown": "已生成一道可跳过的理解检查，请在检查卡片上作答，或直接跳过继续阅读。",
+        "source_revision": 1,
+        "preparation_receipts": [],
+        "suggested_action_ids": [
+          "check-6116a09d7cab463ebc8b2e811db1e493"
+        ]
+      },
+      "error_code": null,
+      "committed_effects": [
+        {
+          "kind": "understanding_check",
+          "check_id": "check-6116a09d7cab463ebc8b2e811db1e493"
+        }
+      ]
+    }
+  },
+  {
+    "question": "请生成并保存一份只有一道单选题的变量赋值练习资料。",
+    "seconds": 6.541,
+    "turn": {
+      "turn_id": "answer-4d7ffdaaba364c73a57de1a8a09cca68",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "a933e756-32ec-45be-8bbe-3694a39053fb",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [],
+        "citations": [],
+        "observation": null,
+        "citation_ids": [],
+        "memory_epoch": 0,
+        "model_rounds": 2,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 1,
+        "answer_markdown": "任务已接收，正在后台准备这份单选题练习资料。准备完成后你可以自行打开查看；目前尚未生成完成。",
+        "source_revision": 2,
+        "preparation_receipts": [
+          {
+            "stage": "normalize",
+            "result": null,
+            "status": "accepted",
+            "target": {
+              "node_id": "a",
+              "course_id": "learning-fixture",
+              "resource_id": null,
+              "base_route_version": null,
+              "base_manifest_version": 1,
+              "base_resource_version": null
+            },
+            "revision": 1,
+            "operation": "supplement_node",
+            "attempt_no": 1,
+            "origin_ref": {
+              "message_id": "answer-4d7ffdaaba364c73a57de1a8a09cca68:user",
+              "conversation_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1"
+            },
+            "preparation_id": "prep_c8a59604ea4246b0ab4b7ae1b7a2ac18"
+          }
+        ],
+        "suggested_action_ids": []
+      },
+      "error_code": null,
+      "committed_effects": [
+        {
+          "kind": "preparation",
+          "preparation_id": "prep_c8a59604ea4246b0ab4b7ae1b7a2ac18"
+        }
+      ]
+    }
+  },
+  {
+    "delivery": {
+      "preparation_id": "prep_c8a59604ea4246b0ab4b7ae1b7a2ac18",
+      "operation": "supplement_node",
+      "status": "succeeded",
+      "stage": "commit",
+      "attempt_no": 1,
+      "revision": 4,
+      "origin_ref": {
+        "conversation_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "message_id": "answer-4d7ffdaaba364c73a57de1a8a09cca68:user"
+      },
+      "target": {
+        "course_id": "learning-fixture",
+        "base_manifest_version": 1,
+        "node_id": "a",
+        "resource_id": null,
+        "base_resource_version": null,
+        "base_route_version": null
+      },
+      "result": {
+        "node_ids": [
+          "a"
+        ],
+        "operation": "supplement_node",
+        "attempt_no": 1,
+        "course_ref": {
+          "course_id": "learning-fixture"
+        },
+        "assumptions": [],
+        "limitations": [
+          "仅交付个人补充资料，不认证旧课程整体质量"
+        ],
+        "course_ready": false,
+        "manifest_ref": {
+          "scope": "personal_supplement",
+          "version": 2
+        },
+        "resource_refs": [
+          {
+            "node_id": "a",
+            "purpose": "personal_supplement",
+            "version": 1,
+            "course_id": "learning-fixture",
+            "material_id": "prep_c8a59604ea4246b0ab4b7ae1b7a2ac18_1_0",
+            "content_hash": "7df5d52245f683044a0b70095bfa6b4cb3dc6ee6abc5266884bd9079340c5f39",
+            "material_type": "quiz"
+          }
+        ],
+        "change_summary": "请生成并保存一份只有一道单选题的变量赋值练习资料。\n具体要求：生成一份只有一道单选题的变量赋值练习资料，题目围绕变量与赋值（如 x = 1; y = x; x = 2 后 y 的值）设计，用于练习判断赋值与引用。",
+        "preparation_id": "prep_c8a59604ea4246b0ab4b7ae1b7a2ac18",
+        "quality_report_ref": {
+          "attempt_no": 1,
+          "preparation_id": "prep_c8a59604ea4246b0ab4b7ae1b7a2ac18"
+        }
+      }
+    }
+  },
+  {
+    "question": "请生成并保存一份讲解两个变量赋值过程的补充文档，包含逐行追踪的例子。",
+    "seconds": 6.925,
+    "turn": {
+      "turn_id": "answer-b5dcb9ad29d14f1b84447da31a1c9588",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "4f832c95-0322-4b21-869e-cc813c30e194",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [],
+        "citations": [],
+        "observation": null,
+        "citation_ids": [],
+        "memory_epoch": 0,
+        "model_rounds": 2,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 1,
+        "answer_markdown": "任务已接收，正在后台准备这份讲解两个变量赋值过程的补充文档（含逐行追踪例子）。准备完成后你可以自行打开查看；目前尚未生成完成。",
+        "source_revision": 4,
+        "preparation_receipts": [
+          {
+            "stage": "normalize",
+            "result": null,
+            "status": "accepted",
+            "target": {
+              "node_id": "a",
+              "course_id": "learning-fixture",
+              "resource_id": null,
+              "base_route_version": null,
+              "base_manifest_version": 2,
+              "base_resource_version": null
+            },
+            "revision": 1,
+            "operation": "supplement_node",
+            "attempt_no": 1,
+            "origin_ref": {
+              "message_id": "answer-b5dcb9ad29d14f1b84447da31a1c9588:user",
+              "conversation_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1"
+            },
+            "preparation_id": "prep_cfe718183c5a452f874cf6df8ef6f298"
+          }
+        ],
+        "suggested_action_ids": []
+      },
+      "error_code": null,
+      "committed_effects": [
+        {
+          "kind": "preparation",
+          "preparation_id": "prep_cfe718183c5a452f874cf6df8ef6f298"
+        }
+      ]
+    }
+  },
+  {
+    "delivery": {
+      "preparation_id": "prep_cfe718183c5a452f874cf6df8ef6f298",
+      "operation": "supplement_node",
+      "status": "succeeded",
+      "stage": "commit",
+      "attempt_no": 1,
+      "revision": 4,
+      "origin_ref": {
+        "conversation_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "message_id": "answer-b5dcb9ad29d14f1b84447da31a1c9588:user"
+      },
+      "target": {
+        "course_id": "learning-fixture",
+        "base_manifest_version": 2,
+        "node_id": "a",
+        "resource_id": null,
+        "base_resource_version": null,
+        "base_route_version": null
+      },
+      "result": {
+        "node_ids": [
+          "a"
+        ],
+        "operation": "supplement_node",
+        "attempt_no": 1,
+        "course_ref": {
+          "course_id": "learning-fixture"
+        },
+        "assumptions": [],
+        "limitations": [
+          "仅交付个人补充资料，不认证旧课程整体质量"
+        ],
+        "course_ready": false,
+        "manifest_ref": {
+          "scope": "personal_supplement",
+          "version": 3
+        },
+        "resource_refs": [
+          {
+            "node_id": "a",
+            "purpose": "personal_supplement",
+            "version": 1,
+            "course_id": "learning-fixture",
+            "material_id": "prep_cfe718183c5a452f874cf6df8ef6f298_1_0",
+            "content_hash": "f63584b0d501e6705bea864ffb89d5a692c36f133fcbc21116f17578e4b3b0a6",
+            "material_type": "report"
+          }
+        ],
+        "change_summary": "请生成并保存一份讲解两个变量赋值过程的补充文档，包含逐行追踪的例子。\n具体要求：生成一份讲解两个变量赋值过程的补充文档，包含逐行追踪的例子（例如 x = 1; y = x; x = 2 这类场景，逐步说明变量绑定与重新绑定的过程）。",
+        "preparation_id": "prep_cfe718183c5a452f874cf6df8ef6f298",
+        "quality_report_ref": {
+          "attempt_no": 1,
+          "preparation_id": "prep_cfe718183c5a452f874cf6df8ef6f298"
+        }
+      }
+    }
+  },
+  {
+    "question": "请修改当前这份文档，增加一个交换两个变量的完整例子，保存为个人版本。",
+    "seconds": 7.86,
+    "turn": {
+      "turn_id": "answer-31fb63cc932c41cdb61ed5b5911e07fb",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "a80e72b6-acfd-491b-9273-d9bbac303a5e",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "两个变量赋值过程详解",
+            "locator": null,
+            "visibility": "private",
+            "citation_id": "ctx_01",
+            "content_hash": "66ecc6e60b360e56e9c3cd4f6782b3a4b2a4a56af511738c087dc39c61361c28",
+            "resource_ref": {
+              "version": 1,
+              "course_id": "learning-fixture",
+              "material_id": "prep_cfe718183c5a452f874cf6df8ef6f298_1_0",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 2,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 1,
+        "answer_markdown": "已收到你的修改请求，任务已进入准备队列（状态：accepted，仍在准备中）。我会在当前文档中增加一个交换两个变量的完整例子，并保存为个人版本。准备完成后你可以自行打开查看，目前资料尚未生成完成。",
+        "source_revision": 4,
+        "preparation_receipts": [
+          {
+            "stage": "normalize",
+            "result": null,
+            "status": "accepted",
+            "target": {
+              "node_id": "a",
+              "course_id": "learning-fixture",
+              "resource_id": "prep_cfe718183c5a452f874cf6df8ef6f298_1_0",
+              "base_route_version": null,
+              "base_manifest_version": 3,
+              "base_resource_version": 1
+            },
+            "revision": 1,
+            "operation": "revise_resource",
+            "attempt_no": 1,
+            "origin_ref": {
+              "message_id": "answer-31fb63cc932c41cdb61ed5b5911e07fb:user",
+              "conversation_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1"
+            },
+            "preparation_id": "prep_c1d17ea596224ad1aa4f8322f1b7170d"
+          }
+        ],
+        "suggested_action_ids": []
+      },
+      "error_code": null,
+      "committed_effects": [
+        {
+          "kind": "preparation",
+          "preparation_id": "prep_c1d17ea596224ad1aa4f8322f1b7170d"
+        }
+      ]
+    }
+  },
+  {
+    "delivery": {
+      "preparation_id": "prep_c1d17ea596224ad1aa4f8322f1b7170d",
+      "operation": "revise_resource",
+      "status": "succeeded",
+      "stage": "commit",
+      "attempt_no": 1,
+      "revision": 4,
+      "origin_ref": {
+        "conversation_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "message_id": "answer-31fb63cc932c41cdb61ed5b5911e07fb:user"
+      },
+      "target": {
+        "course_id": "learning-fixture",
+        "base_manifest_version": 3,
+        "node_id": "a",
+        "resource_id": "prep_cfe718183c5a452f874cf6df8ef6f298_1_0",
+        "base_resource_version": 1,
+        "base_route_version": null
+      },
+      "result": {
+        "node_ids": [
+          "a"
+        ],
+        "operation": "revise_resource",
+        "attempt_no": 1,
+        "course_ref": {
+          "course_id": "learning-fixture"
+        },
+        "assumptions": [],
+        "limitations": [
+          "仅交付个人补充资料，不认证旧课程整体质量"
+        ],
+        "course_ready": false,
+        "manifest_ref": {
+          "scope": "personal_supplement",
+          "version": 4
+        },
+        "resource_refs": [
+          {
+            "node_id": "a",
+            "purpose": "personal_supplement",
+            "version": 1,
+            "course_id": "learning-fixture",
+            "material_id": "prep_c1d17ea596224ad1aa4f8322f1b7170d_1_0",
+            "content_hash": "eaedc10fb997b72a5ef91d0233faa545712228916ff9a08e4622cc32316ab985",
+            "material_type": "report"
+          }
+        ],
+        "change_summary": "请修改当前这份文档，增加一个交换两个变量的完整例子，保存为个人版本。\n具体要求：在当前这份关于变量赋值与重新绑定的文档中，增加一个交换两个变量的完整例子（例如 a, b = b, a 或使用临时变量的方式），并保存为个人版本。",
+        "preparation_id": "prep_c1d17ea596224ad1aa4f8322f1b7170d",
+        "quality_report_ref": {
+          "attempt_no": 1,
+          "preparation_id": "prep_c1d17ea596224ad1aa4f8322f1b7170d"
+        }
+      }
+    }
+  },
+  {
+    "original": {
+      "title": "两个变量赋值过程详解",
+      "content": "在编程中，理解变量赋值与重新绑定的过程至关重要。变量可以看作指向内存中对象的标签。当执行 `x = 1` 时，变量 `x` 绑定到整数对象 `1`。接着执行 `y = x`，变量 `y` 绑定到 `x` 当前所引用的对象，即同一个整数 `1`。此时 `x` 和 `y` 都指向同一个对象。随后执行 `x = 2`，变量 `x` 重新绑定到新的整数对象 `2`，但 `y` 仍然绑定到原来的对象 `1`。因此，最终 `y` 的值是 `1`。\n\n**逐行追踪示例**：\n```python\nx = 1   # x 绑定到整数 1\ny = x   # y 绑定到 x 当前引用的对象（整数 1）\nx = 2   # x 重新绑定到整数 2，y 不受影响\nprint(y)  # 输出 1\n```\n\n**常见误区**：\n- 误以为 `y = x` 建立了 `y` 对 `x` 的引用关系，之后 `x` 改变时 `y` 也会跟着变。实际上，赋值是复制引用（对象地址），而不是建立变量间的动态链接。\n- 对于不可变对象（如整数、字符串），重新赋值会创建新对象并更新绑定；对于可变对象（如列表），修改内容会影响所有引用该对象的变量。\n\n理解这一机制有助于避免在变量传递和赋值时产生逻辑错误。",
+      "preparation_draft": "prep_cfe718183c5a452f874cf6df8ef6f298",
+      "source_ref": {
+        "version": 1,
+        "course_id": "learning-fixture",
+        "material_id": "prep_c8a59604ea4246b0ab4b7ae1b7a2ac18_1_0",
+        "material_type": "quiz"
+      },
+      "schema_version": 2,
+      "version": 1,
+      "material_type": "report",
+      "material_id": "prep_cfe718183c5a452f874cf6df8ef6f298_1_0",
+      "course_id": "learning-fixture",
+      "scope_type": "knowledge_point",
+      "scope_id": "a",
+      "owner_user_id": "alice",
+      "created_by": "alice",
+      "visibility": "private",
+      "source_job_id": null,
+      "config_snapshot_id": null,
+      "source_snapshot": {},
+      "config_snapshot": {},
+      "source": {},
+      "status": "ready",
+      "created_at": "2026-09-17T12:21:06.606415",
+      "updated_at": "2026-09-17T12:21:06.606415",
+      "is_pinned": false,
+      "pinned_at": null,
+      "content_hash": "dafa0a621390da7102332cc5e8e999ea5fffe16bb7c771884054f29c43e0ffd3",
+      "artifact_paths": []
+    },
+    "revised": {
+      "title": "变量赋值与重新绑定",
+      "content": "在编程中，理解变量赋值与重新绑定的过程至关重要。变量可以看作指向内存中对象的标签。当执行 `x = 1` 时，变量 `x` 绑定到整数对象 `1`。接着执行 `y = x`，变量 `y` 绑定到 `x` 当前所引用的对象，即同一个整数 `1`。此时 `x` 和 `y` 都指向同一个对象。随后执行 `x = 2`，变量 `x` 重新绑定到新的整数对象 `2`，但 `y` 仍然绑定到原来的对象 `1`。因此，最终 `y` 的值是 `1`。\n\n**逐行追踪示例**：\n```python\nx = 1   # x 绑定到整数 1\ny = x   # y 绑定到 x 当前引用的对象（整数 1）\nx = 2   # x 重新绑定到整数 2，y 不受影响\nprint(y)  # 输出 1\n```\n\n**交换两个变量的完整例子**：\n在 Python 中，可以使用元组解包（tuple unpacking）简洁地交换两个变量的值，而无需临时变量：\n```python\na = 5\nb = 10\nprint(\"交换前：a =\", a, \", b =\", b)  # 输出：交换前：a = 5 , b = 10\na, b = b, a  # 右侧先创建元组 (b, a)，然后解包赋值给 a 和 b\nprint(\"交换后：a =\", a, \", b =\", b)  # 输出：交换后：a = 10 , b = 5\n```\n也可以使用临时变量进行交换，这在其他语言中更常见：\n```python\na = 5\nb = 10\ntemp = a\na = b\nb = temp\nprint(\"交换后：a =\", a, \", b =\", b)  # 输出：交换后：a = 10 , b = 5\n```\n\n**常见误区**：\n- 误以为 `y = x` 建立了 `y` 对 `x` 的引用关系，之后 `x` 改变时 `y` 也会跟着变。实际上，赋值是复制引用（对象地址），而不是建立变量间的动态链接。\n- 对于不可变对象（如整数、字符串），重新赋值会创建新对象并更新绑定；对于可变对象（如列表），修改内容会影响所有引用该对象的变量。\n- 在交换变量时，使用 `a, b = b, a` 是安全的，因为右侧的表达式会先被求值，生成一个包含原始值的元组，然后再进行赋值，不会出现中间状态丢失的问题。\n\n理解这一机制有助于避免在变量传递和赋值时产生逻辑错误。",
+      "preparation_draft": "prep_c1d17ea596224ad1aa4f8322f1b7170d",
+      "source_ref": {
+        "version": 1,
+        "course_id": "learning-fixture",
+        "material_id": "prep_cfe718183c5a452f874cf6df8ef6f298_1_0",
+        "material_type": "report"
+      },
+      "schema_version": 2,
+      "version": 1,
+      "material_type": "report",
+      "material_id": "prep_c1d17ea596224ad1aa4f8322f1b7170d_1_0",
+      "course_id": "learning-fixture",
+      "scope_type": "knowledge_point",
+      "scope_id": "a",
+      "owner_user_id": "alice",
+      "created_by": "alice",
+      "visibility": "private",
+      "source_job_id": null,
+      "config_snapshot_id": null,
+      "source_snapshot": {},
+      "config_snapshot": {},
+      "source": {},
+      "status": "ready",
+      "created_at": "2026-09-17T12:21:22.351231",
+      "updated_at": "2026-09-17T12:21:22.351231",
+      "is_pinned": false,
+      "pinned_at": null,
+      "content_hash": "7a69f0b03a9b263e6130ccc58034bf005d30c9c2d29195595583512bd88a55df",
+      "artifact_paths": []
+    }
+  }
+]

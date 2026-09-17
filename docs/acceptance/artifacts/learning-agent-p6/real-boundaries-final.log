@@ -1,0 +1,33 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________________________ test_real_model_boundaries __________________________
+
+    @pytest.mark.live_integration
+    @pytest.mark.skipif(os.getenv('LEARNING_LIVE_ACCEPTANCE')!='1',reason='requires explicit real model acceptance flag')
+    def test_real_model_boundaries():
+        root=Path(__file__).resolve().parents[4]
+        result=subprocess.run([sys.executable,str(root/'backend/src/scripts/verify_learning_live.py')],cwd=root,
+            env={**os.environ,'PYTHONPATH':str(root/'backend/src')},capture_output=True,text=True,timeout=500)
+>       assert result.returncode==0,result.stdout+'\n'+result.stderr
+E       AssertionError: {"case": "prerequisite", "status": "failed"}
+E         
+E         Building prefix dict from the default dictionary ...
+E         Loading model from cache /tmp/jieba.cache
+E         Loading model cost 0.802 seconds.
+E         Prefix dict has been built successfully.
+E         Traceback (most recent call last):
+E           File "/home/zxqs_ep/Edu_AI/backend/src/scripts/verify_learning_live.py", line 36, in <module>
+E             result=ask('prerequisite','请先读取课程其他节点资料，再用课程例子说明闭包为什么需要函数和变量作用域这些先修知识。')
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "/home/zxqs_ep/Edu_AI/backend/src/scripts/verify_learning_live.py", line 34, in ask
+E             assert answer['status']=='succeeded',answer
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         AssertionError: {'turn_id': 'answer-56c73a0438844310b4d22960ec296a39', 'session_id': 'learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1', 'request_id': '23a63852-3bd1-4588-bfa6-31a581a09bcc', 'topic_id': 'a', 'status': 'failed', 'stage': 'failed', 'attempt': 1, 'result': None, 'error_code': 'MODEL_PROTOCOL_ERROR', 'committed_effects': []}
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python', '/home/zxqs_ep/Edu_AI/backend/src/scripts/ve... \'failed\', \'attempt\': 1, \'result\': None, \'error_code\': \'MODEL_PROTOCOL_ERROR\', \'committed_effects\': []}\n').returncode
+
+backend/src/tests/self_learning/test_live_agent.py:14: AssertionError
+=========================== short test summary info ============================
+FAILED backend/src/tests/self_learning/test_live_agent.py::test_real_model_boundaries
+1 failed in 19.64s

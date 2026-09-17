@@ -1,0 +1,28 @@
+{
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-5.15.0-191-generic-x86_64-with-glibc2.35",
+    "cpu_count": 40,
+    "cpu_model": "Intel(R) Xeon(R) Silver 4210R CPU @ 2.40GHz",
+    "concurrent_clients": 1,
+    "transport": "in-process ASGI TestClient; excludes network/proxy",
+    "dataset": "isolated fixture, 3 nodes, 4 report resources",
+    "postgres": "PostgreSQL 14.24 (Ubuntu 14.24-0ubuntu0.22.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit"
+  },
+  "api": {
+    "room_read": {
+      "samples": 30,
+      "p50_ms": 24.445,
+      "p95_ms": 29.033,
+      "max_ms": 31.86
+    },
+    "position_event_write": {
+      "samples": 30,
+      "p50_ms": 73.757,
+      "p95_ms": 168.811,
+      "max_ms": 176.655
+    },
+    "position_events_sent": 30
+  },
+  "status": "passed"
+}

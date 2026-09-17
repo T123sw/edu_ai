@@ -26,3 +26,5 @@
 [知识点大纲优化计划](2026-09-07-harness-outline-optimization-plan-cn.md)：根角色、报告 Skill、搜索、内容组织与大纲质量验收。
 
 - [根角色与报告完整流程计划](2026-09-08-reviewed-report-plan-cn.md)：正文审阅与交付门槛的实施记录。
+
+学习 Agent 运行实现与验收状态以[P0—P6 阶段记录](../acceptance/2026-09-17-learning-agent-implementation-cn.md)和[P6 验收](../acceptance/2026-09-17-learning-agent-p6-cn.md)为准；业务启用需显式迁移、对账和按范围激活。

@@ -1,0 +1,197 @@
+{
+  "database": "learning_restore_75a0b5b5c85b40a2907a71d54ef75629",
+  "source_schema": "learning_browser_9d4f2f418bfd4afaacae4dc85e028049",
+  "status": "verified",
+  "import": {
+    "created": 305,
+    "total": 305,
+    "unresolved": [
+      {
+        "resource_id": "pending:b",
+        "reason": "placeholder_preserved",
+        "value": {
+          "note": "保留笔记"
+        }
+      }
+    ]
+  },
+  "reconcile": {
+    "source_hash": "caea5af250aaf7e2954e485b36c2073907f2d867c6004b9b5508b36cbb19cd79",
+    "unexplained_differences": [],
+    "preserved_unresolved": 1,
+    "surviving_turns": 151
+  },
+  "activation": {
+    "owner": "alice",
+    "course_id": "learning-fixture",
+    "phase": 5
+  },
+  "cli": {
+    "import": {
+      "created": 0,
+      "total": 305,
+      "unresolved": [
+        {
+          "resource_id": "pending:b",
+          "reason": "placeholder_preserved",
+          "value": {
+            "note": "保留笔记"
+          }
+        }
+      ]
+    },
+    "reconcile": {
+      "source_hash": "caea5af250aaf7e2954e485b36c2073907f2d867c6004b9b5508b36cbb19cd79",
+      "unexplained_differences": [],
+      "preserved_unresolved": 1,
+      "surviving_turns": 151
+    }
+  },
+  "row_hashes": {
+    "agent_memory_audit_events": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "agent_memory_items": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "conversation_messages": {
+      "rows": 604,
+      "sha256": "037a50f290789968865c8820cc9593f93cbf32cfae6a82f4f3edabf91cde0d51"
+    },
+    "conversations": {
+      "rows": 2,
+      "sha256": "6141e361eb80e4190251291ac66375ce011ec9776039539e70dcb9a843052cb1"
+    },
+    "course_personal_manifest_heads": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "course_personal_manifest_versions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "course_preparation_attempts": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "course_preparation_events": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "course_preparations": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "course_production_runs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_agent_outbox": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_agent_tool_calls": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_agent_turns": {
+      "rows": 301,
+      "sha256": "fa51993da07188e8b1833274858001fedfd737f6187a42e67e6508b6a9b7cea8"
+    },
+    "learning_answer_runs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_check_attempts": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_checks": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_context_summaries": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_enrichment_receipts": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_memory_dependencies": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_memory_epochs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_memory_outbox": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_memory_suppressions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_migration_ledger": {
+      "rows": 1,
+      "sha256": "3935a4a368b34088f9fa044f520d5ad99fb9c1234dc84dbd457dc8b80218014c"
+    },
+    "learning_observations": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_preparation_notifications": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "learning_progress_outbox": {
+      "rows": 2,
+      "sha256": "1134ea473dcb4d77214dcd9fed785233eff38542c63e13cb52ad0978cc7949e6"
+    },
+    "learning_rollout_scopes": {
+      "rows": 1,
+      "sha256": "8edc77b255916143360ae7e30f91581455a6f1d901ed24b9b998ef1b55305445"
+    },
+    "learning_topic_sessions": {
+      "rows": 2,
+      "sha256": "6aeba777b791ed2cf1dcb75571b598332037411ca4dcf7b4d30553b461d93bec"
+    },
+    "self_learning_events": {
+      "rows": 2,
+      "sha256": "929efa1cdaefb5c49053748ab334f3f34055bf3213543708233c5a7d5f38acad"
+    },
+    "self_learning_fact_revisions": {
+      "rows": 1,
+      "sha256": "6d53dedbea3cf73602692fdde83d36d20ec13c4e080eff3c3b5c09170837c848"
+    },
+    "self_learning_reading_streams": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "self_learning_resource_states": {
+      "rows": 1,
+      "sha256": "4195f645ff5ac456afa05050ea85d2e87cbd1d5059ca5f2d4fd54c8d6299048e"
+    },
+    "self_learning_topic_states": {
+      "rows": 1,
+      "sha256": "1f4b5bb1d6bd140eab4c7c31dc8c0ae82b68664d5c2578767a001f53ba448527"
+    },
+    "user_profile_facts": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "users": {
+      "rows": 2,
+      "sha256": "02150d74e1fd5b85ff2626942fdb0b68d61e88952c9dc82c98eb1a26b489d693"
+    }
+  },
+  "material_files": 16,
+  "dump_sha256": "89ffc5e3cf98b146ee0d7ebedce75a234aaca4ac943577f0cd317cbd206c1646",
+  "restored_history_messages": 303,
+  "restored_completion": true,
+  "temporary_backup_and_restore_removed": true
+}

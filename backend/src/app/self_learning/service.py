@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 from fastapi import HTTPException
 from app.self_learning.store import LearningStore, lock
+from app.self_learning.rollout import legacy_write
 from app.services import course_service
 from app.services.classroom_qa_store import ClassroomQaSessionStore, ClassroomQaBusyError
 from app.chat.harness.content_gateway import ContentGateway
@@ -86,6 +87,10 @@ class LearningService:
                 raise RuntimeError('Apply migration 20260917_0028 before enabling preparation handoff')
             self.preparations = PreparationAdapter(self, ProductionService(self, self.session_repository.engine))
 
+    def for_scope(self, owner, course_id):
+        from .rollout import bind
+        return bind(self, owner, course_id)
+
     def require(self, course_id, owner):
         info = self.manager.get_course_info(course_id)
         membership = self.memberships.get(course_id, owner)
@@ -117,6 +122,9 @@ class LearningService:
         return self.qa.load_or_empty(course_id=course_id, classroom_id='learning_' + digest, owner_user_id=owner)
 
     def room(self, course_id, owner, include_progress=True):
+        scoped = self.for_scope(owner, course_id)
+        if scoped is not self:
+            return scoped.room(course_id, owner, include_progress)
         info, member = self.require(course_id, owner)
         overlay = self.store.get(owner, course_id)
         leaves = graph_leaves(self.manager.get_knowledge_graph(course_id)) or [{'id': course_id, 'title': info['title']}]
@@ -126,6 +134,11 @@ class LearningService:
             job = get_job(material['source_job_id']) if material.get('source_job_id') else None
             return job is None or str(getattr(job.status, 'value', job.status)) == 'succeeded'
         delivered = self.preparations.service.resources(owner, course_id) if self.preparations else []
+        if not self.preparations:
+            from .rollout import scoped_enabled, phase
+            if scoped_enabled() and phase(self, owner, course_id) >= 5:
+                from app.course_preparation.production_service import ProductionService
+                delivered = ProductionService(self, self.session_repository.engine).resources(owner, course_id)
         from app.course_preparation.production_service import digest as delivery_digest
         material_by_id = {m.get('material_id'): m for m in materials}
         delivered_ids = {r['material_id'] for r in delivered if (m := material_by_id.get(r['material_id']))
@@ -216,6 +229,9 @@ class LearningService:
         return {'version': 1, 'rooms': rooms, 'resources': resources, 'jobs': [], 'shared': shared}
 
     def patch(self, course_id, owner, patch):
+        scoped = self.for_scope(owner, course_id)
+        if scoped is not self:
+            return scoped.patch(course_id, owner, patch)
         room = self.room(course_id, owner)
         aliases = {'pending:' + c['id']: c['resources'][0]['id'] for c in room['chapters']}
         patch = dict(patch)
@@ -232,7 +248,9 @@ class LearningService:
             raise HTTPException(422, '学习资源不属于当前课堂')
         if set(patch.get('progress', {})) - valid_resources or set(patch.get('understanding', {})) - valid_chapters:
             raise HTTPException(422, '学习记录不属于当前课堂')
-        with lock:
+        from contextlib import nullcontext
+        guard = nullcontext() if self.progress_service else legacy_write(self, owner, course_id, 2)
+        with lock, guard:
             value = self.store.get(owner, course_id)
             for key in ['progress', 'understanding']:
                 if key in patch:
@@ -269,6 +287,9 @@ class LearningService:
         return self.room(course_id, owner)
 
     def practice(self, course_id, owner, material_id, version, answers):
+        from .rollout import scoped_enabled, phase
+        if self.for_scope(owner, course_id).checks or (scoped_enabled() and phase(self, owner, course_id) >= 4):
+            raise HTTPException(409, '请通过版本化理解检查提交答案，旧练习记录仍保留')
         material = self.material(course_id, 'quiz', material_id, owner)
         if version != int(material.get('version') or 1):
             raise HTTPException(409, '练习内容已更新，请刷新后重新作答')
@@ -340,6 +361,12 @@ class LearningService:
         return snapshot
 
     def answer(self, course_id, owner, chapter_id, question, request_id, resource_id):
+        scoped = self.for_scope(owner, course_id)
+        if scoped is not self:
+            return scoped.answer(course_id, owner, chapter_id, question, request_id, resource_id)
+        from .rollout import phase, scoped_enabled
+        if self.turns or (scoped_enabled() and phase(self, owner, course_id) >= 3):
+            raise HTTPException(409, '请使用持久化答疑入口；暂不可用时仍可继续阅读')
         room = self.room(course_id, owner)
         chapter = next((c for c in room['chapters'] if c['id'] == chapter_id), None)
         if not chapter or resource_id not in {r['id'] for r in chapter['resources']}:
@@ -401,7 +428,8 @@ class LearningService:
                 raise HTTPException(502, '回答生成失败，请重试；已有对话已保留') from exc
             return self.room(course_id, owner)
         try:
-            claimed = self.qa.begin_turn(session=session, client_turn_id=request_id, question=question, checkpoint={'resource_id': resource_id})
+            with legacy_write(self, owner, course_id, 1):
+                claimed = self.qa.begin_turn(session=session, client_turn_id=request_id, question=question, checkpoint={'resource_id': resource_id})
             if claimed.get('turn_id'):
                 return self.room(course_id, owner)
         except ClassroomQaBusyError as exc:
@@ -410,9 +438,10 @@ class LearningService:
             answer = self.model_factory(owner).chat(messages, max_tokens=1400)
             if not answer.strip():
                 raise ValueError('empty model response')
-            self.qa.complete_turn(session=session, client_turn_id=request_id, turn={
-                'turn_id': uuid4().hex, 'client_turn_id': request_id, 'question': question,
-                'answer_text': answer, 'resource_id': resource_id, 'created_at': datetime.now(timezone.utc).isoformat()})
+            with legacy_write(self, owner, course_id, 1):
+                self.qa.complete_turn(session=session, client_turn_id=request_id, turn={
+                    'turn_id': uuid4().hex, 'client_turn_id': request_id, 'question': question,
+                    'answer_text': answer, 'resource_id': resource_id, 'created_at': datetime.now(timezone.utc).isoformat()})
         except Exception as exc:
             self.qa.fail_turn(session=session, client_turn_id=request_id, error_code='MODEL_UNAVAILABLE', retryable=True)
             raise HTTPException(502, '回答生成失败，请重试；已有对话已保留') from exc

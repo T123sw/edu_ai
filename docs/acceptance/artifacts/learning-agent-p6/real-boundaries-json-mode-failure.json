@@ -1,0 +1,22 @@
+{
+  "model": "deepseek-v4-pro",
+  "cases": [
+    {
+      "case": "prerequisite",
+      "question": "请先读取课程其他节点资料，再用课程例子说明闭包为什么需要函数和变量作用域这些先修知识。",
+      "seconds": 8.59,
+      "answer": {
+        "turn_id": "answer-56c73a0438844310b4d22960ec296a39",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "23a63852-3bd1-4588-bfa6-31a581a09bcc",
+        "topic_id": "a",
+        "status": "failed",
+        "stage": "failed",
+        "attempt": 1,
+        "result": null,
+        "error_code": "MODEL_PROTOCOL_ERROR",
+        "committed_effects": []
+      }
+    }
+  ]
+}

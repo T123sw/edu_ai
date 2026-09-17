@@ -1,0 +1,59 @@
+[WebServer] INFO:     Started server process [581755]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
+[WebServer] (node:581864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:581880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:581943) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/index.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/slides.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/stage.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/action.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/version.js" points to missing source files
+[WebServer] Sourcemap for "/home/zxqs_ep/Edu_AI/frontend/node_modules/.pnpm/@openmaic+dsl@file+..+openmaic-sidecar+packages+@openmaic+dsl/node_modules/@openmaic/dsl/dist/guards.js" points to missing source files
+[WebServer] Building prefix dict from the default dictionary ...
+[WebServer] Loading model from cache /tmp/jieba.cache
+[WebServer] Loading model cost 0.912 seconds.
+[WebServer] Prefix dict has been built successfully.
+[WebServer] Learning model transport failed: 400
+  ✘  1 tests/live-learning/agent-real.spec.ts:3:5 › real model: conversation, guided hint, check, saved quiz, document and personal revision (3.2m)
+
+
+  1) tests/live-learning/agent-real.spec.ts:3:5 › real model: conversation, guided hint, check, saved quiz, document and personal revision 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "succeeded"
+    Received: "failed"
+
+    Call Log:
+    - Timeout 160000ms exceeded while waiting on the predicate
+
+      31 |       task=(await response.json()).items.find((t:{origin_ref:{message_id:string}})=>t.origin_ref.message_id===`${turnId}:user`);
+      32 |       return task ? ['succeeded','failed','canceled'].includes(task.status) : false;
+    > 33 |     },{timeout:160000,intervals:[1000,2000]}).toBe(true);
+         |                                               ^
+      34 |     log.push({delivery:task});
+      35 |     expect(task!.status, JSON.stringify(task)).toBe('succeeded');
+      36 |     const ref=task!.result.resource_refs[0];
+        at waitDelivery (/home/zxqs_ep/Edu_AI/frontend/tests/live-learning/agent-real.spec.ts:33:47)
+        at /home/zxqs_ep/Edu_AI/frontend/tests/live-learning/agent-real.spec.ts:51:25
+
+    Error Context: test-results/learning-real/agent-real-real-model-conv-401ed-ument-and-personal-revision/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/learning-real/agent-real-real-model-conv-401ed-ument-and-personal-revision/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/learning-real/agent-real-real-model-conv-401ed-ument-and-personal-revision/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/live-learning/agent-real.spec.ts:3:5 › real model: conversation, guided hint, check, saved quiz, document and personal revision 

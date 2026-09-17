@@ -82,6 +82,7 @@ def test_real_storage_delivery_only_after_commit(preparation):
     with pytest.raises(HTTPException):
         preparation.learning.material('course','report',ref['material_id'],'bob')
     assert result['result']['course_ready'] is False
+    assert result['quality_report']['passed'] is True
     assert len(preparation.service.resources('alice','course'))==1
     assert not preparation.service.run_once()
 
@@ -191,3 +192,61 @@ def test_saved_task_exposed_when_answer_fails(preparation):
     assert result['status']=='failed'
     assert any(e['kind']=='preparation' for e in result['committed_effects']),result
     assert len(preparation.list('alice','course'))==1
+
+def test_hallucinated_submit_is_repaired_with_real_tool_receipt(preparation):
+    import json
+    from app.self_learning.agent_runtime import LearningAgentRuntime
+    source=turn(preparation)
+    class Model:
+        round=0
+        async def complete(self,messages,tools,deadline):
+            self.round+=1
+            if self.round==1:
+                return {'content':'已提交生成请求，资料正在准备。','calls':[]}
+            if self.round==2:
+                assert any(t['function']['name']=='submit_preparation_request' for t in tools)
+                return {'content':'','calls':[{'id':'repair-submit','type':'function','function':{'name':'submit_preparation_request','arguments':json.dumps(args())}}]}
+            return {'content':json.dumps({'answer_markdown':'任务已接收，准备完成后可以自行打开。','citation_ids':[]}), 'calls':[]}
+    model=Model()
+    LearningAgentRuntime(preparation.learning,preparation.learning.turn_repository,lambda _:model).run_once()
+    result=preparation.learning.turns.get('alice',source['turn_id'])
+    assert result['status']=='succeeded',result
+    assert len(result['result']['preparation_receipts'])==1
+    assert len(preparation.list('alice','course'))==1
+
+def test_repeated_false_submission_never_publishes(preparation):
+    import json
+    from app.self_learning.agent_runtime import LearningAgentRuntime
+    source=turn(preparation)
+    class Model:
+        async def complete(self,messages,tools,deadline):
+            return {'content':json.dumps({'answer_markdown':'已提交生成请求。','citation_ids':[]}), 'calls':[]}
+    LearningAgentRuntime(preparation.learning,preparation.learning.turn_repository,lambda _:Model()).run_once()
+    result=preparation.learning.turns.get('alice',source['turn_id'])
+    assert result['status']=='failed' and result['error_code']=='ANSWER_SCHEMA_INVALID'
+    assert not preparation.list('alice','course')
+    messages=preparation.learning.session_repository.messages('alice',source['session_id'])['items']
+    assert not any(m['text']=='已提交生成请求。' for m in messages)
+
+def test_status_query_uses_past_task_handle_and_current_read_receipt(preparation):
+    import json
+    from app.self_learning.agent_runtime import LearningAgentRuntime
+    from tests.self_learning.test_agent_runtime import Model
+    # The first answer carries a real task receipt in its durable result.
+    source=turn(preparation)
+    receipt=preparation.submit(source,args(),{},'status-query')
+    preparation.service.model_json=producer
+    preparation.service.run_once()
+    claim=preparation.learning.turn_repository.claim()
+    saved=preparation.get('alice',receipt['preparation_id'])
+    preparation.learning.turn_repository.finish(claim,result={'answer_markdown':'准备任务已接收。','citation_ids':[], 'preparation_receipts':[saved]})
+    second=turn(preparation,'刚才的任务完成了吗？')
+    from app.self_learning.context_builder import ContextBuilder
+    packet=ContextBuilder(preparation.learning).build(second)
+    assert receipt['preparation_id'] in json.dumps(packet,ensure_ascii=False)
+    call={'id':'status','type':'function','function':{'name':'get_preparation_status','arguments':json.dumps({'preparation_id':receipt['preparation_id']})}}
+    model=Model([{'content':'','calls':[call]},{'content':json.dumps({'answer_markdown':'任务已完成，可从通知打开资料。','citation_ids':[]}), 'calls':[]}])
+    LearningAgentRuntime(preparation.learning,preparation.learning.turn_repository,lambda _:model).run_once()
+    answer=preparation.learning.turns.get('alice',second['turn_id'])
+    assert answer['status']=='succeeded',answer
+    assert answer['result']['preparation_receipts'][0]['status']=='succeeded'

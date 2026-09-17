@@ -25,17 +25,17 @@
 
 ## 1. 阶段与依赖
 
-进入 P1 前阅读[Agent 运行、工具与记忆设计 V1](../../architecture/2026-09-17-learning-agent-runtime-design-cn.md)。运行设计已补齐；P0—P4 已分阶段实现并隔离验证，P5—P6 继续按下列任务执行。
+进入 P1 前阅读[Agent 运行、工具与记忆设计 V1](../../architecture/2026-09-17-learning-agent-runtime-design-cn.md)。运行设计已补齐；P0—P6 已分阶段实现并隔离验证；学习 Agent V1 实施完成，业务环境未启用。最终证据见[P6 验收](../../acceptance/2026-09-17-learning-agent-p6-cn.md)。
 
 | 阶段 | 交付 | 依赖 | 当前状态 |
 | --- | --- | --- | --- |
-| P0 | 统一契约、旧课程只读适配、状态纯函数 | 已确认产品设计 | 已实现并通过领域测试；未接入口 |
+| P0 | 统一契约、旧课程只读适配、状态纯函数 | 已确认产品设计 | 已实现；后续阶段已接入口 |
 | P1 | 持久化知识点会话、一次导学、完整消息历史 | P0 | 已完成隔离验收；业务环境未启用 |
 | P2 | 阅读、完成、自评分离；不聊天完整学习路径 | P1 | 已完成隔离验收；业务环境未启用 |
 | P3 | 版本化阅读定位、异步答疑、受限工具运行 | P1/P2 | 已完成隔离验收与三个真实模型问题；业务环境未启用 |
 | P4 | 检查与目标证据、可管理偏好及摘要 | P3 | 已完成隔离验收；默认关闭 |
 | P5 | 准备 Agent 任务交接、通知、版本连续性 | P3/P4；准备侧真实提交接口 | 已实现、隔离验收 |
-| P6 | 旧数据迁移、真实模型与并发验收、分范围切换 | P0—P5 | 待实施 |
+| P6 | 旧数据迁移、真实模型与并发验收、分范围切换 | P0—P5 | 已实现并完成隔离完整验收 |
 
 P0 不改变用户流程；P1 验证会话；P2 首次形成无聊天可用闭环；P3 开始验收 Agent 教学与工具；P4/P5 分别扩展证据、资源准备。每阶段独立记录结果，失败时修复本阶段，不用后续功能掩盖未通过的基础约束。
 
@@ -385,9 +385,9 @@ def test_duplicate_notification_is_one_record(notifications, succeeded_event):
 
 **Interfaces:** `scan(source) -> MigrationReport`、`import_records(report, repository) -> ImportResult`、`reconcile(report, repository) -> ReconciliationResult`；CLI 显式区分 `scan/import/reconcile`，默认只读扫描。
 
-- [ ] 构造少于/多于 100 轮的剩余旧记录、无版本完成、孤立资料、占位笔记、重复导入 fixture。
-- [ ] 测试旧 ID 不变、未知版本不绑定当前版本、丢失历史不补造、重跑记录数不增加。
-- [ ] 实现可审计导入记录与冲突清单；切换前保存并恢复验证隔离备份，按课程/用户范围启用新版能力。
+- [x] 构造少于/多于 100 轮的剩余旧记录、无版本完成、孤立资料、占位笔记、重复导入 fixture。
+- [x] 测试旧 ID 不变、未知版本不绑定当前版本、丢失历史不补造、重跑记录数不增加。
+- [x] 实现可审计导入记录与冲突清单；切换前保存并恢复验证隔离备份，按课程/用户范围启用新版能力。
 
 ```python
 def test_repeat_import_is_idempotent(importer, scanned_source):
@@ -398,23 +398,23 @@ def test_repeat_import_is_idempotent(importer, scanned_source):
     assert importer.reconcile(scanned_source).unexplained_differences == []
 ```
 
-- [ ] 切换后旧写入口不再接受同域独立写入；应用回退仍读新事实库，验证不会被旧 JSON 覆盖。
+- [x] 切换后旧写入口不再接受同域独立写入；应用回退仍读新事实库，验证不会被旧 JSON 覆盖。
 
 ### Task 6.2：真实模型、多 worker 与完整用户路径
 
 **Files:** 新增 `backend/src/tests/self_learning/test_postgres_concurrency.py`、`test_live_agent.py`、`frontend/tests/live-learning/agent-acceptance.spec.ts`；新增 `docs/acceptance/2026-09-17-learning-agent-implementation-cn.md`。
 
-- [ ] PostgreSQL 两 worker：重复 enter、同事件竞争、同节点提问竞争、租约过期迟到写入、outbox 重投。
-- [ ] 真实模型：当前段落解释、跨节点先修联系、换例子、即时检查、保存练习、资料修订、多候选目标、资料提示注入、无权资料、模型超时。
-- [ ] 浏览器：不聊天完整学习、跨节点往返、选区提问后切节点、离线补发、刷新恢复作答、后台结果到达、个人偏好删除、账号切换。
+- [x] PostgreSQL 两 worker：重复 enter、同事件竞争、同节点提问竞争、租约过期迟到写入、outbox 重投。
+- [x] 真实模型：当前段落解释、跨节点先修联系、换例子、即时检查、保存练习、资料修订、多候选目标、资料提示注入、无权资料、模型超时。
+- [x] 浏览器：不聊天完整学习、跨节点往返、选区提问后切节点、离线补发、刷新恢复作答、后台结果到达、个人偏好删除、账号切换。
 
 ```bash
 python -m pytest tests/self_learning/test_postgres_concurrency.py -m integration -q
 python -m pytest tests/self_learning/test_live_agent.py -m live_integration -q
 ```
 
-- [ ] 保存实际测试数量、失败原因、模型与性能环境，不把 skip 算通过；按主设计 11 个场景逐项映射证据。
-- [ ] 更新架构索引、项目地图与验收记录。只在所有阶段门槛满足后写“学习 Agent V1 实施完成”；准备侧尚未接通或真实模型未测时单独保留未完成项。
+- [x] 保存实际测试数量、失败原因、模型与性能环境，不把 skip 算通过；按主设计 11 个场景逐项映射证据。
+- [x] 更新架构索引、项目地图与验收记录。只在所有阶段门槛满足后写“学习 Agent V1 实施完成”；准备侧尚未接通或真实模型未测时单独保留未完成项。
 
 ## 4. 验收追踪
 

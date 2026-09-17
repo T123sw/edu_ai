@@ -262,3 +262,33 @@ def test_concurrent_accept_and_claim_are_unique(agent_service):
         claimed = list(pool.map(lambda _: svc.turn_repository.claim(), range(4)))
     assert sum(c is not None for c in claimed) == 1
     assert len(svc.session_repository.messages('alice', sid)['items']) == 2
+
+def test_model_history_preserves_json_protocol_without_reusing_old_reference_ids(agent_service):
+    svc=agent_service
+    accept(svc)
+    LearningAgentRuntime(svc,svc.turn_repository,lambda _:Model()).run_once()
+    second=accept(svc,request('再给一步提示'))
+    packet=ContextBuilder(svc).build(svc.turn_repository.get('alice',second['turn_id']))
+    history=[json.loads(m['content']) for m in packet['messages'] if m['role']=='assistant']
+    assert history and history[-1]['answer_markdown']=='可以这样理解。'
+    assert all(m['citation_ids']==[] and m['suggested_action_ids']==[] for m in history)
+
+def test_empty_response_has_one_bounded_retry_without_repeating_effects(agent_service):
+    from app.self_learning.turn_contracts import AgentFailure
+    first=accept(agent_service)
+    class EmptyOnce(Model):
+        attempts=0
+        async def complete(self,messages,tools,deadline):
+            self.attempts+=1
+            if self.attempts==1:raise AgentFailure('MODEL_EMPTY_RESPONSE')
+            return await super().complete(messages,tools,deadline)
+    model=EmptyOnce()
+    LearningAgentRuntime(agent_service,agent_service.turn_repository,lambda _:model).run_once()
+    result=agent_service.turns.get('alice',first['turn_id'])
+    assert result['status']=='succeeded' and result['result']['model_rounds']==2 and model.attempts==2
+    class AlwaysEmpty(Model):
+        async def complete(self,messages,tools,deadline):raise AgentFailure('MODEL_EMPTY_RESPONSE')
+    second=accept(agent_service,request('空响应重复时明确失败'))
+    LearningAgentRuntime(agent_service,agent_service.turn_repository,lambda _:AlwaysEmpty()).run_once()
+    result=agent_service.turns.get('alice',second['turn_id'])
+    assert result['status']=='failed' and result['error_code']=='MODEL_EMPTY_RESPONSE'

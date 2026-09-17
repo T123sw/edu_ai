@@ -1,0 +1,197 @@
+[
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 3686,
+      "completion_tokens": 279,
+      "total_tokens": 3965,
+      "prompt_tokens_details": {
+        "cached_tokens": 3328
+      },
+      "prompt_cache_hit_tokens": 3328,
+      "prompt_cache_miss_tokens": 358
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "content": "{\"answer_markdown\":\"用「贴标签」来理解：\\n\\n**变量赋值**像给盒子贴标签。比如你有一个盒子，先贴标签「x」，里面放数字 1（`x = 1`）。过一会儿你把标签撕下来，贴到另一个装着 2 的盒子上（`x = 2`）。标签可以随时换地方，指向不同的东西。\\n\\n**数学等式**则像天平。`x = 1` 表示左右两边永远相等、是同一个事实，不能过一会儿又说 `x = 2`，否则天平就塌了。\\n\\n所以：\\n- 赋值是「动作」——把名字绑定到某个值上，可以反复改；\\n- 等式是「陈述」——断言两边相等，是固定不变的关系。\\n\\n再举个生活例子：`x = 1` 像「我的座位号是 1 号」，之后 `x = 2` 是「我换到了 2 号座位」——座位号可以变；而数学里的 `x = 1` 更像「1 就是 1」，是恒等的事实，不能随便改成 2。\",\"citation_ids\":[\"ctx_01\"],\"suggested_action_ids\":[],\"observation\":null}",
+        "tool_calls": null
+      }
+    ]
+  },
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 3703,
+      "completion_tokens": 94,
+      "total_tokens": 3797,
+      "prompt_tokens_details": {
+        "cached_tokens": 3328
+      },
+      "prompt_cache_hit_tokens": 3328,
+      "prompt_cache_miss_tokens": 375
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "content": "{\"answer_markdown\":\"先想清楚：`y = x` 这一步发生时，`x` 绑定的是哪个对象？赋值是“绑定对象”而不是“复制对象”，所以之后 `x = 2` 只是让 `x` 重新绑定到新对象，会不会影响 `y` 已经绑定的那个对象？\",\"citation_ids\":[\"ctx_01\"],\"suggested_action_ids\":[],\"observation\":null}",
+        "tool_calls": null
+      }
+    ]
+  },
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 3815,
+      "completion_tokens": 66,
+      "total_tokens": 3881,
+      "prompt_tokens_details": {
+        "cached_tokens": 3328
+      },
+      "prompt_cache_hit_tokens": 3328,
+      "prompt_cache_miss_tokens": 487
+    },
+    "choices": [
+      {
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+          {
+            "index": 0,
+            "id": "call_00_OpB0rlDrfCrIr7VtlOWR2131",
+            "type": "function",
+            "function": {
+              "name": "offer_understanding_check",
+              "arguments": "{\"objective_ids\": [\"a\"], \"preferred_form\": \"choice\"}"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 3951,
+      "completion_tokens": 47,
+      "total_tokens": 3998,
+      "prompt_tokens_details": {
+        "cached_tokens": 3840
+      },
+      "prompt_cache_hit_tokens": 3840,
+      "prompt_cache_miss_tokens": 111
+    },
+    "choices": [
+      {
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+          {
+            "index": 0,
+            "id": "call_00_GjY2dw6huvE4H71dZ5Cq7305",
+            "type": "function",
+            "function": {
+              "name": "offer_understanding_check",
+              "arguments": "{\"preferred_form\": \"choice\"}"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 4188,
+      "completion_tokens": 61,
+      "total_tokens": 4249,
+      "prompt_tokens_details": {
+        "cached_tokens": 3968
+      },
+      "prompt_cache_hit_tokens": 3968,
+      "prompt_cache_miss_tokens": 220
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "content": "{\"answer_markdown\":\"已生成一道理解检查，请在检查卡片上作答，或选择跳过。\", \"citation_ids\": [], \"suggested_action_ids\": [\"check-4901445013444d4caa0e7052160778e9\"], \"observation\": null}",
+        "tool_calls": null
+      }
+    ]
+  },
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 3874,
+      "completion_tokens": 118,
+      "total_tokens": 3992,
+      "prompt_tokens_details": {
+        "cached_tokens": 3328
+      },
+      "prompt_cache_hit_tokens": 3328,
+      "prompt_cache_miss_tokens": 546
+    },
+    "choices": [
+      {
+        "finish_reason": "tool_calls",
+        "content": "",
+        "tool_calls": [
+          {
+            "index": 0,
+            "id": "call_00_cNSbF6MfaZO9VFQpLX3X6218",
+            "type": "function",
+            "function": {
+              "name": "submit_preparation_request",
+              "arguments": "{\"operation\": \"supplement_node\", \"goal\": \"生成并保存一份只有一道单选题的变量赋值练习资料，题目围绕变量与赋值（如 x=1; y=x; x=2 后 y 的值）设计。\", \"resource_types\": [\"quiz\"]}"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 4235,
+      "completion_tokens": 71,
+      "total_tokens": 4306,
+      "prompt_tokens_details": {
+        "cached_tokens": 3968
+      },
+      "prompt_cache_hit_tokens": 3968,
+      "prompt_cache_miss_tokens": 267
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "content": "{\"answer_markdown\": \"任务已接收，正在准备中（preparation_id: prep_db16b6ce0cee4ac8a493dce303c935ac）。资料尚未生成完成，稍后可通过状态查询确认。\", \"citation_ids\": [], \"suggested_action_ids\": [], \"observation\": null}",
+        "tool_calls": null
+      }
+    ]
+  },
+  {
+    "status": 200,
+    "usage": {
+      "prompt_tokens": 251,
+      "completion_tokens": 183,
+      "total_tokens": 434,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 251
+    },
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "content": "{\n  \"title\": \"变量与赋值\",\n  \"questions\": [\n    {\n      \"form\": \"choice\",\n      \"stem\": \"执行以下代码后，变量 y 的值是什么？\\n\\nx = 1\\ny = x\\nx = 2\",\n      \"options\": [\n        {\"id\": \"a\", \"text\": \"1\"},\n        {\"id\": \"b\", \"text\": \"2\"},\n        {\"id\": \"c\", \"text\": \"未定义\"},\n        {\"id\": \"d\", \"text\": \"0\"}\n      ],\n      \"correct_option_ids\": [\"a\"],\n      \"explanation\": \"y = x 将 y 绑定到 x 当前绑定的对象（整数 1）。之后 x = 2 重新绑定 x 到新对象，但 y 仍然绑定到原来的对象 1。\"\n    }\n  ]\n}",
+        "tool_calls": null
+      }
+    ]
+  },
+  {
+    "status": 400,
+    "usage": null,
+    "choices": []
+  }
+]

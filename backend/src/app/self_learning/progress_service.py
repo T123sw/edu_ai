@@ -17,7 +17,8 @@ def _repository(url):
 
 
 def configured_progress_repository():
-    return _repository(os.getenv('DATABASE_URL', '').strip()) if os.getenv('LEARNING_PROGRESS_V1_ENABLED', '').lower() in {'1', 'true'} else None
+    from .rollout import scoped_enabled
+    return _repository(os.getenv('DATABASE_URL', '').strip()) if os.getenv('LEARNING_PROGRESS_V1_ENABLED', '').lower() in {'1', 'true'} or scoped_enabled() else None
 
 
 class ProgressService:

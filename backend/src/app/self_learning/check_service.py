@@ -143,7 +143,7 @@ class CheckService(SessionRepository):
     def bank_question(raw):
         options = raw.get('options', [])
         if not options:
-            return Question(form='short_answer', stem=raw.get('stem') or raw.get('question'), reference_answer=str(raw.get('answer') or ''), explanation=raw.get('explanation') or '')
+            return Question(form='short_answer', stem=raw.get('stem') or raw.get('question'), reference_answer=str(raw.get('reference_answer') or raw.get('answer') or ''), explanation=raw.get('explanation') or '')
         parsed = [Option(id=str(v.get('id') or f'option_{i+1}'), text=str(v.get('text') or v.get('content') or '')) if isinstance(v, dict)
                   else Option(id=f'option_{i+1}', text=str(v)) for i, v in enumerate(options)]
         mapping = {chr(65+i): option.id for i, option in enumerate(parsed)}
@@ -155,6 +155,37 @@ class CheckService(SessionRepository):
             raise ValueError('ambiguous legacy answer format')
         return Question(form='choice', stem=raw.get('stem') or raw.get('question'), options=parsed,
                         correct_option_ids=[mapping[str(k)] for k in keys], explanation=raw.get('explanation') or '')
+
+    def material_checks(self, owner, course, material_id, version):
+        material = exact_material(self.learning, owner, ResourceRef(course_id=course, material_type='quiz', material_id=material_id, version=version))
+        topic = material.get('scope_id')
+        node = self.topic(owner, course, topic)
+        if not any(r.get('remote', {}).get('materialId') == material_id for r in node['resources']):
+            raise HTTPException(404, '练习不属于当前知识点')
+        content = material.get('content') if isinstance(material.get('content'),dict) else {}
+        questions = material.get('questions') or content.get('questions') or []
+        if not questions or len(questions) > 100:
+            raise HTTPException(422, '练习题目格式不可用')
+        try:
+            parsed = [self.bank_question(q) for q in questions]
+        except (ValueError,TypeError) as exc:
+            raise HTTPException(422, '题库答案格式不明确，原资料保留，请先修订题目') from exc
+        ref = ResourceRef(course_id=course, material_type='quiz', material_id=material_id, version=version)
+        source = {'resource_ref':ref.model_dump(), 'hash':digest(material_text(material))}
+        ids = []
+        with self._write('learning-checks:' + owner) as db:
+            for i, question in enumerate(parsed):
+                request_id = 'material:' + digest([course,material_id,version,i])
+                row = db.scalar(select(LearningCheck).where(LearningCheck.owner == owner, LearningCheck.request_id == request_id))
+                if row is None:
+                    row = LearningCheck(check_id='check-'+uuid4().hex,owner=owner,course_id=course,topic_id=topic,
+                        request_id=request_id,payload_hash=digest([source,i]),question=question.model_dump(),source=source,
+                        objective_ids=[],created_at=time.time())
+                    db.add(row)
+                elif row.payload_hash != digest([source,i]):
+                    raise HTTPException(409,'同一版本题目内容已变化')
+                ids.append(row.check_id)
+        return {'topic_id':topic,'items':[self.get(owner,cid) for cid in ids]}
 
     async def offer(self, owner, course, topic, request_id, objective_ids=None, preferred_form='choice'):
         node = self.topic(owner, course, topic)

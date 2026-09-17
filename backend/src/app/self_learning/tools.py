@@ -174,12 +174,15 @@ class LearningTools:
             return bool(receipt and receipt.result.get('memory_epoch') == current_epoch)
 
     def submit_preparation(self, args, operation_id):
-        return self.learning.preparations.submit(self.turn, args.model_dump(), self.packet, operation_id)
+        result = self.learning.preparations.submit(self.turn, args.model_dump(), self.packet, operation_id)
+        self.packet.setdefault('preparation_receipts', {})[result['preparation_id']] = result
+        return result
 
     def preparation_status(self, args):
         result = self.learning.preparations.get(self.turn['owner'], args.preparation_id)
         if result['target']['course_id'] != self.turn['course_id']:
             raise HTTPException(404)
+        self.packet.setdefault('preparation_receipts', {})[result['preparation_id']] = result
         return ToolResult(ok=True, data=result).model_dump()
 
     def preferences(self, args):

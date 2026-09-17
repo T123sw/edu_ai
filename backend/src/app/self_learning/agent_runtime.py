@@ -3,6 +3,7 @@ import asyncio
 import copy
 from concurrent.futures import ThreadPoolExecutor
 import json
+import re
 import time
 from threading import Event, Thread
 from fastapi import HTTPException
@@ -46,6 +47,8 @@ class LearningAgentRuntime:
             future = asyncio.wrap_future(executor.submit(isolated.dispatch, call))
             result = await asyncio.wait_for(future, timeout=timeout)
             packet['handles'], packet['citations'] = snapshot['handles'], snapshot['citations']
+            if 'preparation_receipts' in snapshot:
+                packet['preparation_receipts'] = snapshot['preparation_receipts']
             return result
         except TimeoutError:
             return {'ok': False, 'error': {'code': 'TIMEOUT', 'message': '资料读取超时', 'retryable': True}}
@@ -57,7 +60,9 @@ class LearningAgentRuntime:
         builder.authorize(claim['owner'], claim['course_id'], claim['topic_id'], claim['request']['reading_context'])
         enrichment = bool(getattr(self.learning, 'memory', None))
         schemas_size = len(json.dumps(LearningTools(self.learning, claim, {}).schemas(), ensure_ascii=False).encode())
-        context_budget = max(1000, 16000 - schemas_size - 256) if enrichment else 24000
+        preparation_enabled = bool(getattr(self.learning, 'preparations', None))
+        reserve = 2200 if preparation_enabled else 256
+        context_budget = max(1000, 16000 - schemas_size - reserve) if enrichment else 24000
         state = copy.deepcopy(claim['checkpoint']) or {'packet': builder.build(claim, budget=context_budget), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
         packet = state['packet']
         tools = LearningTools(self.learning, claim, packet)
@@ -106,6 +111,7 @@ class LearningAgentRuntime:
                         fresh['handles'].update(packet['handles'])
                         fresh['citations'].update(packet['citations'])
                         fresh['actions'] = packet.get('actions', {})
+                        fresh['preparation_receipts'] = packet.get('preparation_receipts', {})
                         packet.clear()
                         packet.update(fresh)
                     self.repository.save(claim, state, 'reading_resources', {**intent, 'status': 'completed', 'result': result})
@@ -114,16 +120,26 @@ class LearningAgentRuntime:
                 self.repository.save(claim, state)
             state['rounds'] += 1
             self.repository.save(claim, state)
-            mounted = tools.schemas() if state['tools'] < 6 and not state['repair_used'] else []
+            mounted = tools.schemas() if state['tools'] < 6 and (not state['repair_used'] or state.get('repair_allows_tools')) else []
             if enrichment:
                 byte_size = lambda schema: len(json.dumps({'messages': packet['messages'], 'tools': schema}, ensure_ascii=False).encode())
                 if byte_size(mounted) > 16000:
                     mounted = []  # reserve the remaining context for the final answer
+                if not mounted and not state.get('closing_prompt'):
+                    packet['messages'].append({'role':'user','content':'本轮工具阶段已结束。根据已有资料和真实收据给出最终 JSON 对象：answer_markdown、citation_ids、suggested_action_ids、observation；不再调用工具，不输出空白。'})
+                    state['closing_prompt'] = True
                 if byte_size(mounted) > 16000:
                     raise AgentFailure('CONTEXT_BUDGET_EXCEEDED')
-            reply = await model.complete(packet['messages'], mounted, deadline=deadline)
+            try:
+                reply = await model.complete(packet['messages'], mounted, deadline=deadline)
+            except AgentFailure as exc:
+                if exc.code != 'MODEL_EMPTY_RESPONSE' or state.get('empty_response_repaired'):
+                    raise
+                state['empty_response_repaired'] = True
+                packet['messages'].append({'role':'user','content':'上一条模型响应为空。请输出一个非空的合法 JSON 最终答复；沿用已读取资料和已成功操作的收据，不重复写操作。'})
+                continue
             if reply['calls']:
-                if not mounted or state['tools'] >= 6 or state['repair_used']:
+                if not mounted or state['tools'] >= 6 or (state['repair_used'] and not state.get('repair_allows_tools')):
                     raise AgentFailure('TOOL_BUDGET_EXHAUSTED')
                 packet['messages'].append({'role': 'assistant', 'content': reply['content'] or None, 'tool_calls': reply['calls']})
                 state['pending'] = copy.deepcopy(reply['calls'])
@@ -133,6 +149,8 @@ class LearningAgentRuntime:
                 answer = AnswerResult.model_validate(answer_json(reply['content']))
                 if set(answer.citation_ids) - set(packet['citations']) or set(answer.suggested_action_ids) - set(packet.get('actions', {})):
                     raise ValueError('unknown reference')
+                if preparation_enabled:
+                    self.validate_preparation_claim(claim, packet, answer.answer_markdown)
                 if answer.observation:
                     if not memory or set(answer.observation.source_message_ids) != {claim['turn_id'] + ':user'}:
                         raise ValueError('unknown observation source')
@@ -145,8 +163,12 @@ class LearningAgentRuntime:
                 if state['repair_used']:
                     raise AgentFailure('ANSWER_SCHEMA_INVALID')
                 state['repair_used'] = True
-                packet['messages'].append({'role': 'assistant', 'content': reply['content']})
-                packet['messages'].append({'role': 'user', 'content': '回答结构或引用无效。只用已有引用 ID 修正为指定 JSON，不调用工具。'})
+                state['repair_allows_tools'] = preparation_enabled
+                packet['messages'].append({'role': 'assistant', 'content': reply['content'][:3000]})
+                instruction = ('回答结构、引用或操作收据无效。本轮未获得提交收据就不能说已提交/已保存，历史回答不是本轮收据。'
+                    '如当前请求明确要求生成保存或修改资料，必须先实际调用已挂载的准备工具；目标含糊则询问。'
+                    '最终必须输出规定 JSON 对象，accepted 只能说任务已接收，不能说资料已完成。') if preparation_enabled else '回答结构或引用无效。只用已有引用 ID 修正为指定 JSON，不调用工具。'
+                packet['messages'].append({'role': 'user', 'content': instruction})
                 continue
             builder.authorize(claim['owner'], claim['course_id'], claim['topic_id'], claim['request']['reading_context'])
             citations = [packet['citations'][cid] for cid in answer.citation_ids]
@@ -156,9 +178,30 @@ class LearningAgentRuntime:
                     raise AgentFailure('SOURCE_CHANGED')
             return {**answer.model_dump(), 'citations': citations, 'role_version': packet['role_version'],
                     'actions': [packet['actions'][key] for key in answer.suggested_action_ids],
+                    **({'preparation_receipts': list(packet.get('preparation_receipts', {}).values())} if preparation_enabled else {}),
                     **({'memory_epoch': packet['memory_epoch']} if memory else {}),
                     'source_revision': packet['source_revision'], 'model_rounds': state['rounds'], 'tool_attempts': state['tools']}
         raise AgentFailure('MODEL_BUDGET_EXHAUSTED')
+
+    @staticmethod
+    def validate_preparation_claim(claim, packet, answer):
+        # Persisted service receipts, never model text or historical assistant
+        # messages, are evidence of effects. Keep claims conservative on repair.
+        question = claim['request']['question']
+        operation_request = bool(re.search(r'生成|保存|修改|修订|create|save|revise', question, re.I) and re.search(r'资料|文档|练习|课件|报告|当前这份|resource|document|quiz', question, re.I))
+        status_query = bool(re.search(r'进度|状态|好了吗|完成了吗|生成了吗|怎么样', question))
+        if status_query and not re.search(r'请生成|帮我生成|生成并保存|请修改|帮我修改', question):
+            operation_request = False
+        asserted = re.search(r'(?:已|已经)(?:提交|保存|创建|生成|修改|完成)|任务.{0,8}(?:已受理|已接收)|(?:have |has )?(?:submitted|saved|created)', answer, re.I)
+        if not asserted or not (operation_request or status_query):
+            return
+        receipts = [r for r in packet.get('preparation_receipts', {}).values()
+            if not operation_request or (r.get('origin_ref') or {}).get('message_id') == claim['turn_id'] + ':user']
+        if not receipts:
+            raise ValueError('preparation claim has no current-turn receipt')
+        delivered = re.search(r'(?:资料|文档|练习|任务).{0,8}(?:已完成|已保存|准备好)|(?:已|已经)(?:生成|保存|修改).{0,8}(?:资料|文档|练习)', answer)
+        if delivered and not any(r['status'] == 'succeeded' for r in receipts):
+            raise ValueError('accepted preparation is not delivered')
 
     async def guarded(self, claim):
         async def watch():
@@ -183,7 +226,9 @@ class LearningAgentRuntime:
         if claim is None:
             return False
         try:
-            result = asyncio.run(self.guarded(claim))
+            scoped = self.learning.for_scope(claim['owner'], claim['course_id'])
+            runtime = self if scoped is self.learning else LearningAgentRuntime(scoped, self.repository, self.model_factory)
+            result = asyncio.run(runtime.guarded(claim))
             self.repository.finish(claim, result=result)
         except LostLease:
             pass

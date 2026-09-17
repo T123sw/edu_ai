@@ -364,3 +364,11 @@ P0—P5 的单元与契约测试允许确定性 fake 模型，不允许据此标
 旧课程没有完整的准备 manifest 时，准备服务在明确保存请求后建立 `personal_supplement` 清单 v1。它记录旧知识图谱摘要、空资源列表和 `course_ready=false`，不是课程质量认证。成功交付以 CAS 推进不可变清单版本，收据 `manifest_ref.scope=personal_supplement`。修订产生私有新 ID 并指向旧 `source_ref`，因此旧引用和旧完成事实无需迁移。学习端不调用旧 attach，只读取已提交清单的准确资料版本及内容摘要。
 
 当前生产器支持 report/quiz，其他类型返回不可用。后台生成、独立检查、最多两次修复与 180 秒总预算均由准备服务负责；答疑只持有任务收据。队列与 intake 同事务，交付清单、成功状态和事件同事务。失败草稿不进入课程列表。通知按生产事件去重、校验当前 attempt/revision，用户自行打开，缺少可靠位置映射时从新资料开头阅读。
+
+### P6 迁移与分范围切换（2026-09-17）
+
+迁移 0029 增加来源归档和 owner/course 切换登记。CLI `app.database.migrate_self_learning_cli` 默认 scan，只读源数据；import、reconcile、activate 必须显式指定已审阅报告。`--storage-root` 用于隔离 JSON 快照，`--database-url` 必须显式传入。导入不恢复不存在的历史，不把未知版本完成标记绑定到当前资料。
+
+业务切换顺序：先备份并验证恢复，停止该范围旧写入，scan → import → reconcile；无冲突后 activate 到目标阶段，再以 `LEARNING_SCOPED_ROLLOUT=true` 启动相应功能开关。模型能力回退时保留 scoped rollout 和新事实库，不恢复旧 JSON 写入。激活拒绝在途旧答疑和过时的 live-store 扫描，旧写入与切换共享数据库锁；worker 根据领取任务的用户/课程构建对应工具集。
+
+上下文中的历史助手内容使用 JSON 协议封装，数据库原文仍为原始 Markdown。历史准备任务引用仅可用于查询，不能作为当前轮次写入证据。最终答复的提交/交付声明由本轮服务收据校验；accepted/running 与 succeeded 分开，格式修复仍受原总时限、轮数和工具次数限制。

@@ -94,3 +94,24 @@ def test_only_final_answer_accepts_single_json_fence():
             answer_json(raw)
     with pytest.raises(ValueError):
         strict_json('```json\n{}\n```')
+
+def test_deepseek_requests_json_mode_even_with_tools():
+    import json
+    gateway=Gateway()
+    gateway.candidates=[{**gateway.candidates[0],'model_name':'deepseek-v4-pro'}]
+    seen=[]
+    def handle(request):
+        data=json.loads(request.content)
+        seen.append(data)
+        return httpx.Response(200,json={'choices':[{'finish_reason':'stop','message':{'content':'{}'}}]})
+    async def run():
+        return await LearningModelAdapter(gateway,lambda **kw:httpx.AsyncClient(transport=httpx.MockTransport(handle),**kw)).complete(
+            [{'role':'user','content':'检查变量'}],[{'type':'function','function':{'name':'read','parameters':{'type':'object'}}}],deadline=time.monotonic()+1)
+    assert asyncio.run(run())['content']=='{}'
+    assert seen[0]['response_format']=={'type':'json_object'} and seen[0]['tools']
+    assert 'JSON' in seen[0]['messages'][0]['content']
+
+def test_complete_whitespace_response_has_specific_retryable_code():
+    with pytest.raises(AgentFailure) as failure:
+        LearningModelAdapter.parse({'choices':[{'finish_reason':'stop','message':{'content':'   '}}]})
+    assert failure.value.code=='MODEL_EMPTY_RESPONSE'

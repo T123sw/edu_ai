@@ -35,9 +35,9 @@ class NotificationService:
     def list(self, owner, course):
         self.adapter.learning.require(course,owner)
         with Session(self.service.engine) as db:
-            rows=db.scalars(select(Notice).join(Preparation,Preparation.preparation_id==Notice.preparation_id).where(
+            rows=db.scalars(select(Notice).join(Preparation,Preparation.preparation_id==Notice.preparation_id).join(Event,Event.event_id==Notice.event_id).where(
                 Notice.owner==owner,Notice.course_id==course,Notice.attempt_no==Preparation.current_attempt_no,
-                Notice.revision==Preparation.revision).order_by(Notice.revision,Notice.event_id)).all()
+                Notice.revision==Preparation.revision).order_by(Event.occurred_at,Notice.event_id)).all()
             result=[]
             for row in rows:
                 payload=dict(row.payload)

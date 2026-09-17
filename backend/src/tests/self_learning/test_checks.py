@@ -117,3 +117,22 @@ def test_manifest_check_maps_objectives_and_required_activity(checks):
     assert projection['topics'][0]['judgment'] == 'evidence_supports'
     assert projection['check_evidence'][0]['activity_id'] == 'manifest-check'
     assert projection['topics'][0]['progress'] != 'core_completed'  # checking never marks reading complete
+
+def test_material_quiz_uses_snapshot_ids_and_blocks_legacy_writes(checks):
+    first=checks.material_checks('alice','course','quiz1',1)
+    replay=checks.material_checks('alice','course','quiz1',1)
+    assert first==replay
+    check=first['items'][0]
+    assert 'correct_option_ids' not in check['public_question']
+    result=submit(checks,check,option_ids=['option_1'])
+    assert result['correct'] is True
+    restored=checks.material_checks('alice','course','quiz1',1)
+    assert restored['items'][0]['attempts'][0]['attempt_id']==result['attempt_id']
+    with pytest.raises(HTTPException) as old:
+        checks.learning.practice('course','alice','quiz1',1,{'q1':'A'})
+    assert old.value.status_code==409
+    assert not checks.learning.store.get('alice','course').get('practice')
+
+def test_generated_short_answer_keeps_reference(checks):
+    question=checks.bank_question({'form':'short_answer','stem':'变量是什么','reference_answer':'变量名绑定值','explanation':'区分名称和值'})
+    assert question.reference_answer=='变量名绑定值'

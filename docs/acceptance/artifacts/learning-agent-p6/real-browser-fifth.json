@@ -1,0 +1,213 @@
+[
+  {
+    "question": "请用一个生活中的简单例子解释变量赋值和数学等式的区别。",
+    "seconds": 10.046,
+    "turn": {
+      "turn_id": "answer-13572b26591745b9b555636fd8a492d9",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "1efd2a8a-e042-4b9d-8603-890499e24dea",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "Python变量与赋值",
+            "locator": null,
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "9cba80175b57cf3831fc25eb07774ec5194614a80b386d3aafdb87ea2cdba60a",
+            "resource_ref": {
+              "version": 2,
+              "course_id": "learning-fixture",
+              "material_id": "a-core",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 0,
+        "answer_markdown": "用「贴标签」来理解：\n\n**变量赋值**像给盒子贴标签。比如你有一个盒子，先贴标签「x」，里面放数字 1（`x = 1`）。过一会儿你把标签撕下来，贴到另一个装着 2 的盒子上（`x = 2`）。标签可以随时换地方，指向不同的东西。\n\n**数学等式**则像天平。`x = 1` 表示左右两边永远相等、是同一个事实，不能过一会儿又说 `x = 2`，否则天平就塌了。\n\n所以：\n- 赋值是「动作」——把名字绑定到某个值上，可以反复改；\n- 等式是「陈述」——断言两边相等，是固定不变的关系。\n\n再举个生活例子：`x = 1` 像「我的座位号是 1 号」，之后 `x = 2` 是「我换到了 2 号座位」——座位号可以变；而数学里的 `x = 1` 更像「1 就是 1」，是恒等的事实，不能随便改成 2。",
+        "source_revision": 0,
+        "preparation_receipts": [],
+        "suggested_action_ids": []
+      },
+      "error_code": null,
+      "committed_effects": []
+    }
+  },
+  {
+    "question": "x = 1; y = x; x = 2。不要直接给答案，只给一步提示引导我判断 y 的值。",
+    "seconds": 4.215,
+    "turn": {
+      "turn_id": "answer-333d7be44bea42a58352c8c011624ae3",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "60323fef-b261-4c30-a160-873d41c997b8",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "Python变量与赋值",
+            "locator": null,
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "9cba80175b57cf3831fc25eb07774ec5194614a80b386d3aafdb87ea2cdba60a",
+            "resource_ref": {
+              "version": 2,
+              "course_id": "learning-fixture",
+              "material_id": "a-core",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 0,
+        "answer_markdown": "先想清楚：`y = x` 这一步发生时，`x` 绑定的是哪个对象？赋值是“绑定对象”而不是“复制对象”，所以之后 `x = 2` 只是让 `x` 重新绑定到新对象，会不会影响 `y` 已经绑定的那个对象？",
+        "source_revision": 1,
+        "preparation_receipts": [],
+        "suggested_action_ids": []
+      },
+      "error_code": null,
+      "committed_effects": []
+    }
+  },
+  {
+    "question": "请提供一道可以跳过的理解检查，让我试着判断赋值。",
+    "seconds": 8.261,
+    "turn": {
+      "turn_id": "answer-74c50018e6cb4f23bc2fa8785667e5e8",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "656649f6-76bb-4003-9e62-9247d6bca853",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [
+          {
+            "kind": "understanding_check",
+            "check_id": "check-4901445013444d4caa0e7052160778e9",
+            "topic_id": "a",
+            "source_ref": {
+              "version": 1,
+              "course_id": "learning-fixture",
+              "material_id": "a-quiz",
+              "material_type": "quiz"
+            },
+            "objective_ids": [],
+            "public_question": {
+              "form": "choice",
+              "stem": "执行 x = 1 后 x 是多少？",
+              "options": [
+                {
+                  "id": "one",
+                  "text": "整数 1"
+                },
+                {
+                  "id": "two",
+                  "text": "整数 2"
+                }
+              ]
+            },
+            "question_version": 1,
+            "source_available": true
+          }
+        ],
+        "citations": [],
+        "observation": null,
+        "citation_ids": [],
+        "memory_epoch": 0,
+        "model_rounds": 3,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 2,
+        "answer_markdown": "已生成一道理解检查，请在检查卡片上作答，或选择跳过。",
+        "source_revision": 1,
+        "preparation_receipts": [],
+        "suggested_action_ids": [
+          "check-4901445013444d4caa0e7052160778e9"
+        ]
+      },
+      "error_code": null,
+      "committed_effects": [
+        {
+          "kind": "understanding_check",
+          "check_id": "check-4901445013444d4caa0e7052160778e9"
+        }
+      ]
+    }
+  },
+  {
+    "question": "请生成并保存一份只有一道单选题的变量赋值练习资料。",
+    "seconds": 6.435,
+    "turn": {
+      "turn_id": "answer-1392c929a04e40968e2458c1d26ecde5",
+      "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+      "request_id": "ecffbde4-1019-4b5a-8a23-c937d68d9885",
+      "topic_id": "a",
+      "status": "succeeded",
+      "stage": "succeeded",
+      "attempt": 1,
+      "result": {
+        "actions": [],
+        "citations": [],
+        "observation": null,
+        "citation_ids": [],
+        "memory_epoch": 0,
+        "model_rounds": 2,
+        "role_version": "learning-role-v1",
+        "tool_attempts": 1,
+        "answer_markdown": "任务已接收，正在准备中（preparation_id: prep_db16b6ce0cee4ac8a493dce303c935ac）。资料尚未生成完成，稍后可通过状态查询确认。",
+        "source_revision": 2,
+        "preparation_receipts": [
+          {
+            "stage": "normalize",
+            "result": null,
+            "status": "accepted",
+            "target": {
+              "node_id": "a",
+              "course_id": "learning-fixture",
+              "resource_id": null,
+              "base_route_version": null,
+              "base_manifest_version": 1,
+              "base_resource_version": null
+            },
+            "revision": 1,
+            "operation": "supplement_node",
+            "attempt_no": 1,
+            "origin_ref": {
+              "message_id": "answer-1392c929a04e40968e2458c1d26ecde5:user",
+              "conversation_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1"
+            },
+            "preparation_id": "prep_db16b6ce0cee4ac8a493dce303c935ac"
+          }
+        ],
+        "suggested_action_ids": []
+      },
+      "error_code": null,
+      "committed_effects": [
+        {
+          "kind": "preparation",
+          "preparation_id": "prep_db16b6ce0cee4ac8a493dce303c935ac"
+        }
+      ]
+    }
+  }
+]

@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from typing import Literal
 from uuid import UUID, uuid4
 import anyio
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from app.auth import get_current_user
 from app.self_learning.service import LearningService, gateway, graph_leaves
@@ -18,8 +18,12 @@ from app.services.job_store import list_job_page
 
 router = APIRouter(prefix='/api/self-learning', tags=['self-learning'])
 
-def service():
-    return LearningService()
+def service(request: Request, user=Depends(get_current_user)):
+    learning = LearningService()
+    course = request.path_params.get('course_id')
+    if course:
+        return learning.for_scope(user['username'], course)
+    return learning
 
 from app.self_learning.contracts import Actor
 from app.self_learning.progress_contracts import LearningEvent
@@ -338,3 +342,15 @@ def preparation_notifications(course_id: str, user=Depends(get_current_user), sv
 @router.post('/notifications/{notification_id}/read')
 def read_preparation_notification(notification_id: str, user=Depends(get_current_user), svc=Depends(service)):
     return enrichment(svc, 'preparations').notifications.mark_read(user['username'], notification_id)
+
+@router.get('/courses/{course_id}/practice/{material_id}/mode')
+def practice_mode(course_id: str, material_id: str, user=Depends(get_current_user), svc=Depends(service)):
+    svc.material(course_id,'quiz',material_id,user['username'])
+    return {'checks_enabled':bool(svc.checks),'owner':user['username']}
+
+class MaterialCheckRequest(Contract):
+    version: int = Field(strict=True,ge=1)
+
+@router.post('/courses/{course_id}/practice/{material_id}/checks')
+def material_checks(course_id: str, material_id: str, payload: MaterialCheckRequest, user=Depends(get_current_user), svc=Depends(service)):
+    return enrichment(svc,'checks').material_checks(user['username'],course_id,material_id,payload.version)

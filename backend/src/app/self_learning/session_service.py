@@ -18,9 +18,15 @@ def _repository(database_url):
 
 
 def configured_repository():
-    if os.getenv('LEARNING_SESSION_V1_ENABLED', '').lower() not in {'1', 'true'}:
+    from .rollout import scoped_enabled
+    if os.getenv('LEARNING_SESSION_V1_ENABLED', '').lower() not in {'1', 'true'} and not scoped_enabled():
         return None
-    return _repository(os.getenv('DATABASE_URL', '').strip())
+    repository = _repository(os.getenv('DATABASE_URL', '').strip())
+    if scoped_enabled():
+        from sqlalchemy import inspect
+        if not inspect(repository.engine).has_table('learning_rollout_scopes'):
+            raise RuntimeError('Apply migration 20260917_0029 before scoped rollout')
+    return repository
 
 
 class SessionService:
@@ -36,6 +42,9 @@ class SessionService:
         return room, chapter
 
     def enter(self, owner, course_id, topic_id):
+        from .rollout import scoped_enabled, phase
+        if scoped_enabled() and phase(self.learning, owner, course_id) < 1:
+            raise HTTPException(503, '当前课程尚未启用持久化学习会话')
         room, chapter = self._chapter(owner, course_id, topic_id)
         if self.repository.find(owner, course_id, topic_id) is None:
             digest = hashlib.sha256(topic_id.encode()).hexdigest()[:24]

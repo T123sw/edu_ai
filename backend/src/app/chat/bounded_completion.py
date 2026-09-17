@@ -65,8 +65,10 @@ class BoundedModelAdapter:
             choice = choices[0]
             message = choice['message']
             if choice['finish_reason'] == 'stop' and not message.get('tool_calls'):
-                if not isinstance(message.get('content'), str) or not message['content'].strip():
+                if not isinstance(message.get('content'), str):
                     raise ValueError()
+                if not message['content'].strip():
+                    raise AgentFailure('MODEL_EMPTY_RESPONSE')
                 return {'content': message['content'], 'calls': []}
             if choice['finish_reason'] != 'tool_calls':
                 raise ValueError()
@@ -105,6 +107,10 @@ class BoundedModelAdapter:
                     if str(model).lower().startswith('deepseek-v4'):
                         extra = {**extra, 'thinking': {'type': 'disabled'}}
                     payload = {'model': model, 'messages': messages, 'stream': False, 'max_tokens': 2000, 'temperature': 0.2, **extra}
+                    if str(model).lower().startswith('deepseek'):
+                        payload['response_format'] = {'type': 'json_object'}
+                        if not any('json' in str(m.get('content') or '').lower() for m in messages):
+                            payload['messages'] = [{'role':'system','content':'输出一个有效 JSON 对象，不添加额外说明。'}, *messages]
                     if tools:
                         payload.update(tools=tools, tool_choice='auto', parallel_tool_calls=False)
                     try:

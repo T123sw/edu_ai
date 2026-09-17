@@ -44,6 +44,9 @@ class TurnService:
         return value
 
     def accept(self, owner, course, topic, request):
+        from .rollout import scoped_enabled, phase
+        if scoped_enabled() and phase(self.learning, owner, course) < 3:
+            raise HTTPException(503, '当前课程尚未启用答疑 Agent')
         if not request.question.strip():
             raise HTTPException(422, '请输入问题')
         ContextBuilder(self.learning).authorize(owner, course, topic, request.reading_context.model_dump(mode='json'))

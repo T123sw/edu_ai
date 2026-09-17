@@ -133,3 +133,4 @@ class LearningAgentOutbox(Base):
 from . import enrichment_models as _enrichment_models
 
 from app.course_preparation import production_models  # noqa: F401
+from . import migration_models  # noqa: F401

@@ -55,7 +55,7 @@ export function LearningNotifications({ room, active, onSelect }: { room: Classr
         {['accepted', 'running', 'checking'].includes(task.status) && <button disabled={busy} onClick={() => void control(task, 'cancel')}>取消准备</button>}
         {['failed', 'canceled'].includes(task.status) && <button disabled={busy} onClick={() => void control(task, 'retry')}>重试准备</button>}
       </div>)}
-      {notices.map(notice => <article key={notice.notification_id}>
+      {notices.map(notice => <article key={notice.notification_id} data-preparation-id={notice.preparation_id}>
         <p>{notice.type === 'succeeded' ? '新资料已准备好' : notice.type === 'unavailable' ? '结果暂不可读取' : statuses[notice.type] || notice.type}</p>
         <small>{notice.result.change_summary || notice.result.error_code}</small>
         {notice.result.resource_refs?.map(ref => <div key={ref.material_id}><button disabled={busy || !room.chapters.some(t => t.resources.some(r => r.id === ref.material_id))} onClick={() => void open(notice, ref)}>打开新{ref.material_type === 'quiz' ? '练习' : '资料'} · v{ref.version}</button><small>新资料从开头阅读，旧资料的完成标记和引用保留。</small></div>)}

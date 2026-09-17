@@ -1,0 +1,144 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+__________ test_scan_read_only_repeat_import_and_reconcile[sqlite-3] ___________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7f56ff957650>
+count = 3
+
+    @pytest.mark.parametrize('count',[3,150])
+    def test_scan_read_only_repeat_import_and_reconcile(preparation,count):
+>       migration=LearningMigration(preparation.learning)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend/src/tests/self_learning/test_migration.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.self_learning.migration.LearningMigration object at 0x7f56ff0e47d0>
+learning = <app.self_learning.service.LearningService object at 0x7f56ff955910>
+
+    def __init__(self,learning):
+        self.learning=learning
+        if not learning.session_repository or not learning.progress_repository:
+>           raise ValueError('migration requires explicit session and facts repositories')
+E           ValueError: migration requires explicit session and facts repositories
+
+backend/src/app/self_learning/migration.py:26: ValueError
+_________ test_scan_read_only_repeat_import_and_reconcile[sqlite-150] __________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7f56ffdc71a0>
+count = 150
+
+    @pytest.mark.parametrize('count',[3,150])
+    def test_scan_read_only_repeat_import_and_reconcile(preparation,count):
+>       migration=LearningMigration(preparation.learning)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend/src/tests/self_learning/test_migration.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.self_learning.migration.LearningMigration object at 0x7f56ff90d280>
+learning = <app.self_learning.service.LearningService object at 0x7f56ffdc7cb0>
+
+    def __init__(self,learning):
+        self.learning=learning
+        if not learning.session_repository or not learning.progress_repository:
+>           raise ValueError('migration requires explicit session and facts repositories')
+E           ValueError: migration requires explicit session and facts repositories
+
+backend/src/app/self_learning/migration.py:26: ValueError
+________ test_scan_read_only_repeat_import_and_reconcile[postgresql-3] _________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7f56ff1cf0b0>
+count = 3
+
+    @pytest.mark.parametrize('count',[3,150])
+    def test_scan_read_only_repeat_import_and_reconcile(preparation,count):
+>       migration=LearningMigration(preparation.learning)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend/src/tests/self_learning/test_migration.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.self_learning.migration.LearningMigration object at 0x7f56ffdc7ce0>
+learning = <app.self_learning.service.LearningService object at 0x7f56ffd82690>
+
+    def __init__(self,learning):
+        self.learning=learning
+        if not learning.session_repository or not learning.progress_repository:
+>           raise ValueError('migration requires explicit session and facts repositories')
+E           ValueError: migration requires explicit session and facts repositories
+
+backend/src/app/self_learning/migration.py:26: ValueError
+_______ test_scan_read_only_repeat_import_and_reconcile[postgresql-150] ________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7f56ff0e47d0>
+count = 150
+
+    @pytest.mark.parametrize('count',[3,150])
+    def test_scan_read_only_repeat_import_and_reconcile(preparation,count):
+>       migration=LearningMigration(preparation.learning)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend/src/tests/self_learning/test_migration.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.self_learning.migration.LearningMigration object at 0x7f56ff1a3d40>
+learning = <app.self_learning.service.LearningService object at 0x7f56ff9973b0>
+
+    def __init__(self,learning):
+        self.learning=learning
+        if not learning.session_repository or not learning.progress_repository:
+>           raise ValueError('migration requires explicit session and facts repositories')
+E           ValueError: migration requires explicit session and facts repositories
+
+backend/src/app/self_learning/migration.py:26: ValueError
+____________ test_modified_source_is_conflict_not_overwrite[sqlite] ____________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7f57001dee40>
+
+    def test_modified_source_is_conflict_not_overwrite(preparation):
+>       migration=LearningMigration(preparation.learning)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend/src/tests/self_learning/test_migration.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.self_learning.migration.LearningMigration object at 0x7f57001dedb0>
+learning = <app.self_learning.service.LearningService object at 0x7f57001de870>
+
+    def __init__(self,learning):
+        self.learning=learning
+        if not learning.session_repository or not learning.progress_repository:
+>           raise ValueError('migration requires explicit session and facts repositories')
+E           ValueError: migration requires explicit session and facts repositories
+
+backend/src/app/self_learning/migration.py:26: ValueError
+__________ test_modified_source_is_conflict_not_overwrite[postgresql] __________
+
+preparation = <app.self_learning.preparation_adapter.PreparationAdapter object at 0x7f57001968a0>
+
+    def test_modified_source_is_conflict_not_overwrite(preparation):
+>       migration=LearningMigration(preparation.learning)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend/src/tests/self_learning/test_migration.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.self_learning.migration.LearningMigration object at 0x7f57001dfd10>
+learning = <app.self_learning.service.LearningService object at 0x7f5700196d20>
+
+    def __init__(self,learning):
+        self.learning=learning
+        if not learning.session_repository or not learning.progress_repository:
+>           raise ValueError('migration requires explicit session and facts repositories')
+E           ValueError: migration requires explicit session and facts repositories
+
+backend/src/app/self_learning/migration.py:26: ValueError
+=========================== short test summary info ============================
+FAILED backend/src/tests/self_learning/test_migration.py::test_scan_read_only_repeat_import_and_reconcile[sqlite-3]
+FAILED backend/src/tests/self_learning/test_migration.py::test_scan_read_only_repeat_import_and_reconcile[sqlite-150]
+FAILED backend/src/tests/self_learning/test_migration.py::test_scan_read_only_repeat_import_and_reconcile[postgresql-3]
+FAILED backend/src/tests/self_learning/test_migration.py::test_scan_read_only_repeat_import_and_reconcile[postgresql-150]
+FAILED backend/src/tests/self_learning/test_migration.py::test_modified_source_is_conflict_not_overwrite[sqlite]
+FAILED backend/src/tests/self_learning/test_migration.py::test_modified_source_is_conflict_not_overwrite[postgresql]
+6 failed in 31.21s
