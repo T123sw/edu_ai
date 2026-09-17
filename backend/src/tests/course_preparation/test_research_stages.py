@@ -53,3 +53,16 @@ def test_uploaded_only_path_does_not_search_and_node_review_is_separate(runtime_
         assert not result.get('failed'), result
     assert public['stage']=='produce'
     assert reviewed==['n1']
+
+
+def test_node_review_uses_short_source_handles_and_injects_node_identity():
+    from tests.course_preparation.test_research_flow import run
+    from app.course_preparation.node_research import review_node
+    state=run(ResearchAgent(model=Model(),sources=Sources()))
+    class Reviewer:
+        def decide(self,context,tools,**kwargs):
+            assert 'source_ids' not in context['node']
+            assert context['evidence'][0]['source_ref']=='source_1'
+            return 'assess_node_evidence',{'sufficient':True,'reason':'已读来源包含终止条件与递减例子','source_refs':['source_1']}
+    result=review_node(Reviewer(),state,state.path.nodes[0])
+    assert result.node_key=='n1' and result.source_ids==(state.evidence[0].source_id,)

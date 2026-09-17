@@ -24,3 +24,5 @@ last_error.arguments 是上一次失败的完整提交。修复该提交中指�
 remaining_budget 是剩余预算。证据覆盖当前用户目标就应转入汇总；不要为了扩展主题耗尽读取预算。预算耗尽的检索/读取工具会卸载，基于已有证据完成汇总；如果确实缺失核心依据，必须如实列出 unresolved_gaps，不能为了通过而捏造。
 
 当挂载 record_evidence_finding / finalize_research_summary 时，逐条保存有短引文的结论，通常4～6条；已有 draft_findings 时复用。每条选择1～2个真实 citation_ref 编号（如 q2_3），不要重写、翻译或拼接原文；服务端会解析编号为原文片段。核心结论足够后用 finding_ids 汇总，不重新输出全部引文。不得一次汇总十余条无关扩展结论。工具返回错误时只修正指出的具体字段。
+
+读取结果给出 total_chars 和 next_offset。next_offset 为 null 表示已到正文末尾，不能继续增加 offset_chars；该来源全部已读时转入记录结论/汇总。

@@ -48,6 +48,8 @@ class SourceEvidence(Contract):
     content_sha256: str
     retrieved_at: str
     offset_chars: int = 0
+    total_chars: int | None = None
+    next_offset: int | None = None
     coverage: Literal['extracted_excerpt'] = 'extracted_excerpt'
 
 

@@ -56,6 +56,19 @@ class ResearchAgent:
             names = tuple(name for name in names
                           if not (name == 'search_sources' and (state.searches >= 6 or state.reads >= 8))
                           and not (name == 'fetch_source' and state.reads >= 8))
+        if state is not None and phase == 'research' and state.candidates:
+            available = False
+            for candidate in state.candidates:
+                pieces = sorted((e for e in state.evidence if e.candidate_id == candidate.candidate_id), key=lambda e:e.offset_chars)
+                if not pieces or pieces[-1].total_chars is None:
+                    available = True; break
+                cursor = 0
+                for piece in pieces:
+                    if piece.offset_chars > cursor: break
+                    cursor = max(cursor, piece.offset_chars + len(piece.content))
+                if cursor < pieces[-1].total_chars:
+                    available = True; break
+            if not available: names = tuple(n for n in names if n != 'fetch_source')
         return [{'type': 'function', 'function': {
             'name': name, 'description': REGISTRY[name][1],
             'parameters': REGISTRY[name][0].model_json_schema(),
@@ -155,13 +168,17 @@ class ResearchAgent:
             state = state.model_copy(update={'reads': state.reads + 1})
             if reserve:
                 reserve(state)
-            content = self.sources.read(candidate.url, timeout=timeout).strip()[args.offset_chars:args.offset_chars + 5000]
-            if len(content) < 100:
+            full_content = self.sources.read(candidate.url, timeout=timeout).strip()
+            if args.offset_chars >= len(full_content):
+                raise ValueError(f'正文已结束，总长 {len(full_content)} 字符；不能继续读取该偏移，请使用已有证据')
+            content = full_content[args.offset_chars:args.offset_chars + 5000]
+            if len(content) < (20 if candidate.url.startswith('upload://') else 100):
                 raise ValueError('正文未能有效提取，不能使用搜索摘要代替')
             digest = hashlib.sha256(content.encode()).hexdigest()
             evidence = SourceEvidence(source_id='ev_' + hashlib.sha256((candidate.url + digest).encode()).hexdigest()[:24],
                 candidate_id=candidate.candidate_id, url=candidate.url, title=candidate.title,
-                content=content, offset_chars=args.offset_chars, content_sha256=digest, retrieved_at=datetime.now(timezone.utc).isoformat())
+                content=content, offset_chars=args.offset_chars, total_chars=len(full_content),
+                next_offset=args.offset_chars+5000 if args.offset_chars+5000<len(full_content) else None, content_sha256=digest, retrieved_at=datetime.now(timezone.utc).isoformat())
             return state.model_copy(update={'evidence': (*state.evidence, evidence)})
         if name == 'record_evidence_finding':
             from .evidence_spans import span_registry

@@ -21,6 +21,15 @@ class ResearchStages:
         if self.memory:
             checkpoint=self.memory.prepare(context,checkpoint,request)
         state=ResearchState.model_validate(checkpoint.get('research_state',{}))
+        if checkpoint.get('research_attempt') != context.attempt_no:
+            state=state.model_copy(update={'errors':0})
+            checkpoint={**checkpoint,'research_attempt':context.attempt_no}
+        # Upgrade old bounded excerpts: a short final slice proves EOF without rereading.
+        totals={e.candidate_id:e.offset_chars+len(e.content) for e in state.evidence if e.total_chars is None and len(e.content)<5000}
+        if totals:
+            state=state.model_copy(update={'evidence':tuple(e.model_copy(update={'total_chars':totals[e.candidate_id],
+                'next_offset':e.offset_chars+5000 if e.offset_chars+5000<totals[e.candidate_id] else None})
+                if e.candidate_id in totals else e for e in state.evidence)})
         agent=self.agent_factory(context,request,checkpoint)
         def reserve(value):
             self.repository.checkpoint(context,{**checkpoint,'research_state':value.model_dump(mode='json')})

@@ -291,3 +291,13 @@ def test_evidence_handles_bind_actual_raw_text_and_reject_unknown_handles():
     assert result.draft_findings[0].citations[0].quote in state.evidence[0].content
     bad=decision.model_copy(update={'citation_refs':('q999_1',)})
     with pytest.raises(ValueError): agent._execute('record_evidence_finding',bad,request(),state,timeout=1,reserve=None)
+
+
+def test_end_of_source_is_explicit_and_read_tool_unmounted_when_exhausted():
+    agent=ResearchAgent(model=Model(),sources=Sources())
+    state=ResearchState()
+    for _ in range(3): state=agent.step(request(),state)
+    evidence=state.evidence[0]
+    assert evidence.total_chars==len(evidence.content) and evidence.next_offset is None
+    assert 'fetch_source' not in [t['function']['name'] for t in agent.tools('research',state)]
+    assert 'save_research_summary' in [t['function']['name'] for t in agent.tools('research',state)]
