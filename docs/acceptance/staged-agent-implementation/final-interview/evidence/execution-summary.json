@@ -1,0 +1,165 @@
+{
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "attempt_no": 1,
+  "actions": {
+    "source_read": 8,
+    "model_completion": 56,
+    "search": 1,
+    "generate_resource": 12
+  },
+  "models": [
+    "deepseek-v4-pro"
+  ],
+  "candidate_count": 5,
+  "evidence_count": 8,
+  "findings_count": 5,
+  "research_trace": [
+    {
+      "call": 1,
+      "tool": "save_preparation_brief",
+      "phase": "intent",
+      "status": "ok"
+    },
+    {
+      "call": 2,
+      "code": "INVALID_TOOL_RESULT",
+      "phase": "research",
+      "status": "error",
+      "message": "MODEL_PROTOCOL_ERROR: 每轮必须恰有一个有ID的function调用"
+    },
+    {
+      "hits": 5,
+      "query": "AI agent loop model application responsibility boundary tool calling design"
+    },
+    {
+      "call": 3,
+      "tool": "search_sources",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 4,
+      "tool": "fetch_source",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 5,
+      "tool": "fetch_source",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 6,
+      "tool": "fetch_source",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 7,
+      "tool": "fetch_source",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 8,
+      "tool": "fetch_source",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 9,
+      "tool": "fetch_source",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 10,
+      "code": "INVALID_TOOL_RESULT",
+      "phase": "research",
+      "status": "error",
+      "message": "MODEL_PROTOCOL_ERROR: 每轮必须恰有一个有ID的function调用"
+    },
+    {
+      "call": 11,
+      "tool": "fetch_source",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 12,
+      "tool": "fetch_source",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 13,
+      "code": "INVALID_TOOL_RESULT",
+      "phase": "research",
+      "status": "error",
+      "message": "MODEL_PROTOCOL_ERROR: 每轮必须恰有一个有ID的function调用"
+    },
+    {
+      "call": 14,
+      "tool": "record_evidence_finding",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 15,
+      "tool": "record_evidence_finding",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 16,
+      "tool": "record_evidence_finding",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 17,
+      "tool": "record_evidence_finding",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 18,
+      "tool": "record_evidence_finding",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 19,
+      "tool": "finalize_research_summary",
+      "phase": "research",
+      "status": "ok"
+    },
+    {
+      "call": 20,
+      "code": "INVALID_TOOL_RESULT",
+      "phase": "plan",
+      "status": "error",
+      "message": "Expecting ',' delimiter: line 1 column 830 (char 829)"
+    },
+    {
+      "call": 21,
+      "code": "INVALID_TOOL_RESULT",
+      "phase": "plan",
+      "status": "error",
+      "message": "学习路径缺少需求 ['req_8']"
+    },
+    {
+      "call": 22,
+      "tool": "save_course_plan",
+      "phase": "plan",
+      "status": "ok"
+    },
+    {
+      "call": 23,
+      "tool": "submit_path_review",
+      "phase": "review",
+      "status": "ok"
+    }
+  ]
+}

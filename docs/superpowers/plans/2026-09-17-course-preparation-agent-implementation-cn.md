@@ -12,6 +12,25 @@
 
 **运行核心补充（2026-09-17）：** [记忆、工具与决策协议](../../architecture/2026-09-17-course-preparation-agent-runtime-design-cn.md)明确根角色、记忆生命周期、上下文预算、完整工具目录/挂载矩阵、策略与 Harness 取舍、严格传输和恢复。P2/P3 必须先阅读该文；研究与路径主体切片进度见下方当前状态。
 
+
+## 2026-09-17 实施对账
+
+本计划 P1—P7 的运行能力已落地，阶段提交与原始通过/失败日志见[全阶段账本](../../acceptance/staged-agent-implementation/README.md)，完整验收见[最终报告](../../acceptance/staged-agent-implementation/final-report.md)。勾选表示行为已实现并有对应测试，不表示已在业务环境启用。以下测试文件名是原规划；实施时按职责合并，映射如下，不能直接复制不存在的旧文件名执行。
+
+| 阶段 | 实际主要测试文件（backend/src/tests/course_preparation/） |
+| --- | --- |
+| P1 | test_contracts.py、test_repository.py、test_migration.py |
+| P2 | test_runtime_foundation.py、test_lifecycle_guards.py、test_stage_api_runner.py、test_runtime_migration.py、test_research_persistence.py |
+| P3 | test_research_adapters.py、test_research_flow.py、test_context_memory.py、test_shared_memory_runtime.py、test_source_policy.py、test_document_adapter.py、test_citation_locator.py |
+| P4 | test_generation_adapter.py、test_resource_reuse.py、test_native_classroom.py |
+| P5 | test_quality_stages.py、test_delivery.py、test_local_manifest.py、test_publication_overlay.py、test_prepared_learning.py |
+| P6 | frontend/tests/live-learning/preparation.spec.ts、agent-full.spec.ts；真实上传课程全资料浏览器验收 |
+| P7 | test_notifications.py、test_route_adjustment.py、test_publication_overlay.py；学习侧 test_preparation_adapter.py；真实补充、修订、共享个人修订、路线调整 |
+
+实现落点有意收敛：独立 lifecycle_repository/后台 worker 负责整课状态，子资源复用 durable task 队列；模型严格适配沿用 research/model 路径；只改时间且明确保留资料的路线调整使用旧版本证据和正文审阅，不强制重新搜索。服务端引用句柄代替模型重抄引文。课堂为实际可播放 DSL，并不包含未要求的外部配音采购。PDF/DOC 真实解析与 MD 真实上传有独立日志，DOCX、空扫描/缺页使用固定样本测试，未宣称扫描识别普遍成功。
+
+最终真实面试准备一次 attempt 完成四节点、12 份资料；保留了运行内 5 次有界协议/规划纠正，无人工修改该任务。后续学习侧“选定后再提交”澄清修复不改变准备代码。来源质量和样本量限制仍列在最终报告，运行验收通过不等于内容已达到出版标准。
+
 ## 全局约束
 
 - 准备中无人工大纲确认和隐含保存审批；默认全部核心内容满足门禁后才提供新课程学习入口。
@@ -24,7 +43,7 @@
 
 ## 1. 阶段总表与依赖
 
-当前优先切片（用户 2026-09-17 指示）：先实现“意图→真实检索/正文读取→证据汇总→学习路径→独立审阅”。它是 P2/P3 的研究路径阶段，不提前实现资源生成。独立 `research-runs` 任务保存检查点、预算、租约与结果，状态成功仅代表研究路径完成，返回 `course_ready=false`；后续整课准备可消费该阶段产物。首版仅接新需求和开放网络来源，上传/已有课程调整在入口明确拒绝，不擅自降为无资料规划。
+早期优先切片（历史记录，已由整课流程覆盖）：先实现“意图→真实检索/正文读取→证据汇总→学习路径→独立审阅”。它是 P2/P3 的研究路径阶段，不提前实现资源生成。独立 `research-runs` 任务保存检查点、预算、租约与结果，状态成功仅代表研究路径完成，返回 `course_ready=false`；后续整课准备可消费该阶段产物。首版仅接新需求和开放网络来源，上传/已有课程调整在入口明确拒绝，不擅自降为无资料规划。
 
 - [x] 研究契约与测试：要求、证据及原文定位、汇总、路径节点/先修/时间/覆盖映射。
 - [x] 严格模型与检索适配：一轮一个 schema 工具动作，实际取得正文才能引用，有限搜索与修正。
@@ -32,17 +51,17 @@
 - [x] 持久化后台任务：原子接收/去重、租约、取消、预算跨恢复、owner 隔离；不依赖页面存活。
 - [x] HTTP 创建/状态/取消接口和命令行真实模型 smoke，保存完整路径与来源供验收。
 
-验收与启动方式：[研究与学习路径阶段](../../acceptance/2026-09-17-course-preparation-research-path-cn.md)。P2/P3 完整范围仍有未完成项。
+验收与启动方式：[研究与学习路径阶段](../../acceptance/2026-09-17-course-preparation-research-path-cn.md)。整课后续阶段已实施；最新结果见下方实施对账。
 
 | 阶段 | 目标及交付 | 依赖 | 状态 |
 | --- | --- | --- | --- |
 | P1 | 强类型请求/manifest/事件契约；授权端口；任务、首次 attempt、接收事件的原子持久化；迁移 | 无 | 已完成本地验证，见 [P1 验收](../../acceptance/2026-09-17-course-preparation-agent-p1-cn.md) |
-| P2 | API、运行契约、工具注册/分发、执行租约、检查点、取消/重试、动作与预算及事件恢复 | P1、运行核心设计 | 主体研究任务已实现；整课事件/重试/动作账本待接 |
-| P3 | 严格模型传输、记忆生命周期接入、上下文/策略装配、文件输入、两类研究与规划 | P2 | 开放网络研究与路径已实现；长期记忆/上传/节点级研究待接 |
-| P4 | 按节点复用/生成资源、准确版本回读、子任务并发和局部修复 | P3 | 未开始 |
-| P5 | 分层检查、版本冲突、manifest/overlay 存储与原子交付 | P4 | 未开始 |
-| P6 | 首页提交/上传/真实状态/恢复/完整课程入口 | P5 | 未开始 |
-| P7 | 学习 Agent 补充、修订和课程调整；版本通知与学习连续性 | P5、P6 | 未开始 |
+| P2 | API、运行契约、工具注册/分发、执行租约、检查点、取消/重试、动作与预算及事件恢复 | P1、运行核心设计 | 已实施并隔离验证，见整体验收 |
+| P3 | 严格模型传输、记忆生命周期接入、上下文/策略装配、文件输入、两类研究与规划 | P2 | 已实施，含上传、记忆失效和真实研究 |
+| P4 | 按节点复用/生成资源、准确版本回读、子任务并发和局部修复 | P3 | 已实施并隔离验证 |
+| P5 | 分层检查、版本冲突、manifest/overlay 存储与原子交付 | P4 | 已实施并隔离验证 |
+| P6 | 首页提交/上传/真实状态/恢复/完整课程入口 | P5 | 已实施并隔离验证 |
+| P7 | 学习 Agent 补充、修订和课程调整；版本通知与学习连续性 | P5、P6 | 已实施并隔离验证 |
 
 技术设计原阶段 A 的契约与存储基础落在 P1，实际版本提交落在 P5；原 B→P2，C→P3，D 拆为 P4/P5，E→P6，F→P7。此拆分使每阶段可单独验收，避免提前实现尚无输入证据的提交服务。
 
@@ -121,19 +140,19 @@ assert len(repo.events(owner_user_id='alice', preparation_id=first.preparation_i
 
 先按运行核心设计定义 `ExecutionContext/ToolSpec/ContextPacket/ModelDecision` 及工具结果信封。P2 使用可控假模型验证调度与副作用，不将现有 Harness 会话直接作为长期任务。
 
-- [ ] `test_tool_registry.py` 验证阶段×operation×source_policy×能力×预算筛选，未挂载工具不可执行，schema/handler 配对完整；实现冻结 `tool_set_digest`。
-- [ ] `test_tool_dispatcher.py` 验证全部参数先校验，再记录意图/额度；一响应最多一个写动作或四个只读动作，混合批次整体拒绝且零副作用。身份/租约由 ExecutionContext 注入。
-- [ ] `test_runner_no_progress.py` 验证只说计划、反复相同读取、空工作记忆补丁不能无限运行；每 step 上限与整任务预算分别累计。
-- [ ] 阶段转换统一经 `propose_next_stage` 对应服务核验，程序跳过无上传阶段也记录原因。来源撤权后公开状态仍允许 owner 读取经脱敏的错误，内部上下文继续严格拒绝失效来源。
+- [x] `test_tool_registry.py` 验证阶段×operation×source_policy×能力×预算筛选，未挂载工具不可执行，schema/handler 配对完整；实现冻结 `tool_set_digest`。
+- [x] `test_tool_dispatcher.py` 验证全部参数先校验，再记录意图/额度；一响应最多一个写动作或四个只读动作，混合批次整体拒绝且零副作用。身份/租约由 ExecutionContext 注入。
+- [x] `test_runner_no_progress.py` 验证只说计划、反复相同读取、空工作记忆补丁不能无限运行；每 step 上限与整任务预算分别累计。
+- [x] 阶段转换统一经 `propose_next_stage` 对应服务核验，程序跳过无上传阶段也记录原因。来源撤权后公开状态仍允许 owner 读取经脱敏的错误，内部上下文继续严格拒绝失效来源。
 
 任务及接口：`PreparationService.submit/get/cancel/retry`；`PreparationRunner.run_step(preparation_id, attempt_no, lease_token)`；仓储扩展 `claim/heartbeat/save_checkpoint/finish_attempt`。schema 均复用 P1，新增字段单独迁移。
 
-- [ ] `tests/course_preparation/test_lifecycle.py` 写合法/非法状态转换、终态禁止改写、重试保留旧 attempt、revision 冲突、取消先于提交的用例；实现 service 和状态转换表。公开请求经现有登录依赖和真实引用 authorizer。
-- [ ] `test_runner_recovery.py` 写 worker 租约过期后旧 token 写入失败、检查点输入变化失效、空闲时释放 worker 的测试；实现 claim、fencing token 和有界步骤。
-- [ ] `test_action_dispatch.py` 模拟子任务已提交但返回未记录时崩溃；持久化 action 意图和唯一副作用键，恢复先查询已有任务再提交。
-- [ ] `test_budget.py` 并发预留额度不能超支，重试不重置总时限，子生成内部修订计入相同账本。实现时间/tokens/调用次数/估算费用的 reserved/consumed 结算。
-- [ ] `test_events_api.py` 验证 after 游标、重复通知、迟到 attempt 状态不会覆盖新状态。实现事件流与状态快照；子任务完成与周期对账唤醒父运行。
-- [ ] 在 `durable_job_runtime.py` 注册步骤 handler，在 `bootstrap.py` 注册路由；发布功能开关默认关闭，在测试应用打开。
+- [x] `tests/course_preparation/test_lifecycle.py` 写合法/非法状态转换、终态禁止改写、重试保留旧 attempt、revision 冲突、取消先于提交的用例；实现 service 和状态转换表。公开请求经现有登录依赖和真实引用 authorizer。
+- [x] `test_runner_recovery.py` 写 worker 租约过期后旧 token 写入失败、检查点输入变化失效、空闲时释放 worker 的测试；实现 claim、fencing token 和有界步骤。
+- [x] `test_action_dispatch.py` 模拟子任务已提交但返回未记录时崩溃；持久化 action 意图和唯一副作用键，恢复先查询已有任务再提交。
+- [x] `test_budget.py` 并发预留额度不能超支，重试不重置总时限，子生成内部修订计入相同账本。实现时间/tokens/调用次数/估算费用的 reserved/consumed 结算。
+- [x] `test_events_api.py` 验证 after 游标、重复通知、迟到 attempt 状态不会覆盖新状态。实现事件流与状态快照；子任务完成与周期对账唤醒父运行。
+- [x] 在 `durable_job_runtime.py` 注册步骤 handler，在 `bootstrap.py` 注册路由；发布功能开关默认关闭，在测试应用打开。
 
 恢复不变量：
 
@@ -151,21 +170,21 @@ assert canceled_attempt.result_ref is None
 
 以下运行核心任务先于真实研究主链路启用：
 
-- [ ] `test_model_adapter.py` 覆盖正常 tool_calls、流截断、损坏参数、重复 ID、超时、取消和 fallback；补强现有网关严格传输路径，不把坏 JSON 转空对象，也不执行未完整响应。
-- [ ] `test_preparation_prompts.py` 验证独立根角色、按阶段加载受控策略、不带旧确认流程、不加载通用 Skills/MCP；代码保存策略版本和内容哈希。
-- [ ] `test_context_packet.py` 验证工具 schema 与协议开销计数、低预算时保留硬约束、工具调用对不拆开、中文来源分块和有界回读。
-- [ ] `test_preparation_memory.py` 验证工作记忆 CAS、假设不升格为用户事实、读偏好但无长期写工具、跨课程默认不读、摘要失败以结构化记录恢复。
-- [ ] `test_preparation_memory_invalidation.py` 与共用记忆测试验证旧 API 更正/删除同样增加 epoch、来源抑制生效、旧候选提取不复活偏好、迟到子生成只留草稿、影响范围内重新检查；生命周期未完成前不启用旧历史偏好作为替代。
+- [x] `test_model_adapter.py` 覆盖正常 tool_calls、流截断、损坏参数、重复 ID、超时、取消和 fallback；补强现有网关严格传输路径，不把坏 JSON 转空对象，也不执行未完整响应。
+- [x] `test_preparation_prompts.py` 验证独立根角色、按阶段加载受控策略、不带旧确认流程、不加载通用 Skills/MCP；代码保存策略版本和内容哈希。
+- [x] `test_context_packet.py` 验证工具 schema 与协议开销计数、低预算时保留硬约束、工具调用对不拆开、中文来源分块和有界回读。
+- [x] `test_preparation_memory.py` 验证工作记忆 CAS、假设不升格为用户事实、读偏好但无长期写工具、跨课程默认不读、摘要失败以结构化记录恢复。
+- [x] `test_preparation_memory_invalidation.py` 与共用记忆测试验证旧 API 更正/删除同样增加 epoch、来源抑制生效、旧候选提取不复活偏好、迟到子生成只留草稿、影响范围内重新检查；生命周期未完成前不启用旧历史偏好作为替代。
 
 共用 `memory_epoch`、偏好修订和依赖仓储由记忆域实现，准备/学习 adapter 共享，不能各自增加一套全局记忆表或重复 Alembic 迁移。
 
 接口：`SourceAdapter.read/search/fetch` 返回版本化 EvidenceRecord；`ContextBuilder.build` 返回本步骤材料；`Planner.decide` 返回受限动作。所有结果经服务端 schema 和权限校验。
 
-- [ ] `test_source_policy.py` 检验仅文件模式禁止网络/其他库，抓取失败不能标记正文已读；实现来源策略与证据仓储。
-- [ ] `test_document_adapter.py` 使用 PDF/DOC/DOCX/MD 固定样本核对定位与解析状态；扫描失败、部分缺页必须进入缺陷记录，核心缺页阻止继续。复用解析服务，不伪造扫描成功。
-- [ ] `test_context.py` 检验当前请求覆盖偏好，删除偏好使派生缓存失效，其他节点全文不默认进入上下文；实现 brief 和相关记忆装配。
-- [ ] `test_planner.py` 用可控模型响应覆盖正常计划、非法工具、JSON 错误、不可满足时间预算与先修缺口。实现独立准备角色、每步可用工具集合与动作上限。
-- [ ] `test_research.py` 验证材料充分时不机械追加网络检索，第一轮产出结构、第二轮只补节点缺口；模型输出的 source_id 必须回查实际证据。
+- [x] `test_source_policy.py` 检验仅文件模式禁止网络/其他库，抓取失败不能标记正文已读；实现来源策略与证据仓储。
+- [x] `test_document_adapter.py` 使用 PDF/DOC/DOCX/MD 固定样本核对定位与解析状态；扫描失败、部分缺页必须进入缺陷记录，核心缺页阻止继续。复用解析服务，不伪造扫描成功。
+- [x] `test_context.py` 检验当前请求覆盖偏好，删除偏好使派生缓存失效，其他节点全文不默认进入上下文；实现 brief 和相关记忆装配。
+- [x] `test_planner.py` 用可控模型响应覆盖正常计划、非法工具、JSON 错误、不可满足时间预算与先修缺口。实现独立准备角色、每步可用工具集合与动作上限。
+- [x] `test_research.py` 验证材料充分时不机械追加网络检索，第一轮产出结构、第二轮只补节点缺口；模型输出的 source_id 必须回查实际证据。
 
 关键流程：
 
@@ -181,11 +200,11 @@ plan 结构失败 → 带错误路径重规划（计入预算）
 
 接口：`GenerationAdapter.submit(spec, action_key)` 返回已有 durable 子任务引用；`read_result(job_id)` 返回确切 material/version/hash；`ResourceSpec` 固定节点目标、证据、类型、必须性与输出语言。
 
-- [ ] `test_generation_adapter.py` 校验准备自动策略由服务端构造，不伪造 confirmed outline，不改变旧工作台确认行为。
-- [ ] `test_resource_reuse.py` 校验复用需准确版本、目标覆盖及当前权限；找不到任务和任务查询失败不能自动重生成。
-- [ ] `test_resource_dispatch.py` 验证并发最多配置上限、父等待释放执行槽、失败资源不影响无依赖的制作、重复唤醒不重复生成。
-- [ ] `test_resource_readback.py` 子任务 succeeded 但正文缺失、附件不可读或版本不符时不得标记产物 ready。
-- [ ] 实现局部重新生成规格 revision，旧规格产物保留；生成器内部的审阅/修订调用接父预算账本。
+- [x] `test_generation_adapter.py` 校验准备自动策略由服务端构造，不伪造 confirmed outline，不改变旧工作台确认行为。
+- [x] `test_resource_reuse.py` 校验复用需准确版本、目标覆盖及当前权限；找不到任务和任务查询失败不能自动重生成。
+- [x] `test_resource_dispatch.py` 验证并发最多配置上限、父等待释放执行槽、失败资源不影响无依赖的制作、重复唤醒不重复生成。
+- [x] `test_resource_readback.py` 子任务 succeeded 但正文缺失、附件不可读或版本不符时不得标记产物 ready。
+- [x] 实现局部重新生成规格 revision，旧规格产物保留；生成器内部的审阅/修订调用接父预算账本。
 
 关键断言：
 
@@ -201,12 +220,12 @@ assert resource_revision_changes_action_key is True
 
 接口：`QualityService.review(target_ref, input_digest)`、`DeliveryService.commit(candidate, expected_manifest_version, lease_token)`。新增 manifest、个人 overlay、活动指针、检查/问题表；不得使用可随意写 succeeded 的通用方法。
 
-- [ ] `test_quality.py` 覆盖来源/路线/内容/技术/课程整体五层检查；审阅不可用不是通过，blocking issue 无法被总分覆盖。
-- [ ] `test_check_invalidation.py` 验证正文、证据、路线、规则版本改变使关联检查失效；定向修订后重新审阅实际结果。
-- [ ] `test_delivery.py` 验证全部核心资源及明确要求类型必须就绪，可选媒体失败记录 limitation；文件存在检查和版本哈希绑定使用真实资源适配。
-- [ ] `test_delivery_races.py` PostgreSQL 中竞争执行取消/提交、同基准两次修订，最多一个成功，失败不切活动版本。
-- [ ] `test_personal_overlay.py` 验证共享原版未变、个人结果归属正确、旧 manifest 可读、知识点重排稳定 ID。
-- [ ] 同一事务写新 manifest/overlay、绑定、指针、attempt 成功和 outbox。投递失败靠 outbox 重试，不回滚已交付课程，不重复挂载。
+- [x] `test_quality.py` 覆盖来源/路线/内容/技术/课程整体五层检查；审阅不可用不是通过，blocking issue 无法被总分覆盖。
+- [x] `test_check_invalidation.py` 验证正文、证据、路线、规则版本改变使关联检查失效；定向修订后重新审阅实际结果。
+- [x] `test_delivery.py` 验证全部核心资源及明确要求类型必须就绪，可选媒体失败记录 limitation；文件存在检查和版本哈希绑定使用真实资源适配。
+- [x] `test_delivery_races.py` PostgreSQL 中竞争执行取消/提交、同基准两次修订，最多一个成功，失败不切活动版本。
+- [x] `test_personal_overlay.py` 验证共享原版未变、个人结果归属正确、旧 manifest 可读、知识点重排稳定 ID。
+- [x] 同一事务写新 manifest/overlay、绑定、指针、attempt 成功和 outbox。投递失败靠 outbox 重试，不回滚已交付课程，不重复挂载。
 
 交付判定：
 
@@ -222,11 +241,11 @@ AND 候选版本检查摘要一致 AND 所有阻塞项消除
 
 文件：真实前端 `frontend/src/liveLearning/` 新增准备 API 客户端与状态组件，接入首页；课程页读取 manifest。现有演示/旧入口不作为新功能验证证据。
 
-- [ ] `frontend/tests/live-learning/preparation.spec.ts` 先写开始、刷新、离开返回、重复点击、失败重试、取消六条路径；通过 API fixture 验证精确状态。
-- [ ] 首页收集 goal、私有上传引用及折叠配置，使用稳定 request_id 重试；202 后保存 preparation_id。
-- [ ] 只展示真实阶段和缺项，不伪造百分比；终态允许查看原因和有效操作。未完成新课无学习入口。
-- [ ] 成功后经 manifest 打开课程，目录/推荐顺序/来源/限制可读；后台完成只展示通知，不抢导航。
-- [ ] 接真实后端运行上传与无上传两条完整链路，记录网络响应和所有核心资源可打开的证据。
+- [x] `frontend/tests/live-learning/preparation.spec.ts` 先写开始、刷新、离开返回、重复点击、失败重试、取消六条路径；通过 API fixture 验证精确状态。
+- [x] 首页收集 goal、私有上传引用及折叠配置，使用稳定 request_id 重试；202 后保存 preparation_id。
+- [x] 只展示真实阶段和缺项，不伪造百分比；终态允许查看原因和有效操作。未完成新课无学习入口。
+- [x] 成功后经 manifest 打开课程，目录/推荐顺序/来源/限制可读；后台完成只展示通知，不抢导航。
+- [x] 接真实后端运行上传与无上传两条完整链路，记录网络响应和所有核心资源可打开的证据。
 
 验收同时运行前端构建、该 Playwright 用例及原 live-learning 关键路径；旧工作台和共享课程入口不可回归。
 
@@ -234,11 +253,11 @@ AND 候选版本检查摘要一致 AND 所有阻塞项消除
 
 接口：`LearningPreparationAdapter.submit` 把当前服务端用户、知识点、原请求消息与资源基准提交给准备服务；结果采用 P1 事件信封和 P5 交付引用。
 
-- [ ] `test_learning_handoff.py` 验证“解释一下”直接回答，“保存练习/改稿”才提交；目标不唯一时提交前定位，不在后台引入确认等待。
-- [ ] `test_scoped_operations.py` 验证补充只写指定节点，修订只写目标资源，课程调整只覆盖请求范围；模型无法扩大为公共修改或整课重排。
-- [ ] `test_version_continuity.py` 验证旧证据仍指旧版本；资源生成不写已学完/掌握，可靠位置映射失败时提示从章节恢复。
-- [ ] 前端验收通知到达时用户已切节点或正在发问：只记录原节点结果，忽略重复事件，不切回、不打断。
-- [ ] 联调共享课个人修订、并发版本冲突和失败重试，保留原公共内容及原学习记录。
+- [x] `test_learning_handoff.py` 验证“解释一下”直接回答，“保存练习/改稿”才提交；目标不唯一时提交前定位，不在后台引入确认等待。
+- [x] `test_scoped_operations.py` 验证补充只写指定节点，修订只写目标资源，课程调整只覆盖请求范围；模型无法扩大为公共修改或整课重排。
+- [x] `test_version_continuity.py` 验证旧证据仍指旧版本；资源生成不写已学完/掌握，可靠位置映射失败时提示从章节恢复。
+- [x] 前端验收通知到达时用户已切节点或正在发问：只记录原节点结果，忽略重复事件，不切回、不打断。
+- [x] 联调共享课个人修订、并发版本冲突和失败重试，保留原公共内容及原学习记录。
 
 退出条件：完整支持主设计四类请求。记录真实模型质量、耗时、费用和有限修复结果，再校准运行预算；不能将用户显式要求自动降为可选。
 

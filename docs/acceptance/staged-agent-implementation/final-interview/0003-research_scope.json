@@ -1,0 +1,57 @@
+{
+  "brief": {
+    "topic": "AI Agent 开发岗位面试实践认知（Agent循环、工具调用、记忆管理、评估可观测性）",
+    "audience": "有 Python 开发基础，目标应聘 AI Agent 开发岗位，希望建立适合工作面试的实践认知",
+    "language": "中文",
+    "exclusions": [
+      "不要求完成大型项目"
+    ],
+    "assumptions": [
+      "用户已有 Python 开发基础，无需从零讲解 Python 语法",
+      "面试目标为 AI Agent 开发岗位，重点在概念理解与设计取舍，而非完整工程实现"
+    ],
+    "requirements": [
+      {
+        "text": "建立适合工作面试的实践认知，内容以入门到能够解释设计取舍为准",
+        "source_quote": "希望在120分钟内建立适合工作面试的实践认知",
+        "requirement_id": "req_1"
+      },
+      {
+        "text": "安排4个循序渐进的知识点：Agent循环与模型/应用职责边界",
+        "source_quote": "请安排4个循序渐进的知识点：Agent循环与模型/应用职责边界",
+        "requirement_id": "req_2"
+      },
+      {
+        "text": "知识点：工具调用与失败恢复",
+        "source_quote": "工具调用与失败恢复",
+        "requirement_id": "req_3"
+      },
+      {
+        "text": "知识点：记忆与上下文管理",
+        "source_quote": "记忆与上下文管理",
+        "requirement_id": "req_4"
+      },
+      {
+        "text": "知识点：评估与可观测性",
+        "source_quote": "评估与可观测性",
+        "requirement_id": "req_5"
+      },
+      {
+        "text": "搜索并实际阅读可信资料，汇总依据后生成可执行的学习路径",
+        "source_quote": "请搜索并实际阅读可信资料，汇总依据后生成可执行的学习路径",
+        "requirement_id": "req_6"
+      },
+      {
+        "text": "每个节点需要学习报告、理解练习和可播放的讲解课堂，包含具体案例与面试自测",
+        "source_quote": "每个节点需要学习报告、理解练习和可播放的讲解课堂，包含具体案例与面试自测",
+        "requirement_id": "req_7"
+      },
+      {
+        "text": "不要求完成大型项目",
+        "source_quote": "不要求完成大型项目",
+        "requirement_id": "req_8"
+      }
+    ],
+    "total_minutes": 120
+  }
+}

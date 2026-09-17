@@ -1,0 +1,1674 @@
+{
+  "stage": {
+    "id": "resource_0e2981097d5c26fc79b4dd76b999b451",
+    "name": "记忆与上下文管理",
+    "createdAt": 1789654891110,
+    "updatedAt": 1789654891110
+  },
+  "title": "记忆与上下文管理",
+  "scenes": [
+    {
+      "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1",
+      "type": "slide",
+      "order": 0,
+      "title": "多步任务中的上下文消耗问题",
+      "actions": [
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:speech",
+          "text": "在多步任务循环中，模型每一步的推理过程都会留在上下文窗口里。想象一个15步的任务：第3步产生的推理痕迹，到了第12步时已经完全不相关了，但它仍然占据着宝贵的token空间。这就像你写一篇长文章时，草稿纸上的早期涂改痕迹一直堆在桌面上，不仅不帮忙，反而让你找不到当前需要的信息。证据明确指出：'But those “thoughts” live inside the context window. On a 15-step task, you’re burning tokens on the reasoning traces from step 3 that are no longer relevant at step 12.' 这就是记忆与上下文管理成为核心工程问题的原因——上下文窗口是有限的，而中间推理痕迹会不断累积，最终挤占真正有用的信息。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">多步任务中的上下文消耗问题</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>中间推理痕迹占用上下文窗口</p><p>15步任务中，第3步的推理在第12步已无价值</p><p>token被无意义地消耗，影响长任务表现</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+      "createdAt": 1789654891110,
+      "updatedAt": 1789654891110
+    },
+    {
+      "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2",
+      "type": "slide",
+      "order": 1,
+      "title": "OpenAI run API 的截断策略",
+      "actions": [
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:speech",
+          "text": "OpenAI 的 run API 把截断策略作为一个显式的配置选项，这意味着开发者可以主动决定上下文窗口如何被清理。证据原文说：'OpenAI’s run APIs expose truncation strategies as an explicit knob, not an accident.' 这里的核心思想是：与其让所有历史推理痕迹无限堆积，不如设定规则，在达到一定长度或条件时截断早期内容。比如，你可以配置只保留最近N轮的推理，或者只保留与当前步骤相关的信息。这样做的设计取舍在于：截断能节省token、提高效率，但可能丢失某些看似无关实则重要的上下文。面试中常问的就是这个权衡——什么时候该截断？答案是当早期推理痕迹对后续步骤的边际价值趋近于零时。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">OpenAI run API 的截断策略</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>截断策略是显式旋钮，而非意外行为</p><p>允许开发者控制上下文窗口的清理方式</p><p>核心思想：主动丢弃过期的推理痕迹</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+      "createdAt": 1789654891110,
+      "updatedAt": 1789654891110
+    },
+    {
+      "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3",
+      "type": "slide",
+      "order": 2,
+      "title": "LlamaIndex 的 utility tools 压缩",
+      "actions": [
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:speech",
+          "text": "LlamaIndex 引入了一种叫 utility tools 的机制。它的做法是：在一个工具调用中完成数据的加载、索引和查询，然后把大块的原始工具输出压缩成可检索的形式，而不是把原始数据直接倒进提示词里。证据原文说：'LlamaIndex introduces “utility tools” that load, index, and query data in a single call, compressing large tool outputs into retrievable forms instead of dumping raw data into the prompt.' 举个例子：如果工具返回了一个100页的PDF内容，utility tools 会先建立索引，然后只提取与当前问题相关的片段放入上下文。这样既保留了信息的可访问性，又避免了上下文窗口被原始数据淹没。核心思想是：压缩不是删除，而是把信息转化为可按需检索的形态。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">LlamaIndex 的 utility tools 压缩</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>用单次调用完成加载、索引和查询</p><p>将大工具输出压缩为可检索形式</p><p>避免把原始数据直接塞进提示词</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+      "createdAt": 1789654891110,
+      "updatedAt": 1789654891110
+    },
+    {
+      "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4",
+      "type": "slide",
+      "order": 3,
+      "title": "MemGPT 的分层记忆架构",
+      "actions": [
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:speech",
+          "text": "MemGPT 提出了分层记忆架构，它的灵感来自操作系统的内存管理。证据原文说：'MemGPT proposes a tiered memory architecture that manages different memory levels to extend effective context within a limited window.' 具体来说，它把记忆分成主上下文（相当于RAM）和外部存储（相当于磁盘）。主上下文只保留当前任务最需要的信息，而历史信息、长期知识则被移到外部存储中，需要时再检索回来。这样做的效果是：虽然物理上下文窗口大小不变，但有效上下文被大幅扩展了。核心思想是：不是所有记忆都需要时刻在线，分层管理能让有限窗口承载更长的任务链条。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">MemGPT 的分层记忆架构</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>分层管理不同层级的记忆</p><p>在有限窗口内扩展有效上下文</p><p>核心思想：像操作系统一样管理内存</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+      "createdAt": 1789654891110,
+      "updatedAt": 1789654891110
+    },
+    {
+      "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5",
+      "type": "slide",
+      "order": 4,
+      "title": "何时压缩或截断：设计取舍",
+      "actions": [
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:speech",
+          "text": "面试中常被问到：什么时候该压缩，什么时候该截断？这里给出一个判断框架。第一，当早期推理痕迹对后续步骤的边际价值趋近于零时，直接截断是最经济的选择——比如第3步的中间计算在第12步完全用不上。第二，当工具输出很大但其中可能包含后续需要的信息时，应该用压缩而非截断——比如 LlamaIndex 的 utility tools，把大输出变成可检索索引，保留信息的可访问性。第三，当任务跨越很多步骤、需要长期记忆时，分层架构更合适——比如 MemGPT 把不常用的信息移到外部存储，需要时再取回。核心取舍是：截断省token但丢信息，压缩保信息但增加检索成本，分层扩展能力强但系统复杂度高。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">何时压缩或截断：设计取舍</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>早期推理痕迹边际价值趋近于零时截断</p><p>大输出需保留可检索性时用压缩</p><p>长任务需跨步骤记忆时用分层架构</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+      "createdAt": 1789654891110,
+      "updatedAt": 1789654891110
+    },
+    {
+      "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6",
+      "type": "slide",
+      "order": 5,
+      "title": "学习检查",
+      "actions": [
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:speech",
+          "text": "现在来检验学习效果。请说出至少两种上下文压缩策略，并各用一句话解释其核心思想。例如：OpenAI run API 的截断策略——主动丢弃过期的推理痕迹以节省token；LlamaIndex 的 utility tools——把大工具输出压缩成可检索形式而非直接塞入提示词；MemGPT 的分层记忆——像操作系统一样把不常用信息移到外部存储，在有限窗口内扩展有效上下文。如果你只能说出一种，请回到学习报告，重新阅读 MemGPT 与 utility tools 部分。最后，试着准备一个面试回答：在什么场景下选择截断，什么场景下选择压缩，什么场景下用分层记忆架构。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>说出至少两种压缩策略并各用一句话解释</p><p>若只能说一种，回到学习报告补读 MemGPT 与 utility tools</p><p>准备一个面试回答：何时截断、何时压缩</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+      "createdAt": 1789654891110,
+      "updatedAt": 1789654891110
+    }
+  ],
+  "status": "ready",
+  "content": {
+    "stage": {
+      "id": "resource_0e2981097d5c26fc79b4dd76b999b451",
+      "name": "记忆与上下文管理",
+      "createdAt": 1789654891110,
+      "updatedAt": 1789654891110
+    },
+    "scenes": [
+      {
+        "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1",
+        "type": "slide",
+        "order": 0,
+        "title": "多步任务中的上下文消耗问题",
+        "actions": [
+          {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:speech",
+            "text": "在多步任务循环中，模型每一步的推理过程都会留在上下文窗口里。想象一个15步的任务：第3步产生的推理痕迹，到了第12步时已经完全不相关了，但它仍然占据着宝贵的token空间。这就像你写一篇长文章时，草稿纸上的早期涂改痕迹一直堆在桌面上，不仅不帮忙，反而让你找不到当前需要的信息。证据明确指出：'But those “thoughts” live inside the context window. On a 15-step task, you’re burning tokens on the reasoning traces from step 3 that are no longer relevant at step 12.' 这就是记忆与上下文管理成为核心工程问题的原因——上下文窗口是有限的，而中间推理痕迹会不断累积，最终挤占真正有用的信息。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">多步任务中的上下文消耗问题</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>中间推理痕迹占用上下文窗口</p><p>15步任务中，第3步的推理在第12步已无价值</p><p>token被无意义地消耗，影响长任务表现</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+        "createdAt": 1789654891110,
+        "updatedAt": 1789654891110
+      },
+      {
+        "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2",
+        "type": "slide",
+        "order": 1,
+        "title": "OpenAI run API 的截断策略",
+        "actions": [
+          {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:speech",
+            "text": "OpenAI 的 run API 把截断策略作为一个显式的配置选项，这意味着开发者可以主动决定上下文窗口如何被清理。证据原文说：'OpenAI’s run APIs expose truncation strategies as an explicit knob, not an accident.' 这里的核心思想是：与其让所有历史推理痕迹无限堆积，不如设定规则，在达到一定长度或条件时截断早期内容。比如，你可以配置只保留最近N轮的推理，或者只保留与当前步骤相关的信息。这样做的设计取舍在于：截断能节省token、提高效率，但可能丢失某些看似无关实则重要的上下文。面试中常问的就是这个权衡——什么时候该截断？答案是当早期推理痕迹对后续步骤的边际价值趋近于零时。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">OpenAI run API 的截断策略</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>截断策略是显式旋钮，而非意外行为</p><p>允许开发者控制上下文窗口的清理方式</p><p>核心思想：主动丢弃过期的推理痕迹</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+        "createdAt": 1789654891110,
+        "updatedAt": 1789654891110
+      },
+      {
+        "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3",
+        "type": "slide",
+        "order": 2,
+        "title": "LlamaIndex 的 utility tools 压缩",
+        "actions": [
+          {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:speech",
+            "text": "LlamaIndex 引入了一种叫 utility tools 的机制。它的做法是：在一个工具调用中完成数据的加载、索引和查询，然后把大块的原始工具输出压缩成可检索的形式，而不是把原始数据直接倒进提示词里。证据原文说：'LlamaIndex introduces “utility tools” that load, index, and query data in a single call, compressing large tool outputs into retrievable forms instead of dumping raw data into the prompt.' 举个例子：如果工具返回了一个100页的PDF内容，utility tools 会先建立索引，然后只提取与当前问题相关的片段放入上下文。这样既保留了信息的可访问性，又避免了上下文窗口被原始数据淹没。核心思想是：压缩不是删除，而是把信息转化为可按需检索的形态。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">LlamaIndex 的 utility tools 压缩</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>用单次调用完成加载、索引和查询</p><p>将大工具输出压缩为可检索形式</p><p>避免把原始数据直接塞进提示词</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+        "createdAt": 1789654891110,
+        "updatedAt": 1789654891110
+      },
+      {
+        "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4",
+        "type": "slide",
+        "order": 3,
+        "title": "MemGPT 的分层记忆架构",
+        "actions": [
+          {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:speech",
+            "text": "MemGPT 提出了分层记忆架构，它的灵感来自操作系统的内存管理。证据原文说：'MemGPT proposes a tiered memory architecture that manages different memory levels to extend effective context within a limited window.' 具体来说，它把记忆分成主上下文（相当于RAM）和外部存储（相当于磁盘）。主上下文只保留当前任务最需要的信息，而历史信息、长期知识则被移到外部存储中，需要时再检索回来。这样做的效果是：虽然物理上下文窗口大小不变，但有效上下文被大幅扩展了。核心思想是：不是所有记忆都需要时刻在线，分层管理能让有限窗口承载更长的任务链条。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">MemGPT 的分层记忆架构</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>分层管理不同层级的记忆</p><p>在有限窗口内扩展有效上下文</p><p>核心思想：像操作系统一样管理内存</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+        "createdAt": 1789654891110,
+        "updatedAt": 1789654891110
+      },
+      {
+        "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5",
+        "type": "slide",
+        "order": 4,
+        "title": "何时压缩或截断：设计取舍",
+        "actions": [
+          {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:speech",
+            "text": "面试中常被问到：什么时候该压缩，什么时候该截断？这里给出一个判断框架。第一，当早期推理痕迹对后续步骤的边际价值趋近于零时，直接截断是最经济的选择——比如第3步的中间计算在第12步完全用不上。第二，当工具输出很大但其中可能包含后续需要的信息时，应该用压缩而非截断——比如 LlamaIndex 的 utility tools，把大输出变成可检索索引，保留信息的可访问性。第三，当任务跨越很多步骤、需要长期记忆时，分层架构更合适——比如 MemGPT 把不常用的信息移到外部存储，需要时再取回。核心取舍是：截断省token但丢信息，压缩保信息但增加检索成本，分层扩展能力强但系统复杂度高。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">何时压缩或截断：设计取舍</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>早期推理痕迹边际价值趋近于零时截断</p><p>大输出需保留可检索性时用压缩</p><p>长任务需跨步骤记忆时用分层架构</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+        "createdAt": 1789654891110,
+        "updatedAt": 1789654891110
+      },
+      {
+        "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6",
+        "type": "slide",
+        "order": 5,
+        "title": "学习检查",
+        "actions": [
+          {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:speech",
+            "text": "现在来检验学习效果。请说出至少两种上下文压缩策略，并各用一句话解释其核心思想。例如：OpenAI run API 的截断策略——主动丢弃过期的推理痕迹以节省token；LlamaIndex 的 utility tools——把大工具输出压缩成可检索形式而非直接塞入提示词；MemGPT 的分层记忆——像操作系统一样把不常用信息移到外部存储，在有限窗口内扩展有效上下文。如果你只能说出一种，请回到学习报告，重新阅读 MemGPT 与 utility tools 部分。最后，试着准备一个面试回答：在什么场景下选择截断，什么场景下选择压缩，什么场景下用分层记忆架构。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>说出至少两种压缩策略并各用一句话解释</p><p>若只能说一种，回到学习报告补读 MemGPT 与 utility tools</p><p>准备一个面试回答：何时截断、何时压缩</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+        "createdAt": 1789654891110,
+        "updatedAt": 1789654891110
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "memory_context_management",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "created_at": "2026-09-17T14:24:21.376898+00:00",
+  "created_by": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-09-17T14:24:21.376898+00:00",
+  "visibility": "private",
+  "material_id": "resource_0e2981097d5c26fc79b4dd76b999b451",
+  "origin_type": "personal",
+  "content_hash": "59338baf77055af55c1cab85038ae01ab9ad65e4bc7a923feb26f186c7555f3a",
+  "material_type": "classroom",
+  "owner_user_id": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "generation_state": {
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "资源为中文课堂，面向有 Python 基础、准备 AI Agent 面试的受众，30 分钟 6 个场景节奏合理。覆盖了上下文窗口被中间推理痕迹消耗的问题、三种压缩策略及设计取舍，并包含学习检查。确认方案中的 3 个章节映射为 6 个场景，未发现与已确认分组冲突。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐场景核验投屏与讲解：15 步任务中第 3 步推理在第 12 步无价值的表述与证据一致；OpenAI run API 截断策略、LlamaIndex utility tools 单次调用加载/索引/查询并压缩为可检索形式、MemGPT 分层记忆扩展有效上下文的表述均与来源一致。未发现事实、数值或因果关系错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "课堂资源不要求习题逐题求解或闪卡问答。讲解中的例子（15 步任务、100 页 PDF、RAM/磁盘类比）均用于说明概念，且与对应策略匹配，没有不成立或误导性的示例。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "场景顺序为问题引入、三种策略、设计取舍、学习检查，符合开场、解释、总结与反馈的结构。每个场景有明确标题、投屏要点和讲解动作，学习检查场景要求学习者说出至少两种策略并准备面试回答，互动目标与学习目标一致。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "讲解中引用的英文原文与 research_sources 中同一 Medium 来源的摘录一致，未发现编造引用或超出给定来源的断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "6 个场景完整覆盖 required_coverage 中 scene_index 0-5 且每个场景的 speech action 0 均已核验。学习检查包含至少两种压缩策略的要求及补读指引，符合 specification 中的学习检查设计。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "资源为中文课堂，面向有 Python 基础、准备 AI Agent 面试的受众，30 分钟 6 个场景节奏合理。覆盖了上下文窗口被中间推理痕迹消耗的问题、三种压缩策略及设计取舍，并包含学习检查。确认方案中的 3 个章节映射为 6 个场景，未发现与已确认分组冲突。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐场景核验投屏与讲解：15 步任务中第 3 步推理在第 12 步无价值的表述与证据一致；OpenAI run API 截断策略、LlamaIndex utility tools 单次调用加载/索引/查询并压缩为可检索形式、MemGPT 分层记忆扩展有效上下文的表述均与来源一致。未发现事实、数值或因果关系错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "课堂资源不要求习题逐题求解或闪卡问答。讲解中的例子（15 步任务、100 页 PDF、RAM/磁盘类比）均用于说明概念，且与对应策略匹配，没有不成立或误导性的示例。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "场景顺序为问题引入、三种策略、设计取舍、学习检查，符合开场、解释、总结与反馈的结构。每个场景有明确标题、投屏要点和讲解动作，学习检查场景要求学习者说出至少两种策略并准备面试回答，互动目标与学习目标一致。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "讲解中引用的英文原文与 research_sources 中同一 Medium 来源的摘录一致，未发现编造引用或超出给定来源的断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "6 个场景完整覆盖 required_coverage 中 scene_index 0-5 且每个场景的 speech action 0 均已核验。学习检查包含至少两种压缩策略的要求及补读指引，符合 specification 中的学习检查设计。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "场景 2 的讲解提到“可以配置只保留最近N轮的推理”，这是对截断策略的合理举例，但可补充说明具体 API 参数或策略名称，以增强面试回答的实操感。",
+              "场景 5 的投屏和讲解已给出取舍框架，可考虑在讲解中增加一个具体面试问题示例，例如“如果工具返回 10 万 token 的日志，你会截断还是压缩？为什么？”以帮助学习者练习表达。",
+              "学习检查场景可增加一个简短的自我评估提示，例如让学习者用 30 秒口头复述三种策略，以强化记忆提取。"
+            ],
+            "scene_checks": [
+              {
+                "scene_index": 0,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解准确复述了 15 步任务中第 3 步推理在第 12 步无价值且仍占 token 的问题，并引用证据原文。草稿纸类比恰当，未发现数值或逻辑错误。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“多步任务中的上下文消耗问题”，正文三点分别说明中间推理痕迹占用窗口、15 步任务中第 3 步推理在第 12 步无价值、token 被无意义消耗。内容与场景目标一致，未发现错误。"
+              },
+              {
+                "scene_index": 1,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解正确说明截断策略是显式配置选项，并引用证据原文。对“只保留最近 N 轮”的举例属于合理说明，未与来源冲突。设计取舍部分解释了截断省 token 但可能丢信息，符合主题。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“OpenAI run API 的截断策略”，正文说明截断策略是显式旋钮、允许开发者控制清理方式、核心思想是主动丢弃过期推理痕迹。与来源一致。"
+              },
+              {
+                "scene_index": 2,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解准确描述 utility tools 的机制并引用证据原文。100 页 PDF 的例子用于说明压缩与检索，逻辑成立。核心思想“压缩不是删除，而是转化为可按需检索的形态”与来源一致。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“LlamaIndex 的 utility tools 压缩”，正文三点准确概括单次调用完成加载/索引/查询、压缩为可检索形式、避免原始数据直接进入提示词。"
+              },
+              {
+                "scene_index": 3,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解正确说明 MemGPT 的分层记忆架构，RAM/磁盘类比恰当，并引用证据原文。对主上下文与外部存储的说明符合 MemGPT 的核心思想，未发现错误。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“MemGPT 的分层记忆架构”，正文说明分层管理记忆、在有限窗口内扩展有效上下文、核心思想像操作系统一样管理内存。与来源一致。"
+              },
+              {
+                "scene_index": 4,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解给出的判断框架与投屏一致：早期推理边际价值趋近于零时截断、大输出需保留可检索性时压缩、长任务需跨步骤记忆时用分层架构。核心取舍总结准确，未发现逻辑或事实错误。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“何时压缩或截断：设计取舍”，正文三条判断标准分别对应截断、压缩和分层架构，逻辑清晰且与前述场景一致。"
+              },
+              {
+                "scene_index": 5,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解明确要求说出至少两种策略，并给出三种策略的一句话解释示例，均与前述场景内容一致。补读指引和面试回答准备要求与学习目标匹配，未发现错误。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“学习检查”，正文要求说出至少两种压缩策略并各用一句话解释，若只能说一种则补读 MemGPT 与 utility tools，并准备面试回答。与 specification 中的学习检查一致。"
+              }
+            ],
+            "blocking_issues": []
+          },
+          "version": 1,
+          "decision": "pass"
+        }
+      ],
+      "decision": "pass",
+      "scene_checks": [
+        {
+          "scene_index": 0,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解准确复述了 15 步任务中第 3 步推理在第 12 步无价值且仍占 token 的问题，并引用证据原文。草稿纸类比恰当，未发现数值或逻辑错误。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“多步任务中的上下文消耗问题”，正文三点分别说明中间推理痕迹占用窗口、15 步任务中第 3 步推理在第 12 步无价值、token 被无意义消耗。内容与场景目标一致，未发现错误。"
+        },
+        {
+          "scene_index": 1,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解正确说明截断策略是显式配置选项，并引用证据原文。对“只保留最近 N 轮”的举例属于合理说明，未与来源冲突。设计取舍部分解释了截断省 token 但可能丢信息，符合主题。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“OpenAI run API 的截断策略”，正文说明截断策略是显式旋钮、允许开发者控制清理方式、核心思想是主动丢弃过期推理痕迹。与来源一致。"
+        },
+        {
+          "scene_index": 2,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解准确描述 utility tools 的机制并引用证据原文。100 页 PDF 的例子用于说明压缩与检索，逻辑成立。核心思想“压缩不是删除，而是转化为可按需检索的形态”与来源一致。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“LlamaIndex 的 utility tools 压缩”，正文三点准确概括单次调用完成加载/索引/查询、压缩为可检索形式、避免原始数据直接进入提示词。"
+        },
+        {
+          "scene_index": 3,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解正确说明 MemGPT 的分层记忆架构，RAM/磁盘类比恰当，并引用证据原文。对主上下文与外部存储的说明符合 MemGPT 的核心思想，未发现错误。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“MemGPT 的分层记忆架构”，正文说明分层管理记忆、在有限窗口内扩展有效上下文、核心思想像操作系统一样管理内存。与来源一致。"
+        },
+        {
+          "scene_index": 4,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解给出的判断框架与投屏一致：早期推理边际价值趋近于零时截断、大输出需保留可检索性时压缩、长任务需跨步骤记忆时用分层架构。核心取舍总结准确，未发现逻辑或事实错误。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“何时压缩或截断：设计取舍”，正文三条判断标准分别对应截断、压缩和分层架构，逻辑清晰且与前述场景一致。"
+        },
+        {
+          "scene_index": 5,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解明确要求说出至少两种策略，并给出三种策略的一句话解释示例，均与前述场景内容一致。补读指引和面试回答准备要求与学习目标匹配，未发现错误。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“学习检查”，正文要求说出至少两种压缩策略并各用一句话解释，若只能说一种则补读 MemGPT 与 utility tools，并准备面试回答。与 specification 中的学习检查一致。"
+        }
+      ],
+      "resource_type": "classroom",
+      "content_sha256": "69aede5a377cfb7688a2eae82dcc000e3aba1c541eefa0466151594aa92275a1"
+    }
+  },
+  "preparation_artifact": {
+    "title": "记忆与上下文管理",
+    "content": {
+      "stage": {
+        "id": "resource_0e2981097d5c26fc79b4dd76b999b451",
+        "name": "记忆与上下文管理",
+        "createdAt": 1789654891110,
+        "updatedAt": 1789654891110
+      },
+      "scenes": [
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1",
+          "type": "slide",
+          "order": 0,
+          "title": "多步任务中的上下文消耗问题",
+          "actions": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:speech",
+              "text": "在多步任务循环中，模型每一步的推理过程都会留在上下文窗口里。想象一个15步的任务：第3步产生的推理痕迹，到了第12步时已经完全不相关了，但它仍然占据着宝贵的token空间。这就像你写一篇长文章时，草稿纸上的早期涂改痕迹一直堆在桌面上，不仅不帮忙，反而让你找不到当前需要的信息。证据明确指出：'But those “thoughts” live inside the context window. On a 15-step task, you’re burning tokens on the reasoning traces from step 3 that are no longer relevant at step 12.' 这就是记忆与上下文管理成为核心工程问题的原因——上下文窗口是有限的，而中间推理痕迹会不断累积，最终挤占真正有用的信息。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">多步任务中的上下文消耗问题</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene1:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>中间推理痕迹占用上下文窗口</p><p>15步任务中，第3步的推理在第12步已无价值</p><p>token被无意义地消耗，影响长任务表现</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+          "createdAt": 1789654891110,
+          "updatedAt": 1789654891110
+        },
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2",
+          "type": "slide",
+          "order": 1,
+          "title": "OpenAI run API 的截断策略",
+          "actions": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:speech",
+              "text": "OpenAI 的 run API 把截断策略作为一个显式的配置选项，这意味着开发者可以主动决定上下文窗口如何被清理。证据原文说：'OpenAI’s run APIs expose truncation strategies as an explicit knob, not an accident.' 这里的核心思想是：与其让所有历史推理痕迹无限堆积，不如设定规则，在达到一定长度或条件时截断早期内容。比如，你可以配置只保留最近N轮的推理，或者只保留与当前步骤相关的信息。这样做的设计取舍在于：截断能节省token、提高效率，但可能丢失某些看似无关实则重要的上下文。面试中常问的就是这个权衡——什么时候该截断？答案是当早期推理痕迹对后续步骤的边际价值趋近于零时。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">OpenAI run API 的截断策略</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene2:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>截断策略是显式旋钮，而非意外行为</p><p>允许开发者控制上下文窗口的清理方式</p><p>核心思想：主动丢弃过期的推理痕迹</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+          "createdAt": 1789654891110,
+          "updatedAt": 1789654891110
+        },
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3",
+          "type": "slide",
+          "order": 2,
+          "title": "LlamaIndex 的 utility tools 压缩",
+          "actions": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:speech",
+              "text": "LlamaIndex 引入了一种叫 utility tools 的机制。它的做法是：在一个工具调用中完成数据的加载、索引和查询，然后把大块的原始工具输出压缩成可检索的形式，而不是把原始数据直接倒进提示词里。证据原文说：'LlamaIndex introduces “utility tools” that load, index, and query data in a single call, compressing large tool outputs into retrievable forms instead of dumping raw data into the prompt.' 举个例子：如果工具返回了一个100页的PDF内容，utility tools 会先建立索引，然后只提取与当前问题相关的片段放入上下文。这样既保留了信息的可访问性，又避免了上下文窗口被原始数据淹没。核心思想是：压缩不是删除，而是把信息转化为可按需检索的形态。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">LlamaIndex 的 utility tools 压缩</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene3:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>用单次调用完成加载、索引和查询</p><p>将大工具输出压缩为可检索形式</p><p>避免把原始数据直接塞进提示词</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+          "createdAt": 1789654891110,
+          "updatedAt": 1789654891110
+        },
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4",
+          "type": "slide",
+          "order": 3,
+          "title": "MemGPT 的分层记忆架构",
+          "actions": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:speech",
+              "text": "MemGPT 提出了分层记忆架构，它的灵感来自操作系统的内存管理。证据原文说：'MemGPT proposes a tiered memory architecture that manages different memory levels to extend effective context within a limited window.' 具体来说，它把记忆分成主上下文（相当于RAM）和外部存储（相当于磁盘）。主上下文只保留当前任务最需要的信息，而历史信息、长期知识则被移到外部存储中，需要时再检索回来。这样做的效果是：虽然物理上下文窗口大小不变，但有效上下文被大幅扩展了。核心思想是：不是所有记忆都需要时刻在线，分层管理能让有限窗口承载更长的任务链条。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">MemGPT 的分层记忆架构</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene4:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>分层管理不同层级的记忆</p><p>在有限窗口内扩展有效上下文</p><p>核心思想：像操作系统一样管理内存</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+          "createdAt": 1789654891110,
+          "updatedAt": 1789654891110
+        },
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5",
+          "type": "slide",
+          "order": 4,
+          "title": "何时压缩或截断：设计取舍",
+          "actions": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:speech",
+              "text": "面试中常被问到：什么时候该压缩，什么时候该截断？这里给出一个判断框架。第一，当早期推理痕迹对后续步骤的边际价值趋近于零时，直接截断是最经济的选择——比如第3步的中间计算在第12步完全用不上。第二，当工具输出很大但其中可能包含后续需要的信息时，应该用压缩而非截断——比如 LlamaIndex 的 utility tools，把大输出变成可检索索引，保留信息的可访问性。第三，当任务跨越很多步骤、需要长期记忆时，分层架构更合适——比如 MemGPT 把不常用的信息移到外部存储，需要时再取回。核心取舍是：截断省token但丢信息，压缩保信息但增加检索成本，分层扩展能力强但系统复杂度高。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">何时压缩或截断：设计取舍</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene5:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>早期推理痕迹边际价值趋近于零时截断</p><p>大输出需保留可检索性时用压缩</p><p>长任务需跨步骤记忆时用分层架构</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+          "createdAt": 1789654891110,
+          "updatedAt": 1789654891110
+        },
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6",
+          "type": "slide",
+          "order": 5,
+          "title": "学习检查",
+          "actions": [
+            {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:speech",
+              "text": "现在来检验学习效果。请说出至少两种上下文压缩策略，并各用一句话解释其核心思想。例如：OpenAI run API 的截断策略——主动丢弃过期的推理痕迹以节省token；LlamaIndex 的 utility tools——把大工具输出压缩成可检索形式而非直接塞入提示词；MemGPT 的分层记忆——像操作系统一样把不常用信息移到外部存储，在有限窗口内扩展有效上下文。如果你只能说出一种，请回到学习报告，重新阅读 MemGPT 与 utility tools 部分。最后，试着准备一个面试回答：在什么场景下选择截断，什么场景下选择压缩，什么场景下用分层记忆架构。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_0e2981097d5c26fc79b4dd76b999b451:scene6:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>说出至少两种压缩策略并各用一句话解释</p><p>若只能说一种，回到学习报告补读 MemGPT 与 utility tools</p><p>准备一个面试回答：何时截断、何时压缩</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+          "createdAt": 1789654891110,
+          "updatedAt": 1789654891110
+        }
+      ]
+    },
+    "limitations": [
+      "文本投屏与讲解动作；未生成外部图片、视频或预合成配音。"
+    ],
+    "artifact_type": "classroom",
+    "generation_state": {
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "资源为中文课堂，面向有 Python 基础、准备 AI Agent 面试的受众，30 分钟 6 个场景节奏合理。覆盖了上下文窗口被中间推理痕迹消耗的问题、三种压缩策略及设计取舍，并包含学习检查。确认方案中的 3 个章节映射为 6 个场景，未发现与已确认分组冲突。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "逐场景核验投屏与讲解：15 步任务中第 3 步推理在第 12 步无价值的表述与证据一致；OpenAI run API 截断策略、LlamaIndex utility tools 单次调用加载/索引/查询并压缩为可检索形式、MemGPT 分层记忆扩展有效上下文的表述均与来源一致。未发现事实、数值或因果关系错误。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "课堂资源不要求习题逐题求解或闪卡问答。讲解中的例子（15 步任务、100 页 PDF、RAM/磁盘类比）均用于说明概念，且与对应策略匹配，没有不成立或误导性的示例。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "场景顺序为问题引入、三种策略、设计取舍、学习检查，符合开场、解释、总结与反馈的结构。每个场景有明确标题、投屏要点和讲解动作，学习检查场景要求学习者说出至少两种策略并准备面试回答，互动目标与学习目标一致。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "讲解中引用的英文原文与 research_sources 中同一 Medium 来源的摘录一致，未发现编造引用或超出给定来源的断言。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "6 个场景完整覆盖 required_coverage 中 scene_index 0-5 且每个场景的 speech action 0 均已核验。学习检查包含至少两种压缩策略的要求及补读指引，符合 specification 中的学习检查设计。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "资源为中文课堂，面向有 Python 基础、准备 AI Agent 面试的受众，30 分钟 6 个场景节奏合理。覆盖了上下文窗口被中间推理痕迹消耗的问题、三种压缩策略及设计取舍，并包含学习检查。确认方案中的 3 个章节映射为 6 个场景，未发现与已确认分组冲突。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "逐场景核验投屏与讲解：15 步任务中第 3 步推理在第 12 步无价值的表述与证据一致；OpenAI run API 截断策略、LlamaIndex utility tools 单次调用加载/索引/查询并压缩为可检索形式、MemGPT 分层记忆扩展有效上下文的表述均与来源一致。未发现事实、数值或因果关系错误。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "课堂资源不要求习题逐题求解或闪卡问答。讲解中的例子（15 步任务、100 页 PDF、RAM/磁盘类比）均用于说明概念，且与对应策略匹配，没有不成立或误导性的示例。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "场景顺序为问题引入、三种策略、设计取舍、学习检查，符合开场、解释、总结与反馈的结构。每个场景有明确标题、投屏要点和讲解动作，学习检查场景要求学习者说出至少两种策略并准备面试回答，互动目标与学习目标一致。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "讲解中引用的英文原文与 research_sources 中同一 Medium 来源的摘录一致，未发现编造引用或超出给定来源的断言。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "6 个场景完整覆盖 required_coverage 中 scene_index 0-5 且每个场景的 speech action 0 均已核验。学习检查包含至少两种压缩策略的要求及补读指引，符合 specification 中的学习检查设计。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "场景 2 的讲解提到“可以配置只保留最近N轮的推理”，这是对截断策略的合理举例，但可补充说明具体 API 参数或策略名称，以增强面试回答的实操感。",
+                "场景 5 的投屏和讲解已给出取舍框架，可考虑在讲解中增加一个具体面试问题示例，例如“如果工具返回 10 万 token 的日志，你会截断还是压缩？为什么？”以帮助学习者练习表达。",
+                "学习检查场景可增加一个简短的自我评估提示，例如让学习者用 30 秒口头复述三种策略，以强化记忆提取。"
+              ],
+              "scene_checks": [
+                {
+                  "scene_index": 0,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解准确复述了 15 步任务中第 3 步推理在第 12 步无价值且仍占 token 的问题，并引用证据原文。草稿纸类比恰当，未发现数值或逻辑错误。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“多步任务中的上下文消耗问题”，正文三点分别说明中间推理痕迹占用窗口、15 步任务中第 3 步推理在第 12 步无价值、token 被无意义消耗。内容与场景目标一致，未发现错误。"
+                },
+                {
+                  "scene_index": 1,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解正确说明截断策略是显式配置选项，并引用证据原文。对“只保留最近 N 轮”的举例属于合理说明，未与来源冲突。设计取舍部分解释了截断省 token 但可能丢信息，符合主题。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“OpenAI run API 的截断策略”，正文说明截断策略是显式旋钮、允许开发者控制清理方式、核心思想是主动丢弃过期推理痕迹。与来源一致。"
+                },
+                {
+                  "scene_index": 2,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解准确描述 utility tools 的机制并引用证据原文。100 页 PDF 的例子用于说明压缩与检索，逻辑成立。核心思想“压缩不是删除，而是转化为可按需检索的形态”与来源一致。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“LlamaIndex 的 utility tools 压缩”，正文三点准确概括单次调用完成加载/索引/查询、压缩为可检索形式、避免原始数据直接进入提示词。"
+                },
+                {
+                  "scene_index": 3,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解正确说明 MemGPT 的分层记忆架构，RAM/磁盘类比恰当，并引用证据原文。对主上下文与外部存储的说明符合 MemGPT 的核心思想，未发现错误。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“MemGPT 的分层记忆架构”，正文说明分层管理记忆、在有限窗口内扩展有效上下文、核心思想像操作系统一样管理内存。与来源一致。"
+                },
+                {
+                  "scene_index": 4,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解给出的判断框架与投屏一致：早期推理边际价值趋近于零时截断、大输出需保留可检索性时压缩、长任务需跨步骤记忆时用分层架构。核心取舍总结准确，未发现逻辑或事实错误。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“何时压缩或截断：设计取舍”，正文三条判断标准分别对应截断、压缩和分层架构，逻辑清晰且与前述场景一致。"
+                },
+                {
+                  "scene_index": 5,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解明确要求说出至少两种策略，并给出三种策略的一句话解释示例，均与前述场景内容一致。补读指引和面试回答准备要求与学习目标匹配，未发现错误。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“学习检查”，正文要求说出至少两种压缩策略并各用一句话解释，若只能说一种则补读 MemGPT 与 utility tools，并准备面试回答。与 specification 中的学习检查一致。"
+                }
+              ],
+              "blocking_issues": []
+            },
+            "version": 1,
+            "decision": "pass"
+          }
+        ],
+        "decision": "pass",
+        "scene_checks": [
+          {
+            "scene_index": 0,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解准确复述了 15 步任务中第 3 步推理在第 12 步无价值且仍占 token 的问题，并引用证据原文。草稿纸类比恰当，未发现数值或逻辑错误。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“多步任务中的上下文消耗问题”，正文三点分别说明中间推理痕迹占用窗口、15 步任务中第 3 步推理在第 12 步无价值、token 被无意义消耗。内容与场景目标一致，未发现错误。"
+          },
+          {
+            "scene_index": 1,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解正确说明截断策略是显式配置选项，并引用证据原文。对“只保留最近 N 轮”的举例属于合理说明，未与来源冲突。设计取舍部分解释了截断省 token 但可能丢信息，符合主题。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“OpenAI run API 的截断策略”，正文说明截断策略是显式旋钮、允许开发者控制清理方式、核心思想是主动丢弃过期推理痕迹。与来源一致。"
+          },
+          {
+            "scene_index": 2,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解准确描述 utility tools 的机制并引用证据原文。100 页 PDF 的例子用于说明压缩与检索，逻辑成立。核心思想“压缩不是删除，而是转化为可按需检索的形态”与来源一致。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“LlamaIndex 的 utility tools 压缩”，正文三点准确概括单次调用完成加载/索引/查询、压缩为可检索形式、避免原始数据直接进入提示词。"
+          },
+          {
+            "scene_index": 3,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解正确说明 MemGPT 的分层记忆架构，RAM/磁盘类比恰当，并引用证据原文。对主上下文与外部存储的说明符合 MemGPT 的核心思想，未发现错误。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“MemGPT 的分层记忆架构”，正文说明分层管理记忆、在有限窗口内扩展有效上下文、核心思想像操作系统一样管理内存。与来源一致。"
+          },
+          {
+            "scene_index": 4,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解给出的判断框架与投屏一致：早期推理边际价值趋近于零时截断、大输出需保留可检索性时压缩、长任务需跨步骤记忆时用分层架构。核心取舍总结准确，未发现逻辑或事实错误。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“何时压缩或截断：设计取舍”，正文三条判断标准分别对应截断、压缩和分层架构，逻辑清晰且与前述场景一致。"
+          },
+          {
+            "scene_index": 5,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解明确要求说出至少两种策略，并给出三种策略的一句话解释示例，均与前述场景内容一致。补读指引和面试回答准备要求与学习目标匹配，未发现错误。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“学习检查”，正文要求说出至少两种压缩策略并各用一句话解释，若只能说一种则补读 MemGPT 与 utility tools，并准备面试回答。与 specification 中的学习检查一致。"
+          }
+        ],
+        "resource_type": "classroom",
+        "content_sha256": "69aede5a377cfb7688a2eae82dcc000e3aba1c541eefa0466151594aa92275a1"
+      }
+    }
+  },
+  "learning_course_resource": true
+}

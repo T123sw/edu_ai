@@ -1,0 +1,13 @@
+{
+  "code_commit": "a5e7d2c32e0eef529da3f451b98fb59d63e27b75",
+  "stats": {
+    "startTime": "2026-09-17T14:51:57.674Z",
+    "duration": 96802.588,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "frontend_mode": "production preview",
+  "trace_directory": "artifacts/frozen-acceptance/interview-final-01/browser-production-final-02"
+}

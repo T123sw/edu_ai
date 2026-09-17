@@ -10,6 +10,23 @@
 
 **Spec:** [详细技术设计 V1](../../architecture/2026-09-17-learning-agent-technical-design-cn.md)、[学习主设计](../../architecture/2026-09-17-learning-agent-design-cn.md)、[准备 Agent 具体设计](../../architecture/2026-09-17-course-preparation-agent-technical-design-cn.md)。
 
+
+## 2026-09-17 实施对账
+
+P0—P6 的产品能力与隔离验证已完成，最新结论见[全阶段账本](../../acceptance/staged-agent-implementation/README.md)及[最终验收报告](../../acceptance/staged-agent-implementation/final-report.md)。业务库未迁移，功能默认关闭。原计划中的“先运行未实现测试确认红灯”属于不可追造的历史过程项，未勾选项仅保留这类过程审计，不代表该能力仍未实现。
+
+| 阶段 | 实际验证落点（backend/src/tests/self_learning/，另有浏览器） |
+| --- | --- |
+| P0—P2 | test_contracts、test_course_reader、test_projections、test_session_repository、test_session_api、test_progress_repository、test_progress_service、test_progress_api；quiet-learning/agent-session.spec.ts |
+| P3 | test_agent_runtime、test_model_adapter；版本、上下文、工具调度测试合并在 runtime；真实解释、跨节点联系、换例子、来源注入 |
+| P4 | test_checks、test_memory_adapter、test_summary_service、test_observations；共用 tests/chat/memory/test_memory_lifecycle.py；真实检查/评价、偏好更正删除、观察确认、后台摘要 |
+| P5 | test_preparation_adapter、test_agent_runtime；准备侧 test_notifications、test_publication_overlay、test_route_adjustment；真实补充/个人修订/路线调整及延迟通知浏览器 |
+| P6 | test_migration、test_rollout、scope_rollback 用例；隔离备份恢复、综合 PostgreSQL 回归与最终真实面试课程 E2E |
+
+实现文件按职责合并，不创建只为匹配旧文件名的空模块。工具 schema/handler 挂载集中在 tools.py；共享记忆失效集中在 chat/memory 生命周期；摘要队列持久化在知识点 session 元数据，独立维护 worker 执行；新旧事实隔离由服务及范围开关控制。
+
+真实模型使用 deepseek-v4-pro。超时、中断和撤权在真实传输适配器及权限层使用可重复故障注入验证，未为了验收耗尽供应商配额或请求他人真实私有数据。多候选目标真实测试首次发现误判后修复，第二次成功且零准备任务，失败日志保留。按主设计 11 个场景的证据类型和边界逐项列入最终报告。
+
 ## Global Constraints
 
 - 会话逻辑归属为“当前用户 + 当前课程 + 知识点稳定标识”。
@@ -25,17 +42,17 @@
 
 ## 1. 阶段与依赖
 
-进入 P1 前阅读[Agent 运行、工具与记忆设计 V1](../../architecture/2026-09-17-learning-agent-runtime-design-cn.md)。运行设计已补齐；P0、P1、P2 已分阶段实现并隔离验证，P3—P6 继续按下列任务执行。
+进入 P1 前阅读[Agent 运行、工具与记忆设计 V1](../../architecture/2026-09-17-learning-agent-runtime-design-cn.md)。运行设计已补齐；P0、P1、P2 已分阶段实现并隔离验证，P3—P6 已实施并完成隔离验证，最新状态见下方实施对账。
 
 | 阶段 | 交付 | 依赖 | 当前状态 |
 | --- | --- | --- | --- |
-| P0 | 统一契约、旧课程只读适配、状态纯函数 | 已确认产品设计 | 已实现并通过领域测试；未接入口 |
+| P0 | 统一契约、旧课程只读适配、状态纯函数 | 已确认产品设计 | 已实施，已接真实版本入口 |
 | P1 | 持久化知识点会话、一次导学、完整消息历史 | P0 | 已完成隔离验收；业务环境未启用 |
 | P2 | 阅读、完成、自评分离；不聊天完整学习路径 | P1 | 已完成隔离验收；业务环境未启用 |
-| P3 | 版本化阅读定位、异步答疑、受限工具运行 | P1/P2 | 待实施 |
-| P4 | 检查与目标证据、可管理偏好及摘要 | P3 | 待实施 |
-| P5 | 准备 Agent 任务交接、通知、版本连续性 | P3/P4；准备侧真实提交接口 | 待实施 |
-| P6 | 旧数据迁移、真实模型与并发验收、分范围切换 | P0—P5 | 待实施 |
+| P3 | 版本化阅读定位、异步答疑、受限工具运行 | P1/P2 | 已实施并隔离验证 |
+| P4 | 检查与目标证据、可管理偏好及摘要 | P3 | 已实施并隔离验证 |
+| P5 | 准备 Agent 任务交接、通知、版本连续性 | P3/P4；准备侧真实提交接口 | 已实施并隔离验证 |
+| P6 | 旧数据迁移、真实模型与并发验收、分范围切换 | P0—P5 | 已实施并隔离验证 |
 
 P0 不改变用户流程；P1 验证会话；P2 首次形成无聊天可用闭环；P3 开始验收 Agent 教学与工具；P4/P5 分别扩展证据、资源准备。每阶段独立记录结果，失败时修复本阶段，不用后续功能掩盖未通过的基础约束。
 
@@ -242,9 +259,9 @@ test('end of document does not mark completed', async ({ page }) => {
 
 **Interfaces:** `ContextBuilder.build(actor, turn: TurnView, budget: int) -> ContextPacket`；`ContextPacket` 包含消息、服务引用表、来源修订和预算统计。问题上下文在发送时固定，不在模型运行中随 selectedId 改变。
 
-- [ ] 测试同节点不同版本引用、选区优先、长文分块、跨节点只注入相关摘要、撤权后引用不可读。
-- [ ] 执行 `python -m pytest tests/self_learning/test_context_builder.py -q` 确认失败。
-- [ ] 按设计预算装配，无法定位时明确低置信位置；资料中的工具指令保持数据属性。
+- [x] 测试同节点不同版本引用、选区优先、长文分块、跨节点只注入相关摘要、撤权后引用不可读。
+- [ ] 执行 `python -m pytest tests/self_learning/test_context_builder.py -q` 确认失败。 **过程审计：未保留逐项实现前红灯，保持未勾选；对应最终行为测试已通过，不追造历史。**
+- [x] 按设计预算装配，无法定位时明确低置信位置；资料中的工具指令保持数据属性。
 
 ```python
 def test_no_foreign_topic_full_history(builder, alice, turn_on_a):
@@ -253,24 +270,24 @@ def test_no_foreign_topic_full_history(builder, alice, turn_on_a):
     assert packet.citations['ctx_01'].resource_ref.version == 1
 ```
 
-- [ ] API/前端都验证加载的正文版本等于发送的版本；无法取得旧版时测试返回明确错误，不回退最新。
+- [x] API/前端都验证加载的正文版本等于发送的版本；无法取得旧版时测试返回明确错误，不回退最新。
 
 ### Task 3.2：有界工具运行与持久化轮次
 
 **运行决策补充：** 使用独立 `LearningAgentRuntime` + `LearningModelAdapter`，通过现有模型网关 function calling 传输；不直接实例化工作台 HarnessRuntime，也不挂 MCP/通用 skill loader。registry、dispatcher 和 `learning_agent_tool_calls` 日志遵循运行设计第3—5节。
 
-- [ ] 先验证并修复模型适配边界：损坏 JSON、截断参数、网络中断不得执行工具；总 deadline/cancel 必须传递到底层调用，不能继承120秒固定超时却声称90秒结束。
-- [ ] 工具 schema/handler 同源、按模式/阶段冻结挂载；未挂载工具拒绝。所有调用尝试计预算，坏参数不转为空对象执行。
-- [ ] 保存工具意图、operation ID、业务 receipt 与检查点；worker 接管时先对账 unknown 写入。任务已提交而回答失败仍保留真实任务入口。
-- [ ] 运行设计第11节的传输、注册、作用域及部分成功用例进入 `test_model_adapter.py`、`test_tool_dispatcher.py`；修改通用网关时运行旧工作台相关测试。
+- [x] 先验证并修复模型适配边界：损坏 JSON、截断参数、网络中断不得执行工具；总 deadline/cancel 必须传递到底层调用，不能继承120秒固定超时却声称90秒结束。
+- [x] 工具 schema/handler 同源、按模式/阶段冻结挂载；未挂载工具拒绝。所有调用尝试计预算，坏参数不转为空对象执行。
+- [x] 保存工具意图、operation ID、业务 receipt 与检查点；worker 接管时先对账 unknown 写入。任务已提交而回答失败仍保留真实任务入口。
+- [x] 运行设计第11节的传输、注册、作用域及部分成功用例进入 `test_model_adapter.py`、`test_tool_dispatcher.py`；修改通用网关时运行旧工作台相关测试。
 
 **Files:** 新增 `turn_service.py`、`agent_runtime.py`、`tools.py`、`learning-role.md`、`tests/self_learning/test_agent_runtime.py`、`test_turn_service.py`；修改 `app/services/durable_job_runtime.py` 注册学习轮次 handler、`api/self_learning.py`；新增 `frontend/tests/live-learning/agent-turns.spec.ts`。
 
 **Interfaces:** `TurnService.accept/get` 采用设计第 11 节；`LearningAgentRuntime.run(context, tools, policy) -> AnswerResult`；`AnswerResult` 字段依设计第 13 节。工具只注册当前阶段真实可用工具。
 
-- [ ] 测试 answer 直接返回、按需读片段、未知工具被拒、超限退出、未知引用不被保存为有效引用、同请求异载荷 409。
-- [ ] 测试接收后重启恢复、租约过期重领、旧 worker 完成被拒、回答过程中切节点归属不变。
-- [ ] 实现 accept 短事务与 durable 执行，模型调用置于事务外；失败保留用户消息和原输入，重试不重复消息或副作用。
+- [x] 测试 answer 直接返回、按需读片段、未知工具被拒、超限退出、未知引用不被保存为有效引用、同请求异载荷 409。
+- [x] 测试接收后重启恢复、租约过期重领、旧 worker 完成被拒、回答过程中切节点归属不变。
+- [x] 实现 accept 短事务与 durable 执行，模型调用置于事务外；失败保留用户消息和原输入，重试不重复消息或副作用。
 
 ```python
 def test_late_worker_cannot_commit(turn_repo, claimed_turn):
@@ -281,7 +298,7 @@ def test_late_worker_cannot_commit(turn_repo, claimed_turn):
     assert turn_repo.complete(new.turn_id, new.token, '有效回答')
 ```
 
-- [ ] 运行新测试、现有问答回归、真实数据库重启测试；前端轮询/流式只更新原 session。至少手工验证三个真实模型问题并标明模型配置，更新 P3 验收。
+- [x] 运行新测试、现有问答回归、真实数据库重启测试；前端轮询/流式只更新原 session。至少手工验证三个真实模型问题并标明模型配置，更新 P3 验收。
 
 ## P4：理解检查、偏好与摘要
 
@@ -291,9 +308,9 @@ def test_late_worker_cannot_commit(turn_repo, claimed_turn):
 
 **Interfaces:** `CheckService.offer/submit`；`CheckView` 不包含答案，`AttemptView` 包含已保存的作答状态、评价方式、反馈与证据引用。
 
-- [ ] 写检查跳过无证据、答错不锁导航、重复提交只一个 attempt、题目版本变化、模型评价失败保留答案、无效选项拒绝的测试。
-- [ ] 执行 `python -m pytest tests/self_learning/test_checks.py -q` 验证失败。
-- [ ] 优先复用题库快照与作答；即时题单独保存。确定性客观批改按 option ID 比较，不用字符正则猜选项。
+- [x] 写检查跳过无证据、答错不锁导航、重复提交只一个 attempt、题目版本变化、模型评价失败保留答案、无效选项拒绝的测试。
+- [ ] 执行 `python -m pytest tests/self_learning/test_checks.py -q` 验证失败。 **过程审计：未保留逐项实现前红灯，保持未勾选；对应最终行为测试已通过，不追造历史。**
+- [x] 优先复用题库快照与作答；即时题单独保存。确定性客观批改按 option ID 比较，不用字符正则猜选项。
 
 ```python
 def test_invalid_option_is_not_graded(checks, alice, check):
@@ -302,24 +319,24 @@ def test_invalid_option_is_not_graded(checks, alice, check):
                       {'request_id': 'attempt-1', 'option_ids': ['outside']})
 ```
 
-- [ ] 验证刷新可恢复原 attempt、前端不显示未持久化的已验证状态；P0 证据规则回归通过。
+- [x] 验证刷新可恢复原 attempt、前端不显示未持久化的已验证状态；P0 证据规则回归通过。
 
 ### Task 4.2：偏好生命周期与摘要失效
 
 **记忆决策补充：** 复用存储与审计，但不在学习回复结束时直接调用旧 `persist_turn` 激活抽取结果；新增显式scope处理、memory_epoch、来源抑制与依赖传播，遵循运行设计第6—8节。
 
-- [ ] 挂载 `read_learning_preferences` / `update_learning_preference`；校验当前原话、长期意图和作用域。教学 observation 在回答后校验保存，不注册独立写观察工具。
-- [ ] 新增 `test_memory_lifecycle.py` 覆盖删除时索引尚未清理、旧消息再次检索、旧后台摘要完成、回答正在生成四个并发情形，保证失效偏好不被重新注入。
-- [ ] 实现中文词项检索与稳定排序；上下文按实际tokenizer或保守字节上界计数，验证不会按中文字符数除4低估预算。
-- [ ] 新增 `test_summary_service.py` 验证无工具摘要、来源检查、CAS更新、保留近期完整轮次与全部原始历史；将真实模型教学质量评测纳入P6。
+- [x] 挂载 `read_learning_preferences` / `update_learning_preference`；校验当前原话、长期意图和作用域。教学 observation 在回答后校验保存，不注册独立写观察工具。
+- [x] 新增 `test_memory_lifecycle.py` 覆盖删除时索引尚未清理、旧消息再次检索、旧后台摘要完成、回答正在生成四个并发情形，保证失效偏好不被重新注入。
+- [x] 实现中文词项检索与稳定排序；上下文按实际tokenizer或保守字节上界计数，验证不会按中文字符数除4低估预算。
+- [x] 新增 `test_summary_service.py` 验证无工具摘要、来源检查、CAS更新、保留近期完整轮次与全部原始历史；将真实模型教学质量评测纳入P6。
 
 **Files:** 新增 `memory_adapter.py`、`tests/self_learning/test_memory_adapter.py`、`test_summary_invalidation.py`；适配 `app/chat/memory/service.py` 及已有管理 API；修改个人中心实际入口；新增 `frontend/tests/live-learning/learning-preferences.spec.ts`。
 
 **Interfaces:** `MemoryAdapter.read(...) -> MemoryContext`、`update_preference(actor, preference_id, value, expected_revision)`、`delete_preference(actor, preference_id, expected_revision)`；摘要以来源修订 CAS 更新。
 
-- [ ] 写当前要求覆盖偏好、一次性要求不自动持久化、跨用户隔离、删除传播到缓存/摘要/索引、旧后台摘要完成不能复活偏好用例。
-- [ ] 执行 `python -m pytest tests/self_learning/test_memory_adapter.py tests/self_learning/test_summary_invalidation.py -q` 确认失败。
-- [ ] 复用已有记忆服务并补齐来源失效检查，前端提供查看、更正和删除；长对话摘要不截掉原文。
+- [x] 写当前要求覆盖偏好、一次性要求不自动持久化、跨用户隔离、删除传播到缓存/摘要/索引、旧后台摘要完成不能复活偏好用例。
+- [ ] 执行 `python -m pytest tests/self_learning/test_memory_adapter.py tests/self_learning/test_summary_invalidation.py -q` 确认失败。 **过程审计：未保留逐项实现前红灯，保持未勾选；对应最终行为测试已通过，不追造历史。**
+- [x] 复用已有记忆服务并补齐来源失效检查，前端提供查看、更正和删除；长对话摘要不截掉原文。
 
 ```python
 def test_deleted_preference_never_reappears(memory, alice, existing_preference):
@@ -329,7 +346,7 @@ def test_deleted_preference_never_reappears(memory, alice, existing_preference):
     assert existing_preference.value not in context.summary
 ```
 
-- [ ] 已有 memory 相关回归及新 E2E 通过；验证两次摘要更新乱序不覆盖新结果，更新 P4 验收。
+- [x] 已有 memory 相关回归及新 E2E 通过；验证两次摘要更新乱序不覆盖新结果，更新 P4 验收。
 
 ## P5：准备任务交接和版本连续性
 
@@ -339,9 +356,9 @@ def test_deleted_preference_never_reappears(memory, alice, existing_preference):
 
 **Interfaces:** `PreparationAdapter.submit(actor, source_turn_id, request) -> PreparationReceipt`；外部字段完全采用准备设计第 9.2/9.3 节，包括 operation、target、origin、learning_context、overrides。
 
-- [ ] 测试解释不建任务、明确保存才提交、目标歧义不猜写入、同请求重放、提交响应丢失后恢复、共享资料个人修订。
-- [ ] 执行 `python -m pytest tests/self_learning/test_preparation_adapter.py -q` 确认失败。
-- [ ] 从当前轮次恢复用户、会话和请求范围；交给准备服务幂等接收。准备接口不可用时工具返回真实 unavailable，不模拟 succeeded。
+- [x] 测试解释不建任务、明确保存才提交、目标歧义不猜写入、同请求重放、提交响应丢失后恢复、共享资料个人修订。
+- [ ] 执行 `python -m pytest tests/self_learning/test_preparation_adapter.py -q` 确认失败。 **过程审计：未保留逐项实现前红灯，保持未勾选；对应最终行为测试已通过，不追造历史。**
+- [x] 从当前轮次恢复用户、会话和请求范围；交给准备服务幂等接收。准备接口不可用时工具返回真实 unavailable，不模拟 succeeded。
 
 ```python
 def test_replay_preserves_preparation(adapter, alice, source_turn, supplement):
@@ -350,7 +367,7 @@ def test_replay_preserves_preparation(adapter, alice, source_turn, supplement):
     assert first.preparation_id == replay.preparation_id
 ```
 
-- [ ] 对接真实准备服务运行一次补充资源任务，核对 origin/目标/权限和真实 task receipt。
+- [x] 对接真实准备服务运行一次补充资源任务，核对 origin/目标/权限和真实 task receipt。
 
 ### Task 5.2：通知消费与新版本阅读
 
@@ -358,9 +375,9 @@ def test_replay_preserves_preparation(adapter, alice, source_turn, supplement):
 
 **Interfaces:** `NotificationService.consume(event) -> bool`、`list(actor, course_id, after=None) -> NotificationPage`、`mark_read(actor, notification_id)`；结果绑定只读准备侧 manifest，不调用旧 attach。
 
-- [ ] 测试同事件两次、旧 attempt 迟到、事件先于前端轮询、当前会话正在回答、用户已切节点、结果撤权、版本冲突。
-- [ ] 运行新测试验证失败。
-- [ ] 按事件 ID 与 attempt/revision 去重，通知与聊天分开；用户主动打开新版本时映射可靠位置，无映射明确从章节或开头恢复。
+- [x] 测试同事件两次、旧 attempt 迟到、事件先于前端轮询、当前会话正在回答、用户已切节点、结果撤权、版本冲突。
+- [ ] 运行新测试验证失败。 **过程审计：未保留逐项实现前红灯，保持未勾选；对应最终行为测试已通过，不追造历史。**
+- [x] 按事件 ID 与 attempt/revision 去重，通知与聊天分开；用户主动打开新版本时映射可靠位置，无映射明确从章节或开头恢复。
 
 ```python
 def test_duplicate_notification_is_one_record(notifications, succeeded_event):
@@ -369,7 +386,7 @@ def test_duplicate_notification_is_one_record(notifications, succeeded_event):
     assert len(notifications.list(succeeded_event.actor, 'course').items) == 1
 ```
 
-- [ ] 端到端验证后台任务期间继续答疑，结果完成不切页面、不复制旧完成标记、不重复挂资源；更新 P5 验收。
+- [x] 端到端验证后台任务期间继续答疑，结果完成不切页面、不复制旧完成标记、不重复挂资源；更新 P5 验收。
 
 ## P6：迁移与整体验收
 
@@ -379,9 +396,9 @@ def test_duplicate_notification_is_one_record(notifications, succeeded_event):
 
 **Interfaces:** `scan(source) -> MigrationReport`、`import_records(report, repository) -> ImportResult`、`reconcile(report, repository) -> ReconciliationResult`；CLI 显式区分 `scan/import/reconcile`，默认只读扫描。
 
-- [ ] 构造少于/多于 100 轮的剩余旧记录、无版本完成、孤立资料、占位笔记、重复导入 fixture。
-- [ ] 测试旧 ID 不变、未知版本不绑定当前版本、丢失历史不补造、重跑记录数不增加。
-- [ ] 实现可审计导入记录与冲突清单；切换前保存并恢复验证隔离备份，按课程/用户范围启用新版能力。
+- [x] 构造少于/多于 100 轮的剩余旧记录、无版本完成、孤立资料、占位笔记、重复导入 fixture。
+- [x] 测试旧 ID 不变、未知版本不绑定当前版本、丢失历史不补造、重跑记录数不增加。
+- [x] 实现可审计导入记录与冲突清单；切换前保存并恢复验证隔离备份，按课程/用户范围启用新版能力。
 
 ```python
 def test_repeat_import_is_idempotent(importer, scanned_source):
@@ -392,23 +409,23 @@ def test_repeat_import_is_idempotent(importer, scanned_source):
     assert importer.reconcile(scanned_source).unexplained_differences == []
 ```
 
-- [ ] 切换后旧写入口不再接受同域独立写入；应用回退仍读新事实库，验证不会被旧 JSON 覆盖。
+- [x] 切换后旧写入口不再接受同域独立写入；应用回退仍读新事实库，验证不会被旧 JSON 覆盖。
 
 ### Task 6.2：真实模型、多 worker 与完整用户路径
 
 **Files:** 新增 `backend/src/tests/self_learning/test_postgres_concurrency.py`、`test_live_agent.py`、`frontend/tests/live-learning/agent-acceptance.spec.ts`；新增 `docs/acceptance/2026-09-17-learning-agent-implementation-cn.md`。
 
-- [ ] PostgreSQL 两 worker：重复 enter、同事件竞争、同节点提问竞争、租约过期迟到写入、outbox 重投。
-- [ ] 真实模型：当前段落解释、跨节点先修联系、换例子、即时检查、保存练习、资料修订、多候选目标、资料提示注入、无权资料、模型超时。
-- [ ] 浏览器：不聊天完整学习、跨节点往返、选区提问后切节点、离线补发、刷新恢复作答、后台结果到达、个人偏好删除、账号切换。
+- [x] PostgreSQL 两 worker：重复 enter、同事件竞争、同节点提问竞争、租约过期迟到写入、outbox 重投。
+- [x] 真实模型：当前段落解释、跨节点先修联系、换例子、即时检查、保存练习、资料修订、多候选目标、资料提示注入、无权资料、模型超时。
+- [x] 浏览器：不聊天完整学习、跨节点往返、选区提问后切节点、离线补发、刷新恢复作答、后台结果到达、个人偏好删除、账号切换。
 
 ```bash
 python -m pytest tests/self_learning/test_postgres_concurrency.py -m integration -q
 python -m pytest tests/self_learning/test_live_agent.py -m live_integration -q
 ```
 
-- [ ] 保存实际测试数量、失败原因、模型与性能环境，不把 skip 算通过；按主设计 11 个场景逐项映射证据。
-- [ ] 更新架构索引、项目地图与验收记录。只在所有阶段门槛满足后写“学习 Agent V1 实施完成”；准备侧尚未接通或真实模型未测时单独保留未完成项。
+- [x] 保存实际测试数量、失败原因、模型与性能环境，不把 skip 算通过；按主设计 11 个场景逐项映射证据。
+- [x] 更新架构索引、项目地图与验收记录。只在所有阶段门槛满足后写“学习 Agent V1 实施完成”；准备侧尚未接通或真实模型未测时单独保留未完成项。
 
 ## 4. 验收追踪
 

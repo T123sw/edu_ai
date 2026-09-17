@@ -1,0 +1,495 @@
+{
+  "brief": {
+    "topic": "AI Agent 开发岗位面试实践认知（Agent循环、工具调用、记忆管理、评估可观测性）",
+    "audience": "有 Python 开发基础，目标应聘 AI Agent 开发岗位，希望建立适合工作面试的实践认知",
+    "language": "中文",
+    "exclusions": [
+      "不要求完成大型项目"
+    ],
+    "assumptions": [
+      "用户已有 Python 开发基础，无需从零讲解 Python 语法",
+      "面试目标为 AI Agent 开发岗位，重点在概念理解与设计取舍，而非完整工程实现"
+    ],
+    "requirements": [
+      {
+        "text": "建立适合工作面试的实践认知，内容以入门到能够解释设计取舍为准",
+        "source_quote": "希望在120分钟内建立适合工作面试的实践认知",
+        "requirement_id": "req_1"
+      },
+      {
+        "text": "安排4个循序渐进的知识点：Agent循环与模型/应用职责边界",
+        "source_quote": "请安排4个循序渐进的知识点：Agent循环与模型/应用职责边界",
+        "requirement_id": "req_2"
+      },
+      {
+        "text": "知识点：工具调用与失败恢复",
+        "source_quote": "工具调用与失败恢复",
+        "requirement_id": "req_3"
+      },
+      {
+        "text": "知识点：记忆与上下文管理",
+        "source_quote": "记忆与上下文管理",
+        "requirement_id": "req_4"
+      },
+      {
+        "text": "知识点：评估与可观测性",
+        "source_quote": "评估与可观测性",
+        "requirement_id": "req_5"
+      },
+      {
+        "text": "搜索并实际阅读可信资料，汇总依据后生成可执行的学习路径",
+        "source_quote": "请搜索并实际阅读可信资料，汇总依据后生成可执行的学习路径",
+        "requirement_id": "req_6"
+      },
+      {
+        "text": "每个节点需要学习报告、理解练习和可播放的讲解课堂，包含具体案例与面试自测",
+        "source_quote": "每个节点需要学习报告、理解练习和可播放的讲解课堂，包含具体案例与面试自测",
+        "requirement_id": "req_7"
+      },
+      {
+        "text": "不要求完成大型项目",
+        "source_quote": "不要求完成大型项目",
+        "requirement_id": "req_8"
+      }
+    ],
+    "total_minutes": 120
+  },
+  "research_summary": {
+    "findings": [
+      {
+        "claim": "Agent 系统不是单一循环，而是三层嵌套循环：L1 工具调用循环（模型发出结构化工具调用，应用执行并回传结果）、L2 任务循环（多步目标追求）、L3 编排循环（多智能体委托与治理）。模型/应用职责边界在 L1 最清晰：模型只负责提议动作，应用负责校验参数、执行权限并决定如何处理输出。",
+        "citations": [
+          {
+            "quote": "L1 is the smallest reliable unit of tool-using behavior. Forget about planning, forget about orchestration. ",
+            "source_id": "ev_f788f425c498e2e425e1ba20"
+          },
+          {
+            "quote": "At this level, the model does exactly one thing: it looks at the conversation state and available tools, then either responds normally or emits a structured tool call. The application executes that tool and feeds the result back. ",
+            "source_id": "ev_f788f425c498e2e425e1ba20"
+          },
+          {
+            "quote": "\nHere’s the thing about L1: the boundary of responsibility is crisp. The model proposes actions. The application validates arguments, enforces permissions, and decides what to do with outputs. ",
+            "source_id": "ev_f788f425c498e2e425e1ba20"
+          }
+        ],
+        "finding_id": "f1_agent_loop_boundary"
+      },
+      {
+        "claim": "工具调用协议的核心是模型与执行层的职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。",
+        "citations": [
+          {
+            "quote": "That result is then sent back to the model, which uses it to continue reasoning and generate the final answer. More importantly, the model does *not* execute anything. ",
+            "source_id": "ev_10c04adb656671f5dd96ae9a"
+          },
+          {
+            "quote": "Your application code receives the payload, validates it, runs the logic, and returns the result as new context.\n\nThe boundary matters. ",
+            "source_id": "ev_10c04adb656671f5dd96ae9a"
+          },
+          {
+            "quote": "The model is a non-deterministic reasoner proposing actions; your code is the deterministic layer that executes and validates them. ",
+            "source_id": "ev_10c04adb656671f5dd96ae9a"
+          }
+        ],
+        "finding_id": "f2_tool_calling_protocol"
+      },
+      {
+        "claim": "工具调用失败恢复需要把错误处理内建到工具层：返回类型化、可解释的错误信号（如 {\"error\":\"rate_limited\",\"retry_after\":30}），让模型知道发生了什么以及下一步该做什么；瞬时故障（网络抖动、限流）用指数退避在工具层吸收，持久故障用熔断器停止调用并明确告知模型工具不可用。模型应始终知道工具失败，而不是用幻觉内容填补缺口。",
+        "citations": [
+          {
+            "quote": "* **Typed, interpretable error signals** — an error of the form `{\"error\": \"rate_limited\", \"retry_after\": 30}` tells the model exactly what happened and what to do next.\n",
+            "source_id": "ev_2ce9b0b0946a708d664537b1"
+          },
+          {
+            "quote": "* **Transparent transient-failure handling** — network blips and rate limits should be absorbed by the tool layer with exponential backoff, not surfaced raw to the reasoning loop.\n",
+            "source_id": "ev_2ce9b0b0946a708d664537b1"
+          },
+          {
+            "quote": "* **Circuit breakers for persistent failures** — once a failure threshold is crossed, the tool stops being called and the model is explicitly informed it’s unavailable.\n",
+            "source_id": "ev_2ce9b0b0946a708d664537b1"
+          },
+          {
+            "quote": "\nThat last point is critical: the model should always know when a tool fails. An agent that answers from three out of four data sources and says so is far more useful than one that fills gaps with hallucinated content.\n",
+            "source_id": "ev_2ce9b0b0946a708d664537b1"
+          }
+        ],
+        "finding_id": "f3_tool_failure_recovery"
+      },
+      {
+        "claim": "记忆与上下文管理是多步任务循环（L2）的核心工程问题：中间推理步骤会占用上下文窗口，长任务中早期步骤的推理痕迹在后期已无价值却仍在消耗 token。现代系统用压缩策略应对——OpenAI 的 run API 把截断策略作为显式旋钮，LlamaIndex 用\"utility tools\"把大工具输出压缩成可检索形式，MemGPT 提出分层记忆架构在有限窗口内扩展有效上下文。",
+        "citations": [
+          {
+            "quote": "But those “thoughts” live inside the context window. On a 15-step task, you’re burning tokens on the reasoning traces from step 3 that are no longer relevant at step 12.\n",
+            "source_id": "ev_24b3bbb44ac33677ca7fa158"
+          },
+          {
+            "quote": "\nModern agent systems tackle this with different compression strategies. OpenAI’s run APIs expose truncation strategies as an explicit knob, not an accident. ",
+            "source_id": "ev_24b3bbb44ac33677ca7fa158"
+          },
+          {
+            "quote": "LlamaIndex introduces “utility tools” that load, index, and query data in a single call, compressing large tool outputs into retrievable forms instead of dumping raw data into the prompt. ",
+            "source_id": "ev_24b3bbb44ac33677ca7fa158"
+          },
+          {
+            "quote": "MemGPT proposes a tiered memory architecture that manages different memory levels to extend effective context within a limited window.\n\n## Get Micheal Lanham’s stories in your inbox\n\nJoin Medium for free to get updates from this writer.\n",
+            "source_id": "ev_24b3bbb44ac33677ca7fa158"
+          }
+        ],
+        "finding_id": "f4_memory_context_management"
+      },
+      {
+        "claim": "评估与可观测性需要按循环层级分层记录日志并据此定位故障：L1 记录工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断；L2 记录步骤号、当前计划/todo 状态、记忆读写、检索决策、停止原因；L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件。诊断时从 L1 向上逐层排查，而非笼统归因于\"幻觉\"。",
+        "citations": [
+          {
+            "quote": "**L1 logs:** tool name, tool arguments, schema validation result, tool latency, tool output size, whether truncation occurred before the call.\n",
+            "source_id": "ev_d5a0d2f0cbc84020f7025aa2"
+          },
+          {
+            "quote": "\n**L2 logs:** step number, current plan/todo state, memory reads and writes, retrieval decisions (if any), stop reason (success, max steps, error).\n",
+            "source_id": "ev_d5a0d2f0cbc84020f7025aa2"
+          },
+          {
+            "quote": "\n**L3 logs:** which agent acted, handoff/delegation edges taken, permission scope used, approval interruptions raised/resolved, termination condition reached (halted, expired, cancelled).\n",
+            "source_id": "ev_d5a0d2f0cbc84020f7025aa2"
+          },
+          {
+            "quote": "\nWhen something breaks, you start at L1 and work up. If the tool calls look clean, move to L2 and check the plan. If the plan looks sound, move to L3 and check the orchestration. ",
+            "source_id": "ev_d5a0d2f0cbc84020f7025aa2"
+          }
+        ],
+        "finding_id": "f5_eval_observability"
+      }
+    ],
+    "overview": "围绕 AI Agent 开发岗位面试所需的实践认知，已阅读两个可信来源的正文：Micheal Lanham 的《Stop Debugging Your Agent as One Loop. It's Three.》和 MachineLearningMastery 的《The Roadmap to Mastering Tool Calling in AI Agents》。前者提供了三层嵌套循环（L1 工具调用循环、L2 任务循环、L3 编排循环）的框架，清晰界定了模型/应用职责边界、记忆压缩策略和分层可观测性；后者补充了工具调用协议、错误处理与失败恢复、工具目录规模与安全的具体工程实践。两者共同覆盖了用户要求的四个知识点：Agent 循环与职责边界、工具调用与失败恢复、记忆与上下文管理、评估与可观测性。证据充分，无未解决的核心缺口。教学组织上建议按\"循环与边界 → 工具调用与失败恢复 → 记忆与上下文 → 评估与可观测性\"的顺序递进，每个节点以三层循环框架为贯穿主线，便于面试时解释设计取舍。",
+    "limitations": [
+      "两个来源均为技术博客/教程类文章，非大学教材或官方文档，权威性中等；但内容与 OpenAI、Anthropic、LangGraph 等官方文档的引用一致，可作为面试认知的可靠依据。",
+      "证据聚焦于概念框架与设计取舍，缺少可运行的完整代码示例，学习路径中的案例需由教学组织补充为伪代码或短片段。",
+      "评估部分主要覆盖可观测性（日志分层），对自动化评估指标（如任务成功率、轨迹评估）的直接依据较少，需在路径中作为教学组织建议补充。"
+    ],
+    "unresolved_gaps": []
+  },
+  "plan": {
+    "nodes": [
+      {
+        "title": "Agent 循环与模型/应用职责边界",
+        "minutes": 30,
+        "node_key": "agent_loop_boundary",
+        "objectives": [
+          "能用自己的话解释 Agent 不是单一循环，而是 L1 工具调用循环、L2 任务循环、L3 编排循环三层嵌套结构",
+          "能清晰说出模型与应用的职责边界：模型只提议动作，应用负责校验参数、执行权限并决定如何处理输出",
+          "能在面试中解释为什么把执行与校验放在应用层而非模型层（确定性 vs 非确定性）"
+        ],
+        "self_check": "不看笔记，向自己复述三层循环的名称与职责，并解释 L1 处职责边界为何最清晰；若卡壳，回到学习报告重读 L1 段落。",
+        "source_ids": [
+          "ev_f788f425c498e2e425e1ba20",
+          "ev_10c04adb656671f5dd96ae9a"
+        ],
+        "finding_ids": [
+          "f1_agent_loop_boundary",
+          "f2_tool_calling_protocol"
+        ],
+        "requirement_ids": [
+          "req_1",
+          "req_2",
+          "req_6",
+          "req_7",
+          "req_8"
+        ],
+        "prerequisite_keys": [],
+        "learning_activities": [
+          "阅读学习报告：理解 L1/L2/L3 三层循环的定义与各自职责，重点标注 L1 处职责边界最清晰的原因",
+          "理解练习：给定一个查询天气并订机票的场景，画出模型提议动作与应用执行动作的边界线，标出哪些步骤属于 L1、哪些属于 L2",
+          "观看讲解课堂：讲师用三层循环框架拆解一个真实 Agent 的调用链，演示模型输出结构化工具调用、应用执行并回传结果的完整闭环",
+          "面试自测：口头回答模型和应用在 Agent 里各自负责什么，以及为什么不能让模型直接执行代码"
+        ]
+      },
+      {
+        "title": "工具调用与失败恢复",
+        "minutes": 30,
+        "node_key": "tool_calling_failure_recovery",
+        "objectives": [
+          "能描述工具调用协议：模型产出结构化 JSON 载荷（工具名+参数），应用接收、校验、执行并返回结果作为新上下文",
+          "能区分瞬时故障与持久故障，并说明各自的处理策略（指数退避 vs 熔断器）",
+          "能解释为什么模型应始终知道工具失败，而不是用幻觉内容填补缺口"
+        ],
+        "self_check": "能写出一个类型化错误信号示例（如 error 为 rate_limited、retry_after 为 30），并说明它比原始异常对模型更有用的原因；若写不出，回到学习报告重读错误信号部分。",
+        "source_ids": [
+          "ev_10c04adb656671f5dd96ae9a",
+          "ev_2ce9b0b0946a708d664537b1"
+        ],
+        "finding_ids": [
+          "f2_tool_calling_protocol",
+          "f3_tool_failure_recovery"
+        ],
+        "requirement_ids": [
+          "req_1",
+          "req_3",
+          "req_6",
+          "req_7",
+          "req_8"
+        ],
+        "prerequisite_keys": [
+          "agent_loop_boundary"
+        ],
+        "learning_activities": [
+          "阅读学习报告：理解工具调用协议中模型与执行层的职责分离，以及类型化错误信号、指数退避、熔断器三种失败恢复手段",
+          "理解练习：为一个调用外部 API 的工具设计错误处理，写出瞬时故障（限流）与持久故障（连续失败）分别应返回给模型的错误信号",
+          "观看讲解课堂：讲师演示一个工具调用失败后，如何通过类型化错误信号让模型正确重试或放弃，而非产生幻觉",
+          "面试自测：口头回答工具调用失败时，你会把原始异常直接抛给模型吗，为什么"
+        ]
+      },
+      {
+        "title": "记忆与上下文管理",
+        "minutes": 30,
+        "node_key": "memory_context_management",
+        "objectives": [
+          "能解释多步任务中上下文窗口被中间推理痕迹消耗的问题，以及为何早期步骤的推理在后期已无价值",
+          "能说出至少两种上下文压缩策略（如 OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆）",
+          "能在面试中说明何时该压缩或截断上下文的设计取舍"
+        ],
+        "self_check": "能说出至少两种压缩策略并各用一句话解释其核心思想；若只能说出一种，回到学习报告补读 MemGPT 与 utility tools 部分。",
+        "source_ids": [
+          "ev_24b3bbb44ac33677ca7fa158"
+        ],
+        "finding_ids": [
+          "f4_memory_context_management"
+        ],
+        "requirement_ids": [
+          "req_1",
+          "req_4",
+          "req_6",
+          "req_7",
+          "req_8"
+        ],
+        "prerequisite_keys": [
+          "agent_loop_boundary"
+        ],
+        "learning_activities": [
+          "阅读学习报告：理解上下文窗口被推理痕迹占用的机制，以及三种压缩策略（截断旋钮、utility tools、分层记忆）的差异",
+          "理解练习：给定一个 15 步任务，指出哪些中间步骤的推理痕迹在后期可被压缩或丢弃，并说明理由",
+          "观看讲解课堂：讲师对比把大工具输出直接塞进 prompt 与压缩成可检索形式两种做法，演示 token 消耗差异",
+          "面试自测：口头回答长任务里上下文窗口不够用了，你会优先压缩什么，为什么"
+        ]
+      },
+      {
+        "title": "评估与可观测性",
+        "minutes": 30,
+        "node_key": "eval_observability",
+        "objectives": [
+          "能按 L1/L2/L3 分层说明各自应记录哪些日志字段（工具调用、任务状态、编排决策）",
+          "能解释从 L1 向上逐层排查的故障定位方法，而非笼统归因于幻觉",
+          "能在面试中说明可观测性如何支撑 Agent 的评估与迭代"
+        ],
+        "self_check": "能不看笔记列出 L1 至少 3 个日志字段，并说出从 L1 向上排查的完整顺序；若卡壳，回到学习报告重读分层日志段落。",
+        "source_ids": [
+          "ev_d5a0d2f0cbc84020f7025aa2"
+        ],
+        "finding_ids": [
+          "f5_eval_observability"
+        ],
+        "requirement_ids": [
+          "req_1",
+          "req_5",
+          "req_6",
+          "req_7",
+          "req_8"
+        ],
+        "prerequisite_keys": [
+          "agent_loop_boundary",
+          "tool_calling_failure_recovery",
+          "memory_context_management"
+        ],
+        "learning_activities": [
+          "阅读学习报告：理解 L1/L2/L3 三层日志字段的划分，以及从 L1 向上排查的诊断流程",
+          "理解练习：给定一个 Agent 输出错误的案例，判断应先查哪一层日志，并列出该层应关注的字段",
+          "观看讲解课堂：讲师演示一个故障排查过程，从 L1 工具调用日志逐层向上定位到 L3 编排问题",
+          "面试自测：口头回答 Agent 输出错了，你如何定位是模型问题、工具问题还是编排问题"
+        ]
+      }
+    ],
+    "title": "AI Agent 开发岗位面试实践认知学习路径",
+    "summary": "面向有 Python 基础、目标应聘 AI Agent 开发岗位的学习者，用 120 分钟建立可解释设计取舍的面试实践认知。以\"三层嵌套循环（L1 工具调用循环 / L2 任务循环 / L3 编排循环）\"为贯穿主线，按\"循环与职责边界 → 工具调用与失败恢复 → 记忆与上下文管理 → 评估与可观测性\"递进。每个节点聚焦概念理解与设计取舍，配具体案例与面试自测，不要求完成大型项目。",
+    "limitations": [
+      "两个来源均为技术博客/教程类文章，非大学教材或官方文档，权威性中等；但内容与 OpenAI、Anthropic、LangGraph 等官方文档的引用一致，可作为面试认知的可靠依据。",
+      "证据聚焦于概念框架与设计取舍，缺少可运行的完整代码示例，学习路径中的案例需由教学组织补充为伪代码或短片段。",
+      "评估部分主要覆盖可观测性（日志分层），对自动化评估指标（如任务成功率、轨迹评估）的直接依据较少，需在路径中作为教学组织建议补充。"
+    ]
+  },
+  "node_evidence": {
+    "eval_observability": [
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "评估与可观测性需要按循环层级分层记录日志并据此定位故障：L1 记录工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断；L2 记录步骤号、当前计划/todo 状态、记忆读写、检索决策、停止原因；L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件。诊断时从 L1 向上逐层排查，而非笼统归因于\"幻觉\"。",
+        "quote": "**L1 logs:** tool name, tool arguments, schema validation result, tool latency, tool output size, whether truncation occurred before the call.\n",
+        "source_id": "ev_d5a0d2f0cbc84020f7025aa2",
+        "finding_id": "f5_eval_observability",
+        "source_hash": "5de6509cefa215f86a9430e65ed1e20d16a6be011d5c186c4dc5cae40452a641"
+      },
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "评估与可观测性需要按循环层级分层记录日志并据此定位故障：L1 记录工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断；L2 记录步骤号、当前计划/todo 状态、记忆读写、检索决策、停止原因；L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件。诊断时从 L1 向上逐层排查，而非笼统归因于\"幻觉\"。",
+        "quote": "\n**L2 logs:** step number, current plan/todo state, memory reads and writes, retrieval decisions (if any), stop reason (success, max steps, error).\n",
+        "source_id": "ev_d5a0d2f0cbc84020f7025aa2",
+        "finding_id": "f5_eval_observability",
+        "source_hash": "5de6509cefa215f86a9430e65ed1e20d16a6be011d5c186c4dc5cae40452a641"
+      },
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "评估与可观测性需要按循环层级分层记录日志并据此定位故障：L1 记录工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断；L2 记录步骤号、当前计划/todo 状态、记忆读写、检索决策、停止原因；L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件。诊断时从 L1 向上逐层排查，而非笼统归因于\"幻觉\"。",
+        "quote": "\n**L3 logs:** which agent acted, handoff/delegation edges taken, permission scope used, approval interruptions raised/resolved, termination condition reached (halted, expired, cancelled).\n",
+        "source_id": "ev_d5a0d2f0cbc84020f7025aa2",
+        "finding_id": "f5_eval_observability",
+        "source_hash": "5de6509cefa215f86a9430e65ed1e20d16a6be011d5c186c4dc5cae40452a641"
+      },
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "评估与可观测性需要按循环层级分层记录日志并据此定位故障：L1 记录工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断；L2 记录步骤号、当前计划/todo 状态、记忆读写、检索决策、停止原因；L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件。诊断时从 L1 向上逐层排查，而非笼统归因于\"幻觉\"。",
+        "quote": "\nWhen something breaks, you start at L1 and work up. If the tool calls look clean, move to L2 and check the plan. If the plan looks sound, move to L3 and check the orchestration. ",
+        "source_id": "ev_d5a0d2f0cbc84020f7025aa2",
+        "finding_id": "f5_eval_observability",
+        "source_hash": "5de6509cefa215f86a9430e65ed1e20d16a6be011d5c186c4dc5cae40452a641"
+      }
+    ],
+    "agent_loop_boundary": [
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "Agent 系统不是单一循环，而是三层嵌套循环：L1 工具调用循环（模型发出结构化工具调用，应用执行并回传结果）、L2 任务循环（多步目标追求）、L3 编排循环（多智能体委托与治理）。模型/应用职责边界在 L1 最清晰：模型只负责提议动作，应用负责校验参数、执行权限并决定如何处理输出。",
+        "quote": "L1 is the smallest reliable unit of tool-using behavior. Forget about planning, forget about orchestration. ",
+        "source_id": "ev_f788f425c498e2e425e1ba20",
+        "finding_id": "f1_agent_loop_boundary",
+        "source_hash": "47e24983989e5eeb271486216bb1e0378ebca76ce76ea506e2b2aff40c3b839d"
+      },
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "Agent 系统不是单一循环，而是三层嵌套循环：L1 工具调用循环（模型发出结构化工具调用，应用执行并回传结果）、L2 任务循环（多步目标追求）、L3 编排循环（多智能体委托与治理）。模型/应用职责边界在 L1 最清晰：模型只负责提议动作，应用负责校验参数、执行权限并决定如何处理输出。",
+        "quote": "At this level, the model does exactly one thing: it looks at the conversation state and available tools, then either responds normally or emits a structured tool call. The application executes that tool and feeds the result back. ",
+        "source_id": "ev_f788f425c498e2e425e1ba20",
+        "finding_id": "f1_agent_loop_boundary",
+        "source_hash": "47e24983989e5eeb271486216bb1e0378ebca76ce76ea506e2b2aff40c3b839d"
+      },
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "Agent 系统不是单一循环，而是三层嵌套循环：L1 工具调用循环（模型发出结构化工具调用，应用执行并回传结果）、L2 任务循环（多步目标追求）、L3 编排循环（多智能体委托与治理）。模型/应用职责边界在 L1 最清晰：模型只负责提议动作，应用负责校验参数、执行权限并决定如何处理输出。",
+        "quote": "\nHere’s the thing about L1: the boundary of responsibility is crisp. The model proposes actions. The application validates arguments, enforces permissions, and decides what to do with outputs. ",
+        "source_id": "ev_f788f425c498e2e425e1ba20",
+        "finding_id": "f1_agent_loop_boundary",
+        "source_hash": "47e24983989e5eeb271486216bb1e0378ebca76ce76ea506e2b2aff40c3b839d"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用协议的核心是模型与执行层的职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。",
+        "quote": "That result is then sent back to the model, which uses it to continue reasoning and generate the final answer. More importantly, the model does *not* execute anything. ",
+        "source_id": "ev_10c04adb656671f5dd96ae9a",
+        "finding_id": "f2_tool_calling_protocol",
+        "source_hash": "b84cb7caa4badcc775751973dfe60f590e84c517355ff3e67ce9b733610707e4"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用协议的核心是模型与执行层的职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。",
+        "quote": "Your application code receives the payload, validates it, runs the logic, and returns the result as new context.\n\nThe boundary matters. ",
+        "source_id": "ev_10c04adb656671f5dd96ae9a",
+        "finding_id": "f2_tool_calling_protocol",
+        "source_hash": "b84cb7caa4badcc775751973dfe60f590e84c517355ff3e67ce9b733610707e4"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用协议的核心是模型与执行层的职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。",
+        "quote": "The model is a non-deterministic reasoner proposing actions; your code is the deterministic layer that executes and validates them. ",
+        "source_id": "ev_10c04adb656671f5dd96ae9a",
+        "finding_id": "f2_tool_calling_protocol",
+        "source_hash": "b84cb7caa4badcc775751973dfe60f590e84c517355ff3e67ce9b733610707e4"
+      }
+    ],
+    "memory_context_management": [
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "记忆与上下文管理是多步任务循环（L2）的核心工程问题：中间推理步骤会占用上下文窗口，长任务中早期步骤的推理痕迹在后期已无价值却仍在消耗 token。现代系统用压缩策略应对——OpenAI 的 run API 把截断策略作为显式旋钮，LlamaIndex 用\"utility tools\"把大工具输出压缩成可检索形式，MemGPT 提出分层记忆架构在有限窗口内扩展有效上下文。",
+        "quote": "But those “thoughts” live inside the context window. On a 15-step task, you’re burning tokens on the reasoning traces from step 3 that are no longer relevant at step 12.\n",
+        "source_id": "ev_24b3bbb44ac33677ca7fa158",
+        "finding_id": "f4_memory_context_management",
+        "source_hash": "88f4ee95926798a1d048fb8849be7ad823f1a63a4399d5f6fd3e3218613db0dc"
+      },
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "记忆与上下文管理是多步任务循环（L2）的核心工程问题：中间推理步骤会占用上下文窗口，长任务中早期步骤的推理痕迹在后期已无价值却仍在消耗 token。现代系统用压缩策略应对——OpenAI 的 run API 把截断策略作为显式旋钮，LlamaIndex 用\"utility tools\"把大工具输出压缩成可检索形式，MemGPT 提出分层记忆架构在有限窗口内扩展有效上下文。",
+        "quote": "\nModern agent systems tackle this with different compression strategies. OpenAI’s run APIs expose truncation strategies as an explicit knob, not an accident. ",
+        "source_id": "ev_24b3bbb44ac33677ca7fa158",
+        "finding_id": "f4_memory_context_management",
+        "source_hash": "88f4ee95926798a1d048fb8849be7ad823f1a63a4399d5f6fd3e3218613db0dc"
+      },
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "记忆与上下文管理是多步任务循环（L2）的核心工程问题：中间推理步骤会占用上下文窗口，长任务中早期步骤的推理痕迹在后期已无价值却仍在消耗 token。现代系统用压缩策略应对——OpenAI 的 run API 把截断策略作为显式旋钮，LlamaIndex 用\"utility tools\"把大工具输出压缩成可检索形式，MemGPT 提出分层记忆架构在有限窗口内扩展有效上下文。",
+        "quote": "LlamaIndex introduces “utility tools” that load, index, and query data in a single call, compressing large tool outputs into retrievable forms instead of dumping raw data into the prompt. ",
+        "source_id": "ev_24b3bbb44ac33677ca7fa158",
+        "finding_id": "f4_memory_context_management",
+        "source_hash": "88f4ee95926798a1d048fb8849be7ad823f1a63a4399d5f6fd3e3218613db0dc"
+      },
+      {
+        "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+        "claim": "记忆与上下文管理是多步任务循环（L2）的核心工程问题：中间推理步骤会占用上下文窗口，长任务中早期步骤的推理痕迹在后期已无价值却仍在消耗 token。现代系统用压缩策略应对——OpenAI 的 run API 把截断策略作为显式旋钮，LlamaIndex 用\"utility tools\"把大工具输出压缩成可检索形式，MemGPT 提出分层记忆架构在有限窗口内扩展有效上下文。",
+        "quote": "MemGPT proposes a tiered memory architecture that manages different memory levels to extend effective context within a limited window.\n\n## Get Micheal Lanham’s stories in your inbox\n\nJoin Medium for free to get updates from this writer.\n",
+        "source_id": "ev_24b3bbb44ac33677ca7fa158",
+        "finding_id": "f4_memory_context_management",
+        "source_hash": "88f4ee95926798a1d048fb8849be7ad823f1a63a4399d5f6fd3e3218613db0dc"
+      }
+    ],
+    "tool_calling_failure_recovery": [
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用协议的核心是模型与执行层的职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。",
+        "quote": "That result is then sent back to the model, which uses it to continue reasoning and generate the final answer. More importantly, the model does *not* execute anything. ",
+        "source_id": "ev_10c04adb656671f5dd96ae9a",
+        "finding_id": "f2_tool_calling_protocol",
+        "source_hash": "b84cb7caa4badcc775751973dfe60f590e84c517355ff3e67ce9b733610707e4"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用协议的核心是模型与执行层的职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。",
+        "quote": "Your application code receives the payload, validates it, runs the logic, and returns the result as new context.\n\nThe boundary matters. ",
+        "source_id": "ev_10c04adb656671f5dd96ae9a",
+        "finding_id": "f2_tool_calling_protocol",
+        "source_hash": "b84cb7caa4badcc775751973dfe60f590e84c517355ff3e67ce9b733610707e4"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用协议的核心是模型与执行层的职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。",
+        "quote": "The model is a non-deterministic reasoner proposing actions; your code is the deterministic layer that executes and validates them. ",
+        "source_id": "ev_10c04adb656671f5dd96ae9a",
+        "finding_id": "f2_tool_calling_protocol",
+        "source_hash": "b84cb7caa4badcc775751973dfe60f590e84c517355ff3e67ce9b733610707e4"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用失败恢复需要把错误处理内建到工具层：返回类型化、可解释的错误信号（如 {\"error\":\"rate_limited\",\"retry_after\":30}），让模型知道发生了什么以及下一步该做什么；瞬时故障（网络抖动、限流）用指数退避在工具层吸收，持久故障用熔断器停止调用并明确告知模型工具不可用。模型应始终知道工具失败，而不是用幻觉内容填补缺口。",
+        "quote": "* **Typed, interpretable error signals** — an error of the form `{\"error\": \"rate_limited\", \"retry_after\": 30}` tells the model exactly what happened and what to do next.\n",
+        "source_id": "ev_2ce9b0b0946a708d664537b1",
+        "finding_id": "f3_tool_failure_recovery",
+        "source_hash": "eb36cc97e9a40c901f85e317c5c47a5332580877d4f2de7473e3d9c9f43733fa"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用失败恢复需要把错误处理内建到工具层：返回类型化、可解释的错误信号（如 {\"error\":\"rate_limited\",\"retry_after\":30}），让模型知道发生了什么以及下一步该做什么；瞬时故障（网络抖动、限流）用指数退避在工具层吸收，持久故障用熔断器停止调用并明确告知模型工具不可用。模型应始终知道工具失败，而不是用幻觉内容填补缺口。",
+        "quote": "* **Transparent transient-failure handling** — network blips and rate limits should be absorbed by the tool layer with exponential backoff, not surfaced raw to the reasoning loop.\n",
+        "source_id": "ev_2ce9b0b0946a708d664537b1",
+        "finding_id": "f3_tool_failure_recovery",
+        "source_hash": "eb36cc97e9a40c901f85e317c5c47a5332580877d4f2de7473e3d9c9f43733fa"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用失败恢复需要把错误处理内建到工具层：返回类型化、可解释的错误信号（如 {\"error\":\"rate_limited\",\"retry_after\":30}），让模型知道发生了什么以及下一步该做什么；瞬时故障（网络抖动、限流）用指数退避在工具层吸收，持久故障用熔断器停止调用并明确告知模型工具不可用。模型应始终知道工具失败，而不是用幻觉内容填补缺口。",
+        "quote": "* **Circuit breakers for persistent failures** — once a failure threshold is crossed, the tool stops being called and the model is explicitly informed it’s unavailable.\n",
+        "source_id": "ev_2ce9b0b0946a708d664537b1",
+        "finding_id": "f3_tool_failure_recovery",
+        "source_hash": "eb36cc97e9a40c901f85e317c5c47a5332580877d4f2de7473e3d9c9f43733fa"
+      },
+      {
+        "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+        "claim": "工具调用失败恢复需要把错误处理内建到工具层：返回类型化、可解释的错误信号（如 {\"error\":\"rate_limited\",\"retry_after\":30}），让模型知道发生了什么以及下一步该做什么；瞬时故障（网络抖动、限流）用指数退避在工具层吸收，持久故障用熔断器停止调用并明确告知模型工具不可用。模型应始终知道工具失败，而不是用幻觉内容填补缺口。",
+        "quote": "\nThat last point is critical: the model should always know when a tool fails. An agent that answers from three out of four data sources and says so is far more useful than one that fills gaps with hallucinated content.\n",
+        "source_id": "ev_2ce9b0b0946a708d664537b1",
+        "finding_id": "f3_tool_failure_recovery",
+        "source_hash": "eb36cc97e9a40c901f85e317c5c47a5332580877d4f2de7473e3d9c9f43733fa"
+      }
+    ]
+  }
+}

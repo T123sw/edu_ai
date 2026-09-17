@@ -1,6 +1,6 @@
 # 学习 Agent 分阶段实施记录
 
-日期：2026-09-17。依据[详细设计](../architecture/2026-09-17-learning-agent-technical-design-cn.md)和[实施计划](../superpowers/plans/2026-09-17-learning-agent-implementation-cn.md)。此记录仅报告实际完成范围。
+日期：2026-09-17。依据[详细设计](../architecture/2026-09-17-learning-agent-technical-design-cn.md)和[实施计划](../superpowers/plans/2026-09-17-learning-agent-implementation-cn.md)。此记录保留各阶段当时的状态；2026-09-17 全阶段实施与最终验证以[最终报告](staged-agent-implementation/final-report.md)为准。
 
 ## P0：领域契约与状态投影
 

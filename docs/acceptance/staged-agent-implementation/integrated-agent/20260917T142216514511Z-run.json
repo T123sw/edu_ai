@@ -1,0 +1,21 @@
+{
+  "started_at": "2026-09-17T14:22:16.514534+00:00",
+  "finished_at": "2026-09-17T14:28:52.093353+00:00",
+  "command": [
+    "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python",
+    "-m",
+    "pytest",
+    "tests/course_preparation",
+    "tests/self_learning",
+    "tests/chat/memory",
+    "tests/test_self_learning.py",
+    "--import-mode=importlib",
+    "-q"
+  ],
+  "exit_code": 0,
+  "log": "20260917T142216514511Z-pytest.txt",
+  "sha256": "c2394ef9f1914392909963fd3305d803607d81dee6c64b1fe45f9ac14dfab2ee",
+  "base_commit": "c27cce8f59c64fc5694d25100b326525c11af20d",
+  "python": "3.12.14",
+  "code_provenance_note": "该开发回归启动于 6ae603a6，运行期间有 c27cce8f 修改；base_commit 由旧脚本在结束时采集，因此不视为冻结代码验收。最终冻结回归使用 20260917T144926865351Z-run.json（a5e7d2c3）。"
+}

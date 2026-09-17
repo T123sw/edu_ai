@@ -1,0 +1,6 @@
+{
+  "command": "pnpm exec tsc -p tsconfig.self-learning.json",
+  "exit_code": 0,
+  "note": "最终串行轮询与检查加载代码均已包含；命令无输出，退出码 0。",
+  "code_commit": "a5e7d2c3"
+}

@@ -1,0 +1,411 @@
+{
+  "goal": "我有 Python 开发基础，目标是应聘 AI Agent 开发岗位，希望在120分钟内建立适合工作面试的实践认知。请安排4个循序渐进的知识点：Agent循环与模型/应用职责边界；工具调用与失败恢复；记忆与上下文管理；评估与可观测性。请搜索并实际阅读可信资料，汇总依据后生成可执行的学习路径。每个节点需要学习报告、理解练习和可播放的讲解课堂，包含具体案例与面试自测。内容以入门到能够解释设计取舍为准，不要求完成大型项目。",
+  "nodes": [
+    {
+      "order": 1,
+      "title": "Agent 循环与模型/应用职责边界",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "学习检查",
+            "question_id": null
+          },
+          "check_id": "agent_loop_boundary:check",
+          "resource_id": "resource_a73c22403f4930d5fb9f3f1e8a218b76",
+          "objective_ids": [
+            "agent_loop_boundary:o1",
+            "agent_loop_boundary:o2",
+            "agent_loop_boundary:o3"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "agent_loop_boundary",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "Agent 循环与模型/应用职责边界",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_a73c22403f4930d5fb9f3f1e8a218b76",
+          "source_refs": [
+            "ev_f788f425c498e2e425e1ba20",
+            "ev_10c04adb656671f5dd96ae9a"
+          ],
+          "objective_ids": [
+            "agent_loop_boundary:o1",
+            "agent_loop_boundary:o2",
+            "agent_loop_boundary:o3"
+          ],
+          "resource_type": "report",
+          "content_sha256": "f316e22a048c8cecf49dd8cd1b97dd9fd60f04183443c5653db51afceb5fb5f0"
+        },
+        {
+          "order": 2,
+          "purpose": "Agent 循环与模型/应用职责边界",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_801a816c7173866fb3e26ba4630bd896",
+          "source_refs": [
+            "ev_f788f425c498e2e425e1ba20",
+            "ev_10c04adb656671f5dd96ae9a"
+          ],
+          "objective_ids": [
+            "agent_loop_boundary:o1",
+            "agent_loop_boundary:o2",
+            "agent_loop_boundary:o3"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "f122c9c105bf863502c349cb5de1f95f02047f24477225023a0fe053dfee4305"
+        },
+        {
+          "order": 3,
+          "purpose": "Agent 循环与模型/应用职责边界",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_99e39fc74c537676264bfbb5acab08bd",
+          "source_refs": [
+            "ev_f788f425c498e2e425e1ba20",
+            "ev_10c04adb656671f5dd96ae9a"
+          ],
+          "objective_ids": [
+            "agent_loop_boundary:o1",
+            "agent_loop_boundary:o2",
+            "agent_loop_boundary:o3"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "8e996015b549f354724f52e00b2a6d0f207df7a90f77ec7a4acce0b3c4d024cb"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "能用自己的话解释 Agent 不是单一循环，而是 L1 工具调用循环、L2 任务循环、L3 编排循环三层嵌套结构",
+          "objective_id": "agent_loop_boundary:o1"
+        },
+        {
+          "text": "能清晰说出模型与应用的职责边界：模型只提议动作，应用负责校验参数、执行权限并决定如何处理输出",
+          "objective_id": "agent_loop_boundary:o2"
+        },
+        {
+          "text": "能在面试中解释为什么把执行与校验放在应用层而非模型层（确定性 vs 非确定性）",
+          "objective_id": "agent_loop_boundary:o3"
+        }
+      ],
+      "estimated_minutes": 30,
+      "prerequisite_node_ids": []
+    },
+    {
+      "order": 2,
+      "title": "工具调用与失败恢复",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "学习检查",
+            "question_id": null
+          },
+          "check_id": "tool_calling_failure_recovery:check",
+          "resource_id": "resource_c98345287b090b45cec410b71e47a3e8",
+          "objective_ids": [
+            "tool_calling_failure_recovery:o1",
+            "tool_calling_failure_recovery:o2",
+            "tool_calling_failure_recovery:o3"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "tool_calling_failure_recovery",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "工具调用与失败恢复",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_c98345287b090b45cec410b71e47a3e8",
+          "source_refs": [
+            "ev_10c04adb656671f5dd96ae9a",
+            "ev_2ce9b0b0946a708d664537b1"
+          ],
+          "objective_ids": [
+            "tool_calling_failure_recovery:o1",
+            "tool_calling_failure_recovery:o2",
+            "tool_calling_failure_recovery:o3"
+          ],
+          "resource_type": "report",
+          "content_sha256": "92b7e5531c0e89acad0d2c5a4c61b762cd1314b1953781a839fcf4d47f4faefe"
+        },
+        {
+          "order": 2,
+          "purpose": "工具调用与失败恢复",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_3d0c168fa5430a614b56b0fb97cd9917",
+          "source_refs": [
+            "ev_10c04adb656671f5dd96ae9a",
+            "ev_2ce9b0b0946a708d664537b1"
+          ],
+          "objective_ids": [
+            "tool_calling_failure_recovery:o1",
+            "tool_calling_failure_recovery:o2",
+            "tool_calling_failure_recovery:o3"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "40f07c65f8d40f9a39aec48c0efa8db63cc803c159b0cd05357d2aa8d99c0e01"
+        },
+        {
+          "order": 3,
+          "purpose": "工具调用与失败恢复",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_c8585c1a5837eb274a4bbc38afdae718",
+          "source_refs": [
+            "ev_10c04adb656671f5dd96ae9a",
+            "ev_2ce9b0b0946a708d664537b1"
+          ],
+          "objective_ids": [
+            "tool_calling_failure_recovery:o1",
+            "tool_calling_failure_recovery:o2",
+            "tool_calling_failure_recovery:o3"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "c54e8a1cf39651234ad18dd4f2346b11d554c8e392c15e45f7dd0fc2faaf3f9c"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "能描述工具调用协议：模型产出结构化 JSON 载荷（工具名+参数），应用接收、校验、执行并返回结果作为新上下文",
+          "objective_id": "tool_calling_failure_recovery:o1"
+        },
+        {
+          "text": "能区分瞬时故障与持久故障，并说明各自的处理策略（指数退避 vs 熔断器）",
+          "objective_id": "tool_calling_failure_recovery:o2"
+        },
+        {
+          "text": "能解释为什么模型应始终知道工具失败，而不是用幻觉内容填补缺口",
+          "objective_id": "tool_calling_failure_recovery:o3"
+        }
+      ],
+      "estimated_minutes": 30,
+      "prerequisite_node_ids": [
+        "agent_loop_boundary"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "记忆与上下文管理",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "学习检查",
+            "question_id": null
+          },
+          "check_id": "memory_context_management:check",
+          "resource_id": "resource_625820f5c44cff90f4c348b4dce8d8fe",
+          "objective_ids": [
+            "memory_context_management:o1",
+            "memory_context_management:o2",
+            "memory_context_management:o3"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "memory_context_management",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "记忆与上下文管理",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_625820f5c44cff90f4c348b4dce8d8fe",
+          "source_refs": [
+            "ev_24b3bbb44ac33677ca7fa158"
+          ],
+          "objective_ids": [
+            "memory_context_management:o1",
+            "memory_context_management:o2",
+            "memory_context_management:o3"
+          ],
+          "resource_type": "report",
+          "content_sha256": "bc7221792881687e28a0468db7da8a4d2262d629059e25cf83b2732f05bffd0a"
+        },
+        {
+          "order": 2,
+          "purpose": "记忆与上下文管理",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_62ce8ec4b62350ac28cdcd7f983499e5",
+          "source_refs": [
+            "ev_24b3bbb44ac33677ca7fa158"
+          ],
+          "objective_ids": [
+            "memory_context_management:o1",
+            "memory_context_management:o2",
+            "memory_context_management:o3"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "bf61953b3bb0850e76f9bd49dd8930f97e8b0981637507140406866ccd355309"
+        },
+        {
+          "order": 3,
+          "purpose": "记忆与上下文管理",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_0e2981097d5c26fc79b4dd76b999b451",
+          "source_refs": [
+            "ev_24b3bbb44ac33677ca7fa158"
+          ],
+          "objective_ids": [
+            "memory_context_management:o1",
+            "memory_context_management:o2",
+            "memory_context_management:o3"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "59338baf77055af55c1cab85038ae01ab9ad65e4bc7a923feb26f186c7555f3a"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "能解释多步任务中上下文窗口被中间推理痕迹消耗的问题，以及为何早期步骤的推理在后期已无价值",
+          "objective_id": "memory_context_management:o1"
+        },
+        {
+          "text": "能说出至少两种上下文压缩策略（如 OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆）",
+          "objective_id": "memory_context_management:o2"
+        },
+        {
+          "text": "能在面试中说明何时该压缩或截断上下文的设计取舍",
+          "objective_id": "memory_context_management:o3"
+        }
+      ],
+      "estimated_minutes": 30,
+      "prerequisite_node_ids": [
+        "agent_loop_boundary"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "评估与可观测性",
+      "checks": [
+        {
+          "mode": "self_check",
+          "locator": {
+            "page": null,
+            "section_id": "学习检查",
+            "question_id": null
+          },
+          "check_id": "eval_observability:check",
+          "resource_id": "resource_694c4b66e7447264cbe0a13451de1b88",
+          "objective_ids": [
+            "eval_observability:o1",
+            "eval_observability:o2",
+            "eval_observability:o3"
+          ],
+          "resource_version": 1
+        }
+      ],
+      "node_id": "eval_observability",
+      "required": true,
+      "resources": [
+        {
+          "order": 1,
+          "purpose": "评估与可观测性",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_694c4b66e7447264cbe0a13451de1b88",
+          "source_refs": [
+            "ev_d5a0d2f0cbc84020f7025aa2"
+          ],
+          "objective_ids": [
+            "eval_observability:o1",
+            "eval_observability:o2",
+            "eval_observability:o3"
+          ],
+          "resource_type": "report",
+          "content_sha256": "426d0baae9ed982a85877c26544c76760216b8daf8302069b819b091eb9350e1"
+        },
+        {
+          "order": 2,
+          "purpose": "评估与可观测性",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_2ec1362997d9d23d6594c48b0c7ca5ac",
+          "source_refs": [
+            "ev_d5a0d2f0cbc84020f7025aa2"
+          ],
+          "objective_ids": [
+            "eval_observability:o1",
+            "eval_observability:o2",
+            "eval_observability:o3"
+          ],
+          "resource_type": "quiz",
+          "content_sha256": "1f327571c3cd45ae0a0b0aa13af14eee6026494c81bbb731aec1e3e2ba6d8612"
+        },
+        {
+          "order": 3,
+          "purpose": "评估与可观测性",
+          "version": 1,
+          "required": true,
+          "resource_id": "resource_2d17f81444ef02943a9d9893b665d135",
+          "source_refs": [
+            "ev_d5a0d2f0cbc84020f7025aa2"
+          ],
+          "objective_ids": [
+            "eval_observability:o1",
+            "eval_observability:o2",
+            "eval_observability:o3"
+          ],
+          "resource_type": "classroom",
+          "content_sha256": "10df10a87b0aa072335a688570f9419c4ae1ff17e021ae86b35cead99d7449de"
+        }
+      ],
+      "objectives": [
+        {
+          "text": "能按 L1/L2/L3 分层说明各自应记录哪些日志字段（工具调用、任务状态、编排决策）",
+          "objective_id": "eval_observability:o1"
+        },
+        {
+          "text": "能解释从 L1 向上逐层排查的故障定位方法，而非笼统归因于幻觉",
+          "objective_id": "eval_observability:o2"
+        },
+        {
+          "text": "能在面试中说明可观测性如何支撑 Agent 的评估与迭代",
+          "objective_id": "eval_observability:o3"
+        }
+      ],
+      "estimated_minutes": 30,
+      "prerequisite_node_ids": [
+        "agent_loop_boundary",
+        "tool_calling_failure_recovery",
+        "memory_context_management"
+      ]
+    }
+  ],
+  "space": "personal",
+  "version": 1,
+  "audience": "有 Python 开发基础，目标应聘 AI Agent 开发岗位，希望建立适合工作面试的实践认知",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "assumptions": [
+    "用户已有 Python 开发基础，无需从零讲解 Python 语法",
+    "面试目标为 AI Agent 开发岗位，重点在概念理解与设计取舍，而非完整工程实现"
+  ],
+  "limitations": [
+    "整课以 Medium/Machine Learning Mastery 等技术博客为主要来源，权威性中等，非官方文档或教材；但内容与 OpenAI、Anthropic、LangGraph 等官方文档的引用一致，可作为面试认知依据。",
+    "评估与可观测性节点主要覆盖日志分层与故障定位，对自动化评估指标（任务成功率、轨迹评估等）的直接依据较少，属真实局限而非阻塞问题。",
+    "各节点证据聚焦概念框架与设计取舍，缺少可运行的完整代码示例，案例以伪代码/JSON 片段呈现，符合\"不要求完成大型项目\"的约束。",
+    "memory_context_management 节点仅依赖单一来源，对三种压缩策略的描述较概括，缺少具体实现参数细节，报告已如实标注并建议查阅官方文档。"
+  ],
+  "manifest_id": "manifest_25f0299bfdcb7ee8ee220f133d785406",
+  "route_version": 1,
+  "schema_version": 1,
+  "estimated_minutes": 120,
+  "quality_report_id": "quality_1d25c6269978d1a6be27a3c5a8ff17bdccf8d04a699f9d477765592c7859a6f6",
+  "created_by_preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46"
+}

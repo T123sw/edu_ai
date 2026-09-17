@@ -1,0 +1,606 @@
+{
+  "id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "title": "AI Agent 开发岗位面试实践认知学习路径",
+  "goal": "我有 Python 开发基础，目标是应聘 AI Agent 开发岗位，希望在120分钟内建立适合工作面试的实践认知。请安排4个循序渐进的知识点：Agent循环与模型/应用职责边界；工具调用与失败恢复；记忆与上下文管理；评估与可观测性。请搜索并实际阅读可信资料，汇总依据后生成可执行的学习路径。每个节点需要学习报告、理解练习和可播放的讲解课堂，包含具体案例与面试自测。内容以入门到能够解释设计取舍为准，不要求完成大型项目。",
+  "tone": "lilac",
+  "chapters": [
+    {
+      "id": "agent_loop_boundary",
+      "title": "Agent 循环与模型/应用职责边界",
+      "objectives": [
+        {
+          "objective_id": "agent_loop_boundary:o1",
+          "text": "能用自己的话解释 Agent 不是单一循环，而是 L1 工具调用循环、L2 任务循环、L3 编排循环三层嵌套结构"
+        },
+        {
+          "objective_id": "agent_loop_boundary:o2",
+          "text": "能清晰说出模型与应用的职责边界：模型只提议动作，应用负责校验参数、执行权限并决定如何处理输出"
+        },
+        {
+          "objective_id": "agent_loop_boundary:o3",
+          "text": "能在面试中解释为什么把执行与校验放在应用层而非模型层（确定性 vs 非确定性）"
+        }
+      ],
+      "checks": [
+        {
+          "check_id": "agent_loop_boundary:check",
+          "objective_ids": [
+            "agent_loop_boundary:o1",
+            "agent_loop_boundary:o2",
+            "agent_loop_boundary:o3"
+          ],
+          "mode": "self_check",
+          "resource_id": "resource_a73c22403f4930d5fb9f3f1e8a218b76",
+          "resource_version": 1,
+          "locator": {
+            "section_id": "学习检查",
+            "question_id": null,
+            "page": null
+          }
+        }
+      ],
+      "resources": [
+        {
+          "id": "resource_a73c22403f4930d5fb9f3f1e8a218b76",
+          "title": "Agent 循环与模型/应用职责边界",
+          "topic": "Agent 循环与模型/应用职责边界",
+          "kind": "report",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "agent_loop_boundary",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "report",
+            "materialId": "resource_a73c22403f4930d5fb9f3f1e8a218b76",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_801a816c7173866fb3e26ba4630bd896",
+          "title": "Agent 循环与模型/应用职责边界",
+          "topic": "Agent 循环与模型/应用职责边界",
+          "kind": "quiz",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "agent_loop_boundary",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "quiz",
+            "materialId": "resource_801a816c7173866fb3e26ba4630bd896",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd",
+          "title": "Agent 循环与模型/应用职责边界",
+          "topic": "Agent 循环与模型/应用职责边界",
+          "kind": "video",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "agent_loop_boundary",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "classroom",
+            "materialId": "resource_99e39fc74c537676264bfbb5acab08bd",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tool_calling_failure_recovery",
+      "title": "工具调用与失败恢复",
+      "objectives": [
+        {
+          "objective_id": "tool_calling_failure_recovery:o1",
+          "text": "能描述工具调用协议：模型产出结构化 JSON 载荷（工具名+参数），应用接收、校验、执行并返回结果作为新上下文"
+        },
+        {
+          "objective_id": "tool_calling_failure_recovery:o2",
+          "text": "能区分瞬时故障与持久故障，并说明各自的处理策略（指数退避 vs 熔断器）"
+        },
+        {
+          "objective_id": "tool_calling_failure_recovery:o3",
+          "text": "能解释为什么模型应始终知道工具失败，而不是用幻觉内容填补缺口"
+        }
+      ],
+      "checks": [
+        {
+          "check_id": "tool_calling_failure_recovery:check",
+          "objective_ids": [
+            "tool_calling_failure_recovery:o1",
+            "tool_calling_failure_recovery:o2",
+            "tool_calling_failure_recovery:o3"
+          ],
+          "mode": "self_check",
+          "resource_id": "resource_c98345287b090b45cec410b71e47a3e8",
+          "resource_version": 1,
+          "locator": {
+            "section_id": "学习检查",
+            "question_id": null,
+            "page": null
+          }
+        }
+      ],
+      "resources": [
+        {
+          "id": "resource_c98345287b090b45cec410b71e47a3e8",
+          "title": "工具调用与失败恢复",
+          "topic": "工具调用与失败恢复",
+          "kind": "report",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "tool_calling_failure_recovery",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "report",
+            "materialId": "resource_c98345287b090b45cec410b71e47a3e8",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_3d0c168fa5430a614b56b0fb97cd9917",
+          "title": "工具调用与失败恢复",
+          "topic": "工具调用与失败恢复",
+          "kind": "quiz",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "tool_calling_failure_recovery",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "quiz",
+            "materialId": "resource_3d0c168fa5430a614b56b0fb97cd9917",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718",
+          "title": "工具调用与失败恢复",
+          "topic": "工具调用与失败恢复",
+          "kind": "video",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "tool_calling_failure_recovery",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "classroom",
+            "materialId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "memory_context_management",
+      "title": "记忆与上下文管理",
+      "objectives": [
+        {
+          "objective_id": "memory_context_management:o1",
+          "text": "能解释多步任务中上下文窗口被中间推理痕迹消耗的问题，以及为何早期步骤的推理在后期已无价值"
+        },
+        {
+          "objective_id": "memory_context_management:o2",
+          "text": "能说出至少两种上下文压缩策略（如 OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆）"
+        },
+        {
+          "objective_id": "memory_context_management:o3",
+          "text": "能在面试中说明何时该压缩或截断上下文的设计取舍"
+        }
+      ],
+      "checks": [
+        {
+          "check_id": "memory_context_management:check",
+          "objective_ids": [
+            "memory_context_management:o1",
+            "memory_context_management:o2",
+            "memory_context_management:o3"
+          ],
+          "mode": "self_check",
+          "resource_id": "resource_625820f5c44cff90f4c348b4dce8d8fe",
+          "resource_version": 1,
+          "locator": {
+            "section_id": "学习检查",
+            "question_id": null,
+            "page": null
+          }
+        }
+      ],
+      "resources": [
+        {
+          "id": "resource_625820f5c44cff90f4c348b4dce8d8fe",
+          "title": "记忆与上下文管理",
+          "topic": "记忆与上下文管理",
+          "kind": "report",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "memory_context_management",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "report",
+            "materialId": "resource_625820f5c44cff90f4c348b4dce8d8fe",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_62ce8ec4b62350ac28cdcd7f983499e5",
+          "title": "记忆与上下文管理",
+          "topic": "记忆与上下文管理",
+          "kind": "quiz",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "memory_context_management",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "quiz",
+            "materialId": "resource_62ce8ec4b62350ac28cdcd7f983499e5",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_0e2981097d5c26fc79b4dd76b999b451",
+          "title": "记忆与上下文管理",
+          "topic": "记忆与上下文管理",
+          "kind": "video",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "memory_context_management",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "classroom",
+            "materialId": "resource_0e2981097d5c26fc79b4dd76b999b451",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eval_observability",
+      "title": "评估与可观测性",
+      "objectives": [
+        {
+          "objective_id": "eval_observability:o1",
+          "text": "能按 L1/L2/L3 分层说明各自应记录哪些日志字段（工具调用、任务状态、编排决策）"
+        },
+        {
+          "objective_id": "eval_observability:o2",
+          "text": "能解释从 L1 向上逐层排查的故障定位方法，而非笼统归因于幻觉"
+        },
+        {
+          "objective_id": "eval_observability:o3",
+          "text": "能在面试中说明可观测性如何支撑 Agent 的评估与迭代"
+        }
+      ],
+      "checks": [
+        {
+          "check_id": "eval_observability:check",
+          "objective_ids": [
+            "eval_observability:o1",
+            "eval_observability:o2",
+            "eval_observability:o3"
+          ],
+          "mode": "self_check",
+          "resource_id": "resource_694c4b66e7447264cbe0a13451de1b88",
+          "resource_version": 1,
+          "locator": {
+            "section_id": "学习检查",
+            "question_id": null,
+            "page": null
+          }
+        }
+      ],
+      "resources": [
+        {
+          "id": "resource_694c4b66e7447264cbe0a13451de1b88",
+          "title": "评估与可观测性",
+          "topic": "评估与可观测性",
+          "kind": "report",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "eval_observability",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "report",
+            "materialId": "resource_694c4b66e7447264cbe0a13451de1b88",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_2ec1362997d9d23d6594c48b0c7ca5ac",
+          "title": "评估与可观测性",
+          "topic": "评估与可观测性",
+          "kind": "quiz",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "eval_observability",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "quiz",
+            "materialId": "resource_2ec1362997d9d23d6594c48b0c7ca5ac",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        },
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135",
+          "title": "评估与可观测性",
+          "topic": "评估与可观测性",
+          "kind": "video",
+          "ready": true,
+          "minutes": 5,
+          "createdAt": 1789655061376,
+          "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "chapterId": "eval_observability",
+          "version": 1,
+          "pinned": false,
+          "remote": {
+            "materialType": "classroom",
+            "materialId": "resource_2d17f81444ef02943a9d9893b665d135",
+            "courseId": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "version": 1,
+            "visibility": "private"
+          }
+        }
+      ]
+    }
+  ],
+  "selectedId": "resource_a73c22403f4930d5fb9f3f1e8a218b76",
+  "progress": {
+    "resource_a73c22403f4930d5fb9f3f1e8a218b76": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_801a816c7173866fb3e26ba4630bd896": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_99e39fc74c537676264bfbb5acab08bd": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_c98345287b090b45cec410b71e47a3e8": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_3d0c168fa5430a614b56b0fb97cd9917": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_c8585c1a5837eb274a4bbc38afdae718": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_625820f5c44cff90f4c348b4dce8d8fe": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_62ce8ec4b62350ac28cdcd7f983499e5": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_0e2981097d5c26fc79b4dd76b999b451": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_694c4b66e7447264cbe0a13451de1b88": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_2ec1362997d9d23d6594c48b0c7ca5ac": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    },
+    "resource_2d17f81444ef02943a9d9893b665d135": {
+      "note": "",
+      "completed": false,
+      "position": 0,
+      "locator": null
+    }
+  },
+  "understanding": {},
+  "messages": [],
+  "sessionPersistence": true,
+  "sessionOwner": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "updatedAt": 1789655061376,
+  "sourceId": null,
+  "publisher": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "live": true,
+  "practice": {},
+  "canPublish": true,
+  "resources": [],
+  "manifestRef": {
+    "manifest_id": "manifest_25f0299bfdcb7ee8ee220f133d785406",
+    "version": 1
+  },
+  "routeVersion": 1,
+  "agentRuntime": true,
+  "progressPersistence": true,
+  "progressOwner": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "learningProjection": {
+    "facts_revision": 0,
+    "resources": [],
+    "resource_revisions": [],
+    "self_assessments": {},
+    "self_assessment_revisions": {},
+    "check_evidence": [],
+    "manifest_ref": {
+      "manifest_id": "manifest_25f0299bfdcb7ee8ee220f133d785406",
+      "version": 1
+    },
+    "topics": [
+      {
+        "topic_id": "agent_loop_boundary",
+        "progress": "not_started",
+        "judgment": "unverified",
+        "self_assessment": "unset",
+        "completed_core": 0,
+        "total_core": 3,
+        "facts_revision": 0
+      },
+      {
+        "topic_id": "tool_calling_failure_recovery",
+        "progress": "not_started",
+        "judgment": "unverified",
+        "self_assessment": "unset",
+        "completed_core": 0,
+        "total_core": 3,
+        "facts_revision": 0
+      },
+      {
+        "topic_id": "memory_context_management",
+        "progress": "not_started",
+        "judgment": "unverified",
+        "self_assessment": "unset",
+        "completed_core": 0,
+        "total_core": 3,
+        "facts_revision": 0
+      },
+      {
+        "topic_id": "eval_observability",
+        "progress": "not_started",
+        "judgment": "unverified",
+        "self_assessment": "unset",
+        "completed_core": 0,
+        "total_core": 3,
+        "facts_revision": 0
+      }
+    ],
+    "next_actions": {
+      "agent_loop_boundary": [
+        {
+          "kind": "continue",
+          "topic_id": "agent_loop_boundary",
+          "resource_ref": {
+            "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "material_type": "report",
+            "material_id": "resource_a73c22403f4930d5fb9f3f1e8a218b76",
+            "version": 1
+          },
+          "source_ids": [],
+          "reason": "继续阅读未标记学完的资料",
+          "facts_revision": 0
+        }
+      ],
+      "tool_calling_failure_recovery": [
+        {
+          "kind": "continue",
+          "topic_id": "tool_calling_failure_recovery",
+          "resource_ref": {
+            "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "material_type": "report",
+            "material_id": "resource_c98345287b090b45cec410b71e47a3e8",
+            "version": 1
+          },
+          "source_ids": [],
+          "reason": "继续阅读未标记学完的资料",
+          "facts_revision": 0
+        }
+      ],
+      "memory_context_management": [
+        {
+          "kind": "continue",
+          "topic_id": "memory_context_management",
+          "resource_ref": {
+            "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "material_type": "report",
+            "material_id": "resource_625820f5c44cff90f4c348b4dce8d8fe",
+            "version": 1
+          },
+          "source_ids": [],
+          "reason": "继续阅读未标记学完的资料",
+          "facts_revision": 0
+        }
+      ],
+      "eval_observability": [
+        {
+          "kind": "continue",
+          "topic_id": "eval_observability",
+          "resource_ref": {
+            "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+            "material_type": "report",
+            "material_id": "resource_694c4b66e7447264cbe0a13451de1b88",
+            "version": 1
+          },
+          "source_ids": [],
+          "reason": "继续阅读未标记学完的资料",
+          "facts_revision": 0
+        }
+      ]
+    }
+  }
+}
