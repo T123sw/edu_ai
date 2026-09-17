@@ -1333,3 +1333,46 @@ class CourseResearchRunRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     error_code: Mapped[str | None] = mapped_column(String(80))
+
+
+class PreparationExecution(Base):
+    __tablename__ = 'preparation_executions'
+    __table_args__ = (ForeignKeyConstraint(['preparation_id', 'attempt_no'],
+        ['course_preparation_attempts.preparation_id', 'course_preparation_attempts.attempt_no'], ondelete='CASCADE'),)
+    preparation_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    attempt_no: Mapped[int] = mapped_column(Integer, primary_key=True)
+    lease_token: Mapped[str | None] = mapped_column(String(64))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    worker_id: Mapped[str | None] = mapped_column(String(200))
+    wake_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    input_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    checkpoint: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    error_code: Mapped[str | None] = mapped_column(String(100))
+    result_ref: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    no_progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class PreparationBudget(Base):
+    __tablename__ = 'preparation_budgets'
+    preparation_id: Mapped[str] = mapped_column(String(200), ForeignKey('course_preparations.preparation_id'), primary_key=True)
+    deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    limits: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    reserved: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    consumed: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+
+
+class PreparationAction(Base):
+    __tablename__ = 'preparation_actions'
+    __table_args__ = (UniqueConstraint('preparation_id', 'action_key', name='uq_preparation_action_key'),
+                     CheckConstraint("status IN ('pending', 'completed', 'failed')", name='preparation_action_status'))
+    action_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    preparation_id: Mapped[str] = mapped_column(String(200), ForeignKey('course_preparations.preparation_id'), nullable=False)
+    action_key: Mapped[str] = mapped_column(String(240), nullable=False)
+    kind: Mapped[str] = mapped_column(String(100), nullable=False)
+    payload_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    reserved: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    consumed: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    receipt: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

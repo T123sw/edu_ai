@@ -111,3 +111,6 @@ __all__ = [
     "database_session",
     "probe_database",
 ]
+
+# Preparation runtime tables participate in migration metadata without loading services.
+from .models import PreparationExecution, PreparationBudget, PreparationAction

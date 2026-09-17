@@ -1,0 +1,35 @@
+..F...............                                                       [100%]
+=================================== FAILURES ===================================
+_______________________ test_main_app_keeps_major_routes _______________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd0723c4140>
+
+    def test_main_app_keeps_major_routes(monkeypatch):
+        from app.bootstrap import create_app
+    
+        # patch get_rag_system in all modules that import it
+    
+        # create a fresh app to get all routes (bypassing cached module-level app)
+        app = create_app()
+        paths = {route.path for route in app.routes if hasattr(route, "path")}
+    
+>       assert {"/health", "/chat", "/teacher/lesson_plan", "/models"}.issubset(paths)
+E       AssertionError: assert False
+E        +  where False = <built-in method issubset of set object at 0x7fd073e7c580>({'/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc'})
+E        +    where <built-in method issubset of set object at 0x7fd073e7c580> = {'/chat', '/health', '/models', '/teacher/lesson_plan'}.issubset
+
+tests/app/test_bootstrap.py:50: AssertionError
+=============================== warnings summary ===============================
+tests/app/test_bootstrap.py::test_create_app_is_importable
+  /home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/backend/src/app/api/courses.py:271: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @router.on_event("startup")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/app/test_bootstrap.py::test_main_app_keeps_major_routes - Assert...
+1 failed, 17 passed, 1 warning in 19.32s

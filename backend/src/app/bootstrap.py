@@ -55,6 +55,7 @@ def create_app(
         runtime.start()
         app.state.durable_job_runtime = runtime
         research_runtime = None
+        preparation_runtime = None
         learning_runtime = None
         try:
             from app.course_preparation.research_dependencies import build_runtime
@@ -114,6 +115,7 @@ def create_app(
     app.include_router(deepsearch_router)
 
     # lazy imports to avoid circular import via app/api/__init__.py
+    from app.api.course_preparations import router as course_preparations_router
     from app.api.course_research import router as course_research_router
     from app.api.self_learning import router as self_learning_router
     from app.api.courses import router as courses_router
@@ -134,6 +136,7 @@ def create_app(
     from modules.rag_v2.api import router as rag_router
 
     app.include_router(course_research_router)
+    app.include_router(course_preparations_router)
     app.include_router(self_learning_router)
     app.include_router(courses_router)
     app.include_router(learning_router)

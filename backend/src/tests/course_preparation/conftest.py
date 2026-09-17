@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session
 
 from app.database import Base, User
+from app.course_preparation import runtime_models
 
 
 @pytest.fixture(params=['sqlite', 'postgresql'])
@@ -45,3 +46,10 @@ def db_engine(request, tmp_path):
             with admin.begin() as connection:
                 connection.execute(text(f'DROP SCHEMA {schema} CASCADE'))
             admin.dispose()
+
+
+@pytest.fixture
+def runtime_engine(db_engine):
+    names = ('preparation_budgets', 'preparation_executions', 'preparation_actions')
+    Base.metadata.create_all(db_engine, tables=[Base.metadata.tables[name] for name in names])
+    return db_engine

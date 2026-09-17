@@ -62,7 +62,10 @@ class PreparationRepository:
             raise IdempotencyConflict('request_id is already bound to a different preparation request')
         return self._snapshot(session, record)
 
-    def accept(self, *, owner_user_id: str, request: PreparationRequest) -> PreparationSnapshot:
+    def initialize(self, session, record, options=None):
+        """Subclass hook inside the atomic intake transaction."""
+
+    def accept(self, *, owner_user_id: str, request: PreparationRequest, runtime_options=None) -> PreparationSnapshot:
         request = PreparationRequest.model_validate(request.model_dump(mode='json'))
         self.authorizer.authorize(owner_user_id, request)
         digest = request_digest(request)
@@ -90,6 +93,7 @@ class PreparationRepository:
                     attempt_no=1, sequence=1, event_type='accepted', revision=1,
                     payload={'operation': request.operation}, occurred_at=now,
                 ))
+                self.initialize(session, record, runtime_options)
                 session.flush()
                 result = self._snapshot(session, record)
             return result
