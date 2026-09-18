@@ -21,8 +21,8 @@ description: 理解课程准备阶段的用户学习需求与上传资料，形�
 
 1. 读取 `document.content`，结合 `goal` 判断当前片段的用途。文件名只作识别，不能代替正文。
 2. 按工具 schema 选择 `kind`：岗位要求 `job_description`、学习者背景 `learner_background`、课程大纲 `syllabus`、学习资料 `learning_material`、其他 `other`。这是片段的用途判断，不能直接当成用户新增要求或学习成果。
-3. 写出 `summary`，提取与学习需求相关的 `relevant_points`。每项含 `text` 和当前片段真实、连续、逐字的 `source_quote`；没有相关内容时要点可为空，不能为了填满而补写。
-4. 调用 `record_input_document`，只提交当前片段的理解。页数、offset、文件版本及是否读完由程序记录；不能根据一个片段声称已读完整文件。
+3. 写出 `summary`，提取与学习需求相关的 `relevant_points`。每项含 `text` 和从 `document.passages` 选择的 `source_ref`。程序用 ID 回填原文 `source_quote`，不要抄写或转义原文；没有相关内容时要点可为空，不能为了填满而补写。
+4. 明确材料未覆盖而目标需要的内容，写入 `material_gaps`，不得作为用户排除项。调用 `record_input_document`，只提交当前片段的理解。页数、offset、文件版本及是否读完由程序记录；不能根据一个片段声称已读完整文件。
 
 岗位要求提供能力目标线索，个人背景是用户自述，教材提供候选知识依据。简历说“接触过”不等于“已掌握”，岗位要求也不等于用户现有能力。
 
@@ -32,11 +32,11 @@ description: 理解课程准备阶段的用户学习需求与上传资料，形�
 
 1. 先读 `request.goal` 和 `requested_changes`，再结合附件理解结果，识别本次学习目的和范围。不要让附件的目标覆盖用户的明确目标。
 2. 归纳 `learning_goal`、`prior_knowledge`、`desired_outcomes`、`depth`：目标聚焦用户用途，预期能力使用可观察的表达；基础缺失写“未知”，不要从岗位要求或一次提问推定能力。时间很短时不要承诺全面掌握。
-3. 提取 `requirements`，每条包含唯一 `requirement_id`、具体要求 `text` 和依据 `source_quote`：
+3. 提取 `requirements`，每条包含唯一 `requirement_id`、具体要求 `text` 和依据：
    - 来自用户描述：逐字引用本次 `goal` 或 `requested_changes`，`source_document_id` 为 null。
-   - 来自附件：引用已给出的 `input_documents.parts.relevant_points.source_quote` 全文，并填写对应真实 `document_id`。不重新编造、拼接或截短这个已核验引用。
+   - 来自附件：填写 `input_documents.parts.relevant_points.source_ref`，可附对应 `source_document_id`；不提交 `source_quote`，由程序回填。不要把 summary 中的转述当作直接引用。
    - 缺乏依据的教学安排不要伪装为用户要求；必要推断写入 `assumptions`。
-4. 分别记录 `exclusions`（不学或不做什么）和 `assumptions`（确实未被输入确认的推断）。明确的“两小时”“不联网”等不是假设，不再次列为假设。事实缺失、偏好与本次目标的潜在冲突要准确说明，不编造确认。
+4. 分别记录 `exclusions`（用户明确不学或不做什么）、`material_gaps`（资料未覆盖、但目标需要的内容）和 `assumptions`（确实未被输入确认的推断）。材料说“不包含安装/鉴权”是资料缺口，不是用户不想学；不得放入 exclusions 或擅自把“做出可运行程序”降成“只理解伪代码”。明确的“两小时”“不联网”等不是假设，不再次列为假设。不要将已知目标、时长或基础再复述为假设；没有必要采用默认值时 assumptions 为空数组。材料缺失只能说明当前证据不足，禁止在 assumptions、exclusions 或其他字段将它改写为“本课程不涉及/不在范围”；也不能借假设将用户的实现目标改为仅讲伪代码。偏好与本次目标的潜在冲突要准确说明，不编造确认。
 5. 按下面的优先级确定时间、语言和来源范围，填写 `topic`、`audience`，最后调用 `save_preparation_brief`。输出参数以当前挂载的工具 schema 为准，完整提交，不用自然语言总结替代工具。
 
 ### 约束的优先级
@@ -50,7 +50,7 @@ description: 理解课程准备阶段的用户学习需求与上传资料，形�
 
 ### 缺失信息与材料不足
 
-只有附件时，可从附件推断学习目标，但必须将“由附件推断目标”写入假设。岗位要求和个人背景只能说明学习需求，不能充当技术教材。如果用户同时限制仅用附件，保留限制并说明材料不足，不凭常识假装附件含有所需知识。
+只有附件时，可从附件推断学习目标，但必须将“由附件推断目标”写入假设。岗位要求和个人背景只能说明学习需求，不能充当技术教材。如果用户同时限制仅用附件，保留限制，将不足写入 `material_gaps`，传给研究阶段，不凭常识假装附件含有所需知识。保留用户的原始实现目标；缺口未补齐时不得宣称已足以实现目标。
 
 当前后台协议没有提问等待工具。信息不足时采用可解释的有限假设，不虚构用户回复；不能自行扩大任务。工具字段无法满足或原文引用被程序拒绝时，按下一步提供的 `last_error` 修正。
 

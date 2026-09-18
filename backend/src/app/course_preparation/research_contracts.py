@@ -19,7 +19,8 @@ class ResearchRequest(PreparationRequest):
 class Requirement(Contract):
     requirement_id: Identifier
     text: ShortText
-    source_quote: ShortText
+    source_quote: str = Field(default="", max_length=4000, description="用户要求引用原话；附件引用 source_ref 时由程序回填")
+    source_ref: Identifier | None = Field(default=None, description="附件要点的服务端引用 ID，不重写原文")
     source_document_id: Identifier | None = None
 
 
@@ -35,8 +36,9 @@ class ResearchBrief(Contract):
     audience: ShortText
     language: Identifier
     total_minutes: PositiveVersion
-    assumptions: tuple[ShortText, ...] = Field(default=(), max_length=10)
-    exclusions: tuple[ShortText, ...] = Field(default=(), max_length=10)
+    assumptions: tuple[ShortText, ...] = Field(default=(), max_length=10, description="仅记录输入确实缺失时采用的默认值；已知目标、时长、基础不是假设。材料缺失只写 material_gaps，不得据此排除课程范围或降低目标。没有必要假设时传空数组。")
+    exclusions: tuple[ShortText, ...] = Field(default=(), max_length=10, description="用户明确不学或不做的内容；不得把材料缺失写成排除项")
+    material_gaps: tuple[ShortText, ...] = Field(default=(), max_length=8, description="附件不足以支持用户目标的资料缺口，交给后续研究，不降低原目标")
     requirements: tuple[Requirement, ...] = Field(min_length=1, max_length=12)
 
 

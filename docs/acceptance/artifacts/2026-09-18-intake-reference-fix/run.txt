@@ -1,0 +1,16 @@
+[WARNING] 未配置 MinerU Cloud API key，PDF 导入将直接失败
+{"step": 1, "result": {"claimed": true, "stage": "normalize", "waiting": false}, "seconds": 37.84}
+{"step": 2, "result": {"claimed": true, "stage": "ingest", "waiting": false}, "seconds": 41.85}
+{"step": 3, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 0.49}
+{"step": 4, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 2.81}
+{"step": 5, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 12.82}
+{"step": 6, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 4.27}
+{"step": 7, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 10.41}
+{"step": 8, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 3.97}
+{"step": 9, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 4.3}
+{"step": 10, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 6.09}
+{"step": 11, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 3.8}
+{"step": 12, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 3.66}
+{"step": 13, "result": {"claimed": true, "stage": "research_scope", "waiting": false}, "seconds": 4.25}
+{"step": 14, "result": {"claimed": true, "stage": "plan", "waiting": false}, "seconds": 17.85}
+{"status": "passed", "seconds": 155.18, "output": "/tmp/preparation-intake-fixed-verified-20260918"}

@@ -1,24 +1,26 @@
 """Read uploaded content before intent normalization, one durable chunk per step."""
-from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Literal
 from pydantic import Field, ValidationError
 from .schemas import Contract, ShortText, SourcePolicy
 from .research_agent import ResearchError
 from .adapters.documents import DocumentUnreadable
+from .intake_references import document_passages, reference_id, with_references
 
 CHUNK_CHARS = 12000
 
 
 class InputPoint(Contract):
     text: ShortText
-    source_quote: str = Field(min_length=1, max_length=400)
+    source_quote: str = Field(default="", max_length=400, description="使用 source_ref 时由程序回填，无需抄写")
+    source_ref: str | None = Field(default=None, max_length=100, description="从 document.passages 选择 source_ref")
 
 
 class DocumentUnderstanding(Contract):
     kind: Literal['job_description', 'learner_background', 'syllabus', 'learning_material', 'other']
     summary: ShortText
     relevant_points: tuple[InputPoint, ...] = Field(default=(), max_length=6)
+    material_gaps: tuple[ShortText, ...] = Field(default=(), max_length=8)
 
 
 def effective_request(request, checkpoint):
@@ -34,8 +36,8 @@ def validate_brief(brief, request, documents):
     for requirement in brief.requirements:
         if requirement.source_document_id:
             if requirement.source_quote not in quotes.get(requirement.source_document_id, []):
-                raise ValueError('附件要求必须引用已理解片段中的完整 source_quote，并指定真实 document_id')
-        elif not any(requirement.source_quote in text for text in texts):
+                raise ValueError(f'{requirement.requirement_id}: 附件引用不匹配；使用 input_documents 对应要点的 source_ref，不从摘要编写 source_quote')
+        elif not requirement.source_quote.strip() or not any(requirement.source_quote in text for text in texts):
             raise ValueError('要求原话必须在本次用户需求中实际出现；附件依据需指定 source_document_id')
     if brief.source_policy and brief.source_policy.mode == 'uploaded_only':
         if not request.uploads:
@@ -47,14 +49,14 @@ def validate_brief(brief, request, documents):
 
 
 def understand_next_document(stages, context, checkpoint, request):
-    documents = deepcopy(checkpoint.get('input_documents', []))
+    documents = with_references(checkpoint.get('input_documents', []))
     # Reauthorize completed references on resume as well as new input.
     for ref in request.uploads:
         stages.documents.authorize(context.owner_user_id, ref)
     pending = next((ref for ref in request.uploads if not any(
         doc['document_id'] == ref.document_id and doc['version'] == ref.version and doc['complete'] for doc in documents)), None)
     if pending is None:
-        return checkpoint, False
+        return {**checkpoint, 'input_documents': documents}, False
     parsed = stages.documents.parse(context.owner_user_id, pending)
     if parsed['defects'] and pending.usage in ('auto', 'primary', 'coverage'):
         raise DocumentUnreadable('CORE_SOURCE_UNREADABLE', parsed['defects'])
@@ -72,20 +74,30 @@ def understand_next_document(stages, context, checkpoint, request):
         raise PermissionError('DOCUMENT_VERSION_CHANGED')
     offset = doc['offset']
     content = text[offset:offset + CHUNK_CHARS]
+    spans = document_passages(doc, offset, content)
     model = stages.agent_factory(context, request, checkpoint).model
     tool = {'type': 'function', 'function': {'name': 'record_input_document',
-            'description': '根据当前文件原文理解用途和与学习需求相关的信息，所有要点需附本片段的原文引用。',
+            'description': '根据当前文件原文理解用途和与学习需求相关的信息，要点使用 document.passages 的 source_ref，程序回填原文；资料缺失写入 material_gaps。',
             'parameters': DocumentUnderstanding.model_json_schema()}}
     remaining = (datetime.fromisoformat(context.deadline) - datetime.now(timezone.utc)).total_seconds()
     name, raw = model.decide({'phase': 'input_document', 'goal': request.goal,
         'document': {'document_id': pending.document_id, 'filename': doc['filename'], 'offset': offset,
-                     'total_chars': len(text), 'content': content},
+                     'total_chars': len(text), 'content': content, 'passages': spans},
         'last_error': checkpoint.get('input_document_error')}, [tool], timeout=max(1, min(90, remaining)))
     try:
         if name != 'record_input_document': raise ValueError('必须调用文件理解工具')
         analysis = DocumentUnderstanding.model_validate(raw)
-        if any(point.source_quote not in content for point in analysis.relevant_points):
-            raise ValueError('文件要点的引用必须逐字来自当前片段')
+        registry = {span['source_ref']: span['text'] for span in spans}
+        points = []
+        for index, point in enumerate(analysis.relevant_points):
+            if point.source_ref:
+                if point.source_ref not in registry:
+                    raise ValueError(f'relevant_points[{index}]: 未知 source_ref={point.source_ref}；只选当前 document.passages 的 ID')
+                point = point.model_copy(update={'source_quote': registry[point.source_ref]})
+            elif not point.source_quote.strip() or point.source_quote not in content:
+                raise ValueError(f'relevant_points[{index}]: 引用不在当前原文中；请改用 document.passages 的 source_ref，勿改写或拼接原文')
+            points.append(point.model_copy(update={'source_ref': reference_id(doc, offset, point.source_quote)}))
+        analysis = analysis.model_copy(update={'relevant_points': tuple(points)})
     except (ValueError, ValidationError) as exc:
         retries = checkpoint.get('input_document_retries', 0) + 1
         if retries > 2: raise ResearchError('INPUT_DOCUMENT_INVALID', '附件理解未通过原文校验') from exc

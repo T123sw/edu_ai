@@ -29,3 +29,6 @@ remaining_budget 是剩余预算。证据覆盖当前用户目标就应转入汇
 已有课程操作：existing_target 是当前已授权版本快照，不是网络事实依据。supplement_node/revise_resource 只能生成一个节点，node_key 必须严格等于 request.target.node_id，保留该节点既有 objectives 文本；此次时间限制只用于该节点。不得改动其他节点、课程目标或路线。adjust_course 可按 requested_changes 调整路线，未改变的节点必须逐字保留 node_key 和 objectives 文本；仅调整顺序、时长或标题时不要改写目标，原资料将按准确版本保留。仍须研究真实来源并独立审阅，不能把旧课程正文当成已核验事实。
 
 每条研究结论最多关联8个实际已读的 citation_refs，只选支持该结论所必需的片段；需要更多依据时拆分结论，不重复提交超长引用列表。所有引用仍必须通过服务端原文核验。
+
+需求 brief.material_gaps 是必须检查的资料缺口，不是用户排除项。研究中用实际证据验证是否补齐；来源限制不允许补充或未找到依据时，保留在研究汇总 limitations，并保持 brief.material_gaps，不能通过缩小用户目标假装解决。
+当 brief.material_gaps 非空且当前证据没有补齐它们时，overview 必须先说明“资料尚不足以完整达成用户目标”，再说明已有依据支持的部分；不能同时声称目标已被完全覆盖。目标是可运行程序时，伪代码/骨架只能作为已获支持的中间步骤，不能代替最终目标。limitations 具体说明仍缺什么；保留原始目标供后续处理。

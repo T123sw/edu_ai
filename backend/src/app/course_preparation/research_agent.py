@@ -22,7 +22,7 @@ REGISTRY = {
     'record_evidence_finding': (ReferencedFinding, '保存有依据的研究结论，citation_refs 只能选择 evidence.passages 中真实的引用编号；无需重写原文。'),
     'record_research_finding': (Finding, '记录一条有已读原文依据的结论，短引用必须逐字匹配正文；同 finding_id 可修正。'),
     'finalize_research_summary': (FinalizeSummary, '依据已保存的结论 ID 完成研究汇总，不重新输出引文；通常4至6条足够。'),
-    'save_preparation_brief': (ResearchBrief, '理解用户本次学习目标、时间与排除项；source_quote 必须来自用户原话，假设另列。'),
+    'save_preparation_brief': (ResearchBrief, '理解用户本次学习目标、时间与排除项；用户要求引用原话；附件要求使用 source_ref 由程序回填原文；材料缺失写入 material_gaps，不作为 exclusions。'),
     'search_sources': (SearchArgs, '搜索与当前学习目标相关的可靠资料；只返回候选摘要，不代表正文已读取。'),
     'fetch_source': (FetchArgs, '读取候选正文的5000字符节选；offset_chars默认0，需要后文时传5000、10000等偏移。取得可引用的source_id。'),
     'save_research_summary': (ResearchSummary, '汇总已读正文，逐条 finding 附 source_id 和原文短引文；不能引用搜索摘要。'),
@@ -91,6 +91,9 @@ class ResearchAgent:
                    'remaining_budget': {'model_calls': self.max_calls - state.calls,
                                         'searches': max(0, 6 - state.searches),
                                         'reads': max(0, 8 - state.reads)}}
+        if state.phase == 'intent':
+            from .intake_references import with_references
+            context['input_documents'] = with_references(context.get('input_documents', []))
         if self.incremental_findings:
             from .evidence_spans import evidence_context
             context['evidence'] = evidence_context(state)
@@ -133,6 +136,8 @@ class ResearchAgent:
         if name == 'save_preparation_brief':
             unique([r.requirement_id for r in args.requirements], '要求ID')
             from .intake import validate_brief
+            from .intake_references import resolve_requirements
+            args = resolve_requirements(args, getattr(self, 'extra_context', {}).get('input_documents', []))
             validate_brief(args, request, getattr(self, 'extra_context', {}).get('input_documents', []))
             from .schemas import SourcePolicy
             mode = 'uploaded_only' if request.source_policy.mode == 'uploaded_only' else (args.source_policy.mode if args.source_policy else request.source_policy.mode)

@@ -119,3 +119,62 @@ def test_normalize_reads_upload_before_intent_and_hands_policy_to_research():
     result = stages.research_scope(context)
     assert phases == ['input_document', 'intent', 'research']
     assert result.checkpoint['research_state']['evidence'][0]['url'].startswith('upload://')
+
+
+def test_intake_references_preserve_mineru_escaping_and_reject_wrong_chunk():
+    original = r'模型返回 call\_id，工具失败返回 INVALID\_ARGUMENT。不得执行任意代码。'
+    documents = Documents(original)
+    packets = []
+    class Reader:
+        def decide(self, packet, tools, **kwargs):
+            packets.append(packet)
+            return 'record_input_document', {'kind':'learning_material','summary':'工具调用',
+                'relevant_points':[{'text':'保留调用关联 ID',
+                    'source_ref':packet['document']['passages'][0]['source_ref']}],
+                'material_gaps':['缺少供应商 SDK 安装和鉴权示例']}
+    stages = SimpleNamespace(documents=documents,agent_factory=lambda *a:SimpleNamespace(model=Reader()))
+    context = SimpleNamespace(owner_user_id='alice',deadline=(datetime.now(timezone.utc)+timedelta(minutes=5)).isoformat())
+    checkpoint, _ = understand_next_document(stages,context,{},request())
+    point = checkpoint['input_documents'][0]['parts'][0]['relevant_points'][0]
+    assert point['source_quote'] == original
+    from app.course_preparation.intake_references import resolve_requirements, document_passages
+    candidate = ResearchBrief.model_validate({**brief(),'material_gaps':['缺少供应商 SDK 安装和鉴权示例'],
+        'requirements':[{'requirement_id':'r','text':'工具调用','source_ref':point['source_ref']}]})
+    resolved = resolve_requirements(candidate,checkpoint['input_documents'])
+    validate_brief(resolved,request(),checkpoint['input_documents'])
+    assert resolved.requirements[0].source_quote == original
+    assert resolved.requirements[0].source_document_id == 'job'
+    assert resolved.material_gaps == candidate.material_gaps
+    changed = [{**checkpoint['input_documents'][0], 'version':2}]
+    with pytest.raises(ValueError, match='r: 未知 source_ref'):
+        resolve_requirements(candidate,changed)
+    assert document_passages({'document_id':'job','version':1,'source_hash':'sha'},12000,original)[0]['source_ref'] != point['source_ref']
+
+
+def test_invalid_reference_and_empty_quote_have_actionable_errors():
+    from app.course_preparation.intake_references import resolve_requirements, with_references
+    docs = [{'document_id':'job','version':1,'source_hash':'sha','parts':[{'offset':0,
+        'relevant_points':[{'text':'工具调用','source_quote':'熟悉工具调用'}]}]}]
+    ref = with_references(docs)[0]['parts'][0]['relevant_points'][0]['source_ref']
+    data = {**brief(),'requirements':[{'requirement_id':'req-bad','text':'工具调用','source_ref':ref,'source_document_id':'another'}]}
+    with pytest.raises(ValueError,match='req-bad: source_ref 不属于'):
+        resolve_requirements(ResearchBrief.model_validate(data),docs)
+    data['requirements'] = [{'requirement_id':'req-empty','text':'无依据'}]
+    for quote in ('', ' '):
+        data['requirements'][0]['source_quote'] = quote
+        with pytest.raises(ValueError,match='要求原话'):
+            validate_brief(ResearchBrief.model_validate(data),request(),docs)
+
+
+def test_source_ids_are_resolved_before_saving_brief_and_handed_to_research():
+    from app.course_preparation.intake_references import with_references
+    docs = with_references([{'document_id':'job','version':1,'source_hash':'sha','parts':[{'offset':0,
+        'relevant_points':[{'text':'工具调用','source_quote':r'使用 call\_id 关联结果。'}]}]}])
+    ref = docs[0]['parts'][0]['relevant_points'][0]['source_ref']
+    payload = {**brief(),'requirements':[{'requirement_id':'r','text':'工具调用','source_ref':ref}],
+        'material_gaps':['缺少 API 鉴权示例']}
+    agent = ResearchAgent(model=Model(),sources=Sources(),extra_context={'input_documents':docs})
+    state = agent._execute('save_preparation_brief',ResearchBrief.model_validate(payload),request(),ResearchState(),timeout=10,reserve=lambda _:None)
+    assert state.phase == 'research'
+    assert state.brief.requirements[0].source_quote == r'使用 call\_id 关联结果。'
+    assert state.brief.material_gaps == ('缺少 API 鉴权示例',)

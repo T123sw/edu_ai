@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "total_seconds": 155.18,
+  "intake_seconds": 79.69,
+  "intake_model_calls": 4,
+  "intake_tokens": 24988,
+  "intake_retries": 0,
+  "total_model_calls": 15,
+  "research_recoverable_errors": [
+    {
+      "call": 3,
+      "phase": "research",
+      "status": "error",
+      "code": "INVALID_TOOL_RESULT",
+      "message": "MODEL_PROTOCOL_ERROR: 每轮必须恰有一个有ID的function调用"
+    },
+    {
+      "call": 5,
+      "phase": "research",
+      "status": "error",
+      "code": "INVALID_TOOL_RESULT",
+      "message": "MODEL_PROTOCOL_ERROR: 每轮必须恰有一个有ID的function调用"
+    },
+    {
+      "call": 8,
+      "phase": "research",
+      "status": "error",
+      "code": "INVALID_TOOL_RESULT",
+      "message": "MODEL_PROTOCOL_ERROR: 每轮必须恰有一个有ID的function调用"
+    },
+    {
+      "call": 11,
+      "phase": "research",
+      "status": "error",
+      "code": "INVALID_TOOL_RESULT",
+      "message": "该结论已保存，不能重复记录；请完成汇总或补具体缺口"
+    }
+  ]
+}

@@ -141,6 +141,13 @@ def main():
             assert checkpoint['ingested_documents'][0]['parser'] == 'mineru-cloud'
             assert checkpoint['research_state']['evidence'] and checkpoint['research_summary']['findings']
             assert not network
+            brief = checkpoint['brief']
+            assert brief['material_gaps'], 'material gaps must be distinct from exclusions'
+            assert not any('SDK' in value or '鉴权' in value for value in brief['exclusions']), brief
+            assert any('SDK' in value or '鉴权' in value for value in checkpoint['research_summary']['limitations']), 'research must preserve material limitations'
+            assert len([p for p in packets if p['context']['phase'] == 'input_document']) == 1, 'document understanding retried'
+            assert len([p for p in packets if p['context']['phase'] == 'intent']) == 1, 'intent understanding retried'
+            report['status'] = 'passed'
     except Exception as exc:
         report['status'] = 'failed'; report['error'] = str(exc)
         raise
