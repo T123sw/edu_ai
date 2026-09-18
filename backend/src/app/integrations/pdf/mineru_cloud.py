@@ -3,7 +3,7 @@
 移植自 OpenMAIC ``lib/pdf/mineru-cloud.ts``（MIT），流程完全一致：
 
     POST {base}/file-urls/batch          → batch_id + 预签名上传 URL
-    PUT  预签名URL 上传 PDF               （★ 不带 Content-Type，OSS 签名敏感）
+    PUT  预签名URL 上传文档               （★ 不带 Content-Type，OSS 签名敏感）
     GET  {base}/extract-results/batch/{batch_id}   每 2.5s 轮询，最长 15min
       → state=done & full_zip_url
     下载 ZIP → full.md + content_list.json + images/ → 归一为 ParsedPdf
@@ -22,6 +22,9 @@ import re
 import time
 import zipfile
 from typing import Any, Dict, List, Optional
+from pathlib import Path
+
+from .formats import MINERU_SUPPORTED_SUFFIXES
 
 import httpx
 
@@ -55,12 +58,12 @@ def _ext_to_mime(ext: str) -> str:
 def _sanitize_filename(name: Optional[str]) -> str:
     fallback = "document.pdf"
     raw = (name or fallback).replace("\\", "/").split("/")[-1].strip() or fallback
-    trimmed = raw[:240]
-    if not trimmed.lower().endswith(".pdf"):
-        return fallback
-    if ".." in trimmed:
-        return fallback
-    return trimmed or fallback
+    suffix = Path(raw).suffix.lower()
+    if suffix not in MINERU_SUPPORTED_SUFFIXES:
+        raise PdfParseError(f"MinerU Cloud unsupported file type: {suffix or '(none)'}")
+    stem = raw[:-len(suffix)]
+    stem = re.sub(r'[\x00-\x1f\x7f]', '_', stem).replace('..', '_')
+    return (stem[:240-len(suffix)] or 'document') + suffix
 
 
 def _is_retryable(err: Exception) -> bool:
@@ -148,7 +151,7 @@ class MinerUCloudProvider(PdfParseProvider):
                         "files": [{"name": upload_name}],
                         "enable_formula": self.enable_formula,
                         "enable_table": self.enable_table,
-                        "model_version": self.model_version,
+                        "model_version": "MinerU-HTML" if upload_name.endswith(".html") else self.model_version,
                         "language": self.language,
                     },
                     timeout=_TIMEOUT_BATCH,

@@ -67,10 +67,10 @@ def mark_notification(event_id: str, user=Depends(current_user), svc=Depends(ser
 async def upload(file: UploadFile = File(...), actor=Depends(owner), svc=Depends(service)):
     from pathlib import Path
     from app.services.personal_knowledge_service import PersonalKnowledgeService
-    from app.course_preparation.adapters.documents import PersonalDocumentReader
+    from app.course_preparation.adapters.documents import PersonalDocumentReader, SUPPORTED_DOCUMENT_SUFFIXES
     from app.course_preparation.adapters.document_store import DocumentStore
-    if Path(file.filename or '').suffix.lower() not in {'.pdf', '.doc', '.docx', '.md', '.txt'}:
-        raise HTTPException(422, '支持 PDF、DOC、DOCX、Markdown 和 TXT 文件')
+    if Path(file.filename or '').suffix.lower() not in SUPPORTED_DOCUMENT_SUFFIXES:
+        raise HTTPException(422, '支持 PDF、Word、PPT、Excel、图片（PNG/JPG/JPEG/JP2/WebP/GIF/BMP）、HTML、Markdown 和 TXT 文件')
     data = await file.read(30 * 1024 * 1024 + 1)
     await file.close()
     if not data or len(data) > 30 * 1024 * 1024:

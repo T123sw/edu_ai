@@ -7,6 +7,12 @@ from app.database.models import User, PreparationDocumentVersion as Version
 from .documents import DocumentParser, DocumentUnreadable
 
 
+def _legacy_parse(parsed):
+    return parsed is not None and parsed.get('parser') in {
+        'antiword-text-v1', 'rag-docx-text-v1', 'libreoffice+rag-docx-text-v1',
+    }
+
+
 class DocumentStore:
     def __init__(self, engine, reader, parser=None):
         self.engine, self.reader, self.parser = engine, reader, parser or DocumentParser()
@@ -45,7 +51,7 @@ class DocumentStore:
         self.authorize(owner,ref)
         with Session(self.engine) as session:
             row=session.get(Version,(owner,ref.document_id,ref.version))
-            if row.parsed is not None: return dict(row.parsed)
+            if row.parsed is not None and not _legacy_parse(row.parsed): return dict(row.parsed)
             filename,digest,username=row.filename,row.content_sha256,self._username(session,owner)
         _,data=self.reader.read_bytes(username,ref.document_id)
         if hashlib.sha256(data).hexdigest()!=digest: raise PermissionError('DOCUMENT_VERSION_CHANGED')
@@ -54,7 +60,7 @@ class DocumentStore:
         with Session(self.engine) as session, session.begin():
             row=session.get(Version,(owner,ref.document_id,ref.version))
             if row is None: raise PermissionError('DOCUMENT_VERSION_UNAVAILABLE')
-            if row.parsed is None: row.parsed=result
+            if row.parsed is None or _legacy_parse(row.parsed): row.parsed=result
             return dict(row.parsed)
 
     def read(self,owner,ref,*,offset=0,limit=4000):

@@ -1,0 +1,29 @@
+[
+  {
+    "filename": "learning.docx",
+    "status": "passed",
+    "parser": "mineru-cloud",
+    "characters": 138,
+    "content": "# Agent learning notes\n\nAgents use tools, track task state, and evaluate results. Learn tool calling before building a complete assistant.",
+    "defects": [],
+    "seconds": 10.14
+  },
+  {
+    "filename": "learning.png",
+    "status": "passed",
+    "parser": "mineru-cloud",
+    "characters": 63,
+    "content": "Agent learning notes: tools, task state, memory and evaluation.",
+    "defects": [],
+    "seconds": 5.0
+  },
+  {
+    "filename": "learning.html",
+    "status": "passed",
+    "parser": "mineru-cloud",
+    "characters": 134,
+    "content": "# Learning agents\n\nAgents use tools, track task state, and evaluate results. Learn tool calling before building a complete assistant.\n",
+    "defects": [],
+    "seconds": 4.99
+  }
+]

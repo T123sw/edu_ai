@@ -15,7 +15,7 @@ export function PreparationOptionsForm({ value, onChange, onUploadingChange }: {
   const [uploading, setUploading] = useState(false);
   return <fieldset disabled={uploading} className="sl-preparation-options"><legend className="sl-intake-sr-only">添加学习资料（可选）</legend>
     <div className="sl-intake-toolbar">
-    <label className="sl-intake-upload"><Icon name="upload" size={16} /><span>添加资料</span><input aria-label="添加资料" className="sl-intake-sr-only" type="file" multiple accept=".pdf,.doc,.docx,.md,.txt" onChange={async e => {
+    <label className="sl-intake-upload"><Icon name="upload" size={16} /><span>添加资料</span><input aria-label="添加资料" className="sl-intake-sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.jp2,.webp,.gif,.bmp,.html,.md,.markdown,.txt" onChange={async e => {
       const files = Array.from(e.target.files || []); e.target.value = '';
       if (!files.length) return;
       if (value.uploads.length + files.length > 30) { setError('最多添加 30 份资料'); return; }
