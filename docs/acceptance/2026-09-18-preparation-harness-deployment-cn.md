@@ -20,3 +20,9 @@ bash /home/zxqs_ep/Edu_AI/scripts/activate-preparation-harness.sh
 脚本通过 sudo 重启 systemd 后端，等待健康检查，再复制新版静态资源并原子替换首页。旧哈希资源保留，避免已打开页面丢失依赖。重启失败时不切换前端。
 
 当前会话 `sudo -n` 提示需要密码，`systemctl --no-ask-password restart edu-ai-backend` 被拒绝，提示需要交互认证。因此尚未执行线上后端重启和前端切换，不能标记上线完成。请由用户在服务器终端运行上述脚本，按 sudo 提示完成本机认证，无需向对话发送密码。
+
+## 启用完成（2026-09-18 06:56 UTC）
+
+用户执行启用脚本后，后端新进程 `683990` 启动，运行进程确认 `COURSE_PREPARATION_ENABLED=true`；直连 `/health` 和 Nginx `/backend/health` 均返回正常。线上 HTML 与新构建完全一致，入口脚本为 `index-D5Mg20pP.js`，上传组件静态资源已核对。脚本退出，前后端切换完成。
+
+启动时知识库 BM25 索引加载造成短暂拒绝连接和健康检查超时，随后恢复。已调整启用脚本：等待期间显示进度提示，不逐次打印预期的 curl 失败；最终超时仍报告失败。未重跑生产环境整课生成或真实文件上传。

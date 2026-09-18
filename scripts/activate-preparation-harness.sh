@@ -10,11 +10,15 @@ if [[ $EUID -eq 0 ]]; then
 else
   sudo systemctl restart edu-ai-backend
 fi
+printf '正在等待后端完成启动与健康检查…\n'
 ready=false
 for attempt in $(seq 1 90); do
-  if systemctl is-active --quiet edu-ai-backend && curl --noproxy '*' -fsS --max-time 2 http://127.0.0.1:8001/health >/dev/null; then
+  if systemctl is-active --quiet edu-ai-backend && curl --noproxy '*' -fsS --max-time 2 http://127.0.0.1:8001/health >/dev/null 2>&1; then
     ready=true
     break
+  fi
+  if (( attempt % 10 == 0 )); then
+    printf '后端仍在初始化，继续等待…\n'
   fi
   sleep 2
 done
