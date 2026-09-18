@@ -1,30 +1,45 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { apiRequest } from '../stitch/api/client';
 
-export type UploadRef = { document_id: string; version: number; usage: 'primary' | 'reference' | 'coverage' };
-export type PreparationOptions = { uploads: UploadRef[]; source_policy: { mode: 'open' | 'uploads_preferred' | 'uploaded_only' }; overrides: { total_minutes: number; required_resource_types: string[] } };
-export const defaultOptions: PreparationOptions = { uploads: [], source_policy: { mode: 'open' }, overrides: { total_minutes: 60, required_resource_types: [] } };
+export type UploadRef = { document_id: string; version: number; filename?: string };
+export type PreparationOptions = { uploads: UploadRef[]; overrides: { total_minutes?: number; language?: string; depth?: 'introductory' | 'intermediate' | 'advanced'; required_resource_types?: string[] } };
+export const defaultOptions: PreparationOptions = { uploads: [], overrides: {} };
 const base = '/api/course-preparations';
-type Intermediate = { brief?: { goal?: string }; research_summary?: { findings?: { claim: string }[] }; plan?: { title: string; nodes: { node_key: string; title: string; minutes: number; objectives: string[] }[] }; quality?: { decision: string; limitations?: string[] } };
+type Intermediate = { brief?: { topic?: string; learning_goal?: string; prior_knowledge?: string; total_minutes?: number; language?: string; depth?: string; assumptions?: string[]; desired_outcomes?: string[]; source_policy?: { mode: string } }; input_documents?: { document_id: string; filename: string; complete: boolean; parts: { kind: string; summary: string }[] }[]; research_summary?: { findings?: { claim: string }[] }; plan?: { title: string; nodes: { node_key: string; title: string; minutes: number; objectives: string[] }[] }; quality?: { decision: string; limitations?: string[] } };
 type Task = { preparation_id: string; status: string; stage: string; revision: number; error_code?: string; result_ref?: { course_ready: boolean; course_id: string } };
 const labels: Record<string, string> = { normalize: '理解学习目标', ingest: '读取上传资料', research_scope: '搜索并核验资料', plan: '规划学习路径', research_nodes: '检查各节点依据', produce: '生成学习资料', review: '检查课程质量', repair: '修复资料', commit: '保存课程' };
 
-export function PreparationOptionsForm({ value, onChange, onUploadingChange }: { value: PreparationOptions; onChange: (v: PreparationOptions) => void; onUploadingChange?: (value: boolean) => void }) {
+export function PreparationOptionsForm({ value, onChange, onUploadingChange }: { value: PreparationOptions; onChange: Dispatch<SetStateAction<PreparationOptions>>; onUploadingChange?: (value: boolean) => void }) {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
-  return <fieldset disabled={uploading} className="sl-preparation-options"><legend>学习安排与资料</legend>
-    <label>学习时长（分钟）<input type="number" min={10} max={600} value={value.overrides.total_minutes} onChange={e => onChange({ ...value, overrides: { ...value.overrides, total_minutes: Number(e.target.value) } })} /></label>
-    <label>资料范围<select value={value.source_policy.mode} onChange={e => onChange({ ...value, source_policy: { mode: e.target.value as PreparationOptions['source_policy']['mode'] } })}><option value="open">搜索公开资料</option><option value="uploads_preferred">优先上传资料，可搜索补充</option><option value="uploaded_only">仅使用上传资料</option></select></label>
-    <label><input type="checkbox" checked={value.overrides.required_resource_types.includes('classroom')} onChange={e => onChange({ ...value, overrides: { ...value.overrides, required_resource_types: e.target.checked ? ['classroom'] : [] } })} />同时生成讲解课堂</label>
-    <label>添加资料<input type="file" accept=".pdf,.doc,.docx,.md,.txt" onChange={async e => {
-      const file = e.target.files?.[0]; if (!file) return;
+  return <fieldset disabled={uploading} className="sl-preparation-options"><legend>添加学习资料（可选）</legend>
+    <p>可上传岗位要求、个人背景或学习材料，Agent 会理解文件用途。也可以只上传资料，让 Agent 推断学习目标。</p>
+    <label>添加资料<input type="file" multiple accept=".pdf,.doc,.docx,.md,.txt" onChange={async e => {
+      const files = Array.from(e.target.files || []); e.target.value = '';
+      if (!files.length) return;
+      if (value.uploads.length + files.length > 30) { setError('最多添加 30 份资料'); return; }
       setUploading(true); onUploadingChange?.(true); setError('');
-      try { const body = new FormData(); body.append('file', file); const ref = await apiRequest<UploadRef>(`${base}/uploads`, { method: 'POST', body }); onChange({ ...value, uploads: [...value.uploads, { ...ref, usage: 'primary' }], source_policy: { mode: value.source_policy.mode === 'open' ? 'uploads_preferred' : value.source_policy.mode } }); }
-      catch (c) { setError(c instanceof Error ? c.message : '上传失败'); }
-      finally { setUploading(false); onUploadingChange?.(false); }
+      const failures: string[] = [];
+      try {
+        for (const file of files) {
+          try {
+            if (file.size > 30 * 1024 * 1024) throw new Error('文件不能超过 30 MB');
+            const body = new FormData(); body.append('file', file);
+            const ref = await apiRequest<UploadRef>(`${base}/uploads`, { method: 'POST', body });
+            onChange(previous => ({ ...previous, uploads: [...previous.uploads.filter(r => r.document_id !== ref.document_id), { document_id: ref.document_id, version: ref.version, filename: file.name }] }));
+          } catch (cause) { failures.push(`${file.name}：${cause instanceof Error ? cause.message : '上传失败'}`); }
+        }
+        setError(failures.join('；'));
+      } finally { setUploading(false); onUploadingChange?.(false); }
     }} /></label>
     {uploading && <span role="status">正在上传…</span>}
-    {value.uploads.map((ref, index) => <div key={`${ref.document_id}:${ref.version}`}>资料 {index + 1} <select aria-label={`资料 ${index + 1} 用途`} value={ref.usage} onChange={e => onChange({ ...value, uploads: value.uploads.map((r, i) => i === index ? { ...r, usage: e.target.value as UploadRef['usage'] } : r) })}><option value="primary">主要学习资料</option><option value="reference">参考资料</option></select><button type="button" onClick={() => onChange({ ...value, uploads: value.uploads.filter((_, i) => i !== index) })}>移除</button></div>)}
+    {value.uploads.map((ref, index) => <div key={`${ref.document_id}:${ref.version}`}>{ref.filename || `资料 ${index + 1}`}<button type="button" aria-label={`移除 ${ref.filename || `资料 ${index + 1}`}`} onClick={() => onChange(previous => ({ ...previous, uploads: previous.uploads.filter(r => r.document_id !== ref.document_id) }))}>移除</button></div>)}
+    <details><summary>补充安排（可选）</summary><p>不填写时，Agent 根据你的需求和偏好安排。仅使用附件等要求可直接写在上方。</p>
+      <label>学习时长（分钟）<input type="number" min={1} max={100000} placeholder="自动理解" value={value.overrides.total_minutes ?? ''} onChange={e => { const minutes = e.target.value ? Number(e.target.value) : undefined; onChange(previous => ({ ...previous, overrides: { ...previous.overrides, total_minutes: minutes } })); }} /></label>
+      <label>输出语言<input placeholder="根据需求自动选择" value={value.overrides.language || ''} onChange={e => { const language = e.target.value; onChange(previous => ({ ...previous, overrides: { ...previous.overrides, language: language || undefined } })); }} /></label>
+      <label>学习深度<select value={value.overrides.depth || ''} onChange={e => { const depth = e.target.value as PreparationOptions['overrides']['depth']; onChange(previous => ({ ...previous, overrides: { ...previous.overrides, depth: depth || undefined } })); }}><option value="">自动安排</option><option value="introductory">入门</option><option value="intermediate">进阶</option><option value="advanced">深入</option></select></label>
+      <label>讲解形式<select value={value.overrides.required_resource_types?.includes('classroom') ? 'classroom' : ''} onChange={e => { const kinds = e.target.value ? ['classroom'] : undefined; onChange(previous => ({ ...previous, overrides: { ...previous.overrides, required_resource_types: kinds } })); }}><option value="">根据需求安排</option><option value="classroom">同时提供讲解课堂</option></select></label>
+    </details>
     {error && <p role="alert">{error}</p>}
   </fieldset>;
 }
@@ -54,15 +69,17 @@ export function PreparationTasks({ owner, refreshKey }: { owner: string; refresh
 }
 
 function IntermediateView({ value }: { value: Intermediate }) {
-  return <div>{value.plan && <><h3>{value.plan.title}</h3><ol>{value.plan.nodes.map(node => <li key={node.node_key}><strong>{node.title}</strong> · {node.minutes} 分钟<ul>{node.objectives.map(objective => <li key={objective}>{objective}</li>)}</ul></li>)}</ol></>}
+  return <div>{value.brief && <section aria-label="需求理解"><h3>Agent 对需求的理解</h3><p>{value.brief.learning_goal || value.brief.topic}</p>{value.brief.prior_knowledge && <p>已有基础：{value.brief.prior_knowledge}</p>}<p>{value.brief.total_minutes} 分钟 · {value.brief.language}</p>{value.brief.source_policy?.mode === 'uploaded_only' && <p>仅依据上传资料，不搜索外部资料。</p>}{value.brief.desired_outcomes?.map((outcome, i) => <p key={i}>学习目标：{outcome}</p>)}{value.brief.assumptions?.map((assumption, i) => <p key={i}>采用的假设：{assumption}</p>)}</section>}
+    {value.input_documents?.map(doc => <div key={doc.document_id}><strong>{doc.filename}</strong> · {doc.complete ? '已理解' : '正在理解'}{doc.parts.map((part, i) => <p key={i}>{part.summary}</p>)}</div>)}
+    {value.plan && <><h3>{value.plan.title}</h3><ol>{value.plan.nodes.map(node => <li key={node.node_key}><strong>{node.title}</strong> · {node.minutes} 分钟<ul>{node.objectives.map(objective => <li key={objective}>{objective}</li>)}</ul></li>)}</ol></>}
     {value.research_summary?.findings && <><h3>资料汇总</h3><ul>{value.research_summary.findings.map((finding, i) => <li key={i}>{finding.claim}</li>)}</ul></>}
     {value.quality?.limitations?.map(item => <p key={item}>{item}</p>)}
-    {!value.plan && !value.research_summary && <p>正在整理资料，产出后会显示在这里。</p>}
+    {!value.brief && !value.input_documents?.length && !value.plan && !value.research_summary && <p>正在整理资料，产出后会显示在这里。</p>}
   </div>;
 }
 
 export async function submitPreparation(owner: string, goal: string, options: PreparationOptions) {
-  const payload = { operation: 'create_course', goal, ...options };
+  const payload = { operation: 'create_course', goal: goal.trim() || '请根据上传资料推断学习目标并安排课程；没有明确的信息请列为假设。', uploads: options.uploads.map(({ document_id, version }) => ({ document_id, version })), overrides: options.overrides };
   const key = `preparation:pending:${owner}`;
   const serialized = JSON.stringify(payload);
   let previous: { serialized: string; request_id: string } | undefined;

@@ -93,8 +93,49 @@ test('creation waits for the selected upload and includes its immutable referenc
   await expect(page.getByRole('alert')).toContainText('资料仍在上传');
   expect(requests).toHaveLength(0);
   release();
-  await expect(page.getByLabel('资料 1 用途')).toBeVisible();
+  await expect(page.getByRole('button', { name: '移除 agent.md' })).toBeVisible();
+  await expect(page.getByLabel('资料 1 用途')).toHaveCount(0);
+  await expect(page.getByLabel('资料范围')).toHaveCount(0);
   await page.getByRole('button', { name: '开始学习' }).click();
   await expect.poll(() => requests.length).toBe(1);
-  expect(requests[0].uploads).toEqual([{ document_id: 'uploaded-interview', version: 1, usage: 'primary' }]);
+  expect(requests[0].uploads).toEqual([{ document_id: 'uploaded-interview', version: 1 }]);
+  expect(requests[0].source_policy).toBeUndefined();
+  expect(requests[0].overrides.total_minutes).toBeUndefined();
+});
+
+test('files alone require no classification; optional settings and understood intent are visible', async ({ page }) => {
+  const requests: any[] = []; let uploads = 0;
+  await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ token: 'test', user: { username: 'alice', role: 'student' } })));
+  await page.route('**/api/**', async route => {
+    const req = route.request(); const path = new URL(req.url()).pathname;
+    if (!path.startsWith('/api/')) return route.continue();
+    if (path.endsWith('/auth/verify')) return route.fulfill({ json: { valid: true, user: { username: 'alice', role: 'student' } } });
+    if (path.endsWith('/self-learning/state')) return route.fulfill({ json: { version: 1, rooms: [], resources: [], jobs: [], serverJobs: [], shared: [] } });
+    if (path.endsWith('/uploads')) return route.fulfill({ json: { document_id: `doc-${++uploads}`, version: 1 } });
+    const task = { preparation_id: 'intake', status: 'running', stage: 'research_scope', revision: 3 };
+    if (path === '/api/course-preparations' && req.method() === 'POST') { requests.push(req.postDataJSON()); return route.fulfill({ status: 202, json: task }); }
+    if (path === '/api/course-preparations') return route.fulfill({ json: { preparations: requests.length ? [task] : [] } });
+    if (path.endsWith('/intermediates')) return route.fulfill({ json: { brief: { topic: 'Agent', learning_goal: '准备 Agent 面试', prior_knowledge: '会 Python', total_minutes: 120, language: '中文', assumptions: ['根据岗位要求推断目标'] }, input_documents: [{ document_id: 'doc-1', filename: 'job.md', complete: true, parts: [{ kind: 'job_description', summary: '岗位要求掌握工具调用与评估' }] }] } });
+    return route.fulfill({ json: { items: [] } });
+  });
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: '开始学习' })).toBeDisabled();
+  await page.getByLabel('添加资料').setInputFiles([
+    { name: 'job.md', mimeType: 'text/markdown', buffer: Buffer.from('岗位要求') },
+    { name: 'background.txt', mimeType: 'text/plain', buffer: Buffer.from('会 Python') },
+  ]);
+  await expect(page.getByRole('button', { name: '移除 background.txt' })).toBeVisible();
+  await page.getByText('补充安排（可选）', { exact: true }).click();
+  await expect(page.getByLabel('学习时长（分钟）')).toHaveValue('');
+  await page.getByLabel('学习时长（分钟）').fill('120');
+  await page.getByLabel('输出语言').fill('中文');
+  await page.getByLabel('学习深度').selectOption('intermediate');
+  await page.getByRole('button', { name: '开始学习' }).click();
+  await expect.poll(() => requests.length).toBe(1);
+  expect(requests[0].uploads).toEqual([{ document_id: 'doc-1', version: 1 }, { document_id: 'doc-2', version: 1 }]);
+  expect(requests[0].overrides).toEqual({ total_minutes: 120, language: '中文', depth: 'intermediate' });
+  expect(requests[0].goal).toContain('推断学习目标');
+  await page.getByRole('button', { name: '查看资料汇总与路径' }).click();
+  await expect(page.getByRole('region', { name: '需求理解' })).toContainText('准备 Agent 面试');
+  await expect(page.getByText('岗位要求掌握工具调用与评估')).toBeVisible();
 });

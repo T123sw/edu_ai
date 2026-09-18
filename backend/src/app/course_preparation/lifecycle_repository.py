@@ -177,7 +177,7 @@ class LifecycleRepository(PreparationRepository):
             # only derived context; completed old child outputs remain drafts.
             state.update(phase='intent', brief=None, summary=None, path=None, review=None, errors=0, last_error=None)
             discarded = {key:previous[key] for key in ('plan','artifacts','quality','memory_refs') if key in previous}
-            run.checkpoint = {key:previous[key] for key in ('config_snapshot','ingested_documents') if key in previous}
+            run.checkpoint = {key:previous[key] for key in ('config_snapshot','ingested_documents','input_documents') if key in previous}
             run.checkpoint.update(research_state=state, invalidated_drafts=[*previous.get('invalidated_drafts', []), discarded],
                                   context_rebuild_epoch=watermark.epoch)
             attempt.stage = 'normalize'

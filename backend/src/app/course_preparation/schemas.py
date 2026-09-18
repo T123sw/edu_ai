@@ -23,7 +23,7 @@ class Contract(BaseModel):
 class UploadRef(Contract):
     document_id: Identifier
     version: PositiveVersion
-    usage: Literal['primary', 'reference', 'coverage'] = 'primary'
+    usage: Literal['auto', 'primary', 'reference', 'coverage'] = 'auto'
 
 
 class SourcePolicy(Contract):

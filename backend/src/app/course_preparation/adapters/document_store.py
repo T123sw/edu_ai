@@ -60,7 +60,7 @@ class DocumentStore:
     def read(self,owner,ref,*,offset=0,limit=4000):
         if offset<0 or limit<1 or limit>5000: raise ValueError('INVALID_DOCUMENT_WINDOW')
         parsed=self.parse(owner,ref)
-        if parsed['defects'] and ref.usage in ('primary','coverage'):
+        if parsed['defects'] and ref.usage in ('auto','primary','coverage'):
             raise DocumentUnreadable('CORE_SOURCE_UNREADABLE',parsed['defects'])
         content=parsed['content']
         if offset>=len(content): raise ValueError('DOCUMENT_OFFSET_OUT_OF_RANGE')

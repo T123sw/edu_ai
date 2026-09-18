@@ -32,7 +32,10 @@ class ResearchStages:
             state=state.model_copy(update={'evidence':tuple(e.model_copy(update={'total_chars':totals[e.candidate_id],
                 'next_offset':e.offset_chars+5000 if e.offset_chars+5000<totals[e.candidate_id] else None})
                 if e.candidate_id in totals else e for e in state.evidence)})
+        from .intake import effective_request
+        request = effective_request(request, checkpoint)
         agent=self.agent_factory(context,request,checkpoint)
+        agent.extra_context = {**agent.extra_context, 'input_documents': checkpoint.get('input_documents', [])}
         def reserve(value):
             self.repository.checkpoint(context,{**checkpoint,'research_state':value.model_dump(mode='json')})
         remaining=(datetime.fromisoformat(context.deadline)-datetime.now(timezone.utc)).total_seconds()
@@ -56,7 +59,11 @@ class ResearchStages:
             checkpoint['brief']={'goal':request.goal,'audience':base['audience'],'language':request.overrides.language or 'zh-CN',
                 'total_minutes':request.overrides.total_minutes or base['estimated_minutes'],'assumptions':base.get('assumptions',[])}
             return StepResult(checkpoint,'research_scope',reason='NO_UPLOADS')
-        checkpoint,state=self._decision(context,dict(context.checkpoint))
+        from .intake import understand_next_document
+        checkpoint, pending = understand_next_document(self, context, dict(context.checkpoint), request)
+        if pending:
+            return StepResult(checkpoint)
+        checkpoint,state=self._decision(context,checkpoint)
         if state.brief is None: return StepResult(checkpoint)
         uploads=self._request(context).uploads
         return StepResult(checkpoint,'ingest' if uploads else 'research_scope',
@@ -69,7 +76,7 @@ class ResearchStages:
         if len(completed)<len(request.uploads):
             ref=request.uploads[len(completed)]
             parsed=self.documents.parse(context.owner_user_id,ref)
-            if parsed['defects'] and ref.usage in ('primary','coverage'):
+            if parsed['defects'] and ref.usage in ('auto','primary','coverage'):
                 raise DocumentUnreadable('CORE_SOURCE_UNREADABLE',parsed['defects'])
             metadata=self.documents.authorize(context.owner_user_id,ref)
             completed.append({**ref.model_dump(),'source_hash':parsed['source_hash'],

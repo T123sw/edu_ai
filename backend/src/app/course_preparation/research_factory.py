@@ -29,6 +29,8 @@ class MeteredSources:
 
 def research_factory(repository,documents,memory):
     def build(context,request,checkpoint):
+        from .intake import effective_request
+        request = effective_request(request, checkpoint)
         username=memory.subject(context.owner_user_id)
         agent=legacy_factory(username,checkpoint['config_snapshot'])
         agent.model.meter=PreparationModelMeter(repository,context,
@@ -37,6 +39,7 @@ def research_factory(repository,documents,memory):
         agent.incremental_findings=True
         agent.source_policy=request.source_policy.mode
         agent.extra_context={'preferences':checkpoint.get('memory_view',{}), 'existing_target':checkpoint.get('target_snapshot'),
+            'input_documents':checkpoint.get('input_documents',[]),
             'preference_rule':'本次 request 明确要求优先；偏好仅调整教学表达，不能作为来源或掌握事实'}
         agent.sources=MeteredSources(repository,context,PolicySources(owner=context.owner_user_id,request=request,
             documents=documents,web=agent.sources))

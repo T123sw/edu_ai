@@ -19,7 +19,7 @@ class PolicySources:
         if url in self.uploads:
             ref=self.uploads[url]
             parsed=self.documents.parse(self.owner,ref)
-            if parsed['defects'] and ref.usage in ('primary','coverage'):
+            if parsed['defects'] and ref.usage in ('auto','primary','coverage'):
                 raise DocumentUnreadable('CORE_SOURCE_UNREADABLE',parsed['defects'])
             return parsed['content']
         if self.request.source_policy.mode=='uploaded_only' or url.startswith('upload:'):

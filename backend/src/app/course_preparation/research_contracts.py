@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from .schemas import Contract, Identifier, PositiveVersion, PreparationRequest, ShortText
+from .schemas import Contract, Identifier, PositiveVersion, PreparationRequest, ShortText, SourcePolicy
 
 
 class ResearchRequest(PreparationRequest):
@@ -20,9 +20,17 @@ class Requirement(Contract):
     requirement_id: Identifier
     text: ShortText
     source_quote: ShortText
+    source_document_id: Identifier | None = None
 
 
 class ResearchBrief(Contract):
+    required_resource_types: tuple[Literal['report', 'quiz', 'classroom'], ...] = Field(default=(), max_length=3)
+    learning_goal: str = Field(default="", max_length=2000)
+    prior_knowledge: str = Field(default="", max_length=2000)
+    desired_outcomes: tuple[ShortText, ...] = Field(default=(), max_length=12)
+    depth: Literal["introductory", "intermediate", "advanced"] | None = None
+    source_policy: SourcePolicy | None = None
+    source_policy_quote: ShortText | None = None
     topic: ShortText
     audience: ShortText
     language: Identifier

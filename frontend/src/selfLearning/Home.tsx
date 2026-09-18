@@ -10,6 +10,7 @@ type Props = {
   onOpen: (room: Classroom, shared?: boolean) => void;
   onPublish: () => void;
   live?: boolean;
+  canCreateFromUploads?: boolean;
   preparationOptions?: ReactNode;
   preparationTasks?: ReactNode;
 };
@@ -97,6 +98,7 @@ export function Home({
   onOpen,
   onPublish,
   live,
+  canCreateFromUploads = false,
   preparationOptions,
   preparationTasks,
 }: Props) {
@@ -110,7 +112,7 @@ export function Home({
     `${r.title} ${r.goal}`.toLowerCase().includes(query.trim().toLowerCase());
   function submit(e: FormEvent) {
     e.preventDefault();
-    if (prompt.trim()) onCreate(prompt.trim());
+    if (prompt.trim() || canCreateFromUploads) onCreate(prompt.trim());
   }
   const recent = [...rooms]
     .filter(matches)
@@ -128,7 +130,7 @@ export function Home({
             placeholder="想学什么？说说你的学习目标…"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            maxLength={1000}
+            maxLength={2000}
             onKeyDown={(e) => {
               if (
                 (e.ctrlKey || e.metaKey) &&
@@ -136,7 +138,7 @@ export function Home({
                 !e.nativeEvent.isComposing
               ) {
                 e.preventDefault();
-                if (prompt.trim()) onCreate(prompt.trim());
+                if (prompt.trim() || canCreateFromUploads) onCreate(prompt.trim());
               }
             }}
           />
@@ -144,7 +146,7 @@ export function Home({
           <div className="sl-prompt-bottom">
             <button
               className="sl-primary"
-              disabled={!prompt.trim()}
+              disabled={!prompt.trim() && !canCreateFromUploads}
               type="submit"
             >
               开始学习 <Icon name="arrow" size={17} />

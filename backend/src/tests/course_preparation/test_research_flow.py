@@ -53,6 +53,8 @@ class Model:
 
     def decide(self, context, tools, *, timeout):
         self.mounts.append([t['function']['name'] for t in tools])
+        if context['phase'] == 'input_document':
+            return 'record_input_document', {'kind': 'learning_material', 'summary': '递归教材', 'relevant_points': [{'text':'递归终止条件', 'source_quote': context['document']['content'][:20]}]}
         if context['phase'] == 'intent':
             return 'save_preparation_brief', brief()
         if context['phase'] == 'research':
