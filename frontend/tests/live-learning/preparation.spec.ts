@@ -103,7 +103,7 @@ test('creation waits for the selected upload and includes its immutable referenc
   expect(requests[0].overrides.total_minutes).toBeUndefined();
 });
 
-test('files alone require no classification; optional settings and understood intent are visible', async ({ page }) => {
+test('files alone require no classification or settings; understood intent remains visible', async ({ page }) => {
   const requests: any[] = []; let uploads = 0;
   await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ token: 'test', user: { username: 'alice', role: 'student' } })));
   await page.route('**/api/**', async route => {
@@ -125,15 +125,10 @@ test('files alone require no classification; optional settings and understood in
     { name: 'background.txt', mimeType: 'text/plain', buffer: Buffer.from('会 Python') },
   ]);
   await expect(page.getByRole('button', { name: '移除 background.txt' })).toBeVisible();
-  await page.getByText('补充安排（可选）', { exact: true }).click();
-  await expect(page.getByLabel('学习时长（分钟）')).toHaveValue('');
-  await page.getByLabel('学习时长（分钟）').fill('120');
-  await page.getByLabel('输出语言').fill('中文');
-  await page.getByLabel('学习深度').selectOption('intermediate');
   await page.getByRole('button', { name: '开始学习' }).click();
   await expect.poll(() => requests.length).toBe(1);
   expect(requests[0].uploads).toEqual([{ document_id: 'doc-1', version: 1 }, { document_id: 'doc-2', version: 1 }]);
-  expect(requests[0].overrides).toEqual({ total_minutes: 120, language: '中文', depth: 'intermediate' });
+  expect(requests[0].overrides).toEqual({});
   expect(requests[0].goal).toContain('推断学习目标');
   await page.getByRole('button', { name: '查看资料汇总与路径' }).click();
   await expect(page.getByRole('region', { name: '需求理解' })).toContainText('准备 Agent 面试');

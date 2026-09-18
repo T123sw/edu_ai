@@ -9,3 +9,9 @@
 截图与回归日志：[artifacts/2026-09-18-preparation-ui](artifacts/2026-09-18-preparation-ui/)。
 
 已于 2026-09-18 07:05 UTC 更新线上静态资源，保留旧哈希文件并原子替换首页；没有重启后端。线上 HTML 与新构建一致，随后对实际 Nginx 页面完成桌面、设置展开、手机及模拟上传检查。旧首页备份位于 `/home/zxqs_ep/data/Edu_AI_backups/preparation-ui-20260918T070515Z`。
+
+## 后续精简（2026-09-18 07:22 UTC）
+
+按用户要求移除“补充安排”及上传区下方说明，删除相应设置样式。输入框使用四行占位示例：学习 Agent、做出 AI 助手、已有 Python 基础、通俗举例与动手实践。示例不是预填值，不计入提交内容；只上传附件仍可创建课程。
+
+TypeScript、生产构建、调整后的原有 5 项浏览器回归通过；桌面和手机人工检查通过，线上静态资源已切换并完成浏览器检查（模拟 API）。新截图见 [精简版](artifacts/2026-09-18-preparation-simple/desktop.png)及[手机版](artifacts/2026-09-18-preparation-simple/mobile.png)。

@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import { Icon } from '../selfLearning/ui';
 
@@ -13,8 +13,6 @@ const labels: Record<string, string> = { normalize: '理解学习目标', ingest
 export function PreparationOptionsForm({ value, onChange, onUploadingChange }: { value: PreparationOptions; onChange: Dispatch<SetStateAction<PreparationOptions>>; onUploadingChange?: (value: boolean) => void }) {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const settingsId = useId();
   return <fieldset disabled={uploading} className="sl-preparation-options"><legend className="sl-intake-sr-only">添加学习资料（可选）</legend>
     <div className="sl-intake-toolbar">
     <label className="sl-intake-upload"><Icon name="upload" size={16} /><span>添加资料</span><input aria-label="添加资料" className="sl-intake-sr-only" type="file" multiple accept=".pdf,.doc,.docx,.md,.txt" onChange={async e => {
@@ -35,17 +33,9 @@ export function PreparationOptionsForm({ value, onChange, onUploadingChange }: {
         setError(failures.join('；'));
       } finally { setUploading(false); onUploadingChange?.(false); }
     }} /></label>
-    <button type="button" className="sl-intake-settings-toggle" aria-expanded={settingsOpen} aria-controls={settingsId} onClick={() => setSettingsOpen(open => !open)}>补充安排（可选）<Icon name="chevron" size={14} /></button>
     </div>
-    <p className="sl-intake-hint">上传岗位要求、学习材料或个人背景，让课程更适合你。<span>PDF / Word / Markdown / TXT · 每份最多 30 MB</span></p>
     {uploading && <span className="sl-intake-uploading" role="status"><span />正在上传…</span>}
     {value.uploads.length > 0 && <div className="sl-intake-files">{value.uploads.map((ref, index) => <div className="sl-intake-file" key={`${ref.document_id}:${ref.version}`}><Icon name="book" size={15} /><span title={ref.filename}>{ref.filename || `资料 ${index + 1}`}</span><button type="button" aria-label={`移除 ${ref.filename || `资料 ${index + 1}`}`} onClick={() => onChange(previous => ({ ...previous, uploads: previous.uploads.filter(r => r.document_id !== ref.document_id) }))}><Icon name="close" size={13} /></button></div>)}</div>}
-    <div id={settingsId} hidden={!settingsOpen} className="sl-intake-settings"><p>留空即可自动安排，也可以直接在上方描述你的偏好。</p><div className="sl-intake-settings-grid">
-      <label>学习时长（分钟）<input type="number" min={1} max={100000} placeholder="自动理解" value={value.overrides.total_minutes ?? ''} onChange={e => { const minutes = e.target.value ? Number(e.target.value) : undefined; onChange(previous => ({ ...previous, overrides: { ...previous.overrides, total_minutes: minutes } })); }} /></label>
-      <label>输出语言<input placeholder="根据需求自动选择" value={value.overrides.language || ''} onChange={e => { const language = e.target.value; onChange(previous => ({ ...previous, overrides: { ...previous.overrides, language: language || undefined } })); }} /></label>
-      <label>学习深度<select value={value.overrides.depth || ''} onChange={e => { const depth = e.target.value as PreparationOptions['overrides']['depth']; onChange(previous => ({ ...previous, overrides: { ...previous.overrides, depth: depth || undefined } })); }}><option value="">自动安排</option><option value="introductory">入门</option><option value="intermediate">进阶</option><option value="advanced">深入</option></select></label>
-      <label>讲解形式<select value={value.overrides.required_resource_types?.includes('classroom') ? 'classroom' : ''} onChange={e => { const kinds = e.target.value ? ['classroom'] : undefined; onChange(previous => ({ ...previous, overrides: { ...previous.overrides, required_resource_types: kinds } })); }}><option value="">根据需求安排</option><option value="classroom">同时提供讲解课堂</option></select></label>
-    </div></div>
     {error && <p className="sl-intake-error" role="alert">{error}</p>}
   </fieldset>;
 }
