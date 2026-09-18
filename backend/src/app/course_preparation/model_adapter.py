@@ -47,7 +47,7 @@ class ResearchModelAdapter:
         self.last_rejected_decision = None
         from .context import context_packet
         packet = context_packet(context, tools, max_tokens=self.context_tokens)
-        self.last_packet_metadata = {key:value for key,value in packet.items() if key != 'messages'}
+        self.last_packet_metadata = {key:value for key,value in packet.items() if key not in ('messages', 'skill')}
         messages = packet['messages']
         deadline = time.monotonic() + timeout
         for candidate in self.gateway.candidates:

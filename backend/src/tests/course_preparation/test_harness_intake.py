@@ -39,7 +39,7 @@ class FakeHarness:
         type(self).closed = True
 
     def run(self, prompt, **kwargs):
-        config = self.patch[-1]['insert'][0]['config']
+        config = next(p['config'] for p in self.patch[-1]['insert'] if p['id'] == 'preparation-intake-mcp')
         url, token = config['env']['EDU_MCP_URL'], self.kwargs['env']['EDU_MCP_TOKEN']
         assert [t['name'] for t in rpc(url, token, 'tools/list')['tools']] == ['record_input_document']
         assert all(p['disabled'] for p in self.patch[:3])
@@ -88,7 +88,8 @@ def test_tools_reject_unmounted_calls_and_conflicting_second_decision():
     assert not tools.call('record_input_document', {'summary': 'two'})['ok']
 
 
-def test_real_sdk_round_trip_is_metered_and_only_exposes_intake_tool():
+@pytest.mark.parametrize('phase,tool_name', [('input_document','record_input_document'), ('intent','save_preparation_brief')])
+def test_real_sdk_round_trip_is_metered_and_only_exposes_intake_tool(phase, tool_name):
     """Run the installed SDK + MCP subprocesses against a deterministic provider."""
     import httpx
     from deepseek_harness import DeepSeekHarness
@@ -98,11 +99,17 @@ def test_real_sdk_round_trip_is_metered_and_only_exposes_intake_tool():
         body = json.loads(request.content)
         calls.append(body)
         names = [tool['function']['name'] for tool in body.get('tools', [])]
-        assert len(names) == 1 and names[0].endswith('record_input_document'), names
+        business_names = [name for name in names if name != 'skill']
+        assert len(business_names) == 1 and business_names[0].endswith(tool_name), names
+        assert 'skill' in names
+        from app.course_preparation.intake_skill import load_intake_skill, skill_is_loaded
+        assert skill_is_loaded(body['messages'], load_intake_skill())
+        assert sum(str(m.get('content', '')).count('<skill_content name=') for m in body['messages']) == 1
+        assert not any(load_intake_skill()['body'] in str(m.get('content', '')) for m in body['messages'] if m['role'] == 'system')
         tool_results = [m for m in body['messages'] if m['role'] == 'tool']
         message = {'role': 'assistant', 'content': '已提交'} if tool_results else {
             'role': 'assistant', 'content': None, 'tool_calls': [{'id': 'call_intake', 'type': 'function',
-            'function': {'name': names[0], 'arguments': json.dumps({'summary': '工具调用'})}}]}
+            'function': {'name': business_names[0], 'arguments': json.dumps({'summary': '工具调用'})}}]}
         return httpx.Response(200, json={'id': 'chat-test', 'object': 'chat.completion', 'created': 1,
             'model': 'deepseek-v4-flash', 'choices': [{'index': 0, 'message': message,
             'finish_reason': 'stop' if tool_results else 'tool_calls'}], 'usage': {'prompt_tokens': 50, 'completion_tokens': 10, 'total_tokens': 60}})
@@ -118,13 +125,15 @@ def test_real_sdk_round_trip_is_metered_and_only_exposes_intake_tool():
     model.gateway.candidates[0]['model_name'] = 'deepseek-v4-flash'
     model.gateway._build_headers = lambda key: {}
     model.gateway._thinking_params = lambda name: {}
-    assert model.decide(CONTEXT, [TOOL], timeout=30) == ('record_input_document', {'summary': '工具调用'})
+    tool = {**TOOL, 'function': {**TOOL['function'], 'name': tool_name}}
+    assert model.decide({**CONTEXT, 'phase': phase}, [tool], timeout=30) == (tool_name, {'summary': '工具调用'})
     assert len(calls) == len(ledger) == 2
     assert all(row['usage']['total_tokens'] == 60 for row in ledger)
     assert all(row['response_data']['runtime'] == 'deepseek-harness' for row in ledger)
+    assert all(row['response_data']['skill']['loaded'] for row in ledger)
 
 
-@pytest.mark.parametrize('case', ['meter_denied', 'context_limit', 'call_limit', 'truncated'])
+@pytest.mark.parametrize('case', ['meter_denied', 'context_limit', 'call_limit', 'truncated', 'skill_missing'])
 def test_provider_guards_block_calls_and_incomplete_results(case):
     import httpx
     from urllib.error import HTTPError
@@ -147,6 +156,9 @@ def test_provider_guards_block_calls_and_incomplete_results(case):
     model = adapter(client_factory=lambda **kw: httpx.Client(transport=httpx.MockTransport(complete), **kw), meter=Meter())
     model.gateway._build_headers = lambda key: {}
     model.gateway._thinking_params = lambda name: {}
+    if case == 'skill_missing':
+        from app.course_preparation.intake_skill import load_intake_skill
+        model.required_skill = load_intake_skill()
     if case == 'context_limit':
         model.context_tokens = 10
     with harness_provider(model, timeout=5) as (url, token, state):

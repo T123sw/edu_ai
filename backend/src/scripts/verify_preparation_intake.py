@@ -61,6 +61,8 @@ def main():
         result=state.brief.model_dump(mode='json')
         checkpoint['brief']=result
         assert result['total_minutes']==120,result
+        assert result['language'].casefold() in ('en', 'en-us', 'en-gb', 'english', '英文', '英语'),result
+        assert records and all((r.get('response') or {}).get('skill', {}).get('loaded') for r in records), 'native skill was not recorded'
         assert result['source_policy']['mode']=='uploaded_only',result
         assert all(doc['complete'] for doc in checkpoint['input_documents'])
         assert checkpoint['input_documents'][0]['parts'][0]['kind']=='job_description'
@@ -71,7 +73,7 @@ def main():
         try:sources.search('unexpected',limit=1,timeout=1)
         except PermissionError:pass
         else:raise AssertionError('network policy was not propagated')
-        report={'status':'passed','runtime':'deepseek-harness','request':request.model_dump(mode='json'),'input_documents':checkpoint['input_documents'],'brief':result,'next_phase':state.phase,'network_blocked':True,'model_calls':records}
+        report={'status':'passed','runtime':'deepseek-harness','skill':model.last_packet_metadata.get('skill_name'),'request':request.model_dump(mode='json'),'input_documents':checkpoint['input_documents'],'brief':result,'next_phase':state.phase,'network_blocked':True,'model_calls':records}
     except Exception as exc:
         report={'status':'failed','error':str(exc),'checkpoint':checkpoint,'model_calls':records}
         Path(args.output).parent.mkdir(parents=True,exist_ok=True)

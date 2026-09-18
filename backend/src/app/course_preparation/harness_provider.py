@@ -44,6 +44,11 @@ def harness_provider(adapter, *, timeout):
                     if not 0 < length <= 2_000_000:
                         raise ValueError('MODEL_PROTOCOL_ERROR: invalid request size')
                     payload = json.loads(self.rfile.read(length))
+                    required_skill = getattr(adapter, 'required_skill', None)
+                    if required_skill:
+                        from .intake_skill import skill_is_loaded
+                        if not skill_is_loaded(payload.get('messages', []), required_skill):
+                            raise ResearchError('SKILL_NOT_LOADED', '需求理解 Skill 未由 Harness 加载，未调用模型')
                     stream = payload.pop('stream', False)
                     payload.pop('stream_options', None)
                     payload.update(stream=False, max_tokens=6000, parallel_tool_calls=False)
@@ -81,7 +86,9 @@ def harness_provider(adapter, *, timeout):
                             raise
                         if adapter.meter:
                             adapter.meter.finish(action, usage=data.get('usage'), response_data={
-                                'runtime': 'deepseek-harness', 'response': data})
+                                'runtime': 'deepseek-harness',
+                                **({'skill': {'name': required_skill['name'], 'sha256': required_skill['sha256'], 'loaded': True}} if required_skill else {}),
+                                'response': data})
                         break
                     if data is None:
                         raise ResearchError('PROVIDER_UNAVAILABLE', 'Harness 模型服务不可用')

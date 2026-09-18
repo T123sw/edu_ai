@@ -11,7 +11,8 @@ def test_context_counts_tools_and_keeps_hard_request():
     context={'phase':'intent','request':{'goal':'中文学习目标'},'trace':[{'text':'旧历史'*1000}]*12}
     result=context_packet(context,[],max_tokens=20000)
     assert '中文学习目标' in result['messages'][1]['content']
-    assert result['role_version'].startswith('research-role.md:')
+    assert result['role_version'].startswith('intake-role.md:')
+    assert result['skill_name'] == 'understand-learning-request'
     with pytest.raises(ResearchError): context_packet(context,[{'schema':'x'*30000}],max_tokens=20000)
 
 
