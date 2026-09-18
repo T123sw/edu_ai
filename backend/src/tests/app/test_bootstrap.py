@@ -45,7 +45,7 @@ def test_main_app_keeps_major_routes(monkeypatch):
 
     # create a fresh app to get all routes (bypassing cached module-level app)
     app = create_app()
-    paths = {route.path for route in app.routes if hasattr(route, "path")}
+    paths = set(app.openapi()["paths"])
 
     assert {"/health", "/chat", "/teacher/lesson_plan", "/models"}.issubset(paths)
     assert not any(p.startswith("/api/pipeline") for p in paths)

@@ -1,0 +1,1672 @@
+{
+  "stage": {
+    "id": "resource_c8585c1a5837eb274a4bbc38afdae718",
+    "name": "工具调用与失败恢复",
+    "createdAt": 1789654783194,
+    "updatedAt": 1789654783194
+  },
+  "title": "工具调用与失败恢复",
+  "scenes": [
+    {
+      "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1",
+      "type": "slide",
+      "order": 0,
+      "title": "工具调用协议：职责分离",
+      "actions": [
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:speech",
+          "text": "我们先来理解工具调用协议的核心：职责分离。模型是一个非确定性推理器，它只负责提议动作，产出一个结构化的 JSON 载荷，里面包含工具名和参数。比如模型可能输出 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}}。但请注意，模型本身不执行任何操作。真正接收这个载荷的是你的应用代码，它负责校验参数是否合法、执行实际的工具逻辑，然后把结果作为新的上下文返回给模型。模型拿到结果后继续推理，生成最终答案。这个边界非常重要：模型负责想，代码负责做。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">工具调用协议：职责分离</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只提议动作，产出结构化 JSON 载荷</p><p>应用代码负责校验、执行并返回结果</p><p>模型本身不执行任何操作</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+      "createdAt": 1789654783194,
+      "updatedAt": 1789654783194
+    },
+    {
+      "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2",
+      "type": "slide",
+      "order": 1,
+      "title": "一个完整的调用循环",
+      "actions": [
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:speech",
+          "text": "我们来看一个完整的调用循环。第一步，模型根据用户问题，决定需要调用某个工具，于是产出一个 JSON 载荷，比如 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}}。第二步，应用代码接收到这个载荷，先校验参数——城市名是否合法、格式是否正确——然后执行实际的天气查询逻辑。第三步，查询结果被包装成新的上下文返回给模型，模型基于这个结果继续推理，最终生成用户能理解的回答。整个过程中，模型始终只是提议者和推理者，执行权牢牢掌握在应用代码手里。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">一个完整的调用循环</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型产出 JSON 载荷（工具名+参数）</p><p>应用校验并执行工具逻辑</p><p>结果作为新上下文返回模型继续推理</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+      "createdAt": 1789654783194,
+      "updatedAt": 1789654783194
+    },
+    {
+      "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3",
+      "type": "slide",
+      "order": 2,
+      "title": "瞬时故障：指数退避",
+      "actions": [
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:speech",
+          "text": "现在来看失败恢复。故障分两类：瞬时故障和持久故障。瞬时故障包括网络抖动、限流等，特点是过一会儿可能就好了。处理策略是在工具层用指数退避自动重试。比如第一次失败后等 1 秒重试，再失败等 2 秒，再失败等 4 秒，以此类推。这样做的目的是把瞬时故障在工具层内部吸收掉，不让它干扰模型的推理循环。模型不需要知道每次网络抖动，它只需要知道最终结果。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">瞬时故障：指数退避</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>网络抖动、限流属于瞬时故障</p><p>工具层用指数退避自动重试</p><p>不把原始异常直接暴露给推理循环</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+      "createdAt": 1789654783194,
+      "updatedAt": 1789654783194
+    },
+    {
+      "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4",
+      "type": "slide",
+      "order": 3,
+      "title": "持久故障：熔断器",
+      "actions": [
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:speech",
+          "text": "持久故障则不同，比如 API 密钥失效、服务长期宕机。这类故障不会自己恢复，反复重试只会浪费资源。处理策略是使用熔断器：设定一个失败阈值，一旦连续失败次数超过阈值，就停止调用这个工具，并明确告知模型该工具不可用。模型收到这个信号后，可以调整策略，比如换用其他工具，或者直接告诉用户当前无法完成某项操作。熔断器的价值在于快速失败，避免系统在注定失败的事情上消耗时间。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">持久故障：熔断器</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>超过失败阈值后停止调用工具</p><p>明确告知模型工具不可用</p><p>避免反复调用注定失败的工具</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+      "createdAt": 1789654783194,
+      "updatedAt": 1789654783194
+    },
+    {
+      "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5",
+      "type": "slide",
+      "order": 4,
+      "title": "类型化错误信号",
+      "actions": [
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:speech",
+          "text": "为什么需要类型化错误信号？看一个例子：{\"error\": \"rate_limited\", \"retry_after\": 30}。这个信号告诉模型两件事：第一，发生了什么——被限流了；第二，下一步该做什么——等 30 秒再试。模型拿到这个结构化信息后，可以做出合理的决策，比如告诉用户稍后再试，或者先处理其他任务。相比之下，如果直接把原始异常字符串抛给模型，比如一堆堆栈信息，模型很难从中提取有用的行动指令。类型化错误信号让模型从被动接收错误变成主动规划恢复。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">类型化错误信号</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>返回结构化错误，如 error 和 retry_after</p><p>模型能理解发生了什么以及下一步做什么</p><p>比原始异常字符串更有用</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+      "createdAt": 1789654783194,
+      "updatedAt": 1789654783194
+    },
+    {
+      "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6",
+      "type": "slide",
+      "order": 5,
+      "title": "学习检查",
+      "actions": [
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:speech",
+          "text": "现在来做学习检查。请写出一个类型化错误信号示例，比如 error 为 rate_limited、retry_after 为 30，并说明它比原始异常对模型更有用的原因。如果你能写出这个示例，并解释清楚：类型化错误信号让模型明确知道发生了什么以及下一步该做什么，而原始异常只是一堆难以解析的文本，那说明你已经掌握了本节的核心内容。如果写不出来，请回到错误信号部分重新阅读，重点理解为什么模型需要结构化、可解释的错误信息，而不是被幻觉内容填补缺口。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>写出一个类型化错误信号示例</p><p>说明它比原始异常对模型更有用的原因</p><p>写不出则回到错误信号部分重读</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+      "createdAt": 1789654783194,
+      "updatedAt": 1789654783194
+    }
+  ],
+  "status": "ready",
+  "content": {
+    "stage": {
+      "id": "resource_c8585c1a5837eb274a4bbc38afdae718",
+      "name": "工具调用与失败恢复",
+      "createdAt": 1789654783194,
+      "updatedAt": 1789654783194
+    },
+    "scenes": [
+      {
+        "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1",
+        "type": "slide",
+        "order": 0,
+        "title": "工具调用协议：职责分离",
+        "actions": [
+          {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:speech",
+            "text": "我们先来理解工具调用协议的核心：职责分离。模型是一个非确定性推理器，它只负责提议动作，产出一个结构化的 JSON 载荷，里面包含工具名和参数。比如模型可能输出 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}}。但请注意，模型本身不执行任何操作。真正接收这个载荷的是你的应用代码，它负责校验参数是否合法、执行实际的工具逻辑，然后把结果作为新的上下文返回给模型。模型拿到结果后继续推理，生成最终答案。这个边界非常重要：模型负责想，代码负责做。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">工具调用协议：职责分离</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只提议动作，产出结构化 JSON 载荷</p><p>应用代码负责校验、执行并返回结果</p><p>模型本身不执行任何操作</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+        "createdAt": 1789654783194,
+        "updatedAt": 1789654783194
+      },
+      {
+        "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2",
+        "type": "slide",
+        "order": 1,
+        "title": "一个完整的调用循环",
+        "actions": [
+          {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:speech",
+            "text": "我们来看一个完整的调用循环。第一步，模型根据用户问题，决定需要调用某个工具，于是产出一个 JSON 载荷，比如 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}}。第二步，应用代码接收到这个载荷，先校验参数——城市名是否合法、格式是否正确——然后执行实际的天气查询逻辑。第三步，查询结果被包装成新的上下文返回给模型，模型基于这个结果继续推理，最终生成用户能理解的回答。整个过程中，模型始终只是提议者和推理者，执行权牢牢掌握在应用代码手里。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">一个完整的调用循环</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型产出 JSON 载荷（工具名+参数）</p><p>应用校验并执行工具逻辑</p><p>结果作为新上下文返回模型继续推理</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+        "createdAt": 1789654783194,
+        "updatedAt": 1789654783194
+      },
+      {
+        "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3",
+        "type": "slide",
+        "order": 2,
+        "title": "瞬时故障：指数退避",
+        "actions": [
+          {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:speech",
+            "text": "现在来看失败恢复。故障分两类：瞬时故障和持久故障。瞬时故障包括网络抖动、限流等，特点是过一会儿可能就好了。处理策略是在工具层用指数退避自动重试。比如第一次失败后等 1 秒重试，再失败等 2 秒，再失败等 4 秒，以此类推。这样做的目的是把瞬时故障在工具层内部吸收掉，不让它干扰模型的推理循环。模型不需要知道每次网络抖动，它只需要知道最终结果。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">瞬时故障：指数退避</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>网络抖动、限流属于瞬时故障</p><p>工具层用指数退避自动重试</p><p>不把原始异常直接暴露给推理循环</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+        "createdAt": 1789654783194,
+        "updatedAt": 1789654783194
+      },
+      {
+        "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4",
+        "type": "slide",
+        "order": 3,
+        "title": "持久故障：熔断器",
+        "actions": [
+          {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:speech",
+            "text": "持久故障则不同，比如 API 密钥失效、服务长期宕机。这类故障不会自己恢复，反复重试只会浪费资源。处理策略是使用熔断器：设定一个失败阈值，一旦连续失败次数超过阈值，就停止调用这个工具，并明确告知模型该工具不可用。模型收到这个信号后，可以调整策略，比如换用其他工具，或者直接告诉用户当前无法完成某项操作。熔断器的价值在于快速失败，避免系统在注定失败的事情上消耗时间。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">持久故障：熔断器</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>超过失败阈值后停止调用工具</p><p>明确告知模型工具不可用</p><p>避免反复调用注定失败的工具</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+        "createdAt": 1789654783194,
+        "updatedAt": 1789654783194
+      },
+      {
+        "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5",
+        "type": "slide",
+        "order": 4,
+        "title": "类型化错误信号",
+        "actions": [
+          {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:speech",
+            "text": "为什么需要类型化错误信号？看一个例子：{\"error\": \"rate_limited\", \"retry_after\": 30}。这个信号告诉模型两件事：第一，发生了什么——被限流了；第二，下一步该做什么——等 30 秒再试。模型拿到这个结构化信息后，可以做出合理的决策，比如告诉用户稍后再试，或者先处理其他任务。相比之下，如果直接把原始异常字符串抛给模型，比如一堆堆栈信息，模型很难从中提取有用的行动指令。类型化错误信号让模型从被动接收错误变成主动规划恢复。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">类型化错误信号</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>返回结构化错误，如 error 和 retry_after</p><p>模型能理解发生了什么以及下一步做什么</p><p>比原始异常字符串更有用</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+        "createdAt": 1789654783194,
+        "updatedAt": 1789654783194
+      },
+      {
+        "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6",
+        "type": "slide",
+        "order": 5,
+        "title": "学习检查",
+        "actions": [
+          {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:speech",
+            "text": "现在来做学习检查。请写出一个类型化错误信号示例，比如 error 为 rate_limited、retry_after 为 30，并说明它比原始异常对模型更有用的原因。如果你能写出这个示例，并解释清楚：类型化错误信号让模型明确知道发生了什么以及下一步该做什么，而原始异常只是一堆难以解析的文本，那说明你已经掌握了本节的核心内容。如果写不出来，请回到错误信号部分重新阅读，重点理解为什么模型需要结构化、可解释的错误信息，而不是被幻觉内容填补缺口。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>写出一个类型化错误信号示例</p><p>说明它比原始异常对模型更有用的原因</p><p>写不出则回到错误信号部分重读</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+        "createdAt": 1789654783194,
+        "updatedAt": 1789654783194
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "tool_calling_failure_recovery",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "created_at": "2026-09-17T14:24:21.376898+00:00",
+  "created_by": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-09-17T14:24:21.376898+00:00",
+  "visibility": "private",
+  "material_id": "resource_c8585c1a5837eb274a4bbc38afdae718",
+  "origin_type": "personal",
+  "content_hash": "c54e8a1cf39651234ad18dd4f2346b11d554c8e392c15e45f7dd0fc2faaf3f9c",
+  "material_type": "classroom",
+  "owner_user_id": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "generation_state": {
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "资源类型为 classroom，主题为工具调用与失败恢复，受众为有 Python 开发基础、目标应聘 AI Agent 开发岗位的学习者，语言为中文，学习时间约 30 分钟。6 个场景覆盖工具调用协议、完整调用循环、瞬时故障、持久故障、类型化错误信号和学习检查，与已确认分组及学习目标一致。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐场景核验投屏与讲解：职责分离、JSON 载荷、应用校验执行、指数退避、熔断器、类型化错误信号等表述均与资料一致，未发现事实错误。示例 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}} 和 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}} 结构合理，指数退避 1、2、4 秒的示例正确。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "课堂资源不要求习题逐题求解或闪卡问答。场景 1、2 给出 JSON 载荷示例，场景 3 给出指数退避等待时间示例，场景 5 给出类型化错误信号示例，均与讲解内容对应且正确。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "场景顺序为概念引入、调用循环、瞬时故障、持久故障、错误信号、学习检查，符合开场、解释、练习/反馈的结构。每个场景有投屏和讲解动作，学习检查场景要求学习者写出示例并说明原因，互动设计合理。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "内容与提供的 research_sources 一致，核心概念如职责分离、类型化错误信号、指数退避、熔断器均来自 machinelearningmastery.com 的资料，未发现无依据的编造引用。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "6 个场景完整覆盖学习目标：能描述工具调用协议、区分瞬时与持久故障及处理策略、解释模型应知道工具失败的原因，并能写出类型化错误信号示例。学习检查场景提供了反馈和重读指引。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "资源类型为 classroom，主题为工具调用与失败恢复，受众为有 Python 开发基础、目标应聘 AI Agent 开发岗位的学习者，语言为中文，学习时间约 30 分钟。6 个场景覆盖工具调用协议、完整调用循环、瞬时故障、持久故障、类型化错误信号和学习检查，与已确认分组及学习目标一致。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐场景核验投屏与讲解：职责分离、JSON 载荷、应用校验执行、指数退避、熔断器、类型化错误信号等表述均与资料一致，未发现事实错误。示例 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}} 和 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}} 结构合理，指数退避 1、2、4 秒的示例正确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "课堂资源不要求习题逐题求解或闪卡问答。场景 1、2 给出 JSON 载荷示例，场景 3 给出指数退避等待时间示例，场景 5 给出类型化错误信号示例，均与讲解内容对应且正确。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "场景顺序为概念引入、调用循环、瞬时故障、持久故障、错误信号、学习检查，符合开场、解释、练习/反馈的结构。每个场景有投屏和讲解动作，学习检查场景要求学习者写出示例并说明原因，互动设计合理。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "内容与提供的 research_sources 一致，核心概念如职责分离、类型化错误信号、指数退避、熔断器均来自 machinelearningmastery.com 的资料，未发现无依据的编造引用。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "6 个场景完整覆盖学习目标：能描述工具调用协议、区分瞬时与持久故障及处理策略、解释模型应知道工具失败的原因，并能写出类型化错误信号示例。学习检查场景提供了反馈和重读指引。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "场景 1 和场景 2 的讲解中 JSON 示例使用了不同的工具名（search 和 get_weather），可考虑统一为同一工具以增强连贯性，但当前表述不影响正确性。",
+              "学习检查场景可考虑增加一个具体的错误信号填空或选择互动，以更直接地检验学习者能否写出示例，但当前开放式提问已满足学习目标。"
+            ],
+            "scene_checks": [
+              {
+                "scene_index": 0,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解准确描述模型是非确定性推理器、只提议动作并产出 JSON 载荷，示例 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}} 结构正确；明确说明模型不执行操作，应用代码校验、执行并返回结果，模型基于结果继续推理。与投屏和资料一致。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“工具调用协议：职责分离”，正文三条要点：模型只提议动作并产出结构化 JSON 载荷、应用代码负责校验执行并返回结果、模型本身不执行任何操作。内容与资料一致，无事实错误。"
+              },
+              {
+                "scene_index": 1,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解按三步描述调用循环，示例 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}} 结构正确；说明应用校验参数、执行查询、返回结果，模型继续推理生成回答。强调模型只是提议者和推理者，执行权在应用代码，表述准确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“一个完整的调用循环”，正文三步：模型产出 JSON 载荷、应用校验并执行、结果作为新上下文返回模型继续推理。内容正确，与资料一致。"
+              },
+              {
+                "scene_index": 2,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解正确区分瞬时故障和持久故障，指出瞬时故障包括网络抖动、限流，处理策略为工具层指数退避自动重试。示例等待时间 1 秒、2 秒、4 秒符合指数退避模式。说明目的是在工具层吸收故障、不干扰模型推理循环，表述准确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“瞬时故障：指数退避”，正文指出网络抖动、限流属于瞬时故障，工具层用指数退避自动重试，不把原始异常直接暴露给推理循环。内容与资料一致。"
+              },
+              {
+                "scene_index": 3,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解正确说明持久故障如 API 密钥失效、服务长期宕机不会自行恢复，处理策略为熔断器：设定失败阈值，连续失败超过阈值后停止调用并告知模型工具不可用。模型可调整策略或告知用户。强调快速失败避免浪费资源，表述准确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“持久故障：熔断器”，正文指出超过失败阈值后停止调用工具、明确告知模型工具不可用、避免反复调用注定失败的工具。内容与资料一致。"
+              },
+              {
+                "scene_index": 4,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解给出示例 {\"error\": \"rate_limited\", \"retry_after\": 30}，正确解释该信号告诉模型发生了什么（被限流）和下一步做什么（等 30 秒再试）。对比原始异常字符串难以提取行动指令，说明类型化错误信号让模型主动规划恢复，表述准确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“类型化错误信号”，正文指出返回结构化错误如 error 和 retry_after，模型能理解发生了什么及下一步做什么，比原始异常字符串更有用。内容与资料一致。"
+              },
+              {
+                "scene_index": 5,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解要求学习者写出 error 为 rate_limited、retry_after 为 30 的示例，并解释类型化错误信号让模型明确知道发生了什么及下一步做什么，而原始异常是难以解析的文本。提供反馈和重读指引，与学习检查目标一致。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“学习检查”，正文要求写出类型化错误信号示例、说明其比原始异常更有用的原因、写不出则回到错误信号部分重读。内容与学习目标一致。"
+              }
+            ],
+            "blocking_issues": []
+          },
+          "version": 1,
+          "decision": "pass"
+        }
+      ],
+      "decision": "pass",
+      "scene_checks": [
+        {
+          "scene_index": 0,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解准确描述模型是非确定性推理器、只提议动作并产出 JSON 载荷，示例 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}} 结构正确；明确说明模型不执行操作，应用代码校验、执行并返回结果，模型基于结果继续推理。与投屏和资料一致。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“工具调用协议：职责分离”，正文三条要点：模型只提议动作并产出结构化 JSON 载荷、应用代码负责校验执行并返回结果、模型本身不执行任何操作。内容与资料一致，无事实错误。"
+        },
+        {
+          "scene_index": 1,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解按三步描述调用循环，示例 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}} 结构正确；说明应用校验参数、执行查询、返回结果，模型继续推理生成回答。强调模型只是提议者和推理者，执行权在应用代码，表述准确。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“一个完整的调用循环”，正文三步：模型产出 JSON 载荷、应用校验并执行、结果作为新上下文返回模型继续推理。内容正确，与资料一致。"
+        },
+        {
+          "scene_index": 2,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解正确区分瞬时故障和持久故障，指出瞬时故障包括网络抖动、限流，处理策略为工具层指数退避自动重试。示例等待时间 1 秒、2 秒、4 秒符合指数退避模式。说明目的是在工具层吸收故障、不干扰模型推理循环，表述准确。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“瞬时故障：指数退避”，正文指出网络抖动、限流属于瞬时故障，工具层用指数退避自动重试，不把原始异常直接暴露给推理循环。内容与资料一致。"
+        },
+        {
+          "scene_index": 3,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解正确说明持久故障如 API 密钥失效、服务长期宕机不会自行恢复，处理策略为熔断器：设定失败阈值，连续失败超过阈值后停止调用并告知模型工具不可用。模型可调整策略或告知用户。强调快速失败避免浪费资源，表述准确。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“持久故障：熔断器”，正文指出超过失败阈值后停止调用工具、明确告知模型工具不可用、避免反复调用注定失败的工具。内容与资料一致。"
+        },
+        {
+          "scene_index": 4,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解给出示例 {\"error\": \"rate_limited\", \"retry_after\": 30}，正确解释该信号告诉模型发生了什么（被限流）和下一步做什么（等 30 秒再试）。对比原始异常字符串难以提取行动指令，说明类型化错误信号让模型主动规划恢复，表述准确。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“类型化错误信号”，正文指出返回结构化错误如 error 和 retry_after，模型能理解发生了什么及下一步做什么，比原始异常字符串更有用。内容与资料一致。"
+        },
+        {
+          "scene_index": 5,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解要求学习者写出 error 为 rate_limited、retry_after 为 30 的示例，并解释类型化错误信号让模型明确知道发生了什么及下一步做什么，而原始异常是难以解析的文本。提供反馈和重读指引，与学习检查目标一致。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“学习检查”，正文要求写出类型化错误信号示例、说明其比原始异常更有用的原因、写不出则回到错误信号部分重读。内容与学习目标一致。"
+        }
+      ],
+      "resource_type": "classroom",
+      "content_sha256": "ecbc1d1c857a28ef7fe3981f99c974f7107ff760c8a3f23f71278a9cdddec198"
+    }
+  },
+  "preparation_artifact": {
+    "title": "工具调用与失败恢复",
+    "content": {
+      "stage": {
+        "id": "resource_c8585c1a5837eb274a4bbc38afdae718",
+        "name": "工具调用与失败恢复",
+        "createdAt": 1789654783194,
+        "updatedAt": 1789654783194
+      },
+      "scenes": [
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1",
+          "type": "slide",
+          "order": 0,
+          "title": "工具调用协议：职责分离",
+          "actions": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:speech",
+              "text": "我们先来理解工具调用协议的核心：职责分离。模型是一个非确定性推理器，它只负责提议动作，产出一个结构化的 JSON 载荷，里面包含工具名和参数。比如模型可能输出 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}}。但请注意，模型本身不执行任何操作。真正接收这个载荷的是你的应用代码，它负责校验参数是否合法、执行实际的工具逻辑，然后把结果作为新的上下文返回给模型。模型拿到结果后继续推理，生成最终答案。这个边界非常重要：模型负责想，代码负责做。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">工具调用协议：职责分离</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene1:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只提议动作，产出结构化 JSON 载荷</p><p>应用代码负责校验、执行并返回结果</p><p>模型本身不执行任何操作</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+          "createdAt": 1789654783194,
+          "updatedAt": 1789654783194
+        },
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2",
+          "type": "slide",
+          "order": 1,
+          "title": "一个完整的调用循环",
+          "actions": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:speech",
+              "text": "我们来看一个完整的调用循环。第一步，模型根据用户问题，决定需要调用某个工具，于是产出一个 JSON 载荷，比如 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}}。第二步，应用代码接收到这个载荷，先校验参数——城市名是否合法、格式是否正确——然后执行实际的天气查询逻辑。第三步，查询结果被包装成新的上下文返回给模型，模型基于这个结果继续推理，最终生成用户能理解的回答。整个过程中，模型始终只是提议者和推理者，执行权牢牢掌握在应用代码手里。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">一个完整的调用循环</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene2:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型产出 JSON 载荷（工具名+参数）</p><p>应用校验并执行工具逻辑</p><p>结果作为新上下文返回模型继续推理</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+          "createdAt": 1789654783194,
+          "updatedAt": 1789654783194
+        },
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3",
+          "type": "slide",
+          "order": 2,
+          "title": "瞬时故障：指数退避",
+          "actions": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:speech",
+              "text": "现在来看失败恢复。故障分两类：瞬时故障和持久故障。瞬时故障包括网络抖动、限流等，特点是过一会儿可能就好了。处理策略是在工具层用指数退避自动重试。比如第一次失败后等 1 秒重试，再失败等 2 秒，再失败等 4 秒，以此类推。这样做的目的是把瞬时故障在工具层内部吸收掉，不让它干扰模型的推理循环。模型不需要知道每次网络抖动，它只需要知道最终结果。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">瞬时故障：指数退避</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene3:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>网络抖动、限流属于瞬时故障</p><p>工具层用指数退避自动重试</p><p>不把原始异常直接暴露给推理循环</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+          "createdAt": 1789654783194,
+          "updatedAt": 1789654783194
+        },
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4",
+          "type": "slide",
+          "order": 3,
+          "title": "持久故障：熔断器",
+          "actions": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:speech",
+              "text": "持久故障则不同，比如 API 密钥失效、服务长期宕机。这类故障不会自己恢复，反复重试只会浪费资源。处理策略是使用熔断器：设定一个失败阈值，一旦连续失败次数超过阈值，就停止调用这个工具，并明确告知模型该工具不可用。模型收到这个信号后，可以调整策略，比如换用其他工具，或者直接告诉用户当前无法完成某项操作。熔断器的价值在于快速失败，避免系统在注定失败的事情上消耗时间。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">持久故障：熔断器</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene4:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>超过失败阈值后停止调用工具</p><p>明确告知模型工具不可用</p><p>避免反复调用注定失败的工具</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+          "createdAt": 1789654783194,
+          "updatedAt": 1789654783194
+        },
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5",
+          "type": "slide",
+          "order": 4,
+          "title": "类型化错误信号",
+          "actions": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:speech",
+              "text": "为什么需要类型化错误信号？看一个例子：{\"error\": \"rate_limited\", \"retry_after\": 30}。这个信号告诉模型两件事：第一，发生了什么——被限流了；第二，下一步该做什么——等 30 秒再试。模型拿到这个结构化信息后，可以做出合理的决策，比如告诉用户稍后再试，或者先处理其他任务。相比之下，如果直接把原始异常字符串抛给模型，比如一堆堆栈信息，模型很难从中提取有用的行动指令。类型化错误信号让模型从被动接收错误变成主动规划恢复。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">类型化错误信号</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene5:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>返回结构化错误，如 error 和 retry_after</p><p>模型能理解发生了什么以及下一步做什么</p><p>比原始异常字符串更有用</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+          "createdAt": 1789654783194,
+          "updatedAt": 1789654783194
+        },
+        {
+          "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6",
+          "type": "slide",
+          "order": 5,
+          "title": "学习检查",
+          "actions": [
+            {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:speech",
+              "text": "现在来做学习检查。请写出一个类型化错误信号示例，比如 error 为 rate_limited、retry_after 为 30，并说明它比原始异常对模型更有用的原因。如果你能写出这个示例，并解释清楚：类型化错误信号让模型明确知道发生了什么以及下一步该做什么，而原始异常只是一堆难以解析的文本，那说明你已经掌握了本节的核心内容。如果写不出来，请回到错误信号部分重新阅读，重点理解为什么模型需要结构化、可解释的错误信息，而不是被幻觉内容填补缺口。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_c8585c1a5837eb274a4bbc38afdae718:scene6:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>写出一个类型化错误信号示例</p><p>说明它比原始异常对模型更有用的原因</p><p>写不出则回到错误信号部分重读</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_c8585c1a5837eb274a4bbc38afdae718",
+          "createdAt": 1789654783194,
+          "updatedAt": 1789654783194
+        }
+      ]
+    },
+    "limitations": [
+      "文本投屏与讲解动作；未生成外部图片、视频或预合成配音。"
+    ],
+    "artifact_type": "classroom",
+    "generation_state": {
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "资源类型为 classroom，主题为工具调用与失败恢复，受众为有 Python 开发基础、目标应聘 AI Agent 开发岗位的学习者，语言为中文，学习时间约 30 分钟。6 个场景覆盖工具调用协议、完整调用循环、瞬时故障、持久故障、类型化错误信号和学习检查，与已确认分组及学习目标一致。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "逐场景核验投屏与讲解：职责分离、JSON 载荷、应用校验执行、指数退避、熔断器、类型化错误信号等表述均与资料一致，未发现事实错误。示例 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}} 和 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}} 结构合理，指数退避 1、2、4 秒的示例正确。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "课堂资源不要求习题逐题求解或闪卡问答。场景 1、2 给出 JSON 载荷示例，场景 3 给出指数退避等待时间示例，场景 5 给出类型化错误信号示例，均与讲解内容对应且正确。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "场景顺序为概念引入、调用循环、瞬时故障、持久故障、错误信号、学习检查，符合开场、解释、练习/反馈的结构。每个场景有投屏和讲解动作，学习检查场景要求学习者写出示例并说明原因，互动设计合理。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "内容与提供的 research_sources 一致，核心概念如职责分离、类型化错误信号、指数退避、熔断器均来自 machinelearningmastery.com 的资料，未发现无依据的编造引用。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "6 个场景完整覆盖学习目标：能描述工具调用协议、区分瞬时与持久故障及处理策略、解释模型应知道工具失败的原因，并能写出类型化错误信号示例。学习检查场景提供了反馈和重读指引。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "资源类型为 classroom，主题为工具调用与失败恢复，受众为有 Python 开发基础、目标应聘 AI Agent 开发岗位的学习者，语言为中文，学习时间约 30 分钟。6 个场景覆盖工具调用协议、完整调用循环、瞬时故障、持久故障、类型化错误信号和学习检查，与已确认分组及学习目标一致。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "逐场景核验投屏与讲解：职责分离、JSON 载荷、应用校验执行、指数退避、熔断器、类型化错误信号等表述均与资料一致，未发现事实错误。示例 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}} 和 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}} 结构合理，指数退避 1、2、4 秒的示例正确。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "课堂资源不要求习题逐题求解或闪卡问答。场景 1、2 给出 JSON 载荷示例，场景 3 给出指数退避等待时间示例，场景 5 给出类型化错误信号示例，均与讲解内容对应且正确。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "场景顺序为概念引入、调用循环、瞬时故障、持久故障、错误信号、学习检查，符合开场、解释、练习/反馈的结构。每个场景有投屏和讲解动作，学习检查场景要求学习者写出示例并说明原因，互动设计合理。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "内容与提供的 research_sources 一致，核心概念如职责分离、类型化错误信号、指数退避、熔断器均来自 machinelearningmastery.com 的资料，未发现无依据的编造引用。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "6 个场景完整覆盖学习目标：能描述工具调用协议、区分瞬时与持久故障及处理策略、解释模型应知道工具失败的原因，并能写出类型化错误信号示例。学习检查场景提供了反馈和重读指引。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "场景 1 和场景 2 的讲解中 JSON 示例使用了不同的工具名（search 和 get_weather），可考虑统一为同一工具以增强连贯性，但当前表述不影响正确性。",
+                "学习检查场景可考虑增加一个具体的错误信号填空或选择互动，以更直接地检验学习者能否写出示例，但当前开放式提问已满足学习目标。"
+              ],
+              "scene_checks": [
+                {
+                  "scene_index": 0,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解准确描述模型是非确定性推理器、只提议动作并产出 JSON 载荷，示例 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}} 结构正确；明确说明模型不执行操作，应用代码校验、执行并返回结果，模型基于结果继续推理。与投屏和资料一致。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“工具调用协议：职责分离”，正文三条要点：模型只提议动作并产出结构化 JSON 载荷、应用代码负责校验执行并返回结果、模型本身不执行任何操作。内容与资料一致，无事实错误。"
+                },
+                {
+                  "scene_index": 1,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解按三步描述调用循环，示例 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}} 结构正确；说明应用校验参数、执行查询、返回结果，模型继续推理生成回答。强调模型只是提议者和推理者，执行权在应用代码，表述准确。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“一个完整的调用循环”，正文三步：模型产出 JSON 载荷、应用校验并执行、结果作为新上下文返回模型继续推理。内容正确，与资料一致。"
+                },
+                {
+                  "scene_index": 2,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解正确区分瞬时故障和持久故障，指出瞬时故障包括网络抖动、限流，处理策略为工具层指数退避自动重试。示例等待时间 1 秒、2 秒、4 秒符合指数退避模式。说明目的是在工具层吸收故障、不干扰模型推理循环，表述准确。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“瞬时故障：指数退避”，正文指出网络抖动、限流属于瞬时故障，工具层用指数退避自动重试，不把原始异常直接暴露给推理循环。内容与资料一致。"
+                },
+                {
+                  "scene_index": 3,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解正确说明持久故障如 API 密钥失效、服务长期宕机不会自行恢复，处理策略为熔断器：设定失败阈值，连续失败超过阈值后停止调用并告知模型工具不可用。模型可调整策略或告知用户。强调快速失败避免浪费资源，表述准确。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“持久故障：熔断器”，正文指出超过失败阈值后停止调用工具、明确告知模型工具不可用、避免反复调用注定失败的工具。内容与资料一致。"
+                },
+                {
+                  "scene_index": 4,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解给出示例 {\"error\": \"rate_limited\", \"retry_after\": 30}，正确解释该信号告诉模型发生了什么（被限流）和下一步做什么（等 30 秒再试）。对比原始异常字符串难以提取行动指令，说明类型化错误信号让模型主动规划恢复，表述准确。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“类型化错误信号”，正文指出返回结构化错误如 error 和 retry_after，模型能理解发生了什么及下一步做什么，比原始异常字符串更有用。内容与资料一致。"
+                },
+                {
+                  "scene_index": 5,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解要求学习者写出 error 为 rate_limited、retry_after 为 30 的示例，并解释类型化错误信号让模型明确知道发生了什么及下一步做什么，而原始异常是难以解析的文本。提供反馈和重读指引，与学习检查目标一致。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“学习检查”，正文要求写出类型化错误信号示例、说明其比原始异常更有用的原因、写不出则回到错误信号部分重读。内容与学习目标一致。"
+                }
+              ],
+              "blocking_issues": []
+            },
+            "version": 1,
+            "decision": "pass"
+          }
+        ],
+        "decision": "pass",
+        "scene_checks": [
+          {
+            "scene_index": 0,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解准确描述模型是非确定性推理器、只提议动作并产出 JSON 载荷，示例 {\"tool\": \"search\", \"args\": {\"query\": \"天气\"}} 结构正确；明确说明模型不执行操作，应用代码校验、执行并返回结果，模型基于结果继续推理。与投屏和资料一致。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“工具调用协议：职责分离”，正文三条要点：模型只提议动作并产出结构化 JSON 载荷、应用代码负责校验执行并返回结果、模型本身不执行任何操作。内容与资料一致，无事实错误。"
+          },
+          {
+            "scene_index": 1,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解按三步描述调用循环，示例 {\"tool\": \"get_weather\", \"args\": {\"city\": \"北京\"}} 结构正确；说明应用校验参数、执行查询、返回结果，模型继续推理生成回答。强调模型只是提议者和推理者，执行权在应用代码，表述准确。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“一个完整的调用循环”，正文三步：模型产出 JSON 载荷、应用校验并执行、结果作为新上下文返回模型继续推理。内容正确，与资料一致。"
+          },
+          {
+            "scene_index": 2,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解正确区分瞬时故障和持久故障，指出瞬时故障包括网络抖动、限流，处理策略为工具层指数退避自动重试。示例等待时间 1 秒、2 秒、4 秒符合指数退避模式。说明目的是在工具层吸收故障、不干扰模型推理循环，表述准确。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“瞬时故障：指数退避”，正文指出网络抖动、限流属于瞬时故障，工具层用指数退避自动重试，不把原始异常直接暴露给推理循环。内容与资料一致。"
+          },
+          {
+            "scene_index": 3,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解正确说明持久故障如 API 密钥失效、服务长期宕机不会自行恢复，处理策略为熔断器：设定失败阈值，连续失败超过阈值后停止调用并告知模型工具不可用。模型可调整策略或告知用户。强调快速失败避免浪费资源，表述准确。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“持久故障：熔断器”，正文指出超过失败阈值后停止调用工具、明确告知模型工具不可用、避免反复调用注定失败的工具。内容与资料一致。"
+          },
+          {
+            "scene_index": 4,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解给出示例 {\"error\": \"rate_limited\", \"retry_after\": 30}，正确解释该信号告诉模型发生了什么（被限流）和下一步做什么（等 30 秒再试）。对比原始异常字符串难以提取行动指令，说明类型化错误信号让模型主动规划恢复，表述准确。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“类型化错误信号”，正文指出返回结构化错误如 error 和 retry_after，模型能理解发生了什么及下一步做什么，比原始异常字符串更有用。内容与资料一致。"
+          },
+          {
+            "scene_index": 5,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解要求学习者写出 error 为 rate_limited、retry_after 为 30 的示例，并解释类型化错误信号让模型明确知道发生了什么及下一步做什么，而原始异常是难以解析的文本。提供反馈和重读指引，与学习检查目标一致。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“学习检查”，正文要求写出类型化错误信号示例、说明其比原始异常更有用的原因、写不出则回到错误信号部分重读。内容与学习目标一致。"
+          }
+        ],
+        "resource_type": "classroom",
+        "content_sha256": "ecbc1d1c857a28ef7fe3981f99c974f7107ff760c8a3f23f71278a9cdddec198"
+      }
+    }
+  },
+  "learning_course_resource": true
+}

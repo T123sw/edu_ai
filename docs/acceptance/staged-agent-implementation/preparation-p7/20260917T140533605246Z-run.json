@@ -1,0 +1,16 @@
+{
+  "started_at": "2026-09-17T14:05:33.605283+00:00",
+  "finished_at": "2026-09-17T14:05:54.576441+00:00",
+  "command": [
+    "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python",
+    "-m",
+    "pytest",
+    "tests/course_preparation/test_route_adjustment.py",
+    "-q"
+  ],
+  "exit_code": 0,
+  "log": "20260917T140533605246Z-pytest.txt",
+  "sha256": "fa12e9b3a64aeeb2a6bf6ad4f74af61c1fa95f7b19722b46322d5b760cba2bb9",
+  "base_commit": "9278ae4404bca9daebf62c041eba00bd6e07ebc9",
+  "python": "3.12.14"
+}

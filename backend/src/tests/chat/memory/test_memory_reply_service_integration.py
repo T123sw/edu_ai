@@ -7,6 +7,7 @@ from app.chat.memory.domain import MemoryWriteResult
 class _Store:
     def __init__(self):
         self.writes = []
+        self.storage = SimpleNamespace(get_state=lambda _: {})
 
     def write_v2_result(self, conversation_id, request, result):
         self.writes.append((conversation_id, request, result))

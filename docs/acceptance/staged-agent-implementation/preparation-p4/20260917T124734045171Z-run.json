@@ -1,0 +1,16 @@
+{
+  "started_at": "2026-09-17T12:47:34.045193+00:00",
+  "finished_at": "2026-09-17T12:47:47.406235+00:00",
+  "command": [
+    "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python",
+    "-m",
+    "pytest",
+    "tests/course_preparation/test_resource_reuse.py",
+    "-q"
+  ],
+  "exit_code": 0,
+  "log": "20260917T124734045171Z-pytest.txt",
+  "sha256": "faa13edceb2554a3919c415845eef68c6201c3bfacd0e2602aa398fc19f09aab",
+  "base_commit": "b74b35eed1556700a83f8d7bff3dc1e9b152236b",
+  "python": "3.12.14"
+}

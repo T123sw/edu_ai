@@ -1,0 +1,20 @@
+{
+  "started_at": "2026-09-17T12:12:40.873499+00:00",
+  "finished_at": "2026-09-17T12:21:17.338456+00:00",
+  "command": [
+    "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python",
+    "-m",
+    "pytest",
+    "tests/course_preparation",
+    "tests/self_learning",
+    "tests/chat/memory",
+    "tests/database/test_alembic_revision_chain.py",
+    "--import-mode=importlib",
+    "-q"
+  ],
+  "exit_code": 0,
+  "log": "20260917T121240873469Z-pytest.txt",
+  "sha256": "96d7c918454ac3fe9697b8e0ec180bf54d784cca4a9155972cd93459df3f2e6b",
+  "base_commit": "d7fa296755330ea46286f72182398e0a8b9be5ce",
+  "python": "3.12.14"
+}

@@ -1,0 +1,33 @@
+{
+  "endpoint": "GET /api/self-learning/courses/{course}",
+  "sample_count": 20,
+  "concurrency": 1,
+  "milliseconds": [
+    418.1958460249007,
+    427.1117350435816,
+    409.56343803554773,
+    454.25123698078096,
+    509.45153704378754,
+    185.30131096486002,
+    196.08648295979947,
+    167.6165649550967,
+    172.51176398713142,
+    175.39664899231866,
+    169.59575098007917,
+    178.19042899645865,
+    195.07724803406745,
+    331.6666620085016,
+    468.2113020098768,
+    1486.8671800359152,
+    214.34920595493168,
+    180.9480410302058,
+    168.5005470062606,
+    169.04193203663453
+  ],
+  "p50_ms": 195.58186549693346,
+  "p95_ms": 509.45153704378754,
+  "platform": "Linux-5.15.0-191-generic-x86_64-with-glibc2.35",
+  "cpu_count": 40,
+  "unauthorized_other_owner_status": 404,
+  "note": "Isolated local PostgreSQL, concurrent preparation and learning validation; latency does not include model generation."
+}

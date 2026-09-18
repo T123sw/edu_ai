@@ -1306,3 +1306,167 @@ class CoursePreparationEventRecord(Base):
     revision: Mapped[int] = mapped_column(Integer, nullable=False)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class CourseResearchRunRecord(Base):
+    """Durable research-stage work; success is a reviewed path, not a ready course."""
+    __tablename__ = 'course_research_runs'
+    __table_args__ = (
+        UniqueConstraint('owner_user_id', 'request_id', name='uq_course_research_request'),
+        CheckConstraint("status IN ('queued', 'running', 'succeeded', 'failed', 'canceled')", name='research_status'),
+        CheckConstraint('revision >= 1 AND recoveries >= 0', name='research_revision'),
+        Index('ix_course_research_claim', 'status', 'lease_until'),
+    )
+    run_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    owner_user_id: Mapped[str] = mapped_column(String(160), ForeignKey('users.user_id'), nullable=False)
+    request_id: Mapped[str] = mapped_column(String(36), nullable=False)
+    request_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    request_payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    config_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    state_payload: Mapped[dict[str, Any]] = mapped_column(JSON_PAYLOAD, nullable=False)
+    status: Mapped[str] = mapped_column(String(32), nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    recoveries: Mapped[int] = mapped_column(Integer, nullable=False)
+    lease_token: Mapped[str | None] = mapped_column(String(64))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    error_code: Mapped[str | None] = mapped_column(String(80))
+
+
+class PreparationExecution(Base):
+    __tablename__ = 'preparation_executions'
+    __table_args__ = (ForeignKeyConstraint(['preparation_id', 'attempt_no'],
+        ['course_preparation_attempts.preparation_id', 'course_preparation_attempts.attempt_no'], ondelete='CASCADE'),)
+    preparation_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    attempt_no: Mapped[int] = mapped_column(Integer, primary_key=True)
+    lease_token: Mapped[str | None] = mapped_column(String(64))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    worker_id: Mapped[str | None] = mapped_column(String(200))
+    wake_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    input_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    checkpoint: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    error_code: Mapped[str | None] = mapped_column(String(100))
+    result_ref: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    no_progress: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class PreparationBudget(Base):
+    __tablename__ = 'preparation_budgets'
+    preparation_id: Mapped[str] = mapped_column(String(200), ForeignKey('course_preparations.preparation_id'), primary_key=True)
+    deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    limits: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    reserved: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    consumed: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+
+
+class PreparationAction(Base):
+    __tablename__ = 'preparation_actions'
+    __table_args__ = (UniqueConstraint('preparation_id', 'action_key', name='uq_preparation_action_key'),
+                     CheckConstraint("status IN ('pending', 'completed', 'failed')", name='preparation_action_status'))
+    action_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    preparation_id: Mapped[str] = mapped_column(String(200), ForeignKey('course_preparations.preparation_id'), nullable=False)
+    action_key: Mapped[str] = mapped_column(String(240), nullable=False)
+    kind: Mapped[str] = mapped_column(String(100), nullable=False)
+    payload_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    reserved: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    consumed: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    receipt: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class MemoryEpoch(Base):
+    __tablename__ = 'agent_memory_epochs'
+    subject_user_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    epoch: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class MemorySuppression(Base):
+    __tablename__ = 'agent_memory_suppressions'
+    subject_user_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    source_digest: Mapped[str] = mapped_column(String(64), primary_key=True)
+    source_id: Mapped[str] = mapped_column(Text, nullable=False)
+    epoch: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class MemoryDependency(Base):
+    __tablename__ = 'agent_memory_dependencies'
+    subject_user_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    consumer_ref: Mapped[str] = mapped_column(String(300), primary_key=True)
+    epoch: Mapped[int] = mapped_column(Integer, nullable=False)
+    source_refs: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    valid: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+
+class MemoryChangeEvent(Base):
+    __tablename__ = 'agent_memory_changes'
+    subject_user_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    epoch: Mapped[int] = mapped_column(Integer, primary_key=True)
+    affected_memory_ids: Mapped[list] = mapped_column(JSON_PAYLOAD, nullable=False)
+    delivered: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class PreparationDocumentVersion(Base):
+    __tablename__ = 'preparation_document_versions'
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), primary_key=True)
+    document_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    content_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    filename: Mapped[str] = mapped_column(String(500), nullable=False)
+    parsed: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class PreparationArtifact(Base):
+    __tablename__ = 'preparation_artifacts'
+    artifact_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    preparation_id: Mapped[str] = mapped_column(ForeignKey('course_preparations.preparation_id'), nullable=False, index=True)
+    action_id: Mapped[str] = mapped_column(ForeignKey('preparation_actions.action_id'), nullable=False, unique=True)
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), nullable=False)
+    resource_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    resource_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    resource_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    spec: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    spec_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False)
+    lease_token: Mapped[str | None] = mapped_column(String(160))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    content: Mapped[dict | None] = mapped_column(JSON_PAYLOAD)
+    content_digest: Mapped[str | None] = mapped_column(String(64))
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class PreparedManifestVersion(Base):
+    __tablename__ = 'prepared_manifest_versions'
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    manifest_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    preparation_id: Mapped[str] = mapped_column(ForeignKey('course_preparations.preparation_id'), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    content_digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)
+
+
+class PreparedCoursePointer(Base):
+    __tablename__ = 'prepared_course_pointers'
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), primary_key=True)
+    course_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class PreparationDeliveryEvent(Base):
+    __tablename__ = 'preparation_delivery_events'
+    event_id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    preparation_id: Mapped[str] = mapped_column(ForeignKey('course_preparations.preparation_id'), nullable=False, unique=True)
+    owner_user_id: Mapped[str] = mapped_column(ForeignKey('users.user_id'), nullable=False)
+    course_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    manifest_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON_PAYLOAD, nullable=False)
+    delivered: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utc_now)

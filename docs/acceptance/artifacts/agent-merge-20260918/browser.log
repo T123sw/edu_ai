@@ -1,0 +1,43 @@
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "<frozen runpy>", line 198, in _run_module_as_main
+[WebServer]   File "<frozen runpy>", line 88, in _run_code
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/uvicorn/__main__.py", line 4, in <module>
+[WebServer]     uvicorn.main()
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/click/core.py", line 1631, in __call__
+[WebServer]     return self.main(*args, **kwargs)
+[WebServer]            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/click/core.py", line 1552, in main
+[WebServer]     rv = self.invoke(ctx)
+[WebServer]          ^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/click/core.py", line 1415, in invoke
+[WebServer]     return ctx.invoke(self.callback, **ctx.params)
+[WebServer]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/click/core.py", line 910, in invoke
+[WebServer]     return callback(*args, **kwargs)
+[WebServer]            ^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/uvicorn/main.py", line 440, in main
+[WebServer]     run(
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/uvicorn/main.py", line 609, in run
+[WebServer]     config.load_app()
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/uvicorn/config.py", line 428, in load_app
+[WebServer]     return import_from_string(self.app)
+[WebServer]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/uvicorn/importer.py", line 19, in import_from_string
+[WebServer]     module = importlib.import_module(module_str)
+[WebServer]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/importlib/__init__.py", line 90, in import_module
+[WebServer]     return _bootstrap._gcd_import(name[level:], package, level)
+[WebServer]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+[WebServer]   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+[WebServer]   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+[WebServer]   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+[WebServer]   File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+[WebServer]   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+[WebServer]   File "/home/zxqs_ep/Edu_AI-agent-merge-20260918/backend/src/tests/self_learning/browser_app.py", line 11, in <module>
+[WebServer]     test_url = os.environ['LEARNING_TEST_DATABASE_URL']
+[WebServer]                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "<frozen os>", line 714, in __getitem__
+[WebServer] KeyError: 'LEARNING_TEST_DATABASE_URL'
+Error: Process from config.webServer was not able to start. Exit code: 1
+

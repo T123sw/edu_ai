@@ -1,0 +1,12 @@
+{
+  "parser": "mineru-cloud",
+  "source_hash": "b8ca22705aa00d5dd7c7f36213e1f2b36df304c0fb246dc083752fb482ae82ba",
+  "units": [
+    {
+      "offset_chars": 0,
+      "content": "A model chooses a tool; application code executes it.\n\nRecover uncertain writes using an idempotency key and readback."
+    }
+  ],
+  "defects": [],
+  "content": "A model chooses a tool; application code executes it.\n\nRecover uncertain writes using an idempotency key and readback."
+}

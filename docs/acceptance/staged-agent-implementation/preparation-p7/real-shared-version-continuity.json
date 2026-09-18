@@ -1,0 +1,45 @@
+{
+  "public_version": 1,
+  "author_private_version": 1,
+  "learner_private_version": 2,
+  "changed_resources": [
+    {
+      "old": {
+        "order": 1,
+        "purpose": "模型与应用工具执行程序的职责边界",
+        "version": 1,
+        "required": true,
+        "resource_id": "shared_9c76aa243cc52447f77e724a3eb7f68c",
+        "source_refs": [
+          "ev_5f6767d66e0f50610cf49c26"
+        ],
+        "objective_ids": [
+          "boundary:o1",
+          "boundary:o2",
+          "boundary:o3"
+        ],
+        "resource_type": "report",
+        "content_sha256": "6728a0e9b45c2b72230a6990f28138e6d2f57db71fb3de2bc2180a9abc136386"
+      },
+      "new": {
+        "resource_id": "resource_3f21d6cdaa4ce9942f2442d2579c32f6",
+        "resource_type": "report",
+        "version": 1,
+        "content_sha256": "f5a350d6151f22421bc8b367e81b8123a368c8fb03fd88b72feb5d0e643f4af3",
+        "purpose": "请修改这份报告并保存为我的个人版本：保留原报告的结构与内容，在末尾增加一个开发岗位面试的天气查询案例，具体说明模型提出工具调用、应用执行工具并回传结果。不要修改公共原版或其他资料。请提交后台修订任务。",
+        "required": true,
+        "order": 1,
+        "objective_ids": [
+          "boundary:o1",
+          "boundary:o2",
+          "boundary:o3"
+        ],
+        "source_refs": [
+          "ev_2757e36a16c4bc2a5c650bc3"
+        ]
+      }
+    }
+  ],
+  "old_public_refs_readable": true,
+  "public_manifest_unchanged": true
+}

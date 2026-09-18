@@ -1,0 +1,127 @@
+{
+  "config": {
+    "argv": [
+      "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/node",
+      "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/node_modules/playwright/cli.js",
+      "test",
+      "-c",
+      "playwright.preferences-real.config.ts"
+    ],
+    "configFile": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/playwright.preferences-real.config.ts",
+    "rootDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/preferences-real",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+        "testIgnore": [],
+        "testMatch": [
+          "preferences-real.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/preferences-real/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "preferences-real.spec.ts",
+      "file": "preferences-real.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real account can correct and delete a preference with refresh persistence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4840,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T12:52:53.349Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/preferences-real/preferences-real-real-acco-a3dc0-ce-with-refresh-persistence/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6f7a1d13f88c329625b0-a9d280234c69b56c4f59",
+          "file": "preferences-real.spec.ts",
+          "line": 4,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-17T12:52:52.595Z",
+    "duration": 6460.347000000001,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

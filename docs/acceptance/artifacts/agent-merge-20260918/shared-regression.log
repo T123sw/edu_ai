@@ -1,0 +1,13 @@
+...................................................                      [100%]
+=============================== warnings summary ===============================
+tests/app/test_bootstrap.py::test_create_app_is_importable
+  /home/zxqs_ep/Edu_AI-agent-merge-20260918/backend/src/app/api/courses.py:271: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @router.on_event("startup")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+51 passed, 1 warning in 63.76s (0:01:03)

@@ -66,6 +66,12 @@ def build_durable_job_runtime(
     register_platform_task_handlers(registry)
     from app.artifact_revision.jobs import ArtifactRevisionTaskHandler
     registry.register("artifact_revision", 1, ArtifactRevisionTaskHandler())
+    from app.course_preparation.runner import PreparationStepHandler
+    from app.course_preparation.dependencies import configured_runner
+    registry.register("preparation_step", 1, PreparationStepHandler(configured_runner))
+    from app.course_preparation.adapters.generation import PreparationResourceHandler
+    from app.course_preparation.application import application
+    registry.register("preparation_resource", 1, PreparationResourceHandler(application))
     completion = JobCompletionService(
         task_store=store,
         course_storage_manager=manager,

@@ -1,0 +1,344 @@
+{
+  "purpose": "research_learning_path",
+  "course_ready": false,
+  "goal": "面向只学过函数和条件判断的Python初学者，用45分钟理解递归的终止条件与调用过程，能手写阶乘并识别无限递归。不要讲动态规划。",
+  "elapsed_seconds": 50.5,
+  "metrics": {
+    "model_calls": 12,
+    "searches": 2,
+    "reads": 4,
+    "distinct_source_urls": 3
+  },
+  "brief": {
+    "topic": "Python 递归入门：终止条件与调用过程（阶乘实现、无限递归识别）",
+    "audience": "只学过函数定义/调用和条件判断（if/else）的 Python 初学者，尚未接触循环以外的迭代结构、递归、栈等概念",
+    "language": "zh-CN",
+    "total_minutes": 45,
+    "assumptions": [
+      "总时长按 overrides 取 45 分钟，全部用于讲解与练习，不含额外作业时间",
+      "学习者已能在本地或在线环境运行 Python 代码并看到报错信息",
+      "学习者已理解函数返回值与 if/else 分支的基本用法",
+      "输出语言为中文，代码与术语保留英文关键字"
+    ],
+    "exclusions": [
+      "动态规划（含记忆化、最优子结构、状态转移等）",
+      "递归的高级应用（如回溯、分治算法复杂度分析、树/图遍历）",
+      "Python 递归深度限制与 sys.setrecursionlimit 的调优细节（仅在识别无限递归报错时点到为止）"
+    ],
+    "requirements": [
+      {
+        "requirement_id": "R1",
+        "text": "面向只学过函数和条件判断的 Python 初学者设计内容，不假设其已掌握循环、数据结构或递归",
+        "source_quote": "面向只学过函数和条件判断的Python初学者"
+      },
+      {
+        "requirement_id": "R2",
+        "text": "在 45 分钟内讲清递归的终止条件（base case）",
+        "source_quote": "用45分钟理解递归的终止条件与调用过程"
+      },
+      {
+        "requirement_id": "R3",
+        "text": "讲清递归的调用过程（函数如何调用自身、调用链如何展开与返回）",
+        "source_quote": "用45分钟理解递归的终止条件与调用过程"
+      },
+      {
+        "requirement_id": "R4",
+        "text": "学习者能自己手写阶乘的递归实现",
+        "source_quote": "能手写阶乘并识别无限递归"
+      },
+      {
+        "requirement_id": "R5",
+        "text": "学习者能识别无限递归（缺少或错误的终止条件）",
+        "source_quote": "能手写阶乘并识别无限递归"
+      },
+      {
+        "requirement_id": "R6",
+        "text": "不讲解动态规划相关内容",
+        "source_quote": "不要讲动态规划。"
+      }
+    ]
+  },
+  "research_overview": "面向只学过函数与 if/else 的初学者，45 分钟课程的核心是：递归函数由「终止条件（base case）」与「递归步骤（recursive step）」两部分构成；阶乘是标准示例，其调用过程可用「调用链展开—逐层返回」来讲解；缺少或写错终止条件会导致无限递归，Python 会抛出 RecursionError。已读来源中，Berkeley《Python Numerical Methods》教材给出阶乘的递归定义、base case 与逐步调用/返回的完整追踪，并说明函数调用使用「栈」式工作区（后进先出）；freeCodeCamp 入门文章给出 base case/recursive case 两条规则、factorial(4) 的展开与回退示意，以及 Python 默认递归上限 1000 与 RecursionError 现象；Rollbar 文章给出无 base case 的最小复现与 RecursionError 报错文本，并列出「加 base case / 提高上限 / 改迭代」三类修法。教学组织建议：先讲「问题可以拆成更小的同类问题」这一直觉，再引入 base case 与 recursive step 两个必备部件，然后用 factorial(3) 或 factorial(4) 做逐层展开与返回的手工追踪，最后用缺 base case 的代码现场触发 RecursionError 来训练识别能力。注意区分：RecursionError 是「递归深度超过 Python 限制」的现象，缺 base case 是常见原因之一，但不是唯一原因（例如终止条件写错、参数不向 base case 收敛也会触发）；默认 1000 是 CPython 的实现默认值，不是语言规范保证。按排除项要求，本阶段不涉及动态规划/记忆化、回溯、分治复杂度、树/图遍历，也不深入 sys.setrecursionlimit 调优。",
+  "findings": [
+    {
+      "finding_id": "F1",
+      "claim": "递归函数由两个必备部件构成：base case（终止条件，通常是最小输入且答案显然，用于阻止函数无限自我调用）与 recursive step（递归步骤，即调用自身的那些情形）。",
+      "source_ids": [
+        "ev_078613f0d55ca7e8b680cdff",
+        "ev_62200a575ceb3ad08317cd4f"
+      ]
+    },
+    {
+      "finding_id": "F2",
+      "claim": "阶乘的递归定义：n=1 时 f(1)=1（base case），否则 f(n)=n×f(n-1)（递归步骤）；教材给出可直接运行的 Python 实现，base case 为 n == 1。",
+      "source_ids": [
+        "ev_078613f0d55ca7e8b680cdff",
+        "ev_62200a575ceb3ad08317cd4f"
+      ]
+    },
+    {
+      "finding_id": "F3",
+      "claim": "调用过程可逐步追踪：每次调用会打开新的工作区，调用方必须等被调用方返回结果后才能继续；factorial(3) 依次展开到 factorial(1) 命中 base case 返回 1，再逐层回代得到 2、6。",
+      "source_ids": [
+        "ev_62200a575ceb3ad08317cd4f"
+      ]
+    },
+    {
+      "finding_id": "F4",
+      "claim": "这种「等待返回」的机制在编程中称为栈（stack），元素按后进先出顺序加入与移除；递归调用与普通函数嵌套调用遵循同样规则。",
+      "source_ids": [
+        "ev_078613f0d55ca7e8b680cdff",
+        "ev_62200a575ceb3ad08317cd4f"
+      ]
+    },
+    {
+      "finding_id": "F5",
+      "claim": "缺少 base case 会导致函数不断自我调用，直到 Python 抛出 RecursionError；最小复现是只含自我调用的 func()，报错信息为 maximum recursion depth exceeded。",
+      "source_ids": [
+        "ev_03c3b271147e8ff4d7481e06",
+        "ev_078613f0d55ca7e8b680cdff"
+      ]
+    },
+    {
+      "finding_id": "F6",
+      "claim": "Python 默认递归上限为 1000 次调用，超过即触发 RecursionError；该限制是 CPython 的默认实现值，可通过 sys.setrecursionlimit 调整，但调高有崩溃风险，且对初学者而言正确做法是补上/修正终止条件。",
+      "source_ids": [
+        "ev_03c3b271147e8ff4d7481e06",
+        "ev_46350122d070240d675ffbee"
+      ]
+    },
+    {
+      "finding_id": "F7",
+      "claim": "识别无限递归的排查思路：先检查是否存在 base case，再检查递归调用是否让输入向 base case 收敛（如 n 递减）；修复手段包括补 base case、改用迭代写法。",
+      "source_ids": [
+        "ev_03c3b271147e8ff4d7481e06",
+        "ev_078613f0d55ca7e8b680cdff"
+      ]
+    }
+  ],
+  "learning_path": {
+    "title": "Python 递归入门 45 分钟：终止条件、调用过程与阶乘实现",
+    "summary": "面向只学过函数定义/调用与 if/else 的初学者，45 分钟聚焦三件事：递归函数必备的 base case（终止条件）与 recursive step（递归步骤）；以阶乘为例手工追踪「调用链展开—逐层返回」的过程；用缺终止条件的代码现场触发 RecursionError，学会识别无限递归。路径按「直觉 → 两个部件 → 调用过程追踪 → 手写阶乘 → 识别无限递归」排列，先修关系逐层递进。按排除项要求，全程不涉及动态规划/记忆化、回溯、分治复杂度、树/图遍历，也不深入 sys.setrecursionlimit 调优（仅在识别报错时点到为止）。",
+    "nodes": [
+      {
+        "node_key": "recursion-intuition",
+        "title": "递归是什么：把问题拆成更小的同类问题",
+        "objectives": [
+          "用自己的话说明递归是「函数调用自身来解决更小规模的同类问题」",
+          "对给定问题（如阶乘、倒计时）指出哪一步可以交给「更小规模的自己」"
+        ],
+        "prerequisite_keys": [],
+        "minutes": 6,
+        "requirement_ids": [
+          "R1",
+          "R3"
+        ],
+        "finding_ids": [
+          "F1",
+          "F2"
+        ],
+        "source_ids": [
+          "ev_62200a575ceb3ad08317cd4f",
+          "ev_078613f0d55ca7e8b680cdff"
+        ],
+        "learning_activities": [
+          "阅读教材对递归函数的定义，圈出「函数调用自身」这一关键特征",
+          "观察 5! = 5 × 4!、4! = 4 × 3! 的规律，写出 3! 与 2! 的对应关系",
+          "口头描述：如果让函数自己算 4!，它需要先知道什么"
+        ],
+        "self_check": "不看资料，用一句话说明「为什么阶乘适合用递归写」，并写出 3! 与 2! 的关系式。"
+      },
+      {
+        "node_key": "base-and-recursive-case",
+        "title": "递归的两个必备部件：终止条件与递归步骤",
+        "objectives": [
+          "指出递归函数中 base case 与 recursive step 各自的作用",
+          "判断一段递归代码是否同时具备终止条件与向终止条件收敛的递归步骤",
+          "说明缺少终止条件会发生什么"
+        ],
+        "prerequisite_keys": [
+          "recursion-intuition"
+        ],
+        "minutes": 9,
+        "requirement_ids": [
+          "R1",
+          "R2",
+          "R5"
+        ],
+        "finding_ids": [
+          "F1",
+          "F2",
+          "F5",
+          "F7"
+        ],
+        "source_ids": [
+          "ev_62200a575ceb3ad08317cd4f",
+          "ev_078613f0d55ca7e8b680cdff",
+          "ev_03c3b271147e8ff4d7481e06"
+        ],
+        "learning_activities": [
+          "对照教材与入门文章，把递归函数的两条规则写成自己的检查清单",
+          "给出一段递归代码，用 if/else 标出哪一行是 base case、哪一行是 recursive step",
+          "讨论：如果递归调用写成 factorial(n) 而不是 factorial(n - 1)，输入还会向终止条件靠近吗"
+        ],
+        "self_check": "给出一个递归函数，指出它的 base case 是哪一行；若删掉这一行，说明程序会怎样结束。"
+      },
+      {
+        "node_key": "call-trace-factorial",
+        "title": "调用过程追踪：factorial(3) 的展开与返回",
+        "objectives": [
+          "按顺序写出 factorial(3) 的每一次调用及其参数",
+          "说明为什么外层调用必须等内层调用返回后才能算出结果",
+          "画出 factorial(3) 的调用链并标出返回顺序"
+        ],
+        "prerequisite_keys": [
+          "base-and-recursive-case"
+        ],
+        "minutes": 12,
+        "requirement_ids": [
+          "R2",
+          "R3",
+          "R4"
+        ],
+        "finding_ids": [
+          "F3",
+          "F4"
+        ],
+        "source_ids": [
+          "ev_62200a575ceb3ad08317cd4f",
+          "ev_078613f0d55ca7e8b680cdff"
+        ],
+        "learning_activities": [
+          "跟随教材的 9 步追踪，逐步记录 factorial(3) 每次调用打开的新工作区",
+          "手绘调用链：factorial(3) → factorial(2) → factorial(1)，并在返回方向标注 1 → 2 → 6",
+          "在代码中插入 print(n) 观察调用顺序，再插入 print('return', n) 观察返回顺序"
+        ],
+        "self_check": "合上资料，写出 factorial(4) 的完整调用顺序与最终返回值，并说明 4 * factorial(3) 中的 4 是在哪一步被乘上的。"
+      },
+      {
+        "node_key": "write-factorial",
+        "title": "手写阶乘递归实现",
+        "objectives": [
+          "独立写出可运行的递归阶乘函数，包含 base case 与递归步骤",
+          "说明所写函数接受的输入范围（正整数，或含 0 的写法差异）",
+          "用几个输入验证函数输出正确"
+        ],
+        "prerequisite_keys": [
+          "call-trace-factorial"
+        ],
+        "minutes": 10,
+        "requirement_ids": [
+          "R1",
+          "R4"
+        ],
+        "finding_ids": [
+          "F2",
+          "F3"
+        ],
+        "source_ids": [
+          "ev_62200a575ceb3ad08317cd4f",
+          "ev_078613f0d55ca7e8b680cdff"
+        ],
+        "learning_activities": [
+          "不看示例，从空白文件写出 factorial(n) 并运行 factorial(3)、factorial(5)",
+          "对比两种 base case 写法（n == 1 与 n <= 1），说明各自对 n = 0 的行为差异",
+          "故意把 base case 写成 n == 0 后测试 factorial(3)，观察结果并解释原因"
+        ],
+        "self_check": "写出你的 factorial 函数，并回答：它接受 n = 0 吗？如果只写 n == 1 作为终止条件，调用 factorial(0) 会发生什么？"
+      },
+      {
+        "node_key": "spot-infinite-recursion",
+        "title": "识别无限递归：从 RecursionError 反查终止条件",
+        "objectives": [
+          "运行缺终止条件的递归函数，读出 RecursionError 报错信息",
+          "按「有无 base case → 输入是否向 base case 收敛」两步排查一段递归代码",
+          "说明 RecursionError 是递归深度超限的现象，缺 base case 只是常见原因之一"
+        ],
+        "prerequisite_keys": [
+          "write-factorial"
+        ],
+        "minutes": 8,
+        "requirement_ids": [
+          "R5",
+          "R6"
+        ],
+        "finding_ids": [
+          "F5",
+          "F6",
+          "F7"
+        ],
+        "source_ids": [
+          "ev_03c3b271147e8ff4d7481e06",
+          "ev_46350122d070240d675ffbee",
+          "ev_078613f0d55ca7e8b680cdff"
+        ],
+        "learning_activities": [
+          "运行只含自我调用的 func()，记录报错文本并指出报错发生在哪一行",
+          "拿到三段有问题的递归代码，逐段判断是「没有 base case」还是「参数不向 base case 收敛」，并写出最小修复",
+          "讨论：把递归上限调高能不能修好缺 base case 的函数，为什么这不是正确做法"
+        ],
+        "self_check": "给出一段递归代码，在 1 分钟内说出它是否会无限递归，并指出需要修改的那一行。"
+      }
+    ],
+    "limitations": [
+      "已读来源均为英文教学/博客材料，中文术语（终止条件、调用链、栈）为翻译与教学组织用语，非来源原文。",
+      "Berkeley 教材的 base case 写作 n == 1，freeCodeCamp 写作 n <= 1；两者对 n = 0 的处理不同，节点 write-factorial 已安排对比活动，需明确所讲输入范围。",
+      "默认递归上限 1000 来自 freeCodeCamp 与 Rollbar 的表述，未从 CPython 官方文档核实，属实现默认值而非语言规范保证。",
+      "RecursionError 也可能由终止条件写错或参数不收敛引起，来源主要强调「缺 base case」这一常见原因，课程不应把该报错当作唯一原因的证明。",
+      "未检索中文来源，术语表述以中文教学惯例为准。",
+      "本路径为学习路径设计，尚未生成可学习的课程资源（讲义、练习册、代码仓库等）。"
+    ]
+  },
+  "review": {
+    "decision": "pass",
+    "issues": [],
+    "checked_requirement_ids": [
+      "R1",
+      "R2",
+      "R3",
+      "R4",
+      "R5",
+      "R6"
+    ],
+    "repair_phase": "plan"
+  },
+  "sources": [
+    {
+      "source_id": "ev_62200a575ceb3ad08317cd4f",
+      "url": "https://pythonnumericalmethods.studentorg.berkeley.edu/notebooks/chapter06.01-Recursive-Functions.html",
+      "title": "Recursive Functions — Python Numerical Methods",
+      "content_sha256": "c621b34392f6e09b55c396a540bd0c377f0e01a81780ea2dcec6b873b8b14f5c",
+      "retrieved_at": "2026-09-17T09:35:17.420555+00:00",
+      "offset_chars": 0,
+      "coverage": "extracted_excerpt"
+    },
+    {
+      "source_id": "ev_078613f0d55ca7e8b680cdff",
+      "url": "https://www.freecodecamp.org/news/recursion-in-python-intro-for-beginners",
+      "title": "Recursion in Python – A Practical Introduction for Beginners",
+      "content_sha256": "ea8791bc7d2a384bdaf2ed0174f4bb6bae05c1943f2e94750a26a158c240ee33",
+      "retrieved_at": "2026-09-17T09:35:20.890765+00:00",
+      "offset_chars": 0,
+      "coverage": "extracted_excerpt"
+    },
+    {
+      "source_id": "ev_46350122d070240d675ffbee",
+      "url": "https://www.freecodecamp.org/news/recursion-in-python-intro-for-beginners",
+      "title": "Recursion in Python – A Practical Introduction for Beginners",
+      "content_sha256": "8fea067660934cbe1a80727c40ced35c7f3935dc0b15a35b786f18beb0206b7f",
+      "retrieved_at": "2026-09-17T09:35:24.295824+00:00",
+      "offset_chars": 5000,
+      "coverage": "extracted_excerpt"
+    },
+    {
+      "source_id": "ev_03c3b271147e8ff4d7481e06",
+      "url": "https://rollbar.com/blog/python-recursionerror",
+      "title": "How to Fix RecursionError in Python",
+      "content_sha256": "ae2899a5619fa878b4de23da62c8f03752fc9bf31650e0270300bd9a18ae52bb",
+      "retrieved_at": "2026-09-17T09:35:33.620986+00:00",
+      "offset_chars": 0,
+      "coverage": "extracted_excerpt"
+    }
+  ],
+  "artifact_note": "保留真实模型产物的需求、研究结论、路径、审阅与来源元数据；网页正文及原文引文不随文档分发。原文匹配、需求覆盖、先修与总时长已重新验证。"
+}

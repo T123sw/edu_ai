@@ -1,0 +1,100 @@
+{
+  "candidates": [
+    {
+      "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+      "title": "Stop Debugging Your Agent as One Loop. It’s Three.",
+      "snippet": "Context truncation as invisible cause. This is the sneaky one. OpenAI’s Threads/Runs API includes truncation strategies that drop messages to fit the context window. So a tool call can look “hallucinatory” when really the model just can’t see the earlier constraints anymore. The call is wrong not because the model is confused, but because the relevant context was silently dropped.\n\nHere’s the thing about L1: the boundary of responsibility is crisp. The model proposes actions. The application validates arguments, enforces permissions, and decides what to do with outputs. Tool calling makes this",
+      "candidate_id": "src_03be26f3e8956de0a8f1"
+    },
+    {
+      "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+      "title": "The Roadmap to Mastering Tool Calling in AI Agents",
+      "snippet": "Understanding the tool calling protocol and why the execution boundary matters\n Writing definitions and error handling that hold up in production\n Scaling tool catalogs and parallelizing calls without sacrificing accuracy\n Securing agentic systems and evaluating beyond end-to-end task success\n\nEach step covers when the concept applies, what trade-offs it carries, and what goes wrong when you skip it.\n\n## Step 1: Understanding the Tool Calling Protocol\n\nTool calling in AI agents works as a simple loop: the model decides what action is needed, and your system executes it.\n\nFirst, you define the ",
+      "candidate_id": "src_fe8eba7f784fbeb12b62"
+    },
+    {
+      "url": "https://blog.gopenai.com/the-core-architecture-of-ai-agents-734bfe8787bc",
+      "title": "The Core Architecture of AI Agents",
+      "snippet": "Sitemap\n\nOpen in app\n\nSign up\n\nSign in\n\n repeatedly plans, acts via tools, observes outcomes, updates state/memory, and continues until a stop condition is met. This “reason–act–observe” loop is foundational in widely cited research (e.g., ReAct) and in modern agent products and SDKs that expose tool interfaces, sandboxes, and traces for governance.\n\nA rigorous architecture decomposes into eight core components: model/planner, tool layer, memory, environment bridge, feedback loop, permissioning & sandboxing, orchestration, and monitoring/ audit. Each has an independent responsibility and failu",
+      "candidate_id": "src_2f30e2d32340736ec73b"
+    },
+    {
+      "url": "https://tetrate.io/learn/ai/ai-agent-design-patterns",
+      "title": "AI Agent Design Patterns: Building Autonomous Systems",
+      "snippet": "The basic agent loop follows a perception-decision-action cycle. The agent receives an objective or observes a change in its environment, uses its reasoning capabilities to determine the next appropriate action, executes that action through tool calls or API interactions, observes the results, and continues this cycle until the goal is achieved or a stopping condition is met. This iterative process allows agents to handle tasks that require multiple steps, error recovery, and dynamic adaptation to changing circumstances. [...] The architecture of an AI agent typically includes several key comp",
+      "candidate_id": "src_7cdaaf6b6d2d8848d3aa"
+    },
+    {
+      "url": "https://www.arcade.dev/blog/what-is-ai-agent-tool-calling",
+      "title": "What Is AI Agent Tool Calling? (MCP, A2A) | Arcade",
+      "snippet": "## What is AI agent tool calling?\n\nAI agent tool calling is the mechanism by which Large Language Models interact with external systems, APIs, or databases to perform real-world actions. It helps AI agents execute tasks like updating records or retrieving live data by emitting structured payloads that trigger predefined programmatic functions.\n\nUnlike simple API requests, the AI model autonomously decides which tool to use, when to invoke it, and what arguments to pass based on natural language intent.\n\nThink about an agent tasked with updating an engineering team. The user prompts, “Draft a P",
+      "candidate_id": "src_b72b7ab07a41d64996b2"
+    }
+  ],
+  "evidence": [
+    {
+      "source_id": "ev_da0db08a25c7366572997cf9",
+      "candidate_id": "src_03be26f3e8956de0a8f1",
+      "title": "Stop Debugging Your Agent as One Loop. It’s Three.",
+      "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+      "content_chars": 5000,
+      "locator": null
+    },
+    {
+      "source_id": "ev_2e5d49e74807f69b2b828dbb",
+      "candidate_id": "src_03be26f3e8956de0a8f1",
+      "title": "Stop Debugging Your Agent as One Loop. It’s Three.",
+      "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+      "content_chars": 5000,
+      "locator": null
+    },
+    {
+      "source_id": "ev_f788f425c498e2e425e1ba20",
+      "candidate_id": "src_03be26f3e8956de0a8f1",
+      "title": "Stop Debugging Your Agent as One Loop. It’s Three.",
+      "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+      "content_chars": 5000,
+      "locator": null
+    },
+    {
+      "source_id": "ev_24b3bbb44ac33677ca7fa158",
+      "candidate_id": "src_03be26f3e8956de0a8f1",
+      "title": "Stop Debugging Your Agent as One Loop. It’s Three.",
+      "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+      "content_chars": 5000,
+      "locator": null
+    },
+    {
+      "source_id": "ev_d5a0d2f0cbc84020f7025aa2",
+      "candidate_id": "src_03be26f3e8956de0a8f1",
+      "title": "Stop Debugging Your Agent as One Loop. It’s Three.",
+      "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+      "content_chars": 5000,
+      "locator": null
+    },
+    {
+      "source_id": "ev_5ebc5963575da486bc51de96",
+      "candidate_id": "src_03be26f3e8956de0a8f1",
+      "title": "Stop Debugging Your Agent as One Loop. It’s Three.",
+      "url": "https://medium.com/@Micheal-Lanham/stop-debugging-your-agent-as-one-loop-its-three-d10013fa3a7e",
+      "content_chars": 5000,
+      "locator": null
+    },
+    {
+      "source_id": "ev_10c04adb656671f5dd96ae9a",
+      "candidate_id": "src_fe8eba7f784fbeb12b62",
+      "title": "The Roadmap to Mastering Tool Calling in AI Agents",
+      "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+      "content_chars": 5000,
+      "locator": null
+    },
+    {
+      "source_id": "ev_2ce9b0b0946a708d664537b1",
+      "candidate_id": "src_fe8eba7f784fbeb12b62",
+      "title": "The Roadmap to Mastering Tool Calling in AI Agents",
+      "url": "https://machinelearningmastery.com/the-roadmap-to-mastering-tool-calling-in-ai-agents",
+      "content_chars": 5000,
+      "locator": null
+    }
+  ]
+}

@@ -1,0 +1,1674 @@
+{
+  "stage": {
+    "id": "resource_99e39fc74c537676264bfbb5acab08bd",
+    "name": "Agent 循环与模型/应用职责边界",
+    "createdAt": 1789654740310,
+    "updatedAt": 1789654740310
+  },
+  "title": "Agent 循环与模型/应用职责边界",
+  "scenes": [
+    {
+      "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1",
+      "type": "slide",
+      "order": 0,
+      "title": "Agent 不是单一循环",
+      "actions": [
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:speech",
+          "text": "很多同学在面试或调试时，习惯把 Agent 当成一个单一循环：模型输出，应用执行，再回传，如此反复。但根据 Micheal Lanham 的分析，Agent 系统实际上是三层嵌套循环。最内层是 L1 工具调用循环，模型发出结构化工具调用，应用执行并回传结果；中间层是 L2 任务循环，负责多步目标追求；最外层是 L3 编排循环，处理多智能体委托与治理。理解这个嵌套结构，是理解模型与应用职责边界的前提。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">Agent 不是单一循环</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>Agent 系统是三层嵌套循环</p><p>L1 工具调用循环：模型提议，应用执行</p><p>L2 任务循环与 L3 编排循环层层包裹</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+      "createdAt": 1789654740310,
+      "updatedAt": 1789654740310
+    },
+    {
+      "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2",
+      "type": "slide",
+      "order": 1,
+      "title": "L1：最小的可靠工具使用单元",
+      "actions": [
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:speech",
+          "text": "原文强调，L1 是最小的可靠工具使用单元，在这个层级上，暂时忘掉规划，忘掉编排。模型只做一件事：它查看对话状态和可用工具，然后要么正常回复，要么发出一个结构化的工具调用。应用执行那个工具，并把结果反馈给模型。这个循环非常干净，没有复杂的任务规划或多智能体协调，因此它是我们观察职责边界的最佳位置。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">L1：最小的可靠工具使用单元</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>L1 只做一件事：模型看状态与工具，输出调用或正常回复</p><p>应用执行工具并回传结果</p><p>暂时忘掉规划与编排</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+      "createdAt": 1789654740310,
+      "updatedAt": 1789654740310
+    },
+    {
+      "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3",
+      "type": "slide",
+      "order": 2,
+      "title": "L1 的职责边界最清晰",
+      "actions": [
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:speech",
+          "text": "为什么说 L1 的职责边界最清晰？原文直接给出了答案：模型提议动作，应用校验参数、执行权限，并决定如何处理输出。模型不执行任何操作，它只是基于对话状态和工具描述，产出一个结构化的工具调用载荷。应用代码接收这个载荷，进行校验，执行逻辑，然后把结果作为新的上下文返回给模型。这个边界之所以清晰，是因为在 L1 层面，没有复杂的任务分解或多智能体交互，只有模型提议与应用执行这两个明确角色。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">L1 的职责边界最清晰</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只提议动作</p><p>应用校验参数、执行权限、决定输出处理</p><p>边界清晰，责任明确</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+      "createdAt": 1789654740310,
+      "updatedAt": 1789654740310
+    },
+    {
+      "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4",
+      "type": "slide",
+      "order": 3,
+      "title": "模型是非确定性推理器",
+      "actions": [
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:speech",
+          "text": "从工具调用协议的角度看，模型与执行层的职责分离更加明确。模型是一个非确定性推理器，它只提议动作，并产出结构化的 JSON 载荷，包含工具名和参数。模型本身不执行任何操作。应用代码接收这个载荷，校验它，运行逻辑，然后把结果作为新的上下文返回。这里的关键在于：模型是非确定性的，它可能产生不同的输出；而应用代码是确定性的，它负责校验和执行。这种确定性 vs 非确定性的对比，是理解职责边界的重要视角。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">模型是非确定性推理器</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只产出结构化 JSON 载荷：工具名+参数</p><p>模型本身不执行任何操作</p><p>应用代码是确定性执行层</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+      "createdAt": 1789654740310,
+      "updatedAt": 1789654740310
+    },
+    {
+      "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5",
+      "type": "slide",
+      "order": 4,
+      "title": "为什么执行与校验放在应用层",
+      "actions": [
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:speech",
+          "text": "面试中经常会被问到：为什么把执行与校验放在应用层，而不是模型层？答案的核心在于确定性与非确定性的区别。模型是非确定性推理器，它的输出可能每次都不一样，甚至可能产生幻觉或错误的参数。如果让模型直接执行操作，那么权限控制、参数校验这些需要确定性和可靠性的工作就无法保证。应用代码是确定性层，它可以稳定地校验参数、执行权限检查，并决定如何处理输出。因此，把执行与校验放在应用层，是为了用确定性的代码来约束非确定性的模型输出，保证系统的可靠性和安全性。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">为什么执行与校验放在应用层</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型输出具有非确定性，不适合直接执行</p><p>应用层提供确定性校验与权限控制</p><p>面试中可这样解释：确定性 vs 非确定性</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+      "createdAt": 1789654740310,
+      "updatedAt": 1789654740310
+    },
+    {
+      "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6",
+      "type": "slide",
+      "order": 5,
+      "title": "学习检查",
+      "actions": [
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:speech",
+          "text": "现在，请不看笔记，向自己复述三层循环的名称与职责：L1 工具调用循环，模型发出结构化工具调用，应用执行并回传结果；L2 任务循环，多步目标追求；L3 编排循环，多智能体委托与治理。然后解释为什么 L1 处的职责边界最清晰：因为在 L1 层面，模型只负责提议动作，应用负责校验参数、执行权限并决定如何处理输出，没有复杂的任务分解或多智能体交互，角色明确，边界清晰。如果你在复述过程中卡壳了，请回到学习报告中重读 L1 段落，重点回顾模型提议动作与应用执行校验的职责分离。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>复述三层循环的名称与职责</p><p>解释 L1 处职责边界为何最清晰</p><p>若卡壳，回到学习报告重读 L1 段落</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+      "createdAt": 1789654740310,
+      "updatedAt": 1789654740310
+    }
+  ],
+  "status": "ready",
+  "content": {
+    "stage": {
+      "id": "resource_99e39fc74c537676264bfbb5acab08bd",
+      "name": "Agent 循环与模型/应用职责边界",
+      "createdAt": 1789654740310,
+      "updatedAt": 1789654740310
+    },
+    "scenes": [
+      {
+        "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1",
+        "type": "slide",
+        "order": 0,
+        "title": "Agent 不是单一循环",
+        "actions": [
+          {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:speech",
+            "text": "很多同学在面试或调试时，习惯把 Agent 当成一个单一循环：模型输出，应用执行，再回传，如此反复。但根据 Micheal Lanham 的分析，Agent 系统实际上是三层嵌套循环。最内层是 L1 工具调用循环，模型发出结构化工具调用，应用执行并回传结果；中间层是 L2 任务循环，负责多步目标追求；最外层是 L3 编排循环，处理多智能体委托与治理。理解这个嵌套结构，是理解模型与应用职责边界的前提。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">Agent 不是单一循环</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>Agent 系统是三层嵌套循环</p><p>L1 工具调用循环：模型提议，应用执行</p><p>L2 任务循环与 L3 编排循环层层包裹</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+        "createdAt": 1789654740310,
+        "updatedAt": 1789654740310
+      },
+      {
+        "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2",
+        "type": "slide",
+        "order": 1,
+        "title": "L1：最小的可靠工具使用单元",
+        "actions": [
+          {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:speech",
+            "text": "原文强调，L1 是最小的可靠工具使用单元，在这个层级上，暂时忘掉规划，忘掉编排。模型只做一件事：它查看对话状态和可用工具，然后要么正常回复，要么发出一个结构化的工具调用。应用执行那个工具，并把结果反馈给模型。这个循环非常干净，没有复杂的任务规划或多智能体协调，因此它是我们观察职责边界的最佳位置。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">L1：最小的可靠工具使用单元</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>L1 只做一件事：模型看状态与工具，输出调用或正常回复</p><p>应用执行工具并回传结果</p><p>暂时忘掉规划与编排</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+        "createdAt": 1789654740310,
+        "updatedAt": 1789654740310
+      },
+      {
+        "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3",
+        "type": "slide",
+        "order": 2,
+        "title": "L1 的职责边界最清晰",
+        "actions": [
+          {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:speech",
+            "text": "为什么说 L1 的职责边界最清晰？原文直接给出了答案：模型提议动作，应用校验参数、执行权限，并决定如何处理输出。模型不执行任何操作，它只是基于对话状态和工具描述，产出一个结构化的工具调用载荷。应用代码接收这个载荷，进行校验，执行逻辑，然后把结果作为新的上下文返回给模型。这个边界之所以清晰，是因为在 L1 层面，没有复杂的任务分解或多智能体交互，只有模型提议与应用执行这两个明确角色。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">L1 的职责边界最清晰</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只提议动作</p><p>应用校验参数、执行权限、决定输出处理</p><p>边界清晰，责任明确</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+        "createdAt": 1789654740310,
+        "updatedAt": 1789654740310
+      },
+      {
+        "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4",
+        "type": "slide",
+        "order": 3,
+        "title": "模型是非确定性推理器",
+        "actions": [
+          {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:speech",
+            "text": "从工具调用协议的角度看，模型与执行层的职责分离更加明确。模型是一个非确定性推理器，它只提议动作，并产出结构化的 JSON 载荷，包含工具名和参数。模型本身不执行任何操作。应用代码接收这个载荷，校验它，运行逻辑，然后把结果作为新的上下文返回。这里的关键在于：模型是非确定性的，它可能产生不同的输出；而应用代码是确定性的，它负责校验和执行。这种确定性 vs 非确定性的对比，是理解职责边界的重要视角。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">模型是非确定性推理器</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只产出结构化 JSON 载荷：工具名+参数</p><p>模型本身不执行任何操作</p><p>应用代码是确定性执行层</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+        "createdAt": 1789654740310,
+        "updatedAt": 1789654740310
+      },
+      {
+        "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5",
+        "type": "slide",
+        "order": 4,
+        "title": "为什么执行与校验放在应用层",
+        "actions": [
+          {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:speech",
+            "text": "面试中经常会被问到：为什么把执行与校验放在应用层，而不是模型层？答案的核心在于确定性与非确定性的区别。模型是非确定性推理器，它的输出可能每次都不一样，甚至可能产生幻觉或错误的参数。如果让模型直接执行操作，那么权限控制、参数校验这些需要确定性和可靠性的工作就无法保证。应用代码是确定性层，它可以稳定地校验参数、执行权限检查，并决定如何处理输出。因此，把执行与校验放在应用层，是为了用确定性的代码来约束非确定性的模型输出，保证系统的可靠性和安全性。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">为什么执行与校验放在应用层</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型输出具有非确定性，不适合直接执行</p><p>应用层提供确定性校验与权限控制</p><p>面试中可这样解释：确定性 vs 非确定性</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+        "createdAt": 1789654740310,
+        "updatedAt": 1789654740310
+      },
+      {
+        "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6",
+        "type": "slide",
+        "order": 5,
+        "title": "学习检查",
+        "actions": [
+          {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:speech",
+            "text": "现在，请不看笔记，向自己复述三层循环的名称与职责：L1 工具调用循环，模型发出结构化工具调用，应用执行并回传结果；L2 任务循环，多步目标追求；L3 编排循环，多智能体委托与治理。然后解释为什么 L1 处的职责边界最清晰：因为在 L1 层面，模型只负责提议动作，应用负责校验参数、执行权限并决定如何处理输出，没有复杂的任务分解或多智能体交互，角色明确，边界清晰。如果你在复述过程中卡壳了，请回到学习报告中重读 L1 段落，重点回顾模型提议动作与应用执行校验的职责分离。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>复述三层循环的名称与职责</p><p>解释 L1 处职责边界为何最清晰</p><p>若卡壳，回到学习报告重读 L1 段落</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+        "createdAt": 1789654740310,
+        "updatedAt": 1789654740310
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "agent_loop_boundary",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "created_at": "2026-09-17T14:24:21.376898+00:00",
+  "created_by": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-09-17T14:24:21.376898+00:00",
+  "visibility": "private",
+  "material_id": "resource_99e39fc74c537676264bfbb5acab08bd",
+  "origin_type": "personal",
+  "content_hash": "8e996015b549f354724f52e00b2a6d0f207df7a90f77ec7a4acce0b3c4d024cb",
+  "material_type": "classroom",
+  "owner_user_id": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "generation_state": {
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "资源类型为 classroom，语言为中文，受众为有 Python 开发基础并准备 AI Agent 面试的学习者，学习时间约 30 分钟。6 个场景覆盖三层循环、L1 职责边界、确定性 vs 非确定性及学习检查，符合已确认方案和准备策略。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐场景核验投屏与讲解：三层循环的名称和职责与来源一致；L1 中模型只提议动作、应用校验参数并执行权限的表述准确；模型不执行任何操作、应用代码作为确定性执行层的说法与资料一致；未发现事实错误或越界断言。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "本资源为课堂讲解型，不包含习题、闪卡、导图或游戏任务，因此 examples 维度不适用。课堂通过 L1 工具调用循环、结构化 JSON 载荷等具体机制说明职责边界，足以支撑学习目标。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "场景顺序合理：先建立三层嵌套循环的整体认知，再聚焦 L1，随后解释职责边界、确定性对比和面试表达，最后进行学习检查。每个场景时长适中，讲解与投屏内容匹配，符合 30 分钟课堂节奏。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "讲解中明确引用 Micheal Lanham 的分析，并准确转述 L1 是最小可靠工具使用单元、模型提议动作、应用校验参数等原文观点；工具调用协议部分与 machinelearningmastery.com 的职责分离表述一致，未发现无依据引用。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "六个场景完整覆盖学习目标：三层循环的名称与职责、L1 边界为何最清晰、模型与应用职责分离、确定性 vs 非确定性，以及学习检查。required_coverage 中 6 个场景的 speech 动作均已核验。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "资源类型为 classroom，语言为中文，受众为有 Python 开发基础并准备 AI Agent 面试的学习者，学习时间约 30 分钟。6 个场景覆盖三层循环、L1 职责边界、确定性 vs 非确定性及学习检查，符合已确认方案和准备策略。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐场景核验投屏与讲解：三层循环的名称和职责与来源一致；L1 中模型只提议动作、应用校验参数并执行权限的表述准确；模型不执行任何操作、应用代码作为确定性执行层的说法与资料一致；未发现事实错误或越界断言。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "本资源为课堂讲解型，不包含习题、闪卡、导图或游戏任务，因此 examples 维度不适用。课堂通过 L1 工具调用循环、结构化 JSON 载荷等具体机制说明职责边界，足以支撑学习目标。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "场景顺序合理：先建立三层嵌套循环的整体认知，再聚焦 L1，随后解释职责边界、确定性对比和面试表达，最后进行学习检查。每个场景时长适中，讲解与投屏内容匹配，符合 30 分钟课堂节奏。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "讲解中明确引用 Micheal Lanham 的分析，并准确转述 L1 是最小可靠工具使用单元、模型提议动作、应用校验参数等原文观点；工具调用协议部分与 machinelearningmastery.com 的职责分离表述一致，未发现无依据引用。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "六个场景完整覆盖学习目标：三层循环的名称与职责、L1 边界为何最清晰、模型与应用职责分离、确定性 vs 非确定性，以及学习检查。required_coverage 中 6 个场景的 speech 动作均已核验。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "场景 1 的投屏可增加一个简单的三层嵌套示意图，帮助学习者更直观地理解 L1、L2、L3 的包含关系。",
+              "场景 5 的讲解可补充一个具体面试问题示例，例如“如果模型返回了越权参数，应用层应如何处理”，以增强面试场景的实用性。",
+              "学习检查场景可提示学习者用自己的话复述，而不是机械背诵三层循环的定义，以更好地检验理解程度。"
+            ],
+            "scene_checks": [
+              {
+                "scene_index": 0,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解准确说明 Agent 不是单一循环，而是三层嵌套结构，并正确描述 L1 工具调用循环、L2 任务循环和 L3 编排循环的职责，与来源一致。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“Agent 不是单一循环”，正文列出三层嵌套循环及 L1、L2、L3 的简要职责，与学习目标一致，文字简明。"
+              },
+              {
+                "scene_index": 1,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解正确引用原文，说明 L1 是最小的可靠工具使用单元，模型只查看对话状态和可用工具并输出调用或正常回复，应用执行工具并回传结果，未发现错误。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“L1：最小的可靠工具使用单元”，正文说明模型查看状态与工具、输出调用或正常回复、应用执行并回传结果，符合来源对 L1 的描述。"
+              },
+              {
+                "scene_index": 2,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解准确说明模型提议动作、应用校验参数和执行权限并决定输出处理，并解释 L1 边界清晰的原因是没有复杂任务分解或多智能体交互，与来源一致。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“L1 的职责边界最清晰”，正文列出模型只提议动作、应用校验参数、执行权限并决定输出处理，准确反映来源观点。"
+              },
+              {
+                "scene_index": 3,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解正确描述模型是非确定性推理器，只提议动作并产出包含工具名和参数的 JSON 载荷，应用代码接收、校验并执行，模型本身不执行任何操作，未发现错误。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“模型是非确定性推理器”，正文说明模型只产出结构化 JSON 载荷、模型本身不执行操作、应用代码是确定性执行层，符合工具调用协议的核心观点。"
+              },
+              {
+                "scene_index": 4,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解准确解释执行与校验放在应用层的原因：模型输出非确定性，可能产生幻觉或错误参数，应用代码作为确定性层可稳定校验参数和执行权限，保证系统可靠性和安全性，逻辑成立。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“为什么执行与校验放在应用层”，正文说明模型输出非确定性、应用层提供确定性校验与权限控制，并提示面试表达方式，符合学习目标。"
+              },
+              {
+                "scene_index": 5,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解完整复述三层循环的名称与职责，并解释 L1 边界最清晰的原因，最后提示卡壳时回到学习报告重读 L1 段落，符合学习检查要求，未发现错误。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“学习检查”，正文列出复述三层循环、解释 L1 边界最清晰的原因以及卡壳时回到学习报告重读 L1 段落，与学习检查要求一致。"
+              }
+            ],
+            "blocking_issues": []
+          },
+          "version": 1,
+          "decision": "pass"
+        }
+      ],
+      "decision": "pass",
+      "scene_checks": [
+        {
+          "scene_index": 0,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解准确说明 Agent 不是单一循环，而是三层嵌套结构，并正确描述 L1 工具调用循环、L2 任务循环和 L3 编排循环的职责，与来源一致。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“Agent 不是单一循环”，正文列出三层嵌套循环及 L1、L2、L3 的简要职责，与学习目标一致，文字简明。"
+        },
+        {
+          "scene_index": 1,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解正确引用原文，说明 L1 是最小的可靠工具使用单元，模型只查看对话状态和可用工具并输出调用或正常回复，应用执行工具并回传结果，未发现错误。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“L1：最小的可靠工具使用单元”，正文说明模型查看状态与工具、输出调用或正常回复、应用执行并回传结果，符合来源对 L1 的描述。"
+        },
+        {
+          "scene_index": 2,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解准确说明模型提议动作、应用校验参数和执行权限并决定输出处理，并解释 L1 边界清晰的原因是没有复杂任务分解或多智能体交互，与来源一致。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“L1 的职责边界最清晰”，正文列出模型只提议动作、应用校验参数、执行权限并决定输出处理，准确反映来源观点。"
+        },
+        {
+          "scene_index": 3,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解正确描述模型是非确定性推理器，只提议动作并产出包含工具名和参数的 JSON 载荷，应用代码接收、校验并执行，模型本身不执行任何操作，未发现错误。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“模型是非确定性推理器”，正文说明模型只产出结构化 JSON 载荷、模型本身不执行操作、应用代码是确定性执行层，符合工具调用协议的核心观点。"
+        },
+        {
+          "scene_index": 4,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解准确解释执行与校验放在应用层的原因：模型输出非确定性，可能产生幻觉或错误参数，应用代码作为确定性层可稳定校验参数和执行权限，保证系统可靠性和安全性，逻辑成立。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“为什么执行与校验放在应用层”，正文说明模型输出非确定性、应用层提供确定性校验与权限控制，并提示面试表达方式，符合学习目标。"
+        },
+        {
+          "scene_index": 5,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解完整复述三层循环的名称与职责，并解释 L1 边界最清晰的原因，最后提示卡壳时回到学习报告重读 L1 段落，符合学习检查要求，未发现错误。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“学习检查”，正文列出复述三层循环、解释 L1 边界最清晰的原因以及卡壳时回到学习报告重读 L1 段落，与学习检查要求一致。"
+        }
+      ],
+      "resource_type": "classroom",
+      "content_sha256": "a28cc201abef79a94bb084b62add7e9a6b5625e100e40ccf12ea9fd327e13e61"
+    }
+  },
+  "preparation_artifact": {
+    "title": "Agent 循环与模型/应用职责边界",
+    "content": {
+      "stage": {
+        "id": "resource_99e39fc74c537676264bfbb5acab08bd",
+        "name": "Agent 循环与模型/应用职责边界",
+        "createdAt": 1789654740310,
+        "updatedAt": 1789654740310
+      },
+      "scenes": [
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1",
+          "type": "slide",
+          "order": 0,
+          "title": "Agent 不是单一循环",
+          "actions": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:speech",
+              "text": "很多同学在面试或调试时，习惯把 Agent 当成一个单一循环：模型输出，应用执行，再回传，如此反复。但根据 Micheal Lanham 的分析，Agent 系统实际上是三层嵌套循环。最内层是 L1 工具调用循环，模型发出结构化工具调用，应用执行并回传结果；中间层是 L2 任务循环，负责多步目标追求；最外层是 L3 编排循环，处理多智能体委托与治理。理解这个嵌套结构，是理解模型与应用职责边界的前提。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">Agent 不是单一循环</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene1:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>Agent 系统是三层嵌套循环</p><p>L1 工具调用循环：模型提议，应用执行</p><p>L2 任务循环与 L3 编排循环层层包裹</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+          "createdAt": 1789654740310,
+          "updatedAt": 1789654740310
+        },
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2",
+          "type": "slide",
+          "order": 1,
+          "title": "L1：最小的可靠工具使用单元",
+          "actions": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:speech",
+              "text": "原文强调，L1 是最小的可靠工具使用单元，在这个层级上，暂时忘掉规划，忘掉编排。模型只做一件事：它查看对话状态和可用工具，然后要么正常回复，要么发出一个结构化的工具调用。应用执行那个工具，并把结果反馈给模型。这个循环非常干净，没有复杂的任务规划或多智能体协调，因此它是我们观察职责边界的最佳位置。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">L1：最小的可靠工具使用单元</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene2:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>L1 只做一件事：模型看状态与工具，输出调用或正常回复</p><p>应用执行工具并回传结果</p><p>暂时忘掉规划与编排</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+          "createdAt": 1789654740310,
+          "updatedAt": 1789654740310
+        },
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3",
+          "type": "slide",
+          "order": 2,
+          "title": "L1 的职责边界最清晰",
+          "actions": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:speech",
+              "text": "为什么说 L1 的职责边界最清晰？原文直接给出了答案：模型提议动作，应用校验参数、执行权限，并决定如何处理输出。模型不执行任何操作，它只是基于对话状态和工具描述，产出一个结构化的工具调用载荷。应用代码接收这个载荷，进行校验，执行逻辑，然后把结果作为新的上下文返回给模型。这个边界之所以清晰，是因为在 L1 层面，没有复杂的任务分解或多智能体交互，只有模型提议与应用执行这两个明确角色。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">L1 的职责边界最清晰</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene3:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只提议动作</p><p>应用校验参数、执行权限、决定输出处理</p><p>边界清晰，责任明确</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+          "createdAt": 1789654740310,
+          "updatedAt": 1789654740310
+        },
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4",
+          "type": "slide",
+          "order": 3,
+          "title": "模型是非确定性推理器",
+          "actions": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:speech",
+              "text": "从工具调用协议的角度看，模型与执行层的职责分离更加明确。模型是一个非确定性推理器，它只提议动作，并产出结构化的 JSON 载荷，包含工具名和参数。模型本身不执行任何操作。应用代码接收这个载荷，校验它，运行逻辑，然后把结果作为新的上下文返回。这里的关键在于：模型是非确定性的，它可能产生不同的输出；而应用代码是确定性的，它负责校验和执行。这种确定性 vs 非确定性的对比，是理解职责边界的重要视角。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">模型是非确定性推理器</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene4:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只产出结构化 JSON 载荷：工具名+参数</p><p>模型本身不执行任何操作</p><p>应用代码是确定性执行层</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+          "createdAt": 1789654740310,
+          "updatedAt": 1789654740310
+        },
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5",
+          "type": "slide",
+          "order": 4,
+          "title": "为什么执行与校验放在应用层",
+          "actions": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:speech",
+              "text": "面试中经常会被问到：为什么把执行与校验放在应用层，而不是模型层？答案的核心在于确定性与非确定性的区别。模型是非确定性推理器，它的输出可能每次都不一样，甚至可能产生幻觉或错误的参数。如果让模型直接执行操作，那么权限控制、参数校验这些需要确定性和可靠性的工作就无法保证。应用代码是确定性层，它可以稳定地校验参数、执行权限检查，并决定如何处理输出。因此，把执行与校验放在应用层，是为了用确定性的代码来约束非确定性的模型输出，保证系统的可靠性和安全性。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">为什么执行与校验放在应用层</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene5:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型输出具有非确定性，不适合直接执行</p><p>应用层提供确定性校验与权限控制</p><p>面试中可这样解释：确定性 vs 非确定性</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+          "createdAt": 1789654740310,
+          "updatedAt": 1789654740310
+        },
+        {
+          "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6",
+          "type": "slide",
+          "order": 5,
+          "title": "学习检查",
+          "actions": [
+            {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:speech",
+              "text": "现在，请不看笔记，向自己复述三层循环的名称与职责：L1 工具调用循环，模型发出结构化工具调用，应用执行并回传结果；L2 任务循环，多步目标追求；L3 编排循环，多智能体委托与治理。然后解释为什么 L1 处的职责边界最清晰：因为在 L1 层面，模型只负责提议动作，应用负责校验参数、执行权限并决定如何处理输出，没有复杂的任务分解或多智能体交互，角色明确，边界清晰。如果你在复述过程中卡壳了，请回到学习报告中重读 L1 段落，重点回顾模型提议动作与应用执行校验的职责分离。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_99e39fc74c537676264bfbb5acab08bd:scene6:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>复述三层循环的名称与职责</p><p>解释 L1 处职责边界为何最清晰</p><p>若卡壳，回到学习报告重读 L1 段落</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_99e39fc74c537676264bfbb5acab08bd",
+          "createdAt": 1789654740310,
+          "updatedAt": 1789654740310
+        }
+      ]
+    },
+    "limitations": [
+      "文本投屏与讲解动作；未生成外部图片、视频或预合成配音。"
+    ],
+    "artifact_type": "classroom",
+    "generation_state": {
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "资源类型为 classroom，语言为中文，受众为有 Python 开发基础并准备 AI Agent 面试的学习者，学习时间约 30 分钟。6 个场景覆盖三层循环、L1 职责边界、确定性 vs 非确定性及学习检查，符合已确认方案和准备策略。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "逐场景核验投屏与讲解：三层循环的名称和职责与来源一致；L1 中模型只提议动作、应用校验参数并执行权限的表述准确；模型不执行任何操作、应用代码作为确定性执行层的说法与资料一致；未发现事实错误或越界断言。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "本资源为课堂讲解型，不包含习题、闪卡、导图或游戏任务，因此 examples 维度不适用。课堂通过 L1 工具调用循环、结构化 JSON 载荷等具体机制说明职责边界，足以支撑学习目标。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "场景顺序合理：先建立三层嵌套循环的整体认知，再聚焦 L1，随后解释职责边界、确定性对比和面试表达，最后进行学习检查。每个场景时长适中，讲解与投屏内容匹配，符合 30 分钟课堂节奏。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "讲解中明确引用 Micheal Lanham 的分析，并准确转述 L1 是最小可靠工具使用单元、模型提议动作、应用校验参数等原文观点；工具调用协议部分与 machinelearningmastery.com 的职责分离表述一致，未发现无依据引用。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "六个场景完整覆盖学习目标：三层循环的名称与职责、L1 边界为何最清晰、模型与应用职责分离、确定性 vs 非确定性，以及学习检查。required_coverage 中 6 个场景的 speech 动作均已核验。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "资源类型为 classroom，语言为中文，受众为有 Python 开发基础并准备 AI Agent 面试的学习者，学习时间约 30 分钟。6 个场景覆盖三层循环、L1 职责边界、确定性 vs 非确定性及学习检查，符合已确认方案和准备策略。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "逐场景核验投屏与讲解：三层循环的名称和职责与来源一致；L1 中模型只提议动作、应用校验参数并执行权限的表述准确；模型不执行任何操作、应用代码作为确定性执行层的说法与资料一致；未发现事实错误或越界断言。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "本资源为课堂讲解型，不包含习题、闪卡、导图或游戏任务，因此 examples 维度不适用。课堂通过 L1 工具调用循环、结构化 JSON 载荷等具体机制说明职责边界，足以支撑学习目标。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "场景顺序合理：先建立三层嵌套循环的整体认知，再聚焦 L1，随后解释职责边界、确定性对比和面试表达，最后进行学习检查。每个场景时长适中，讲解与投屏内容匹配，符合 30 分钟课堂节奏。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "讲解中明确引用 Micheal Lanham 的分析，并准确转述 L1 是最小可靠工具使用单元、模型提议动作、应用校验参数等原文观点；工具调用协议部分与 machinelearningmastery.com 的职责分离表述一致，未发现无依据引用。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "六个场景完整覆盖学习目标：三层循环的名称与职责、L1 边界为何最清晰、模型与应用职责分离、确定性 vs 非确定性，以及学习检查。required_coverage 中 6 个场景的 speech 动作均已核验。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "场景 1 的投屏可增加一个简单的三层嵌套示意图，帮助学习者更直观地理解 L1、L2、L3 的包含关系。",
+                "场景 5 的讲解可补充一个具体面试问题示例，例如“如果模型返回了越权参数，应用层应如何处理”，以增强面试场景的实用性。",
+                "学习检查场景可提示学习者用自己的话复述，而不是机械背诵三层循环的定义，以更好地检验理解程度。"
+              ],
+              "scene_checks": [
+                {
+                  "scene_index": 0,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解准确说明 Agent 不是单一循环，而是三层嵌套结构，并正确描述 L1 工具调用循环、L2 任务循环和 L3 编排循环的职责，与来源一致。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“Agent 不是单一循环”，正文列出三层嵌套循环及 L1、L2、L3 的简要职责，与学习目标一致，文字简明。"
+                },
+                {
+                  "scene_index": 1,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解正确引用原文，说明 L1 是最小的可靠工具使用单元，模型只查看对话状态和可用工具并输出调用或正常回复，应用执行工具并回传结果，未发现错误。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“L1：最小的可靠工具使用单元”，正文说明模型查看状态与工具、输出调用或正常回复、应用执行并回传结果，符合来源对 L1 的描述。"
+                },
+                {
+                  "scene_index": 2,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解准确说明模型提议动作、应用校验参数和执行权限并决定输出处理，并解释 L1 边界清晰的原因是没有复杂任务分解或多智能体交互，与来源一致。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“L1 的职责边界最清晰”，正文列出模型只提议动作、应用校验参数、执行权限并决定输出处理，准确反映来源观点。"
+                },
+                {
+                  "scene_index": 3,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解正确描述模型是非确定性推理器，只提议动作并产出包含工具名和参数的 JSON 载荷，应用代码接收、校验并执行，模型本身不执行任何操作，未发现错误。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“模型是非确定性推理器”，正文说明模型只产出结构化 JSON 载荷、模型本身不执行操作、应用代码是确定性执行层，符合工具调用协议的核心观点。"
+                },
+                {
+                  "scene_index": 4,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解准确解释执行与校验放在应用层的原因：模型输出非确定性，可能产生幻觉或错误参数，应用代码作为确定性层可稳定校验参数和执行权限，保证系统可靠性和安全性，逻辑成立。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“为什么执行与校验放在应用层”，正文说明模型输出非确定性、应用层提供确定性校验与权限控制，并提示面试表达方式，符合学习目标。"
+                },
+                {
+                  "scene_index": 5,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解完整复述三层循环的名称与职责，并解释 L1 边界最清晰的原因，最后提示卡壳时回到学习报告重读 L1 段落，符合学习检查要求，未发现错误。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“学习检查”，正文列出复述三层循环、解释 L1 边界最清晰的原因以及卡壳时回到学习报告重读 L1 段落，与学习检查要求一致。"
+                }
+              ],
+              "blocking_issues": []
+            },
+            "version": 1,
+            "decision": "pass"
+          }
+        ],
+        "decision": "pass",
+        "scene_checks": [
+          {
+            "scene_index": 0,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解准确说明 Agent 不是单一循环，而是三层嵌套结构，并正确描述 L1 工具调用循环、L2 任务循环和 L3 编排循环的职责，与来源一致。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“Agent 不是单一循环”，正文列出三层嵌套循环及 L1、L2、L3 的简要职责，与学习目标一致，文字简明。"
+          },
+          {
+            "scene_index": 1,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解正确引用原文，说明 L1 是最小的可靠工具使用单元，模型只查看对话状态和可用工具并输出调用或正常回复，应用执行工具并回传结果，未发现错误。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“L1：最小的可靠工具使用单元”，正文说明模型查看状态与工具、输出调用或正常回复、应用执行并回传结果，符合来源对 L1 的描述。"
+          },
+          {
+            "scene_index": 2,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解准确说明模型提议动作、应用校验参数和执行权限并决定输出处理，并解释 L1 边界清晰的原因是没有复杂任务分解或多智能体交互，与来源一致。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“L1 的职责边界最清晰”，正文列出模型只提议动作、应用校验参数、执行权限并决定输出处理，准确反映来源观点。"
+          },
+          {
+            "scene_index": 3,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解正确描述模型是非确定性推理器，只提议动作并产出包含工具名和参数的 JSON 载荷，应用代码接收、校验并执行，模型本身不执行任何操作，未发现错误。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“模型是非确定性推理器”，正文说明模型只产出结构化 JSON 载荷、模型本身不执行操作、应用代码是确定性执行层，符合工具调用协议的核心观点。"
+          },
+          {
+            "scene_index": 4,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解准确解释执行与校验放在应用层的原因：模型输出非确定性，可能产生幻觉或错误参数，应用代码作为确定性层可稳定校验参数和执行权限，保证系统可靠性和安全性，逻辑成立。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“为什么执行与校验放在应用层”，正文说明模型输出非确定性、应用层提供确定性校验与权限控制，并提示面试表达方式，符合学习目标。"
+          },
+          {
+            "scene_index": 5,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解完整复述三层循环的名称与职责，并解释 L1 边界最清晰的原因，最后提示卡壳时回到学习报告重读 L1 段落，符合学习检查要求，未发现错误。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“学习检查”，正文列出复述三层循环、解释 L1 边界最清晰的原因以及卡壳时回到学习报告重读 L1 段落，与学习检查要求一致。"
+          }
+        ],
+        "resource_type": "classroom",
+        "content_sha256": "a28cc201abef79a94bb084b62add7e9a6b5625e100e40ccf12ea9fd327e13e61"
+      }
+    }
+  },
+  "learning_course_resource": true
+}

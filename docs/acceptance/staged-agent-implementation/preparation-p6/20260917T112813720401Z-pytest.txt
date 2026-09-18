@@ -1,0 +1,56 @@
+FF.s......                                                               [100%]
+=================================== FAILURES ===================================
+_ test_username_bridge_reads_committed_exact_resources_and_revocation[sqlite] __
+
+ready = (<app.course_preparation.lifecycle_repository.LifecycleRepository object at 0x7f9c85966270>, ExecutionContext(preparat...adline='2026-09-17T12:28:15.523708+00:00'), <app.course_preparation.delivery.DeliveryService object at 0x7f9c826cb710>)
+
+    def test_username_bridge_reads_committed_exact_resources_and_revocation(ready):
+        repo, context, delivery = ready
+        with Session(repo.engine) as session, session.begin():
+            session.get(User, 'alice').username = 'alice-login'
+        result = delivery.commit(context).result_ref
+>       bridge = PreparedCourses(repo.engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/course_preparation/test_prepared_learning.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.self_learning.prepared_courses.PreparedCourses object at 0x7f9c855c0fb0>
+engine = Engine(sqlite:////tmp/pytest-of-zxqs_ep/pytest-74/test_username_bridge_reads_com0/preparation.db)
+
+    def __init__(self, engine):
+        self.engine = engine
+>       self.delivery = DeliveryService(LifecycleRepository(engine))
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: LifecycleRepository.__init__() missing 1 required keyword-only argument: 'authorizer'
+
+app/self_learning/prepared_courses.py:16: TypeError
+_ test_username_bridge_reads_committed_exact_resources_and_revocation[postgresql] _
+
+ready = (<app.course_preparation.lifecycle_repository.LifecycleRepository object at 0x7f9c826c9bb0>, ExecutionContext(preparat...adline='2026-09-17T12:28:18.139016+00:00'), <app.course_preparation.delivery.DeliveryService object at 0x7f9c81148ad0>)
+
+    def test_username_bridge_reads_committed_exact_resources_and_revocation(ready):
+        repo, context, delivery = ready
+        with Session(repo.engine) as session, session.begin():
+            session.get(User, 'alice').username = 'alice-login'
+        result = delivery.commit(context).result_ref
+>       bridge = PreparedCourses(repo.engine)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/course_preparation/test_prepared_learning.py:15: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.self_learning.prepared_courses.PreparedCourses object at 0x7f9c8270b530>
+engine = Engine(postgresql+psycopg://zxqs_ep@127.0.0.1:55439/postgres)
+
+    def __init__(self, engine):
+        self.engine = engine
+>       self.delivery = DeliveryService(LifecycleRepository(engine))
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: LifecycleRepository.__init__() missing 1 required keyword-only argument: 'authorizer'
+
+app/self_learning/prepared_courses.py:16: TypeError
+=========================== short test summary info ============================
+FAILED tests/course_preparation/test_prepared_learning.py::test_username_bridge_reads_committed_exact_resources_and_revocation[sqlite]
+FAILED tests/course_preparation/test_prepared_learning.py::test_username_bridge_reads_committed_exact_resources_and_revocation[postgresql]
+2 failed, 7 passed, 1 skipped in 7.74s

@@ -123,3 +123,6 @@ openmaic-sidecar/.next/
 openmaic-sidecar/**/.next/
 openmaic-sidecar/public/vendor/maic-importer/
 openmaic-sidecar/dev.log
+
+# Local stage execution artifacts; versioned acceptance records live under docs/acceptance.
+/artifacts/

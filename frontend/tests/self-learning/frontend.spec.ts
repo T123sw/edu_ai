@@ -1,47 +1,5 @@
 import { test, expect, type Page } from "playwright/test";
 
-test("showcase links connect populated homepage, classroom, studio and resource previews", async ({
-  page,
-}) => {
-  const apiRequests: string[] = [];
-  page.on("request", (request) => {
-    if (request.url().includes("/api/")) apiRequests.push(request.url());
-  });
-  await page.goto("/?preview=student&demo=1");
-  await expect(page.locator(".sl-class-card")).toHaveCount(6);
-  await page
-    .locator(".sl-class-card")
-    .filter({ hasText: "从零开始，理解 Agent" })
-    .click();
-  await expect(page).toHaveURL(/classroom\/sample-agent/);
-  await expect(
-    page.getByRole("heading", { name: "Agent 基础概念", exact: true }),
-  ).toBeVisible();
-  await panel(page, "目录");
-  await page.locator(".sl-rail-studio").click();
-  await expect(
-    page.getByRole("link", { name: "返回「从零开始，理解 Agent」" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "后台任务", exact: true }).click();
-  await expect(page.locator(".sl-job")).toHaveCount(4);
-  await page.getByRole("link", { name: "资源中心", exact: true }).click();
-  await expect(page.locator(".sl-output-card")).toHaveCount(4);
-  for (const title of [
-    "Agent 入门：概念、架构与应用场景",
-    "ReAct：从推理到工具调用",
-    "Python 数据分析学习路线",
-    "自主学习方法检查",
-  ]) {
-    await page.locator(".sl-output-card").filter({ hasText: title }).click();
-    await expect(page.getByRole("dialog", { name: title })).toBeVisible();
-    await page.getByRole("button", { name: "关闭弹窗" }).click();
-  }
-  await page.reload();
-  await expect(page.locator(".sl-output-card")).toHaveCount(4);
-  await noOverflow(page);
-  expect(apiRequests).toEqual([]);
-});
-
 test("playback advances during generation and pauses for Agent; progress resumes", async ({
   page,
 }) => {
@@ -148,8 +106,8 @@ test("minimal homepage, student permissions and direct classroom generation", as
     page.getByRole("heading", { name: "让好奇，成为你的下一堂课。" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("navigation", { name: "主导航" }).getByRole("link"),
-  ).toHaveCount(3);
+    page.getByRole("navigation", { name: "主导航" }),
+  ).toHaveCount(0);
   await expect(page.getByRole("button", { name: "上传课堂" })).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "开始学习", exact: true }),
@@ -220,10 +178,10 @@ test("learning position, notes, completion, context chat and back navigation per
   await expect(page.getByRole("button", { name: "标记学完" })).toHaveCount(0);
   await page.reload();
   await panel(page, "Agent");
-  await expect(page.locator(".sl-chat-bubble.user")).toContainText(
-    "接下来学什么？",
-  );
+  await expect(page.locator(".sl-chat-bubble.user")).toHaveCount(0);
   await page.goBack();
+  await panel(page, "Agent");
+  await expect(page.locator(".sl-chat-bubble.user")).toContainText("接下来学什么？");
   await panel(page, "学习");
   await expect(page.getByRole("slider", { name: "讲解播放位置" })).toHaveValue(
     "19",
@@ -233,75 +191,6 @@ test("learning position, notes, completion, context chat and back navigation per
     page.getByRole("heading", { name: "Agent 基础概念", exact: true }),
   ).toBeVisible();
   await noOverflow(page);
-});
-
-test("workbench cancel/resume and outputs stay separate from classrooms", async ({
-  page,
-}, info) => {
-  await page.goto("/?preview=student#/resources");
-  await expect(
-    page.getByRole("heading", { name: "你的资源库，等待第一个作品" }),
-  ).toBeVisible();
-  await page.getByRole("link", { name: "创作资源", exact: true }).click();
-  await page
-    .getByRole("textbox", { name: "资源创作需求" })
-    .fill("MCP 工具调用学习报告");
-  await page.getByRole("button", { name: "开始创作", exact: true }).click();
-  await page.getByRole("button", { name: "查看任务" }).click();
-  await page.getByRole("button", { name: "取消", exact: true }).click();
-  await expect(page.locator(".sl-job")).toContainText("已取消");
-  await page.reload();
-  await page.getByRole("button", { name: "后台任务", exact: true }).click();
-  await expect(page.locator(".sl-job")).toContainText("已取消");
-  await page.getByRole("button", { name: "继续生成" }).click();
-  await expect(page.locator(".sl-job")).toContainText("已完成", {
-    timeout: 12000,
-  });
-  await page.screenshot({
-    path: info.outputPath("workbench.png"),
-    fullPage: true,
-  });
-  await page.getByRole("link", { name: "查看", exact: true }).click();
-  await expect(
-    page.getByRole("dialog", { name: "MCP 工具调用学习报告" }),
-  ).toBeVisible();
-  const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "下载 Markdown" }).click();
-  expect((await downloadPromise).suggestedFilename()).toBe(
-    "MCP 工具调用学习报告.md",
-  );
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await page.getByRole("button", { name: "视频讲解", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "没有找到这份资源" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "全部", exact: true }).click();
-  await expect(page.locator(".sl-output-card")).toHaveCount(1);
-  await page.screenshot({
-    path: info.outputPath("resources.png"),
-    fullPage: true,
-  });
-  await noOverflow(page);
-  await page.locator(".sl-output-card").click();
-  await page.getByRole("button", { name: "重命名", exact: true }).click();
-  await page.getByRole("textbox", { name: "资源名称" }).fill("我的 MCP 笔记");
-  await page.getByRole("button", { name: "保存名称" }).click();
-  await expect(
-    page.getByRole("dialog", { name: "我的 MCP 笔记" }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "删除资源", exact: true }).click();
-  await page.getByRole("button", { name: "保留", exact: true }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await page.getByRole("button", { name: "删除资源", exact: true }).click();
-  await page.getByRole("button", { name: "确认删除", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "你的资源库，等待第一个作品" }),
-  ).toBeVisible();
-  await page.reload();
-  await expect(
-    page.getByRole("heading", { name: "你的资源库，等待第一个作品" }),
-  ).toBeVisible();
 });
 
 test("teacher-only publish, shared catalog and personal progress isolation", async ({
@@ -351,7 +240,7 @@ test("normal entry does not bypass authentication and invalid routes recover", a
 }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "欢迎回来，继续探索。" }),
+    page.getByRole("heading", { name: "登录 Edu AI" }),
   ).toBeVisible();
   expect(
     await page.evaluate(() => localStorage.getItem("edu-ai-auth")),
@@ -367,7 +256,7 @@ test("normal entry does not bypass authentication and invalid routes recover", a
     .getByRole("textbox", { name: "账号", exact: true })
     .fill("invalid");
   await page.getByLabel("密码", { exact: true }).fill("invalid");
-  await page.getByRole("button", { name: "进入学习空间" }).click();
+  await page.getByRole("button", { name: /^登\s*录$/ }).click();
   await expect(page.getByRole("alert")).toContainText("用户名或密码错误");
   await page.goto("/?preview=student#/classroom/missing");
   await expect(

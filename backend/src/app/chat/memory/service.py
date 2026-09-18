@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+from uuid import uuid4
+from app.chat.memory.lifecycle import MemoryChanged
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
@@ -83,6 +85,8 @@ class AgentMemoryService:
         if not self.settings.enabled or not subject_user_id or not conversation_id:
             return MemoryWriteResult(provider_status="disabled")
 
+        lifecycle = getattr(self.repository, 'lifecycle', None)
+        expected_epoch = lifecycle.current_epoch(subject_user_id) if lifecycle else None
         rule_candidates = self.rule_extractor.extract(user_message)
         messages = [
             {"role": "user", "content": user_message},
@@ -122,10 +126,12 @@ class AgentMemoryService:
             provider_status=langmem_result.status,
             latency_ms=langmem_result.latency_ms,
             source_text=user_message,
+            expected_epoch=expected_epoch,
         )
         if self.settings.langmem_enabled and self.settings.langmem_background:
             _LANGMEM_EXECUTOR.submit(
                 self._persist_langmem_background,
+                expected_epoch=result.memory_epoch,
                 subject_user_id=subject_user_id,
                 conversation_id=conversation_id,
                 course_id=course_id,
@@ -142,6 +148,7 @@ class AgentMemoryService:
         course_id: str | None,
         messages: list[dict],
         policy_hint: dict,
+        expected_epoch: int | None = None,
     ) -> None:
         langmem_result = self.langmem_adapter.extract_candidates(
             messages=messages,
@@ -177,6 +184,7 @@ class AgentMemoryService:
             conversation_id=conversation_id,
             course_id=course_id,
             candidates=langmem_result.candidates,
+            expected_epoch=expected_epoch,
             provider="langmem",
             provider_status="ok",
             latency_ms=langmem_result.latency_ms,
@@ -201,6 +209,7 @@ class AgentMemoryService:
         provider_status: str,
         latency_ms: int,
         source_text: str,
+        expected_epoch: int | None = None,
     ) -> MemoryWriteResult:
         decisions = []
         for candidate in candidates:
@@ -213,6 +222,7 @@ class AgentMemoryService:
                 )
             decisions.append(decision)
         result = MemoryWriteResult(
+            memory_epoch=expected_epoch,
             candidate_count=len(candidates),
             accepted_count=sum(decision.allowed for decision in decisions),
             rejected_count=sum(not decision.allowed for decision in decisions),
@@ -260,10 +270,10 @@ class AgentMemoryService:
             source_digest = hashlib.sha256(
                 f"{conversation_id}|{candidate.source_span}".encode("utf-8")
             ).hexdigest()[:16]
-            from app.chat.memory.repository import ManagedLearningPreference
             try:
                 memory = self.repository.upsert_memory(
                     MemoryRecordDraft(
+                        expected_epoch=expected_epoch,
                         subject_user_id=subject_user_id,
                         owner_user_id=subject_user_id,
                         course_id=scoped_course_id,
@@ -300,9 +310,14 @@ class AgentMemoryService:
                         ),
                     )
                 )
-            except ManagedLearningPreference:
+            except MemoryChanged:
                 result.rejected_count += 1
+                result.accepted_count -= 1
+                result.provider_status = 'memory_changed'
                 continue
+            if memory.memory_epoch is not None:
+                expected_epoch = memory.memory_epoch
+                result.memory_epoch = expected_epoch
             result.memory_ids.append(memory.memory_id)
             result.written_count += 1
 
@@ -441,7 +456,7 @@ class AgentMemoryService:
                 structured_payload={"confirmed_by_user": True},
                 confidence=1.0,
                 source_type="user_confirmation",
-                source_id=f"profile-confirmation:{subject_user_id}:{normalized_axis}",
+                source_id=f"profile-confirmation:{subject_user_id}:{normalized_axis}:{uuid4().hex}",
                 source_span=normalized_value,
                 profile_axis=normalized_axis,
                 supersedes_axis=True,

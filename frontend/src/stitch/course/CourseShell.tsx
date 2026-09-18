@@ -9,6 +9,8 @@ import type { TeacherCourseRoute } from "../teacherRoutes";
 import { buildRoleCourseHash, homeHashForRole } from "../shared/routes/roleCourseRouteResolver";
 import { useCourseRoute } from "./CourseRouteProvider";
 import { getCourseNavigation, getCoursePageTitle, type CourseNavigationId } from "./courseNavigation";
+import { isLearningWorkspace, learningHomeHref } from "../../selfLearning/workspaceRoutes";
+import { Brand } from "../../selfLearning/ui";
 
 type CourseShellRoute = TeacherCourseRoute | StudentRoute;
 type CourseNavigationVariant = "desktop" | "mobile";
@@ -28,13 +30,20 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const courseMenuRef = useRef<HTMLDivElement | null>(null);
   const isStudent = user?.role === "student";
-  const navigation = getCourseNavigation();
+  const learningWorkspace = isLearningWorkspace();
+  const allNavigation = getCourseNavigation();
+  const navigation = learningWorkspace
+    ? (["classroom", "workspace", "resources"] as const).map((id) => ({
+        ...allNavigation.find((item) => item.id === id)!,
+        label: id === "classroom" ? "AI 课堂" : id === "resources" ? "资源中心" : "工作台",
+      }))
+    : allNavigation;
   const activeNavigation = navigation.find((item) => (
     isStudent
       ? studentRouteByNavigationId[item.id] === activeRoute
       : item.routes.includes(activeRoute as TeacherCourseRoute)
   ));
-  const homeHref = homeHashForRole(user?.role);
+  const homeHref = learningWorkspace ? learningHomeHref() : homeHashForRole(user?.role);
   const pageTitle = activeNavigation?.label
     ?? (isStudent ? "课程概览" : getCoursePageTitle(activeRoute as TeacherCourseRoute));
 
@@ -118,7 +127,9 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
     <UnifiedCourseShellProvider>
       <div className="course-shell" data-testid="course-shell">
         <header className="course-shell__workbar">
-          <a href={homeHref} className="course-shell__brand" aria-label="返回全部课程">Edu AI</a>
+          <a href={homeHref} className="course-shell__brand" aria-label="返回全部课程">
+            {learningWorkspace ? <Brand /> : "Edu AI"}
+          </a>
 
           <div className="course-shell__course" ref={courseMenuRef}>
             {!isStudent ? (
@@ -161,6 +172,12 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
                   <MaterialIcon name="settings" />
                   <span>课程设置</span>
                 </a>
+                {learningWorkspace && (["knowledge", "learning"] as const).map((id) => {
+                  const item = allNavigation.find((entry) => entry.id === id)!;
+                  return <a key={id} role="menuitem" href={buildRoleCourseHash(user?.role, item.hrefRoute, courseId)}>
+                    <MaterialIcon name={item.icon} /><span>{item.label}</span>
+                  </a>;
+                })}
               </div>
             ) : null}
           </div>
@@ -169,9 +186,8 @@ export function CourseShell({ activeRoute, children }: PropsWithChildren<{ activ
 
           <div className="course-shell__actions">
             <JobCenterTrigger placement="inline" />
-            <a className="course-shell__profile" href={routeHref(routes.profile)}>
-              <MaterialIcon name="person" />
-              <span>个人中心</span>
+            <a className="course-shell__profile" href={routeHref(routes.profile)} aria-label="个人中心">
+              {learningWorkspace ? user?.username.slice(0, 1).toUpperCase() : <><MaterialIcon name="person" /><span>个人中心</span></>}
             </a>
             <button
               type="button"

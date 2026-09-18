@@ -1,0 +1,49 @@
+
+Running 2 tests using 1 worker
+
+(node:627413) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/live-learning/agent-full.spec.ts:9:5 › real login, report/classroom/quiz, answer and refresh (1.1m)
+  ✘  2 tests/live-learning/agent-full.spec.ts:49:5 › all committed core resources render at their recorded versions (1.7m)
+
+
+  1) tests/live-learning/agent-full.spec.ts:49:5 › all committed core resources render at their recorded versions
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('iframe.sl-live-material').contentFrame().getByRole('button', { name: '保存作答' }).first()
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for locator('iframe.sl-live-material').contentFrame().getByRole('button', { name: '保存作答' }).first()
+
+
+      62 |         await frame.getByRole('button', { name: '播放当前页', exact: true }).click();
+      63 |       } else if (resource.remote.materialType === 'quiz') {
+    > 64 |         await expect(frame.getByRole('button', { name: '保存作答' }).first()).toBeVisible();
+         |                                                                           ^
+      65 |       } else await expect(frame.locator('[data-reading-end]')).toBeAttached();
+      66 |       await page.screenshot({ path: info.outputPath(`${chapter.id}-${resource.remote.materialType}-${resource.remote.version}.png`) });
+      67 |     }
+        at /home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning/agent-full.spec.ts:64:75
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/agent-full/agent-full-all-committed-c-57696--at-their-recorded-versions/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/agent-full/agent-full-all-committed-c-57696--at-their-recorded-versions/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/agent-full/agent-full-all-committed-c-57696--at-their-recorded-versions/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/agent-full/agent-full-all-committed-c-57696--at-their-recorded-versions/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/live-learning/agent-full.spec.ts:49:5 › all committed core resources render at their recorded versions
+  1 passed (2.9m)

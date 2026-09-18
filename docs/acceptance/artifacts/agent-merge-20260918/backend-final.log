@@ -1,0 +1,25 @@
+.......................................s............................s... [ 14%]
+........s.......................................s....................... [ 29%]
+.................................................s...................... [ 44%]
+........................................................................ [ 59%]
+.................s................................................s..... [ 74%]
+........................................................................ [ 88%]
+....s..........................s..........s...........                   [100%]
+=============================== warnings summary ===============================
+tests/database/test_alembic_revision_chain.py::test_alembic_revision_chain_has_unique_revisions_and_one_head
+  /home/zxqs_ep/miniforge3/envs/edu-ai/lib/python3.12/site-packages/alembic/config.py:604: DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces, commas, and colons for prepend_sys_path.  Consider adding path_separator=os to Alembic config.
+    util.warn_deprecated(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/course_preparation/test_delivery.py:76: PostgreSQL row lock competition
+SKIPPED [1] tests/course_preparation/test_lifecycle_guards.py:85: row locks require PostgreSQL
+SKIPPED [1] tests/course_preparation/test_local_manifest.py:73: PostgreSQL concurrent version commit
+SKIPPED [1] tests/course_preparation/test_repository.py:117: row/unique-conflict concurrency is verified on PostgreSQL
+SKIPPED [1] tests/course_preparation/test_research_persistence.py:101: row-lock race requires PostgreSQL
+SKIPPED [1] tests/self_learning/test_live_agent.py:8: requires explicit real model acceptance flag
+SKIPPED [1] tests/self_learning/test_postgres_concurrency.py:44: requires isolated PostgreSQL
+SKIPPED [1] tests/self_learning/test_session_repository.py:150: PostgreSQL process isolation test
+SKIPPED [1] tests/chat/memory/test_memory_langmem_live_integration.py:27: AGENT_MEMORY_RUN_LIVE_LANGMEM is not enabled
+SKIPPED [1] tests/chat/memory/test_memory_postgres_integration.py:26: AGENT_MEMORY_TEST_DATABASE_URL is not configured
+476 passed, 10 skipped, 1 warning in 830.67s (0:13:50)

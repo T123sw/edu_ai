@@ -1,0 +1,14 @@
+.F.......................                                                [100%]
+=================================== FAILURES ===================================
+____________ test_no_paraphrase_or_changed_operator_can_be_resolved ____________
+
+    def test_no_paraphrase_or_changed_operator_can_be_resolved():
+        assert locate_quote('This function returns x * y.', 'This function returns xy.') is None
+>       assert locate_quote('This returns x ** y ** z.', 'This returns x y z.') is None
+E       AssertionError: assert 'This returns x ** y ** z.' is None
+E        +  where 'This returns x ** y ** z.' = locate_quote('This returns x ** y ** z.', 'This returns x y z.')
+
+tests/course_preparation/test_citation_locator.py:14: AssertionError
+=========================== short test summary info ============================
+FAILED tests/course_preparation/test_citation_locator.py::test_no_paraphrase_or_changed_operator_can_be_resolved
+1 failed, 24 passed in 0.20s

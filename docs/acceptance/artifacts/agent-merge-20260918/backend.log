@@ -1,0 +1,13 @@
+
+==================================== ERRORS ====================================
+_______ ERROR collecting tests/course_preparation/test_notifications.py ________
+ImportError while importing test module '/home/zxqs_ep/Edu_AI-agent-merge-20260918/backend/src/tests/course_preparation/test_notifications.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+backend/src/tests/course_preparation/test_notifications.py:4: in <module>
+    from app.self_learning.db_models import LearningNotification
+E   ImportError: cannot import name 'LearningNotification' from 'app.self_learning.db_models' (/home/zxqs_ep/Edu_AI-agent-merge-20260918/backend/src/app/self_learning/db_models.py)
+=========================== short test summary info ============================
+ERROR backend/src/tests/course_preparation/test_notifications.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 5.35s

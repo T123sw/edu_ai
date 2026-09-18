@@ -14,6 +14,14 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const STORAGE_KEY = 'edu-ai-auth';
 
+// An isolated frontend review identity never reads or replaces a real session.
+export function PreviewAuthProvider({ children, user }: { children: React.ReactNode; user: User }) {
+  return <AuthContext.Provider value={{ user, token: 'frontend-review', authReady: true,
+    login: async () => { throw new Error('前端预览不提供账号登录'); },
+    logout: () => { window.location.assign(window.location.pathname); },
+  }}>{children}</AuthContext.Provider>;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -99,5 +107,3 @@ export function useAuth() {
   }
   return ctx;
 }
-
-

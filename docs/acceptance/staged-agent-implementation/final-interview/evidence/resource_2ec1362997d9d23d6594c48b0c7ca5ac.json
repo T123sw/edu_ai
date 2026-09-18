@@ -1,0 +1,1584 @@
+{
+  "title": "评估与可观测性",
+  "status": "ready",
+  "content": {
+    "title": "评估与可观测性：L1/L2/L3 分层日志与故障定位",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "在 Agent 可观测性的三层日志模型中，L1 层主要记录的是哪一类信息？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "工具调用的参数、延迟、输出大小及截断情况",
+          "当前计划状态、记忆读写与停止原因",
+          "多 Agent 之间的委托与权限审批",
+          "最终答案的生成质量与用户满意度"
+        ],
+        "difficulty": "easy",
+        "explanation": "L1 层关注单个工具调用的执行细节，包括工具名、参数、schema 校验结果、工具延迟、输出大小以及调用前是否发生截断。选项 B 属于 L2 层，选项 C 属于 L3 层，选项 D 不属于这三层日志的范畴。"
+      },
+      {
+        "id": "q2",
+        "stem": "某 Agent 在任务执行到第 4 步时意外停止。为了判断是计划本身出了问题还是执行条件触发了停止，你首先应该查看哪一层日志中的哪个字段？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "L1 层的工具延迟字段",
+          "L2 层的停止原因字段",
+          "L3 层的终止条件字段",
+          "L2 层的检索决策字段"
+        ],
+        "difficulty": "medium",
+        "explanation": "L2 层记录步骤号、当前计划/todo 状态、记忆读写、检索决策和停止原因（success、max steps、error）。第 4 步意外停止时，先看 L2 的停止原因可以判断是正常完成、达到最大步数还是出错。L1 的工具延迟无法解释停止原因，L3 的终止条件属于更高层的编排层面。"
+      },
+      {
+        "id": "q3",
+        "stem": "下列哪些字段属于 L1 层日志应当记录的内容？（多选）",
+        "type": "multiple_choice",
+        "answer": "A,B,D",
+        "options": [
+          "工具名",
+          "schema 校验结果",
+          "当前计划/todo 状态",
+          "调用前是否发生截断",
+          "委托/交接边"
+        ],
+        "difficulty": "easy",
+        "explanation": "L1 层记录工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。当前计划/todo 状态属于 L2 层，委托/交接边属于 L3 层。"
+      },
+      {
+        "id": "q4",
+        "stem": "按照分层诊断方法，当 Agent 出现故障时，正确的排查顺序是：",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "先查 L3 编排决策，再查 L2 计划，最后查 L1 工具调用",
+          "先查 L1 工具调用，再查 L2 计划，最后查 L3 编排",
+          "先查 L2 计划，再查 L1 工具调用，最后查 L3 编排",
+          "三层同时排查，没有先后顺序"
+        ],
+        "difficulty": "medium",
+        "explanation": "原文明确指出：当出现问题时，从 L1 开始向上排查。如果工具调用看起来正常，再移到 L2 检查计划；如果计划看起来合理，再移到 L3 检查编排。因此正确顺序是 L1 → L2 → L3。"
+      },
+      {
+        "id": "q5",
+        "stem": "在一次多 Agent 协作任务中，子 Agent A 本应把任务交接给子 Agent B，但交接没有发生。要定位这个问题，最应该查看哪一层日志？",
+        "type": "single_choice",
+        "answer": "C",
+        "options": [
+          "L1 层，检查 A 的工具调用参数",
+          "L2 层，检查 A 的停止原因",
+          "L3 层，检查委托/交接边与权限范围",
+          "L1 层，检查 A 的工具延迟"
+        ],
+        "difficulty": "medium",
+        "explanation": "L3 层记录哪个 agent 行动、委托/交接边、权限范围、审批中断和终止条件。交接没有发生属于多 Agent 编排层面的问题，应查看 L3 层的委托/交接边和权限范围。L1 和 L2 无法反映 Agent 之间的交接关系。"
+      },
+      {
+        "id": "q6",
+        "stem": "当 Agent 输出结果不符合预期时，最合理的做法是直接将其归因于大模型的“幻觉”，然后调整提示词。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "分层诊断方法强调从 L1 向上逐层排查，而不是笼统归因于“幻觉”。应先检查工具调用是否正常（L1），再检查计划是否合理（L2），最后检查编排决策（L3）。直接归因于幻觉会跳过具体的故障定位过程。"
+      },
+      {
+        "id": "q7",
+        "stem": "L2 层日志中的“停止原因”字段可能包含以下哪些取值？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "success、max steps、error",
+          "halted、expired、cancelled",
+          "approved、rejected、pending",
+          "truncated、validated、failed"
+        ],
+        "difficulty": "medium",
+        "explanation": "L2 层的停止原因记录的是 success（成功）、max steps（达到最大步数）、error（错误）。halted、expired、cancelled 是 L3 层的终止条件取值。approved、rejected、pending 和 truncated、validated、failed 均不是原文中停止原因的取值。"
+      },
+      {
+        "id": "q8",
+        "stem": "请列出 L1 层日志至少 3 个字段，并说明从 L1 向上排查故障的完整顺序。",
+        "type": "short_answer",
+        "answer": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断（任列 3 个即可）。排查顺序：从 L1 开始，检查工具调用是否正常；若正常，向上到 L2 检查计划/todo 状态、停止原因等；若计划也合理，再向上到 L3 检查编排决策、委托/交接、权限与终止条件。",
+        "difficulty": "hard",
+        "explanation": "L1 层关注单个工具调用的执行细节，是故障排查的起点。分层诊断的核心逻辑是自底向上：先排除最底层的工具调用问题，再检查中间层的计划与状态，最后检查最高层的编排决策，避免笼统归因于“幻觉”。"
+      },
+      {
+        "id": "q9",
+        "stem": "在面试中解释“可观测性如何支撑 Agent 的评估与迭代”时，下列哪种说法最符合分层日志的实践逻辑？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "可观测性主要用来监控系统是否宕机，与评估迭代关系不大",
+          "分层日志让每次故障都能定位到具体层级，从而把问题转化为可修复的评估指标或设计缺陷",
+          "只要记录足够多的日志，Agent 的准确率就会自动提升",
+          "可观测性只对多 Agent 系统有意义，单 Agent 不需要日志"
+        ],
+        "difficulty": "medium",
+        "explanation": "分层日志的核心价值在于：当 Agent 表现不佳时，可以通过 L1→L2→L3 的逐层排查定位具体问题所在（工具调用、计划状态或编排决策），从而有针对性地改进评估指标或系统设计，而不是笼统归因。选项 A 和 D 缩小了可观测性的作用范围，选项 C 混淆了日志记录与模型能力提升的因果关系。"
+      },
+      {
+        "id": "q10",
+        "stem": "L3 层日志中的“终止条件”字段可能包含以下哪些取值？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "halted、expired、cancelled",
+          "success、max steps、error",
+          "validated、rejected、truncated",
+          "started、running、completed"
+        ],
+        "difficulty": "easy",
+        "explanation": "L3 层的终止条件记录的是 halted（停止）、expired（超时）、cancelled（取消）。success、max steps、error 是 L2 层停止原因的取值。validated、rejected、truncated 和 started、running、completed 均不是原文中终止条件的取值。"
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "eval_observability",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "questions": [
+    {
+      "id": "q1",
+      "stem": "在 Agent 可观测性的三层日志模型中，L1 层主要记录的是哪一类信息？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "工具调用的参数、延迟、输出大小及截断情况",
+        "当前计划状态、记忆读写与停止原因",
+        "多 Agent 之间的委托与权限审批",
+        "最终答案的生成质量与用户满意度"
+      ],
+      "difficulty": "easy",
+      "explanation": "L1 层关注单个工具调用的执行细节，包括工具名、参数、schema 校验结果、工具延迟、输出大小以及调用前是否发生截断。选项 B 属于 L2 层，选项 C 属于 L3 层，选项 D 不属于这三层日志的范畴。"
+    },
+    {
+      "id": "q2",
+      "stem": "某 Agent 在任务执行到第 4 步时意外停止。为了判断是计划本身出了问题还是执行条件触发了停止，你首先应该查看哪一层日志中的哪个字段？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "L1 层的工具延迟字段",
+        "L2 层的停止原因字段",
+        "L3 层的终止条件字段",
+        "L2 层的检索决策字段"
+      ],
+      "difficulty": "medium",
+      "explanation": "L2 层记录步骤号、当前计划/todo 状态、记忆读写、检索决策和停止原因（success、max steps、error）。第 4 步意外停止时，先看 L2 的停止原因可以判断是正常完成、达到最大步数还是出错。L1 的工具延迟无法解释停止原因，L3 的终止条件属于更高层的编排层面。"
+    },
+    {
+      "id": "q3",
+      "stem": "下列哪些字段属于 L1 层日志应当记录的内容？（多选）",
+      "type": "multiple_choice",
+      "answer": "A,B,D",
+      "options": [
+        "工具名",
+        "schema 校验结果",
+        "当前计划/todo 状态",
+        "调用前是否发生截断",
+        "委托/交接边"
+      ],
+      "difficulty": "easy",
+      "explanation": "L1 层记录工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。当前计划/todo 状态属于 L2 层，委托/交接边属于 L3 层。"
+    },
+    {
+      "id": "q4",
+      "stem": "按照分层诊断方法，当 Agent 出现故障时，正确的排查顺序是：",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "先查 L3 编排决策，再查 L2 计划，最后查 L1 工具调用",
+        "先查 L1 工具调用，再查 L2 计划，最后查 L3 编排",
+        "先查 L2 计划，再查 L1 工具调用，最后查 L3 编排",
+        "三层同时排查，没有先后顺序"
+      ],
+      "difficulty": "medium",
+      "explanation": "原文明确指出：当出现问题时，从 L1 开始向上排查。如果工具调用看起来正常，再移到 L2 检查计划；如果计划看起来合理，再移到 L3 检查编排。因此正确顺序是 L1 → L2 → L3。"
+    },
+    {
+      "id": "q5",
+      "stem": "在一次多 Agent 协作任务中，子 Agent A 本应把任务交接给子 Agent B，但交接没有发生。要定位这个问题，最应该查看哪一层日志？",
+      "type": "single_choice",
+      "answer": "C",
+      "options": [
+        "L1 层，检查 A 的工具调用参数",
+        "L2 层，检查 A 的停止原因",
+        "L3 层，检查委托/交接边与权限范围",
+        "L1 层，检查 A 的工具延迟"
+      ],
+      "difficulty": "medium",
+      "explanation": "L3 层记录哪个 agent 行动、委托/交接边、权限范围、审批中断和终止条件。交接没有发生属于多 Agent 编排层面的问题，应查看 L3 层的委托/交接边和权限范围。L1 和 L2 无法反映 Agent 之间的交接关系。"
+    },
+    {
+      "id": "q6",
+      "stem": "当 Agent 输出结果不符合预期时，最合理的做法是直接将其归因于大模型的“幻觉”，然后调整提示词。",
+      "type": "true_false",
+      "answer": "错误",
+      "difficulty": "easy",
+      "explanation": "分层诊断方法强调从 L1 向上逐层排查，而不是笼统归因于“幻觉”。应先检查工具调用是否正常（L1），再检查计划是否合理（L2），最后检查编排决策（L3）。直接归因于幻觉会跳过具体的故障定位过程。"
+    },
+    {
+      "id": "q7",
+      "stem": "L2 层日志中的“停止原因”字段可能包含以下哪些取值？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "success、max steps、error",
+        "halted、expired、cancelled",
+        "approved、rejected、pending",
+        "truncated、validated、failed"
+      ],
+      "difficulty": "medium",
+      "explanation": "L2 层的停止原因记录的是 success（成功）、max steps（达到最大步数）、error（错误）。halted、expired、cancelled 是 L3 层的终止条件取值。approved、rejected、pending 和 truncated、validated、failed 均不是原文中停止原因的取值。"
+    },
+    {
+      "id": "q8",
+      "stem": "请列出 L1 层日志至少 3 个字段，并说明从 L1 向上排查故障的完整顺序。",
+      "type": "short_answer",
+      "answer": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断（任列 3 个即可）。排查顺序：从 L1 开始，检查工具调用是否正常；若正常，向上到 L2 检查计划/todo 状态、停止原因等；若计划也合理，再向上到 L3 检查编排决策、委托/交接、权限与终止条件。",
+      "difficulty": "hard",
+      "explanation": "L1 层关注单个工具调用的执行细节，是故障排查的起点。分层诊断的核心逻辑是自底向上：先排除最底层的工具调用问题，再检查中间层的计划与状态，最后检查最高层的编排决策，避免笼统归因于“幻觉”。"
+    },
+    {
+      "id": "q9",
+      "stem": "在面试中解释“可观测性如何支撑 Agent 的评估与迭代”时，下列哪种说法最符合分层日志的实践逻辑？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "可观测性主要用来监控系统是否宕机，与评估迭代关系不大",
+        "分层日志让每次故障都能定位到具体层级，从而把问题转化为可修复的评估指标或设计缺陷",
+        "只要记录足够多的日志，Agent 的准确率就会自动提升",
+        "可观测性只对多 Agent 系统有意义，单 Agent 不需要日志"
+      ],
+      "difficulty": "medium",
+      "explanation": "分层日志的核心价值在于：当 Agent 表现不佳时，可以通过 L1→L2→L3 的逐层排查定位具体问题所在（工具调用、计划状态或编排决策），从而有针对性地改进评估指标或系统设计，而不是笼统归因。选项 A 和 D 缩小了可观测性的作用范围，选项 C 混淆了日志记录与模型能力提升的因果关系。"
+    },
+    {
+      "id": "q10",
+      "stem": "L3 层日志中的“终止条件”字段可能包含以下哪些取值？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "halted、expired、cancelled",
+        "success、max steps、error",
+        "validated、rejected、truncated",
+        "started、running、completed"
+      ],
+      "difficulty": "easy",
+      "explanation": "L3 层的终止条件记录的是 halted（停止）、expired（超时）、cancelled（取消）。success、max steps、error 是 L2 层停止原因的取值。validated、rejected、truncated 和 started、running、completed 均不是原文中终止条件的取值。"
+    }
+  ],
+  "created_at": "2026-09-17T14:24:21.376898+00:00",
+  "created_by": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-09-17T14:24:21.376898+00:00",
+  "visibility": "private",
+  "material_id": "resource_2ec1362997d9d23d6594c48b0c7ca5ac",
+  "origin_type": "personal",
+  "content_hash": "1f327571c3cd45ae0a0b0aa13af14eee6026494c81bbb731aec1e3e2ba6d8612",
+  "material_type": "quiz",
+  "owner_user_id": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "generation_state": {
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "题目覆盖了规格要求的三个核心目标：L1/L2/L3 分层字段（q1、q3、q7、q8、q10）、从 L1 向上逐层排查的故障定位方法（q2、q4、q6）、可观测性支撑评估与迭代的面试表达（q9）。共 10 题，学习时间约 30 分钟，语言为中文，受众为有 Python 开发基础、准备 AI Agent 岗位面试的学习者，难度分布合理。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "所有题目的答案与解析均与已确认研究资料一致：L1 字段为工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断；L2 字段为步骤号、计划/todo 状态、记忆读写、检索决策、停止原因（success、max steps、error）；L3 字段为哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件（halted、expired、cancelled）。排查顺序为 L1→L2→L3。逐题核算未发现事实错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题类型为 quiz，按 resource_contract 对习题核验求解。已逐题独立求解并核对答案与解析，详见 question_checks。q2 和 q5 提供了具体故障场景作为例子，q8 要求列出字段并说明排查顺序，符合学习检查目标。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目从易到难递进：q1、q3、q6、q10 为 easy，q2、q4、q5、q7、q9 为 medium，q8 为 hard。题型多样（单选、多选、判断、简答），覆盖概念记忆、场景应用和面试表达。q8 作为简答题直接对应学习检查中'不看笔记列出 L1 至少 3 个日志字段并说出排查顺序'的要求。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "所有知识点均来自已确认研究资料 ev_d5a0d2f0cbc84020f7025aa2（Medium 文章），未引入来源之外的断言。L1/L2/L3 字段和排查顺序与原文一致，无编造引用。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "10 道题完整覆盖了规格要求的全部学习目标：L1 字段（q1、q3、q8）、L2 字段（q2、q7）、L3 字段（q5、q10）、排查顺序（q4、q6）、面试表达（q9）。题型和难度分布符合要求，无遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "题目覆盖了规格要求的三个核心目标：L1/L2/L3 分层字段（q1、q3、q7、q8、q10）、从 L1 向上逐层排查的故障定位方法（q2、q4、q6）、可观测性支撑评估与迭代的面试表达（q9）。共 10 题，学习时间约 30 分钟，语言为中文，受众为有 Python 开发基础、准备 AI Agent 岗位面试的学习者，难度分布合理。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "所有题目的答案与解析均与已确认研究资料一致：L1 字段为工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断；L2 字段为步骤号、计划/todo 状态、记忆读写、检索决策、停止原因（success、max steps、error）；L3 字段为哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件（halted、expired、cancelled）。排查顺序为 L1→L2→L3。逐题核算未发现事实错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题类型为 quiz，按 resource_contract 对习题核验求解。已逐题独立求解并核对答案与解析，详见 question_checks。q2 和 q5 提供了具体故障场景作为例子，q8 要求列出字段并说明排查顺序，符合学习检查目标。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目从易到难递进：q1、q3、q6、q10 为 easy，q2、q4、q5、q7、q9 为 medium，q8 为 hard。题型多样（单选、多选、判断、简答），覆盖概念记忆、场景应用和面试表达。q8 作为简答题直接对应学习检查中'不看笔记列出 L1 至少 3 个日志字段并说出排查顺序'的要求。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "所有知识点均来自已确认研究资料 ev_d5a0d2f0cbc84020f7025aa2（Medium 文章），未引入来源之外的断言。L1/L2/L3 字段和排查顺序与原文一致，无编造引用。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "10 道题完整覆盖了规格要求的全部学习目标：L1 字段（q1、q3、q8）、L2 字段（q2、q7）、L3 字段（q5、q10）、排查顺序（q4、q6）、面试表达（q9）。题型和难度分布符合要求，无遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q2 的题干中'第 4 步'这一信息在解题时未直接使用，可考虑在解析中补充说明步骤号字段的作用，或简化题干避免冗余信息。",
+              "q8 作为简答题，答案较长，建议在预览界面确保折叠答案的交互清晰，方便用户主动展开核对。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 准确概括了 L1 层的核心字段：工具调用的参数、延迟、输出大小及截断情况，与原文一致。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 描述的是 L2 层内容（当前计划状态、记忆读写与停止原因），不属于 L1 层。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 描述的是 L3 层内容（多 Agent 之间的委托与权限审批），不属于 L1 层。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 的'最终答案生成质量与用户满意度'不属于 L1/L2/L3 三层日志的范畴，原文未提及此类字段。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "L1 层记录单个工具调用的执行细节：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断。选项 A 正确。选项 B 是 L2 层内容，选项 C 是 L3 层内容，选项 D 不属于三层日志范畴。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "L1 层的工具延迟字段只反映单次工具调用的耗时，无法解释任务为何在第 4 步停止。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "L2 层的停止原因字段记录 success、max steps、error，直接说明任务停止的原因，是判断计划问题还是执行条件触发停止的首选字段。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "L3 层的终止条件字段（halted、expired、cancelled）属于多 Agent 编排层面，对于单 Agent 在第 4 步意外停止的场景，应先从 L2 排查。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "L2 层的检索决策字段记录检索相关决策，与任务停止原因无直接关系。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "Agent 在第 4 步意外停止，需要判断是计划问题还是执行条件触发停止。L2 层记录停止原因（success、max steps、error），直接回答停止原因。L1 工具延迟无法解释停止原因，L3 终止条件属于更高层编排层面，L2 检索决策与停止原因无直接关系。正确答案为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "工具名是 L1 层明确列出的字段，正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "schema 校验结果是 L1 层明确列出的字段，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "当前计划/todo 状态属于 L2 层，不是 L1 层字段。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "调用前是否发生截断是 L1 层明确列出的字段，正确。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "委托/交接边属于 L3 层，不是 L1 层字段。",
+                    "option_index": 4,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。选项 A（工具名）、B（schema 校验结果）、D（调用前是否发生截断）属于 L1。选项 C（当前计划/todo 状态）属于 L2，选项 E（委托/交接边）属于 L3。正确答案为 A,B,D。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 的顺序是 L3→L2→L1，与原文'从 L1 开始向上排查'相反。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 的顺序 L1→L2→L3 与原文完全一致，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 的顺序 L2→L1→L3 打乱了自底向上的排查逻辑，原文明确从 L1 开始。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 声称三层同时排查没有先后顺序，与原文明确的逐层排查方法矛盾。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "independent_solution": "原文明确指出：当出现问题时，从 L1 开始向上排查。如果工具调用看起来正常，再移到 L2 检查计划；如果计划看起来合理，再移到 L3 检查编排。正确顺序为 L1→L2→L3，即选项 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "L1 层检查 A 的工具调用参数只能反映 A 单次工具调用的输入，无法反映 A 与 B 之间的交接关系。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "L2 层检查 A 的停止原因只能说明 A 为何停止，无法说明交接为何没有发生。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "L3 层记录委托/交接边与权限范围，直接对应交接未发生的问题，正确。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "L1 层检查 A 的工具延迟只能反映单次调用耗时，与交接失败无关。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "independent_solution": "多 Agent 协作中交接没有发生，属于 Agent 之间的委托/交接问题。L3 层记录委托/交接边和权限范围，是定位该问题的正确层级。L1 层只记录单个工具调用细节，L2 层记录单 Agent 的计划和停止原因，均无法反映 Agent 之间的交接关系。正确答案为 C。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "independent_solution": "分层诊断方法明确反对笼统归因于'幻觉'，要求从 L1 向上逐层排查。因此'直接归因于幻觉并调整提示词'是错误的做法。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "success、max steps、error 是 L2 层停止原因的明确取值，正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "halted、expired、cancelled 是 L3 层终止条件的取值，不是 L2 层停止原因。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "approved、rejected、pending 与审批相关，原文中 L2 停止原因未包含这些取值。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "truncated、validated、failed 与截断和校验相关，原文中 L2 停止原因未包含这些取值。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "independent_solution": "L2 层停止原因的取值为 success、max steps、error。halted、expired、cancelled 是 L3 层终止条件的取值。approved、rejected、pending 和 truncated、validated、failed 均不是原文中的取值。正确答案为 A。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "independent_solution": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。排查顺序为：从 L1 开始检查工具调用是否正常；若正常，向上到 L2 检查计划/todo 状态、停止原因等；若计划也合理，再向上到 L3 检查编排决策、委托/交接、权限与终止条件。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 将可观测性局限于监控宕机，忽略了其对评估与迭代的支撑作用，与分层日志的实践逻辑不符。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 准确表达了分层日志将故障定位到具体层级、转化为可修复的评估指标或设计缺陷的核心价值，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 声称日志多就能自动提升准确率，混淆了日志记录与模型能力提升的因果关系，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 声称单 Agent 不需要日志，与原文中 L1/L2 层对单 Agent 工具调用和计划的记录需求矛盾，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 8,
+                "explanation_valid": true,
+                "independent_solution": "分层日志的核心价值在于将故障定位到具体层级（工具调用、计划状态或编排决策），从而有针对性地改进评估指标或系统设计。选项 B 最符合这一逻辑。选项 A 缩小了可观测性的作用，选项 C 混淆了日志记录与模型能力提升的因果关系，选项 D 错误地认为单 Agent 不需要日志。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "halted、expired、cancelled 是 L3 层终止条件的明确取值，正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "success、max steps、error 是 L2 层停止原因的取值，不是 L3 层终止条件。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "validated、rejected、truncated 与校验和截断相关，原文中 L3 终止条件未包含这些取值。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "started、running、completed 是通用状态描述，原文中 L3 终止条件未包含这些取值。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 9,
+                "explanation_valid": true,
+                "independent_solution": "L3 层终止条件的取值为 halted、expired、cancelled。success、max steps、error 是 L2 层停止原因的取值。validated、rejected、truncated 和 started、running、completed 均不是原文中的取值。正确答案为 A。"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "18fa97b06bcf28deef1b1d3df2b335618f7ccda9e3bccecb08014cb1066a6440"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q2 的题干中'第 4 步'这一信息在解题时未直接使用，可考虑在解析中补充说明步骤号字段的作用，或简化题干避免冗余信息。",
+        "q8 作为简答题，答案较长，建议在预览界面确保折叠答案的交互清晰，方便用户主动展开核对。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "18fa97b06bcf28deef1b1d3df2b335618f7ccda9e3bccecb08014cb1066a6440",
+      "question_checks": [
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 准确概括了 L1 层的核心字段：工具调用的参数、延迟、输出大小及截断情况，与原文一致。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 描述的是 L2 层内容（当前计划状态、记忆读写与停止原因），不属于 L1 层。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 描述的是 L3 层内容（多 Agent 之间的委托与权限审批），不属于 L1 层。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 的'最终答案生成质量与用户满意度'不属于 L1/L2/L3 三层日志的范畴，原文未提及此类字段。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "independent_solution": "L1 层记录单个工具调用的执行细节：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断。选项 A 正确。选项 B 是 L2 层内容，选项 C 是 L3 层内容，选项 D 不属于三层日志范畴。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "L1 层的工具延迟字段只反映单次工具调用的耗时，无法解释任务为何在第 4 步停止。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "L2 层的停止原因字段记录 success、max steps、error，直接说明任务停止的原因，是判断计划问题还是执行条件触发停止的首选字段。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "L3 层的终止条件字段（halted、expired、cancelled）属于多 Agent 编排层面，对于单 Agent 在第 4 步意外停止的场景，应先从 L2 排查。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "L2 层的检索决策字段记录检索相关决策，与任务停止原因无直接关系。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "independent_solution": "Agent 在第 4 步意外停止，需要判断是计划问题还是执行条件触发停止。L2 层记录停止原因（success、max steps、error），直接回答停止原因。L1 工具延迟无法解释停止原因，L3 终止条件属于更高层编排层面，L2 检索决策与停止原因无直接关系。正确答案为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "工具名是 L1 层明确列出的字段，正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "schema 校验结果是 L1 层明确列出的字段，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "当前计划/todo 状态属于 L2 层，不是 L1 层字段。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "调用前是否发生截断是 L1 层明确列出的字段，正确。",
+              "option_index": 3,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "委托/交接边属于 L3 层，不是 L1 层字段。",
+              "option_index": 4,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "independent_solution": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。选项 A（工具名）、B（schema 校验结果）、D（调用前是否发生截断）属于 L1。选项 C（当前计划/todo 状态）属于 L2，选项 E（委托/交接边）属于 L3。正确答案为 A,B,D。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 的顺序是 L3→L2→L1，与原文'从 L1 开始向上排查'相反。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 的顺序 L1→L2→L3 与原文完全一致，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 的顺序 L2→L1→L3 打乱了自底向上的排查逻辑，原文明确从 L1 开始。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 声称三层同时排查没有先后顺序，与原文明确的逐层排查方法矛盾。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "independent_solution": "原文明确指出：当出现问题时，从 L1 开始向上排查。如果工具调用看起来正常，再移到 L2 检查计划；如果计划看起来合理，再移到 L3 检查编排。正确顺序为 L1→L2→L3，即选项 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "L1 层检查 A 的工具调用参数只能反映 A 单次工具调用的输入，无法反映 A 与 B 之间的交接关系。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "L2 层检查 A 的停止原因只能说明 A 为何停止，无法说明交接为何没有发生。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "L3 层记录委托/交接边与权限范围，直接对应交接未发生的问题，正确。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "L1 层检查 A 的工具延迟只能反映单次调用耗时，与交接失败无关。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "independent_solution": "多 Agent 协作中交接没有发生，属于 Agent 之间的委托/交接问题。L3 层记录委托/交接边和权限范围，是定位该问题的正确层级。L1 层只记录单个工具调用细节，L2 层记录单 Agent 的计划和停止原因，均无法反映 Agent 之间的交接关系。正确答案为 C。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "independent_solution": "分层诊断方法明确反对笼统归因于'幻觉'，要求从 L1 向上逐层排查。因此'直接归因于幻觉并调整提示词'是错误的做法。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "success、max steps、error 是 L2 层停止原因的明确取值，正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "halted、expired、cancelled 是 L3 层终止条件的取值，不是 L2 层停止原因。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "approved、rejected、pending 与审批相关，原文中 L2 停止原因未包含这些取值。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "truncated、validated、failed 与截断和校验相关，原文中 L2 停止原因未包含这些取值。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "independent_solution": "L2 层停止原因的取值为 success、max steps、error。halted、expired、cancelled 是 L3 层终止条件的取值。approved、rejected、pending 和 truncated、validated、failed 均不是原文中的取值。正确答案为 A。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "independent_solution": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。排查顺序为：从 L1 开始检查工具调用是否正常；若正常，向上到 L2 检查计划/todo 状态、停止原因等；若计划也合理，再向上到 L3 检查编排决策、委托/交接、权限与终止条件。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 将可观测性局限于监控宕机，忽略了其对评估与迭代的支撑作用，与分层日志的实践逻辑不符。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 准确表达了分层日志将故障定位到具体层级、转化为可修复的评估指标或设计缺陷的核心价值，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 声称日志多就能自动提升准确率，混淆了日志记录与模型能力提升的因果关系，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 声称单 Agent 不需要日志，与原文中 L1/L2 层对单 Agent 工具调用和计划的记录需求矛盾，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 8,
+          "explanation_valid": true,
+          "independent_solution": "分层日志的核心价值在于将故障定位到具体层级（工具调用、计划状态或编排决策），从而有针对性地改进评估指标或系统设计。选项 B 最符合这一逻辑。选项 A 缩小了可观测性的作用，选项 C 混淆了日志记录与模型能力提升的因果关系，选项 D 错误地认为单 Agent 不需要日志。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "halted、expired、cancelled 是 L3 层终止条件的明确取值，正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "success、max steps、error 是 L2 层停止原因的取值，不是 L3 层终止条件。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "validated、rejected、truncated 与校验和截断相关，原文中 L3 终止条件未包含这些取值。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "started、running、completed 是通用状态描述，原文中 L3 终止条件未包含这些取值。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 9,
+          "explanation_valid": true,
+          "independent_solution": "L3 层终止条件的取值为 halted、expired、cancelled。success、max steps、error 是 L2 层停止原因的取值。validated、rejected、truncated 和 started、running、completed 均不是原文中的取值。正确答案为 A。"
+        }
+      ]
+    }
+  },
+  "preparation_artifact": {
+    "title": "评估与可观测性",
+    "content": {
+      "title": "评估与可观测性：L1/L2/L3 分层日志与故障定位",
+      "questions": [
+        {
+          "id": "q1",
+          "stem": "在 Agent 可观测性的三层日志模型中，L1 层主要记录的是哪一类信息？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "工具调用的参数、延迟、输出大小及截断情况",
+            "当前计划状态、记忆读写与停止原因",
+            "多 Agent 之间的委托与权限审批",
+            "最终答案的生成质量与用户满意度"
+          ],
+          "difficulty": "easy",
+          "explanation": "L1 层关注单个工具调用的执行细节，包括工具名、参数、schema 校验结果、工具延迟、输出大小以及调用前是否发生截断。选项 B 属于 L2 层，选项 C 属于 L3 层，选项 D 不属于这三层日志的范畴。"
+        },
+        {
+          "id": "q2",
+          "stem": "某 Agent 在任务执行到第 4 步时意外停止。为了判断是计划本身出了问题还是执行条件触发了停止，你首先应该查看哪一层日志中的哪个字段？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "L1 层的工具延迟字段",
+            "L2 层的停止原因字段",
+            "L3 层的终止条件字段",
+            "L2 层的检索决策字段"
+          ],
+          "difficulty": "medium",
+          "explanation": "L2 层记录步骤号、当前计划/todo 状态、记忆读写、检索决策和停止原因（success、max steps、error）。第 4 步意外停止时，先看 L2 的停止原因可以判断是正常完成、达到最大步数还是出错。L1 的工具延迟无法解释停止原因，L3 的终止条件属于更高层的编排层面。"
+        },
+        {
+          "id": "q3",
+          "stem": "下列哪些字段属于 L1 层日志应当记录的内容？（多选）",
+          "type": "multiple_choice",
+          "answer": "A,B,D",
+          "options": [
+            "工具名",
+            "schema 校验结果",
+            "当前计划/todo 状态",
+            "调用前是否发生截断",
+            "委托/交接边"
+          ],
+          "difficulty": "easy",
+          "explanation": "L1 层记录工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。当前计划/todo 状态属于 L2 层，委托/交接边属于 L3 层。"
+        },
+        {
+          "id": "q4",
+          "stem": "按照分层诊断方法，当 Agent 出现故障时，正确的排查顺序是：",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "先查 L3 编排决策，再查 L2 计划，最后查 L1 工具调用",
+            "先查 L1 工具调用，再查 L2 计划，最后查 L3 编排",
+            "先查 L2 计划，再查 L1 工具调用，最后查 L3 编排",
+            "三层同时排查，没有先后顺序"
+          ],
+          "difficulty": "medium",
+          "explanation": "原文明确指出：当出现问题时，从 L1 开始向上排查。如果工具调用看起来正常，再移到 L2 检查计划；如果计划看起来合理，再移到 L3 检查编排。因此正确顺序是 L1 → L2 → L3。"
+        },
+        {
+          "id": "q5",
+          "stem": "在一次多 Agent 协作任务中，子 Agent A 本应把任务交接给子 Agent B，但交接没有发生。要定位这个问题，最应该查看哪一层日志？",
+          "type": "single_choice",
+          "answer": "C",
+          "options": [
+            "L1 层，检查 A 的工具调用参数",
+            "L2 层，检查 A 的停止原因",
+            "L3 层，检查委托/交接边与权限范围",
+            "L1 层，检查 A 的工具延迟"
+          ],
+          "difficulty": "medium",
+          "explanation": "L3 层记录哪个 agent 行动、委托/交接边、权限范围、审批中断和终止条件。交接没有发生属于多 Agent 编排层面的问题，应查看 L3 层的委托/交接边和权限范围。L1 和 L2 无法反映 Agent 之间的交接关系。"
+        },
+        {
+          "id": "q6",
+          "stem": "当 Agent 输出结果不符合预期时，最合理的做法是直接将其归因于大模型的“幻觉”，然后调整提示词。",
+          "type": "true_false",
+          "answer": "错误",
+          "difficulty": "easy",
+          "explanation": "分层诊断方法强调从 L1 向上逐层排查，而不是笼统归因于“幻觉”。应先检查工具调用是否正常（L1），再检查计划是否合理（L2），最后检查编排决策（L3）。直接归因于幻觉会跳过具体的故障定位过程。"
+        },
+        {
+          "id": "q7",
+          "stem": "L2 层日志中的“停止原因”字段可能包含以下哪些取值？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "success、max steps、error",
+            "halted、expired、cancelled",
+            "approved、rejected、pending",
+            "truncated、validated、failed"
+          ],
+          "difficulty": "medium",
+          "explanation": "L2 层的停止原因记录的是 success（成功）、max steps（达到最大步数）、error（错误）。halted、expired、cancelled 是 L3 层的终止条件取值。approved、rejected、pending 和 truncated、validated、failed 均不是原文中停止原因的取值。"
+        },
+        {
+          "id": "q8",
+          "stem": "请列出 L1 层日志至少 3 个字段，并说明从 L1 向上排查故障的完整顺序。",
+          "type": "short_answer",
+          "answer": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断（任列 3 个即可）。排查顺序：从 L1 开始，检查工具调用是否正常；若正常，向上到 L2 检查计划/todo 状态、停止原因等；若计划也合理，再向上到 L3 检查编排决策、委托/交接、权限与终止条件。",
+          "difficulty": "hard",
+          "explanation": "L1 层关注单个工具调用的执行细节，是故障排查的起点。分层诊断的核心逻辑是自底向上：先排除最底层的工具调用问题，再检查中间层的计划与状态，最后检查最高层的编排决策，避免笼统归因于“幻觉”。"
+        },
+        {
+          "id": "q9",
+          "stem": "在面试中解释“可观测性如何支撑 Agent 的评估与迭代”时，下列哪种说法最符合分层日志的实践逻辑？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "可观测性主要用来监控系统是否宕机，与评估迭代关系不大",
+            "分层日志让每次故障都能定位到具体层级，从而把问题转化为可修复的评估指标或设计缺陷",
+            "只要记录足够多的日志，Agent 的准确率就会自动提升",
+            "可观测性只对多 Agent 系统有意义，单 Agent 不需要日志"
+          ],
+          "difficulty": "medium",
+          "explanation": "分层日志的核心价值在于：当 Agent 表现不佳时，可以通过 L1→L2→L3 的逐层排查定位具体问题所在（工具调用、计划状态或编排决策），从而有针对性地改进评估指标或系统设计，而不是笼统归因。选项 A 和 D 缩小了可观测性的作用范围，选项 C 混淆了日志记录与模型能力提升的因果关系。"
+        },
+        {
+          "id": "q10",
+          "stem": "L3 层日志中的“终止条件”字段可能包含以下哪些取值？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "halted、expired、cancelled",
+            "success、max steps、error",
+            "validated、rejected、truncated",
+            "started、running、completed"
+          ],
+          "difficulty": "easy",
+          "explanation": "L3 层的终止条件记录的是 halted（停止）、expired（超时）、cancelled（取消）。success、max steps、error 是 L2 层停止原因的取值。validated、rejected、truncated 和 started、running、completed 均不是原文中终止条件的取值。"
+        }
+      ]
+    },
+    "artifact_type": "quiz",
+    "generation_state": {
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "题目覆盖了规格要求的三个核心目标：L1/L2/L3 分层字段（q1、q3、q7、q8、q10）、从 L1 向上逐层排查的故障定位方法（q2、q4、q6）、可观测性支撑评估与迭代的面试表达（q9）。共 10 题，学习时间约 30 分钟，语言为中文，受众为有 Python 开发基础、准备 AI Agent 岗位面试的学习者，难度分布合理。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "所有题目的答案与解析均与已确认研究资料一致：L1 字段为工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断；L2 字段为步骤号、计划/todo 状态、记忆读写、检索决策、停止原因（success、max steps、error）；L3 字段为哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件（halted、expired、cancelled）。排查顺序为 L1→L2→L3。逐题核算未发现事实错误。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "习题类型为 quiz，按 resource_contract 对习题核验求解。已逐题独立求解并核对答案与解析，详见 question_checks。q2 和 q5 提供了具体故障场景作为例子，q8 要求列出字段并说明排查顺序，符合学习检查目标。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "题目从易到难递进：q1、q3、q6、q10 为 easy，q2、q4、q5、q7、q9 为 medium，q8 为 hard。题型多样（单选、多选、判断、简答），覆盖概念记忆、场景应用和面试表达。q8 作为简答题直接对应学习检查中'不看笔记列出 L1 至少 3 个日志字段并说出排查顺序'的要求。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "所有知识点均来自已确认研究资料 ev_d5a0d2f0cbc84020f7025aa2（Medium 文章），未引入来源之外的断言。L1/L2/L3 字段和排查顺序与原文一致，无编造引用。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "10 道题完整覆盖了规格要求的全部学习目标：L1 字段（q1、q3、q8）、L2 字段（q2、q7）、L3 字段（q5、q10）、排查顺序（q4、q6）、面试表达（q9）。题型和难度分布符合要求，无遗漏。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "题目覆盖了规格要求的三个核心目标：L1/L2/L3 分层字段（q1、q3、q7、q8、q10）、从 L1 向上逐层排查的故障定位方法（q2、q4、q6）、可观测性支撑评估与迭代的面试表达（q9）。共 10 题，学习时间约 30 分钟，语言为中文，受众为有 Python 开发基础、准备 AI Agent 岗位面试的学习者，难度分布合理。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "所有题目的答案与解析均与已确认研究资料一致：L1 字段为工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断；L2 字段为步骤号、计划/todo 状态、记忆读写、检索决策、停止原因（success、max steps、error）；L3 字段为哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件（halted、expired、cancelled）。排查顺序为 L1→L2→L3。逐题核算未发现事实错误。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "习题类型为 quiz，按 resource_contract 对习题核验求解。已逐题独立求解并核对答案与解析，详见 question_checks。q2 和 q5 提供了具体故障场景作为例子，q8 要求列出字段并说明排查顺序，符合学习检查目标。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "题目从易到难递进：q1、q3、q6、q10 为 easy，q2、q4、q5、q7、q9 为 medium，q8 为 hard。题型多样（单选、多选、判断、简答），覆盖概念记忆、场景应用和面试表达。q8 作为简答题直接对应学习检查中'不看笔记列出 L1 至少 3 个日志字段并说出排查顺序'的要求。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "所有知识点均来自已确认研究资料 ev_d5a0d2f0cbc84020f7025aa2（Medium 文章），未引入来源之外的断言。L1/L2/L3 字段和排查顺序与原文一致，无编造引用。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "10 道题完整覆盖了规格要求的全部学习目标：L1 字段（q1、q3、q8）、L2 字段（q2、q7）、L3 字段（q5、q10）、排查顺序（q4、q6）、面试表达（q9）。题型和难度分布符合要求，无遗漏。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "q2 的题干中'第 4 步'这一信息在解题时未直接使用，可考虑在解析中补充说明步骤号字段的作用，或简化题干避免冗余信息。",
+                "q8 作为简答题，答案较长，建议在预览界面确保折叠答案的交互清晰，方便用户主动展开核对。"
+              ],
+              "blocking_issues": [],
+              "question_checks": [
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 准确概括了 L1 层的核心字段：工具调用的参数、延迟、输出大小及截断情况，与原文一致。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 描述的是 L2 层内容（当前计划状态、记忆读写与停止原因），不属于 L1 层。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 描述的是 L3 层内容（多 Agent 之间的委托与权限审批），不属于 L1 层。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 的'最终答案生成质量与用户满意度'不属于 L1/L2/L3 三层日志的范畴，原文未提及此类字段。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 0,
+                  "explanation_valid": true,
+                  "independent_solution": "L1 层记录单个工具调用的执行细节：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断。选项 A 正确。选项 B 是 L2 层内容，选项 C 是 L3 层内容，选项 D 不属于三层日志范畴。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "L1 层的工具延迟字段只反映单次工具调用的耗时，无法解释任务为何在第 4 步停止。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "L2 层的停止原因字段记录 success、max steps、error，直接说明任务停止的原因，是判断计划问题还是执行条件触发停止的首选字段。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "L3 层的终止条件字段（halted、expired、cancelled）属于多 Agent 编排层面，对于单 Agent 在第 4 步意外停止的场景，应先从 L2 排查。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "L2 层的检索决策字段记录检索相关决策，与任务停止原因无直接关系。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 1,
+                  "explanation_valid": true,
+                  "independent_solution": "Agent 在第 4 步意外停止，需要判断是计划问题还是执行条件触发停止。L2 层记录停止原因（success、max steps、error），直接回答停止原因。L1 工具延迟无法解释停止原因，L3 终止条件属于更高层编排层面，L2 检索决策与停止原因无直接关系。正确答案为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "工具名是 L1 层明确列出的字段，正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "schema 校验结果是 L1 层明确列出的字段，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "当前计划/todo 状态属于 L2 层，不是 L1 层字段。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "调用前是否发生截断是 L1 层明确列出的字段，正确。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "委托/交接边属于 L3 层，不是 L1 层字段。",
+                      "option_index": 4,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 2,
+                  "explanation_valid": true,
+                  "independent_solution": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。选项 A（工具名）、B（schema 校验结果）、D（调用前是否发生截断）属于 L1。选项 C（当前计划/todo 状态）属于 L2，选项 E（委托/交接边）属于 L3。正确答案为 A,B,D。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 的顺序是 L3→L2→L1，与原文'从 L1 开始向上排查'相反。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 的顺序 L1→L2→L3 与原文完全一致，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 的顺序 L2→L1→L3 打乱了自底向上的排查逻辑，原文明确从 L1 开始。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 声称三层同时排查没有先后顺序，与原文明确的逐层排查方法矛盾。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 3,
+                  "explanation_valid": true,
+                  "independent_solution": "原文明确指出：当出现问题时，从 L1 开始向上排查。如果工具调用看起来正常，再移到 L2 检查计划；如果计划看起来合理，再移到 L3 检查编排。正确顺序为 L1→L2→L3，即选项 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "L1 层检查 A 的工具调用参数只能反映 A 单次工具调用的输入，无法反映 A 与 B 之间的交接关系。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "L2 层检查 A 的停止原因只能说明 A 为何停止，无法说明交接为何没有发生。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "L3 层记录委托/交接边与权限范围，直接对应交接未发生的问题，正确。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "L1 层检查 A 的工具延迟只能反映单次调用耗时，与交接失败无关。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 4,
+                  "explanation_valid": true,
+                  "independent_solution": "多 Agent 协作中交接没有发生，属于 Agent 之间的委托/交接问题。L3 层记录委托/交接边和权限范围，是定位该问题的正确层级。L1 层只记录单个工具调用细节，L2 层记录单 Agent 的计划和停止原因，均无法反映 Agent 之间的交接关系。正确答案为 C。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 5,
+                  "explanation_valid": true,
+                  "independent_solution": "分层诊断方法明确反对笼统归因于'幻觉'，要求从 L1 向上逐层排查。因此'直接归因于幻觉并调整提示词'是错误的做法。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "success、max steps、error 是 L2 层停止原因的明确取值，正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "halted、expired、cancelled 是 L3 层终止条件的取值，不是 L2 层停止原因。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "approved、rejected、pending 与审批相关，原文中 L2 停止原因未包含这些取值。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "truncated、validated、failed 与截断和校验相关，原文中 L2 停止原因未包含这些取值。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 6,
+                  "explanation_valid": true,
+                  "independent_solution": "L2 层停止原因的取值为 success、max steps、error。halted、expired、cancelled 是 L3 层终止条件的取值。approved、rejected、pending 和 truncated、validated、failed 均不是原文中的取值。正确答案为 A。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 7,
+                  "explanation_valid": true,
+                  "independent_solution": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。排查顺序为：从 L1 开始检查工具调用是否正常；若正常，向上到 L2 检查计划/todo 状态、停止原因等；若计划也合理，再向上到 L3 检查编排决策、委托/交接、权限与终止条件。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 将可观测性局限于监控宕机，忽略了其对评估与迭代的支撑作用，与分层日志的实践逻辑不符。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 准确表达了分层日志将故障定位到具体层级、转化为可修复的评估指标或设计缺陷的核心价值，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 声称日志多就能自动提升准确率，混淆了日志记录与模型能力提升的因果关系，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 声称单 Agent 不需要日志，与原文中 L1/L2 层对单 Agent 工具调用和计划的记录需求矛盾，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 8,
+                  "explanation_valid": true,
+                  "independent_solution": "分层日志的核心价值在于将故障定位到具体层级（工具调用、计划状态或编排决策），从而有针对性地改进评估指标或系统设计。选项 B 最符合这一逻辑。选项 A 缩小了可观测性的作用，选项 C 混淆了日志记录与模型能力提升的因果关系，选项 D 错误地认为单 Agent 不需要日志。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "halted、expired、cancelled 是 L3 层终止条件的明确取值，正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "success、max steps、error 是 L2 层停止原因的取值，不是 L3 层终止条件。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "validated、rejected、truncated 与校验和截断相关，原文中 L3 终止条件未包含这些取值。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "started、running、completed 是通用状态描述，原文中 L3 终止条件未包含这些取值。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 9,
+                  "explanation_valid": true,
+                  "independent_solution": "L3 层终止条件的取值为 halted、expired、cancelled。success、max steps、error 是 L2 层停止原因的取值。validated、rejected、truncated 和 started、running、completed 均不是原文中的取值。正确答案为 A。"
+                }
+              ]
+            },
+            "version": 1,
+            "decision": "pass",
+            "content_sha256": "18fa97b06bcf28deef1b1d3df2b335618f7ccda9e3bccecb08014cb1066a6440"
+          }
+        ],
+        "version": 1,
+        "decision": "pass",
+        "suggestions": [
+          "q2 的题干中'第 4 步'这一信息在解题时未直接使用，可考虑在解析中补充说明步骤号字段的作用，或简化题干避免冗余信息。",
+          "q8 作为简答题，答案较长，建议在预览界面确保折叠答案的交互清晰，方便用户主动展开核对。"
+        ],
+        "resource_type": "quiz",
+        "content_sha256": "18fa97b06bcf28deef1b1d3df2b335618f7ccda9e3bccecb08014cb1066a6440",
+        "question_checks": [
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 准确概括了 L1 层的核心字段：工具调用的参数、延迟、输出大小及截断情况，与原文一致。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 描述的是 L2 层内容（当前计划状态、记忆读写与停止原因），不属于 L1 层。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 描述的是 L3 层内容（多 Agent 之间的委托与权限审批），不属于 L1 层。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 的'最终答案生成质量与用户满意度'不属于 L1/L2/L3 三层日志的范畴，原文未提及此类字段。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 0,
+            "explanation_valid": true,
+            "independent_solution": "L1 层记录单个工具调用的执行细节：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断。选项 A 正确。选项 B 是 L2 层内容，选项 C 是 L3 层内容，选项 D 不属于三层日志范畴。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "L1 层的工具延迟字段只反映单次工具调用的耗时，无法解释任务为何在第 4 步停止。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "L2 层的停止原因字段记录 success、max steps、error，直接说明任务停止的原因，是判断计划问题还是执行条件触发停止的首选字段。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "L3 层的终止条件字段（halted、expired、cancelled）属于多 Agent 编排层面，对于单 Agent 在第 4 步意外停止的场景，应先从 L2 排查。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "L2 层的检索决策字段记录检索相关决策，与任务停止原因无直接关系。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 1,
+            "explanation_valid": true,
+            "independent_solution": "Agent 在第 4 步意外停止，需要判断是计划问题还是执行条件触发停止。L2 层记录停止原因（success、max steps、error），直接回答停止原因。L1 工具延迟无法解释停止原因，L3 终止条件属于更高层编排层面，L2 检索决策与停止原因无直接关系。正确答案为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "工具名是 L1 层明确列出的字段，正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "schema 校验结果是 L1 层明确列出的字段，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "当前计划/todo 状态属于 L2 层，不是 L1 层字段。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "调用前是否发生截断是 L1 层明确列出的字段，正确。",
+                "option_index": 3,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "委托/交接边属于 L3 层，不是 L1 层字段。",
+                "option_index": 4,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 2,
+            "explanation_valid": true,
+            "independent_solution": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。选项 A（工具名）、B（schema 校验结果）、D（调用前是否发生截断）属于 L1。选项 C（当前计划/todo 状态）属于 L2，选项 E（委托/交接边）属于 L3。正确答案为 A,B,D。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 的顺序是 L3→L2→L1，与原文'从 L1 开始向上排查'相反。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 的顺序 L1→L2→L3 与原文完全一致，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 的顺序 L2→L1→L3 打乱了自底向上的排查逻辑，原文明确从 L1 开始。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 声称三层同时排查没有先后顺序，与原文明确的逐层排查方法矛盾。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 3,
+            "explanation_valid": true,
+            "independent_solution": "原文明确指出：当出现问题时，从 L1 开始向上排查。如果工具调用看起来正常，再移到 L2 检查计划；如果计划看起来合理，再移到 L3 检查编排。正确顺序为 L1→L2→L3，即选项 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "L1 层检查 A 的工具调用参数只能反映 A 单次工具调用的输入，无法反映 A 与 B 之间的交接关系。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "L2 层检查 A 的停止原因只能说明 A 为何停止，无法说明交接为何没有发生。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "L3 层记录委托/交接边与权限范围，直接对应交接未发生的问题，正确。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "L1 层检查 A 的工具延迟只能反映单次调用耗时，与交接失败无关。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 4,
+            "explanation_valid": true,
+            "independent_solution": "多 Agent 协作中交接没有发生，属于 Agent 之间的委托/交接问题。L3 层记录委托/交接边和权限范围，是定位该问题的正确层级。L1 层只记录单个工具调用细节，L2 层记录单 Agent 的计划和停止原因，均无法反映 Agent 之间的交接关系。正确答案为 C。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 5,
+            "explanation_valid": true,
+            "independent_solution": "分层诊断方法明确反对笼统归因于'幻觉'，要求从 L1 向上逐层排查。因此'直接归因于幻觉并调整提示词'是错误的做法。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "success、max steps、error 是 L2 层停止原因的明确取值，正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "halted、expired、cancelled 是 L3 层终止条件的取值，不是 L2 层停止原因。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "approved、rejected、pending 与审批相关，原文中 L2 停止原因未包含这些取值。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "truncated、validated、failed 与截断和校验相关，原文中 L2 停止原因未包含这些取值。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 6,
+            "explanation_valid": true,
+            "independent_solution": "L2 层停止原因的取值为 success、max steps、error。halted、expired、cancelled 是 L3 层终止条件的取值。approved、rejected、pending 和 truncated、validated、failed 均不是原文中的取值。正确答案为 A。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 7,
+            "explanation_valid": true,
+            "independent_solution": "L1 层字段包括：工具名、工具参数、schema 校验结果、工具延迟、工具输出大小、调用前是否发生截断。排查顺序为：从 L1 开始检查工具调用是否正常；若正常，向上到 L2 检查计划/todo 状态、停止原因等；若计划也合理，再向上到 L3 检查编排决策、委托/交接、权限与终止条件。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 将可观测性局限于监控宕机，忽略了其对评估与迭代的支撑作用，与分层日志的实践逻辑不符。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 准确表达了分层日志将故障定位到具体层级、转化为可修复的评估指标或设计缺陷的核心价值，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 声称日志多就能自动提升准确率，混淆了日志记录与模型能力提升的因果关系，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 声称单 Agent 不需要日志，与原文中 L1/L2 层对单 Agent 工具调用和计划的记录需求矛盾，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 8,
+            "explanation_valid": true,
+            "independent_solution": "分层日志的核心价值在于将故障定位到具体层级（工具调用、计划状态或编排决策），从而有针对性地改进评估指标或系统设计。选项 B 最符合这一逻辑。选项 A 缩小了可观测性的作用，选项 C 混淆了日志记录与模型能力提升的因果关系，选项 D 错误地认为单 Agent 不需要日志。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "halted、expired、cancelled 是 L3 层终止条件的明确取值，正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "success、max steps、error 是 L2 层停止原因的取值，不是 L3 层终止条件。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "validated、rejected、truncated 与校验和截断相关，原文中 L3 终止条件未包含这些取值。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "started、running、completed 是通用状态描述，原文中 L3 终止条件未包含这些取值。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 9,
+            "explanation_valid": true,
+            "independent_solution": "L3 层终止条件的取值为 halted、expired、cancelled。success、max steps、error 是 L2 层停止原因的取值。validated、rejected、truncated 和 started、running、completed 均不是原文中的取值。正确答案为 A。"
+          }
+        ]
+      }
+    }
+  },
+  "learning_course_resource": true
+}

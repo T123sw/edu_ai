@@ -1,0 +1,14 @@
+{
+  "request_id": "aead7f13-3301-4e2c-9691-aa06e4189218",
+  "operation": "create_course",
+  "goal": "我有 Python 开发基础，目标是应聘 AI Agent 开发岗位，希望在120分钟内建立适合工作面试的实践认知。请安排4个循序渐进的知识点：Agent循环与模型/应用职责边界；工具调用与失败恢复；记忆与上下文管理；评估与可观测性。请搜索并实际阅读可信资料，汇总依据后生成可执行的学习路径。每个节点需要学习报告、理解练习和可播放的讲解课堂，包含具体案例与面试自测。内容以入门到能够解释设计取舍为准，不要求完成大型项目。",
+  "overrides": {
+    "total_minutes": 120,
+    "required_resource_types": [
+      "classroom"
+    ]
+  },
+  "source_policy": {
+    "mode": "open"
+  }
+}

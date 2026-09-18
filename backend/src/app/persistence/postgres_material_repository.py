@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from contextlib import nullcontext
 from typing import Any
 
 from sqlalchemy import delete, select
@@ -15,7 +16,7 @@ class PostgresMaterialRepository:
     def __init__(self, engine: Engine):
         self._engine = engine
 
-    def upsert(self, material: Mapping[str, Any]) -> None:
+    def upsert(self, material: Mapping[str, Any], *, session=None) -> None:
         payload = dict(material)
         course_id = _required_text(payload.get("course_id"), "course_id")
         material_type = _required_text(payload.get("material_type"), "material_type")
@@ -23,7 +24,7 @@ class PostgresMaterialRepository:
         key = (course_id, material_type, material_id)
         version = int(payload.get("version") or 1)
         updated_at = _timestamp(payload.get("updated_at"))
-        with database_session(engine=self._engine) as session:
+        with (nullcontext(session) if session is not None else database_session(engine=self._engine)) as session:
             record = session.get(Material, key)
             if record is None:
                 record = Material(

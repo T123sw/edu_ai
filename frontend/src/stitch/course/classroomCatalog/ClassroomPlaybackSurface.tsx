@@ -50,6 +50,7 @@ export type ClassroomPlaybackSurfaceProps = {
   onPositionChange?: (scene: number) => void;
   onReadingContext?: (sceneId: string, version: number, reachedEnd: boolean) => void;
   resourceVersion?: number;
+  exactMaterial?: ClassroomMaterial;
   mode: "manage" | "learn";
   catalogNodeId?: string | null;
   catalogResourceId?: string | null;
@@ -85,6 +86,7 @@ export function ClassroomPlaybackSurface({
   courseId,
   classroomId,
   resourceVersion,
+  exactMaterial,
   mode,
   kind = "classroom",
   qaTargetKey,
@@ -98,7 +100,7 @@ export function ClassroomPlaybackSurface({
   const { user } = useAuthSession();
   const { courseRole } = useCourseRoute();
   const canGenerate = mode === "manage" && canCourse(courseRole, "generate");
-  const tracksResourceLearning = shouldTrackResourceLearning({
+  const tracksResourceLearning = !exactMaterial && shouldTrackResourceLearning({
     role: user?.role,
     courseRole,
     resourceVersion: resourceVersion ?? null,
@@ -156,7 +158,7 @@ export function ClassroomPlaybackSurface({
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getClassroom(courseId, classroomId, resourceVersion ?? undefined)
+    (exactMaterial ? Promise.resolve(exactMaterial) : getClassroom(courseId, classroomId, resourceVersion ?? undefined))
       .then((data) => {
         if (resourceVersion !== undefined && data.version !== resourceVersion) throw new Error("资料版本已变化，请刷新后重新打开");
         if (!cancelled) setMaterial(data);
@@ -173,7 +175,7 @@ export function ClassroomPlaybackSurface({
     return () => {
       cancelled = true;
     };
-  }, [classroomId, courseId, loadToken, resourceVersion]);
+  }, [classroomId, courseId, loadToken, resourceVersion, exactMaterial]);
 
   const scenes: ClassroomScene[] = useMemo(() => material?.scenes ?? [], [material]);
   const scenePresentations = useMemo(

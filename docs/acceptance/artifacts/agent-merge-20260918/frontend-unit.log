@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: large quiz loads at most three checks and a failure releases its slot
+ok 1 - large quiz loads at most three checks and a failure releases its slot
+  ---
+  duration_ms: 19.709724
+  type: 'test'
+  ...
+# Subtest: late latest page does not discard loaded history or duplicate messages
+ok 2 - late latest page does not discard loaded history or duplicate messages
+  ---
+  duration_ms: 3.496856
+  type: 'test'
+  ...
+# Subtest: different session never merges private histories
+ok 3 - different session never merges private histories
+  ---
+  duration_ms: 0.325798
+  type: 'test'
+  ...
+# Subtest: reading and self assessment do not imply completion; old versions never carry over
+ok 4 - reading and self assessment do not imply completion; old versions never carry over
+  ---
+  duration_ms: 2.51832
+  type: 'test'
+  ...
+# Subtest: late receipt cannot roll back a newer server projection
+ok 5 - late receipt cannot roll back a newer server projection
+  ---
+  duration_ms: 0.375766
+  type: 'test'
+  ...
+# Subtest: persisted events are separated by owner and retain identities when reopening
+ok 6 - persisted events are separated by owner and retain identities when reopening
+  ---
+  duration_ms: 28.913315
+  type: 'test'
+  ...
+# Subtest: reading queue coalesces only unsent positions in the same stream; explicit actions survive
+ok 7 - reading queue coalesces only unsent positions in the same stream; explicit actions survive
+  ---
+  duration_ms: 2.822656
+  type: 'test'
+  ...
+# Subtest: bind observations to channel, full resource version and sequence
+ok 8 - bind observations to channel, full resource version and sequence
+  ---
+  duration_ms: 2.681589
+  type: 'test'
+  ...
+# Subtest: slow polling never overlaps and unmount aborts without rescheduling
+ok 9 - slow polling never overlaps and unmount aborts without rescheduling
+  ---
+  duration_ms: 80.408677
+  type: 'test'
+  ...
+# Subtest: knowledge point conversations restore legacy messages and bound context without mixing transcripts
+ok 10 - knowledge point conversations restore legacy messages and bound context without mixing transcripts
+  ---
+  duration_ms: 3.981987
+  type: 'test'
+  ...
+# Subtest: global learning memory separates completion, quiz evidence and self assessment; shared learners start independently
+ok 11 - global learning memory separates completion, quiz evidence and self assessment; shared learners start independently
+  ---
+  duration_ms: 3.364173
+  type: 'test'
+  ...
+# Subtest: adding a personal work preserves its source, creates one learning copy and keeps the current position
+ok 12 - adding a personal work preserves its source, creates one learning copy and keeps the current position
+  ---
+  duration_ms: 5.472617
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 846.036696

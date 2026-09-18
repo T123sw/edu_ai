@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: reading and self assessment do not imply completion; old versions never carry over
+ok 1 - reading and self assessment do not imply completion; old versions never carry over
+  ---
+  duration_ms: 2.422789
+  type: 'test'
+  ...
+# Subtest: late receipt cannot roll back a newer server projection
+ok 2 - late receipt cannot roll back a newer server projection
+  ---
+  duration_ms: 0.256091
+  type: 'test'
+  ...
+# Subtest: persisted events are separated by owner and retain identities when reopening
+ok 3 - persisted events are separated by owner and retain identities when reopening
+  ---
+  duration_ms: 10.105301
+  type: 'test'
+  ...
+# Subtest: reading queue coalesces only unsent positions in the same stream; explicit actions survive
+ok 4 - reading queue coalesces only unsent positions in the same stream; explicit actions survive
+  ---
+  duration_ms: 1.822949
+  type: 'test'
+  ...
+# Subtest: bind observations to channel, full resource version and sequence
+ok 5 - bind observations to channel, full resource version and sequence
+  ---
+  duration_ms: 1.530037
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 595.783413

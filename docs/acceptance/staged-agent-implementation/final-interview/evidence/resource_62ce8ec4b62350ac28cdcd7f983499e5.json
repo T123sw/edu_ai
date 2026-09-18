@@ -1,0 +1,1361 @@
+{
+  "title": "记忆与上下文管理",
+  "status": "ready",
+  "content": {
+    "title": "记忆与上下文管理测验",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "在一个 15 步的 Agent 任务中，第 3 步产生的中间推理痕迹到第 12 步时通常处于什么状态？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "仍然对后续决策起关键作用，必须完整保留",
+          "已经不再相关，却仍占用上下文窗口并消耗 token",
+          "会被系统自动移出上下文窗口，不产生任何成本",
+          "只占用内存，不消耗 token"
+        ],
+        "difficulty": "easy",
+        "explanation": "多步任务中，早期步骤的推理痕迹在后期往往已无价值，但只要仍留在上下文窗口内，就会继续占用空间并消耗 token。选项 A 把早期推理一律视为关键信息，忽略了其时效性；选项 C 假设系统会自动清理，但默认情况下这些痕迹不会自动消失；选项 D 混淆了内存占用与 token 消耗，上下文中的内容都会参与 token 计费。"
+      },
+      {
+        "id": "q2",
+        "stem": "OpenAI 的 run API 在处理上下文时采用了哪种设计思路？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "把截断策略作为显式可配置的旋钮，而不是隐式行为",
+          "默认将所有中间推理痕迹永久保留在上下文中",
+          "强制要求开发者使用 MemGPT 的分层记忆架构",
+          "自动将所有工具输出压缩为向量索引"
+        ],
+        "difficulty": "medium",
+        "explanation": "原文指出 OpenAI 的 run API 将截断策略暴露为显式旋钮，让开发者可以主动控制上下文如何被截断，而不是把它当作偶然或隐式的行为。选项 B 与截断策略的设计目标相反；选项 C 把 MemGPT 的方案错误地说成 OpenAI 的强制要求；选项 D 描述的是 LlamaIndex utility tools 的思路，不是 OpenAI run API 的行为。"
+      },
+      {
+        "id": "q3",
+        "stem": "LlamaIndex 的 utility tools 解决大工具输出占用上下文问题的核心方式是什么？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "把大工具输出压缩成可检索的形式，而不是把原始数据直接塞进 prompt",
+          "将所有工具输出直接写入磁盘，完全不进入上下文",
+          "通过增加上下文窗口大小来容纳更多原始输出",
+          "只保留工具输出的前 100 个字符"
+        ],
+        "difficulty": "medium",
+        "explanation": "LlamaIndex 的 utility tools 在一次调用中完成加载、索引和查询，将大工具输出压缩为可检索形式，避免把原始数据直接倾倒进 prompt。选项 B 描述的是持久化存储，但 utility tools 的核心是压缩与检索，不是简单落盘；选项 C 依赖扩大窗口，与压缩策略的思路不同；选项 D 是随意截断，不是可检索压缩。"
+      },
+      {
+        "id": "q4",
+        "stem": "MemGPT 提出的分层记忆架构主要解决什么问题？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "在有限的上下文窗口内通过管理不同记忆层级来扩展有效上下文",
+          "彻底消除所有 token 消耗",
+          "让 Agent 不再需要调用任何外部工具",
+          "把所有记忆都压缩成固定长度的哈希值"
+        ],
+        "difficulty": "medium",
+        "explanation": "MemGPT 通过分层记忆架构管理不同层级的记忆，在有限窗口内扩展有效上下文，使 Agent 能处理更长的任务。选项 B 过于绝对，分层记忆不能消除 token 消耗；选项 C 与工具调用无关；选项 D 把分层记忆错误地等同于哈希压缩，忽略了层级管理的本质。"
+      },
+      {
+        "id": "q5",
+        "stem": "以下哪些属于应对上下文窗口被中间推理痕迹消耗的压缩策略？",
+        "type": "multiple_choice",
+        "answer": "A,B,C",
+        "options": [
+          "OpenAI run API 的截断策略",
+          "LlamaIndex 的 utility tools",
+          "MemGPT 的分层记忆架构",
+          "无限制地扩大上下文窗口"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文明确列举了三种压缩策略：OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆架构。选项 D 是扩大窗口而非压缩，且窗口大小始终有物理和成本上限，不能作为压缩策略。"
+      },
+      {
+        "id": "q6",
+        "stem": "在多步 Agent 任务中，只要上下文窗口足够大，就不需要考虑压缩或截断策略。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "即使窗口较大，中间推理痕迹仍会持续消耗 token 并增加成本与延迟，且窗口大小始终存在上限。压缩和截断策略的价值在于控制成本、减少噪声并保持关键信息可检索，而不是仅在窗口不够大时才需要。"
+      },
+      {
+        "id": "q7",
+        "stem": "请说出至少两种上下文压缩策略，并各用一句话解释其核心思想。",
+        "type": "short_answer",
+        "answer": "示例答案：① OpenAI run API 的截断策略——把截断作为显式可配置的旋钮，让开发者主动决定哪些上下文被保留或丢弃；② LlamaIndex 的 utility tools——将大工具输出压缩成可检索形式，避免把原始数据直接塞进 prompt；③ MemGPT 的分层记忆架构——通过管理不同记忆层级，在有限窗口内扩展有效上下文。",
+        "difficulty": "medium",
+        "explanation": "本题要求至少说出两种策略并各用一句话解释核心思想。三种策略的核心分别是：显式截断控制、可检索压缩、分层记忆管理。只要能准确说出其中任意两种即可。"
+      },
+      {
+        "id": "q8",
+        "stem": "在设计 Agent 时，什么情况下更适合采用截断策略而不是保留全部中间推理痕迹？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "早期步骤的推理痕迹在后期已无价值，且需要控制 token 成本",
+          "所有中间步骤的推理都对最终答案至关重要",
+          "任务只有一步，不存在中间推理",
+          "需要完整审计每一步的推理过程且成本不受限制"
+        ],
+        "difficulty": "medium",
+        "explanation": "截断策略适用于早期推理已失去时效性、继续保留只会消耗 token 的场景。选项 B 和 D 描述的是需要完整保留推理痕迹的情况，此时截断会丢失关键信息；选项 C 中单步任务没有中间推理可截断，场景不适用。"
+      },
+      {
+        "id": "q9",
+        "stem": "LlamaIndex 的 utility tools 会把大工具输出压缩成可检索形式，而不是把原始数据直接倾倒进 prompt。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "原文明确说明 utility tools 在一次调用中加载、索引和查询数据，将大工具输出压缩为可检索形式，避免把原始数据直接塞进 prompt。"
+      },
+      {
+        "id": "q10",
+        "stem": "在面试中，如何用一句话说明“何时该压缩或截断上下文”的设计取舍？",
+        "type": "short_answer",
+        "answer": "示例答案：当早期推理痕迹对后续步骤已无价值、继续保留只会增加 token 成本和噪声时，就应该压缩或截断；当关键信息仍需被后续步骤引用时，则应保留或转为可检索形式。",
+        "difficulty": "hard",
+        "explanation": "设计取舍的核心是权衡信息价值与成本：无价值的中间推理应被压缩或截断，有价值的上下文则应保留或转为可检索形式。回答时需体现这一权衡，而不是简单地说“窗口满了就截断”。"
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "memory_context_management",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "questions": [
+    {
+      "id": "q1",
+      "stem": "在一个 15 步的 Agent 任务中，第 3 步产生的中间推理痕迹到第 12 步时通常处于什么状态？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "仍然对后续决策起关键作用，必须完整保留",
+        "已经不再相关，却仍占用上下文窗口并消耗 token",
+        "会被系统自动移出上下文窗口，不产生任何成本",
+        "只占用内存，不消耗 token"
+      ],
+      "difficulty": "easy",
+      "explanation": "多步任务中，早期步骤的推理痕迹在后期往往已无价值，但只要仍留在上下文窗口内，就会继续占用空间并消耗 token。选项 A 把早期推理一律视为关键信息，忽略了其时效性；选项 C 假设系统会自动清理，但默认情况下这些痕迹不会自动消失；选项 D 混淆了内存占用与 token 消耗，上下文中的内容都会参与 token 计费。"
+    },
+    {
+      "id": "q2",
+      "stem": "OpenAI 的 run API 在处理上下文时采用了哪种设计思路？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "把截断策略作为显式可配置的旋钮，而不是隐式行为",
+        "默认将所有中间推理痕迹永久保留在上下文中",
+        "强制要求开发者使用 MemGPT 的分层记忆架构",
+        "自动将所有工具输出压缩为向量索引"
+      ],
+      "difficulty": "medium",
+      "explanation": "原文指出 OpenAI 的 run API 将截断策略暴露为显式旋钮，让开发者可以主动控制上下文如何被截断，而不是把它当作偶然或隐式的行为。选项 B 与截断策略的设计目标相反；选项 C 把 MemGPT 的方案错误地说成 OpenAI 的强制要求；选项 D 描述的是 LlamaIndex utility tools 的思路，不是 OpenAI run API 的行为。"
+    },
+    {
+      "id": "q3",
+      "stem": "LlamaIndex 的 utility tools 解决大工具输出占用上下文问题的核心方式是什么？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "把大工具输出压缩成可检索的形式，而不是把原始数据直接塞进 prompt",
+        "将所有工具输出直接写入磁盘，完全不进入上下文",
+        "通过增加上下文窗口大小来容纳更多原始输出",
+        "只保留工具输出的前 100 个字符"
+      ],
+      "difficulty": "medium",
+      "explanation": "LlamaIndex 的 utility tools 在一次调用中完成加载、索引和查询，将大工具输出压缩为可检索形式，避免把原始数据直接倾倒进 prompt。选项 B 描述的是持久化存储，但 utility tools 的核心是压缩与检索，不是简单落盘；选项 C 依赖扩大窗口，与压缩策略的思路不同；选项 D 是随意截断，不是可检索压缩。"
+    },
+    {
+      "id": "q4",
+      "stem": "MemGPT 提出的分层记忆架构主要解决什么问题？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "在有限的上下文窗口内通过管理不同记忆层级来扩展有效上下文",
+        "彻底消除所有 token 消耗",
+        "让 Agent 不再需要调用任何外部工具",
+        "把所有记忆都压缩成固定长度的哈希值"
+      ],
+      "difficulty": "medium",
+      "explanation": "MemGPT 通过分层记忆架构管理不同层级的记忆，在有限窗口内扩展有效上下文，使 Agent 能处理更长的任务。选项 B 过于绝对，分层记忆不能消除 token 消耗；选项 C 与工具调用无关；选项 D 把分层记忆错误地等同于哈希压缩，忽略了层级管理的本质。"
+    },
+    {
+      "id": "q5",
+      "stem": "以下哪些属于应对上下文窗口被中间推理痕迹消耗的压缩策略？",
+      "type": "multiple_choice",
+      "answer": "A,B,C",
+      "options": [
+        "OpenAI run API 的截断策略",
+        "LlamaIndex 的 utility tools",
+        "MemGPT 的分层记忆架构",
+        "无限制地扩大上下文窗口"
+      ],
+      "difficulty": "easy",
+      "explanation": "原文明确列举了三种压缩策略：OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆架构。选项 D 是扩大窗口而非压缩，且窗口大小始终有物理和成本上限，不能作为压缩策略。"
+    },
+    {
+      "id": "q6",
+      "stem": "在多步 Agent 任务中，只要上下文窗口足够大，就不需要考虑压缩或截断策略。",
+      "type": "true_false",
+      "answer": "错误",
+      "difficulty": "easy",
+      "explanation": "即使窗口较大，中间推理痕迹仍会持续消耗 token 并增加成本与延迟，且窗口大小始终存在上限。压缩和截断策略的价值在于控制成本、减少噪声并保持关键信息可检索，而不是仅在窗口不够大时才需要。"
+    },
+    {
+      "id": "q7",
+      "stem": "请说出至少两种上下文压缩策略，并各用一句话解释其核心思想。",
+      "type": "short_answer",
+      "answer": "示例答案：① OpenAI run API 的截断策略——把截断作为显式可配置的旋钮，让开发者主动决定哪些上下文被保留或丢弃；② LlamaIndex 的 utility tools——将大工具输出压缩成可检索形式，避免把原始数据直接塞进 prompt；③ MemGPT 的分层记忆架构——通过管理不同记忆层级，在有限窗口内扩展有效上下文。",
+      "difficulty": "medium",
+      "explanation": "本题要求至少说出两种策略并各用一句话解释核心思想。三种策略的核心分别是：显式截断控制、可检索压缩、分层记忆管理。只要能准确说出其中任意两种即可。"
+    },
+    {
+      "id": "q8",
+      "stem": "在设计 Agent 时，什么情况下更适合采用截断策略而不是保留全部中间推理痕迹？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "早期步骤的推理痕迹在后期已无价值，且需要控制 token 成本",
+        "所有中间步骤的推理都对最终答案至关重要",
+        "任务只有一步，不存在中间推理",
+        "需要完整审计每一步的推理过程且成本不受限制"
+      ],
+      "difficulty": "medium",
+      "explanation": "截断策略适用于早期推理已失去时效性、继续保留只会消耗 token 的场景。选项 B 和 D 描述的是需要完整保留推理痕迹的情况，此时截断会丢失关键信息；选项 C 中单步任务没有中间推理可截断，场景不适用。"
+    },
+    {
+      "id": "q9",
+      "stem": "LlamaIndex 的 utility tools 会把大工具输出压缩成可检索形式，而不是把原始数据直接倾倒进 prompt。",
+      "type": "true_false",
+      "answer": "正确",
+      "difficulty": "easy",
+      "explanation": "原文明确说明 utility tools 在一次调用中加载、索引和查询数据，将大工具输出压缩为可检索形式，避免把原始数据直接塞进 prompt。"
+    },
+    {
+      "id": "q10",
+      "stem": "在面试中，如何用一句话说明“何时该压缩或截断上下文”的设计取舍？",
+      "type": "short_answer",
+      "answer": "示例答案：当早期推理痕迹对后续步骤已无价值、继续保留只会增加 token 成本和噪声时，就应该压缩或截断；当关键信息仍需被后续步骤引用时，则应保留或转为可检索形式。",
+      "difficulty": "hard",
+      "explanation": "设计取舍的核心是权衡信息价值与成本：无价值的中间推理应被压缩或截断，有价值的上下文则应保留或转为可检索形式。回答时需体现这一权衡，而不是简单地说“窗口满了就截断”。"
+    }
+  ],
+  "created_at": "2026-09-17T14:24:21.376898+00:00",
+  "created_by": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-09-17T14:24:21.376898+00:00",
+  "visibility": "private",
+  "material_id": "resource_62ce8ec4b62350ac28cdcd7f983499e5",
+  "origin_type": "personal",
+  "content_hash": "bf61953b3bb0850e76f9bd49dd8930f97e8b0981637507140406866ccd355309",
+  "material_type": "quiz",
+  "owner_user_id": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "generation_state": {
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "资源类型为 quiz，共 10 题，覆盖单选、多选、判断、简答；主题为记忆与上下文管理，语言为中文，受众定位为有 Python 开发基础、准备 AI Agent 面试的学习者。学习检查要求“能说出至少两种压缩策略并各用一句话解释”，q7 直接覆盖，q5 也覆盖三种策略识别。未发现与已确认方案或用户要求冲突。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题核对事实：q1 对 15 步任务中第 3 步推理痕迹到第 12 步通常已不相关但仍占窗口并消耗 token 的表述符合研究资料；q2 对 OpenAI run API 截断策略作为显式旋钮的表述符合原文；q3 对 LlamaIndex utility tools 压缩为可检索形式的表述符合原文；q4 对 MemGPT 分层记忆架构的表述符合原文；q5 三种策略归属正确；q6、q8、q9、q10 的推理和结论均与资料一致。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题已逐题独立求解并核对答案与解析，详见 question_checks。q1-q10 的答案均与独立求解一致，解析对正确项和干扰项的解释基本准确，未发现需要阻断的实质错误。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目顺序从概念识别到策略区分，再到设计取舍和面试表达，难度从 easy 到 hard 分布合理。q7 和 q10 作为简答题分别覆盖学习检查中的策略复述和面试表达，结构符合 30 分钟学习目标。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "内容与研究资料一致，来源为 Medium 文章，涉及 OpenAI run API、LlamaIndex utility tools、MemGPT 分层记忆架构。未发现无依据的事实断言或编造引用。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "10 道题覆盖了上下文窗口消耗问题、三种压缩策略、截断时机和面试表达，满足学习检查要求。题型和难度分布合理，未发现缺失的必要考点。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "资源类型为 quiz，共 10 题，覆盖单选、多选、判断、简答；主题为记忆与上下文管理，语言为中文，受众定位为有 Python 开发基础、准备 AI Agent 面试的学习者。学习检查要求“能说出至少两种压缩策略并各用一句话解释”，q7 直接覆盖，q5 也覆盖三种策略识别。未发现与已确认方案或用户要求冲突。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题核对事实：q1 对 15 步任务中第 3 步推理痕迹到第 12 步通常已不相关但仍占窗口并消耗 token 的表述符合研究资料；q2 对 OpenAI run API 截断策略作为显式旋钮的表述符合原文；q3 对 LlamaIndex utility tools 压缩为可检索形式的表述符合原文；q4 对 MemGPT 分层记忆架构的表述符合原文；q5 三种策略归属正确；q6、q8、q9、q10 的推理和结论均与资料一致。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题已逐题独立求解并核对答案与解析，详见 question_checks。q1-q10 的答案均与独立求解一致，解析对正确项和干扰项的解释基本准确，未发现需要阻断的实质错误。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目顺序从概念识别到策略区分，再到设计取舍和面试表达，难度从 easy 到 hard 分布合理。q7 和 q10 作为简答题分别覆盖学习检查中的策略复述和面试表达，结构符合 30 分钟学习目标。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "内容与研究资料一致，来源为 Medium 文章，涉及 OpenAI run API、LlamaIndex utility tools、MemGPT 分层记忆架构。未发现无依据的事实断言或编造引用。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "10 道题覆盖了上下文窗口消耗问题、三种压缩策略、截断时机和面试表达，满足学习检查要求。题型和难度分布合理，未发现缺失的必要考点。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q1 选项 C 中“不产生任何成本”可以更明确地改为“不产生任何 token 成本”，避免与内存占用等成本混淆。",
+              "q5 选项 D“无限制地扩大上下文窗口”可以改为“单纯扩大上下文窗口而不压缩”，使干扰项更贴近真实误区。",
+              "q8 选项 D“成本不受限制”可以改为“成本预算充足且需要完整审计”，使场景更具体。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 声称早期推理仍然对后续决策起关键作用，必须完整保留。这与研究资料中“早期步骤的推理痕迹在后期已无价值”相矛盾，因此错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 表述为“已经不再相关，却仍占用上下文窗口并消耗 token”，与研究资料中第 3 步推理痕迹到第 12 步已不相关但仍消耗 token 的描述一致，因此正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 声称系统会自动移出上下文窗口且不产生任何成本。默认情况下中间推理痕迹不会自动清理，因此错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 声称只占用内存不消耗 token。上下文中的内容会参与 token 计费，因此错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "在 15 步任务中，第 3 步的中间推理痕迹到第 12 步通常已经不再相关，但只要仍留在上下文窗口内，就会继续占用空间并消耗 token。因此正确选项是 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 表述为“把截断策略作为显式可配置的旋钮，而不是隐式行为”，与研究资料一致，因此正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 声称默认将所有中间推理痕迹永久保留，与截断策略的设计目标相反，因此错误。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 声称强制要求开发者使用 MemGPT 的分层记忆架构，研究资料未提及 OpenAI 强制要求使用 MemGPT，因此错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 声称自动将所有工具输出压缩为向量索引，这是 LlamaIndex utility tools 的思路，不是 OpenAI run API 的行为，因此错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "研究资料指出 OpenAI 的 run API 将截断策略暴露为显式旋钮，而不是隐式行为。因此正确选项是 A。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 表述为“把大工具输出压缩成可检索的形式，而不是把原始数据直接塞进 prompt”，与研究资料一致，因此正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 声称将所有工具输出直接写入磁盘，完全不进入上下文。utility tools 的核心是压缩与检索，不是简单落盘，因此错误。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 声称通过增加上下文窗口大小来容纳更多原始输出，这与压缩策略的思路不同，因此错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 声称只保留工具输出的前 100 个字符，这是随意截断，不是可检索压缩，因此错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "研究资料指出 LlamaIndex 的 utility tools 在一次调用中加载、索引和查询数据，将大工具输出压缩为可检索形式，而不是把原始数据直接塞进 prompt。因此正确选项是 A。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 表述为“在有限的上下文窗口内通过管理不同记忆层级来扩展有效上下文”，与研究资料一致，因此正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 声称彻底消除所有 token 消耗，过于绝对，分层记忆不能消除 token 消耗，因此错误。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 声称让 Agent 不再需要调用任何外部工具，与分层记忆架构无关，因此错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 声称把所有记忆都压缩成固定长度的哈希值，将分层记忆错误地等同于哈希压缩，因此错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "independent_solution": "研究资料指出 MemGPT 提出分层记忆架构，通过管理不同记忆层级在有限窗口内扩展有效上下文。因此正确选项是 A。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 是研究资料明确列举的压缩策略之一，因此正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 是研究资料明确列举的压缩策略之一，因此正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 是研究资料明确列举的压缩策略之一，因此正确。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 是扩大窗口而非压缩，且窗口大小始终有物理和成本上限，因此错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "independent_solution": "研究资料明确列举了三种压缩策略：OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆架构。无限制扩大窗口不是压缩策略。因此正确选项是 A、B、C。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "independent_solution": "即使上下文窗口足够大，中间推理痕迹仍会持续消耗 token 并增加成本与延迟，且窗口大小始终存在上限。压缩和截断策略的价值在于控制成本、减少噪声并保持关键信息可检索。因此该说法错误。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "independent_solution": "至少两种压缩策略：OpenAI run API 的截断策略，核心是显式可配置地决定哪些上下文被保留或丢弃；LlamaIndex 的 utility tools，核心是将大工具输出压缩为可检索形式；MemGPT 的分层记忆架构，核心是通过管理不同记忆层级在有限窗口内扩展有效上下文。示例答案覆盖三种策略且解释准确。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 表述为“早期步骤的推理痕迹在后期已无价值，且需要控制 token 成本”，符合截断策略的适用场景，因此正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 声称所有中间步骤的推理都对最终答案至关重要，此时截断会丢失关键信息，因此错误。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 声称任务只有一步，不存在中间推理，因此没有可截断的内容，场景不适用，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 声称需要完整审计每一步推理且成本不受限制，此时应保留而非截断，因此错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "independent_solution": "截断策略适用于早期步骤的推理痕迹在后期已无价值且需要控制 token 成本的场景。选项 A 符合这一条件。选项 B 和 D 描述需要完整保留推理痕迹的情况，选项 C 中单步任务没有中间推理可截断。因此正确选项是 A。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 8,
+                "explanation_valid": true,
+                "independent_solution": "研究资料明确说明 LlamaIndex 的 utility tools 将大工具输出压缩为可检索形式，而不是把原始数据直接倾倒进 prompt。因此该说法正确。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 9,
+                "explanation_valid": true,
+                "independent_solution": "面试中说明设计取舍应体现信息价值与成本的权衡：当早期推理痕迹对后续步骤已无价值、继续保留只会增加 token 成本和噪声时，应压缩或截断；当关键信息仍需被后续步骤引用时，应保留或转为可检索形式。示例答案准确体现了这一权衡。"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "1f1397d9ea91bf26da093c6ba3ab15e83b1768c5245f4cb1dda782b8d6b8437a"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q1 选项 C 中“不产生任何成本”可以更明确地改为“不产生任何 token 成本”，避免与内存占用等成本混淆。",
+        "q5 选项 D“无限制地扩大上下文窗口”可以改为“单纯扩大上下文窗口而不压缩”，使干扰项更贴近真实误区。",
+        "q8 选项 D“成本不受限制”可以改为“成本预算充足且需要完整审计”，使场景更具体。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "1f1397d9ea91bf26da093c6ba3ab15e83b1768c5245f4cb1dda782b8d6b8437a",
+      "question_checks": [
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 声称早期推理仍然对后续决策起关键作用，必须完整保留。这与研究资料中“早期步骤的推理痕迹在后期已无价值”相矛盾，因此错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 表述为“已经不再相关，却仍占用上下文窗口并消耗 token”，与研究资料中第 3 步推理痕迹到第 12 步已不相关但仍消耗 token 的描述一致，因此正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 声称系统会自动移出上下文窗口且不产生任何成本。默认情况下中间推理痕迹不会自动清理，因此错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 声称只占用内存不消耗 token。上下文中的内容会参与 token 计费，因此错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "independent_solution": "在 15 步任务中，第 3 步的中间推理痕迹到第 12 步通常已经不再相关，但只要仍留在上下文窗口内，就会继续占用空间并消耗 token。因此正确选项是 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 表述为“把截断策略作为显式可配置的旋钮，而不是隐式行为”，与研究资料一致，因此正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 声称默认将所有中间推理痕迹永久保留，与截断策略的设计目标相反，因此错误。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 声称强制要求开发者使用 MemGPT 的分层记忆架构，研究资料未提及 OpenAI 强制要求使用 MemGPT，因此错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 声称自动将所有工具输出压缩为向量索引，这是 LlamaIndex utility tools 的思路，不是 OpenAI run API 的行为，因此错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "independent_solution": "研究资料指出 OpenAI 的 run API 将截断策略暴露为显式旋钮，而不是隐式行为。因此正确选项是 A。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 表述为“把大工具输出压缩成可检索的形式，而不是把原始数据直接塞进 prompt”，与研究资料一致，因此正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 声称将所有工具输出直接写入磁盘，完全不进入上下文。utility tools 的核心是压缩与检索，不是简单落盘，因此错误。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 声称通过增加上下文窗口大小来容纳更多原始输出，这与压缩策略的思路不同，因此错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 声称只保留工具输出的前 100 个字符，这是随意截断，不是可检索压缩，因此错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "independent_solution": "研究资料指出 LlamaIndex 的 utility tools 在一次调用中加载、索引和查询数据，将大工具输出压缩为可检索形式，而不是把原始数据直接塞进 prompt。因此正确选项是 A。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 表述为“在有限的上下文窗口内通过管理不同记忆层级来扩展有效上下文”，与研究资料一致，因此正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 声称彻底消除所有 token 消耗，过于绝对，分层记忆不能消除 token 消耗，因此错误。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 声称让 Agent 不再需要调用任何外部工具，与分层记忆架构无关，因此错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 声称把所有记忆都压缩成固定长度的哈希值，将分层记忆错误地等同于哈希压缩，因此错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "independent_solution": "研究资料指出 MemGPT 提出分层记忆架构，通过管理不同记忆层级在有限窗口内扩展有效上下文。因此正确选项是 A。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 是研究资料明确列举的压缩策略之一，因此正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 是研究资料明确列举的压缩策略之一，因此正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 是研究资料明确列举的压缩策略之一，因此正确。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 是扩大窗口而非压缩，且窗口大小始终有物理和成本上限，因此错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "independent_solution": "研究资料明确列举了三种压缩策略：OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆架构。无限制扩大窗口不是压缩策略。因此正确选项是 A、B、C。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "independent_solution": "即使上下文窗口足够大，中间推理痕迹仍会持续消耗 token 并增加成本与延迟，且窗口大小始终存在上限。压缩和截断策略的价值在于控制成本、减少噪声并保持关键信息可检索。因此该说法错误。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "independent_solution": "至少两种压缩策略：OpenAI run API 的截断策略，核心是显式可配置地决定哪些上下文被保留或丢弃；LlamaIndex 的 utility tools，核心是将大工具输出压缩为可检索形式；MemGPT 的分层记忆架构，核心是通过管理不同记忆层级在有限窗口内扩展有效上下文。示例答案覆盖三种策略且解释准确。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 表述为“早期步骤的推理痕迹在后期已无价值，且需要控制 token 成本”，符合截断策略的适用场景，因此正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 声称所有中间步骤的推理都对最终答案至关重要，此时截断会丢失关键信息，因此错误。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 声称任务只有一步，不存在中间推理，因此没有可截断的内容，场景不适用，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 声称需要完整审计每一步推理且成本不受限制，此时应保留而非截断，因此错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "independent_solution": "截断策略适用于早期步骤的推理痕迹在后期已无价值且需要控制 token 成本的场景。选项 A 符合这一条件。选项 B 和 D 描述需要完整保留推理痕迹的情况，选项 C 中单步任务没有中间推理可截断。因此正确选项是 A。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 8,
+          "explanation_valid": true,
+          "independent_solution": "研究资料明确说明 LlamaIndex 的 utility tools 将大工具输出压缩为可检索形式，而不是把原始数据直接倾倒进 prompt。因此该说法正确。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 9,
+          "explanation_valid": true,
+          "independent_solution": "面试中说明设计取舍应体现信息价值与成本的权衡：当早期推理痕迹对后续步骤已无价值、继续保留只会增加 token 成本和噪声时，应压缩或截断；当关键信息仍需被后续步骤引用时，应保留或转为可检索形式。示例答案准确体现了这一权衡。"
+        }
+      ]
+    }
+  },
+  "preparation_artifact": {
+    "title": "记忆与上下文管理",
+    "content": {
+      "title": "记忆与上下文管理测验",
+      "questions": [
+        {
+          "id": "q1",
+          "stem": "在一个 15 步的 Agent 任务中，第 3 步产生的中间推理痕迹到第 12 步时通常处于什么状态？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "仍然对后续决策起关键作用，必须完整保留",
+            "已经不再相关，却仍占用上下文窗口并消耗 token",
+            "会被系统自动移出上下文窗口，不产生任何成本",
+            "只占用内存，不消耗 token"
+          ],
+          "difficulty": "easy",
+          "explanation": "多步任务中，早期步骤的推理痕迹在后期往往已无价值，但只要仍留在上下文窗口内，就会继续占用空间并消耗 token。选项 A 把早期推理一律视为关键信息，忽略了其时效性；选项 C 假设系统会自动清理，但默认情况下这些痕迹不会自动消失；选项 D 混淆了内存占用与 token 消耗，上下文中的内容都会参与 token 计费。"
+        },
+        {
+          "id": "q2",
+          "stem": "OpenAI 的 run API 在处理上下文时采用了哪种设计思路？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "把截断策略作为显式可配置的旋钮，而不是隐式行为",
+            "默认将所有中间推理痕迹永久保留在上下文中",
+            "强制要求开发者使用 MemGPT 的分层记忆架构",
+            "自动将所有工具输出压缩为向量索引"
+          ],
+          "difficulty": "medium",
+          "explanation": "原文指出 OpenAI 的 run API 将截断策略暴露为显式旋钮，让开发者可以主动控制上下文如何被截断，而不是把它当作偶然或隐式的行为。选项 B 与截断策略的设计目标相反；选项 C 把 MemGPT 的方案错误地说成 OpenAI 的强制要求；选项 D 描述的是 LlamaIndex utility tools 的思路，不是 OpenAI run API 的行为。"
+        },
+        {
+          "id": "q3",
+          "stem": "LlamaIndex 的 utility tools 解决大工具输出占用上下文问题的核心方式是什么？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "把大工具输出压缩成可检索的形式，而不是把原始数据直接塞进 prompt",
+            "将所有工具输出直接写入磁盘，完全不进入上下文",
+            "通过增加上下文窗口大小来容纳更多原始输出",
+            "只保留工具输出的前 100 个字符"
+          ],
+          "difficulty": "medium",
+          "explanation": "LlamaIndex 的 utility tools 在一次调用中完成加载、索引和查询，将大工具输出压缩为可检索形式，避免把原始数据直接倾倒进 prompt。选项 B 描述的是持久化存储，但 utility tools 的核心是压缩与检索，不是简单落盘；选项 C 依赖扩大窗口，与压缩策略的思路不同；选项 D 是随意截断，不是可检索压缩。"
+        },
+        {
+          "id": "q4",
+          "stem": "MemGPT 提出的分层记忆架构主要解决什么问题？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "在有限的上下文窗口内通过管理不同记忆层级来扩展有效上下文",
+            "彻底消除所有 token 消耗",
+            "让 Agent 不再需要调用任何外部工具",
+            "把所有记忆都压缩成固定长度的哈希值"
+          ],
+          "difficulty": "medium",
+          "explanation": "MemGPT 通过分层记忆架构管理不同层级的记忆，在有限窗口内扩展有效上下文，使 Agent 能处理更长的任务。选项 B 过于绝对，分层记忆不能消除 token 消耗；选项 C 与工具调用无关；选项 D 把分层记忆错误地等同于哈希压缩，忽略了层级管理的本质。"
+        },
+        {
+          "id": "q5",
+          "stem": "以下哪些属于应对上下文窗口被中间推理痕迹消耗的压缩策略？",
+          "type": "multiple_choice",
+          "answer": "A,B,C",
+          "options": [
+            "OpenAI run API 的截断策略",
+            "LlamaIndex 的 utility tools",
+            "MemGPT 的分层记忆架构",
+            "无限制地扩大上下文窗口"
+          ],
+          "difficulty": "easy",
+          "explanation": "原文明确列举了三种压缩策略：OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆架构。选项 D 是扩大窗口而非压缩，且窗口大小始终有物理和成本上限，不能作为压缩策略。"
+        },
+        {
+          "id": "q6",
+          "stem": "在多步 Agent 任务中，只要上下文窗口足够大，就不需要考虑压缩或截断策略。",
+          "type": "true_false",
+          "answer": "错误",
+          "difficulty": "easy",
+          "explanation": "即使窗口较大，中间推理痕迹仍会持续消耗 token 并增加成本与延迟，且窗口大小始终存在上限。压缩和截断策略的价值在于控制成本、减少噪声并保持关键信息可检索，而不是仅在窗口不够大时才需要。"
+        },
+        {
+          "id": "q7",
+          "stem": "请说出至少两种上下文压缩策略，并各用一句话解释其核心思想。",
+          "type": "short_answer",
+          "answer": "示例答案：① OpenAI run API 的截断策略——把截断作为显式可配置的旋钮，让开发者主动决定哪些上下文被保留或丢弃；② LlamaIndex 的 utility tools——将大工具输出压缩成可检索形式，避免把原始数据直接塞进 prompt；③ MemGPT 的分层记忆架构——通过管理不同记忆层级，在有限窗口内扩展有效上下文。",
+          "difficulty": "medium",
+          "explanation": "本题要求至少说出两种策略并各用一句话解释核心思想。三种策略的核心分别是：显式截断控制、可检索压缩、分层记忆管理。只要能准确说出其中任意两种即可。"
+        },
+        {
+          "id": "q8",
+          "stem": "在设计 Agent 时，什么情况下更适合采用截断策略而不是保留全部中间推理痕迹？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "早期步骤的推理痕迹在后期已无价值，且需要控制 token 成本",
+            "所有中间步骤的推理都对最终答案至关重要",
+            "任务只有一步，不存在中间推理",
+            "需要完整审计每一步的推理过程且成本不受限制"
+          ],
+          "difficulty": "medium",
+          "explanation": "截断策略适用于早期推理已失去时效性、继续保留只会消耗 token 的场景。选项 B 和 D 描述的是需要完整保留推理痕迹的情况，此时截断会丢失关键信息；选项 C 中单步任务没有中间推理可截断，场景不适用。"
+        },
+        {
+          "id": "q9",
+          "stem": "LlamaIndex 的 utility tools 会把大工具输出压缩成可检索形式，而不是把原始数据直接倾倒进 prompt。",
+          "type": "true_false",
+          "answer": "正确",
+          "difficulty": "easy",
+          "explanation": "原文明确说明 utility tools 在一次调用中加载、索引和查询数据，将大工具输出压缩为可检索形式，避免把原始数据直接塞进 prompt。"
+        },
+        {
+          "id": "q10",
+          "stem": "在面试中，如何用一句话说明“何时该压缩或截断上下文”的设计取舍？",
+          "type": "short_answer",
+          "answer": "示例答案：当早期推理痕迹对后续步骤已无价值、继续保留只会增加 token 成本和噪声时，就应该压缩或截断；当关键信息仍需被后续步骤引用时，则应保留或转为可检索形式。",
+          "difficulty": "hard",
+          "explanation": "设计取舍的核心是权衡信息价值与成本：无价值的中间推理应被压缩或截断，有价值的上下文则应保留或转为可检索形式。回答时需体现这一权衡，而不是简单地说“窗口满了就截断”。"
+        }
+      ]
+    },
+    "artifact_type": "quiz",
+    "generation_state": {
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "资源类型为 quiz，共 10 题，覆盖单选、多选、判断、简答；主题为记忆与上下文管理，语言为中文，受众定位为有 Python 开发基础、准备 AI Agent 面试的学习者。学习检查要求“能说出至少两种压缩策略并各用一句话解释”，q7 直接覆盖，q5 也覆盖三种策略识别。未发现与已确认方案或用户要求冲突。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "逐题核对事实：q1 对 15 步任务中第 3 步推理痕迹到第 12 步通常已不相关但仍占窗口并消耗 token 的表述符合研究资料；q2 对 OpenAI run API 截断策略作为显式旋钮的表述符合原文；q3 对 LlamaIndex utility tools 压缩为可检索形式的表述符合原文；q4 对 MemGPT 分层记忆架构的表述符合原文；q5 三种策略归属正确；q6、q8、q9、q10 的推理和结论均与资料一致。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "习题已逐题独立求解并核对答案与解析，详见 question_checks。q1-q10 的答案均与独立求解一致，解析对正确项和干扰项的解释基本准确，未发现需要阻断的实质错误。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "题目顺序从概念识别到策略区分，再到设计取舍和面试表达，难度从 easy 到 hard 分布合理。q7 和 q10 作为简答题分别覆盖学习检查中的策略复述和面试表达，结构符合 30 分钟学习目标。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "内容与研究资料一致，来源为 Medium 文章，涉及 OpenAI run API、LlamaIndex utility tools、MemGPT 分层记忆架构。未发现无依据的事实断言或编造引用。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "10 道题覆盖了上下文窗口消耗问题、三种压缩策略、截断时机和面试表达，满足学习检查要求。题型和难度分布合理，未发现缺失的必要考点。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "资源类型为 quiz，共 10 题，覆盖单选、多选、判断、简答；主题为记忆与上下文管理，语言为中文，受众定位为有 Python 开发基础、准备 AI Agent 面试的学习者。学习检查要求“能说出至少两种压缩策略并各用一句话解释”，q7 直接覆盖，q5 也覆盖三种策略识别。未发现与已确认方案或用户要求冲突。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "逐题核对事实：q1 对 15 步任务中第 3 步推理痕迹到第 12 步通常已不相关但仍占窗口并消耗 token 的表述符合研究资料；q2 对 OpenAI run API 截断策略作为显式旋钮的表述符合原文；q3 对 LlamaIndex utility tools 压缩为可检索形式的表述符合原文；q4 对 MemGPT 分层记忆架构的表述符合原文；q5 三种策略归属正确；q6、q8、q9、q10 的推理和结论均与资料一致。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "习题已逐题独立求解并核对答案与解析，详见 question_checks。q1-q10 的答案均与独立求解一致，解析对正确项和干扰项的解释基本准确，未发现需要阻断的实质错误。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "题目顺序从概念识别到策略区分，再到设计取舍和面试表达，难度从 easy 到 hard 分布合理。q7 和 q10 作为简答题分别覆盖学习检查中的策略复述和面试表达，结构符合 30 分钟学习目标。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "内容与研究资料一致，来源为 Medium 文章，涉及 OpenAI run API、LlamaIndex utility tools、MemGPT 分层记忆架构。未发现无依据的事实断言或编造引用。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "10 道题覆盖了上下文窗口消耗问题、三种压缩策略、截断时机和面试表达，满足学习检查要求。题型和难度分布合理，未发现缺失的必要考点。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "q1 选项 C 中“不产生任何成本”可以更明确地改为“不产生任何 token 成本”，避免与内存占用等成本混淆。",
+                "q5 选项 D“无限制地扩大上下文窗口”可以改为“单纯扩大上下文窗口而不压缩”，使干扰项更贴近真实误区。",
+                "q8 选项 D“成本不受限制”可以改为“成本预算充足且需要完整审计”，使场景更具体。"
+              ],
+              "blocking_issues": [],
+              "question_checks": [
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 声称早期推理仍然对后续决策起关键作用，必须完整保留。这与研究资料中“早期步骤的推理痕迹在后期已无价值”相矛盾，因此错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 表述为“已经不再相关，却仍占用上下文窗口并消耗 token”，与研究资料中第 3 步推理痕迹到第 12 步已不相关但仍消耗 token 的描述一致，因此正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 声称系统会自动移出上下文窗口且不产生任何成本。默认情况下中间推理痕迹不会自动清理，因此错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 声称只占用内存不消耗 token。上下文中的内容会参与 token 计费，因此错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 0,
+                  "explanation_valid": true,
+                  "independent_solution": "在 15 步任务中，第 3 步的中间推理痕迹到第 12 步通常已经不再相关，但只要仍留在上下文窗口内，就会继续占用空间并消耗 token。因此正确选项是 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 表述为“把截断策略作为显式可配置的旋钮，而不是隐式行为”，与研究资料一致，因此正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 声称默认将所有中间推理痕迹永久保留，与截断策略的设计目标相反，因此错误。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 声称强制要求开发者使用 MemGPT 的分层记忆架构，研究资料未提及 OpenAI 强制要求使用 MemGPT，因此错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 声称自动将所有工具输出压缩为向量索引，这是 LlamaIndex utility tools 的思路，不是 OpenAI run API 的行为，因此错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 1,
+                  "explanation_valid": true,
+                  "independent_solution": "研究资料指出 OpenAI 的 run API 将截断策略暴露为显式旋钮，而不是隐式行为。因此正确选项是 A。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 表述为“把大工具输出压缩成可检索的形式，而不是把原始数据直接塞进 prompt”，与研究资料一致，因此正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 声称将所有工具输出直接写入磁盘，完全不进入上下文。utility tools 的核心是压缩与检索，不是简单落盘，因此错误。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 声称通过增加上下文窗口大小来容纳更多原始输出，这与压缩策略的思路不同，因此错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 声称只保留工具输出的前 100 个字符，这是随意截断，不是可检索压缩，因此错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 2,
+                  "explanation_valid": true,
+                  "independent_solution": "研究资料指出 LlamaIndex 的 utility tools 在一次调用中加载、索引和查询数据，将大工具输出压缩为可检索形式，而不是把原始数据直接塞进 prompt。因此正确选项是 A。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 表述为“在有限的上下文窗口内通过管理不同记忆层级来扩展有效上下文”，与研究资料一致，因此正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 声称彻底消除所有 token 消耗，过于绝对，分层记忆不能消除 token 消耗，因此错误。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 声称让 Agent 不再需要调用任何外部工具，与分层记忆架构无关，因此错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 声称把所有记忆都压缩成固定长度的哈希值，将分层记忆错误地等同于哈希压缩，因此错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 3,
+                  "explanation_valid": true,
+                  "independent_solution": "研究资料指出 MemGPT 提出分层记忆架构，通过管理不同记忆层级在有限窗口内扩展有效上下文。因此正确选项是 A。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 是研究资料明确列举的压缩策略之一，因此正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 是研究资料明确列举的压缩策略之一，因此正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 是研究资料明确列举的压缩策略之一，因此正确。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 是扩大窗口而非压缩，且窗口大小始终有物理和成本上限，因此错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 4,
+                  "explanation_valid": true,
+                  "independent_solution": "研究资料明确列举了三种压缩策略：OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆架构。无限制扩大窗口不是压缩策略。因此正确选项是 A、B、C。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 5,
+                  "explanation_valid": true,
+                  "independent_solution": "即使上下文窗口足够大，中间推理痕迹仍会持续消耗 token 并增加成本与延迟，且窗口大小始终存在上限。压缩和截断策略的价值在于控制成本、减少噪声并保持关键信息可检索。因此该说法错误。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 6,
+                  "explanation_valid": true,
+                  "independent_solution": "至少两种压缩策略：OpenAI run API 的截断策略，核心是显式可配置地决定哪些上下文被保留或丢弃；LlamaIndex 的 utility tools，核心是将大工具输出压缩为可检索形式；MemGPT 的分层记忆架构，核心是通过管理不同记忆层级在有限窗口内扩展有效上下文。示例答案覆盖三种策略且解释准确。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 表述为“早期步骤的推理痕迹在后期已无价值，且需要控制 token 成本”，符合截断策略的适用场景，因此正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 声称所有中间步骤的推理都对最终答案至关重要，此时截断会丢失关键信息，因此错误。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 声称任务只有一步，不存在中间推理，因此没有可截断的内容，场景不适用，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 声称需要完整审计每一步推理且成本不受限制，此时应保留而非截断，因此错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 7,
+                  "explanation_valid": true,
+                  "independent_solution": "截断策略适用于早期步骤的推理痕迹在后期已无价值且需要控制 token 成本的场景。选项 A 符合这一条件。选项 B 和 D 描述需要完整保留推理痕迹的情况，选项 C 中单步任务没有中间推理可截断。因此正确选项是 A。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 8,
+                  "explanation_valid": true,
+                  "independent_solution": "研究资料明确说明 LlamaIndex 的 utility tools 将大工具输出压缩为可检索形式，而不是把原始数据直接倾倒进 prompt。因此该说法正确。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 9,
+                  "explanation_valid": true,
+                  "independent_solution": "面试中说明设计取舍应体现信息价值与成本的权衡：当早期推理痕迹对后续步骤已无价值、继续保留只会增加 token 成本和噪声时，应压缩或截断；当关键信息仍需被后续步骤引用时，应保留或转为可检索形式。示例答案准确体现了这一权衡。"
+                }
+              ]
+            },
+            "version": 1,
+            "decision": "pass",
+            "content_sha256": "1f1397d9ea91bf26da093c6ba3ab15e83b1768c5245f4cb1dda782b8d6b8437a"
+          }
+        ],
+        "version": 1,
+        "decision": "pass",
+        "suggestions": [
+          "q1 选项 C 中“不产生任何成本”可以更明确地改为“不产生任何 token 成本”，避免与内存占用等成本混淆。",
+          "q5 选项 D“无限制地扩大上下文窗口”可以改为“单纯扩大上下文窗口而不压缩”，使干扰项更贴近真实误区。",
+          "q8 选项 D“成本不受限制”可以改为“成本预算充足且需要完整审计”，使场景更具体。"
+        ],
+        "resource_type": "quiz",
+        "content_sha256": "1f1397d9ea91bf26da093c6ba3ab15e83b1768c5245f4cb1dda782b8d6b8437a",
+        "question_checks": [
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 声称早期推理仍然对后续决策起关键作用，必须完整保留。这与研究资料中“早期步骤的推理痕迹在后期已无价值”相矛盾，因此错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 表述为“已经不再相关，却仍占用上下文窗口并消耗 token”，与研究资料中第 3 步推理痕迹到第 12 步已不相关但仍消耗 token 的描述一致，因此正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 声称系统会自动移出上下文窗口且不产生任何成本。默认情况下中间推理痕迹不会自动清理，因此错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 声称只占用内存不消耗 token。上下文中的内容会参与 token 计费，因此错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 0,
+            "explanation_valid": true,
+            "independent_solution": "在 15 步任务中，第 3 步的中间推理痕迹到第 12 步通常已经不再相关，但只要仍留在上下文窗口内，就会继续占用空间并消耗 token。因此正确选项是 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 表述为“把截断策略作为显式可配置的旋钮，而不是隐式行为”，与研究资料一致，因此正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 声称默认将所有中间推理痕迹永久保留，与截断策略的设计目标相反，因此错误。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 声称强制要求开发者使用 MemGPT 的分层记忆架构，研究资料未提及 OpenAI 强制要求使用 MemGPT，因此错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 声称自动将所有工具输出压缩为向量索引，这是 LlamaIndex utility tools 的思路，不是 OpenAI run API 的行为，因此错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 1,
+            "explanation_valid": true,
+            "independent_solution": "研究资料指出 OpenAI 的 run API 将截断策略暴露为显式旋钮，而不是隐式行为。因此正确选项是 A。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 表述为“把大工具输出压缩成可检索的形式，而不是把原始数据直接塞进 prompt”，与研究资料一致，因此正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 声称将所有工具输出直接写入磁盘，完全不进入上下文。utility tools 的核心是压缩与检索，不是简单落盘，因此错误。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 声称通过增加上下文窗口大小来容纳更多原始输出，这与压缩策略的思路不同，因此错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 声称只保留工具输出的前 100 个字符，这是随意截断，不是可检索压缩，因此错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 2,
+            "explanation_valid": true,
+            "independent_solution": "研究资料指出 LlamaIndex 的 utility tools 在一次调用中加载、索引和查询数据，将大工具输出压缩为可检索形式，而不是把原始数据直接塞进 prompt。因此正确选项是 A。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 表述为“在有限的上下文窗口内通过管理不同记忆层级来扩展有效上下文”，与研究资料一致，因此正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 声称彻底消除所有 token 消耗，过于绝对，分层记忆不能消除 token 消耗，因此错误。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 声称让 Agent 不再需要调用任何外部工具，与分层记忆架构无关，因此错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 声称把所有记忆都压缩成固定长度的哈希值，将分层记忆错误地等同于哈希压缩，因此错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 3,
+            "explanation_valid": true,
+            "independent_solution": "研究资料指出 MemGPT 提出分层记忆架构，通过管理不同记忆层级在有限窗口内扩展有效上下文。因此正确选项是 A。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 是研究资料明确列举的压缩策略之一，因此正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 是研究资料明确列举的压缩策略之一，因此正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 是研究资料明确列举的压缩策略之一，因此正确。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 是扩大窗口而非压缩，且窗口大小始终有物理和成本上限，因此错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 4,
+            "explanation_valid": true,
+            "independent_solution": "研究资料明确列举了三种压缩策略：OpenAI run API 的截断策略、LlamaIndex 的 utility tools、MemGPT 的分层记忆架构。无限制扩大窗口不是压缩策略。因此正确选项是 A、B、C。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 5,
+            "explanation_valid": true,
+            "independent_solution": "即使上下文窗口足够大，中间推理痕迹仍会持续消耗 token 并增加成本与延迟，且窗口大小始终存在上限。压缩和截断策略的价值在于控制成本、减少噪声并保持关键信息可检索。因此该说法错误。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 6,
+            "explanation_valid": true,
+            "independent_solution": "至少两种压缩策略：OpenAI run API 的截断策略，核心是显式可配置地决定哪些上下文被保留或丢弃；LlamaIndex 的 utility tools，核心是将大工具输出压缩为可检索形式；MemGPT 的分层记忆架构，核心是通过管理不同记忆层级在有限窗口内扩展有效上下文。示例答案覆盖三种策略且解释准确。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 表述为“早期步骤的推理痕迹在后期已无价值，且需要控制 token 成本”，符合截断策略的适用场景，因此正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 声称所有中间步骤的推理都对最终答案至关重要，此时截断会丢失关键信息，因此错误。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 声称任务只有一步，不存在中间推理，因此没有可截断的内容，场景不适用，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 声称需要完整审计每一步推理且成本不受限制，此时应保留而非截断，因此错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 7,
+            "explanation_valid": true,
+            "independent_solution": "截断策略适用于早期步骤的推理痕迹在后期已无价值且需要控制 token 成本的场景。选项 A 符合这一条件。选项 B 和 D 描述需要完整保留推理痕迹的情况，选项 C 中单步任务没有中间推理可截断。因此正确选项是 A。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 8,
+            "explanation_valid": true,
+            "independent_solution": "研究资料明确说明 LlamaIndex 的 utility tools 将大工具输出压缩为可检索形式，而不是把原始数据直接倾倒进 prompt。因此该说法正确。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 9,
+            "explanation_valid": true,
+            "independent_solution": "面试中说明设计取舍应体现信息价值与成本的权衡：当早期推理痕迹对后续步骤已无价值、继续保留只会增加 token 成本和噪声时，应压缩或截断；当关键信息仍需被后续步骤引用时，应保留或转为可检索形式。示例答案准确体现了这一权衡。"
+          }
+        ]
+      }
+    }
+  },
+  "learning_course_resource": true
+}

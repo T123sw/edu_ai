@@ -1,0 +1,12 @@
+{
+  "turn_id": "answer-acb8ede6f95948a49d2d1904a5f43e47",
+  "session_id": "learning-1078124ebb4f77018d0c8f6d7912c0928442436953870b98ff17b4155787bf49",
+  "request_id": "b4fb4168-8ddc-48d4-b86c-17c201ba1498",
+  "topic_id": "responsibility_boundary",
+  "status": "failed",
+  "stage": "failed",
+  "attempt": 1,
+  "result": null,
+  "error_code": "PREPARATION_NOT_SUBMITTED",
+  "preparation_receipts": []
+}

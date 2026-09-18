@@ -1,0 +1,18 @@
+{
+  "started_at": "2026-09-17T13:10:45.221251+00:00",
+  "finished_at": "2026-09-17T13:11:12.829087+00:00",
+  "command": [
+    "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/python",
+    "-m",
+    "pytest",
+    "tests/course_preparation/test_local_manifest.py",
+    "tests/course_preparation/test_quality_stages.py",
+    "tests/course_preparation/test_publication_overlay.py",
+    "-q"
+  ],
+  "exit_code": 0,
+  "log": "20260917T131045221224Z-pytest.txt",
+  "sha256": "72b5aea69c980d259448999c2117286d646fd1b030ed39bbecd46c4850e0428d",
+  "base_commit": "f825fbf652c0630354fee2074695f50645194ad8",
+  "python": "3.12.14"
+}

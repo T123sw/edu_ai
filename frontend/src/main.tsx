@@ -12,6 +12,8 @@ const Entry = legacy
     ? lazy(() => import("./liveLearning/WorkbenchEntry"))
   : new URLSearchParams(location.search).get("learningPlayer") === "1"
     ? lazy(() => import("./liveLearning/MaterialEntry"))
+  : new URLSearchParams(location.search).get("review") === "1" && new URLSearchParams(location.search).get("workbench") === "1"
+    ? lazy(() => import("./frontendReview/WorkbenchEntry"))
   : new URLSearchParams(location.search).get("workspace") === "1"
     ? lazy(() => import("./learningWorkspaceEntry"))
     : lazy(() => import("./selfLearning/App"));

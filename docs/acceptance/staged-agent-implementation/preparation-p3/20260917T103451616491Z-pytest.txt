@@ -1,0 +1,52 @@
+............................F...                                         [100%]
+=================================== FAILURES ===================================
+_______ test_reply_service_persists_completed_turn_through_memory_writer _______
+
+    def test_reply_service_persists_completed_turn_through_memory_writer() -> None:
+        store = _Store()
+        writer = _Writer()
+        service = ReplyServiceV2(
+            orchestrator=_Orchestrator(),
+            conversation_store=store,
+            memory_writer=writer,
+        )
+        payload = SimpleNamespace(
+            question="我更喜欢简短回答",
+            actor_role="student",
+            conversation_id="conv-1",
+            owner="student-1",
+            course_id="course-a",
+            model_id=None,
+            selected_doc_ids=[],
+            allow_rag=False,
+            allow_web=False,
+            action_hint=None,
+            artifact_id=None,
+        )
+    
+>       result = service.reply(payload)
+                 ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/chat/memory/test_memory_reply_service_integration.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/chat/application/reply_service_v2.py:353: in reply
+    return self._reply_locked(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app/chat/application/reply_service_v2.py:360: in _reply_locked
+    scope_result = self._prepare_workspace(request)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.chat.application.reply_service_v2.ReplyServiceV2 object at 0x7f913c57a720>
+request = ChatRequestV2(question='我更喜欢简短回答', request_id=None, actor_role='student', conversation_id='conv-1', owner='student-1',...lse, allow_rag=True, allow_web=True, allow_image_search=True, allow_tools=True, selected_doc_ids=[], max_tool_steps=0))
+
+    def _prepare_workspace(self, request):
+        # Always read the authoritative cursor for this authenticated conversation.
+>       request.interaction_state = (self.conversation_store.storage.get_state(request.conversation_id) or {}).get('interaction_state')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: '_Store' object has no attribute 'storage'
+
+app/chat/application/reply_service_v2.py:343: AttributeError
+=========================== short test summary info ============================
+FAILED tests/chat/memory/test_memory_reply_service_integration.py::test_reply_service_persists_completed_turn_through_memory_writer
+1 failed, 31 passed in 7.71s

@@ -1,0 +1,8 @@
+{
+  "status": 200,
+  "seconds": 1.525,
+  "turns": 5,
+  "bytes": 14651,
+  "before_seconds_under_browser_load": 12.6,
+  "note": "两个观察点的并发负载不同，不作为受控基准或性能提升比例。"
+}

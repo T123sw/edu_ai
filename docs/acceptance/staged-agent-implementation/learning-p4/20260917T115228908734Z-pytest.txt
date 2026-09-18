@@ -1,0 +1,60 @@
+EEEE......................                                               [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_summary_cas_preserves_recent_and_all_original_messages[sqlite] _
+
+repository = <app.self_learning.postgres_repository.SessionRepository object at 0x7fe94c36d220>
+
+    @pytest.fixture
+    def summary(repository):
+        names=['learning_summaries','agent_memory_epochs','agent_memory_items','agent_memory_suppressions','agent_memory_dependencies',
+               'agent_memory_change_events','user_profile_facts','agent_memory_audit_events']
+>       Base.metadata.create_all(repository.engine,tables=[Base.metadata.tables[n] for n in names])
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'agent_memory_change_events'
+
+tests/self_learning/test_summary_service.py:17: KeyError
+_ ERROR at setup of test_summary_cas_preserves_recent_and_all_original_messages[postgresql] _
+
+repository = <app.self_learning.postgres_repository.SessionRepository object at 0x7fe9537af110>
+
+    @pytest.fixture
+    def summary(repository):
+        names=['learning_summaries','agent_memory_epochs','agent_memory_items','agent_memory_suppressions','agent_memory_dependencies',
+               'agent_memory_change_events','user_profile_facts','agent_memory_audit_events']
+>       Base.metadata.create_all(repository.engine,tables=[Base.metadata.tables[n] for n in names])
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'agent_memory_change_events'
+
+tests/self_learning/test_summary_service.py:17: KeyError
+_ ERROR at setup of test_deleted_preference_invalidates_old_summary_and_late_publish[sqlite] _
+
+repository = <app.self_learning.postgres_repository.SessionRepository object at 0x7fe94bb0d1f0>
+
+    @pytest.fixture
+    def summary(repository):
+        names=['learning_summaries','agent_memory_epochs','agent_memory_items','agent_memory_suppressions','agent_memory_dependencies',
+               'agent_memory_change_events','user_profile_facts','agent_memory_audit_events']
+>       Base.metadata.create_all(repository.engine,tables=[Base.metadata.tables[n] for n in names])
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'agent_memory_change_events'
+
+tests/self_learning/test_summary_service.py:17: KeyError
+_ ERROR at setup of test_deleted_preference_invalidates_old_summary_and_late_publish[postgresql] _
+
+repository = <app.self_learning.postgres_repository.SessionRepository object at 0x7fe94c31df70>
+
+    @pytest.fixture
+    def summary(repository):
+        names=['learning_summaries','agent_memory_epochs','agent_memory_items','agent_memory_suppressions','agent_memory_dependencies',
+               'agent_memory_change_events','user_profile_facts','agent_memory_audit_events']
+>       Base.metadata.create_all(repository.engine,tables=[Base.metadata.tables[n] for n in names])
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'agent_memory_change_events'
+
+tests/self_learning/test_summary_service.py:17: KeyError
+=========================== short test summary info ============================
+ERROR tests/self_learning/test_summary_service.py::test_summary_cas_preserves_recent_and_all_original_messages[sqlite]
+ERROR tests/self_learning/test_summary_service.py::test_summary_cas_preserves_recent_and_all_original_messages[postgresql]
+ERROR tests/self_learning/test_summary_service.py::test_deleted_preference_invalidates_old_summary_and_late_publish[sqlite]
+ERROR tests/self_learning/test_summary_service.py::test_deleted_preference_invalidates_old_summary_and_late_publish[postgresql]
+22 passed, 4 errors in 87.97s (0:01:27)

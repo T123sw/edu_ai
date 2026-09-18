@@ -1,0 +1,1821 @@
+{
+  "title": "Agent 循环与模型/应用职责边界",
+  "status": "ready",
+  "content": {
+    "title": "Agent 循环与模型/应用职责边界",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "关于 Agent 系统的三层嵌套循环，下列哪项描述是正确的？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "L1 是工具调用循环，L2 是任务循环，L3 是编排循环",
+          "L1 是任务循环，L2 是工具调用循环，L3 是编排循环",
+          "L1 是编排循环，L2 是任务循环，L3 是工具调用循环",
+          "L1 是工具调用循环，L2 是编排循环，L3 是任务循环"
+        ],
+        "difficulty": "easy",
+        "explanation": "根据原文，三层嵌套循环从内到外依次为：L1 工具调用循环（模型发出结构化工具调用，应用执行并回传结果）、L2 任务循环（多步目标追求）、L3 编排循环（多智能体委托与治理）。选项 A 的顺序完全正确。选项 B、C、D 均打乱了 L1、L2、L3 的对应关系，属于对层级名称的混淆。"
+      },
+      {
+        "id": "q2",
+        "stem": "在 L1 工具调用循环中，模型的核心职责是什么？",
+        "type": "single_choice",
+        "answer": "C",
+        "options": [
+          "校验工具调用的参数是否合法",
+          "执行工具并返回结果",
+          "根据对话状态和可用工具，发出结构化工具调用或正常回复",
+          "决定工具输出是否需要对用户可见"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文明确指出：在 L1 层面，模型只做一件事——查看对话状态和可用工具，然后要么正常回复，要么发出结构化工具调用。校验参数、执行工具、决定输出处理方式都是应用层的职责，因此选项 A、B、D 均不属于模型职责。"
+      },
+      {
+        "id": "q3",
+        "stem": "为什么说模型与应用的职责边界在 L1 处最清晰？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "因为 L1 不涉及任何工具调用，逻辑最简单",
+          "因为模型只提议动作，应用负责校验参数、执行权限并决定如何处理输出",
+          "因为 L1 中模型可以直接执行工具，无需应用参与",
+          "因为 L1 只处理多智能体之间的委托关系"
+        ],
+        "difficulty": "medium",
+        "explanation": "原文强调 L1 的职责边界是清晰的（crisp）：模型提议动作，应用校验参数、执行权限并决定如何处理输出。选项 A 错误，L1 恰恰是工具调用循环的核心；选项 C 错误，模型本身不执行任何操作；选项 D 描述的是 L3 编排循环的内容。"
+      },
+      {
+        "id": "q4",
+        "stem": "在工具调用协议中，模型产出的结构化载荷通常包含什么内容？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "工具名和参数",
+          "工具的执行结果",
+          "权限校验结果",
+          "用户反馈信息"
+        ],
+        "difficulty": "easy",
+        "explanation": "根据原文，模型作为非确定性推理器，只提议动作并产出结构化 JSON 载荷，其中包含工具名和参数。执行结果、权限校验结果和用户反馈信息都不是模型产出的载荷内容，而是应用层处理后的产物。"
+      },
+      {
+        "id": "q5",
+        "stem": "工具调用后，应用层将执行结果返回给模型，这个结果在后续流程中扮演什么角色？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "作为新的上下文，供模型继续推理并生成最终答案",
+          "作为最终答案直接输出给用户",
+          "作为权限校验的依据",
+          "作为工具调用的参数"
+        ],
+        "difficulty": "medium",
+        "explanation": "原文说明：执行结果被送回模型，模型利用它继续推理并生成最终答案。因此结果是新的上下文，而非直接作为最终答案输出。选项 B 跳过了模型的推理环节；选项 C 和 D 混淆了结果与校验依据、调用参数的角色。"
+      },
+      {
+        "id": "q6",
+        "stem": "关于模型在 Agent 系统中的执行能力，下列哪项说法正确？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "模型可以直接执行工具，但需要应用层确认",
+          "模型本身不执行任何操作，只提议动作",
+          "模型可以执行只读工具，但不能执行写操作工具",
+          "模型在 L3 层可以直接执行工具"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文明确指出：模型本身不执行任何操作（the model does not execute anything）。模型只负责提议动作，所有执行都由应用层完成。选项 A、C、D 都错误地赋予了模型某种执行能力，违背了职责分离原则。"
+      },
+      {
+        "id": "q7",
+        "stem": "将执行与校验放在应用层而非模型层，最核心的原因是什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "应用层的代码运行速度比模型推理更快",
+          "模型是非确定性推理器，应用代码是确定性执行层",
+          "应用层可以访问更多的训练数据",
+          "模型无法理解工具的参数含义"
+        ],
+        "difficulty": "medium",
+        "explanation": "原文将模型描述为非确定性推理器（non-deterministic reasoner），只提议动作；应用代码是确定性层（deterministic layer），负责执行和校验。这正是将执行与校验放在应用层的核心原因——确定性操作需要可预测、可验证的代码来保证，而非依赖概率性的模型输出。选项 A、C、D 均未在原文中作为核心理由出现。"
+      },
+      {
+        "id": "q8",
+        "stem": "在面试中解释 L1 的职责边界时，下列哪种表述最准确？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "模型负责校验参数，应用负责提议动作",
+          "模型提议动作，应用校验参数、执行权限并决定如何处理输出",
+          "模型和执行层共同协商决定是否执行工具",
+          "模型直接执行工具，应用只负责记录日志"
+        ],
+        "difficulty": "medium",
+        "explanation": "原文对 L1 职责边界的定义是：模型提议动作，应用校验参数、执行权限并决定如何处理输出。选项 A 颠倒了模型和应用的职责；选项 C 模糊了边界，引入了不必要的协商机制；选项 D 错误地让模型直接执行工具。"
+      },
+      {
+        "id": "q9",
+        "stem": "在 L1 工具调用循环中，应用层负责校验参数、执行权限并决定如何处理输出。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "原文明确说明：在 L1 层面，应用负责校验参数（validates arguments）、执行权限（enforces permissions）并决定如何处理输出（decides what to do with outputs）。因此该判断正确。"
+      },
+      {
+        "id": "q10",
+        "stem": "模型在工具调用协议中会执行工具并返回结果。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "原文强调模型本身不执行任何操作（the model does not execute anything）。模型只提议动作并产出结构化载荷，执行由应用代码完成。因此该判断错误。"
+      },
+      {
+        "id": "q11",
+        "stem": "L2 任务循环的主要职责是多智能体之间的委托与治理。",
+        "type": "true_false",
+        "answer": "错误",
+        "difficulty": "easy",
+        "explanation": "根据原文，L2 任务循环的职责是多步目标追求，而多智能体委托与治理是 L3 编排循环的职责。该判断将 L2 和 L3 的职责混淆了，因此错误。"
+      },
+      {
+        "id": "q12",
+        "stem": "模型是非确定性推理器，应用代码是确定性执行层。",
+        "type": "true_false",
+        "answer": "正确",
+        "difficulty": "easy",
+        "explanation": "原文明确指出：模型是非确定性推理器（non-deterministic reasoner），只提议动作；应用代码是确定性层（deterministic layer），负责执行和校验。因此该判断正确。"
+      },
+      {
+        "id": "q13",
+        "stem": "请用自己的话解释 Agent 系统的三层嵌套循环分别是什么，以及各层的核心职责。",
+        "type": "short_answer",
+        "answer": "Agent 系统由三层嵌套循环构成：L1 工具调用循环，模型根据对话状态和可用工具发出结构化工具调用，应用执行工具并回传结果；L2 任务循环，负责多步目标追求，通过多次工具调用和推理逐步完成任务；L3 编排循环，负责多智能体之间的委托与治理，协调多个 Agent 的工作。三层从内到外嵌套，L1 是最小可靠的工具使用行为单元。",
+        "difficulty": "medium",
+        "explanation": "本题要求复述三层循环的名称与职责。L1 是工具调用循环，关注单次工具调用的完整闭环；L2 是任务循环，关注多步目标的达成；L3 是编排循环，关注多智能体的协调。回答应体现三层从内到外的嵌套关系以及各层的核心关注点。"
+      },
+      {
+        "id": "q14",
+        "stem": "为什么在 L1 层面模型与应用的职责边界最清晰？请结合模型和应用各自的具体职责进行说明。",
+        "type": "short_answer",
+        "answer": "在 L1 层面，职责边界最清晰是因为模型只做一件事：查看对话状态和可用工具，然后要么正常回复，要么发出结构化工具调用。模型本身不执行任何操作。应用层则负责接收模型产出的结构化载荷，校验参数、执行权限、执行工具，并决定如何处理输出结果。这种分工将非确定性的推理（模型）与确定性的执行和校验（应用代码）明确分离，没有模糊地带。",
+        "difficulty": "medium",
+        "explanation": "本题要求解释 L1 职责边界为何最清晰。核心在于模型只提议动作，应用负责校验、执行和输出处理，两者职责互不重叠。回答应体现模型不执行任何操作这一关键点，以及应用层承担所有确定性操作的事实。"
+      },
+      {
+        "id": "q15",
+        "stem": "在面试中被问到“为什么把执行与校验放在应用层而非模型层”时，你应该如何回答？请从确定性与非确定性的角度进行阐述。",
+        "type": "short_answer",
+        "answer": "应该回答：模型是非确定性推理器，它的输出本质上是概率性的，不适合承担需要精确、可预测、可验证的执行与校验工作。应用代码是确定性执行层，能够可靠地校验参数、执行权限并处理输出。将执行与校验放在应用层，可以保证工具调用的安全性和可靠性，避免因模型输出的不确定性导致错误操作或安全漏洞。模型只负责提议动作，应用层负责把关和执行，这是工具调用协议中职责分离的核心原则。",
+        "difficulty": "hard",
+        "explanation": "本题要求从确定性与非确定性的角度解释职责分离的原因。核心论点是：模型输出具有非确定性，不适合直接执行；应用代码具有确定性，适合承担校验和执行。回答应体现这一对比，并说明这种分离对系统安全性和可靠性的意义。"
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "agent_loop_boundary",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "questions": [
+    {
+      "id": "q1",
+      "stem": "关于 Agent 系统的三层嵌套循环，下列哪项描述是正确的？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "L1 是工具调用循环，L2 是任务循环，L3 是编排循环",
+        "L1 是任务循环，L2 是工具调用循环，L3 是编排循环",
+        "L1 是编排循环，L2 是任务循环，L3 是工具调用循环",
+        "L1 是工具调用循环，L2 是编排循环，L3 是任务循环"
+      ],
+      "difficulty": "easy",
+      "explanation": "根据原文，三层嵌套循环从内到外依次为：L1 工具调用循环（模型发出结构化工具调用，应用执行并回传结果）、L2 任务循环（多步目标追求）、L3 编排循环（多智能体委托与治理）。选项 A 的顺序完全正确。选项 B、C、D 均打乱了 L1、L2、L3 的对应关系，属于对层级名称的混淆。"
+    },
+    {
+      "id": "q2",
+      "stem": "在 L1 工具调用循环中，模型的核心职责是什么？",
+      "type": "single_choice",
+      "answer": "C",
+      "options": [
+        "校验工具调用的参数是否合法",
+        "执行工具并返回结果",
+        "根据对话状态和可用工具，发出结构化工具调用或正常回复",
+        "决定工具输出是否需要对用户可见"
+      ],
+      "difficulty": "easy",
+      "explanation": "原文明确指出：在 L1 层面，模型只做一件事——查看对话状态和可用工具，然后要么正常回复，要么发出结构化工具调用。校验参数、执行工具、决定输出处理方式都是应用层的职责，因此选项 A、B、D 均不属于模型职责。"
+    },
+    {
+      "id": "q3",
+      "stem": "为什么说模型与应用的职责边界在 L1 处最清晰？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "因为 L1 不涉及任何工具调用，逻辑最简单",
+        "因为模型只提议动作，应用负责校验参数、执行权限并决定如何处理输出",
+        "因为 L1 中模型可以直接执行工具，无需应用参与",
+        "因为 L1 只处理多智能体之间的委托关系"
+      ],
+      "difficulty": "medium",
+      "explanation": "原文强调 L1 的职责边界是清晰的（crisp）：模型提议动作，应用校验参数、执行权限并决定如何处理输出。选项 A 错误，L1 恰恰是工具调用循环的核心；选项 C 错误，模型本身不执行任何操作；选项 D 描述的是 L3 编排循环的内容。"
+    },
+    {
+      "id": "q4",
+      "stem": "在工具调用协议中，模型产出的结构化载荷通常包含什么内容？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "工具名和参数",
+        "工具的执行结果",
+        "权限校验结果",
+        "用户反馈信息"
+      ],
+      "difficulty": "easy",
+      "explanation": "根据原文，模型作为非确定性推理器，只提议动作并产出结构化 JSON 载荷，其中包含工具名和参数。执行结果、权限校验结果和用户反馈信息都不是模型产出的载荷内容，而是应用层处理后的产物。"
+    },
+    {
+      "id": "q5",
+      "stem": "工具调用后，应用层将执行结果返回给模型，这个结果在后续流程中扮演什么角色？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "作为新的上下文，供模型继续推理并生成最终答案",
+        "作为最终答案直接输出给用户",
+        "作为权限校验的依据",
+        "作为工具调用的参数"
+      ],
+      "difficulty": "medium",
+      "explanation": "原文说明：执行结果被送回模型，模型利用它继续推理并生成最终答案。因此结果是新的上下文，而非直接作为最终答案输出。选项 B 跳过了模型的推理环节；选项 C 和 D 混淆了结果与校验依据、调用参数的角色。"
+    },
+    {
+      "id": "q6",
+      "stem": "关于模型在 Agent 系统中的执行能力，下列哪项说法正确？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "模型可以直接执行工具，但需要应用层确认",
+        "模型本身不执行任何操作，只提议动作",
+        "模型可以执行只读工具，但不能执行写操作工具",
+        "模型在 L3 层可以直接执行工具"
+      ],
+      "difficulty": "easy",
+      "explanation": "原文明确指出：模型本身不执行任何操作（the model does not execute anything）。模型只负责提议动作，所有执行都由应用层完成。选项 A、C、D 都错误地赋予了模型某种执行能力，违背了职责分离原则。"
+    },
+    {
+      "id": "q7",
+      "stem": "将执行与校验放在应用层而非模型层，最核心的原因是什么？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "应用层的代码运行速度比模型推理更快",
+        "模型是非确定性推理器，应用代码是确定性执行层",
+        "应用层可以访问更多的训练数据",
+        "模型无法理解工具的参数含义"
+      ],
+      "difficulty": "medium",
+      "explanation": "原文将模型描述为非确定性推理器（non-deterministic reasoner），只提议动作；应用代码是确定性层（deterministic layer），负责执行和校验。这正是将执行与校验放在应用层的核心原因——确定性操作需要可预测、可验证的代码来保证，而非依赖概率性的模型输出。选项 A、C、D 均未在原文中作为核心理由出现。"
+    },
+    {
+      "id": "q8",
+      "stem": "在面试中解释 L1 的职责边界时，下列哪种表述最准确？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "模型负责校验参数，应用负责提议动作",
+        "模型提议动作，应用校验参数、执行权限并决定如何处理输出",
+        "模型和执行层共同协商决定是否执行工具",
+        "模型直接执行工具，应用只负责记录日志"
+      ],
+      "difficulty": "medium",
+      "explanation": "原文对 L1 职责边界的定义是：模型提议动作，应用校验参数、执行权限并决定如何处理输出。选项 A 颠倒了模型和应用的职责；选项 C 模糊了边界，引入了不必要的协商机制；选项 D 错误地让模型直接执行工具。"
+    },
+    {
+      "id": "q9",
+      "stem": "在 L1 工具调用循环中，应用层负责校验参数、执行权限并决定如何处理输出。",
+      "type": "true_false",
+      "answer": "正确",
+      "difficulty": "easy",
+      "explanation": "原文明确说明：在 L1 层面，应用负责校验参数（validates arguments）、执行权限（enforces permissions）并决定如何处理输出（decides what to do with outputs）。因此该判断正确。"
+    },
+    {
+      "id": "q10",
+      "stem": "模型在工具调用协议中会执行工具并返回结果。",
+      "type": "true_false",
+      "answer": "错误",
+      "difficulty": "easy",
+      "explanation": "原文强调模型本身不执行任何操作（the model does not execute anything）。模型只提议动作并产出结构化载荷，执行由应用代码完成。因此该判断错误。"
+    },
+    {
+      "id": "q11",
+      "stem": "L2 任务循环的主要职责是多智能体之间的委托与治理。",
+      "type": "true_false",
+      "answer": "错误",
+      "difficulty": "easy",
+      "explanation": "根据原文，L2 任务循环的职责是多步目标追求，而多智能体委托与治理是 L3 编排循环的职责。该判断将 L2 和 L3 的职责混淆了，因此错误。"
+    },
+    {
+      "id": "q12",
+      "stem": "模型是非确定性推理器，应用代码是确定性执行层。",
+      "type": "true_false",
+      "answer": "正确",
+      "difficulty": "easy",
+      "explanation": "原文明确指出：模型是非确定性推理器（non-deterministic reasoner），只提议动作；应用代码是确定性层（deterministic layer），负责执行和校验。因此该判断正确。"
+    },
+    {
+      "id": "q13",
+      "stem": "请用自己的话解释 Agent 系统的三层嵌套循环分别是什么，以及各层的核心职责。",
+      "type": "short_answer",
+      "answer": "Agent 系统由三层嵌套循环构成：L1 工具调用循环，模型根据对话状态和可用工具发出结构化工具调用，应用执行工具并回传结果；L2 任务循环，负责多步目标追求，通过多次工具调用和推理逐步完成任务；L3 编排循环，负责多智能体之间的委托与治理，协调多个 Agent 的工作。三层从内到外嵌套，L1 是最小可靠的工具使用行为单元。",
+      "difficulty": "medium",
+      "explanation": "本题要求复述三层循环的名称与职责。L1 是工具调用循环，关注单次工具调用的完整闭环；L2 是任务循环，关注多步目标的达成；L3 是编排循环，关注多智能体的协调。回答应体现三层从内到外的嵌套关系以及各层的核心关注点。"
+    },
+    {
+      "id": "q14",
+      "stem": "为什么在 L1 层面模型与应用的职责边界最清晰？请结合模型和应用各自的具体职责进行说明。",
+      "type": "short_answer",
+      "answer": "在 L1 层面，职责边界最清晰是因为模型只做一件事：查看对话状态和可用工具，然后要么正常回复，要么发出结构化工具调用。模型本身不执行任何操作。应用层则负责接收模型产出的结构化载荷，校验参数、执行权限、执行工具，并决定如何处理输出结果。这种分工将非确定性的推理（模型）与确定性的执行和校验（应用代码）明确分离，没有模糊地带。",
+      "difficulty": "medium",
+      "explanation": "本题要求解释 L1 职责边界为何最清晰。核心在于模型只提议动作，应用负责校验、执行和输出处理，两者职责互不重叠。回答应体现模型不执行任何操作这一关键点，以及应用层承担所有确定性操作的事实。"
+    },
+    {
+      "id": "q15",
+      "stem": "在面试中被问到“为什么把执行与校验放在应用层而非模型层”时，你应该如何回答？请从确定性与非确定性的角度进行阐述。",
+      "type": "short_answer",
+      "answer": "应该回答：模型是非确定性推理器，它的输出本质上是概率性的，不适合承担需要精确、可预测、可验证的执行与校验工作。应用代码是确定性执行层，能够可靠地校验参数、执行权限并处理输出。将执行与校验放在应用层，可以保证工具调用的安全性和可靠性，避免因模型输出的不确定性导致错误操作或安全漏洞。模型只负责提议动作，应用层负责把关和执行，这是工具调用协议中职责分离的核心原则。",
+      "difficulty": "hard",
+      "explanation": "本题要求从确定性与非确定性的角度解释职责分离的原因。核心论点是：模型输出具有非确定性，不适合直接执行；应用代码具有确定性，适合承担校验和执行。回答应体现这一对比，并说明这种分离对系统安全性和可靠性的意义。"
+    }
+  ],
+  "created_at": "2026-09-17T14:24:21.376898+00:00",
+  "created_by": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-09-17T14:24:21.376898+00:00",
+  "visibility": "private",
+  "material_id": "resource_801a816c7173866fb3e26ba4630bd896",
+  "origin_type": "personal",
+  "content_hash": "f122c9c105bf863502c349cb5de1f95f02047f24477225023a0fe053dfee4305",
+  "material_type": "quiz",
+  "owner_user_id": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "generation_state": {
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "资源类型为 quiz，共 15 题，覆盖三层循环、L1 职责边界、模型不执行、确定性 vs 非确定性等已确认方案核心知识点；题型包含单选、判断、简答，难度分布 easy/medium/hard 合理，符合 30 分钟学习目标。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题核验后，所有答案与解析均与 research_context 中的原文一致，未发现事实性错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "习题均围绕核心概念设计，选项和解析有具体依据，干扰项对应真实误区（如混淆 L2/L3、误认为模型执行工具），无凑数选项。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目由浅入深：先考三层循环名称，再考 L1 职责、边界原因，最后简答要求用自己的话解释，符合面试准备场景。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "内容与提供的 research_context 和 research_sources 一致，未引入外部未证实信息。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "15 题覆盖全部核心目标：三层循环、L1 边界、模型/应用职责、确定性 vs 非确定性、面试表达，无遗漏。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "资源类型为 quiz，共 15 题，覆盖三层循环、L1 职责边界、模型不执行、确定性 vs 非确定性等已确认方案核心知识点；题型包含单选、判断、简答，难度分布 easy/medium/hard 合理，符合 30 分钟学习目标。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题核验后，所有答案与解析均与 research_context 中的原文一致，未发现事实性错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "习题均围绕核心概念设计，选项和解析有具体依据，干扰项对应真实误区（如混淆 L2/L3、误认为模型执行工具），无凑数选项。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目由浅入深：先考三层循环名称，再考 L1 职责、边界原因，最后简答要求用自己的话解释，符合面试准备场景。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "内容与提供的 research_context 和 research_sources 一致，未引入外部未证实信息。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "15 题覆盖全部核心目标：三层循环、L1 边界、模型/应用职责、确定性 vs 非确定性、面试表达，无遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "q13 简答题答案较长，可考虑在解析中提示评分要点，便于用户自测。",
+              "q15 为 hard 难度，题干已给出答题角度，可考虑增加一个追问场景以提升面试模拟感。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "A 正确对应原文：L1 工具调用循环、L2 任务循环、L3 编排循环。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "B 将 L1 与 L2 对调，与原文不符。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "C 将 L1 与 L3 对调，与原文不符。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "D 将 L2 与 L3 对调，与原文不符。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "三层嵌套循环从内到外为 L1 工具调用循环、L2 任务循环、L3 编排循环，故选 A。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "校验参数是应用层职责，不是模型职责。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "执行工具是应用层职责，不是模型职责。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "C 与原文一致：模型根据对话状态和可用工具发出结构化工具调用或正常回复。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "决定输出处理是应用层职责，不是模型职责。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "L1 中模型只查看对话状态和可用工具，发出结构化工具调用或正常回复，故选 C。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "L1 恰恰是工具调用循环，A 说 L1 不涉及工具调用，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "B 与原文一致：模型提议动作，应用校验参数、执行权限并决定输出处理。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "模型本身不执行任何操作，C 错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "多智能体委托是 L3 内容，D 错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "L1 边界清晰是因为模型只提议动作，应用负责校验参数、执行权限并决定输出处理，故选 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "A 与原文一致：结构化载荷包含工具名和参数。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "执行结果是应用层执行后产生的，不是模型载荷内容。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "权限校验结果是应用层产物，不是模型载荷内容。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "用户反馈信息不是模型载荷内容。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "independent_solution": "模型产出结构化 JSON 载荷，包含工具名和参数，故选 A。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "A 与原文一致：结果作为新上下文供模型继续推理。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "结果不是直接作为最终答案输出，B 错误。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "权限校验依据不是执行结果的后续角色，C 错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "工具调用参数在调用前已确定，不是执行结果的角色，D 错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "independent_solution": "执行结果送回模型，作为新上下文供模型继续推理并生成最终答案，故选 A。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "模型不直接执行工具，A 错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "B 与原文一致：模型本身不执行任何操作，只提议动作。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "模型不执行任何工具，无论只读还是写操作，C 错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "L3 层模型也不直接执行工具，D 错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "independent_solution": "原文明确模型本身不执行任何操作，只提议动作，故选 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "速度不是原文给出的核心理由，A 错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "B 与原文一致：模型是非确定性推理器，应用代码是确定性执行层。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "访问训练数据不是原文理由，C 错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "模型无法理解参数含义不是原文理由，D 错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "independent_solution": "执行与校验放在应用层的核心原因是模型非确定性、应用代码确定性，故选 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "A 颠倒了模型和应用的职责，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "B 与原文一致。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "原文没有协商机制，C 错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "模型不直接执行工具，D 错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "independent_solution": "面试中准确表述为：模型提议动作，应用校验参数、执行权限并决定如何处理输出，故选 B。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 8,
+                "explanation_valid": true,
+                "independent_solution": "原文明确应用层负责校验参数、执行权限并决定如何处理输出，判断为正确。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 9,
+                "explanation_valid": true,
+                "independent_solution": "原文明确模型本身不执行任何操作，判断为错误。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 10,
+                "explanation_valid": true,
+                "independent_solution": "L2 是多步目标追求，多智能体委托与治理是 L3 职责，判断为错误。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 11,
+                "explanation_valid": true,
+                "independent_solution": "原文明确模型是非确定性推理器，应用代码是确定性执行层，判断为正确。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 12,
+                "explanation_valid": true,
+                "independent_solution": "三层循环为 L1 工具调用循环、L2 任务循环、L3 编排循环，答案覆盖各层职责和嵌套关系。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 13,
+                "explanation_valid": true,
+                "independent_solution": "L1 边界清晰因为模型只提议动作，应用负责校验参数、执行权限并决定输出处理，模型不执行任何操作。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 14,
+                "explanation_valid": true,
+                "independent_solution": "从确定性与非确定性角度回答：模型非确定性，应用代码确定性，执行与校验放在应用层保证安全可靠。"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "7192afd0f16be3593ca1851d0a8dcbc220780f8cba6e4fd44267f06ad7fd4f68"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "q13 简答题答案较长，可考虑在解析中提示评分要点，便于用户自测。",
+        "q15 为 hard 难度，题干已给出答题角度，可考虑增加一个追问场景以提升面试模拟感。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "7192afd0f16be3593ca1851d0a8dcbc220780f8cba6e4fd44267f06ad7fd4f68",
+      "question_checks": [
+        {
+          "option_checks": [
+            {
+              "reasoning": "A 正确对应原文：L1 工具调用循环、L2 任务循环、L3 编排循环。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "B 将 L1 与 L2 对调，与原文不符。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "C 将 L1 与 L3 对调，与原文不符。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "D 将 L2 与 L3 对调，与原文不符。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "independent_solution": "三层嵌套循环从内到外为 L1 工具调用循环、L2 任务循环、L3 编排循环，故选 A。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "校验参数是应用层职责，不是模型职责。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "执行工具是应用层职责，不是模型职责。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "C 与原文一致：模型根据对话状态和可用工具发出结构化工具调用或正常回复。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "决定输出处理是应用层职责，不是模型职责。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "independent_solution": "L1 中模型只查看对话状态和可用工具，发出结构化工具调用或正常回复，故选 C。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "L1 恰恰是工具调用循环，A 说 L1 不涉及工具调用，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "B 与原文一致：模型提议动作，应用校验参数、执行权限并决定输出处理。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "模型本身不执行任何操作，C 错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "多智能体委托是 L3 内容，D 错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "independent_solution": "L1 边界清晰是因为模型只提议动作，应用负责校验参数、执行权限并决定输出处理，故选 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "A 与原文一致：结构化载荷包含工具名和参数。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "执行结果是应用层执行后产生的，不是模型载荷内容。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "权限校验结果是应用层产物，不是模型载荷内容。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "用户反馈信息不是模型载荷内容。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "independent_solution": "模型产出结构化 JSON 载荷，包含工具名和参数，故选 A。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "A 与原文一致：结果作为新上下文供模型继续推理。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "结果不是直接作为最终答案输出，B 错误。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "权限校验依据不是执行结果的后续角色，C 错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "工具调用参数在调用前已确定，不是执行结果的角色，D 错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "independent_solution": "执行结果送回模型，作为新上下文供模型继续推理并生成最终答案，故选 A。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "模型不直接执行工具，A 错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "B 与原文一致：模型本身不执行任何操作，只提议动作。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "模型不执行任何工具，无论只读还是写操作，C 错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "L3 层模型也不直接执行工具，D 错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "independent_solution": "原文明确模型本身不执行任何操作，只提议动作，故选 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "速度不是原文给出的核心理由，A 错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "B 与原文一致：模型是非确定性推理器，应用代码是确定性执行层。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "访问训练数据不是原文理由，C 错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "模型无法理解参数含义不是原文理由，D 错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "independent_solution": "执行与校验放在应用层的核心原因是模型非确定性、应用代码确定性，故选 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "A 颠倒了模型和应用的职责，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "B 与原文一致。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "原文没有协商机制，C 错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "模型不直接执行工具，D 错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "independent_solution": "面试中准确表述为：模型提议动作，应用校验参数、执行权限并决定如何处理输出，故选 B。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 8,
+          "explanation_valid": true,
+          "independent_solution": "原文明确应用层负责校验参数、执行权限并决定如何处理输出，判断为正确。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 9,
+          "explanation_valid": true,
+          "independent_solution": "原文明确模型本身不执行任何操作，判断为错误。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 10,
+          "explanation_valid": true,
+          "independent_solution": "L2 是多步目标追求，多智能体委托与治理是 L3 职责，判断为错误。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 11,
+          "explanation_valid": true,
+          "independent_solution": "原文明确模型是非确定性推理器，应用代码是确定性执行层，判断为正确。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 12,
+          "explanation_valid": true,
+          "independent_solution": "三层循环为 L1 工具调用循环、L2 任务循环、L3 编排循环，答案覆盖各层职责和嵌套关系。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 13,
+          "explanation_valid": true,
+          "independent_solution": "L1 边界清晰因为模型只提议动作，应用负责校验参数、执行权限并决定输出处理，模型不执行任何操作。"
+        },
+        {
+          "option_checks": [],
+          "answer_matches": true,
+          "question_index": 14,
+          "explanation_valid": true,
+          "independent_solution": "从确定性与非确定性角度回答：模型非确定性，应用代码确定性，执行与校验放在应用层保证安全可靠。"
+        }
+      ]
+    }
+  },
+  "preparation_artifact": {
+    "title": "Agent 循环与模型/应用职责边界",
+    "content": {
+      "title": "Agent 循环与模型/应用职责边界",
+      "questions": [
+        {
+          "id": "q1",
+          "stem": "关于 Agent 系统的三层嵌套循环，下列哪项描述是正确的？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "L1 是工具调用循环，L2 是任务循环，L3 是编排循环",
+            "L1 是任务循环，L2 是工具调用循环，L3 是编排循环",
+            "L1 是编排循环，L2 是任务循环，L3 是工具调用循环",
+            "L1 是工具调用循环，L2 是编排循环，L3 是任务循环"
+          ],
+          "difficulty": "easy",
+          "explanation": "根据原文，三层嵌套循环从内到外依次为：L1 工具调用循环（模型发出结构化工具调用，应用执行并回传结果）、L2 任务循环（多步目标追求）、L3 编排循环（多智能体委托与治理）。选项 A 的顺序完全正确。选项 B、C、D 均打乱了 L1、L2、L3 的对应关系，属于对层级名称的混淆。"
+        },
+        {
+          "id": "q2",
+          "stem": "在 L1 工具调用循环中，模型的核心职责是什么？",
+          "type": "single_choice",
+          "answer": "C",
+          "options": [
+            "校验工具调用的参数是否合法",
+            "执行工具并返回结果",
+            "根据对话状态和可用工具，发出结构化工具调用或正常回复",
+            "决定工具输出是否需要对用户可见"
+          ],
+          "difficulty": "easy",
+          "explanation": "原文明确指出：在 L1 层面，模型只做一件事——查看对话状态和可用工具，然后要么正常回复，要么发出结构化工具调用。校验参数、执行工具、决定输出处理方式都是应用层的职责，因此选项 A、B、D 均不属于模型职责。"
+        },
+        {
+          "id": "q3",
+          "stem": "为什么说模型与应用的职责边界在 L1 处最清晰？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "因为 L1 不涉及任何工具调用，逻辑最简单",
+            "因为模型只提议动作，应用负责校验参数、执行权限并决定如何处理输出",
+            "因为 L1 中模型可以直接执行工具，无需应用参与",
+            "因为 L1 只处理多智能体之间的委托关系"
+          ],
+          "difficulty": "medium",
+          "explanation": "原文强调 L1 的职责边界是清晰的（crisp）：模型提议动作，应用校验参数、执行权限并决定如何处理输出。选项 A 错误，L1 恰恰是工具调用循环的核心；选项 C 错误，模型本身不执行任何操作；选项 D 描述的是 L3 编排循环的内容。"
+        },
+        {
+          "id": "q4",
+          "stem": "在工具调用协议中，模型产出的结构化载荷通常包含什么内容？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "工具名和参数",
+            "工具的执行结果",
+            "权限校验结果",
+            "用户反馈信息"
+          ],
+          "difficulty": "easy",
+          "explanation": "根据原文，模型作为非确定性推理器，只提议动作并产出结构化 JSON 载荷，其中包含工具名和参数。执行结果、权限校验结果和用户反馈信息都不是模型产出的载荷内容，而是应用层处理后的产物。"
+        },
+        {
+          "id": "q5",
+          "stem": "工具调用后，应用层将执行结果返回给模型，这个结果在后续流程中扮演什么角色？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "作为新的上下文，供模型继续推理并生成最终答案",
+            "作为最终答案直接输出给用户",
+            "作为权限校验的依据",
+            "作为工具调用的参数"
+          ],
+          "difficulty": "medium",
+          "explanation": "原文说明：执行结果被送回模型，模型利用它继续推理并生成最终答案。因此结果是新的上下文，而非直接作为最终答案输出。选项 B 跳过了模型的推理环节；选项 C 和 D 混淆了结果与校验依据、调用参数的角色。"
+        },
+        {
+          "id": "q6",
+          "stem": "关于模型在 Agent 系统中的执行能力，下列哪项说法正确？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "模型可以直接执行工具，但需要应用层确认",
+            "模型本身不执行任何操作，只提议动作",
+            "模型可以执行只读工具，但不能执行写操作工具",
+            "模型在 L3 层可以直接执行工具"
+          ],
+          "difficulty": "easy",
+          "explanation": "原文明确指出：模型本身不执行任何操作（the model does not execute anything）。模型只负责提议动作，所有执行都由应用层完成。选项 A、C、D 都错误地赋予了模型某种执行能力，违背了职责分离原则。"
+        },
+        {
+          "id": "q7",
+          "stem": "将执行与校验放在应用层而非模型层，最核心的原因是什么？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "应用层的代码运行速度比模型推理更快",
+            "模型是非确定性推理器，应用代码是确定性执行层",
+            "应用层可以访问更多的训练数据",
+            "模型无法理解工具的参数含义"
+          ],
+          "difficulty": "medium",
+          "explanation": "原文将模型描述为非确定性推理器（non-deterministic reasoner），只提议动作；应用代码是确定性层（deterministic layer），负责执行和校验。这正是将执行与校验放在应用层的核心原因——确定性操作需要可预测、可验证的代码来保证，而非依赖概率性的模型输出。选项 A、C、D 均未在原文中作为核心理由出现。"
+        },
+        {
+          "id": "q8",
+          "stem": "在面试中解释 L1 的职责边界时，下列哪种表述最准确？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "模型负责校验参数，应用负责提议动作",
+            "模型提议动作，应用校验参数、执行权限并决定如何处理输出",
+            "模型和执行层共同协商决定是否执行工具",
+            "模型直接执行工具，应用只负责记录日志"
+          ],
+          "difficulty": "medium",
+          "explanation": "原文对 L1 职责边界的定义是：模型提议动作，应用校验参数、执行权限并决定如何处理输出。选项 A 颠倒了模型和应用的职责；选项 C 模糊了边界，引入了不必要的协商机制；选项 D 错误地让模型直接执行工具。"
+        },
+        {
+          "id": "q9",
+          "stem": "在 L1 工具调用循环中，应用层负责校验参数、执行权限并决定如何处理输出。",
+          "type": "true_false",
+          "answer": "正确",
+          "difficulty": "easy",
+          "explanation": "原文明确说明：在 L1 层面，应用负责校验参数（validates arguments）、执行权限（enforces permissions）并决定如何处理输出（decides what to do with outputs）。因此该判断正确。"
+        },
+        {
+          "id": "q10",
+          "stem": "模型在工具调用协议中会执行工具并返回结果。",
+          "type": "true_false",
+          "answer": "错误",
+          "difficulty": "easy",
+          "explanation": "原文强调模型本身不执行任何操作（the model does not execute anything）。模型只提议动作并产出结构化载荷，执行由应用代码完成。因此该判断错误。"
+        },
+        {
+          "id": "q11",
+          "stem": "L2 任务循环的主要职责是多智能体之间的委托与治理。",
+          "type": "true_false",
+          "answer": "错误",
+          "difficulty": "easy",
+          "explanation": "根据原文，L2 任务循环的职责是多步目标追求，而多智能体委托与治理是 L3 编排循环的职责。该判断将 L2 和 L3 的职责混淆了，因此错误。"
+        },
+        {
+          "id": "q12",
+          "stem": "模型是非确定性推理器，应用代码是确定性执行层。",
+          "type": "true_false",
+          "answer": "正确",
+          "difficulty": "easy",
+          "explanation": "原文明确指出：模型是非确定性推理器（non-deterministic reasoner），只提议动作；应用代码是确定性层（deterministic layer），负责执行和校验。因此该判断正确。"
+        },
+        {
+          "id": "q13",
+          "stem": "请用自己的话解释 Agent 系统的三层嵌套循环分别是什么，以及各层的核心职责。",
+          "type": "short_answer",
+          "answer": "Agent 系统由三层嵌套循环构成：L1 工具调用循环，模型根据对话状态和可用工具发出结构化工具调用，应用执行工具并回传结果；L2 任务循环，负责多步目标追求，通过多次工具调用和推理逐步完成任务；L3 编排循环，负责多智能体之间的委托与治理，协调多个 Agent 的工作。三层从内到外嵌套，L1 是最小可靠的工具使用行为单元。",
+          "difficulty": "medium",
+          "explanation": "本题要求复述三层循环的名称与职责。L1 是工具调用循环，关注单次工具调用的完整闭环；L2 是任务循环，关注多步目标的达成；L3 是编排循环，关注多智能体的协调。回答应体现三层从内到外的嵌套关系以及各层的核心关注点。"
+        },
+        {
+          "id": "q14",
+          "stem": "为什么在 L1 层面模型与应用的职责边界最清晰？请结合模型和应用各自的具体职责进行说明。",
+          "type": "short_answer",
+          "answer": "在 L1 层面，职责边界最清晰是因为模型只做一件事：查看对话状态和可用工具，然后要么正常回复，要么发出结构化工具调用。模型本身不执行任何操作。应用层则负责接收模型产出的结构化载荷，校验参数、执行权限、执行工具，并决定如何处理输出结果。这种分工将非确定性的推理（模型）与确定性的执行和校验（应用代码）明确分离，没有模糊地带。",
+          "difficulty": "medium",
+          "explanation": "本题要求解释 L1 职责边界为何最清晰。核心在于模型只提议动作，应用负责校验、执行和输出处理，两者职责互不重叠。回答应体现模型不执行任何操作这一关键点，以及应用层承担所有确定性操作的事实。"
+        },
+        {
+          "id": "q15",
+          "stem": "在面试中被问到“为什么把执行与校验放在应用层而非模型层”时，你应该如何回答？请从确定性与非确定性的角度进行阐述。",
+          "type": "short_answer",
+          "answer": "应该回答：模型是非确定性推理器，它的输出本质上是概率性的，不适合承担需要精确、可预测、可验证的执行与校验工作。应用代码是确定性执行层，能够可靠地校验参数、执行权限并处理输出。将执行与校验放在应用层，可以保证工具调用的安全性和可靠性，避免因模型输出的不确定性导致错误操作或安全漏洞。模型只负责提议动作，应用层负责把关和执行，这是工具调用协议中职责分离的核心原则。",
+          "difficulty": "hard",
+          "explanation": "本题要求从确定性与非确定性的角度解释职责分离的原因。核心论点是：模型输出具有非确定性，不适合直接执行；应用代码具有确定性，适合承担校验和执行。回答应体现这一对比，并说明这种分离对系统安全性和可靠性的意义。"
+        }
+      ]
+    },
+    "artifact_type": "quiz",
+    "generation_state": {
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "资源类型为 quiz，共 15 题，覆盖三层循环、L1 职责边界、模型不执行、确定性 vs 非确定性等已确认方案核心知识点；题型包含单选、判断、简答，难度分布 easy/medium/hard 合理，符合 30 分钟学习目标。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "逐题核验后，所有答案与解析均与 research_context 中的原文一致，未发现事实性错误。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "习题均围绕核心概念设计，选项和解析有具体依据，干扰项对应真实误区（如混淆 L2/L3、误认为模型执行工具），无凑数选项。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "题目由浅入深：先考三层循环名称，再考 L1 职责、边界原因，最后简答要求用自己的话解释，符合面试准备场景。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "内容与提供的 research_context 和 research_sources 一致，未引入外部未证实信息。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "15 题覆盖全部核心目标：三层循环、L1 边界、模型/应用职责、确定性 vs 非确定性、面试表达，无遗漏。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "资源类型为 quiz，共 15 题，覆盖三层循环、L1 职责边界、模型不执行、确定性 vs 非确定性等已确认方案核心知识点；题型包含单选、判断、简答，难度分布 easy/medium/hard 合理，符合 30 分钟学习目标。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "逐题核验后，所有答案与解析均与 research_context 中的原文一致，未发现事实性错误。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "习题均围绕核心概念设计，选项和解析有具体依据，干扰项对应真实误区（如混淆 L2/L3、误认为模型执行工具），无凑数选项。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "题目由浅入深：先考三层循环名称，再考 L1 职责、边界原因，最后简答要求用自己的话解释，符合面试准备场景。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "内容与提供的 research_context 和 research_sources 一致，未引入外部未证实信息。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "15 题覆盖全部核心目标：三层循环、L1 边界、模型/应用职责、确定性 vs 非确定性、面试表达，无遗漏。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "q13 简答题答案较长，可考虑在解析中提示评分要点，便于用户自测。",
+                "q15 为 hard 难度，题干已给出答题角度，可考虑增加一个追问场景以提升面试模拟感。"
+              ],
+              "blocking_issues": [],
+              "question_checks": [
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "A 正确对应原文：L1 工具调用循环、L2 任务循环、L3 编排循环。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "B 将 L1 与 L2 对调，与原文不符。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "C 将 L1 与 L3 对调，与原文不符。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "D 将 L2 与 L3 对调，与原文不符。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 0,
+                  "explanation_valid": true,
+                  "independent_solution": "三层嵌套循环从内到外为 L1 工具调用循环、L2 任务循环、L3 编排循环，故选 A。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "校验参数是应用层职责，不是模型职责。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "执行工具是应用层职责，不是模型职责。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "C 与原文一致：模型根据对话状态和可用工具发出结构化工具调用或正常回复。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "决定输出处理是应用层职责，不是模型职责。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 1,
+                  "explanation_valid": true,
+                  "independent_solution": "L1 中模型只查看对话状态和可用工具，发出结构化工具调用或正常回复，故选 C。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "L1 恰恰是工具调用循环，A 说 L1 不涉及工具调用，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "B 与原文一致：模型提议动作，应用校验参数、执行权限并决定输出处理。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "模型本身不执行任何操作，C 错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "多智能体委托是 L3 内容，D 错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 2,
+                  "explanation_valid": true,
+                  "independent_solution": "L1 边界清晰是因为模型只提议动作，应用负责校验参数、执行权限并决定输出处理，故选 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "A 与原文一致：结构化载荷包含工具名和参数。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "执行结果是应用层执行后产生的，不是模型载荷内容。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "权限校验结果是应用层产物，不是模型载荷内容。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "用户反馈信息不是模型载荷内容。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 3,
+                  "explanation_valid": true,
+                  "independent_solution": "模型产出结构化 JSON 载荷，包含工具名和参数，故选 A。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "A 与原文一致：结果作为新上下文供模型继续推理。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "结果不是直接作为最终答案输出，B 错误。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "权限校验依据不是执行结果的后续角色，C 错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "工具调用参数在调用前已确定，不是执行结果的角色，D 错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 4,
+                  "explanation_valid": true,
+                  "independent_solution": "执行结果送回模型，作为新上下文供模型继续推理并生成最终答案，故选 A。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "模型不直接执行工具，A 错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "B 与原文一致：模型本身不执行任何操作，只提议动作。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "模型不执行任何工具，无论只读还是写操作，C 错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "L3 层模型也不直接执行工具，D 错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 5,
+                  "explanation_valid": true,
+                  "independent_solution": "原文明确模型本身不执行任何操作，只提议动作，故选 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "速度不是原文给出的核心理由，A 错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "B 与原文一致：模型是非确定性推理器，应用代码是确定性执行层。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "访问训练数据不是原文理由，C 错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "模型无法理解参数含义不是原文理由，D 错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 6,
+                  "explanation_valid": true,
+                  "independent_solution": "执行与校验放在应用层的核心原因是模型非确定性、应用代码确定性，故选 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "A 颠倒了模型和应用的职责，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "B 与原文一致。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "原文没有协商机制，C 错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "模型不直接执行工具，D 错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 7,
+                  "explanation_valid": true,
+                  "independent_solution": "面试中准确表述为：模型提议动作，应用校验参数、执行权限并决定如何处理输出，故选 B。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 8,
+                  "explanation_valid": true,
+                  "independent_solution": "原文明确应用层负责校验参数、执行权限并决定如何处理输出，判断为正确。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 9,
+                  "explanation_valid": true,
+                  "independent_solution": "原文明确模型本身不执行任何操作，判断为错误。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 10,
+                  "explanation_valid": true,
+                  "independent_solution": "L2 是多步目标追求，多智能体委托与治理是 L3 职责，判断为错误。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 11,
+                  "explanation_valid": true,
+                  "independent_solution": "原文明确模型是非确定性推理器，应用代码是确定性执行层，判断为正确。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 12,
+                  "explanation_valid": true,
+                  "independent_solution": "三层循环为 L1 工具调用循环、L2 任务循环、L3 编排循环，答案覆盖各层职责和嵌套关系。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 13,
+                  "explanation_valid": true,
+                  "independent_solution": "L1 边界清晰因为模型只提议动作，应用负责校验参数、执行权限并决定输出处理，模型不执行任何操作。"
+                },
+                {
+                  "option_checks": [],
+                  "answer_matches": true,
+                  "question_index": 14,
+                  "explanation_valid": true,
+                  "independent_solution": "从确定性与非确定性角度回答：模型非确定性，应用代码确定性，执行与校验放在应用层保证安全可靠。"
+                }
+              ]
+            },
+            "version": 1,
+            "decision": "pass",
+            "content_sha256": "7192afd0f16be3593ca1851d0a8dcbc220780f8cba6e4fd44267f06ad7fd4f68"
+          }
+        ],
+        "version": 1,
+        "decision": "pass",
+        "suggestions": [
+          "q13 简答题答案较长，可考虑在解析中提示评分要点，便于用户自测。",
+          "q15 为 hard 难度，题干已给出答题角度，可考虑增加一个追问场景以提升面试模拟感。"
+        ],
+        "resource_type": "quiz",
+        "content_sha256": "7192afd0f16be3593ca1851d0a8dcbc220780f8cba6e4fd44267f06ad7fd4f68",
+        "question_checks": [
+          {
+            "option_checks": [
+              {
+                "reasoning": "A 正确对应原文：L1 工具调用循环、L2 任务循环、L3 编排循环。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "B 将 L1 与 L2 对调，与原文不符。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "C 将 L1 与 L3 对调，与原文不符。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "D 将 L2 与 L3 对调，与原文不符。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 0,
+            "explanation_valid": true,
+            "independent_solution": "三层嵌套循环从内到外为 L1 工具调用循环、L2 任务循环、L3 编排循环，故选 A。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "校验参数是应用层职责，不是模型职责。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "执行工具是应用层职责，不是模型职责。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "C 与原文一致：模型根据对话状态和可用工具发出结构化工具调用或正常回复。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "决定输出处理是应用层职责，不是模型职责。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 1,
+            "explanation_valid": true,
+            "independent_solution": "L1 中模型只查看对话状态和可用工具，发出结构化工具调用或正常回复，故选 C。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "L1 恰恰是工具调用循环，A 说 L1 不涉及工具调用，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "B 与原文一致：模型提议动作，应用校验参数、执行权限并决定输出处理。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "模型本身不执行任何操作，C 错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "多智能体委托是 L3 内容，D 错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 2,
+            "explanation_valid": true,
+            "independent_solution": "L1 边界清晰是因为模型只提议动作，应用负责校验参数、执行权限并决定输出处理，故选 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "A 与原文一致：结构化载荷包含工具名和参数。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "执行结果是应用层执行后产生的，不是模型载荷内容。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "权限校验结果是应用层产物，不是模型载荷内容。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "用户反馈信息不是模型载荷内容。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 3,
+            "explanation_valid": true,
+            "independent_solution": "模型产出结构化 JSON 载荷，包含工具名和参数，故选 A。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "A 与原文一致：结果作为新上下文供模型继续推理。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "结果不是直接作为最终答案输出，B 错误。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "权限校验依据不是执行结果的后续角色，C 错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "工具调用参数在调用前已确定，不是执行结果的角色，D 错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 4,
+            "explanation_valid": true,
+            "independent_solution": "执行结果送回模型，作为新上下文供模型继续推理并生成最终答案，故选 A。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "模型不直接执行工具，A 错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "B 与原文一致：模型本身不执行任何操作，只提议动作。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "模型不执行任何工具，无论只读还是写操作，C 错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "L3 层模型也不直接执行工具，D 错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 5,
+            "explanation_valid": true,
+            "independent_solution": "原文明确模型本身不执行任何操作，只提议动作，故选 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "速度不是原文给出的核心理由，A 错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "B 与原文一致：模型是非确定性推理器，应用代码是确定性执行层。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "访问训练数据不是原文理由，C 错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "模型无法理解参数含义不是原文理由，D 错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 6,
+            "explanation_valid": true,
+            "independent_solution": "执行与校验放在应用层的核心原因是模型非确定性、应用代码确定性，故选 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "A 颠倒了模型和应用的职责，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "B 与原文一致。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "原文没有协商机制，C 错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "模型不直接执行工具，D 错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 7,
+            "explanation_valid": true,
+            "independent_solution": "面试中准确表述为：模型提议动作，应用校验参数、执行权限并决定如何处理输出，故选 B。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 8,
+            "explanation_valid": true,
+            "independent_solution": "原文明确应用层负责校验参数、执行权限并决定如何处理输出，判断为正确。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 9,
+            "explanation_valid": true,
+            "independent_solution": "原文明确模型本身不执行任何操作，判断为错误。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 10,
+            "explanation_valid": true,
+            "independent_solution": "L2 是多步目标追求，多智能体委托与治理是 L3 职责，判断为错误。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 11,
+            "explanation_valid": true,
+            "independent_solution": "原文明确模型是非确定性推理器，应用代码是确定性执行层，判断为正确。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 12,
+            "explanation_valid": true,
+            "independent_solution": "三层循环为 L1 工具调用循环、L2 任务循环、L3 编排循环，答案覆盖各层职责和嵌套关系。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 13,
+            "explanation_valid": true,
+            "independent_solution": "L1 边界清晰因为模型只提议动作，应用负责校验参数、执行权限并决定输出处理，模型不执行任何操作。"
+          },
+          {
+            "option_checks": [],
+            "answer_matches": true,
+            "question_index": 14,
+            "explanation_valid": true,
+            "independent_solution": "从确定性与非确定性角度回答：模型非确定性，应用代码确定性，执行与校验放在应用层保证安全可靠。"
+          }
+        ]
+      }
+    }
+  },
+  "learning_course_resource": true
+}

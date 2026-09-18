@@ -1,0 +1,58 @@
+{
+  "accepted_result": false,
+  "reason": "No persisted check; model composed a paraphrase instead of exact source text",
+  "turn": {
+    "turn_id": "answer-4d0956f801af49f5870e33a155385de9",
+    "session_id": "learning-1078124ebb4f77018d0c8f6d7912c0928442436953870b98ff17b4155787bf49",
+    "request_id": "26385bdb-6699-48c0-a4e0-90c67f028e83",
+    "topic_id": "responsibility_boundary",
+    "status": "succeeded",
+    "stage": "succeeded",
+    "attempt": 1,
+    "result": {
+      "citations": [],
+      "model_usage": [
+        {
+          "model": "deepseek-v4-pro",
+          "usage": {
+            "total_tokens": 7146,
+            "prompt_tokens": 6876,
+            "completion_tokens": 270
+          }
+        },
+        {
+          "model": "deepseek-v4-pro",
+          "usage": {
+            "total_tokens": 7490,
+            "prompt_tokens": 7220,
+            "completion_tokens": 270
+          }
+        },
+        {
+          "model": "deepseek-v4-pro",
+          "usage": {
+            "total_tokens": 7632,
+            "prompt_tokens": 7564,
+            "completion_tokens": 68
+          }
+        }
+      ],
+      "observation": null,
+      "citation_ids": [],
+      "model_rounds": 3,
+      "role_version": "learning-role-v1",
+      "tool_attempts": 2,
+      "memory_context": {
+        "preferences": {},
+        "memory_epoch": 0
+      },
+      "answer_markdown": "抱歉，当前阅读资料（resource_01）的版本暂时无法读取，我无法据此保存这道即时检查题。请稍后重试，或确认资料已正确加载后我再为你生成作答卡。",
+      "source_revision": 5,
+      "preparation_receipts": [],
+      "suggested_action_ids": [],
+      "understanding_checks": []
+    },
+    "error_code": null,
+    "preparation_receipts": []
+  }
+}

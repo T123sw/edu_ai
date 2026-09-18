@@ -1,0 +1,56 @@
+{
+  "status": "passed",
+  "before_version": 4,
+  "after_version": 5,
+  "resources_identical": true,
+  "objectives_identical": true,
+  "node_ids_and_order_identical": true,
+  "estimated_minutes": 30,
+  "execution": {
+    "preparation_id": "prep_fa92febd9162428baae9798c31f10adb",
+    "attempt_no": 1,
+    "actions": {
+      "model_completion": 4
+    },
+    "models": [
+      "deepseek-v4-pro"
+    ],
+    "candidate_count": 0,
+    "evidence_count": 0,
+    "findings_count": 0,
+    "research_trace": []
+  },
+  "final": {
+    "preparation_id": "prep_fa92febd9162428baae9798c31f10adb",
+    "attempt_no": 1,
+    "status": "succeeded",
+    "stage": "commit",
+    "revision": 22,
+    "error_code": null,
+    "result_ref": {
+      "course_id": "learn-89e8538519c34e50bfb9f6bb92fb8e91",
+      "manifest_id": "manifest_4467ae95491e011d182f3b8bc8204dfa",
+      "course_ready": true,
+      "manifest_version": 5
+    },
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 4,
+        "tokens": 31147,
+        "cost_micro_usd": 311470
+      },
+      "deadline": "2026-09-17T15:14:18.289734+00:00"
+    }
+  }
+}

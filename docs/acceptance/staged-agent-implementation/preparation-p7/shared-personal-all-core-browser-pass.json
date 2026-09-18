@@ -1,0 +1,129 @@
+{
+  "config": {
+    "argv": [
+      "/home/zxqs_ep/miniforge3/envs/edu-ai/bin/node",
+      "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/node_modules/playwright/cli.js",
+      "test",
+      "-c",
+      "playwright.agent-full.config.ts",
+      "-g",
+      "all committed"
+    ],
+    "configFile": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/playwright.agent-full.config.ts",
+    "rootDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/agent-full",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/tests/live-learning",
+        "testIgnore": [],
+        "testMatch": [
+          "agent-full.spec.ts"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/agent-full/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "agent-full.spec.ts",
+      "file": "agent-full.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "all committed core resources render at their recorded versions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 51484,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-17T13:50:59.758Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/zxqs_ep/Edu_AI/.worktrees/agent-staged-20260917/frontend/test-results/agent-full/agent-full-all-committed-c-57696--at-their-recorded-versions/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c1f012133863ec8bce7e-5122f2c4743f2020c437",
+          "file": "agent-full.spec.ts",
+          "line": 49,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-17T13:50:59.023Z",
+    "duration": 54031.752,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

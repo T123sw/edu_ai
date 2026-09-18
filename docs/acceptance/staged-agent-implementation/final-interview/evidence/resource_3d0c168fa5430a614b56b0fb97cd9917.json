@@ -1,0 +1,3309 @@
+{
+  "title": "工具调用与失败恢复",
+  "status": "ready",
+  "content": {
+    "title": "工具调用与失败恢复",
+    "questions": [
+      {
+        "id": "q1",
+        "stem": "在 AI Agent 的工具调用协议中，模型与应用执行层之间的职责边界是什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "模型负责执行工具调用，应用层只负责生成 JSON 载荷",
+          "模型只提议动作并产出结构化 JSON 载荷，应用层负责校验、执行并返回结果",
+          "模型直接调用外部 API，应用层只负责记录日志",
+          "模型和应用层共同执行工具，谁先完成谁返回结果"
+        ],
+        "difficulty": "easy",
+        "explanation": "工具调用协议的核心是职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。选项 A 颠倒了职责，选项 C 和 D 都错误地让模型参与执行。"
+      },
+      {
+        "id": "q2",
+        "stem": "工具调用失败后，应用层返回给模型的正确做法是什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "返回原始异常堆栈，让模型自行解析",
+          "返回类型化、可解释的错误信号，如 {\"error\":\"rate_limited\",\"retry_after\":30}",
+          "不返回任何错误信息，让模型重试",
+          "返回一个空结果，让模型继续推理"
+        ],
+        "difficulty": "easy",
+        "explanation": "类型化、可解释的错误信号能让模型明确知道发生了什么以及下一步该做什么。原始异常堆栈对模型来说难以解析，不返回错误信息或返回空结果会让模型无法判断工具是否成功，可能导致幻觉内容填补缺口。"
+      },
+      {
+        "id": "q3",
+        "stem": "以下哪种故障属于瞬时故障，适合用指数退避策略处理？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "API 密钥永久失效",
+          "网络抖动导致的临时超时",
+          "工具端点已被永久下线",
+          "请求参数格式错误"
+        ],
+        "difficulty": "easy",
+        "explanation": "瞬时故障是暂时性的，如网络抖动和限流，可以通过指数退避在工具层吸收。API 密钥永久失效、端点永久下线属于持久故障，参数格式错误属于调用方错误，都不适合用指数退避解决。"
+      },
+      {
+        "id": "q4",
+        "stem": "当工具调用持续失败超过阈值时，熔断器的作用是什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "继续重试直到成功",
+          "停止调用该工具，并明确告知模型工具不可用",
+          "将错误信号转换为成功信号",
+          "自动切换到另一个功能相同的工具"
+        ],
+        "difficulty": "easy",
+        "explanation": "熔断器用于持久故障：一旦失败阈值被突破，工具停止被调用，模型被明确告知工具不可用。继续重试会浪费资源，将错误转换为成功信号会误导模型，自动切换工具不是熔断器的职责。"
+      },
+      {
+        "id": "q5",
+        "stem": "为什么模型应始终知道工具失败，而不是用幻觉内容填补缺口？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "因为幻觉内容会让模型运行更快",
+          "因为知道失败后模型可以明确说明数据缺失，比编造答案更有用",
+          "因为幻觉内容会导致应用层崩溃",
+          "因为模型不需要知道工具的执行结果"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文指出：一个从四个数据源中只回答了三个并明确说明的 Agent，远比用幻觉内容填补缺口的 Agent 更有用。模型知道失败后可以诚实地告知用户数据缺失，而不是编造不可信的内容。"
+      },
+      {
+        "id": "q6",
+        "stem": "在工具调用协议中，模型产出的结构化 JSON 载荷应包含哪些内容？",
+        "type": "single_choice",
+        "answer": "A",
+        "options": [
+          "工具名和参数",
+          "工具名、参数和执行结果",
+          "工具名、参数和异常堆栈",
+          "工具名、参数和重试次数"
+        ],
+        "difficulty": "easy",
+        "explanation": "模型只提议动作，产出结构化 JSON 载荷（工具名+参数）。执行结果由应用层返回作为新上下文，异常堆栈和重试次数属于应用层的处理范畴，不应由模型在载荷中提供。"
+      },
+      {
+        "id": "q7",
+        "stem": "以下哪个错误信号对模型最有帮助？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "{\"error\": \"something went wrong\"}",
+          "{\"error\": \"rate_limited\", \"retry_after\": 30}",
+          "{\"error\": \"Exception occurred\"}",
+          "{\"error\": \"failed\"}"
+        ],
+        "difficulty": "easy",
+        "explanation": "类型化、可解释的错误信号应包含具体的错误类型和可操作的下一步信息。{\"error\":\"rate_limited\",\"retry_after\":30} 明确告诉模型发生了什么（限流）以及下一步该做什么（等待 30 秒后重试）。其他选项都过于模糊，模型无法据此做出合理决策。"
+      },
+      {
+        "id": "q8",
+        "stem": "在工具调用失败恢复中，瞬时故障和持久故障的处理策略分别是什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "瞬时故障用熔断器，持久故障用指数退避",
+          "瞬时故障用指数退避，持久故障用熔断器",
+          "两者都用指数退避",
+          "两者都用熔断器"
+        ],
+        "difficulty": "easy",
+        "explanation": "瞬时故障（网络抖动、限流）用指数退避在工具层吸收；持久故障用熔断器停止调用并明确告知模型工具不可用。选项 A 颠倒了策略，选项 C 和 D 混淆了两类故障的处理方式。"
+      },
+      {
+        "id": "q9",
+        "stem": "应用层在工具调用协议中的职责不包括以下哪项？",
+        "type": "single_choice",
+        "answer": "D",
+        "options": [
+          "校验模型产出的 JSON 载荷",
+          "执行工具逻辑",
+          "返回执行结果作为新上下文",
+          "决定模型下一步的推理方向"
+        ],
+        "difficulty": "easy",
+        "explanation": "应用层负责接收载荷、校验、执行并返回结果作为新上下文。决定模型下一步的推理方向是模型自身的职责，应用层不应干预模型的推理过程。"
+      },
+      {
+        "id": "q10",
+        "stem": "以下关于工具调用协议中模型角色的描述，哪项是正确的？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "模型是确定性执行器，负责执行工具调用",
+          "模型是非确定性推理器，只提议动作",
+          "模型负责校验工具调用的参数",
+          "模型负责处理工具调用的失败恢复"
+        ],
+        "difficulty": "easy",
+        "explanation": "模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷。执行、校验和失败恢复都是应用层的职责。选项 A、C、D 都错误地将执行层的职责归给了模型。"
+      },
+      {
+        "id": "q11",
+        "stem": "当工具调用返回 {\"error\":\"rate_limited\",\"retry_after\":30} 时，模型最合理的下一步是什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "立即重试，不等待",
+          "等待约 30 秒后重试",
+          "放弃该工具，编造一个结果",
+          "忽略错误信号，继续推理"
+        ],
+        "difficulty": "easy",
+        "explanation": "类型化错误信号中的 retry_after 字段明确指示了等待时间。模型应根据该信号等待约 30 秒后重试。立即重试会再次触发限流，编造结果会导致幻觉，忽略错误信号则无法正确处理失败。"
+      },
+      {
+        "id": "q12",
+        "stem": "以下哪种情况最适合使用熔断器？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "第一次网络请求超时",
+          "API 连续 10 次返回 503 服务不可用",
+          "单次请求参数格式错误",
+          "用户输入了无效的查询"
+        ],
+        "difficulty": "easy",
+        "explanation": "熔断器用于持久故障：当失败阈值被突破后，工具停止被调用。连续 10 次返回 503 表明服务持续不可用，属于持久故障。第一次超时可能是瞬时故障，参数格式错误和无效查询属于调用方问题，都不适合用熔断器。"
+      },
+      {
+        "id": "q13",
+        "stem": "在工具调用协议中，执行结果返回给模型后会发生什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "模型忽略结果，直接生成最终答案",
+          "模型使用结果继续推理并生成最终答案",
+          "应用层根据结果决定下一步动作",
+          "结果被丢弃，模型重新生成工具调用"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文明确指出：执行结果被发送回模型，模型使用它继续推理并生成最终答案。选项 A 和 D 错误地忽略了结果的作用，选项 C 混淆了应用层和模型的职责。"
+      },
+      {
+        "id": "q14",
+        "stem": "以下关于指数退避的描述，哪项是正确的？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "每次重试的等待时间固定不变",
+          "每次重试的等待时间按指数增长",
+          "每次重试的等待时间按指数减少",
+          "指数退避用于处理持久故障"
+        ],
+        "difficulty": "easy",
+        "explanation": "指数退避是一种瞬时故障处理策略，每次重试的等待时间按指数增长，例如 1 秒、2 秒、4 秒、8 秒。固定等待时间不是指数退避，指数退避不用于持久故障。"
+      },
+      {
+        "id": "q15",
+        "stem": "一个 Agent 从四个数据源中只成功获取了三个数据源的结果，正确的做法是什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "用幻觉内容填补第四个数据源的缺口",
+          "明确说明只获取了三个数据源的结果",
+          "忽略第四个数据源的失败，假装成功",
+          "放弃所有结果，重新开始"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文强调：一个从四个数据源中只回答了三个并明确说明的 Agent，远比用幻觉内容填补缺口的 Agent 更有用。模型应始终知道工具失败，并诚实地告知用户数据缺失情况。"
+      },
+      {
+        "id": "q16",
+        "stem": "在工具调用协议中，为什么说\"边界很重要\"（The boundary matters）？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "因为模型和应用层应该尽可能耦合",
+          "因为模型和执行层的职责分离是协议的核心",
+          "因为应用层应该控制模型的推理过程",
+          "因为模型应该直接执行工具调用"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文强调边界的重要性：模型是非确定性推理器，只提议动作；应用代码是确定性层，负责执行和校验。这种职责分离是工具调用协议的核心，确保模型不执行任何操作，应用层不干预模型推理。"
+      },
+      {
+        "id": "q17",
+        "stem": "以下哪个是类型化错误信号相比原始异常的主要优势？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "类型化错误信号更短",
+          "类型化错误信号让模型明确知道发生了什么以及下一步该做什么",
+          "类型化错误信号不需要应用层处理",
+          "类型化错误信号可以完全避免工具失败"
+        ],
+        "difficulty": "easy",
+        "explanation": "类型化、可解释的错误信号（如 {\"error\":\"rate_limited\",\"retry_after\":30}）告诉模型确切发生了什么以及下一步该做什么。原始异常堆栈对模型来说难以解析，类型化错误信号不能避免失败，仍需要应用层处理。"
+      },
+      {
+        "id": "q18",
+        "stem": "在工具调用失败恢复中，瞬时故障应该在哪个层面被吸收？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "模型推理层",
+          "工具层",
+          "用户界面层",
+          "数据库层"
+        ],
+        "difficulty": "easy",
+        "explanation": "原文明确指出：网络抖动和限流应该由工具层用指数退避吸收，而不是以原始形式暴露给推理循环。模型推理层不应处理瞬时故障，用户界面层和数据库层与故障吸收无关。"
+      },
+      {
+        "id": "q19",
+        "stem": "当熔断器触发后，模型应该收到什么信息？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "工具调用成功的假信号",
+          "工具不可用的明确信息",
+          "原始异常堆栈",
+          "没有任何信息"
+        ],
+        "difficulty": "easy",
+        "explanation": "熔断器触发后，工具停止被调用，模型被明确告知工具不可用。发送成功假信号会误导模型，原始异常堆栈难以解析，不发送任何信息会让模型无法判断工具状态。"
+      },
+      {
+        "id": "q20",
+        "stem": "以下关于工具调用协议中应用层职责的描述，哪项是正确的？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "应用层只负责生成 JSON 载荷",
+          "应用层负责接收载荷、校验、执行并返回结果",
+          "应用层负责模型的推理过程",
+          "应用层只负责记录工具调用的日志"
+        ],
+        "difficulty": "easy",
+        "explanation": "应用层负责接收模型产出的 JSON 载荷、校验载荷、执行工具逻辑并返回结果作为新上下文。生成 JSON 载荷是模型的职责，应用层不负责模型推理，日志记录只是应用层的辅助功能。"
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "tool_calling_failure_recovery",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "questions": [
+    {
+      "id": "q1",
+      "stem": "在 AI Agent 的工具调用协议中，模型与应用执行层之间的职责边界是什么？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "模型负责执行工具调用，应用层只负责生成 JSON 载荷",
+        "模型只提议动作并产出结构化 JSON 载荷，应用层负责校验、执行并返回结果",
+        "模型直接调用外部 API，应用层只负责记录日志",
+        "模型和应用层共同执行工具，谁先完成谁返回结果"
+      ],
+      "difficulty": "easy",
+      "explanation": "工具调用协议的核心是职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。选项 A 颠倒了职责，选项 C 和 D 都错误地让模型参与执行。"
+    },
+    {
+      "id": "q2",
+      "stem": "工具调用失败后，应用层返回给模型的正确做法是什么？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "返回原始异常堆栈，让模型自行解析",
+        "返回类型化、可解释的错误信号，如 {\"error\":\"rate_limited\",\"retry_after\":30}",
+        "不返回任何错误信息，让模型重试",
+        "返回一个空结果，让模型继续推理"
+      ],
+      "difficulty": "easy",
+      "explanation": "类型化、可解释的错误信号能让模型明确知道发生了什么以及下一步该做什么。原始异常堆栈对模型来说难以解析，不返回错误信息或返回空结果会让模型无法判断工具是否成功，可能导致幻觉内容填补缺口。"
+    },
+    {
+      "id": "q3",
+      "stem": "以下哪种故障属于瞬时故障，适合用指数退避策略处理？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "API 密钥永久失效",
+        "网络抖动导致的临时超时",
+        "工具端点已被永久下线",
+        "请求参数格式错误"
+      ],
+      "difficulty": "easy",
+      "explanation": "瞬时故障是暂时性的，如网络抖动和限流，可以通过指数退避在工具层吸收。API 密钥永久失效、端点永久下线属于持久故障，参数格式错误属于调用方错误，都不适合用指数退避解决。"
+    },
+    {
+      "id": "q4",
+      "stem": "当工具调用持续失败超过阈值时，熔断器的作用是什么？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "继续重试直到成功",
+        "停止调用该工具，并明确告知模型工具不可用",
+        "将错误信号转换为成功信号",
+        "自动切换到另一个功能相同的工具"
+      ],
+      "difficulty": "easy",
+      "explanation": "熔断器用于持久故障：一旦失败阈值被突破，工具停止被调用，模型被明确告知工具不可用。继续重试会浪费资源，将错误转换为成功信号会误导模型，自动切换工具不是熔断器的职责。"
+    },
+    {
+      "id": "q5",
+      "stem": "为什么模型应始终知道工具失败，而不是用幻觉内容填补缺口？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "因为幻觉内容会让模型运行更快",
+        "因为知道失败后模型可以明确说明数据缺失，比编造答案更有用",
+        "因为幻觉内容会导致应用层崩溃",
+        "因为模型不需要知道工具的执行结果"
+      ],
+      "difficulty": "easy",
+      "explanation": "原文指出：一个从四个数据源中只回答了三个并明确说明的 Agent，远比用幻觉内容填补缺口的 Agent 更有用。模型知道失败后可以诚实地告知用户数据缺失，而不是编造不可信的内容。"
+    },
+    {
+      "id": "q6",
+      "stem": "在工具调用协议中，模型产出的结构化 JSON 载荷应包含哪些内容？",
+      "type": "single_choice",
+      "answer": "A",
+      "options": [
+        "工具名和参数",
+        "工具名、参数和执行结果",
+        "工具名、参数和异常堆栈",
+        "工具名、参数和重试次数"
+      ],
+      "difficulty": "easy",
+      "explanation": "模型只提议动作，产出结构化 JSON 载荷（工具名+参数）。执行结果由应用层返回作为新上下文，异常堆栈和重试次数属于应用层的处理范畴，不应由模型在载荷中提供。"
+    },
+    {
+      "id": "q7",
+      "stem": "以下哪个错误信号对模型最有帮助？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "{\"error\": \"something went wrong\"}",
+        "{\"error\": \"rate_limited\", \"retry_after\": 30}",
+        "{\"error\": \"Exception occurred\"}",
+        "{\"error\": \"failed\"}"
+      ],
+      "difficulty": "easy",
+      "explanation": "类型化、可解释的错误信号应包含具体的错误类型和可操作的下一步信息。{\"error\":\"rate_limited\",\"retry_after\":30} 明确告诉模型发生了什么（限流）以及下一步该做什么（等待 30 秒后重试）。其他选项都过于模糊，模型无法据此做出合理决策。"
+    },
+    {
+      "id": "q8",
+      "stem": "在工具调用失败恢复中，瞬时故障和持久故障的处理策略分别是什么？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "瞬时故障用熔断器，持久故障用指数退避",
+        "瞬时故障用指数退避，持久故障用熔断器",
+        "两者都用指数退避",
+        "两者都用熔断器"
+      ],
+      "difficulty": "easy",
+      "explanation": "瞬时故障（网络抖动、限流）用指数退避在工具层吸收；持久故障用熔断器停止调用并明确告知模型工具不可用。选项 A 颠倒了策略，选项 C 和 D 混淆了两类故障的处理方式。"
+    },
+    {
+      "id": "q9",
+      "stem": "应用层在工具调用协议中的职责不包括以下哪项？",
+      "type": "single_choice",
+      "answer": "D",
+      "options": [
+        "校验模型产出的 JSON 载荷",
+        "执行工具逻辑",
+        "返回执行结果作为新上下文",
+        "决定模型下一步的推理方向"
+      ],
+      "difficulty": "easy",
+      "explanation": "应用层负责接收载荷、校验、执行并返回结果作为新上下文。决定模型下一步的推理方向是模型自身的职责，应用层不应干预模型的推理过程。"
+    },
+    {
+      "id": "q10",
+      "stem": "以下关于工具调用协议中模型角色的描述，哪项是正确的？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "模型是确定性执行器，负责执行工具调用",
+        "模型是非确定性推理器，只提议动作",
+        "模型负责校验工具调用的参数",
+        "模型负责处理工具调用的失败恢复"
+      ],
+      "difficulty": "easy",
+      "explanation": "模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷。执行、校验和失败恢复都是应用层的职责。选项 A、C、D 都错误地将执行层的职责归给了模型。"
+    },
+    {
+      "id": "q11",
+      "stem": "当工具调用返回 {\"error\":\"rate_limited\",\"retry_after\":30} 时，模型最合理的下一步是什么？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "立即重试，不等待",
+        "等待约 30 秒后重试",
+        "放弃该工具，编造一个结果",
+        "忽略错误信号，继续推理"
+      ],
+      "difficulty": "easy",
+      "explanation": "类型化错误信号中的 retry_after 字段明确指示了等待时间。模型应根据该信号等待约 30 秒后重试。立即重试会再次触发限流，编造结果会导致幻觉，忽略错误信号则无法正确处理失败。"
+    },
+    {
+      "id": "q12",
+      "stem": "以下哪种情况最适合使用熔断器？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "第一次网络请求超时",
+        "API 连续 10 次返回 503 服务不可用",
+        "单次请求参数格式错误",
+        "用户输入了无效的查询"
+      ],
+      "difficulty": "easy",
+      "explanation": "熔断器用于持久故障：当失败阈值被突破后，工具停止被调用。连续 10 次返回 503 表明服务持续不可用，属于持久故障。第一次超时可能是瞬时故障，参数格式错误和无效查询属于调用方问题，都不适合用熔断器。"
+    },
+    {
+      "id": "q13",
+      "stem": "在工具调用协议中，执行结果返回给模型后会发生什么？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "模型忽略结果，直接生成最终答案",
+        "模型使用结果继续推理并生成最终答案",
+        "应用层根据结果决定下一步动作",
+        "结果被丢弃，模型重新生成工具调用"
+      ],
+      "difficulty": "easy",
+      "explanation": "原文明确指出：执行结果被发送回模型，模型使用它继续推理并生成最终答案。选项 A 和 D 错误地忽略了结果的作用，选项 C 混淆了应用层和模型的职责。"
+    },
+    {
+      "id": "q14",
+      "stem": "以下关于指数退避的描述，哪项是正确的？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "每次重试的等待时间固定不变",
+        "每次重试的等待时间按指数增长",
+        "每次重试的等待时间按指数减少",
+        "指数退避用于处理持久故障"
+      ],
+      "difficulty": "easy",
+      "explanation": "指数退避是一种瞬时故障处理策略，每次重试的等待时间按指数增长，例如 1 秒、2 秒、4 秒、8 秒。固定等待时间不是指数退避，指数退避不用于持久故障。"
+    },
+    {
+      "id": "q15",
+      "stem": "一个 Agent 从四个数据源中只成功获取了三个数据源的结果，正确的做法是什么？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "用幻觉内容填补第四个数据源的缺口",
+        "明确说明只获取了三个数据源的结果",
+        "忽略第四个数据源的失败，假装成功",
+        "放弃所有结果，重新开始"
+      ],
+      "difficulty": "easy",
+      "explanation": "原文强调：一个从四个数据源中只回答了三个并明确说明的 Agent，远比用幻觉内容填补缺口的 Agent 更有用。模型应始终知道工具失败，并诚实地告知用户数据缺失情况。"
+    },
+    {
+      "id": "q16",
+      "stem": "在工具调用协议中，为什么说\"边界很重要\"（The boundary matters）？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "因为模型和应用层应该尽可能耦合",
+        "因为模型和执行层的职责分离是协议的核心",
+        "因为应用层应该控制模型的推理过程",
+        "因为模型应该直接执行工具调用"
+      ],
+      "difficulty": "easy",
+      "explanation": "原文强调边界的重要性：模型是非确定性推理器，只提议动作；应用代码是确定性层，负责执行和校验。这种职责分离是工具调用协议的核心，确保模型不执行任何操作，应用层不干预模型推理。"
+    },
+    {
+      "id": "q17",
+      "stem": "以下哪个是类型化错误信号相比原始异常的主要优势？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "类型化错误信号更短",
+        "类型化错误信号让模型明确知道发生了什么以及下一步该做什么",
+        "类型化错误信号不需要应用层处理",
+        "类型化错误信号可以完全避免工具失败"
+      ],
+      "difficulty": "easy",
+      "explanation": "类型化、可解释的错误信号（如 {\"error\":\"rate_limited\",\"retry_after\":30}）告诉模型确切发生了什么以及下一步该做什么。原始异常堆栈对模型来说难以解析，类型化错误信号不能避免失败，仍需要应用层处理。"
+    },
+    {
+      "id": "q18",
+      "stem": "在工具调用失败恢复中，瞬时故障应该在哪个层面被吸收？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "模型推理层",
+        "工具层",
+        "用户界面层",
+        "数据库层"
+      ],
+      "difficulty": "easy",
+      "explanation": "原文明确指出：网络抖动和限流应该由工具层用指数退避吸收，而不是以原始形式暴露给推理循环。模型推理层不应处理瞬时故障，用户界面层和数据库层与故障吸收无关。"
+    },
+    {
+      "id": "q19",
+      "stem": "当熔断器触发后，模型应该收到什么信息？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "工具调用成功的假信号",
+        "工具不可用的明确信息",
+        "原始异常堆栈",
+        "没有任何信息"
+      ],
+      "difficulty": "easy",
+      "explanation": "熔断器触发后，工具停止被调用，模型被明确告知工具不可用。发送成功假信号会误导模型，原始异常堆栈难以解析，不发送任何信息会让模型无法判断工具状态。"
+    },
+    {
+      "id": "q20",
+      "stem": "以下关于工具调用协议中应用层职责的描述，哪项是正确的？",
+      "type": "single_choice",
+      "answer": "B",
+      "options": [
+        "应用层只负责生成 JSON 载荷",
+        "应用层负责接收载荷、校验、执行并返回结果",
+        "应用层负责模型的推理过程",
+        "应用层只负责记录工具调用的日志"
+      ],
+      "difficulty": "easy",
+      "explanation": "应用层负责接收模型产出的 JSON 载荷、校验载荷、执行工具逻辑并返回结果作为新上下文。生成 JSON 载荷是模型的职责，应用层不负责模型推理，日志记录只是应用层的辅助功能。"
+    }
+  ],
+  "created_at": "2026-09-17T14:24:21.376898+00:00",
+  "created_by": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-09-17T14:24:21.376898+00:00",
+  "visibility": "private",
+  "material_id": "resource_3d0c168fa5430a614b56b0fb97cd9917",
+  "origin_type": "personal",
+  "content_hash": "40f07c65f8d40f9a39aec48c0efa8db63cc803c159b0cd05357d2aa8d99c0e01",
+  "material_type": "quiz",
+  "owner_user_id": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "generation_state": {
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "资源类型为 quiz，共 20 道单选题，语言为中文，面向有 Python 开发基础、准备 AI Agent 岗位面试的受众，学习时间约 30 分钟可完成。题目覆盖工具调用协议、瞬时/持久故障处理、类型化错误信号及避免幻觉等已确认目标，未发现与用户要求冲突的内容。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐题核验后，所有题目的正确答案均与已确认研究资料一致：模型只提议动作、应用层执行；类型化错误信号优于原始异常；瞬时故障用指数退避、持久故障用熔断器；模型应知道失败而非幻觉填补。未发现事实性错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "作为 quiz，examples 维度按习题核验求解。20 道题均独立求解并核对答案与解析，选项干扰项均代表真实误区，解析对关键错误选项给出了明确原因，未发现含糊猜测或不成立算式。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "题目从基础概念（q1、q6、q9、q10、q13、q16、q20）到失败恢复（q2、q3、q4、q7、q8、q11、q12、q14、q18、q19）再到综合判断（q5、q15、q17），难度均为 easy，符合 30 分钟学习检查定位。题干自足，无答案泄露。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "内容与已确认研究来源 machinelearningmastery.com 的工具调用与失败恢复要点一致，包括职责分离、类型化错误信号、指数退避、熔断器和避免幻觉。未发现无依据的编造引用。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "已覆盖用户要求的全部学习目标：工具调用协议、瞬时与持久故障区分及策略、模型应知道失败的原因，以及类型化错误信号示例。20 道题数量适中，无缺失章节或目标。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "资源类型为 quiz，共 20 道单选题，语言为中文，面向有 Python 开发基础、准备 AI Agent 岗位面试的受众，学习时间约 30 分钟可完成。题目覆盖工具调用协议、瞬时/持久故障处理、类型化错误信号及避免幻觉等已确认目标，未发现与用户要求冲突的内容。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐题核验后，所有题目的正确答案均与已确认研究资料一致：模型只提议动作、应用层执行；类型化错误信号优于原始异常；瞬时故障用指数退避、持久故障用熔断器；模型应知道失败而非幻觉填补。未发现事实性错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "作为 quiz，examples 维度按习题核验求解。20 道题均独立求解并核对答案与解析，选项干扰项均代表真实误区，解析对关键错误选项给出了明确原因，未发现含糊猜测或不成立算式。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目从基础概念（q1、q6、q9、q10、q13、q16、q20）到失败恢复（q2、q3、q4、q7、q8、q11、q12、q14、q18、q19）再到综合判断（q5、q15、q17），难度均为 easy，符合 30 分钟学习检查定位。题干自足，无答案泄露。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "内容与已确认研究来源 machinelearningmastery.com 的工具调用与失败恢复要点一致，包括职责分离、类型化错误信号、指数退避、熔断器和避免幻觉。未发现无依据的编造引用。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "已覆盖用户要求的全部学习目标：工具调用协议、瞬时与持久故障区分及策略、模型应知道失败的原因，以及类型化错误信号示例。20 道题数量适中，无缺失章节或目标。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "题目难度全部为 easy，若希望更贴近面试场景，可考虑将 q11、q12、q16 等需要综合判断的题目调整为 medium，以增加区分度。",
+              "q2 和 q7 都涉及类型化错误信号示例，q3 和 q8 都涉及瞬时/持久故障策略，存在一定重复。可考虑合并或替换其中一题，改为考察指数退避的具体等待时间计算或熔断器阈值设置。",
+              "q5 和 q15 都引用同一原文观点（四个数据源中三个成功），建议保留一题，另一题改为考察模型收到错误信号后的具体行为差异。"
+            ],
+            "blocking_issues": [],
+            "question_checks": [
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项 A 说模型负责执行、应用层只生成 JSON，颠倒了职责，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 B 准确描述职责分离：模型提议动作并产出 JSON，应用层校验、执行并返回结果，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 C 说模型直接调用外部 API，违背模型不执行任何操作的原则，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项 D 说模型和应用层共同执行，混淆了职责边界，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "工具调用协议中模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷；应用层接收、校验、执行并返回结果。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "原始异常堆栈对模型难以解析，不是最佳做法，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "类型化错误信号如 {\"error\":\"rate_limited\",\"retry_after\":30} 明确告知错误类型和下一步，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "不返回错误信息会让模型无法判断工具是否成功，可能导致幻觉，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "返回空结果同样无法让模型区分成功与失败，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "工具失败后应返回类型化、可解释的错误信号，让模型知道发生了什么及下一步该做什么。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "API 密钥永久失效是持久故障，不适合指数退避，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "网络抖动导致的临时超时是瞬时故障，适合指数退避，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "工具端点永久下线是持久故障，不适合指数退避，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "请求参数格式错误是调用方错误，重试不会解决，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "瞬时故障是暂时性的，如网络抖动和限流，适合指数退避。API 密钥永久失效和端点下线是持久故障，参数格式错误是调用方错误。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "继续重试直到成功违背熔断器停止调用的目的，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "停止调用并明确告知模型工具不可用是熔断器的正确行为，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "将错误信号转换为成功信号会误导模型，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "自动切换工具不是熔断器的职责，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "independent_solution": "熔断器用于持久故障，失败超过阈值后停止调用工具并明确告知模型工具不可用。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "幻觉内容不会让模型运行更快，且与速度无关，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "知道失败后模型可诚实说明数据缺失，比编造答案更有用，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "幻觉内容不一定导致应用层崩溃，因果关系不成立，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "模型需要知道执行结果，否则无法正确推理，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "independent_solution": "模型知道失败后可以明确说明数据缺失，比编造答案更有用。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "工具名和参数是模型产出载荷的内容，正确。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "执行结果由应用层返回，不属于模型产出的载荷，错误。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "异常堆栈属于应用层处理范畴，不应由模型在载荷中提供，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "重试次数属于应用层处理范畴，不应由模型在载荷中提供，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "independent_solution": "模型产出的结构化 JSON 载荷只包含工具名和参数，执行结果由应用层返回。正确选项为 A。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "\"something went wrong\" 过于模糊，模型无法据此决策，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "包含具体错误类型 rate_limited 和可操作的 retry_after 字段，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "\"Exception occurred\" 没有具体错误类型和下一步信息，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "\"failed\" 过于模糊，无法指导模型行动，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "independent_solution": "类型化错误信号应包含具体错误类型和可操作的下一步信息。{\"error\":\"rate_limited\",\"retry_after\":30} 明确告知限流和等待时间，最有帮助。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "瞬时故障用熔断器、持久故障用指数退避颠倒了策略，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "瞬时故障用指数退避、持久故障用熔断器，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "两者都用指数退避无法处理持久故障，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "两者都用熔断器无法处理瞬时故障，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "independent_solution": "瞬时故障用指数退避吸收，持久故障用熔断器停止调用。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "校验 JSON 载荷是应用层职责，属于应用层职责，不符合题干\"不包括\"，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "执行工具逻辑是应用层职责，不符合题干\"不包括\"，错误。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "返回执行结果作为新上下文是应用层职责，不符合题干\"不包括\"，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "决定模型推理方向是模型自身职责，不属于应用层，正确。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 8,
+                "explanation_valid": true,
+                "independent_solution": "应用层负责校验载荷、执行工具逻辑、返回结果，不负责决定模型推理方向。正确选项为 D。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "模型不是确定性执行器，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "模型是非确定性推理器，只提议动作，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "校验参数是应用层职责，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "失败恢复是应用层职责，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 9,
+                "explanation_valid": true,
+                "independent_solution": "模型是非确定性推理器，只提议动作，不执行、不校验、不处理失败恢复。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "立即重试会再次触发限流，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "根据 retry_after 字段等待约 30 秒后重试，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "编造结果会导致幻觉，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "忽略错误信号无法正确处理失败，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 10,
+                "explanation_valid": true,
+                "independent_solution": "retry_after 字段指示等待时间，模型应等待约 30 秒后重试。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "第一次超时可能是瞬时故障，不适合立即熔断，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "连续 10 次 503 表明持久故障，适合熔断器，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "参数格式错误是调用方问题，重试或熔断都不解决，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "用户输入无效查询是调用方问题，不适合熔断器，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 11,
+                "explanation_valid": true,
+                "independent_solution": "熔断器用于持久故障，连续 10 次 503 表明服务持续不可用，适合熔断。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "模型不会忽略结果，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "模型使用结果继续推理并生成最终答案，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "决定下一步动作是模型职责，不是应用层，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "结果不会被丢弃，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 12,
+                "explanation_valid": true,
+                "independent_solution": "执行结果返回给模型后，模型使用结果继续推理并生成最终答案。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "固定等待时间不是指数退避，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "等待时间按指数增长，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "指数退避是增长而非减少，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "指数退避用于瞬时故障，不是持久故障，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 13,
+                "explanation_valid": true,
+                "independent_solution": "指数退避的等待时间按指数增长，如 1、2、4、8 秒。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "用幻觉内容填补缺口违背原则，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "明确说明数据缺失情况，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "假装成功会误导用户，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "放弃所有结果过于极端，不是正确做法，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 14,
+                "explanation_valid": true,
+                "independent_solution": "从四个数据源只成功获取三个时，应明确说明只获取了三个数据源的结果，而非幻觉填补。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "模型和应用层应解耦而非耦合，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "职责分离是协议核心，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "应用层不应控制模型推理过程，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "模型不应直接执行工具调用，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 15,
+                "explanation_valid": true,
+                "independent_solution": "边界重要是因为模型与执行层的职责分离是协议核心。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "更短不是主要优势，且不一定更短，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "让模型明确知道发生了什么及下一步该做什么，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "类型化错误信号仍需应用层处理，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "类型化错误信号不能完全避免工具失败，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 16,
+                "explanation_valid": true,
+                "independent_solution": "类型化错误信号的主要优势是让模型明确知道发生了什么及下一步该做什么。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "模型推理层不应处理瞬时故障，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "工具层负责吸收瞬时故障，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "用户界面层与故障吸收无关，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "数据库层与故障吸收无关，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 17,
+                "explanation_valid": true,
+                "independent_solution": "瞬时故障应由工具层用指数退避吸收，不暴露给推理循环。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "成功假信号会误导模型，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "明确告知工具不可用，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "原始异常堆栈难以解析，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "不发送信息会让模型无法判断工具状态，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 18,
+                "explanation_valid": true,
+                "independent_solution": "熔断器触发后，模型应收到工具不可用的明确信息。正确选项为 B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "生成 JSON 载荷是模型职责，错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "接收、校验、执行并返回结果是应用层职责，正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "应用层不负责模型推理过程，错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "日志记录只是辅助功能，不是应用层核心职责，错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 19,
+                "explanation_valid": true,
+                "independent_solution": "应用层负责接收载荷、校验、执行并返回结果。正确选项为 B。"
+              }
+            ]
+          },
+          "version": 1,
+          "decision": "pass",
+          "content_sha256": "d29747f46e62e1bc6f938764a29eb45451629ef07f6c6dc2c374e4ca7bce6563"
+        }
+      ],
+      "version": 1,
+      "decision": "pass",
+      "suggestions": [
+        "题目难度全部为 easy，若希望更贴近面试场景，可考虑将 q11、q12、q16 等需要综合判断的题目调整为 medium，以增加区分度。",
+        "q2 和 q7 都涉及类型化错误信号示例，q3 和 q8 都涉及瞬时/持久故障策略，存在一定重复。可考虑合并或替换其中一题，改为考察指数退避的具体等待时间计算或熔断器阈值设置。",
+        "q5 和 q15 都引用同一原文观点（四个数据源中三个成功），建议保留一题，另一题改为考察模型收到错误信号后的具体行为差异。"
+      ],
+      "resource_type": "quiz",
+      "content_sha256": "d29747f46e62e1bc6f938764a29eb45451629ef07f6c6dc2c374e4ca7bce6563",
+      "question_checks": [
+        {
+          "option_checks": [
+            {
+              "reasoning": "选项 A 说模型负责执行、应用层只生成 JSON，颠倒了职责，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 B 准确描述职责分离：模型提议动作并产出 JSON，应用层校验、执行并返回结果，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 C 说模型直接调用外部 API，违背模型不执行任何操作的原则，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "选项 D 说模型和应用层共同执行，混淆了职责边界，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 0,
+          "explanation_valid": true,
+          "independent_solution": "工具调用协议中模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷；应用层接收、校验、执行并返回结果。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "原始异常堆栈对模型难以解析，不是最佳做法，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "类型化错误信号如 {\"error\":\"rate_limited\",\"retry_after\":30} 明确告知错误类型和下一步，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "不返回错误信息会让模型无法判断工具是否成功，可能导致幻觉，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "返回空结果同样无法让模型区分成功与失败，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 1,
+          "explanation_valid": true,
+          "independent_solution": "工具失败后应返回类型化、可解释的错误信号，让模型知道发生了什么及下一步该做什么。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "API 密钥永久失效是持久故障，不适合指数退避，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "网络抖动导致的临时超时是瞬时故障，适合指数退避，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "工具端点永久下线是持久故障，不适合指数退避，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "请求参数格式错误是调用方错误，重试不会解决，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 2,
+          "explanation_valid": true,
+          "independent_solution": "瞬时故障是暂时性的，如网络抖动和限流，适合指数退避。API 密钥永久失效和端点下线是持久故障，参数格式错误是调用方错误。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "继续重试直到成功违背熔断器停止调用的目的，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "停止调用并明确告知模型工具不可用是熔断器的正确行为，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "将错误信号转换为成功信号会误导模型，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "自动切换工具不是熔断器的职责，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 3,
+          "explanation_valid": true,
+          "independent_solution": "熔断器用于持久故障，失败超过阈值后停止调用工具并明确告知模型工具不可用。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "幻觉内容不会让模型运行更快，且与速度无关，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "知道失败后模型可诚实说明数据缺失，比编造答案更有用，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "幻觉内容不一定导致应用层崩溃，因果关系不成立，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "模型需要知道执行结果，否则无法正确推理，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 4,
+          "explanation_valid": true,
+          "independent_solution": "模型知道失败后可以明确说明数据缺失，比编造答案更有用。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "工具名和参数是模型产出载荷的内容，正确。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "执行结果由应用层返回，不属于模型产出的载荷，错误。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "异常堆栈属于应用层处理范畴，不应由模型在载荷中提供，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "重试次数属于应用层处理范畴，不应由模型在载荷中提供，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 5,
+          "explanation_valid": true,
+          "independent_solution": "模型产出的结构化 JSON 载荷只包含工具名和参数，执行结果由应用层返回。正确选项为 A。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "\"something went wrong\" 过于模糊，模型无法据此决策，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "包含具体错误类型 rate_limited 和可操作的 retry_after 字段，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "\"Exception occurred\" 没有具体错误类型和下一步信息，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "\"failed\" 过于模糊，无法指导模型行动，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 6,
+          "explanation_valid": true,
+          "independent_solution": "类型化错误信号应包含具体错误类型和可操作的下一步信息。{\"error\":\"rate_limited\",\"retry_after\":30} 明确告知限流和等待时间，最有帮助。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "瞬时故障用熔断器、持久故障用指数退避颠倒了策略，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "瞬时故障用指数退避、持久故障用熔断器，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "两者都用指数退避无法处理持久故障，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "两者都用熔断器无法处理瞬时故障，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 7,
+          "explanation_valid": true,
+          "independent_solution": "瞬时故障用指数退避吸收，持久故障用熔断器停止调用。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "校验 JSON 载荷是应用层职责，属于应用层职责，不符合题干\"不包括\"，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "执行工具逻辑是应用层职责，不符合题干\"不包括\"，错误。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "返回执行结果作为新上下文是应用层职责，不符合题干\"不包括\"，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "决定模型推理方向是模型自身职责，不属于应用层，正确。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 8,
+          "explanation_valid": true,
+          "independent_solution": "应用层负责校验载荷、执行工具逻辑、返回结果，不负责决定模型推理方向。正确选项为 D。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "模型不是确定性执行器，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "模型是非确定性推理器，只提议动作，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "校验参数是应用层职责，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "失败恢复是应用层职责，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 9,
+          "explanation_valid": true,
+          "independent_solution": "模型是非确定性推理器，只提议动作，不执行、不校验、不处理失败恢复。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "立即重试会再次触发限流，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "根据 retry_after 字段等待约 30 秒后重试，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "编造结果会导致幻觉，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "忽略错误信号无法正确处理失败，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 10,
+          "explanation_valid": true,
+          "independent_solution": "retry_after 字段指示等待时间，模型应等待约 30 秒后重试。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "第一次超时可能是瞬时故障，不适合立即熔断，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "连续 10 次 503 表明持久故障，适合熔断器，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "参数格式错误是调用方问题，重试或熔断都不解决，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "用户输入无效查询是调用方问题，不适合熔断器，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 11,
+          "explanation_valid": true,
+          "independent_solution": "熔断器用于持久故障，连续 10 次 503 表明服务持续不可用，适合熔断。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "模型不会忽略结果，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "模型使用结果继续推理并生成最终答案，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "决定下一步动作是模型职责，不是应用层，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "结果不会被丢弃，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 12,
+          "explanation_valid": true,
+          "independent_solution": "执行结果返回给模型后，模型使用结果继续推理并生成最终答案。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "固定等待时间不是指数退避，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "等待时间按指数增长，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "指数退避是增长而非减少，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "指数退避用于瞬时故障，不是持久故障，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 13,
+          "explanation_valid": true,
+          "independent_solution": "指数退避的等待时间按指数增长，如 1、2、4、8 秒。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "用幻觉内容填补缺口违背原则，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "明确说明数据缺失情况，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "假装成功会误导用户，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "放弃所有结果过于极端，不是正确做法，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 14,
+          "explanation_valid": true,
+          "independent_solution": "从四个数据源只成功获取三个时，应明确说明只获取了三个数据源的结果，而非幻觉填补。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "模型和应用层应解耦而非耦合，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "职责分离是协议核心，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "应用层不应控制模型推理过程，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "模型不应直接执行工具调用，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 15,
+          "explanation_valid": true,
+          "independent_solution": "边界重要是因为模型与执行层的职责分离是协议核心。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "更短不是主要优势，且不一定更短，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "让模型明确知道发生了什么及下一步该做什么，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "类型化错误信号仍需应用层处理，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "类型化错误信号不能完全避免工具失败，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 16,
+          "explanation_valid": true,
+          "independent_solution": "类型化错误信号的主要优势是让模型明确知道发生了什么及下一步该做什么。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "模型推理层不应处理瞬时故障，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "工具层负责吸收瞬时故障，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "用户界面层与故障吸收无关，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "数据库层与故障吸收无关，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 17,
+          "explanation_valid": true,
+          "independent_solution": "瞬时故障应由工具层用指数退避吸收，不暴露给推理循环。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "成功假信号会误导模型，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "明确告知工具不可用，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "原始异常堆栈难以解析，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "不发送信息会让模型无法判断工具状态，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 18,
+          "explanation_valid": true,
+          "independent_solution": "熔断器触发后，模型应收到工具不可用的明确信息。正确选项为 B。"
+        },
+        {
+          "option_checks": [
+            {
+              "reasoning": "生成 JSON 载荷是模型职责，错误。",
+              "option_index": 0,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "接收、校验、执行并返回结果是应用层职责，正确。",
+              "option_index": 1,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "应用层不负责模型推理过程，错误。",
+              "option_index": 2,
+              "explanation_valid": true
+            },
+            {
+              "reasoning": "日志记录只是辅助功能，不是应用层核心职责，错误。",
+              "option_index": 3,
+              "explanation_valid": true
+            }
+          ],
+          "answer_matches": true,
+          "question_index": 19,
+          "explanation_valid": true,
+          "independent_solution": "应用层负责接收载荷、校验、执行并返回结果。正确选项为 B。"
+        }
+      ]
+    }
+  },
+  "preparation_artifact": {
+    "title": "工具调用与失败恢复",
+    "content": {
+      "title": "工具调用与失败恢复",
+      "questions": [
+        {
+          "id": "q1",
+          "stem": "在 AI Agent 的工具调用协议中，模型与应用执行层之间的职责边界是什么？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "模型负责执行工具调用，应用层只负责生成 JSON 载荷",
+            "模型只提议动作并产出结构化 JSON 载荷，应用层负责校验、执行并返回结果",
+            "模型直接调用外部 API，应用层只负责记录日志",
+            "模型和应用层共同执行工具，谁先完成谁返回结果"
+          ],
+          "difficulty": "easy",
+          "explanation": "工具调用协议的核心是职责分离：模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷（工具名+参数）；应用代码接收载荷、校验、执行并返回结果作为新上下文。模型本身不执行任何操作。选项 A 颠倒了职责，选项 C 和 D 都错误地让模型参与执行。"
+        },
+        {
+          "id": "q2",
+          "stem": "工具调用失败后，应用层返回给模型的正确做法是什么？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "返回原始异常堆栈，让模型自行解析",
+            "返回类型化、可解释的错误信号，如 {\"error\":\"rate_limited\",\"retry_after\":30}",
+            "不返回任何错误信息，让模型重试",
+            "返回一个空结果，让模型继续推理"
+          ],
+          "difficulty": "easy",
+          "explanation": "类型化、可解释的错误信号能让模型明确知道发生了什么以及下一步该做什么。原始异常堆栈对模型来说难以解析，不返回错误信息或返回空结果会让模型无法判断工具是否成功，可能导致幻觉内容填补缺口。"
+        },
+        {
+          "id": "q3",
+          "stem": "以下哪种故障属于瞬时故障，适合用指数退避策略处理？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "API 密钥永久失效",
+            "网络抖动导致的临时超时",
+            "工具端点已被永久下线",
+            "请求参数格式错误"
+          ],
+          "difficulty": "easy",
+          "explanation": "瞬时故障是暂时性的，如网络抖动和限流，可以通过指数退避在工具层吸收。API 密钥永久失效、端点永久下线属于持久故障，参数格式错误属于调用方错误，都不适合用指数退避解决。"
+        },
+        {
+          "id": "q4",
+          "stem": "当工具调用持续失败超过阈值时，熔断器的作用是什么？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "继续重试直到成功",
+            "停止调用该工具，并明确告知模型工具不可用",
+            "将错误信号转换为成功信号",
+            "自动切换到另一个功能相同的工具"
+          ],
+          "difficulty": "easy",
+          "explanation": "熔断器用于持久故障：一旦失败阈值被突破，工具停止被调用，模型被明确告知工具不可用。继续重试会浪费资源，将错误转换为成功信号会误导模型，自动切换工具不是熔断器的职责。"
+        },
+        {
+          "id": "q5",
+          "stem": "为什么模型应始终知道工具失败，而不是用幻觉内容填补缺口？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "因为幻觉内容会让模型运行更快",
+            "因为知道失败后模型可以明确说明数据缺失，比编造答案更有用",
+            "因为幻觉内容会导致应用层崩溃",
+            "因为模型不需要知道工具的执行结果"
+          ],
+          "difficulty": "easy",
+          "explanation": "原文指出：一个从四个数据源中只回答了三个并明确说明的 Agent，远比用幻觉内容填补缺口的 Agent 更有用。模型知道失败后可以诚实地告知用户数据缺失，而不是编造不可信的内容。"
+        },
+        {
+          "id": "q6",
+          "stem": "在工具调用协议中，模型产出的结构化 JSON 载荷应包含哪些内容？",
+          "type": "single_choice",
+          "answer": "A",
+          "options": [
+            "工具名和参数",
+            "工具名、参数和执行结果",
+            "工具名、参数和异常堆栈",
+            "工具名、参数和重试次数"
+          ],
+          "difficulty": "easy",
+          "explanation": "模型只提议动作，产出结构化 JSON 载荷（工具名+参数）。执行结果由应用层返回作为新上下文，异常堆栈和重试次数属于应用层的处理范畴，不应由模型在载荷中提供。"
+        },
+        {
+          "id": "q7",
+          "stem": "以下哪个错误信号对模型最有帮助？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "{\"error\": \"something went wrong\"}",
+            "{\"error\": \"rate_limited\", \"retry_after\": 30}",
+            "{\"error\": \"Exception occurred\"}",
+            "{\"error\": \"failed\"}"
+          ],
+          "difficulty": "easy",
+          "explanation": "类型化、可解释的错误信号应包含具体的错误类型和可操作的下一步信息。{\"error\":\"rate_limited\",\"retry_after\":30} 明确告诉模型发生了什么（限流）以及下一步该做什么（等待 30 秒后重试）。其他选项都过于模糊，模型无法据此做出合理决策。"
+        },
+        {
+          "id": "q8",
+          "stem": "在工具调用失败恢复中，瞬时故障和持久故障的处理策略分别是什么？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "瞬时故障用熔断器，持久故障用指数退避",
+            "瞬时故障用指数退避，持久故障用熔断器",
+            "两者都用指数退避",
+            "两者都用熔断器"
+          ],
+          "difficulty": "easy",
+          "explanation": "瞬时故障（网络抖动、限流）用指数退避在工具层吸收；持久故障用熔断器停止调用并明确告知模型工具不可用。选项 A 颠倒了策略，选项 C 和 D 混淆了两类故障的处理方式。"
+        },
+        {
+          "id": "q9",
+          "stem": "应用层在工具调用协议中的职责不包括以下哪项？",
+          "type": "single_choice",
+          "answer": "D",
+          "options": [
+            "校验模型产出的 JSON 载荷",
+            "执行工具逻辑",
+            "返回执行结果作为新上下文",
+            "决定模型下一步的推理方向"
+          ],
+          "difficulty": "easy",
+          "explanation": "应用层负责接收载荷、校验、执行并返回结果作为新上下文。决定模型下一步的推理方向是模型自身的职责，应用层不应干预模型的推理过程。"
+        },
+        {
+          "id": "q10",
+          "stem": "以下关于工具调用协议中模型角色的描述，哪项是正确的？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "模型是确定性执行器，负责执行工具调用",
+            "模型是非确定性推理器，只提议动作",
+            "模型负责校验工具调用的参数",
+            "模型负责处理工具调用的失败恢复"
+          ],
+          "difficulty": "easy",
+          "explanation": "模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷。执行、校验和失败恢复都是应用层的职责。选项 A、C、D 都错误地将执行层的职责归给了模型。"
+        },
+        {
+          "id": "q11",
+          "stem": "当工具调用返回 {\"error\":\"rate_limited\",\"retry_after\":30} 时，模型最合理的下一步是什么？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "立即重试，不等待",
+            "等待约 30 秒后重试",
+            "放弃该工具，编造一个结果",
+            "忽略错误信号，继续推理"
+          ],
+          "difficulty": "easy",
+          "explanation": "类型化错误信号中的 retry_after 字段明确指示了等待时间。模型应根据该信号等待约 30 秒后重试。立即重试会再次触发限流，编造结果会导致幻觉，忽略错误信号则无法正确处理失败。"
+        },
+        {
+          "id": "q12",
+          "stem": "以下哪种情况最适合使用熔断器？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "第一次网络请求超时",
+            "API 连续 10 次返回 503 服务不可用",
+            "单次请求参数格式错误",
+            "用户输入了无效的查询"
+          ],
+          "difficulty": "easy",
+          "explanation": "熔断器用于持久故障：当失败阈值被突破后，工具停止被调用。连续 10 次返回 503 表明服务持续不可用，属于持久故障。第一次超时可能是瞬时故障，参数格式错误和无效查询属于调用方问题，都不适合用熔断器。"
+        },
+        {
+          "id": "q13",
+          "stem": "在工具调用协议中，执行结果返回给模型后会发生什么？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "模型忽略结果，直接生成最终答案",
+            "模型使用结果继续推理并生成最终答案",
+            "应用层根据结果决定下一步动作",
+            "结果被丢弃，模型重新生成工具调用"
+          ],
+          "difficulty": "easy",
+          "explanation": "原文明确指出：执行结果被发送回模型，模型使用它继续推理并生成最终答案。选项 A 和 D 错误地忽略了结果的作用，选项 C 混淆了应用层和模型的职责。"
+        },
+        {
+          "id": "q14",
+          "stem": "以下关于指数退避的描述，哪项是正确的？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "每次重试的等待时间固定不变",
+            "每次重试的等待时间按指数增长",
+            "每次重试的等待时间按指数减少",
+            "指数退避用于处理持久故障"
+          ],
+          "difficulty": "easy",
+          "explanation": "指数退避是一种瞬时故障处理策略，每次重试的等待时间按指数增长，例如 1 秒、2 秒、4 秒、8 秒。固定等待时间不是指数退避，指数退避不用于持久故障。"
+        },
+        {
+          "id": "q15",
+          "stem": "一个 Agent 从四个数据源中只成功获取了三个数据源的结果，正确的做法是什么？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "用幻觉内容填补第四个数据源的缺口",
+            "明确说明只获取了三个数据源的结果",
+            "忽略第四个数据源的失败，假装成功",
+            "放弃所有结果，重新开始"
+          ],
+          "difficulty": "easy",
+          "explanation": "原文强调：一个从四个数据源中只回答了三个并明确说明的 Agent，远比用幻觉内容填补缺口的 Agent 更有用。模型应始终知道工具失败，并诚实地告知用户数据缺失情况。"
+        },
+        {
+          "id": "q16",
+          "stem": "在工具调用协议中，为什么说\"边界很重要\"（The boundary matters）？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "因为模型和应用层应该尽可能耦合",
+            "因为模型和执行层的职责分离是协议的核心",
+            "因为应用层应该控制模型的推理过程",
+            "因为模型应该直接执行工具调用"
+          ],
+          "difficulty": "easy",
+          "explanation": "原文强调边界的重要性：模型是非确定性推理器，只提议动作；应用代码是确定性层，负责执行和校验。这种职责分离是工具调用协议的核心，确保模型不执行任何操作，应用层不干预模型推理。"
+        },
+        {
+          "id": "q17",
+          "stem": "以下哪个是类型化错误信号相比原始异常的主要优势？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "类型化错误信号更短",
+            "类型化错误信号让模型明确知道发生了什么以及下一步该做什么",
+            "类型化错误信号不需要应用层处理",
+            "类型化错误信号可以完全避免工具失败"
+          ],
+          "difficulty": "easy",
+          "explanation": "类型化、可解释的错误信号（如 {\"error\":\"rate_limited\",\"retry_after\":30}）告诉模型确切发生了什么以及下一步该做什么。原始异常堆栈对模型来说难以解析，类型化错误信号不能避免失败，仍需要应用层处理。"
+        },
+        {
+          "id": "q18",
+          "stem": "在工具调用失败恢复中，瞬时故障应该在哪个层面被吸收？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "模型推理层",
+            "工具层",
+            "用户界面层",
+            "数据库层"
+          ],
+          "difficulty": "easy",
+          "explanation": "原文明确指出：网络抖动和限流应该由工具层用指数退避吸收，而不是以原始形式暴露给推理循环。模型推理层不应处理瞬时故障，用户界面层和数据库层与故障吸收无关。"
+        },
+        {
+          "id": "q19",
+          "stem": "当熔断器触发后，模型应该收到什么信息？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "工具调用成功的假信号",
+            "工具不可用的明确信息",
+            "原始异常堆栈",
+            "没有任何信息"
+          ],
+          "difficulty": "easy",
+          "explanation": "熔断器触发后，工具停止被调用，模型被明确告知工具不可用。发送成功假信号会误导模型，原始异常堆栈难以解析，不发送任何信息会让模型无法判断工具状态。"
+        },
+        {
+          "id": "q20",
+          "stem": "以下关于工具调用协议中应用层职责的描述，哪项是正确的？",
+          "type": "single_choice",
+          "answer": "B",
+          "options": [
+            "应用层只负责生成 JSON 载荷",
+            "应用层负责接收载荷、校验、执行并返回结果",
+            "应用层负责模型的推理过程",
+            "应用层只负责记录工具调用的日志"
+          ],
+          "difficulty": "easy",
+          "explanation": "应用层负责接收模型产出的 JSON 载荷、校验载荷、执行工具逻辑并返回结果作为新上下文。生成 JSON 载荷是模型的职责，应用层不负责模型推理，日志记录只是应用层的辅助功能。"
+        }
+      ]
+    },
+    "artifact_type": "quiz",
+    "generation_state": {
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "资源类型为 quiz，共 20 道单选题，语言为中文，面向有 Python 开发基础、准备 AI Agent 岗位面试的受众，学习时间约 30 分钟可完成。题目覆盖工具调用协议、瞬时/持久故障处理、类型化错误信号及避免幻觉等已确认目标，未发现与用户要求冲突的内容。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "逐题核验后，所有题目的正确答案均与已确认研究资料一致：模型只提议动作、应用层执行；类型化错误信号优于原始异常；瞬时故障用指数退避、持久故障用熔断器；模型应知道失败而非幻觉填补。未发现事实性错误。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "作为 quiz，examples 维度按习题核验求解。20 道题均独立求解并核对答案与解析，选项干扰项均代表真实误区，解析对关键错误选项给出了明确原因，未发现含糊猜测或不成立算式。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "题目从基础概念（q1、q6、q9、q10、q13、q16、q20）到失败恢复（q2、q3、q4、q7、q8、q11、q12、q14、q18、q19）再到综合判断（q5、q15、q17），难度均为 easy，符合 30 分钟学习检查定位。题干自足，无答案泄露。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "内容与已确认研究来源 machinelearningmastery.com 的工具调用与失败恢复要点一致，包括职责分离、类型化错误信号、指数退避、熔断器和避免幻觉。未发现无依据的编造引用。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "已覆盖用户要求的全部学习目标：工具调用协议、瞬时与持久故障区分及策略、模型应知道失败的原因，以及类型化错误信号示例。20 道题数量适中，无缺失章节或目标。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "资源类型为 quiz，共 20 道单选题，语言为中文，面向有 Python 开发基础、准备 AI Agent 岗位面试的受众，学习时间约 30 分钟可完成。题目覆盖工具调用协议、瞬时/持久故障处理、类型化错误信号及避免幻觉等已确认目标，未发现与用户要求冲突的内容。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "逐题核验后，所有题目的正确答案均与已确认研究资料一致：模型只提议动作、应用层执行；类型化错误信号优于原始异常；瞬时故障用指数退避、持久故障用熔断器；模型应知道失败而非幻觉填补。未发现事实性错误。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "作为 quiz，examples 维度按习题核验求解。20 道题均独立求解并核对答案与解析，选项干扰项均代表真实误区，解析对关键错误选项给出了明确原因，未发现含糊猜测或不成立算式。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "题目从基础概念（q1、q6、q9、q10、q13、q16、q20）到失败恢复（q2、q3、q4、q7、q8、q11、q12、q14、q18、q19）再到综合判断（q5、q15、q17），难度均为 easy，符合 30 分钟学习检查定位。题干自足，无答案泄露。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "内容与已确认研究来源 machinelearningmastery.com 的工具调用与失败恢复要点一致，包括职责分离、类型化错误信号、指数退避、熔断器和避免幻觉。未发现无依据的编造引用。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "已覆盖用户要求的全部学习目标：工具调用协议、瞬时与持久故障区分及策略、模型应知道失败的原因，以及类型化错误信号示例。20 道题数量适中，无缺失章节或目标。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "题目难度全部为 easy，若希望更贴近面试场景，可考虑将 q11、q12、q16 等需要综合判断的题目调整为 medium，以增加区分度。",
+                "q2 和 q7 都涉及类型化错误信号示例，q3 和 q8 都涉及瞬时/持久故障策略，存在一定重复。可考虑合并或替换其中一题，改为考察指数退避的具体等待时间计算或熔断器阈值设置。",
+                "q5 和 q15 都引用同一原文观点（四个数据源中三个成功），建议保留一题，另一题改为考察模型收到错误信号后的具体行为差异。"
+              ],
+              "blocking_issues": [],
+              "question_checks": [
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "选项 A 说模型负责执行、应用层只生成 JSON，颠倒了职责，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 B 准确描述职责分离：模型提议动作并产出 JSON，应用层校验、执行并返回结果，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 C 说模型直接调用外部 API，违背模型不执行任何操作的原则，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "选项 D 说模型和应用层共同执行，混淆了职责边界，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 0,
+                  "explanation_valid": true,
+                  "independent_solution": "工具调用协议中模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷；应用层接收、校验、执行并返回结果。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "原始异常堆栈对模型难以解析，不是最佳做法，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "类型化错误信号如 {\"error\":\"rate_limited\",\"retry_after\":30} 明确告知错误类型和下一步，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "不返回错误信息会让模型无法判断工具是否成功，可能导致幻觉，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "返回空结果同样无法让模型区分成功与失败，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 1,
+                  "explanation_valid": true,
+                  "independent_solution": "工具失败后应返回类型化、可解释的错误信号，让模型知道发生了什么及下一步该做什么。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "API 密钥永久失效是持久故障，不适合指数退避，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "网络抖动导致的临时超时是瞬时故障，适合指数退避，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "工具端点永久下线是持久故障，不适合指数退避，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "请求参数格式错误是调用方错误，重试不会解决，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 2,
+                  "explanation_valid": true,
+                  "independent_solution": "瞬时故障是暂时性的，如网络抖动和限流，适合指数退避。API 密钥永久失效和端点下线是持久故障，参数格式错误是调用方错误。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "继续重试直到成功违背熔断器停止调用的目的，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "停止调用并明确告知模型工具不可用是熔断器的正确行为，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "将错误信号转换为成功信号会误导模型，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "自动切换工具不是熔断器的职责，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 3,
+                  "explanation_valid": true,
+                  "independent_solution": "熔断器用于持久故障，失败超过阈值后停止调用工具并明确告知模型工具不可用。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "幻觉内容不会让模型运行更快，且与速度无关，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "知道失败后模型可诚实说明数据缺失，比编造答案更有用，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "幻觉内容不一定导致应用层崩溃，因果关系不成立，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "模型需要知道执行结果，否则无法正确推理，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 4,
+                  "explanation_valid": true,
+                  "independent_solution": "模型知道失败后可以明确说明数据缺失，比编造答案更有用。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "工具名和参数是模型产出载荷的内容，正确。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "执行结果由应用层返回，不属于模型产出的载荷，错误。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "异常堆栈属于应用层处理范畴，不应由模型在载荷中提供，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "重试次数属于应用层处理范畴，不应由模型在载荷中提供，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 5,
+                  "explanation_valid": true,
+                  "independent_solution": "模型产出的结构化 JSON 载荷只包含工具名和参数，执行结果由应用层返回。正确选项为 A。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "\"something went wrong\" 过于模糊，模型无法据此决策，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "包含具体错误类型 rate_limited 和可操作的 retry_after 字段，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "\"Exception occurred\" 没有具体错误类型和下一步信息，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "\"failed\" 过于模糊，无法指导模型行动，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 6,
+                  "explanation_valid": true,
+                  "independent_solution": "类型化错误信号应包含具体错误类型和可操作的下一步信息。{\"error\":\"rate_limited\",\"retry_after\":30} 明确告知限流和等待时间，最有帮助。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "瞬时故障用熔断器、持久故障用指数退避颠倒了策略，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "瞬时故障用指数退避、持久故障用熔断器，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "两者都用指数退避无法处理持久故障，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "两者都用熔断器无法处理瞬时故障，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 7,
+                  "explanation_valid": true,
+                  "independent_solution": "瞬时故障用指数退避吸收，持久故障用熔断器停止调用。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "校验 JSON 载荷是应用层职责，属于应用层职责，不符合题干\"不包括\"，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "执行工具逻辑是应用层职责，不符合题干\"不包括\"，错误。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "返回执行结果作为新上下文是应用层职责，不符合题干\"不包括\"，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "决定模型推理方向是模型自身职责，不属于应用层，正确。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 8,
+                  "explanation_valid": true,
+                  "independent_solution": "应用层负责校验载荷、执行工具逻辑、返回结果，不负责决定模型推理方向。正确选项为 D。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "模型不是确定性执行器，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "模型是非确定性推理器，只提议动作，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "校验参数是应用层职责，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "失败恢复是应用层职责，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 9,
+                  "explanation_valid": true,
+                  "independent_solution": "模型是非确定性推理器，只提议动作，不执行、不校验、不处理失败恢复。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "立即重试会再次触发限流，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "根据 retry_after 字段等待约 30 秒后重试，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "编造结果会导致幻觉，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "忽略错误信号无法正确处理失败，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 10,
+                  "explanation_valid": true,
+                  "independent_solution": "retry_after 字段指示等待时间，模型应等待约 30 秒后重试。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "第一次超时可能是瞬时故障，不适合立即熔断，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "连续 10 次 503 表明持久故障，适合熔断器，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "参数格式错误是调用方问题，重试或熔断都不解决，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "用户输入无效查询是调用方问题，不适合熔断器，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 11,
+                  "explanation_valid": true,
+                  "independent_solution": "熔断器用于持久故障，连续 10 次 503 表明服务持续不可用，适合熔断。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "模型不会忽略结果，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "模型使用结果继续推理并生成最终答案，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "决定下一步动作是模型职责，不是应用层，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "结果不会被丢弃，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 12,
+                  "explanation_valid": true,
+                  "independent_solution": "执行结果返回给模型后，模型使用结果继续推理并生成最终答案。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "固定等待时间不是指数退避，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "等待时间按指数增长，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "指数退避是增长而非减少，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "指数退避用于瞬时故障，不是持久故障，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 13,
+                  "explanation_valid": true,
+                  "independent_solution": "指数退避的等待时间按指数增长，如 1、2、4、8 秒。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "用幻觉内容填补缺口违背原则，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "明确说明数据缺失情况，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "假装成功会误导用户，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "放弃所有结果过于极端，不是正确做法，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 14,
+                  "explanation_valid": true,
+                  "independent_solution": "从四个数据源只成功获取三个时，应明确说明只获取了三个数据源的结果，而非幻觉填补。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "模型和应用层应解耦而非耦合，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "职责分离是协议核心，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "应用层不应控制模型推理过程，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "模型不应直接执行工具调用，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 15,
+                  "explanation_valid": true,
+                  "independent_solution": "边界重要是因为模型与执行层的职责分离是协议核心。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "更短不是主要优势，且不一定更短，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "让模型明确知道发生了什么及下一步该做什么，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "类型化错误信号仍需应用层处理，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "类型化错误信号不能完全避免工具失败，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 16,
+                  "explanation_valid": true,
+                  "independent_solution": "类型化错误信号的主要优势是让模型明确知道发生了什么及下一步该做什么。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "模型推理层不应处理瞬时故障，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "工具层负责吸收瞬时故障，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "用户界面层与故障吸收无关，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "数据库层与故障吸收无关，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 17,
+                  "explanation_valid": true,
+                  "independent_solution": "瞬时故障应由工具层用指数退避吸收，不暴露给推理循环。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "成功假信号会误导模型，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "明确告知工具不可用，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "原始异常堆栈难以解析，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "不发送信息会让模型无法判断工具状态，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 18,
+                  "explanation_valid": true,
+                  "independent_solution": "熔断器触发后，模型应收到工具不可用的明确信息。正确选项为 B。"
+                },
+                {
+                  "option_checks": [
+                    {
+                      "reasoning": "生成 JSON 载荷是模型职责，错误。",
+                      "option_index": 0,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "接收、校验、执行并返回结果是应用层职责，正确。",
+                      "option_index": 1,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "应用层不负责模型推理过程，错误。",
+                      "option_index": 2,
+                      "explanation_valid": true
+                    },
+                    {
+                      "reasoning": "日志记录只是辅助功能，不是应用层核心职责，错误。",
+                      "option_index": 3,
+                      "explanation_valid": true
+                    }
+                  ],
+                  "answer_matches": true,
+                  "question_index": 19,
+                  "explanation_valid": true,
+                  "independent_solution": "应用层负责接收载荷、校验、执行并返回结果。正确选项为 B。"
+                }
+              ]
+            },
+            "version": 1,
+            "decision": "pass",
+            "content_sha256": "d29747f46e62e1bc6f938764a29eb45451629ef07f6c6dc2c374e4ca7bce6563"
+          }
+        ],
+        "version": 1,
+        "decision": "pass",
+        "suggestions": [
+          "题目难度全部为 easy，若希望更贴近面试场景，可考虑将 q11、q12、q16 等需要综合判断的题目调整为 medium，以增加区分度。",
+          "q2 和 q7 都涉及类型化错误信号示例，q3 和 q8 都涉及瞬时/持久故障策略，存在一定重复。可考虑合并或替换其中一题，改为考察指数退避的具体等待时间计算或熔断器阈值设置。",
+          "q5 和 q15 都引用同一原文观点（四个数据源中三个成功），建议保留一题，另一题改为考察模型收到错误信号后的具体行为差异。"
+        ],
+        "resource_type": "quiz",
+        "content_sha256": "d29747f46e62e1bc6f938764a29eb45451629ef07f6c6dc2c374e4ca7bce6563",
+        "question_checks": [
+          {
+            "option_checks": [
+              {
+                "reasoning": "选项 A 说模型负责执行、应用层只生成 JSON，颠倒了职责，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 B 准确描述职责分离：模型提议动作并产出 JSON，应用层校验、执行并返回结果，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 C 说模型直接调用外部 API，违背模型不执行任何操作的原则，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "选项 D 说模型和应用层共同执行，混淆了职责边界，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 0,
+            "explanation_valid": true,
+            "independent_solution": "工具调用协议中模型是非确定性推理器，只提议动作并产出结构化 JSON 载荷；应用层接收、校验、执行并返回结果。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "原始异常堆栈对模型难以解析，不是最佳做法，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "类型化错误信号如 {\"error\":\"rate_limited\",\"retry_after\":30} 明确告知错误类型和下一步，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "不返回错误信息会让模型无法判断工具是否成功，可能导致幻觉，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "返回空结果同样无法让模型区分成功与失败，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 1,
+            "explanation_valid": true,
+            "independent_solution": "工具失败后应返回类型化、可解释的错误信号，让模型知道发生了什么及下一步该做什么。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "API 密钥永久失效是持久故障，不适合指数退避，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "网络抖动导致的临时超时是瞬时故障，适合指数退避，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "工具端点永久下线是持久故障，不适合指数退避，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "请求参数格式错误是调用方错误，重试不会解决，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 2,
+            "explanation_valid": true,
+            "independent_solution": "瞬时故障是暂时性的，如网络抖动和限流，适合指数退避。API 密钥永久失效和端点下线是持久故障，参数格式错误是调用方错误。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "继续重试直到成功违背熔断器停止调用的目的，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "停止调用并明确告知模型工具不可用是熔断器的正确行为，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "将错误信号转换为成功信号会误导模型，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "自动切换工具不是熔断器的职责，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 3,
+            "explanation_valid": true,
+            "independent_solution": "熔断器用于持久故障，失败超过阈值后停止调用工具并明确告知模型工具不可用。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "幻觉内容不会让模型运行更快，且与速度无关，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "知道失败后模型可诚实说明数据缺失，比编造答案更有用，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "幻觉内容不一定导致应用层崩溃，因果关系不成立，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "模型需要知道执行结果，否则无法正确推理，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 4,
+            "explanation_valid": true,
+            "independent_solution": "模型知道失败后可以明确说明数据缺失，比编造答案更有用。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "工具名和参数是模型产出载荷的内容，正确。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "执行结果由应用层返回，不属于模型产出的载荷，错误。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "异常堆栈属于应用层处理范畴，不应由模型在载荷中提供，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "重试次数属于应用层处理范畴，不应由模型在载荷中提供，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 5,
+            "explanation_valid": true,
+            "independent_solution": "模型产出的结构化 JSON 载荷只包含工具名和参数，执行结果由应用层返回。正确选项为 A。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "\"something went wrong\" 过于模糊，模型无法据此决策，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "包含具体错误类型 rate_limited 和可操作的 retry_after 字段，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "\"Exception occurred\" 没有具体错误类型和下一步信息，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "\"failed\" 过于模糊，无法指导模型行动，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 6,
+            "explanation_valid": true,
+            "independent_solution": "类型化错误信号应包含具体错误类型和可操作的下一步信息。{\"error\":\"rate_limited\",\"retry_after\":30} 明确告知限流和等待时间，最有帮助。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "瞬时故障用熔断器、持久故障用指数退避颠倒了策略，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "瞬时故障用指数退避、持久故障用熔断器，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "两者都用指数退避无法处理持久故障，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "两者都用熔断器无法处理瞬时故障，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 7,
+            "explanation_valid": true,
+            "independent_solution": "瞬时故障用指数退避吸收，持久故障用熔断器停止调用。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "校验 JSON 载荷是应用层职责，属于应用层职责，不符合题干\"不包括\"，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "执行工具逻辑是应用层职责，不符合题干\"不包括\"，错误。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "返回执行结果作为新上下文是应用层职责，不符合题干\"不包括\"，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "决定模型推理方向是模型自身职责，不属于应用层，正确。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 8,
+            "explanation_valid": true,
+            "independent_solution": "应用层负责校验载荷、执行工具逻辑、返回结果，不负责决定模型推理方向。正确选项为 D。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "模型不是确定性执行器，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "模型是非确定性推理器，只提议动作，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "校验参数是应用层职责，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "失败恢复是应用层职责，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 9,
+            "explanation_valid": true,
+            "independent_solution": "模型是非确定性推理器，只提议动作，不执行、不校验、不处理失败恢复。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "立即重试会再次触发限流，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "根据 retry_after 字段等待约 30 秒后重试，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "编造结果会导致幻觉，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "忽略错误信号无法正确处理失败，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 10,
+            "explanation_valid": true,
+            "independent_solution": "retry_after 字段指示等待时间，模型应等待约 30 秒后重试。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "第一次超时可能是瞬时故障，不适合立即熔断，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "连续 10 次 503 表明持久故障，适合熔断器，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "参数格式错误是调用方问题，重试或熔断都不解决，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "用户输入无效查询是调用方问题，不适合熔断器，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 11,
+            "explanation_valid": true,
+            "independent_solution": "熔断器用于持久故障，连续 10 次 503 表明服务持续不可用，适合熔断。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "模型不会忽略结果，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "模型使用结果继续推理并生成最终答案，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "决定下一步动作是模型职责，不是应用层，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "结果不会被丢弃，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 12,
+            "explanation_valid": true,
+            "independent_solution": "执行结果返回给模型后，模型使用结果继续推理并生成最终答案。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "固定等待时间不是指数退避，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "等待时间按指数增长，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "指数退避是增长而非减少，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "指数退避用于瞬时故障，不是持久故障，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 13,
+            "explanation_valid": true,
+            "independent_solution": "指数退避的等待时间按指数增长，如 1、2、4、8 秒。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "用幻觉内容填补缺口违背原则，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "明确说明数据缺失情况，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "假装成功会误导用户，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "放弃所有结果过于极端，不是正确做法，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 14,
+            "explanation_valid": true,
+            "independent_solution": "从四个数据源只成功获取三个时，应明确说明只获取了三个数据源的结果，而非幻觉填补。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "模型和应用层应解耦而非耦合，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "职责分离是协议核心，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "应用层不应控制模型推理过程，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "模型不应直接执行工具调用，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 15,
+            "explanation_valid": true,
+            "independent_solution": "边界重要是因为模型与执行层的职责分离是协议核心。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "更短不是主要优势，且不一定更短，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "让模型明确知道发生了什么及下一步该做什么，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "类型化错误信号仍需应用层处理，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "类型化错误信号不能完全避免工具失败，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 16,
+            "explanation_valid": true,
+            "independent_solution": "类型化错误信号的主要优势是让模型明确知道发生了什么及下一步该做什么。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "模型推理层不应处理瞬时故障，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "工具层负责吸收瞬时故障，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "用户界面层与故障吸收无关，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "数据库层与故障吸收无关，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 17,
+            "explanation_valid": true,
+            "independent_solution": "瞬时故障应由工具层用指数退避吸收，不暴露给推理循环。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "成功假信号会误导模型，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "明确告知工具不可用，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "原始异常堆栈难以解析，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "不发送信息会让模型无法判断工具状态，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 18,
+            "explanation_valid": true,
+            "independent_solution": "熔断器触发后，模型应收到工具不可用的明确信息。正确选项为 B。"
+          },
+          {
+            "option_checks": [
+              {
+                "reasoning": "生成 JSON 载荷是模型职责，错误。",
+                "option_index": 0,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "接收、校验、执行并返回结果是应用层职责，正确。",
+                "option_index": 1,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "应用层不负责模型推理过程，错误。",
+                "option_index": 2,
+                "explanation_valid": true
+              },
+              {
+                "reasoning": "日志记录只是辅助功能，不是应用层核心职责，错误。",
+                "option_index": 3,
+                "explanation_valid": true
+              }
+            ],
+            "answer_matches": true,
+            "question_index": 19,
+            "explanation_valid": true,
+            "independent_solution": "应用层负责接收载荷、校验、执行并返回结果。正确选项为 B。"
+          }
+        ]
+      }
+    }
+  },
+  "learning_course_resource": true
+}

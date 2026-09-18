@@ -1,0 +1,43 @@
+.FF..................................                                    [100%]
+=================================== FAILURES ===================================
+_________ test_doc_conversion_is_explicit_and_failures_are_not_success _________
+
+    def test_doc_conversion_is_explicit_and_failures_are_not_success():
+        def convert(path,root):
+            target=root/'converted.docx'; target.write_bytes(docx_bytes()); return target
+        parsed=DocumentParser(doc_converter=convert).parse(b'legacy fixture',filename='讲义.doc')
+        assert 'Agent' in parsed.content
+>       with pytest.raises(DocumentUnreadable): DocumentParser().parse(b'broken',filename='scan.pdf')
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/course_preparation/test_document_adapter.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <app.course_preparation.adapters.documents.DocumentParser object at 0x7fa6b7c08950>
+data = b'broken', filename = 'scan.pdf'
+
+    def parse(self, data, *, filename):
+        suffix = Path(filename).suffix.lower()
+        if len(data) > 30 * 1024 * 1024: raise DocumentUnreadable('DOCUMENT_TOO_LARGE')
+        source_hash = hashlib.sha256(data).hexdigest()
+        defects, units = [], []
+        if suffix in ('.md','.markdown','.txt'):
+            try: content = data.decode('utf-8-sig')
+            except UnicodeError as exc: raise DocumentUnreadable('DOCUMENT_ENCODING_INVALID') from exc
+            parser = 'utf8-text-v1'
+        elif suffix == '.pdf':
+>           import fitz
+E           ModuleNotFoundError: No module named 'fitz'
+
+app/course_preparation/adapters/documents.py:40: ModuleNotFoundError
+________ test_pdf_partial_coverage_is_recorded_and_empty_scan_rejected _________
+
+    def test_pdf_partial_coverage_is_recorded_and_empty_scan_rejected():
+>       import fitz
+E       ModuleNotFoundError: No module named 'fitz'
+
+tests/course_preparation/test_document_adapter.py:35: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/course_preparation/test_document_adapter.py::test_doc_conversion_is_explicit_and_failures_are_not_success
+FAILED tests/course_preparation/test_document_adapter.py::test_pdf_partial_coverage_is_recorded_and_empty_scan_rejected
+2 failed, 35 passed in 7.83s

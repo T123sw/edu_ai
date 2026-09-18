@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { type Classroom } from "./model";
 import { Brand, Icon } from "./ui";
 
@@ -10,6 +10,8 @@ type Props = {
   onOpen: (room: Classroom, shared?: boolean) => void;
   onPublish: () => void;
   live?: boolean;
+  preparationOptions?: ReactNode;
+  preparationTasks?: ReactNode;
 };
 export function Cover({ room }: { room: Pick<Classroom, "tone"> }) {
   const python = room.tone === "mint";
@@ -95,6 +97,8 @@ export function Home({
   onOpen,
   onPublish,
   live,
+  preparationOptions,
+  preparationTasks,
 }: Props) {
   const [prompt, setPrompt] = useState("");
   const [query, setQuery] = useState("");
@@ -136,6 +140,7 @@ export function Home({
               }
             }}
           />
+          {preparationOptions}
           <div className="sl-prompt-bottom">
             <button
               className="sl-primary"
@@ -147,6 +152,7 @@ export function Home({
           </div>
         </form>
       </section>
+      {preparationTasks}
       <div className="sl-home-library">
         <section aria-label="最近学习">
           <div className="sl-section-heading">

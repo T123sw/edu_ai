@@ -68,8 +68,28 @@ def for_learning_service(learning, repository):
         if material.get('version') != ref.version:
             raise HTTPException(409, '资料版本已变化，请刷新后重试')
         return material
+    def manifest(actor, course, ref):
+        from copy import deepcopy
+        from app.course_preparation.production_service import digest
+        bridge = learning.prepared_courses
+        value = bridge.manifest(actor.user_id, course, ref) if bridge else None
+        if not value or not learning.preparations:
+            return value
+        # P5 personal additions do not change the committed route requirements.
+        value = deepcopy(value)
+        nodes = {node['node_id']: node for node in value['nodes']}
+        for extra in learning.preparations.service.resources(actor.user_id, course):
+            node = nodes.get(extra['node_id'])
+            if node is None: continue
+            material = learning.material(course, extra['material_type'], extra['material_id'], actor.user_id)
+            if material.get('version') != extra['version'] or digest(material) != extra['content_hash']: continue
+            if any(r['resource_id'] == extra['material_id'] for r in node['resources']): continue
+            node['resources'].append({'resource_id': extra['material_id'], 'resource_type': extra['material_type'],
+                'version': extra['version'], 'title': material.get('title', ''), 'required': False,
+                'order': len(node['resources']), 'objective_ids': []})
+        return value
     reader = CourseReader(authorize=lambda actor, course: learning.require(course, actor.user_id),
-        load_manifest=lambda *_: None,
+        load_manifest=manifest,
         load_legacy=lambda actor, course: learning.room(course, actor.user_id, include_progress=False),
         load_resource=resource)
     return ProgressService(reader, repository)

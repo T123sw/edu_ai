@@ -51,6 +51,8 @@ def _isolate_job_storage(monkeypatch, tmp_path):
     """job_store.py 写 Config.STORAGE_ROOT/jobs，跟 CourseStorageManager 各自
     独立的 root_path 无关——不隔离会一直污染真实项目的 storage/jobs/
     （已实测发现：之前的测试运行留下了几十个 job_*.json 在真实目录里）。"""
+    for kind in ['JOB', 'TASK', 'COURSE', 'COURSE_MEMBERSHIP', 'MATERIAL', 'KNOWLEDGE', 'APP_STATE']:
+        monkeypatch.setenv(kind + '_PERSISTENCE_MODE', 'json')
     from core import Config
     from app.chat.tasks.task_store import TaskStore
 
@@ -689,3 +691,15 @@ async def test_submit_classroom_generation_job_reuses_idempotent_agent_request(
     )
 
     assert second.edu_job_id == first.edu_job_id
+
+
+async def test_custom_material_id_is_used_for_authenticated_audio(monkeypatch):
+    from app.services.classroom_service import _make_on_sidecar_succeeded
+    manager = _make_manager()
+    client = FakeClient(with_audio=True)
+    persist = _make_on_sidecar_succeeded(active_client=client, course_storage_manager=manager, course_id='course-1', owner='teacher-a', scope_type='course', scope_id=None, material_id='stable-learning-lesson')
+    await persist({'classroomId': 'stage-1'})
+    saved = manager.get_generated_material('course-1', 'classroom', 'stable-learning-lesson', owner_user_id='teacher-a')
+    url = saved['scenes'][0]['actions'][0]['audioUrl']
+    assert url == '/api/courses/course-1/classrooms/stable-learning-lesson/audio/tts_s1_act-1.mp3'
+    assert (manager.get_classroom_audio_dir('course-1', 'stable-learning-lesson') / 'tts_s1_act-1.mp3').read_bytes() == b'fake-audio-bytes'

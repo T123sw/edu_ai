@@ -64,8 +64,11 @@ class ProductionService:
         self.learning.require(request.target.course_id, owner)
         # Do not read projection here: acceptance can be inside the queue transaction.
         from app.self_learning.service import graph_leaves
-        info = self.learning.manager.get_course_info(request.target.course_id)
-        nodes = graph_leaves(self.learning.manager.get_knowledge_graph(request.target.course_id)) or [{'id': info['id']}]
+        info, _ = self.learning.require(request.target.course_id, owner)
+        bridge = getattr(self.learning, 'prepared_courses', None)
+        manifest = bridge.manifest(owner, request.target.course_id) if bridge else None
+        nodes = ([{'id': n['node_id']} for n in manifest['nodes']] if manifest else
+                 graph_leaves(self.learning.manager.get_knowledge_graph(request.target.course_id)) or [{'id': info['id']}])
         if request.target.node_id not in {n['id'] for n in nodes}:
             raise HTTPException(404, '知识点不可用')
 

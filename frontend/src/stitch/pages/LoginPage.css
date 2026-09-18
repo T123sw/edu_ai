@@ -6,8 +6,8 @@
   align-items: center;
   justify-content: space-between;
   background:
-    radial-gradient(circle at 18% 28%, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 32%),
-    radial-gradient(circle at 78% 72%, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 28%),
+    radial-gradient(circle at 18% 28%, color-mix(in srgb, var(--accent, #0056d2) 18%, transparent) 0%, transparent 32%),
+    radial-gradient(circle at 78% 72%, color-mix(in srgb, var(--accent, #0056d2) 12%, transparent) 0%, transparent 28%),
     linear-gradient(135deg, rgba(7, 17, 31, 0.82) 0%, rgba(15, 35, 66, 0.58) 48%, rgba(10, 21, 39, 0.42) 100%),
     url("../login-bg.png") center/cover no-repeat;
   padding: 0 140px 0 80px;
@@ -56,7 +56,7 @@
   flex-direction: column;
   align-items: center;
   line-height: 1;
-  color: var(--accent);
+  color: var(--accent, #0056d2);
 }
 
 .login-logo-main {
@@ -181,8 +181,8 @@
 .login-form-wrapper .ant-input-affix-wrapper:focus,
 .login-form-wrapper .ant-input-affix-wrapper-focused,
 .login-form-wrapper .ant-input:focus {
-  border-color: var(--accent) !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent) !important;
+  border-color: var(--accent, #0056d2) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent, #0056d2) 18%, transparent) !important;
 }
 
 .login-form-wrapper .ant-checkbox-wrapper {
@@ -195,8 +195,8 @@
 }
 
 .login-form-wrapper .ant-checkbox-checked .ant-checkbox-inner {
-  background-color: var(--accent);
-  border-color: var(--accent);
+  background-color: var(--accent, #0056d2);
+  border-color: var(--accent, #0056d2);
 }
 
 .login-form-options {
@@ -213,14 +213,14 @@
   min-height: 46px;
   border-color: transparent;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 74%, #ffffff 26%) 100%);
-  box-shadow: 0 14px 28px var(--accent-shadow);
+  background: linear-gradient(135deg, var(--accent, #0056d2) 0%, color-mix(in srgb, var(--accent, #0056d2) 74%, #ffffff 26%) 100%);
+  box-shadow: 0 14px 28px var(--accent-shadow, rgba(0, 64, 161, 0.12));
   font-weight: 700;
 }
 
 .login-form-wrapper .ant-btn-primary:hover,
 .login-form-wrapper .ant-btn-primary:focus {
-  background: linear-gradient(135deg, var(--accent-strong) 0%, var(--accent) 100%) !important;
+  background: linear-gradient(135deg, var(--accent-strong, #003b97) 0%, var(--accent, #0056d2) 100%) !important;
   border-color: transparent !important;
 }
 

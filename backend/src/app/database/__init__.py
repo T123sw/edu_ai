@@ -18,6 +18,7 @@ from .models import (
     Course,
     CourseMembership,
     CourseObjective,
+    CourseResearchRunRecord,
     CoursePreparationRecord,
     CoursePreparationAttemptRecord,
     CoursePreparationEventRecord,
@@ -51,13 +52,12 @@ from .models import (
     UserProfileFact,
 )
 from .session import DatabaseNotConfigured, database_session
-
 from app.self_learning.db_models import LearningAgentTurn, LearningTopicSession
 
 __all__ = [
-    "LearningAgentTurn",
-    "LearningTopicSession",
     "Base",
+    "LearningTopicSession",
+    "LearningAgentTurn",
     "AgentMemoryAuditEvent",
     "AgentMemoryItem",
     "AppStateRecord",
@@ -75,6 +75,7 @@ __all__ = [
     "Course",
     "CourseMembership",
     "CourseObjective",
+    "CourseResearchRunRecord",
     "CoursePreparationRecord",
     "CoursePreparationAttemptRecord",
     "CoursePreparationEventRecord",
@@ -110,3 +111,9 @@ __all__ = [
     "database_session",
     "probe_database",
 ]
+
+# Preparation runtime tables participate in migration metadata without loading services.
+from .models import PreparationExecution, PreparationBudget, PreparationAction
+from app.course_preparation.publication_models import PublishedPreparationManifest, PublishedPreparationPointer
+
+from app.course_preparation.notification_models import PreparationCourseNotification

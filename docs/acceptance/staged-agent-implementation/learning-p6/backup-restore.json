@@ -1,0 +1,22 @@
+{
+  "method": "pg_dump custom format / pg_restore --exit-on-error into separate database",
+  "backup_sha256": "1c7dbc4824d433f43185400de60fa5f5d82be085ded815d4e504e5e0abb50953",
+  "backup_bytes": 1576658,
+  "row_counts_after_restore": {
+    "edu_ai_agent_stage": {
+      "course_preparations": 7,
+      "prepared_manifest_versions": 2,
+      "learning_topic_sessions": 1,
+      "learning_check_attempts": 1,
+      "conversation_messages": 4
+    },
+    "edu_ai_agent_restore_20260917": {
+      "course_preparations": 7,
+      "prepared_manifest_versions": 2,
+      "learning_topic_sessions": 1,
+      "learning_check_attempts": 1,
+      "conversation_messages": 4
+    }
+  },
+  "note": "源库继续用于隔离测试；恢复库不参与业务请求。"
+}

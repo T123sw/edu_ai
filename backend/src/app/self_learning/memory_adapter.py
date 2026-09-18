@@ -110,6 +110,9 @@ class MemoryAdapter(SessionRepository):
                 epoch_row = LearningMemoryEpoch(owner=owner, epoch=0)
                 db.add(epoch_row)
             epoch_row.epoch += 1
+            from app.chat.memory.lifecycle import lock_epoch, changed
+            from sqlalchemy import inspect
+            preparation_epoch = lock_epoch(db, owner) if inspect(db.connection()).has_table('agent_memory_epochs') else None
             scope_filter = AgentMemoryItem.course_id == target_course if target_course else AgentMemoryItem.course_id.is_(None)
             previous = list(db.scalars(select(AgentMemoryItem).where(AgentMemoryItem.subject_user_id == owner,
                 scope_filter, AgentMemoryItem.profile_axis == FIELDS[field])))
@@ -150,6 +153,8 @@ class MemoryAdapter(SessionRepository):
                 profile.value, profile.status, profile.last_seen_at, profile.last_confirmed_at = value, 'active', now, now
             for summary in db.scalars(select(LearningContextSummary).where(LearningContextSummary.owner == owner)):
                 summary.status = 'invalidated'
+            if preparation_epoch is not None:
+                changed(db, preparation_epoch, [identity, *[p.memory_id for p in previous]])
             result = {'field': field, 'scope': scope, 'revision': revision + 1, 'memory_epoch': epoch_row.epoch, 'changed': True}
             db.add(LearningEnrichmentReceipt(owner=owner, operation_id=operation_id, payload_hash=fingerprint, result=result))
             db.add(LearningMemoryOutbox(owner=owner, operation_id=operation_id, payload={**result, 'course_id': target_course, 'memory_id': identity}))

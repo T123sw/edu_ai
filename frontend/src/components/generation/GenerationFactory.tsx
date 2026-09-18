@@ -202,7 +202,7 @@ export function GenerationFactory({
       {queuedAgentRequest ? <p className="generation-factory__queue-state" role="status">正在提交后台生成…</p> : null}
       <div className="generation-factory__registry">
         {visibleResources.map((item) => (
-          <button key={item.resourceType} type="button" onClick={(event) => open(item.resourceType, event.currentTarget)} style={{ "--resource-accent": item.accent } as React.CSSProperties}>
+          <button key={item.resourceType} aria-label={item.label} type="button" onClick={(event) => open(item.resourceType, event.currentTarget)} style={{ "--resource-accent": item.accent } as React.CSSProperties}>
             <MaterialIcon name={item.icon} />
             <strong>{item.label}</strong>
           </button>

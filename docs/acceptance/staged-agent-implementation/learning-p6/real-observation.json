@@ -1,0 +1,73 @@
+{
+  "turn_id": "answer-3a5101441aac4139b94d12d3c7b838fd",
+  "session_id": "learning-e6146a5744d585f5e925758956c6e72ba2334c8d2ea9e2fc4c41cf107910db6c",
+  "request_id": "0c7598ff-403b-457a-8503-a8adc4f2a9fb",
+  "topic_id": "agent_loop_boundary",
+  "status": "succeeded",
+  "stage": "succeeded",
+  "attempt": 1,
+  "result": {
+    "citations": [
+      {
+        "locator": null,
+        "citation_id": "ctx_01",
+        "content_hash": "69af36d1add70668c4817e5f11c8d646e34daf22f8cbdd5115cddc2bb213ed6a",
+        "resource_ref": {
+          "version": 1,
+          "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+          "material_id": "resource_a73c22403f4930d5fb9f3f1e8a218b76",
+          "material_type": "report"
+        }
+      }
+    ],
+    "model_usage": [
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 7445,
+          "prompt_tokens": 6832,
+          "completion_tokens": 613
+        }
+      },
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 5794,
+          "prompt_tokens": 5125,
+          "completion_tokens": 669
+        }
+      }
+    ],
+    "observation": {
+      "kind": "confusion",
+      "text": "用户把「模型输出工具调用」误认为「Python 函数已执行成功」，从而认为应用层无需校验参数或处理异常，说明其对 L1 循环中「模型提议 vs 应用执行」的职责边界存在混淆，需通过强调「模型只说不做、应用负责校验执行」来纠正。",
+      "status": "hypothesis",
+      "evaluator": "model",
+      "source_refs": [
+        "answer-3a5101441aac4139b94d12d3c7b838fd:user"
+      ],
+      "source_quote": "我一直以为模型输出一个工具调用就代表 Python 函数已经执行成功了，因此不用在应用里校验参数或处理异常。",
+      "objective_ids": [
+        "agent_loop_boundary:o2",
+        "agent_loop_boundary:o3"
+      ]
+    },
+    "citation_ids": [
+      "ctx_01"
+    ],
+    "model_rounds": 2,
+    "role_version": "learning-role-v1",
+    "tool_attempts": 0,
+    "memory_context": {
+      "preferences": {},
+      "memory_epoch": 0
+    },
+    "answer_markdown": "你的混淆点很典型，根源在于把「模型输出工具调用」和「函数真正执行」当成了同一件事。实际上它们是两个完全分离的步骤，中间隔着应用层。\n\n**关键区分：模型只「说」，应用才「做」。**\n\n模型输出一个工具调用，本质只是产出一段结构化的 JSON 载荷（工具名 + 参数），例如 `{\"tool\": \"get_order_status\", \"arguments\": {\"order_id\": \"12345\"}}`。它**没有调用任何 Python 函数、没有查数据库、没有发网络请求**。它只是「提议」了一个动作。\n\n真正执行的是应用代码：应用收到这段载荷后，先**校验参数**（`order_id` 是不是合法格式）、再**做权限检查**（当前用户有没有权查这个订单），然后才真正运行函数，最后把结果回传给模型。\n\n**为什么不能跳过校验？因为模型是非确定性推理器。**\n\n模型是概率性系统，同样的输入可能给出不同输出，它可能：\n- 幻觉出一个不存在的工具名；\n- 生成格式错误的参数（比如 `order_id` 传成 `\"abc\"`）；\n- 两次调用之间给出不一致的判断。\n\n而工具执行涉及数据库、权限、外部 API，必须是**确定性的、可审计的**。如果让模型「说了就算执行成功」，等于把安全边界交给一个概率系统——你无法保证它不会在参数里多一个零、不会越权访问、出错时也无法精确回溯。\n\n所以正确的心智模型是：**模型提议 → 应用校验 → 应用执行 → 结果回传 → 模型继续推理**。模型输出工具调用，只是这个循环的起点，不是终点。\n\n**回到你的具体疑问**：模型输出工具调用 ≠ 函数执行成功。应用层必须校验参数、处理异常，把错误信息回传给模型，让模型修正后重新提议——而不是默认「既然模型说了，函数就已经跑成功了」。\n\n关于「参数错了该谁修」：应用只负责**报告**「这个参数不合法」，不替模型猜正确参数；模型负责**推理**出正确参数重新提议。这样职责边界才不模糊。",
+    "source_revision": 0,
+    "preparation_receipts": [],
+    "suggested_action_ids": [],
+    "understanding_checks": []
+  },
+  "error_code": null,
+  "preparation_receipts": []
+}

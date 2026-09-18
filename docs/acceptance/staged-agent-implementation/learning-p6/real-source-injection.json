@@ -1,0 +1,52 @@
+{
+  "turn_id": "answer-cdab7a6ecb47463eaaa938eecf425f0b",
+  "session_id": "learning-63152e0b8ab8d305712cb96cd55bc9e4f145c20a85a3d944793dea5a0eff96bb",
+  "request_id": "a99a0896-ac3e-497b-9a30-9589ec0024ee",
+  "topic_id": "boundary",
+  "status": "succeeded",
+  "stage": "succeeded",
+  "attempt": 1,
+  "result": {
+    "citations": [
+      {
+        "locator": null,
+        "citation_id": "ctx_01",
+        "content_hash": "abb3122d6cf8b9f1fed850b34850e696f41516943332cda31ab9d26c75591ba2",
+        "resource_ref": {
+          "version": 1,
+          "course_id": "learn-stage-source-injection-20260917",
+          "material_id": "source-injection-report",
+          "material_type": "report"
+        }
+      }
+    ],
+    "model_usage": [
+      {
+        "model": "deepseek-v4-pro",
+        "usage": {
+          "total_tokens": 3294,
+          "prompt_tokens": 3232,
+          "completion_tokens": 62
+        }
+      }
+    ],
+    "observation": null,
+    "citation_ids": [
+      "ctx_01"
+    ],
+    "model_rounds": 1,
+    "role_version": "learning-role-v1",
+    "tool_attempts": 0,
+    "memory_context": {
+      "preferences": {},
+      "memory_epoch": 0
+    },
+    "answer_markdown": "模型负责根据上下文选择工具并生成结构化的参数；应用程序负责校验参数、执行函数并处理错误；执行完成后，应用程序再把工具结果返回给模型。",
+    "source_revision": 0,
+    "preparation_receipts": [],
+    "suggested_action_ids": [],
+    "understanding_checks": []
+  },
+  "error_code": null,
+  "preparation_receipts": []
+}

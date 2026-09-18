@@ -1,0 +1,1672 @@
+{
+  "stage": {
+    "id": "resource_2d17f81444ef02943a9d9893b665d135",
+    "name": "评估与可观测性",
+    "createdAt": 1789655005244,
+    "updatedAt": 1789655005244
+  },
+  "title": "评估与可观测性",
+  "scenes": [
+    {
+      "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1",
+      "type": "slide",
+      "order": 0,
+      "title": "为什么 Agent 需要分层可观测性",
+      "actions": [
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:speech",
+          "text": "很多团队调试 Agent 时习惯说“模型又幻觉了”，但这句话本身没有诊断价值。Agent 的运行实际上由三层循环构成：最底层是单个工具调用，中间层是任务步骤与计划推进，最上层是多智能体之间的编排与交接。每一层都可能独立出错，而错误的表现往往相似——输出不对、任务卡住、结果偏离预期。如果不分层记录日志，你只能看到最终结果错了，却不知道错在哪一层。分层可观测性的核心思想是：让每一层都留下足够的痕迹，这样当故障发生时，你可以从最底层开始逐层向上排查，而不是凭感觉归因。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">为什么 Agent 需要分层可观测性</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>Agent 是三层循环：工具调用、任务规划、多智能体编排</p><p>笼统归因于“幻觉”会掩盖真实故障点</p><p>分层日志让故障定位有据可查</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+      "createdAt": 1789655005244,
+      "updatedAt": 1789655005244
+    },
+    {
+      "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2",
+      "type": "slide",
+      "order": 1,
+      "title": "L1：工具调用层日志字段",
+      "actions": [
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:speech",
+          "text": "L1 是最底层，记录每一次工具调用的完整信息。具体来说，要记录工具名和传入的参数，这样你能确认模型是否调用了正确的工具、参数是否合理。接着是 schema 校验结果——如果参数不符合工具定义的格式，调用会在执行前就被拒绝，这个信息能帮你区分“模型生成了错误参数”和“工具本身执行出错”。此外还要记录工具延迟，即这次调用花了多长时间；输出大小，即返回了多少内容；以及调用前是否发生了截断。截断是一个容易被忽视的问题：如果输入在进入工具之前就被截断了，工具收到的就是不完整的信息，后续错误自然会发生。这六个字段构成了排查的第一道防线。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">L1：工具调用层日志字段</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>工具名与参数：确认调用目标是否正确</p><p>schema 校验结果：参数是否合法</p><p>工具延迟、输出大小、调用前是否截断</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+      "createdAt": 1789655005244,
+      "updatedAt": 1789655005244
+    },
+    {
+      "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3",
+      "type": "slide",
+      "order": 2,
+      "title": "L2：任务规划层日志字段",
+      "actions": [
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:speech",
+          "text": "L2 关注的是任务执行过程中的规划与状态管理。首先记录步骤号，即当前执行到第几步，以及当前的计划或 todo 状态——哪些子任务已完成、哪些还在进行、哪些被跳过。这能帮你判断 Agent 是否按照合理的顺序推进任务。其次要记录记忆读写操作：Agent 什么时候写入了记忆、什么时候读取了记忆、读到了什么内容。如果 Agent 忘记了之前的关键信息，很可能是记忆读写出了问题。如果有检索操作，还要记录检索决策，比如检索了什么、为什么检索、检索结果如何被使用。最后是停止原因：任务是因为成功完成而停止，还是因为达到了最大步数限制，或者是因为出错而中断。停止原因直接告诉你任务是在哪个环节结束的。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">L2：任务规划层日志字段</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>步骤号与当前计划/todo 状态</p><p>记忆读写与检索决策</p><p>停止原因：成功、达到最大步数、错误</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+      "createdAt": 1789655005244,
+      "updatedAt": 1789655005244
+    },
+    {
+      "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4",
+      "type": "slide",
+      "order": 3,
+      "title": "L3：编排层日志字段",
+      "actions": [
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:speech",
+          "text": "L3 是最上层，适用于多智能体系统。当多个 agent 协作时，你需要记录每一个行动是由哪个 agent 发起的，以及 agent 之间发生了哪些委托或交接。比如 agent A 把子任务交给了 agent B，这条交接边要记录下来，否则你无法还原任务流转的路径。同时要记录权限范围：这个 agent 被允许做什么、实际使用了什么权限。如果涉及审批中断，要记录中断是什么时候被触发的、由谁审批、最终是批准还是拒绝。最后是终止条件：整个系统是因为正常停止而结束，还是因为超时被强制终止，或者被用户手动取消。这些信息帮助你判断问题是出在单个 agent 的决策上，还是出在 agent 之间的协作机制上。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">L3：编排层日志字段</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>哪个 agent 行动，委托/交接边</p><p>权限范围与审批中断</p><p>终止条件：停止、超时、取消</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+      "createdAt": 1789655005244,
+      "updatedAt": 1789655005244
+    },
+    {
+      "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5",
+      "type": "slide",
+      "order": 4,
+      "title": "从 L1 向上逐层排查",
+      "actions": [
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:speech",
+          "text": "当故障发生时，排查顺序是从 L1 开始，逐层向上。第一步看 L1 的工具调用日志：工具名和参数是否正确？schema 校验是否通过？如果工具调用本身就有问题，比如参数格式错误或者输入被截断，那问题就出在最底层，不需要往上查。如果 L1 的工具调用看起来干净，就移动到 L2，检查计划状态：步骤推进是否合理？记忆读写是否正常？停止原因是什么？如果计划本身没有问题，再移动到 L3，检查编排层：agent 之间的交接是否正确？权限使用是否越界？审批流程是否按预期执行？这个顺序的关键在于：每一层的问题都会向上传导，但根因一定在最早出现异常的那一层。从下往上排查，能让你找到真正的根因，而不是笼统地说“模型幻觉了”。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">从 L1 向上逐层排查</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>先看 L1：工具调用是否干净</p><p>再看 L2：计划与记忆是否合理</p><p>最后看 L3：编排与交接是否正确</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+      "createdAt": 1789655005244,
+      "updatedAt": 1789655005244
+    },
+    {
+      "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6",
+      "type": "slide",
+      "order": 5,
+      "title": "学习检查",
+      "actions": [
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:speech",
+          "text": "现在来做学习检查。第一题：不看笔记，列出 L1 层的至少 3 个日志字段。参考答案包括：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断。第二题：说出从 L1 向上排查的完整顺序。正确顺序是：先检查 L1 工具调用是否干净，如果干净再检查 L2 计划与记忆是否合理，如果计划也没问题，最后检查 L3 编排与交接是否正确。如果你在回答时卡壳了，不要硬想，回到学习报告中重新阅读分层日志的段落，重点看每一层记录哪些字段以及排查顺序的说明。完成这两道题后，你就能在面试中清晰地解释可观测性如何支撑 Agent 的评估与迭代。",
+          "type": "speech"
+        }
+      ],
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:canvas",
+          "theme": {
+            "fontName": "sans-serif",
+            "fontColor": "#172033",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "backgroundColor": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:title",
+              "top": 35,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 100,
+              "rotate": 0,
+              "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            },
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:body",
+              "top": 155,
+              "left": 60,
+              "type": "text",
+              "width": 880,
+              "height": 350,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\"><p>不看笔记，列出 L1 至少 3 个日志字段</p><p>说出从 L1 向上排查的完整顺序</p><p>若卡壳，回到学习报告重读分层日志段落</p></div>",
+              "lineHeight": 1.4,
+              "defaultColor": "#172033",
+              "defaultFontName": "sans-serif"
+            }
+          ],
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625
+        }
+      },
+      "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+      "createdAt": 1789655005244,
+      "updatedAt": 1789655005244
+    }
+  ],
+  "status": "ready",
+  "content": {
+    "stage": {
+      "id": "resource_2d17f81444ef02943a9d9893b665d135",
+      "name": "评估与可观测性",
+      "createdAt": 1789655005244,
+      "updatedAt": 1789655005244
+    },
+    "scenes": [
+      {
+        "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1",
+        "type": "slide",
+        "order": 0,
+        "title": "为什么 Agent 需要分层可观测性",
+        "actions": [
+          {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:speech",
+            "text": "很多团队调试 Agent 时习惯说“模型又幻觉了”，但这句话本身没有诊断价值。Agent 的运行实际上由三层循环构成：最底层是单个工具调用，中间层是任务步骤与计划推进，最上层是多智能体之间的编排与交接。每一层都可能独立出错，而错误的表现往往相似——输出不对、任务卡住、结果偏离预期。如果不分层记录日志，你只能看到最终结果错了，却不知道错在哪一层。分层可观测性的核心思想是：让每一层都留下足够的痕迹，这样当故障发生时，你可以从最底层开始逐层向上排查，而不是凭感觉归因。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">为什么 Agent 需要分层可观测性</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>Agent 是三层循环：工具调用、任务规划、多智能体编排</p><p>笼统归因于“幻觉”会掩盖真实故障点</p><p>分层日志让故障定位有据可查</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+        "createdAt": 1789655005244,
+        "updatedAt": 1789655005244
+      },
+      {
+        "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2",
+        "type": "slide",
+        "order": 1,
+        "title": "L1：工具调用层日志字段",
+        "actions": [
+          {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:speech",
+            "text": "L1 是最底层，记录每一次工具调用的完整信息。具体来说，要记录工具名和传入的参数，这样你能确认模型是否调用了正确的工具、参数是否合理。接着是 schema 校验结果——如果参数不符合工具定义的格式，调用会在执行前就被拒绝，这个信息能帮你区分“模型生成了错误参数”和“工具本身执行出错”。此外还要记录工具延迟，即这次调用花了多长时间；输出大小，即返回了多少内容；以及调用前是否发生了截断。截断是一个容易被忽视的问题：如果输入在进入工具之前就被截断了，工具收到的就是不完整的信息，后续错误自然会发生。这六个字段构成了排查的第一道防线。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">L1：工具调用层日志字段</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>工具名与参数：确认调用目标是否正确</p><p>schema 校验结果：参数是否合法</p><p>工具延迟、输出大小、调用前是否截断</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+        "createdAt": 1789655005244,
+        "updatedAt": 1789655005244
+      },
+      {
+        "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3",
+        "type": "slide",
+        "order": 2,
+        "title": "L2：任务规划层日志字段",
+        "actions": [
+          {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:speech",
+            "text": "L2 关注的是任务执行过程中的规划与状态管理。首先记录步骤号，即当前执行到第几步，以及当前的计划或 todo 状态——哪些子任务已完成、哪些还在进行、哪些被跳过。这能帮你判断 Agent 是否按照合理的顺序推进任务。其次要记录记忆读写操作：Agent 什么时候写入了记忆、什么时候读取了记忆、读到了什么内容。如果 Agent 忘记了之前的关键信息，很可能是记忆读写出了问题。如果有检索操作，还要记录检索决策，比如检索了什么、为什么检索、检索结果如何被使用。最后是停止原因：任务是因为成功完成而停止，还是因为达到了最大步数限制，或者是因为出错而中断。停止原因直接告诉你任务是在哪个环节结束的。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">L2：任务规划层日志字段</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>步骤号与当前计划/todo 状态</p><p>记忆读写与检索决策</p><p>停止原因：成功、达到最大步数、错误</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+        "createdAt": 1789655005244,
+        "updatedAt": 1789655005244
+      },
+      {
+        "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4",
+        "type": "slide",
+        "order": 3,
+        "title": "L3：编排层日志字段",
+        "actions": [
+          {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:speech",
+            "text": "L3 是最上层，适用于多智能体系统。当多个 agent 协作时，你需要记录每一个行动是由哪个 agent 发起的，以及 agent 之间发生了哪些委托或交接。比如 agent A 把子任务交给了 agent B，这条交接边要记录下来，否则你无法还原任务流转的路径。同时要记录权限范围：这个 agent 被允许做什么、实际使用了什么权限。如果涉及审批中断，要记录中断是什么时候被触发的、由谁审批、最终是批准还是拒绝。最后是终止条件：整个系统是因为正常停止而结束，还是因为超时被强制终止，或者被用户手动取消。这些信息帮助你判断问题是出在单个 agent 的决策上，还是出在 agent 之间的协作机制上。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">L3：编排层日志字段</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>哪个 agent 行动，委托/交接边</p><p>权限范围与审批中断</p><p>终止条件：停止、超时、取消</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+        "createdAt": 1789655005244,
+        "updatedAt": 1789655005244
+      },
+      {
+        "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5",
+        "type": "slide",
+        "order": 4,
+        "title": "从 L1 向上逐层排查",
+        "actions": [
+          {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:speech",
+            "text": "当故障发生时，排查顺序是从 L1 开始，逐层向上。第一步看 L1 的工具调用日志：工具名和参数是否正确？schema 校验是否通过？如果工具调用本身就有问题，比如参数格式错误或者输入被截断，那问题就出在最底层，不需要往上查。如果 L1 的工具调用看起来干净，就移动到 L2，检查计划状态：步骤推进是否合理？记忆读写是否正常？停止原因是什么？如果计划本身没有问题，再移动到 L3，检查编排层：agent 之间的交接是否正确？权限使用是否越界？审批流程是否按预期执行？这个顺序的关键在于：每一层的问题都会向上传导，但根因一定在最早出现异常的那一层。从下往上排查，能让你找到真正的根因，而不是笼统地说“模型幻觉了”。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">从 L1 向上逐层排查</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>先看 L1：工具调用是否干净</p><p>再看 L2：计划与记忆是否合理</p><p>最后看 L3：编排与交接是否正确</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+        "createdAt": 1789655005244,
+        "updatedAt": 1789655005244
+      },
+      {
+        "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6",
+        "type": "slide",
+        "order": 5,
+        "title": "学习检查",
+        "actions": [
+          {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:speech",
+            "text": "现在来做学习检查。第一题：不看笔记，列出 L1 层的至少 3 个日志字段。参考答案包括：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断。第二题：说出从 L1 向上排查的完整顺序。正确顺序是：先检查 L1 工具调用是否干净，如果干净再检查 L2 计划与记忆是否合理，如果计划也没问题，最后检查 L3 编排与交接是否正确。如果你在回答时卡壳了，不要硬想，回到学习报告中重新阅读分层日志的段落，重点看每一层记录哪些字段以及排查顺序的说明。完成这两道题后，你就能在面试中清晰地解释可观测性如何支撑 Agent 的评估与迭代。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>不看笔记，列出 L1 至少 3 个日志字段</p><p>说出从 L1 向上排查的完整顺序</p><p>若卡壳，回到学习报告重读分层日志段落</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+        "createdAt": 1789655005244,
+        "updatedAt": 1789655005244
+      }
+    ]
+  },
+  "version": 1,
+  "scope_id": "eval_observability",
+  "course_id": "learn-04ff5bf7661240208c47bf84afca5e46",
+  "created_at": "2026-09-17T14:24:21.376898+00:00",
+  "created_by": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "scope_type": "knowledge_point",
+  "updated_at": "2026-09-17T14:24:21.376898+00:00",
+  "visibility": "private",
+  "material_id": "resource_2d17f81444ef02943a9d9893b665d135",
+  "origin_type": "personal",
+  "content_hash": "10df10a87b0aa072335a688570f9419c4ae1ff17e021ae86b35cead99d7449de",
+  "material_type": "classroom",
+  "owner_user_id": "stage-smoke-a2c22033a1824a7ba2ec87ca80cc3fcc",
+  "preparation_id": "prep_04ff5bf7661240208c47bf84afca5e46",
+  "generation_state": {
+    "resource_review": {
+      "checks": [
+        {
+          "passed": true,
+          "reason": "资源为课堂类型，共 6 个场景，覆盖概念与机制、案例与面试表达、学习检查三个章节；受众为有 Python 开发基础、目标应聘 AI Agent 开发岗位的学习者，语言为中文，学习时间约 30 分钟。目标中的 L1/L2/L3 字段、从 L1 向上排查、可观测性支撑评估与迭代均有对应场景。学习检查场景包含不看笔记列出 L1 至少 3 个字段和说出排查顺序，并提示卡壳时回到学习报告重读分层日志段落。",
+          "criterion": "requirements"
+        },
+        {
+          "passed": true,
+          "reason": "逐场景核验投屏与讲解：L1 六字段（工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断）、L2 字段（步骤号、计划/todo 状态、记忆读写、检索决策、停止原因）、L3 字段（哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件）均与已确认研究来源一致。排查顺序为 L1→L2→L3，讲解中未出现数值、边界或因果错误。",
+          "criterion": "correctness"
+        },
+        {
+          "passed": true,
+          "reason": "课堂资源不要求习题逐题求解或闪卡问答；学习检查场景提供了两道检查题及参考答案，答案与正文分层字段和排查顺序一致。场景 4 中 agent A 将子任务交给 agent B 的交接边示例正确说明 L3 交接日志的作用。",
+          "criterion": "examples"
+        },
+        {
+          "passed": true,
+          "reason": "场景顺序为：引入分层可观测性→L1→L2→L3→逐层排查→学习检查，符合开场、解释、练习/反馈的结构。每个场景有标题、投屏要点和讲解动作，讲解不是逐字朗读投屏，而是展开解释。学习检查放在最后，提供参考答案和卡壳时的回看指引。",
+          "criterion": "teaching_structure"
+        },
+        {
+          "passed": true,
+          "reason": "研究来源为 Medium 文章，正文中的 L1/L2/L3 字段和排查顺序与来源一致。未发现无依据的编造引用或与来源冲突的断言。",
+          "criterion": "sources"
+        },
+        {
+          "passed": true,
+          "reason": "6 个场景完整覆盖 required_coverage 中 scene_index 0-5，每个场景的 speech_action_indices [0] 均有对应讲解动作。学习目标中的三个要点均有覆盖，学习检查与目标中的检查要求一致。",
+          "criterion": "completeness"
+        }
+      ],
+      "method": "model_review",
+      "history": [
+        {
+          "review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "资源为课堂类型，共 6 个场景，覆盖概念与机制、案例与面试表达、学习检查三个章节；受众为有 Python 开发基础、目标应聘 AI Agent 开发岗位的学习者，语言为中文，学习时间约 30 分钟。目标中的 L1/L2/L3 字段、从 L1 向上排查、可观测性支撑评估与迭代均有对应场景。学习检查场景包含不看笔记列出 L1 至少 3 个字段和说出排查顺序，并提示卡壳时回到学习报告重读分层日志段落。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐场景核验投屏与讲解：L1 六字段（工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断）、L2 字段（步骤号、计划/todo 状态、记忆读写、检索决策、停止原因）、L3 字段（哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件）均与已确认研究来源一致。排查顺序为 L1→L2→L3，讲解中未出现数值、边界或因果错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "课堂资源不要求习题逐题求解或闪卡问答；学习检查场景提供了两道检查题及参考答案，答案与正文分层字段和排查顺序一致。场景 4 中 agent A 将子任务交给 agent B 的交接边示例正确说明 L3 交接日志的作用。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "场景顺序为：引入分层可观测性→L1→L2→L3→逐层排查→学习检查，符合开场、解释、练习/反馈的结构。每个场景有标题、投屏要点和讲解动作，讲解不是逐字朗读投屏，而是展开解释。学习检查放在最后，提供参考答案和卡壳时的回看指引。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "研究来源为 Medium 文章，正文中的 L1/L2/L3 字段和排查顺序与来源一致。未发现无依据的编造引用或与来源冲突的断言。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "6 个场景完整覆盖 required_coverage 中 scene_index 0-5，每个场景的 speech_action_indices [0] 均有对应讲解动作。学习目标中的三个要点均有覆盖，学习检查与目标中的检查要求一致。",
+                "criterion": "completeness"
+              }
+            ],
+            "suggestions": [
+              "场景 1 的投屏文字“Agent 是三层循环：工具调用、任务规划、多智能体编排”可考虑补充“L1/L2/L3”标注，帮助学习者建立层级编号与名称的对应关系。",
+              "场景 6 的学习检查可考虑在投屏中直接列出参考答案的关键词，便于学习者对照，但当前讲解已提供完整答案，不构成缺陷。"
+            ],
+            "scene_checks": [
+              {
+                "scene_index": 0,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解说明 Agent 由三层循环构成：单个工具调用、任务步骤与计划推进、多智能体编排与交接；指出笼统归因于幻觉没有诊断价值，并说明分层日志让故障可从最底层逐层向上排查。与投屏和研究来源一致，无数值或因果错误。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“为什么 Agent 需要分层可观测性”，正文列出三层循环、笼统归因于幻觉会掩盖真实故障点、分层日志让故障定位有据可查。内容与场景目标一致，无事实错误。"
+              },
+              {
+                "scene_index": 1,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解逐项说明 L1 六个字段：工具名和参数、schema 校验结果、工具延迟、输出大小、调用前是否截断，并解释截断会导致工具收到不完整信息。字段数量与内容均正确，未将截断误说为调用后发生。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“L1：工具调用层日志字段”，正文列出工具名与参数、schema 校验结果、工具延迟、输出大小、调用前是否截断。与研究来源 L1 字段一致。"
+              },
+              {
+                "scene_index": 2,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解说明 L2 记录步骤号、计划/todo 状态、记忆读写、检索决策和停止原因，并解释停止原因包括成功、达到最大步数、错误。与投屏和研究来源一致，未出现步骤号与下标混淆等问题。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“L2：任务规划层日志字段”，正文列出步骤号与当前计划/todo 状态、记忆读写与检索决策、停止原因（成功、达到最大步数、错误）。与研究来源 L2 字段一致。"
+              },
+              {
+                "scene_index": 3,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解说明 L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断和终止条件，并用 agent A 将子任务交给 agent B 的示例说明交接边。示例与字段含义一致，终止条件中的停止、超时、取消对应正确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“L3：编排层日志字段”，正文列出哪个 agent 行动、委托/交接边、权限范围与审批中断、终止条件（停止、超时、取消）。与研究来源 L3 字段一致。"
+              },
+              {
+                "scene_index": 4,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解明确排查顺序为 L1→L2→L3，并说明每层问题会向上传导、根因在最早出现异常的那一层。逻辑正确，未将顺序说反，也未笼统归因于幻觉。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“从 L1 向上逐层排查”，正文列出先看 L1 工具调用是否干净、再看 L2 计划与记忆是否合理、最后看 L3 编排与交接是否正确。顺序与研究来源一致。"
+              },
+              {
+                "scene_index": 5,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解给出第一题参考答案：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断，满足至少 3 个字段的要求；第二题参考答案为 L1→L2→L3 的排查顺序，与正文一致。卡壳时回看学习报告的指引也正确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题为“学习检查”，正文列出不看笔记列出 L1 至少 3 个日志字段、说出从 L1 向上排查的完整顺序、若卡壳回到学习报告重读分层日志段落。与学习目标中的检查要求一致。"
+              }
+            ],
+            "blocking_issues": []
+          },
+          "version": 1,
+          "decision": "pass"
+        }
+      ],
+      "decision": "pass",
+      "scene_checks": [
+        {
+          "scene_index": 0,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解说明 Agent 由三层循环构成：单个工具调用、任务步骤与计划推进、多智能体编排与交接；指出笼统归因于幻觉没有诊断价值，并说明分层日志让故障可从最底层逐层向上排查。与投屏和研究来源一致，无数值或因果错误。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“为什么 Agent 需要分层可观测性”，正文列出三层循环、笼统归因于幻觉会掩盖真实故障点、分层日志让故障定位有据可查。内容与场景目标一致，无事实错误。"
+        },
+        {
+          "scene_index": 1,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解逐项说明 L1 六个字段：工具名和参数、schema 校验结果、工具延迟、输出大小、调用前是否截断，并解释截断会导致工具收到不完整信息。字段数量与内容均正确，未将截断误说为调用后发生。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“L1：工具调用层日志字段”，正文列出工具名与参数、schema 校验结果、工具延迟、输出大小、调用前是否截断。与研究来源 L1 字段一致。"
+        },
+        {
+          "scene_index": 2,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解说明 L2 记录步骤号、计划/todo 状态、记忆读写、检索决策和停止原因，并解释停止原因包括成功、达到最大步数、错误。与投屏和研究来源一致，未出现步骤号与下标混淆等问题。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“L2：任务规划层日志字段”，正文列出步骤号与当前计划/todo 状态、记忆读写与检索决策、停止原因（成功、达到最大步数、错误）。与研究来源 L2 字段一致。"
+        },
+        {
+          "scene_index": 3,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解说明 L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断和终止条件，并用 agent A 将子任务交给 agent B 的示例说明交接边。示例与字段含义一致，终止条件中的停止、超时、取消对应正确。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“L3：编排层日志字段”，正文列出哪个 agent 行动、委托/交接边、权限范围与审批中断、终止条件（停止、超时、取消）。与研究来源 L3 字段一致。"
+        },
+        {
+          "scene_index": 4,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解明确排查顺序为 L1→L2→L3，并说明每层问题会向上传导、根因在最早出现异常的那一层。逻辑正确，未将顺序说反，也未笼统归因于幻觉。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“从 L1 向上逐层排查”，正文列出先看 L1 工具调用是否干净、再看 L2 计划与记忆是否合理、最后看 L3 编排与交接是否正确。顺序与研究来源一致。"
+        },
+        {
+          "scene_index": 5,
+          "screen_passed": true,
+          "speech_checks": [
+            {
+              "passed": true,
+              "reasoning": "讲解给出第一题参考答案：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断，满足至少 3 个字段的要求；第二题参考答案为 L1→L2→L3 的排查顺序，与正文一致。卡壳时回看学习报告的指引也正确。",
+              "action_index": 0
+            }
+          ],
+          "screen_reasoning": "投屏标题为“学习检查”，正文列出不看笔记列出 L1 至少 3 个日志字段、说出从 L1 向上排查的完整顺序、若卡壳回到学习报告重读分层日志段落。与学习目标中的检查要求一致。"
+        }
+      ],
+      "resource_type": "classroom",
+      "content_sha256": "de06dcbea5c6a02287f46e91a0b937029aba062bf9b89cf9c44e892fe9281d89"
+    }
+  },
+  "preparation_artifact": {
+    "title": "评估与可观测性",
+    "content": {
+      "stage": {
+        "id": "resource_2d17f81444ef02943a9d9893b665d135",
+        "name": "评估与可观测性",
+        "createdAt": 1789655005244,
+        "updatedAt": 1789655005244
+      },
+      "scenes": [
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1",
+          "type": "slide",
+          "order": 0,
+          "title": "为什么 Agent 需要分层可观测性",
+          "actions": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:speech",
+              "text": "很多团队调试 Agent 时习惯说“模型又幻觉了”，但这句话本身没有诊断价值。Agent 的运行实际上由三层循环构成：最底层是单个工具调用，中间层是任务步骤与计划推进，最上层是多智能体之间的编排与交接。每一层都可能独立出错，而错误的表现往往相似——输出不对、任务卡住、结果偏离预期。如果不分层记录日志，你只能看到最终结果错了，却不知道错在哪一层。分层可观测性的核心思想是：让每一层都留下足够的痕迹，这样当故障发生时，你可以从最底层开始逐层向上排查，而不是凭感觉归因。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">为什么 Agent 需要分层可观测性</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene1:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>Agent 是三层循环：工具调用、任务规划、多智能体编排</p><p>笼统归因于“幻觉”会掩盖真实故障点</p><p>分层日志让故障定位有据可查</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+          "createdAt": 1789655005244,
+          "updatedAt": 1789655005244
+        },
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2",
+          "type": "slide",
+          "order": 1,
+          "title": "L1：工具调用层日志字段",
+          "actions": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:speech",
+              "text": "L1 是最底层，记录每一次工具调用的完整信息。具体来说，要记录工具名和传入的参数，这样你能确认模型是否调用了正确的工具、参数是否合理。接着是 schema 校验结果——如果参数不符合工具定义的格式，调用会在执行前就被拒绝，这个信息能帮你区分“模型生成了错误参数”和“工具本身执行出错”。此外还要记录工具延迟，即这次调用花了多长时间；输出大小，即返回了多少内容；以及调用前是否发生了截断。截断是一个容易被忽视的问题：如果输入在进入工具之前就被截断了，工具收到的就是不完整的信息，后续错误自然会发生。这六个字段构成了排查的第一道防线。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">L1：工具调用层日志字段</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene2:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>工具名与参数：确认调用目标是否正确</p><p>schema 校验结果：参数是否合法</p><p>工具延迟、输出大小、调用前是否截断</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+          "createdAt": 1789655005244,
+          "updatedAt": 1789655005244
+        },
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3",
+          "type": "slide",
+          "order": 2,
+          "title": "L2：任务规划层日志字段",
+          "actions": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:speech",
+              "text": "L2 关注的是任务执行过程中的规划与状态管理。首先记录步骤号，即当前执行到第几步，以及当前的计划或 todo 状态——哪些子任务已完成、哪些还在进行、哪些被跳过。这能帮你判断 Agent 是否按照合理的顺序推进任务。其次要记录记忆读写操作：Agent 什么时候写入了记忆、什么时候读取了记忆、读到了什么内容。如果 Agent 忘记了之前的关键信息，很可能是记忆读写出了问题。如果有检索操作，还要记录检索决策，比如检索了什么、为什么检索、检索结果如何被使用。最后是停止原因：任务是因为成功完成而停止，还是因为达到了最大步数限制，或者是因为出错而中断。停止原因直接告诉你任务是在哪个环节结束的。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">L2：任务规划层日志字段</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene3:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>步骤号与当前计划/todo 状态</p><p>记忆读写与检索决策</p><p>停止原因：成功、达到最大步数、错误</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+          "createdAt": 1789655005244,
+          "updatedAt": 1789655005244
+        },
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4",
+          "type": "slide",
+          "order": 3,
+          "title": "L3：编排层日志字段",
+          "actions": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:speech",
+              "text": "L3 是最上层，适用于多智能体系统。当多个 agent 协作时，你需要记录每一个行动是由哪个 agent 发起的，以及 agent 之间发生了哪些委托或交接。比如 agent A 把子任务交给了 agent B，这条交接边要记录下来，否则你无法还原任务流转的路径。同时要记录权限范围：这个 agent 被允许做什么、实际使用了什么权限。如果涉及审批中断，要记录中断是什么时候被触发的、由谁审批、最终是批准还是拒绝。最后是终止条件：整个系统是因为正常停止而结束，还是因为超时被强制终止，或者被用户手动取消。这些信息帮助你判断问题是出在单个 agent 的决策上，还是出在 agent 之间的协作机制上。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">L3：编排层日志字段</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene4:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>哪个 agent 行动，委托/交接边</p><p>权限范围与审批中断</p><p>终止条件：停止、超时、取消</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+          "createdAt": 1789655005244,
+          "updatedAt": 1789655005244
+        },
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5",
+          "type": "slide",
+          "order": 4,
+          "title": "从 L1 向上逐层排查",
+          "actions": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:speech",
+              "text": "当故障发生时，排查顺序是从 L1 开始，逐层向上。第一步看 L1 的工具调用日志：工具名和参数是否正确？schema 校验是否通过？如果工具调用本身就有问题，比如参数格式错误或者输入被截断，那问题就出在最底层，不需要往上查。如果 L1 的工具调用看起来干净，就移动到 L2，检查计划状态：步骤推进是否合理？记忆读写是否正常？停止原因是什么？如果计划本身没有问题，再移动到 L3，检查编排层：agent 之间的交接是否正确？权限使用是否越界？审批流程是否按预期执行？这个顺序的关键在于：每一层的问题都会向上传导，但根因一定在最早出现异常的那一层。从下往上排查，能让你找到真正的根因，而不是笼统地说“模型幻觉了”。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">从 L1 向上逐层排查</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene5:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>先看 L1：工具调用是否干净</p><p>再看 L2：计划与记忆是否合理</p><p>最后看 L3：编排与交接是否正确</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+          "createdAt": 1789655005244,
+          "updatedAt": 1789655005244
+        },
+        {
+          "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6",
+          "type": "slide",
+          "order": 5,
+          "title": "学习检查",
+          "actions": [
+            {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:speech",
+              "text": "现在来做学习检查。第一题：不看笔记，列出 L1 层的至少 3 个日志字段。参考答案包括：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断。第二题：说出从 L1 向上排查的完整顺序。正确顺序是：先检查 L1 工具调用是否干净，如果干净再检查 L2 计划与记忆是否合理，如果计划也没问题，最后检查 L3 编排与交接是否正确。如果你在回答时卡壳了，不要硬想，回到学习报告中重新阅读分层日志的段落，重点看每一层记录哪些字段以及排查顺序的说明。完成这两道题后，你就能在面试中清晰地解释可观测性如何支撑 Agent 的评估与迭代。",
+              "type": "speech"
+            }
+          ],
+          "content": {
+            "type": "slide",
+            "canvas": {
+              "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:canvas",
+              "theme": {
+                "fontName": "sans-serif",
+                "fontColor": "#172033",
+                "themeColors": [
+                  "#2563eb"
+                ],
+                "backgroundColor": "#ffffff"
+              },
+              "elements": [
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:title",
+                  "top": 35,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 100,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                },
+                {
+                  "id": "resource_2d17f81444ef02943a9d9893b665d135:scene6:body",
+                  "top": 155,
+                  "left": 60,
+                  "type": "text",
+                  "width": 880,
+                  "height": 350,
+                  "rotate": 0,
+                  "content": "<div style=\"font-size:28px;line-height:1.4\"><p>不看笔记，列出 L1 至少 3 个日志字段</p><p>说出从 L1 向上排查的完整顺序</p><p>若卡壳，回到学习报告重读分层日志段落</p></div>",
+                  "lineHeight": 1.4,
+                  "defaultColor": "#172033",
+                  "defaultFontName": "sans-serif"
+                }
+              ],
+              "background": {
+                "type": "solid",
+                "color": "#ffffff"
+              },
+              "viewportSize": 1000,
+              "viewportRatio": 0.5625
+            }
+          },
+          "stageId": "resource_2d17f81444ef02943a9d9893b665d135",
+          "createdAt": 1789655005244,
+          "updatedAt": 1789655005244
+        }
+      ]
+    },
+    "limitations": [
+      "文本投屏与讲解动作；未生成外部图片、视频或预合成配音。"
+    ],
+    "artifact_type": "classroom",
+    "generation_state": {
+      "resource_review": {
+        "checks": [
+          {
+            "passed": true,
+            "reason": "资源为课堂类型，共 6 个场景，覆盖概念与机制、案例与面试表达、学习检查三个章节；受众为有 Python 开发基础、目标应聘 AI Agent 开发岗位的学习者，语言为中文，学习时间约 30 分钟。目标中的 L1/L2/L3 字段、从 L1 向上排查、可观测性支撑评估与迭代均有对应场景。学习检查场景包含不看笔记列出 L1 至少 3 个字段和说出排查顺序，并提示卡壳时回到学习报告重读分层日志段落。",
+            "criterion": "requirements"
+          },
+          {
+            "passed": true,
+            "reason": "逐场景核验投屏与讲解：L1 六字段（工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断）、L2 字段（步骤号、计划/todo 状态、记忆读写、检索决策、停止原因）、L3 字段（哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件）均与已确认研究来源一致。排查顺序为 L1→L2→L3，讲解中未出现数值、边界或因果错误。",
+            "criterion": "correctness"
+          },
+          {
+            "passed": true,
+            "reason": "课堂资源不要求习题逐题求解或闪卡问答；学习检查场景提供了两道检查题及参考答案，答案与正文分层字段和排查顺序一致。场景 4 中 agent A 将子任务交给 agent B 的交接边示例正确说明 L3 交接日志的作用。",
+            "criterion": "examples"
+          },
+          {
+            "passed": true,
+            "reason": "场景顺序为：引入分层可观测性→L1→L2→L3→逐层排查→学习检查，符合开场、解释、练习/反馈的结构。每个场景有标题、投屏要点和讲解动作，讲解不是逐字朗读投屏，而是展开解释。学习检查放在最后，提供参考答案和卡壳时的回看指引。",
+            "criterion": "teaching_structure"
+          },
+          {
+            "passed": true,
+            "reason": "研究来源为 Medium 文章，正文中的 L1/L2/L3 字段和排查顺序与来源一致。未发现无依据的编造引用或与来源冲突的断言。",
+            "criterion": "sources"
+          },
+          {
+            "passed": true,
+            "reason": "6 个场景完整覆盖 required_coverage 中 scene_index 0-5，每个场景的 speech_action_indices [0] 均有对应讲解动作。学习目标中的三个要点均有覆盖，学习检查与目标中的检查要求一致。",
+            "criterion": "completeness"
+          }
+        ],
+        "method": "model_review",
+        "history": [
+          {
+            "review": {
+              "checks": [
+                {
+                  "passed": true,
+                  "reason": "资源为课堂类型，共 6 个场景，覆盖概念与机制、案例与面试表达、学习检查三个章节；受众为有 Python 开发基础、目标应聘 AI Agent 开发岗位的学习者，语言为中文，学习时间约 30 分钟。目标中的 L1/L2/L3 字段、从 L1 向上排查、可观测性支撑评估与迭代均有对应场景。学习检查场景包含不看笔记列出 L1 至少 3 个字段和说出排查顺序，并提示卡壳时回到学习报告重读分层日志段落。",
+                  "criterion": "requirements"
+                },
+                {
+                  "passed": true,
+                  "reason": "逐场景核验投屏与讲解：L1 六字段（工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否截断）、L2 字段（步骤号、计划/todo 状态、记忆读写、检索决策、停止原因）、L3 字段（哪个 agent 行动、委托/交接边、权限范围、审批中断、终止条件）均与已确认研究来源一致。排查顺序为 L1→L2→L3，讲解中未出现数值、边界或因果错误。",
+                  "criterion": "correctness"
+                },
+                {
+                  "passed": true,
+                  "reason": "课堂资源不要求习题逐题求解或闪卡问答；学习检查场景提供了两道检查题及参考答案，答案与正文分层字段和排查顺序一致。场景 4 中 agent A 将子任务交给 agent B 的交接边示例正确说明 L3 交接日志的作用。",
+                  "criterion": "examples"
+                },
+                {
+                  "passed": true,
+                  "reason": "场景顺序为：引入分层可观测性→L1→L2→L3→逐层排查→学习检查，符合开场、解释、练习/反馈的结构。每个场景有标题、投屏要点和讲解动作，讲解不是逐字朗读投屏，而是展开解释。学习检查放在最后，提供参考答案和卡壳时的回看指引。",
+                  "criterion": "teaching_structure"
+                },
+                {
+                  "passed": true,
+                  "reason": "研究来源为 Medium 文章，正文中的 L1/L2/L3 字段和排查顺序与来源一致。未发现无依据的编造引用或与来源冲突的断言。",
+                  "criterion": "sources"
+                },
+                {
+                  "passed": true,
+                  "reason": "6 个场景完整覆盖 required_coverage 中 scene_index 0-5，每个场景的 speech_action_indices [0] 均有对应讲解动作。学习目标中的三个要点均有覆盖，学习检查与目标中的检查要求一致。",
+                  "criterion": "completeness"
+                }
+              ],
+              "suggestions": [
+                "场景 1 的投屏文字“Agent 是三层循环：工具调用、任务规划、多智能体编排”可考虑补充“L1/L2/L3”标注，帮助学习者建立层级编号与名称的对应关系。",
+                "场景 6 的学习检查可考虑在投屏中直接列出参考答案的关键词，便于学习者对照，但当前讲解已提供完整答案，不构成缺陷。"
+              ],
+              "scene_checks": [
+                {
+                  "scene_index": 0,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解说明 Agent 由三层循环构成：单个工具调用、任务步骤与计划推进、多智能体编排与交接；指出笼统归因于幻觉没有诊断价值，并说明分层日志让故障可从最底层逐层向上排查。与投屏和研究来源一致，无数值或因果错误。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“为什么 Agent 需要分层可观测性”，正文列出三层循环、笼统归因于幻觉会掩盖真实故障点、分层日志让故障定位有据可查。内容与场景目标一致，无事实错误。"
+                },
+                {
+                  "scene_index": 1,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解逐项说明 L1 六个字段：工具名和参数、schema 校验结果、工具延迟、输出大小、调用前是否截断，并解释截断会导致工具收到不完整信息。字段数量与内容均正确，未将截断误说为调用后发生。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“L1：工具调用层日志字段”，正文列出工具名与参数、schema 校验结果、工具延迟、输出大小、调用前是否截断。与研究来源 L1 字段一致。"
+                },
+                {
+                  "scene_index": 2,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解说明 L2 记录步骤号、计划/todo 状态、记忆读写、检索决策和停止原因，并解释停止原因包括成功、达到最大步数、错误。与投屏和研究来源一致，未出现步骤号与下标混淆等问题。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“L2：任务规划层日志字段”，正文列出步骤号与当前计划/todo 状态、记忆读写与检索决策、停止原因（成功、达到最大步数、错误）。与研究来源 L2 字段一致。"
+                },
+                {
+                  "scene_index": 3,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解说明 L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断和终止条件，并用 agent A 将子任务交给 agent B 的示例说明交接边。示例与字段含义一致，终止条件中的停止、超时、取消对应正确。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“L3：编排层日志字段”，正文列出哪个 agent 行动、委托/交接边、权限范围与审批中断、终止条件（停止、超时、取消）。与研究来源 L3 字段一致。"
+                },
+                {
+                  "scene_index": 4,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解明确排查顺序为 L1→L2→L3，并说明每层问题会向上传导、根因在最早出现异常的那一层。逻辑正确，未将顺序说反，也未笼统归因于幻觉。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“从 L1 向上逐层排查”，正文列出先看 L1 工具调用是否干净、再看 L2 计划与记忆是否合理、最后看 L3 编排与交接是否正确。顺序与研究来源一致。"
+                },
+                {
+                  "scene_index": 5,
+                  "screen_passed": true,
+                  "speech_checks": [
+                    {
+                      "passed": true,
+                      "reasoning": "讲解给出第一题参考答案：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断，满足至少 3 个字段的要求；第二题参考答案为 L1→L2→L3 的排查顺序，与正文一致。卡壳时回看学习报告的指引也正确。",
+                      "action_index": 0
+                    }
+                  ],
+                  "screen_reasoning": "投屏标题为“学习检查”，正文列出不看笔记列出 L1 至少 3 个日志字段、说出从 L1 向上排查的完整顺序、若卡壳回到学习报告重读分层日志段落。与学习目标中的检查要求一致。"
+                }
+              ],
+              "blocking_issues": []
+            },
+            "version": 1,
+            "decision": "pass"
+          }
+        ],
+        "decision": "pass",
+        "scene_checks": [
+          {
+            "scene_index": 0,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解说明 Agent 由三层循环构成：单个工具调用、任务步骤与计划推进、多智能体编排与交接；指出笼统归因于幻觉没有诊断价值，并说明分层日志让故障可从最底层逐层向上排查。与投屏和研究来源一致，无数值或因果错误。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“为什么 Agent 需要分层可观测性”，正文列出三层循环、笼统归因于幻觉会掩盖真实故障点、分层日志让故障定位有据可查。内容与场景目标一致，无事实错误。"
+          },
+          {
+            "scene_index": 1,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解逐项说明 L1 六个字段：工具名和参数、schema 校验结果、工具延迟、输出大小、调用前是否截断，并解释截断会导致工具收到不完整信息。字段数量与内容均正确，未将截断误说为调用后发生。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“L1：工具调用层日志字段”，正文列出工具名与参数、schema 校验结果、工具延迟、输出大小、调用前是否截断。与研究来源 L1 字段一致。"
+          },
+          {
+            "scene_index": 2,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解说明 L2 记录步骤号、计划/todo 状态、记忆读写、检索决策和停止原因，并解释停止原因包括成功、达到最大步数、错误。与投屏和研究来源一致，未出现步骤号与下标混淆等问题。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“L2：任务规划层日志字段”，正文列出步骤号与当前计划/todo 状态、记忆读写与检索决策、停止原因（成功、达到最大步数、错误）。与研究来源 L2 字段一致。"
+          },
+          {
+            "scene_index": 3,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解说明 L3 记录哪个 agent 行动、委托/交接边、权限范围、审批中断和终止条件，并用 agent A 将子任务交给 agent B 的示例说明交接边。示例与字段含义一致，终止条件中的停止、超时、取消对应正确。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“L3：编排层日志字段”，正文列出哪个 agent 行动、委托/交接边、权限范围与审批中断、终止条件（停止、超时、取消）。与研究来源 L3 字段一致。"
+          },
+          {
+            "scene_index": 4,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解明确排查顺序为 L1→L2→L3，并说明每层问题会向上传导、根因在最早出现异常的那一层。逻辑正确，未将顺序说反，也未笼统归因于幻觉。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“从 L1 向上逐层排查”，正文列出先看 L1 工具调用是否干净、再看 L2 计划与记忆是否合理、最后看 L3 编排与交接是否正确。顺序与研究来源一致。"
+          },
+          {
+            "scene_index": 5,
+            "screen_passed": true,
+            "speech_checks": [
+              {
+                "passed": true,
+                "reasoning": "讲解给出第一题参考答案：工具名、参数、schema 校验结果、工具延迟、输出大小、调用前是否发生截断，满足至少 3 个字段的要求；第二题参考答案为 L1→L2→L3 的排查顺序，与正文一致。卡壳时回看学习报告的指引也正确。",
+                "action_index": 0
+              }
+            ],
+            "screen_reasoning": "投屏标题为“学习检查”，正文列出不看笔记列出 L1 至少 3 个日志字段、说出从 L1 向上排查的完整顺序、若卡壳回到学习报告重读分层日志段落。与学习目标中的检查要求一致。"
+          }
+        ],
+        "resource_type": "classroom",
+        "content_sha256": "de06dcbea5c6a02287f46e91a0b937029aba062bf9b89cf9c44e892fe9281d89"
+      }
+    }
+  },
+  "learning_course_resource": true
+}

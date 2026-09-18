@@ -13,6 +13,9 @@ import '../selfLearning/review.css';
 import './live.css';
 import { TaskCenter, TaskLauncher, type LearningJob } from './TaskCenter';
 
+import { PreparationNotifications } from './PreparationNotifications';
+import { PreparationOptionsForm, PreparationTasks, defaultOptions, submitPreparation } from './Preparation';
+
 type State = LearningState & { shared: Room[]; serverJobs: LearningJob[] };
 const base = '/api/self-learning';
 const pathFor = (id: string) => `${base}/courses/${encodeURIComponent(id)}`;
@@ -32,7 +35,9 @@ export default function LiveApp() {
   const saving = useRef<Promise<void> | null>(null);
   const revision = useRef(0);
   const questions = useRef(new Map<string, string>());
-  const creation = useRef<{ text: string; id: string }>();
+  const [preparationOptions, setPreparationOptions] = useState(defaultOptions);
+  const [preparationRevision, setPreparationRevision] = useState(0);
+  const [preparationUploading, setPreparationUploading] = useState(false);
   const [path, raw = ''] = hash.replace(/^#/, '').split('?');
   const query = new URLSearchParams(raw);
   const home = !path || path === '/';
@@ -43,7 +48,12 @@ export default function LiveApp() {
   const refresh = useCallback(async () => {
     const started = revision.current;
     const value = await apiRequest<State>(`${base}/state`);
-    if (started === revision.current && !pending.current.size && !saving.current) commit(value);
+    if (started === revision.current && !pending.current.size && !saving.current) {
+      const activeId = location.hash.split('?')[0].replace('#/classroom/', '');
+      value.rooms = value.rooms.map(next => { const previous = current.current.rooms.find(r => r.id === next.id);
+        return next.id === activeId && previous?.manifestRef && next.manifestRef?.version !== previous.manifestRef.version ? previous : next; });
+      commit(value);
+    }
   }, [commit]);
   const flush = useCallback(async () => {
     clearTimeout(saveTimer.current);
@@ -122,14 +132,14 @@ export default function LiveApp() {
   }}>
     <header className={home ? 'sl-home-account' : 'sl-header'}>
       {!home && <><a href="#/" aria-label="返回首页"><Brand /></a><span className="sl-live-title">{room?.title}</span><nav className="sl-main-nav" aria-label="主导航"><a className={!library ? 'active' : ''} href={room ? `#/classroom/${room.id}` : '#/'}>AI 课堂</a><a href={workbench()}>工作台</a><a className={library ? 'active' : ''} href={`#/resources${room ? '?classroom=' + room.id : ''}`}>资源中心</a></nav></>}
-      <div className="sl-live-account"><TaskLauncher jobs={data.serverJobs} open={tasks} onClick={() => setTasks(true)} /><a className="sl-avatar" aria-label="个人中心" title={user?.username} href="?account=1#profile">{user?.username.slice(0, 1)}</a></div>
+      <div className="sl-live-account"><PreparationNotifications key={user?.username} owner={user?.username || ''} /><TaskLauncher jobs={data.serverJobs} open={tasks} onClick={() => setTasks(true)} /><a className="sl-avatar" aria-label="个人中心" title={user?.username} href="?account=1#profile">{user?.username.slice(0, 1)}</a></div>
     </header>
     {error && <div className="sl-live-error" role="alert">{error}<button onClick={() => void action(async () => { await flush(); await refresh(); })}>刷新状态</button><button aria-label="关闭提示" onClick={() => setError('')}>×</button></div>}
     {busy && <div className="sl-live-busy" role="status">{busy}</div>}
-    {loading ? <p className="sl-auth-loading" role="status">正在读取学习空间…</p> : home ? <Home live rooms={data.rooms} shared={data.shared} canPublish={user?.role === 'teacher' || user?.role === 'admin'} onOpen={(r, shared) => void open(r, shared)} onPublish={() => setPublish(true)} onCreate={text => {
+    {loading ? <p className="sl-auth-loading" role="status">正在读取学习空间…</p> : home ? <Home live preparationOptions={<PreparationOptionsForm value={preparationOptions} onChange={setPreparationOptions} onUploadingChange={setPreparationUploading} />} preparationTasks={<PreparationTasks key={user?.username} owner={user?.username || ''} refreshKey={preparationRevision} />} rooms={data.rooms} shared={data.shared} canPublish={user?.role === 'teacher' || user?.role === 'admin'} onOpen={(r, shared) => void open(r, shared)} onPublish={() => setPublish(true)} onCreate={text => {
       if (busy) return;
-      if (creation.current?.text !== text) creation.current = { text, id: uid() };
-      void action(async () => { const created = await apiRequest<Room>(`${base}/courses`, { method: 'POST', body: JSON.stringify({ goal: text, request_id: creation.current!.id }) }); await refresh(); location.hash = `/classroom/${created.id}`; creation.current = undefined; }, '正在规划学习路径并提交生成任务…');
+      if (preparationUploading) { setError('资料仍在上传，请完成后再开始学习'); return; }
+      void action(async () => { await submitPreparation(user!.username, text, preparationOptions); setPreparationRevision(v => v + 1); }, '正在提交课程准备任务…');
     }} /> : library ? <ResourceCenter room={room} classroomId={room?.id} resources={data.resources} resourceId={query.get('resource') || undefined} workbenchHref={workbench()} workbenchForResource={id => workbench(byId(id))}
       onRename={(id, title) => resourceAction(() => apiRequest(materialPath(byId(id)), { method: 'PATCH', body: JSON.stringify({ title }) }))}
       onRemove={id => resourceAction(() => apiRequest(materialPath(byId(id)), { method: 'DELETE' }))}

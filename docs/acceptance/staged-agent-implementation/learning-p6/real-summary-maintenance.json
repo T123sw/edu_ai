@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "records": [
+    {
+      "session_id": "learning-135c60a8ab2d99a6ea203d8eec237f3e9b70b6b4340d577a90323bc46c268610",
+      "revision": 5,
+      "source_revision": 21,
+      "memory_epoch": 0,
+      "source_ids": [
+        {
+          "digest": "0676e8612d418626c132641d93e20f9ec5d5d7c87bd2c852f17b8a2c4947b103",
+          "message_id": "learning-135c60a8ab2d99a6ea203d8eec237f3e9b70b6b4340d577a90323bc46c268610:intro"
+        },
+        {
+          "digest": "d5da45dea89e6f8f0453ce458d454d0bc65ce46ed0b521630a6fd4dd610e9766",
+          "message_id": "answer-dad5ef6031944a718aa75d0bcbb386c7:user"
+        },
+        {
+          "digest": "5a25639d9de264e0e4b282a31ca7eb80f6aa5ab8421a4e742fef2559ffe95ec0",
+          "message_id": "answer-dad5ef6031944a718aa75d0bcbb386c7:assistant"
+        },
+        {
+          "digest": "f63cfb14a7d2cd2eab4a385120a94fdf9357d462eb95e041ecc09117a48e5da7",
+          "message_id": "answer-d059d2a58e774c839ec01b3e26ccee8b:user"
+        },
+        {
+          "digest": "e9980b68d35765a259af50152d1c8ab88f702b9a631127797013049664f38568",
+          "message_id": "answer-d059d2a58e774c839ec01b3e26ccee8b:assistant"
+        },
+        {
+          "digest": "8bfc9464c5fe3db5af3d3d333bf3ba2c2c9cb7e2aeca483eaed81c439fcefc86",
+          "message_id": "answer-2b3730893b5f4ac68ce3f41522b35e66:user"
+        },
+        {
+          "digest": "bb25af8ad1c0ae276602496018f5cb461f45a7d9f73a4b8811bdaafbbc529064",
+          "message_id": "answer-2b3730893b5f4ac68ce3f41522b35e66:assistant"
+        },
+        {
+          "digest": "fd601b1ba3e0d3d9fd61762d6bace98869cecbedea96db0c655ba02ff6f20e5e",
+          "message_id": "answer-e2aa3b6a7915476f838b07c4ac7cde3e:user"
+        },
+        {
+          "digest": "e7e11133e8d77e7bcb2fff0cfb5c980d66d4054bf1d4f997212a348aa283287e",
+          "message_id": "answer-e2aa3b6a7915476f838b07c4ac7cde3e:assistant"
+        }
+      ],
+      "content": "这一节围绕「模型与工具调用的职责划分」学习。用户要求修改正在阅读的报告并保存新版本：保留原知识点目标与原内容，在末尾补充一个适合工作面试的反例，说明模型提出工具调用并不等于应用已经成功执行。仅修订当前报告，不调整课程路线，不新增知识点。助手已提交修订任务，后台已完成处理。"
+    }
+  ],
+  "note": "真实任务的后台摘要记录；无工具调用和 CAS 失效由定向测试另行验证。"
+}

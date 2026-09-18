@@ -35,6 +35,7 @@ import { login, verifyToken } from "../services/auth";
 import { isCourseWorkspaceRoute } from "./course/courseNavigation";
 import { isStudentRoute, type StudentRoute } from "./student/routes/studentRoutes";
 import { defaultHashForRole, resolveRoleHash } from "./shared/routes/roleRouteResolver";
+import { isLearningWorkspace, learningHomeHref } from "../selfLearning/workspaceRoutes";
 
 const WorkspaceOverviewPage = lazy(() => import("./pages/WorkspaceOverview").then((module) => ({ default: module.WorkspaceOverviewPage })));
 const CourseResourcesPage = lazy(() => import("./pages/CourseResources").then((module) => ({ default: module.CourseResourcesPage })));
@@ -231,6 +232,12 @@ export default function App() {
     resetRouteScrollPosition();
     const frameId = window.requestAnimationFrame(resetRouteScrollPosition);
     return () => window.cancelAnimationFrame(frameId);
+  }, [current]);
+
+  useEffect(() => {
+    if (isLearningWorkspace() && (current === routes.home || current === "student-home")) {
+      window.location.replace(learningHomeHref());
+    }
   }, [current]);
 
   useEffect(() => {

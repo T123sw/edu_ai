@@ -1,0 +1,19 @@
+{
+  "target_parent": "20c1b9b1",
+  "preparation_parent": "9b7b2105",
+  "choice": "retain-target-learning-agent",
+  "checks": {
+    "backend-final": "476 passed, 10 skipped",
+    "boundaries-final": "26 passed, 1 skipped",
+    "shared-regression": "51 passed",
+    "memory-pg": "1 passed",
+    "frontend-unit": "# pass 12",
+    "browser-2": "2 passed",
+    "preparation-browser": "4 passed",
+    "handoff-browser": "1 passed",
+    "build": "built in"
+  },
+  "business_database_changed": false,
+  "real_model_called": false,
+  "note": "Full suite plus final targeted boundary rerun; counts are not additive."
+}

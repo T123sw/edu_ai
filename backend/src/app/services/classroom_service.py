@@ -185,7 +185,7 @@ def _make_on_sidecar_succeeded(
         await migrate_classroom_speech_audio(
             scenes=full_classroom.get("scenes") or [],
             course_id=course_id,
-            classroom_id=classroom_id,
+            classroom_id=material_id or classroom_id,
             active_client=active_client,
             course_storage_manager=course_storage_manager,
         )
@@ -219,7 +219,7 @@ def _make_on_sidecar_succeeded(
             await synthesize_classroom_speech_audio(
                 scenes=full_classroom.get("scenes") or [],
                 course_id=course_id,
-                classroom_id=classroom_id,
+                classroom_id=material_id or classroom_id,
                 course_storage_manager=course_storage_manager,
                 tts_service=OpenMaicTtsService(voice=selected_voice),
             )
