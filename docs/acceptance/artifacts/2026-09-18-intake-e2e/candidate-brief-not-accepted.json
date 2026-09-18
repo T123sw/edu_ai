@@ -1,0 +1,95 @@
+{
+  "topic": "Agent 的最小工具调用循环：用 Python 制作能调用计算器工具 add(a,b) 的命令行助手",
+  "audience": "会 Python、写过普通函数，但没做过 Agent、也未接触过工具调用（function calling）的学习者",
+  "language": "中文",
+  "total_minutes": 120,
+  "learning_goal": "按附件资料做出一个能调用 add(a,b) 计算器工具、并把计算结果回答给用户的命令行助手，并能解释一次工具调用失败该如何处理。",
+  "prior_knowledge": "会 Python，写过普通函数；未做过 Agent，未接触过工具调用（function calling）。",
+  "desired_outcomes": [
+    "能解释模型如何选择并调用工具（function calling）的最小交互过程",
+    "能实现一个校验并执行 add(a,b)、把结果与相同 call_id 交回模型取得最终回答的命令行助手",
+    "能保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志",
+    "能解释并处理一次工具调用失败（如 name 非 add 返回 UNKNOWN_TOOL、参数 b 缺失返回 INVALID_ARGUMENT）"
+  ],
+  "depth": "introductory",
+  "requirements": [
+    {
+      "requirement_id": "REQ-1",
+      "text": "学习目标是制作一个能调用计算器工具 add(a,b) 的命令行助手，并让模型把计算结果回答给用户。",
+      "source_quote": "练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。",
+      "source_document_id": "doc-9a1361a3c7904097ae44965e8c53ebb9"
+    },
+    {
+      "requirement_id": "REQ-2",
+      "text": "验收要求保留四项可读日志：用户问题、模型工具调用参数、工具执行结果、最终回答。",
+      "source_quote": "验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。",
+      "source_document_id": "doc-9a1361a3c7904097ae44965e8c53ebb9"
+    },
+    {
+      "requirement_id": "REQ-3",
+      "text": "add 工具的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b，函数实现返回 a+b。",
+      "source_quote": "工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。",
+      "source_document_id": "doc-9a1361a3c7904097ae44965e8c53ebb9"
+    },
+    {
+      "requirement_id": "REQ-4",
+      "text": "调用流程：把用户问题与工具 schema 发给模型，收到工具调用时读 name/arguments/call_id，校验后执行 add，再把结果与相同 call_id 发回模型取得最终回答。模型请求工具不等于工具已执行。",
+      "source_quote": "调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。",
+      "source_document_id": "doc-9a1361a3c7904097ae44965e8c53ebb9"
+    },
+    {
+      "requirement_id": "REQ-5",
+      "text": "安全与失败处理：只允许执行已注册的 add 函数，不执行模型输出的任意代码；参数缺失或类型不符时返回结构化错误如 INVALID_ARGUMENT，模型可提示补齐参数但不得编造结果。",
+      "source_quote": "安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码。参数缺失或类型不符时，不运行函数，返回结构化错误，例如 code=INVALID_ARGUMENT、message=b is required。模型可提示用户补齐参数，不得编造计算结果。",
+      "source_document_id": "doc-9a1361a3c7904097ae44965e8c53ebb9"
+    },
+    {
+      "requirement_id": "REQ-6",
+      "text": "伪代码要求：name 非 add 返回 UNKNOWN_TOOL；a 或 b 非数字返回 INVALID_ARGUMENT；否则执行 add(a,b) 并记录结果；成功用例期望 42，缺失 b 用例期望工具不执行且返回错误。",
+      "source_quote": "参考伪代码：若 name != add 则返回 UNKNOWN_TOOL；若 a 或 b 不是数字则返回 INVALID_ARGUMENT；否则执行 add(a,b)，记录结果并交回模型。成功用例期望结果为 42；缺失 b 的用例期望工具未执行且返回错误。",
+      "source_document_id": "doc-9a1361a3c7904097ae44965e8c53ebb9"
+    },
+    {
+      "requirement_id": "REQ-7",
+      "text": "教学方式：先给一个小例子，再解释原理。",
+      "source_quote": "请用中文，先给一个小例子再解释原理。",
+      "source_document_id": null
+    },
+    {
+      "requirement_id": "REQ-8",
+      "text": "只根据上传资料，不联网。",
+      "source_quote": "只根据上传资料，不要联网",
+      "source_document_id": null
+    },
+    {
+      "requirement_id": "REQ-9",
+      "text": "不学模型训练、多 Agent 协作和 Web 部署。",
+      "source_quote": "不学模型训练、多 Agent 协作和 Web 部署",
+      "source_document_id": null
+    },
+    {
+      "requirement_id": "REQ-10",
+      "text": "材料范围只讲模型与工具之间的最小循环，不含真实供应商 SDK 安装、鉴权或完整可运行接口示例。",
+      "source_quote": "范围：只讲模型与工具之间的最小循环，不含真实供应商 SDK 安装、鉴权或完整可运行接口示例。",
+      "source_document_id": "doc-9a1361a3c7904097ae44965e8c53ebb9"
+    }
+  ],
+  "assumptions": [
+    "学习目标由附件的练习目标与用户自述目标共同确定，两者一致，无需额外推断。",
+    "用户未说明所用的模型提供商或 SDK，由于附件声明不含真实供应商 SDK 安装与鉴权，教学将以抽象/伪代码方式呈现工具调用循环，不绑定特定 SDK。",
+    "两小时时长内以理解最小循环并实现命令行为主，不做多轮记忆或自主规划。"
+  ],
+  "exclusions": [
+    "模型训练",
+    "多 Agent 协作",
+    "Web 部署",
+    "真实供应商 SDK 安装与鉴权",
+    "联网搜索",
+    "多轮记忆与自主规划"
+  ],
+  "source_policy": {
+    "mode": "uploaded_only"
+  },
+  "source_policy_quote": "只根据上传资料，不要联网",
+  "required_resource_types": []
+}

@@ -1,0 +1,45 @@
+[WARNING] 未配置 MinerU Cloud API key，PDF 导入将直接失败
+{"step": 1, "result": {"claimed": true, "stage": "normalize", "waiting": false}, "seconds": 38.17}
+{"step": 2, "result": {"claimed": true, "stage": "normalize", "waiting": false}, "seconds": 31.2}
+{"step": 3, "result": {"claimed": true, "stage": "normalize", "waiting": false}, "seconds": 30.19}
+{"step": 4, "result": {"claimed": true, "stage": "normalize", "waiting": false}, "seconds": 43.93}
+{"step": 5, "result": {"claimed": true, "stage": "normalize", "waiting": false}, "seconds": 33.54}
+Preparation step failed: task=prep_f494e1a3165f4e75be19e581044de4e3 stage=normalize
+Traceback (most recent call last):
+  File "/home/zxqs_ep/Edu_AI/backend/src/app/course_preparation/research_agent.py", line 108, in step
+    updated = self._execute(name, args, request, state, timeout=min(timeout, 25), reserve=persist)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/backend/src/app/course_preparation/research_agent.py", line 136, in _execute
+    validate_brief(args, request, getattr(self, 'extra_context', {}).get('input_documents', []))
+  File "/home/zxqs_ep/Edu_AI/backend/src/app/course_preparation/intake.py", line 37, in validate_brief
+    raise ValueError('附件要求必须引用已理解片段中的完整 source_quote，并指定真实 document_id')
+ValueError: 附件要求必须引用已理解片段中的完整 source_quote，并指定真实 document_id
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/zxqs_ep/Edu_AI/backend/src/app/course_preparation/runner.py", line 53, in run_step
+    result = handler(context)
+             ^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/backend/src/app/course_preparation/research_stages.py", line 66, in normalize
+    checkpoint,state=self._decision(context,checkpoint)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/backend/src/app/course_preparation/research_stages.py", line 42, in _decision
+    state=agent.step(request,state,timeout=max(1,min(90,remaining)),reserve=reserve)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/backend/src/app/course_preparation/research_agent.py", line 116, in step
+    failed = self._error(state, 'INVALID_TOOL_RESULT', message)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zxqs_ep/Edu_AI/backend/src/app/course_preparation/research_agent.py", line 127, in _error
+    raise ResearchError('AGENT_NO_PROGRESS', message)
+app.course_preparation.research_agent.ResearchError: AGENT_NO_PROGRESS: 附件要求必须引用已理解片段中的完整 source_quote，并指定真实 document_id
+{"step": 6, "result": {"failed": true, "code": "AGENT_NO_PROGRESS"}, "seconds": 37.78}
+{"status": "failed", "seconds": 215.2, "output": "/tmp/preparation-intake-e2e-20260918"}
+Traceback (most recent call last):
+  File "/home/zxqs_ep/Edu_AI/backend/src/scripts/verify_preparation_intake_e2e.py", line 157, in <module>
+    if __name__ == '__main__': main()
+                               ^^^^^^
+  File "/home/zxqs_ep/Edu_AI/backend/src/scripts/verify_preparation_intake_e2e.py", line 129, in main
+    if result.get('failed'): raise AssertionError(result)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'failed': True, 'code': 'AGENT_NO_PROGRESS'}
