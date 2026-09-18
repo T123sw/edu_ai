@@ -35,7 +35,7 @@ def snapshot(username):
 def agent_factory(username, snapshot):
     from app.chat.model_gateway import ChatModelGateway
     from app.services.runtime_config_resolver import runtime_config_resolver
-    from .model_adapter import ResearchModelAdapter
+    from .harness_intake import HarnessIntakeAdapter
     from .research_agent import ResearchAgent
     from .research_sources import ResearchSources
     config = runtime_config_resolver.resolve('llm', owner_user_id=username, snapshot=snapshot)
@@ -43,7 +43,7 @@ def agent_factory(username, snapshot):
         from .research_agent import ResearchError
         raise ResearchError('CONFIG_REVISION_UNAVAILABLE', '任务绑定的模型配置已不可用')
     gateway = ChatModelGateway(api_base=config['base_url'], api_key=config.get('api_key'), model_name=config['model'])
-    return ResearchAgent(model=ResearchModelAdapter(gateway, context_tokens=int(os.getenv('COURSE_RESEARCH_CONTEXT_TOKENS', '128000'))), sources=ResearchSources(
+    return ResearchAgent(model=HarnessIntakeAdapter(gateway, context_tokens=int(os.getenv('COURSE_RESEARCH_CONTEXT_TOKENS', '128000'))), sources=ResearchSources(
         tavily_key=os.getenv('TAVILY_API_KEY', ''), bocha_key=os.getenv('BOCHA_API_KEY', ''),
         tavily_base=os.getenv('TAVILY_BASE_URL', 'https://api.tavily.com')))
 
