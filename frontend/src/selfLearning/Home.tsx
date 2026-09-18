@@ -124,7 +124,7 @@ export function Home({
       <section className="sl-home-hero">
         <Brand large />
         <h1>让好奇，成为你的下一堂课。</h1>
-        <form className="sl-prompt" onSubmit={submit}>
+        <form className={`sl-prompt${preparationOptions ? ' sl-prompt-with-options' : ''}`} onSubmit={submit}>
           <textarea
             aria-label="学习知识点与目标"
             placeholder="想学什么？说说你的学习目标…"
