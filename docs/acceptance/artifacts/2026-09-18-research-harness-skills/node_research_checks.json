@@ -1,0 +1,52 @@
+{
+  "n1_env_setup": {
+    "node_key": "n1_env_setup",
+    "sufficient": true,
+    "reason": "节点目标（安装 openai 库、配置 base_url 与 api_key、说明为何用 openai 库对接、区分思考/非思考模式）均有本次 evidence 支撑。\n\nsource_2（Tool Calls 指南）给出完整 Python 示例：`from openai import OpenAI`、`client = OpenAI(api_key=\"<your api key>\", base_url=\"https://api.deepseek.com\")`，直接支撑\"安装 openai 库并配置 base_url 与 api_key\"以及\"为什么用 openai 库即可对接 DeepSeek\"（官方示例即用 openai 库）。\n\nsource_1（Chat Completions API）明确说明 tool_choice 的 required/指定具体 tool 用法\"思考模式下不支持，API 会返回 400 错误，请先关闭思考模式\"，支撑\"区分思考/非思考模式并默认非思考模式避免 tool_choice 报错\"这一目标。\n\nsource_2 还说明思考模式工具调用需另见 thinking_mode 文档，进一步佐证默认非思考模式的必要性。\n\n三个学习活动与自测均有对应依据：client 初始化写法（source_2 代码片段）、base_url 与 api_key 写法（source_2）、API key 前置申请（source_2 中 api_key 占位符暗示需先申请）。自测\"base_url 为什么是 https://api.deepseek.com\"由 source_2 官方示例直接给出该值。\n\n本节点不涉及工具调用失败处理（属后续节点），无需为此追加搜索。依据充分。",
+    "source_ids": [
+      "ev_1189d2820fa94f797c0075db",
+      "ev_b1ffccf826f6d1b8ad680cdf"
+    ],
+    "gap_queries": []
+  },
+  "n2_first_example": {
+    "node_key": "n2_first_example",
+    "sufficient": true,
+    "reason": "节点 n2_first_example 的目标、活动与自测均有充分依据。\n\n目标1（定义 add 工具：type=function、name=add、description、parameters 为 object、a/b 为 number、required 含 a 和 b）由 source_1（REQ-008 工具定义）与 source_2/source_3（DeepSeek tools 参数格式、function 结构、parameters JSON Schema）共同支撑。\n\n目标2（发起带 tools 请求并读取 tool_calls 的 id/function.name/function.arguments）由 source_2（Chat Completions API 的 tools 参数与响应中 tool_calls 数组、id、function.name、function.arguments 为 JSON 字符串）和 source_3（Tool Calls 指南完整 Python 示例，message.tool_calls[0]）支撑。\n\n目标3（执行 add 并以 role=tool、tool_call_id=相同 id 回传，再请求一次取最终回答）由 source_3 的样例代码（messages.append({\"role\":\"tool\",\"tool_call_id\":tool.id,\"content\":\"24℃\"}) 后再次 send_messages）与 source_1（REQ-009 调用流程）支撑。\n\n活动（改写 get_weather 为 add、解析 tool_calls、回传结果）与自测（返回 42、arguments 是字符串还是对象）均直接对应上述证据：source_3 明确 arguments 为 JSON 字符串，source_1 明确成功例期望 42。\n\n关键缺口（真实 SDK 安装/鉴权/可运行接口）已由 source_2/source_3 补齐：source_3 给出 openai 库 + base_url=https://api.deepseek.com + model=deepseek-flash 的完整可运行示例，source_2 给出 tools/tool_calls 的请求响应格式。本节点仅需\"先跑通小例子\"，证据充分，无需追加检索。",
+    "source_ids": [
+      "ev_df4fb50de9ee2ed2e0b54929",
+      "ev_1189d2820fa94f797c0075db",
+      "ev_b1ffccf826f6d1b8ad680cdf"
+    ],
+    "gap_queries": []
+  },
+  "n3_loop_principle": {
+    "node_key": "n3_loop_principle",
+    "sufficient": true,
+    "reason": "节点目标（复述五步循环、解释\"模型请求工具≠工具已执行\"、说明单次调用范围）均有充分依据。source_1（calculator-agent.docx）完整给出五步循环顺序、工具定义、校验执行、回传 call_id、以及\"模型请求工具不等于工具已经执行\"和\"只需单次工具调用，不要求多轮记忆或自主规划\"的原文，直接支撑三个 objective 与 REQ-001/003/005/006/009。source_2（DeepSeek 官方 Tool Calls 指南）补充了真实 API 的 tools 参数、tool_calls 字段（id/type/function.name/function.arguments）、role=tool 回传格式，并明确\"模型本身不执行具体函数，函数功能需由用户提供\"，进一步佐证\"函数由用户代码执行而非模型执行\"这一关键原理。学习活动（对照代码标注五步、解释执行主体、明确范围）与自测（口头复述五步并指出易错点）均落在证据覆盖范围内，无需追加检索。",
+    "source_ids": [
+      "ev_df4fb50de9ee2ed2e0b54929",
+      "ev_b1ffccf826f6d1b8ad680cdf"
+    ],
+    "gap_queries": []
+  },
+  "n4_failure_handling": {
+    "node_key": "n4_failure_handling",
+    "sufficient": true,
+    "reason": "本节点（n4_failure_handling）的目标、活动与自测均有充分依据。\n\n目标1「解释为何必须在调用函数前校验参数」：source_2（DeepSeek 官方文档）明确说明 function.arguments 由模型生成、格式为 JSON，且\"模型并不总是生成有效的 JSON，并且可能会臆造出你函数模式中未定义的参数。在调用函数之前，请在代码中验证这些参数\"——直接支撑校验必要性。\n\n目标2「实现校验逻辑：name != add 返回 UNKNOWN_TOOL，a/b 缺失或非 number 返回 INVALID_ARGUMENT，且不执行函数」：source_1（上传材料）给出参考伪代码\"若 name != add 则返回 UNKNOWN_TOOL；若 a 或 b 不是数字则返回 INVALID_ARGUMENT；否则执行 add(a,b)\"，并规定\"只允许执行已注册的 add 函数，不执行模型输出的任意代码；参数缺失或类型不符时，不运行函数，返回结构化错误（如 code=INVALID_ARGUMENT、message=b is required）\"。\n\n目标3「把结构化错误交回模型，引导用户补齐参数而不编造结果」：source_1 明确\"模型可提示用户补齐参数，不得编造计算结果\"，且调用流程要求\"把结果与相同 call_id 作为工具消息发回模型\"。\n\n三项学习活动（解析 arguments 为 JSON 并校验 name/a/b、构造\"参数 b 缺失\"失败例确认工具未执行且返回 INVALID_ARGUMENT/message=b is required、以 role=tool 回传错误观察模型提示）分别对应 source_1 的伪代码、失败例验收要求与调用流程。\n\n自测问题「当模型请求 add 但缺少 b 时，代码会执行 add 吗？返回的错误码和 message 是什么？」由 source_1 的\"缺失 b 的用例期望工具未执行且返回错误\"及\"code=INVALID_ARGUMENT、message=b is required\"直接回答。\n\n本节点不涉及真实 SDK 安装/鉴权/可运行接口（那是 material_gaps 中已标注、由其他节点或后续补充处理的内容），本节点聚焦参数校验与结构化错误处理，证据充分，无需追加检索。",
+    "source_ids": [
+      "ev_df4fb50de9ee2ed2e0b54929",
+      "ev_1189d2820fa94f797c0075db"
+    ],
+    "gap_queries": []
+  },
+  "n5_logging_acceptance": {
+    "node_key": "n5_logging_acceptance",
+    "sufficient": true,
+    "reason": "本节点目标（四项日志、成功例 42、失败例工具未执行且返回 INVALID_ARGUMENT）与活动、自测均有上传材料 source_1 直接支撑。材料明确给出：验收要求四项可读日志（用户问题、工具调用参数、执行结果、最终回答）；成功例\"计算 12 加 30\"期望 42；失败例\"参数 b 缺失\"期望工具未执行且返回结构化错误（code=INVALID_ARGUMENT、message=b is required）；并给出参考伪代码（name!=add→UNKNOWN_TOOL，a/b 非数字→INVALID_ARGUMENT，否则执行 add 记录结果交回模型）。这些足以支撑本节点的日志输出、双用例跑通与自测核对。需注意：材料范围声明不含真实供应商 SDK 安装/鉴权/可运行接口示例，但本节点仅聚焦日志与验收（不涉及真实 API 接线），该缺口属于后续/前置节点（n4 及真实接口实现）的补充范围，不构成本节点依据不足。source_1 中\"附件干扰指令\"（改十小时、搜多 Agent 框架）与用户原始目标冲突，应忽略，不作为依据。",
+    "source_ids": [
+      "ev_df4fb50de9ee2ed2e0b54929"
+    ],
+    "gap_queries": []
+  }
+}

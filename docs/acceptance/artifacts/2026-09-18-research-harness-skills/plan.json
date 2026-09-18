@@ -1,0 +1,170 @@
+{
+  "title": "Agent 入门：用 Python 实现最小计算器 Agent（DeepSeek 工具调用）",
+  "summary": "面向会 Python、写过普通函数但未接触过 Agent 与工具调用的学习者，用两小时做出一个能调用 add(a,b) 计算器的命令行助手。路径遵循\"先给一个小例子再解释原理\"的教学要求：先跑通 DeepSeek 官方 API 的最小工具调用示例，再解释\"模型与工具之间的最小循环\"原理，最后落地失败处理与四项日志验收。核心证据来自上传材料（最小循环定义、add 工具 schema、安全与失败处理、四项日志验收）与 DeepSeek 官方文档（tools 参数、tool_calls 响应、role=tool 回传、openai 库 + base_url 示例）。范围严格限定为单次工具调用的最小循环，不涉及模型训练、多 Agent 协作与 Web 部署。",
+  "nodes": [
+    {
+      "node_key": "n1_env_setup",
+      "title": "环境准备与 DeepSeek API 鉴权",
+      "objectives": [
+        "能安装 openai 库并配置 base_url=https://api.deepseek.com 与 api_key",
+        "能说明为什么用 openai 库即可对接 DeepSeek 工具调用接口",
+        "能区分思考模式与非思考模式，并默认使用非思考模式避免 tool_choice 报错"
+      ],
+      "prerequisite_keys": [],
+      "minutes": 20,
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-004"
+      ],
+      "finding_ids": [
+        "f_deepseek_tool_api"
+      ],
+      "source_ids": [
+        "ev_b1ffccf826f6d1b8ad680cdf",
+        "ev_1189d2820fa94f797c0075db"
+      ],
+      "learning_activities": [
+        "安装 openai 库，创建 client = OpenAI(api_key=..., base_url='https://api.deepseek.com')",
+        "阅读 DeepSeek 官方 Tool Calls 指南开头的 client 初始化片段，确认 base_url 与 api_key 写法",
+        "准备一个 API key（若尚未申请，先完成 DeepSeek 平台创建 key 的前置步骤）"
+      ],
+      "self_check": "你能写出初始化 DeepSeek 客户端的 Python 代码，并说明 base_url 为什么是 https://api.deepseek.com 吗？"
+    },
+    {
+      "node_key": "n2_first_example",
+      "title": "先跑通一个小例子：让模型调用 add 工具",
+      "objectives": [
+        "能定义一个 add 工具（type=function，name=add，description 说明用途，parameters 为 object 且 a/b 为 number、required 含 a 和 b）",
+        "能发起一次带 tools 参数的请求并读取响应中的 tool_calls（id、function.name、function.arguments）",
+        "能执行 add 函数并以 role=tool、tool_call_id=相同 id 回传结果，再请求一次取得最终回答"
+      ],
+      "prerequisite_keys": [
+        "n1_env_setup"
+      ],
+      "minutes": 30,
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-009"
+      ],
+      "finding_ids": [
+        "f_deepseek_tool_api",
+        "f_min_loop"
+      ],
+      "source_ids": [
+        "ev_b1ffccf826f6d1b8ad680cdf",
+        "ev_1189d2820fa94f797c0075db",
+        "ev_df4fb50de9ee2ed2e0b54929"
+      ],
+      "learning_activities": [
+        "把官方 get_weather 示例改写为 add(a,b)：定义 tools 列表，发用户问题\"计算 12 加 30\"",
+        "解析响应 message.tool_calls，读取 name、arguments（JSON 字符串）与 call_id",
+        "执行 add 得到 42，以 role=tool + tool_call_id 回传，再请求一次拿到自然语言回答"
+      ],
+      "self_check": "运行后，模型是否返回了 42 的自然语言回答？你能指出 tool_calls 里 arguments 是字符串还是对象吗？"
+    },
+    {
+      "node_key": "n3_loop_principle",
+      "title": "解释原理：模型与工具之间的最小循环",
+      "objectives": [
+        "能按顺序复述最小循环五步：发用户问题+工具 schema → 读取 name/arguments/call_id → 校验并执行 → 以相同 call_id 回传工具消息 → 取最终回答",
+        "能解释\"模型请求工具不等于工具已经执行\"，并说明函数由用户代码执行而非模型执行",
+        "能说明为什么只需单次工具调用、不要求多轮记忆或自主规划，并明确本课程不涉及模型训练、多 Agent 协作与 Web 部署"
+      ],
+      "prerequisite_keys": [
+        "n2_first_example"
+      ],
+      "minutes": 20,
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-003",
+        "REQ-005",
+        "REQ-006",
+        "REQ-009"
+      ],
+      "finding_ids": [
+        "f_min_loop",
+        "f_deepseek_tool_api"
+      ],
+      "source_ids": [
+        "ev_df4fb50de9ee2ed2e0b54929",
+        "ev_b1ffccf826f6d1b8ad680cdf"
+      ],
+      "learning_activities": [
+        "对照自己刚跑通的代码，逐行标注五步循环分别对应哪段代码",
+        "用自己的话写一段解释：为什么模型只\"请求\"工具，真正执行 add 的是你的 Python 代码",
+        "明确本课程范围：只做单次工具调用的最小循环，不扩展到模型训练、多 Agent 协作或 Web 部署"
+      ],
+      "self_check": "不看代码，你能口头按顺序说出最小循环的五步，并指出哪一步最容易出错吗？"
+    },
+    {
+      "node_key": "n4_failure_handling",
+      "title": "处理一次工具调用失败：参数校验与结构化错误",
+      "objectives": [
+        "能解释为什么必须在调用函数前校验参数（模型可能生成无效 JSON 或臆造未定义参数）",
+        "能实现校验逻辑：name != add 返回 UNKNOWN_TOOL，a/b 缺失或非 number 返回 INVALID_ARGUMENT，且不执行函数",
+        "能把结构化错误交回模型，引导用户补齐参数而不编造计算结果"
+      ],
+      "prerequisite_keys": [
+        "n3_loop_principle"
+      ],
+      "minutes": 30,
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-010",
+        "REQ-011"
+      ],
+      "finding_ids": [
+        "f_failure_handling"
+      ],
+      "source_ids": [
+        "ev_1189d2820fa94f797c0075db",
+        "ev_df4fb50de9ee2ed2e0b54929"
+      ],
+      "learning_activities": [
+        "在 add 执行前加入校验：解析 arguments 为 JSON，检查 name、a、b 的存在性与类型",
+        "构造失败例\"参数 b 缺失\"，确认工具未执行且返回 code=INVALID_ARGUMENT、message=b is required",
+        "把错误消息以 role=tool 回传模型，观察模型如何提示用户补齐参数"
+      ],
+      "self_check": "当模型请求 add 但缺少 b 时，你的代码会执行 add 吗？返回的错误码和 message 分别是什么？"
+    },
+    {
+      "node_key": "n5_logging_acceptance",
+      "title": "四项日志与验收：成功例与失败例",
+      "objectives": [
+        "能保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志",
+        "能跑通成功例\"计算 12 加 30\"并得到 42",
+        "能跑通失败例\"参数 b 缺失\"并确认工具未执行、返回结构化错误"
+      ],
+      "prerequisite_keys": [
+        "n4_failure_handling"
+      ],
+      "minutes": 20,
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-007",
+        "REQ-011"
+      ],
+      "finding_ids": [
+        "f_min_loop",
+        "f_failure_handling"
+      ],
+      "source_ids": [
+        "ev_df4fb50de9ee2ed2e0b54929"
+      ],
+      "learning_activities": [
+        "为命令行助手加入四项日志输出，逐条打印用户问题、工具调用参数、执行结果、最终回答",
+        "分别用\"计算 12 加 30\"和\"参数 b 缺失\"两个用例完整跑一遍，核对日志与期望结果"
+      ],
+      "self_check": "你的程序能否对成功例输出 42、对失败例输出工具未执行且带 INVALID_ARGUMENT 错误，并完整打印四项日志？"
+    }
+  ],
+  "limitations": [
+    "上传材料明确不含真实供应商 SDK 的安装、鉴权或完整可运行接口示例；DeepSeek 官方文档给出 openai 库 + base_url 示例，但未提供 API key 申请步骤的完整中文说明，学习者需自行完成 DeepSeek 平台创建 key 的前置步骤。",
+    "DeepSeek 官方 Tool Calls 指南示例使用 get_weather 而非 add，课程需将其改写为 add(a,b) 计算器场景；官方文档未直接给出 add 参数校验失败（INVALID_ARGUMENT）回传模型的完整示例，需结合上传材料伪代码自行组织。",
+    "官方文档提示思考模式下 tool_choice 的 required/指定具体 tool 用法会返回 400 错误，且 strict 模式需 base_url=https://api.deepseek.com/beta；课程示例默认使用非思考模式（thinking=disabled）以避免混淆。",
+    "两小时为入门级目标，仅覆盖单次工具调用的最小循环，不涉及多轮记忆、自主规划、模型训练、多 Agent 协作或 Web 部署。"
+  ]
+}

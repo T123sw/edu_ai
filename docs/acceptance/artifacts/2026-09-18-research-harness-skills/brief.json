@@ -1,0 +1,111 @@
+{
+  "required_resource_types": [],
+  "learning_goal": "让学习者理解 Agent 中\"模型与工具之间的最小循环\"，并用 Python 结合 DeepSeek 官方 API 工具调用接口，做出一个能调用 add(a,b) 计算器的命令行助手；同时能解释一次工具调用失败（如参数缺失）该如何处理。",
+  "prior_knowledge": "会 Python，写过普通函数；没做过 Agent，也没接过工具调用。",
+  "desired_outcomes": [
+    "能解释 Agent 中模型与工具的最小循环：发用户问题+工具 schema → 读取 name/arguments/call_id → 校验并执行 → 以相同 call_id 回传工具消息 → 取最终回答",
+    "能用 Python 定义一个 add(a,b) 工具（schema 为 object，a/b 为 number，required 含 a 和 b），并实现返回 a+b",
+    "能结合 DeepSeek 官方 API 工具调用接口，做出一个可运行的命令行助手，完成\"计算 12 加 30\"并得到 42",
+    "能处理一次工具调用失败：参数缺失或类型不符时不执行函数，返回结构化错误（如 INVALID_ARGUMENT），并引导用户补齐参数而不编造结果",
+    "能保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志"
+  ],
+  "depth": "introductory",
+  "source_policy": {
+    "mode": "uploads_preferred"
+  },
+  "source_policy_quote": null,
+  "topic": "Agent 入门：用 Python 实现最小计算器 Agent（DeepSeek 工具调用）",
+  "audience": "会 Python、写过普通函数，但没做过 Agent、也没接过工具调用的学习者",
+  "language": "中文",
+  "total_minutes": 120,
+  "assumptions": [],
+  "exclusions": [
+    "模型训练",
+    "多 Agent 协作",
+    "Web 部署"
+  ],
+  "material_gaps": [
+    "材料明确不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例，而用户目标是用 DeepSeek 官方 API 工具调用接口做出可运行程序，这部分需要补充",
+    "材料未给出 DeepSeek 工具调用接口的具体请求/响应格式（如 tools 参数、tool_calls 字段、tool 消息回传格式）及鉴权方式",
+    "材料未覆盖工具调用失败后如何向用户解释与处理的完整示例（仅给出结构化错误码，未说明如何把错误交回模型并引导用户补齐参数）"
+  ],
+  "requirements": [
+    {
+      "requirement_id": "REQ-001",
+      "text": "学习 Agent，做出一个能调用计算器的命令行助手",
+      "source_quote": "我想学习 Agent。我会 Python，写过普通函数，但没做过 Agent，也没接过工具调用。希望用两小时，按附件做出一个能调用计算器的命令行助手",
+      "source_ref": null,
+      "source_document_id": null
+    },
+    {
+      "requirement_id": "REQ-002",
+      "text": "能解释一次工具调用失败该怎么处理",
+      "source_quote": "并能解释一次工具调用失败该怎么处理",
+      "source_ref": null,
+      "source_document_id": null
+    },
+    {
+      "requirement_id": "REQ-003",
+      "text": "用中文，先给一个小例子再解释原理",
+      "source_quote": "请用中文，先给一个小例子再解释原理",
+      "source_ref": null,
+      "source_document_id": null
+    },
+    {
+      "requirement_id": "REQ-004",
+      "text": "结合上传资料，允许联网补充，优先 DeepSeek 官方 API 文档，使用其工具调用接口实现",
+      "source_quote": "结合上传资料，允许联网补充，优先 DeepSeek 官方 API 文档，使用其工具调用接口实现",
+      "source_ref": null,
+      "source_document_id": null
+    },
+    {
+      "requirement_id": "REQ-005",
+      "text": "不学模型训练、多 Agent 协作和 Web 部署",
+      "source_quote": "不学模型训练、多 Agent 协作和 Web 部署",
+      "source_ref": null,
+      "source_document_id": null
+    },
+    {
+      "requirement_id": "REQ-006",
+      "text": "练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户，只需单次工具调用，不要求多轮记忆或自主规划",
+      "source_quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n",
+      "source_ref": "ip_2234ee2301a189f7824b03ca",
+      "source_document_id": "doc-dab830e369be483c8124d4a2c5686979"
+    },
+    {
+      "requirement_id": "REQ-007",
+      "text": "验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志；成功例用\"计算 12 加 30\"，失败例用\"参数 b 缺失\"",
+      "source_quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n",
+      "source_ref": "ip_2234ee2301a189f7824b03ca",
+      "source_document_id": "doc-dab830e369be483c8124d4a2c5686979"
+    },
+    {
+      "requirement_id": "REQ-008",
+      "text": "工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b",
+      "source_quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n",
+      "source_ref": "ip_40cc5ad3bf0049621cb8d5d3",
+      "source_document_id": "doc-dab830e369be483c8124d4a2c5686979"
+    },
+    {
+      "requirement_id": "REQ-009",
+      "text": "调用流程：先把用户问题与工具 schema 发给模型，收到工具调用时读取 name、arguments 和 call_id，校验名称和 JSON 参数，执行 add，再把结果与相同 call_id 作为工具消息发回模型取得最终回答；模型请求工具不等于工具已经执行",
+      "source_quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n",
+      "source_ref": "ip_40cc5ad3bf0049621cb8d5d3",
+      "source_document_id": "doc-dab830e369be483c8124d4a2c5686979"
+    },
+    {
+      "requirement_id": "REQ-010",
+      "text": "安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码；参数缺失或类型不符时不运行函数，返回结构化错误（如 code=INVALID_ARGUMENT、message=b is required）；模型可提示用户补齐参数，不得编造计算结果",
+      "source_quote": "\n安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码。参数缺失或类型不符时，不运行函数，返回结构化错误，例如 code=INVALID\\_ARGUMENT、message=b is required。模型可提示用户补齐参数，不得编造计算结果。\n",
+      "source_ref": "ip_53a9854b1b0b2ea309c8f6e8",
+      "source_document_id": "doc-dab830e369be483c8124d4a2c5686979"
+    },
+    {
+      "requirement_id": "REQ-011",
+      "text": "参考伪代码：name != add 返回 UNKNOWN_TOOL；a 或 b 不是数字返回 INVALID_ARGUMENT；否则执行 add(a,b) 记录结果并交回模型；成功用例期望 42，缺失 b 用例期望工具未执行且返回错误",
+      "source_quote": "\n参考伪代码：若 name != add 则返回 UNKNOWN\\_TOOL；若 a 或 b 不是数字则返回 INVALID\\_ARGUMENT；否则执行 add(a,b)，记录结果并交回模型。成功用例期望结果为 42；缺失 b 的用例期望工具未执行且返回错误。\n\n范围：这份材料只讲模型与工具之间的最小循环，不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例。若需要真实 API 程序，这部分材料还需要补充；不能假装附件已经给出。\n",
+      "source_ref": "ip_a8321d654c2ed16aae87c00f",
+      "source_document_id": "doc-dab830e369be483c8124d4a2c5686979"
+    }
+  ]
+}

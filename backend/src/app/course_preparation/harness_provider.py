@@ -14,7 +14,7 @@ from .research_agent import ResearchError
 
 
 @contextmanager
-def harness_provider(adapter, *, timeout):
+def harness_provider(adapter, *, timeout, toolset=None):
     token = secrets.token_urlsafe(32)
     deadline = time.monotonic() + timeout
     lock = threading.Lock()
@@ -46,12 +46,14 @@ def harness_provider(adapter, *, timeout):
                     payload = json.loads(self.rfile.read(length))
                     required_skill = getattr(adapter, 'required_skill', None)
                     if required_skill:
-                        from .intake_skill import skill_is_loaded
+                        from .workflow_skills import skill_is_loaded
                         if not skill_is_loaded(payload.get('messages', []), required_skill):
-                            raise ResearchError('SKILL_NOT_LOADED', '需求理解 Skill 未由 Harness 加载，未调用模型')
+                            raise ResearchError('SKILL_NOT_LOADED', '当前阶段 Skill 未由 Harness 加载，未调用模型')
                     stream = payload.pop('stream', False)
                     payload.pop('stream_options', None)
-                    payload.update(stream=False, max_tokens=6000, parallel_tool_calls=False)
+                    payload.update(stream=False, max_tokens=6000, parallel_tool_calls=False, temperature=0.1)
+                    if toolset is not None and toolset.result is not None:
+                        payload['tool_choice'] = 'none'
                     size = encoded_size(payload) + 512
                     if size + 6000 > adapter.context_tokens:
                         raise ResearchError('CONTEXT_BUDGET_EXCEEDED', 'Harness 上下文超过窗口')
@@ -59,7 +61,7 @@ def harness_provider(adapter, *, timeout):
                     for candidate in adapter.gateway.candidates:
                         remaining = deadline - time.monotonic()
                         if state['calls'] >= 4 or remaining <= 0:
-                            raise ResearchError('BUDGET_EXHAUSTED', 'Harness 输入理解调用次数或时间已耗尽')
+                            raise ResearchError('BUDGET_EXHAUSTED', 'Harness 当前决策调用次数或时间已耗尽')
                         state['calls'] += 1
                         model = candidate['model_name']
                         payload['model'] = model
@@ -97,7 +99,21 @@ def harness_provider(adapter, *, timeout):
                         raise ValueError('MODEL_PROTOCOL_ERROR: incomplete Harness completion')
                     if choices[0]['finish_reason'] == 'tool_calls':
                         from .model_adapter import ResearchModelAdapter
-                        ResearchModelAdapter.parse(data, {t['function']['name'] for t in payload.get('tools', [])})
+                        allowed = {t['function']['name'] for t in payload.get('tools', [])}
+                        calls = (choices[0].get('message') or {}).get('tool_calls')
+                        if toolset is None or not isinstance(calls, list) or not calls:
+                            ResearchModelAdapter.parse(data, allowed)
+                        else:
+                            # Let the native SDK dispatch the batch. The checkpoint
+                            # bridge accepts one action and explicitly defers the rest.
+                            ids = set()
+                            for call in calls:
+                                single = {**choices[0], 'message': {**choices[0]['message'], 'tool_calls': [call]}}
+                                ResearchModelAdapter.parse({**data, 'choices': [single]}, allowed)
+                                if call['id'] in ids:
+                                    raise ValueError('MODEL_PROTOCOL_ERROR: duplicate tool call ID')
+                                ids.add(call['id'])
+                    state['error'] = None
                     if not stream:
                         self.reply(200, json.dumps(data).encode())
                         return

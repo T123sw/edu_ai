@@ -1,0 +1,92 @@
+{
+  "path": {
+    "status": "passed",
+    "seconds": 348.11,
+    "model_calls": 45,
+    "tokens": 534445,
+    "decisions_by_phase": {
+      "input_document": 1,
+      "intent": 1,
+      "research": 11,
+      "plan": 2,
+      "review": 1,
+      "research_nodes": 5
+    },
+    "calls_by_skill": {
+      "understand-learning-request": 5,
+      "research-learning-sources": 23,
+      "plan-learning-path": 5,
+      "review-learning-path": 12
+    },
+    "all_model_calls_used_harness_skills": true,
+    "web_calls": [
+      {
+        "kind": "search",
+        "query": "DeepSeek API 工具调用 function calling tools 参数 tool_calls 文档"
+      },
+      {
+        "kind": "read",
+        "url": "https://api-docs.deepseek.com/zh-cn/api/create-chat-completion"
+      },
+      {
+        "kind": "read",
+        "url": "https://api-docs.deepseek.com/zh-cn/api/create-chat-completion"
+      },
+      {
+        "kind": "search",
+        "query": "DeepSeek API 工具调用 tool_calls 指南 tool 消息回传 鉴权 api key"
+      },
+      {
+        "kind": "read",
+        "url": "https://api-docs.deepseek.com/zh-cn/guides/tool_calls"
+      }
+    ],
+    "recoverable_errors": [
+      {
+        "call": 4,
+        "phase": "research",
+        "status": "error",
+        "code": "INVALID_TOOL_RESULT",
+        "message": "该正文已读取，请使用已有证据；不要重复抓取"
+      },
+      {
+        "call": 13,
+        "phase": "plan",
+        "status": "error",
+        "code": "INVALID_TOOL_RESULT",
+        "message": "学习路径缺少需求 ['REQ-005']"
+      }
+    ],
+    "findings": 3,
+    "nodes": 5,
+    "memory_before": {},
+    "memory_after": {}
+  },
+  "upload": {
+    "status": "passed",
+    "seconds": 127.81,
+    "model_calls": 15,
+    "tokens": 107309,
+    "decisions_by_phase": {
+      "input_document": 1,
+      "intent": 1,
+      "research": 5
+    },
+    "calls_by_skill": {
+      "understand-learning-request": 5,
+      "research-learning-sources": 10
+    },
+    "all_model_calls_used_harness_skills": true,
+    "web_calls": [],
+    "recoverable_errors": [],
+    "findings": 3,
+    "nodes": 0,
+    "memory_before": {},
+    "memory_after": {}
+  },
+  "regression": {
+    "passed": 205,
+    "skipped": 78,
+    "seconds": 59.78
+  }
+}

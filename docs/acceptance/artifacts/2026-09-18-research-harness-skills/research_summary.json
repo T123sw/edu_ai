@@ -1,0 +1,70 @@
+{
+  "overview": "研究已覆盖\"最小计算器 Agent\"的核心知识：上传材料提供了模型与工具最小循环的完整定义（发用户问题+工具 schema → 读取 name/arguments/call_id → 校验并执行 add → 以相同 call_id 回传工具消息 → 取最终回答）、add 工具的 JSON Schema（object，a/b 为 number，required 含 a 和 b）、安全与失败处理（只执行已注册函数、参数缺失/类型不符返回 INVALID_ARGUMENT、不得编造结果）以及四项日志验收要求。DeepSeek 官方文档补齐了真实 API 实现细节：tools 参数传入 function 列表、响应中 tool_calls 数组（id/type/function.name/function.arguments 为 JSON 字符串）、以 role=tool + tool_call_id 回传结果、官方 Tool Calls 指南给出 openai 库 + base_url=https://api.deepseek.com 的完整 Python 示例，并明确\"模型本身不执行函数\"。这些证据足以支撑后续路径规划：先给一个可运行小例子（DeepSeek 工具调用实现 add），再解释最小循环原理与失败处理。",
+  "findings": [
+    {
+      "finding_id": "f_min_loop",
+      "claim": "最小计算器 Agent 的核心是\"模型与工具之间的最小循环\"：先把用户问题与工具 schema 发给模型，收到工具调用时读取 name、arguments 和 call_id，校验名称与 JSON 参数后执行 add，再把结果与相同 call_id 作为工具消息发回模型取得最终回答；模型请求工具不等于工具已经执行。只需单次工具调用，不要求多轮记忆或自主规划。",
+      "citations": [
+        {
+          "source_id": "ev_df4fb50de9ee2ed2e0b54929",
+          "quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n"
+        },
+        {
+          "source_id": "ev_df4fb50de9ee2ed2e0b54929",
+          "quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "f_deepseek_tool_api",
+      "claim": "DeepSeek 官方 Chat Completions API 支持工具调用：请求体通过 tools 参数传入 function 列表（type 为 function，含 name、description、parameters 的 JSON Schema），模型返回的 message 中带 tool_calls 数组（含 id、type=function、function.name、function.arguments 为 JSON 字符串）；客户端执行函数后，需以 role=tool、tool_call_id=该 id、content=结果 的消息回传，再请求一次取得最终自然语言回答。官方 Tool Calls 指南给出完整 Python 示例（用 openai 库，base_url=https://api.deepseek.com，model=deepseek-flash），并明确\"模型本身不执行具体函数，函数功能需由用户提供\"。",
+      "citations": [
+        {
+          "source_id": "ev_1189d2820fa94f797c0075db",
+          "quote": "\n`top_p`\n`temperature`\n\ntools\n\nobject[]\n\nnullable\n\n模型可能会调用的 tool 的列表。目前，仅支持 function 作为工具。使用此参数来提供以 JSON 作为输入参数的 function 列表。tool 名称必须唯一。\n\nArray [\n\n**Possible values:** [`function`]\n\n`function`\n\ntool 的类型。目前仅支持 function。\n\nfunction\n\nobject\n\n"
+        },
+        {
+          "source_id": "ev_1189d2820fa94f797c0075db",
+          "quote": "该 completion 在模型生成的 completion 的选择列表中的索引。\n\nmessage\n\nobject\n\nrequired\n\n模型生成的 completion 消息。\n\n该 completion 的内容。\n\n仅适用于思考模式。内容为 assistant 消息中在最终答案之前的推理内容。\n\ntool\\_calls\n\nobject[]\n\n模型生成的 tool 调用，例如 function 调用。\n\nArray [\n\ntool 调用的 ID。\n"
+        },
+        {
+          "source_id": "ev_b1ffccf826f6d1b8ad680cdf",
+          "quote": ". choices[0]. message client = OpenAI(client =  OpenAI(    api_key=\"<your api key>\",     api_key =\"<your api key>\",     base_url=\"https://api.deepseek.com\",     base_url =\"https://api.deepseek.com\", ) )  tools = [tools =  [    {    {       "
+        },
+        {
+          "source_id": "ev_b1ffccf826f6d1b8ad680cdf",
+          "quote": "append(message)  messages.append({\"role\": \"tool\", \"tool_call_id\": tool.id, \"content\": \"24℃\"}) messages. append({\"role\":  \"tool\",  \"tool_call_id\":  tool. "
+        },
+        {
+          "source_id": "ev_b1ffccf826f6d1b8ad680cdf",
+          "quote": "模型：返回 function `get_weather({location: 'Hangzhou'})`\n3. 用户：调用 function `get_weather({location: 'Hangzhou'})`，并传给模型。\n4. 模型：返回自然语言，\"The current temperature in Hangzhou is 24°C.\"\n\n注：上述代码中 `get_weather` 函数功能需由用户提供，模型本身不执行具体函数。\n\n---\n\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "f_failure_handling",
+      "claim": "工具调用失败处理的关键：模型返回的 function.arguments 是 JSON 字符串，且\"模型并不总是生成有效的 JSON，并且可能会臆造出你函数模式中未定义的参数\"，因此必须在调用函数前在代码中校验参数。上传材料进一步规定：只执行已注册的 add 函数、不执行模型输出的任意代码；参数缺失或类型不符时不运行函数，返回结构化错误（如 code=INVALID_ARGUMENT、message=b is required），并把错误交回模型引导用户补齐参数，不得编造计算结果。成功例\"计算 12 加 30\"期望 42，缺失 b 的用例期望工具未执行且返回错误。",
+      "citations": [
+        {
+          "source_id": "ev_1189d2820fa94f797c0075db",
+          "quote": "\n要调用的 function 的参数，由模型生成，格式为 JSON。请注意，模型并不总是生成有效的 JSON，并且可能会臆造出你函数模式中未定义的参数。在调用函数之前，请在代码中验证这些参数。\n\n]\n\n**Possible values:** [`assistant`]\n\n`assistant`\n\n生成这条消息的角色。\n\nlogprobs\n\nobject\n\nnullable\n\nrequired\n\n该 choice 的对数概率信息。\n\ncontent\n\nobject[]\n\n"
+        },
+        {
+          "source_id": "ev_df4fb50de9ee2ed2e0b54929",
+          "quote": "\n安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码。参数缺失或类型不符时，不运行函数，返回结构化错误，例如 code=INVALID\\_ARGUMENT、message=b is required。模型可提示用户补齐参数，不得编造计算结果。\n"
+        },
+        {
+          "source_id": "ev_df4fb50de9ee2ed2e0b54929",
+          "quote": "\n参考伪代码：若 name != add 则返回 UNKNOWN\\_TOOL；若 a 或 b 不是数字则返回 INVALID\\_ARGUMENT；否则执行 add(a,b)，记录结果并交回模型。成功用例期望结果为 42；缺失 b 的用例期望工具未执行且返回错误。\n\n范围：这份材料只讲模型与工具之间的最小循环，不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例。若需要真实 API 程序，这部分材料还需要补充；不能假装附件已经给出。\n"
+        }
+      ]
+    }
+  ],
+  "unresolved_gaps": [],
+  "limitations": [
+    "上传材料明确不含真实供应商 SDK 的安装、鉴权或完整可运行接口示例；DeepSeek 官方文档虽给出 openai 库 + base_url 的示例，但未提供 API key 申请步骤的完整中文说明，课程需补充鉴权/安装引导。",
+    "DeepSeek 官方 Tool Calls 指南示例使用 get_weather 而非 add，需在课程中将其改写为 add(a,b) 计算器场景；官方文档未直接给出 add 工具的参数校验失败（INVALID_ARGUMENT）回传模型的完整示例，需结合上传材料的伪代码自行组织。",
+    "官方文档提示思考模式下 tool_choice 的 required/指定具体 tool 用法会返回 400 错误，且 strict 模式需 base_url=https://api.deepseek.com/beta；课程示例应默认使用非思考模式（thinking=disabled）以避免混淆。",
+    "未读取 DeepSeek 官方文档中关于 API key 创建与首次调用的完整页面（src_6ee6892aa39d3575b92b 仅见摘要），鉴权细节需在路径规划阶段补充或标注为学习者需自行完成的前置步骤。"
+  ]
+}

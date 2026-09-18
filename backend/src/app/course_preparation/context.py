@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 from .research_agent import ResearchError
-from .intake_skill import INTAKE_PHASES, load_intake_skill
+from .workflow_skills import HARNESS_PHASES, load_workflow_skill
 
 PROMPTS = Path(__file__).parent/'prompts'
 
@@ -15,8 +15,8 @@ def encoded_size(value):
 
 def context_packet(context, tools, *, max_tokens, output_tokens=6000, native_skill=False):
     context=dict(context)
-    skill = load_intake_skill() if context['phase'] in INTAKE_PHASES else None
-    role_file={'input_document':'intake-role.md','intent':'intake-role.md','route_adjustment':'route-adjustment.md','review':'path-review.md','research_nodes':'node-research.md','course_review':'course-review.md'}.get(context['phase'],'research-role.md')
+    skill = load_workflow_skill(context['phase']) if context['phase'] in HARNESS_PHASES else None
+    role_file={'input_document':'intake-role.md','intent':'intake-role.md','research':'workflow-role.md','plan':'workflow-role.md','route_adjustment':'workflow-role.md','review':'workflow-role.md','research_nodes':'workflow-role.md','course_review':'course-review.md'}.get(context['phase'],'workflow-role.md')
     role=(PROMPTS/role_file).read_text()
     if skill and not native_skill:
         role += '\n' + skill['body']

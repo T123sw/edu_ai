@@ -39,7 +39,7 @@ class FakeHarness:
         type(self).closed = True
 
     def run(self, prompt, **kwargs):
-        config = next(p['config'] for p in self.patch[-1]['insert'] if p['id'] == 'preparation-intake-mcp')
+        config = next(p['config'] for p in self.patch[-1]['insert'] if p['id'] == 'preparation-mcp')
         url, token = config['env']['EDU_MCP_URL'], self.kwargs['env']['EDU_MCP_TOKEN']
         assert [t['name'] for t in rpc(url, token, 'tools/list')['tools']] == ['record_input_document']
         assert all(p['disabled'] for p in self.patch[:3])
@@ -65,7 +65,7 @@ def test_harness_submits_through_scoped_mcp_and_records_runtime():
     assert FakeHarness.closed
 
 
-@pytest.mark.parametrize('mode', ['text', 'duplicate', 'truncated', 'crash'])
+@pytest.mark.parametrize('mode', ['text', 'truncated', 'crash'])
 def test_harness_failure_cannot_become_success_or_fallback(mode, monkeypatch):
     FakeHarness.mode = mode
     monkeypatch.setattr(ResearchModelAdapter, 'decide', lambda *a, **k: pytest.fail('must not fall back'))
@@ -76,19 +76,24 @@ def test_harness_failure_cannot_become_success_or_fallback(mode, monkeypatch):
 
 def test_later_phases_keep_existing_adapter(monkeypatch):
     monkeypatch.setattr(ResearchModelAdapter, 'decide', lambda *a, **k: ('existing', {}))
-    assert adapter().decide({'phase': 'research'}, [], timeout=1) == ('existing', {})
+    assert adapter().decide({'phase': 'course_review'}, [], timeout=1) == ('existing', {})
 
 
-def test_tools_reject_unmounted_calls_and_conflicting_second_decision():
+def test_tools_reject_unmounted_calls_and_defer_second_decision():
     tools = IntakeTools([TOOL])
     assert not tools.call('search_sources', {})['ok']
     assert tools.result is None
     assert tools.call('record_input_document', {'summary': 'one'})['ok']
     assert tools.call('record_input_document', {'summary': 'one'})['ok']
-    assert not tools.call('record_input_document', {'summary': 'two'})['ok']
+    assert tools.call('record_input_document', {'summary': 'two'})['error'] == 'DEFERRED_TO_NEXT_STEP'
+    assert tools.result == ('record_input_document', {'summary': 'one'})
 
 
-@pytest.mark.parametrize('phase,tool_name', [('input_document','record_input_document'), ('intent','save_preparation_brief')])
+@pytest.mark.parametrize('phase,tool_name', [('input_document','record_input_document'), ('intent','save_preparation_brief'),
+    ('research','search_sources'), ('research','fetch_source'), ('research','record_evidence_finding'),
+    ('research','finalize_research_summary'), ('plan','save_course_plan'),
+    ('review','submit_path_review'), ('research_nodes','assess_node_evidence'),
+    ('route_adjustment','save_route_adjustment')])
 def test_real_sdk_round_trip_is_metered_and_only_exposes_intake_tool(phase, tool_name):
     """Run the installed SDK + MCP subprocesses against a deterministic provider."""
     import httpx
@@ -102,11 +107,13 @@ def test_real_sdk_round_trip_is_metered_and_only_exposes_intake_tool(phase, tool
         business_names = [name for name in names if name != 'skill']
         assert len(business_names) == 1 and business_names[0].endswith(tool_name), names
         assert 'skill' in names
-        from app.course_preparation.intake_skill import load_intake_skill, skill_is_loaded
-        assert skill_is_loaded(body['messages'], load_intake_skill())
+        from app.course_preparation.workflow_skills import load_workflow_skill, skill_is_loaded
+        skill = load_workflow_skill(phase)
+        assert skill_is_loaded(body['messages'], skill)
         assert sum(str(m.get('content', '')).count('<skill_content name=') for m in body['messages']) == 1
-        assert not any(load_intake_skill()['body'] in str(m.get('content', '')) for m in body['messages'] if m['role'] == 'system')
+        assert not any(skill['body'] in str(m.get('content', '')) for m in body['messages'] if m['role'] == 'system')
         tool_results = [m for m in body['messages'] if m['role'] == 'tool']
+        if tool_results: assert body['tool_choice'] == 'none'
         message = {'role': 'assistant', 'content': '已提交'} if tool_results else {
             'role': 'assistant', 'content': None, 'tool_calls': [{'id': 'call_intake', 'type': 'function',
             'function': {'name': business_names[0], 'arguments': json.dumps({'summary': '工具调用'})}}]}
@@ -175,3 +182,64 @@ def test_provider_guards_block_calls_and_incomplete_results(case):
         assert state['error'] is not None
     assert len(calls) == (4 if case == 'call_limit' else 1 if case == 'truncated' else 0)
     assert len(finishes) == len(calls)
+
+
+def test_real_sdk_batch_accepts_one_action_and_explicitly_defers_rest():
+    import httpx
+    from deepseek_harness import DeepSeekHarness
+    requests = []
+    def complete(request):
+        body = json.loads(request.content); requests.append(body)
+        results = [m for m in body['messages'] if m['role'] == 'tool']
+        if results:
+            assert body['tool_choice'] == 'none'
+            text = json.dumps(results, ensure_ascii=False)
+            assert 'DEFERRED_TO_NEXT_STEP' in text
+            message = {'role':'assistant','content':'已提交一个动作，等待下一步。'}
+        else:
+            name = next(t['function']['name'] for t in body['tools'] if t['function']['name'] != 'skill')
+            message = {'role':'assistant','content':None,'tool_calls':[
+                {'id':f'call_{i}','type':'function','function':{'name':name,'arguments':json.dumps({'summary':str(i)})}}
+                for i in range(2)]}
+        return httpx.Response(200,json={'id':'batch','object':'chat.completion','created':1,'model':'test',
+            'choices':[{'index':0,'message':message,'finish_reason':'stop' if results else 'tool_calls'}],
+            'usage':{'prompt_tokens':50,'completion_tokens':10,'total_tokens':60}})
+    model = adapter(DeepSeekHarness,client_factory=lambda **kw:httpx.Client(transport=httpx.MockTransport(complete),**kw))
+    model.gateway._build_headers=lambda key:{}
+    model.gateway._thinking_params=lambda name:{}
+    result = model.decide({**CONTEXT,'phase':'research'},[TOOL],timeout=30)
+    assert result[0] == 'record_input_document'
+    assert result[1]['summary'] in ('0','1')
+    assert len(requests) == 2
+
+
+@pytest.mark.parametrize('case', ['unmounted', 'duplicate_id', 'invalid_json'])
+def test_provider_rejects_invalid_batch_before_sdk_dispatch(case):
+    import httpx
+    from urllib.error import HTTPError
+    from app.course_preparation.harness_provider import harness_provider
+    toolset = IntakeTools([TOOL])
+    calls = [
+        {'id': f'call_{i}', 'type': 'function', 'function': {
+            'name': TOOL['function']['name'], 'arguments': '{"summary":"ok"}'}}
+        for i in range(2)
+    ]
+    if case == 'unmounted':
+        calls[1]['function']['name'] = 'execute_shell'
+    elif case == 'duplicate_id':
+        calls[1]['id'] = calls[0]['id']
+    else:
+        calls[1]['function']['arguments'] = '{broken'
+    def complete(request):
+        return httpx.Response(200, json={'choices': [{'index': 0,
+            'message': {'role': 'assistant', 'tool_calls': calls}, 'finish_reason': 'tool_calls'}]})
+    model = adapter(client_factory=lambda **kw: httpx.Client(transport=httpx.MockTransport(complete), **kw))
+    model.gateway._build_headers = lambda key: {}
+    model.gateway._thinking_params = lambda name: {}
+    with harness_provider(model, timeout=5, toolset=toolset) as (url, token, state):
+        req = Request(url + '/chat/completions', data=json.dumps({'messages': [], 'tools': [TOOL]}).encode(),
+                      headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
+        with pytest.raises(HTTPError):
+            urlopen(req)
+        assert isinstance(state['error'], ValueError)
+        assert toolset.result is None
