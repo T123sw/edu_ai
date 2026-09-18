@@ -3171,7 +3171,7 @@ button:not(:disabled):active {
 }
 .sl-home .sl-prompt-with-options > textarea {
   grid-column: 1 / -1;
-  height: 164px;
+  height: 140px;
   padding: 0 0 20px;
   font-size: 16px;
   line-height: 2;
@@ -3221,7 +3221,7 @@ button:not(:disabled):active {
 .sl-preparation-tasks h3 { font-size: 14px; font-weight: 500; }
 @media (max-width: 600px) {
   .sl-home .sl-prompt-with-options { grid-template-columns: minmax(0, 1fr); padding: 18px; }
-  .sl-home .sl-prompt-with-options > textarea { height: 180px; font-size: 16px; }
+  .sl-home .sl-prompt-with-options > textarea { height: 156px; font-size: 16px; }
   .sl-home .sl-prompt-with-options .sl-intake-toolbar { padding-right: 0; }
   .sl-home .sl-prompt-with-options > .sl-prompt-bottom { grid-column: 1; grid-row: 3; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f0edf5; }
   .sl-home .sl-prompt-with-options .sl-primary { width: 100%; justify-content: center; }

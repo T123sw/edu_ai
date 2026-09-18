@@ -127,7 +127,7 @@ export function Home({
         <form className={`sl-prompt${preparationOptions ? ' sl-prompt-with-options' : ''}`} onSubmit={submit}>
           <textarea
             aria-label="学习知识点与目标"
-            placeholder={"我想学习 Agent\n目标：做出一个能用的 AI 助手\n掌握程度：会 Python，Agent 零基础\n风格：通俗讲解，多举例，边学边做"}
+            placeholder={"- 我想学习 Agent\n- 希望能独立做出一个 AI 助手\n- 会一点 Python，Agent 还是零基础"}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             maxLength={2000}
