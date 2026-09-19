@@ -5,6 +5,7 @@ from urllib.parse import urlsplit, urlunsplit
 from app.integrations.websearch import search_bocha, search_tavily, extract_tavily
 
 from .research_agent import ResearchError
+from .source_errors import provider_error
 
 
 def public_url(url):
@@ -29,6 +30,8 @@ class ResearchSources:
         self.tavily_base, self.bocha_base = tavily_base, bocha_base
 
     def search(self, query, *, limit, timeout):
+        if not self.tavily_key and not self.bocha_key:
+            raise ResearchError('SEARCH_NOT_CONFIGURED', '网络搜索服务未配置')
         try:
             if self.tavily_key:
                 hits = search_tavily(query, count=limit, api_key=self.tavily_key,
@@ -37,7 +40,7 @@ class ResearchSources:
                 hits = search_bocha(query, count=limit, api_key=self.bocha_key,
                     base_url=self.bocha_base, timeout=timeout, freshness='noLimit')
         except Exception as exc:
-            raise ResearchError('SEARCH_UNAVAILABLE', '网络检索服务未配置或请求失败') from exc
+            raise provider_error(exc, 'SEARCH') from exc
         result = []
         for hit in hits:
             try:
@@ -50,12 +53,12 @@ class ResearchSources:
     def read(self, url, *, timeout):
         url = public_url(url)
         if not self.tavily_key:
-            raise ResearchError('EXTRACT_UNAVAILABLE', '正文提取服务未配置，不能把搜索摘要作为已读资料')
+            raise ResearchError('EXTRACT_NOT_CONFIGURED', '正文提取服务未配置，不能把搜索摘要作为已读资料')
         try:
             results = extract_tavily([url], depth='advanced', timeout=max(1, int(timeout)),
                 api_key=self.tavily_key, base_url=self.tavily_base, max_urls=1)
         except Exception as exc:
-            raise ResearchError('EXTRACT_UNAVAILABLE', '正文提取服务暂时不可用') from exc
+            raise provider_error(exc, 'EXTRACT') from exc
         for result in results:
             if result.status == 'success' and public_url(result.url) == url and result.content.strip():
                 return result.content

@@ -53,6 +53,22 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4):
                         toolset.check()
                     stream = payload.pop('stream', False)
                     payload.pop('stream_options', None)
+                    if getattr(toolset, 'continuous', False) and toolset.result is not None:
+                        # The tool already durably saved a terminal result. Close
+                        # the SDK loop locally; this is not a provider/model call.
+                        message = {'role':'assistant', 'content':'本次结果已保存，会话结束。'}
+                        data = {'id':'preparation-terminal', 'object':'chat.completion',
+                            'created':int(time.time()), 'model':'workflow-terminal',
+                            'choices':[{'index':0,'message':message,'finish_reason':'stop'}],
+                            'usage':{'prompt_tokens':0,'completion_tokens':0,'total_tokens':0}}
+                        state['error'] = None
+                        if stream:
+                            data['object'] = 'chat.completion.chunk'
+                            data['choices'] = [{'index':0,'delta':message,'finish_reason':'stop'}]
+                            self.reply(200, ('data: '+json.dumps(data)+'\n\ndata: [DONE]\n\n').encode(), 'text/event-stream')
+                        else:
+                            self.reply(200, json.dumps(data).encode())
+                        return
                     payload.update(stream=False, max_tokens=6000, parallel_tool_calls=False, temperature=0.1)
                     if toolset is not None and toolset.result is not None:
                         payload['tool_choice'] = 'none'

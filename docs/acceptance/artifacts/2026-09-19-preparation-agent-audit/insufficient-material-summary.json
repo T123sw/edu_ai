@@ -1,0 +1,153 @@
+{
+  "status": "passed",
+  "seconds": 128.94,
+  "expected_outcome": "research_insufficient",
+  "memory_before": {
+    "memory_epoch": 0,
+    "preferences": {}
+  },
+  "web_calls": [],
+  "steps": [
+    {
+      "step": 1,
+      "result": {
+        "claimed": true,
+        "stage": "normalize",
+        "waiting": false
+      },
+      "seconds": 24.23
+    },
+    {
+      "step": 2,
+      "result": {
+        "claimed": true,
+        "stage": "ingest",
+        "waiting": false
+      },
+      "seconds": 17.41
+    },
+    {
+      "step": 3,
+      "result": {
+        "claimed": true,
+        "stage": "research_scope",
+        "waiting": false
+      },
+      "seconds": 0.51
+    },
+    {
+      "step": 4,
+      "result": {
+        "failed": true,
+        "code": "RESEARCH_INSUFFICIENT"
+      },
+      "seconds": 86.28
+    }
+  ],
+  "all_model_calls_used_harness_skills": true,
+  "public_status": "failed",
+  "error_code": "RESEARCH_INSUFFICIENT",
+  "blocker": {
+    "reason": "核心目标 REQ-001（\"做出一个能调用计算器的命令行助手\"）无法在\"只根据上传资料、不要联网\"的限制下完整达成。上传材料明确声明\"只讲模型与工具之间的最小循环，不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例\"，因此\"让模型选择工具并返回结果\"这一真实模型调用环节没有可运行接口依据，只能以伪代码/模拟方式实现。材料本身已声明这一缺口，且来源策略为 uploaded_only，禁止联网检索官方 SDK 文档来补齐，故无法将 REQ-001 标为 covered，也无法据此交付可运行的真实 API 程序路径。",
+    "coverage": [
+      {
+        "requirement_id": "REQ-001",
+        "kind": "knowledge",
+        "status": "partial",
+        "finding_ids": [
+          "F1_tool_schema",
+          "F2_call_loop",
+          "F3_safety_failure",
+          "F4_pseudocode",
+          "F5_acceptance",
+          "F6_scope_limit"
+        ],
+        "reason": "材料完整给出 add 工具定义、调用循环、安全失败处理、伪代码与日志验收，足以支撑写出可运行的 add 函数与校验/错误处理/日志逻辑；但材料明确声明不含真实供应商 SDK 的安装、鉴权或完整可运行接口示例，'让模型选择工具并返回结果'这一真实模型调用环节无法据此写出可运行程序，只能以伪代码/模拟方式实现，故为 partial。"
+      },
+      {
+        "requirement_id": "REQ-002",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "F3_safety_failure",
+          "F4_pseudocode"
+        ],
+        "reason": "材料明确说明参数缺失/类型不符时不运行函数、返回结构化错误（INVALID_ARGUMENT、UNKNOWN_TOOL）、模型提示用户补齐参数、不得编造结果，足以支持解释一次工具调用失败该怎么处理。"
+      },
+      {
+        "requirement_id": "REQ-003",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "语言与教学顺序要求，路径以中文呈现并先给成功小例子再讲原理。"
+      },
+      {
+        "requirement_id": "REQ-004",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "来源限制要求，本次仅读取上传材料，未联网。"
+      },
+      {
+        "requirement_id": "REQ-005",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "排除项要求，路径不涉及模型训练、多 Agent 协作、Web 部署。"
+      },
+      {
+        "requirement_id": "REQ-006",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "F1_tool_schema"
+        ],
+        "reason": "F1 完整记录 add 输入 schema 为 object、a/b 为 number、required 含两者、返回 a+b、工具描述说明用途与参数含义。"
+      },
+      {
+        "requirement_id": "REQ-007",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "F2_call_loop"
+        ],
+        "reason": "F2 完整记录调用流程：发用户问题与 schema → 读 name/arguments/call_id → 校验并执行 add → 以相同 call_id 回传工具消息 → 取得最终回答。"
+      },
+      {
+        "requirement_id": "REQ-008",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "F3_safety_failure"
+        ],
+        "reason": "F3 完整记录安全与失败处理：只执行已注册函数、不执行任意代码、参数缺失/类型不符返回结构化错误、模型提示补齐参数、不得编造结果。"
+      },
+      {
+        "requirement_id": "REQ-009",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "F5_acceptance"
+        ],
+        "reason": "F5 完整记录四项可读日志要求及成功例'计算 12 加 30'、失败例'参数 b 缺失'。"
+      },
+      {
+        "requirement_id": "REQ-010",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "F4_pseudocode"
+        ],
+        "reason": "F4 完整记录参考伪代码：name!=add 返回 UNKNOWN_TOOL、a/b 非数字返回 INVALID_ARGUMENT、否则执行 add 记录结果交回模型；成功期望 42、缺失 b 期望工具未执行且返回错误。"
+      }
+    ],
+    "suggested_actions": [
+      "补充一份真实供应商 SDK 的官方文档或可运行接口示例（安装、鉴权、发送用户问题与工具 schema、接收工具调用消息、回传工具消息的具体代码），以支撑写出可运行的真实 API 程序。",
+      "若允许联网，可检索目标模型供应商（如 OpenAI、Anthropic 等）的 function calling / tool use 官方文档，补齐真实接口调用依据。",
+      "或由用户明确接受'以模拟模型调用（mock）方式完成命令行助手'作为交付目标，则现有材料足以支撑完整路径。",
+      "补充工具调用失败后如何向用户解释并引导补齐参数的具体讲解示例（材料仅给出结构化错误码，未展开用户侧引导话术）。"
+    ]
+  },
+  "has_plan": false,
+  "has_node_evidence": false
+}

@@ -40,7 +40,7 @@ class PreparationTools:
 
 def preparation_patch(url, token, persona, skills_root, *, continuous=False):
     proxy = Path(__file__).resolve().parents[1] / 'chat/harness/mcp_proxy.py'
-    instruction = ('工具返回真实执行结果；持续研究和规划，直到 save_course_plan 成功后结束。' if continuous
+    instruction = ('工具返回真实执行结果；持续研究和规划，直到 save_course_plan 或 report_research_blocker 成功后结束。' if continuous
                    else '必须调用本阶段工具提交一个结构化结果，然后结束。')
     return json.dumps([
         *[{'id': name, 'disabled': True} for name in ('persistent-bash', 'persistent-pwsh', 'str-replace-editor')],

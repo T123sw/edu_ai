@@ -74,7 +74,28 @@ class Finding(Contract):
     citations: tuple[Citation, ...] = Field(min_length=1, max_length=8)
 
 
+class RequirementCoverage(Contract):
+    requirement_id: Identifier
+    kind: Literal['knowledge', 'constraint'] = Field(default='knowledge', description='知识或实现能力用 knowledge；仅语言、时间、教学顺序等要求用 constraint，不能把实现目标改标成约束。')
+    status: Literal['covered', 'partial', 'missing'] = Field(description='covered 表示证据支持完整达到原始需求；只支持概念/伪代码而原目标要求可运行程序时必须 partial。不能通过 limitations 降低目标后标 covered。')
+    finding_ids: tuple[Identifier, ...] = Field(default=(), max_length=12)
+    reason: ShortText
+
+    @model_validator(mode='after')
+    def supported(self):
+        if self.kind == 'knowledge' and self.status == 'covered' and not self.finding_ids:
+            raise ValueError('已覆盖的知识能力必须关联证据结论；语言、时间等约束使用 constraint 并说明落实方式')
+        return self
+
+
+class ResearchBlocker(Contract):
+    reason: ShortText
+    coverage: tuple[RequirementCoverage, ...] = Field(min_length=1, max_length=12)
+    suggested_actions: tuple[ShortText, ...] = Field(min_length=1, max_length=5)
+
+
 class ResearchSummary(Contract):
+    coverage: tuple[RequirementCoverage, ...] = Field(default=(), max_length=12)
     overview: ShortText
     findings: tuple[Finding, ...] = Field(min_length=1, max_length=12)
     unresolved_gaps: tuple[ShortText, ...] = Field(default=(), max_length=8)
@@ -126,6 +147,9 @@ class ResearchState(Contract):
     calls: int = 0
     searches: int = 0
     reads: int = 0
+    upload_reads: int = 0
+    source_failures: dict[str, int] = Field(default_factory=dict)
+    blocker: ResearchBlocker | None = None
     repairs: int = 0
     errors: int = 0
     last_error: dict | None = None
@@ -142,6 +166,7 @@ class FetchArgs(Contract):
 
 
 class FinalizeSummary(Contract):
+    coverage: tuple[RequirementCoverage, ...] = Field(default=(), max_length=12)
     overview: ShortText
     finding_ids: tuple[Identifier, ...] = Field(min_length=1,max_length=12)
     limitations: tuple[ShortText, ...] = Field(default=(),max_length=8)

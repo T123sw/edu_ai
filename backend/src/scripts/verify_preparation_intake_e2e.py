@@ -15,6 +15,7 @@ def main():
     parser.add_argument('--output-dir', required=True)
     parser.add_argument('--through', choices=('research','path'), default='research')
     parser.add_argument('--network-research', action='store_true')
+    parser.add_argument('--expect-blocker', action='store_true', help='Expect explicit research insufficiency instead of a path')
     args = parser.parse_args()
     output = Path(args.output_dir).resolve()
     output.mkdir(parents=True, exist_ok=False)
@@ -148,7 +149,7 @@ def main():
             response = client.post('/api/course-preparations',json={'request_id':str(uuid4()),'operation':'create_course','goal':goal,'uploads':[upload]})
             assert response.status_code == 202, response.text
             pid = response.json()['preparation_id']; report['preparation_id'] = pid
-            for index in range(50 if args.through == 'path' else 25):
+            for index in range(50 if args.through == 'path' or args.expect_blocker else 25):
                 tick = time.monotonic()
                 result = runner.run_step(pid, worker_id='e2e-worker')
                 timings.append({'step':index+1,'result':result,'seconds':round(time.monotonic()-tick,2)})
@@ -157,11 +158,22 @@ def main():
                     checkpoint = dict(session.get(PreparationExecution,(pid,1)).checkpoint)
                 report['checkpoint'] = checkpoint
                 (output/'progress.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
-                if result.get('failed'): raise AssertionError(result)
-                if result.get('stage') == ('produce' if args.through == 'path' else 'plan'): break
+                if result.get('failed'):
+                    if args.expect_blocker and result.get('code') == 'RESEARCH_INSUFFICIENT': break
+                    raise AssertionError(result)
+                if result.get('stage') == ('produce' if args.through == 'path' or args.expect_blocker else 'plan'): break
             else: raise AssertionError('pipeline did not reach requested handoff within bounded steps')
             report['intermediates'] = client.get(f'/api/course-preparations/{pid}/intermediates').json()
             report['public'] = client.get(f'/api/course-preparations/{pid}').json()
+            if args.expect_blocker:
+                assert report['public']['status'] == 'failed' and report['public']['error_code'] == 'RESEARCH_INSUFFICIENT'
+                assert report['intermediates']['research_blocker']['coverage']
+                assert 'plan' not in report['intermediates'] and not checkpoint.get('node_evidence')
+                assert checkpoint['ingested_documents'][0]['parser'] == 'mineru-cloud'
+                assert not network
+                report['expected_outcome'] = 'research_insufficient'
+                report['status'] = 'passed'
+                return
             report['status'] = 'completed_for_review'
             report['memory_after'] = memory.lifecycle.read_effective(owner)
             assert report['memory_before']['preferences'] == checkpoint['memory_view']['preferences'] == {}

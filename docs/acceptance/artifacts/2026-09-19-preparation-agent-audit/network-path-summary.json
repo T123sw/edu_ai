@@ -1,0 +1,400 @@
+{
+  "status": "passed",
+  "scope": "HTTP API with isolated authenticated identity, SQLite and personal files; real MinerU and model; stop at requested handoff boundary",
+  "seconds": 229.86,
+  "through": "path",
+  "network_research": true,
+  "all_model_calls_used_harness_skills": true,
+  "web_calls": [
+    {
+      "kind": "search",
+      "query": "DeepSeek API 工具调用 function calling tool_calls 官方文档"
+    },
+    {
+      "kind": "read",
+      "url": "https://api-docs.deepseek.com/guides/tool_calls"
+    },
+    {
+      "kind": "read",
+      "url": "https://api-docs.deepseek.com/guides/tool_calls"
+    },
+    {
+      "kind": "search",
+      "query": "DeepSeek API create chat completion model deepseek-chat deepseek-reasoner api key 鉴权"
+    },
+    {
+      "kind": "read",
+      "url": "https://api-docs.deepseek.com"
+    }
+  ],
+  "memory_before": {
+    "memory_epoch": 0,
+    "preferences": {}
+  },
+  "memory_after": {
+    "memory_epoch": 0,
+    "preferences": {}
+  },
+  "steps": [
+    {
+      "step": 1,
+      "result": {
+        "claimed": true,
+        "stage": "normalize",
+        "waiting": false
+      },
+      "seconds": 25.31
+    },
+    {
+      "step": 2,
+      "result": {
+        "claimed": true,
+        "stage": "ingest",
+        "waiting": false
+      },
+      "seconds": 21.23
+    },
+    {
+      "step": 3,
+      "result": {
+        "claimed": true,
+        "stage": "research_scope",
+        "waiting": false
+      },
+      "seconds": 0.85
+    },
+    {
+      "step": 4,
+      "result": {
+        "claimed": true,
+        "stage": "plan",
+        "waiting": false
+      },
+      "seconds": 119.96
+    },
+    {
+      "step": 5,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 8.82
+    },
+    {
+      "step": 6,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 11.68
+    },
+    {
+      "step": 7,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 10.9
+    },
+    {
+      "step": 8,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 8.65
+    },
+    {
+      "step": 9,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 8.67
+    },
+    {
+      "step": 10,
+      "result": {
+        "claimed": true,
+        "stage": "produce",
+        "waiting": false
+      },
+      "seconds": 12.63
+    }
+  ],
+  "nodes": 5,
+  "model_calls": 27,
+  "tokens": 330507,
+  "plan": {
+    "title": "用 DeepSeek 工具调用接口实现最小计算器 Agent",
+    "summary": "面向会 Python、写过普通函数但没做过 Agent 的学习者，用两小时按上传材料做出一个能调用 add(a,b) 工具的命令行助手。路径先给一个最小可运行小例子（DeepSeek 官方工具调用示例），再解释模型-工具调用循环原理，随后定义 add 工具 schema、实现安全与失败处理（参数缺失返回 INVALID_ARGUMENT 并让模型提示补齐）、保留四项可读日志并完成验收自测。全程使用 DeepSeek 官方 API（OpenAI SDK + base_url=https://api.deepseek.com，模型 deepseek-v4-flash/deepseek-v4-pro），不涉及模型训练、多 Agent 协作与 Web 部署。",
+    "nodes": [
+      {
+        "node_key": "n1_minimal_example",
+        "title": "先跑起来：最小可运行的工具调用小例子",
+        "objectives": [
+          "安装 OpenAI SDK 并配置 DeepSeek 客户端（api_key + base_url=https://api.deepseek.com）",
+          "看懂并运行 DeepSeek 官方 Tool Calls 的最小 Python 示例，观察模型返回 tool_calls 而非直接答案",
+          "理解模型本身不执行函数，函数需由用户提供",
+          "明确本课程范围：只做单次工具调用的命令行助手，不涉及模型训练、多 Agent 协作与 Web 部署"
+        ],
+        "prerequisite_keys": [],
+        "minutes": 30,
+        "requirement_ids": [
+          "REQ-001",
+          "REQ-002",
+          "REQ-003",
+          "REQ-004"
+        ],
+        "finding_ids": [
+          "f_ds_toolcall_code",
+          "f_ds_auth",
+          "f_ds_model"
+        ],
+        "source_ids": [
+          "ev_3a4e3ed27d507a784ac1cdc1",
+          "ev_d052e608abf0287c30a7d4e2"
+        ],
+        "learning_activities": [
+          "pip3 install openai，设置 DEEPSEEK_API_KEY 环境变量",
+          "照抄官方 Tool Calls 示例（get_weather 或改为 add），运行并打印 message.tool_calls[0] 观察 name/arguments/id",
+          "把工具执行结果以 {\"role\":\"tool\",\"tool_call_id\":tool.id,\"content\":\"结果\"} 回传，观察第二次调用得到最终回答"
+        ],
+        "self_check": "能否说出：模型第一次返回的是 tool_calls（含 name/arguments/id），而不是最终答案；函数由你的代码执行，模型不执行函数。"
+      },
+      {
+        "node_key": "n2_loop_principle",
+        "title": "理解模型-工具最小调用循环原理",
+        "objectives": [
+          "能解释最小调用循环五步：发问题+schema → 读 name/arguments/call_id → 校验并执行 → 相同 call_id 回传结果 → 取得最终回答",
+          "理解'模型请求工具不等于工具已经执行'这一关键点"
+        ],
+        "prerequisite_keys": [
+          "n1_minimal_example"
+        ],
+        "minutes": 20,
+        "requirement_ids": [
+          "REQ-005",
+          "REQ-008"
+        ],
+        "finding_ids": [
+          "f_upload_loop",
+          "f_ds_toolcall_code"
+        ],
+        "source_ids": [
+          "ev_fb2f5ea8065010389dbad4f3",
+          "ev_3a4e3ed27d507a784ac1cdc1"
+        ],
+        "learning_activities": [
+          "对照上传材料的调用流程文字，逐行标注刚才小例子代码中每一步对应的位置",
+          "画出五步循环图，标出 call_id 在'请求'与'回传'两处必须一致"
+        ],
+        "self_check": "能否不看材料，口头复述五步循环，并指出 call_id 在哪两步出现且必须相同。"
+      },
+      {
+        "node_key": "n3_tool_schema",
+        "title": "定义 add 工具 schema 并校验参数",
+        "objectives": [
+          "按上传材料定义 add 工具：schema 为 object，a/b 为 number 且 required，函数返回 a+b，描述说明用途与参数",
+          "在收到 tool_calls 后读取 name/arguments 并做 JSON 参数校验"
+        ],
+        "prerequisite_keys": [
+          "n2_loop_principle"
+        ],
+        "minutes": 20,
+        "requirement_ids": [
+          "REQ-007",
+          "REQ-008"
+        ],
+        "finding_ids": [
+          "f_upload_tooldef",
+          "f_upload_loop",
+          "f_ds_strict"
+        ],
+        "source_ids": [
+          "ev_fb2f5ea8065010389dbad4f3",
+          "ev_3a4e3ed27d507a784ac1cdc1"
+        ],
+        "learning_activities": [
+          "把 tools 列表中的 get_weather 替换为 add，parameters 用 object 且 required 含 a、b，类型为 number",
+          "编写 add(a,b) 函数返回 a+b，并解析 tool_calls[0].function.arguments 的 JSON 得到 a、b",
+          "（可选）了解 strict 模式：function 设 strict=true 且 base_url 用 /beta，object 的 properties 全部 required 且 additionalProperties=false"
+        ],
+        "self_check": "能否写出 add 的 tools 定义（type=function、name、description、parameters 为 object 且 required 含 a/b），并说明如何从 tool_calls 里取出 arguments。"
+      },
+      {
+        "node_key": "n4_safety_failure",
+        "title": "安全与失败处理：参数缺失时返回结构化错误",
+        "objectives": [
+          "只执行已注册的 add 函数，不执行模型输出的任意代码",
+          "参数缺失或类型不符时不运行函数，返回结构化错误（code=INVALID_ARGUMENT、message=b is required）",
+          "未知工具返回 UNKNOWN_TOOL；把错误作为 tool 消息回传，让模型提示用户补齐参数而非编造结果"
+        ],
+        "prerequisite_keys": [
+          "n3_tool_schema"
+        ],
+        "minutes": 25,
+        "requirement_ids": [
+          "REQ-009",
+          "REQ-010"
+        ],
+        "finding_ids": [
+          "f_upload_safety",
+          "f_ds_toolcall_code"
+        ],
+        "source_ids": [
+          "ev_fb2f5ea8065010389dbad4f3",
+          "ev_3a4e3ed27d507a784ac1cdc1"
+        ],
+        "learning_activities": [
+          "实现校验分支：name != add 返回 UNKNOWN_TOOL；a 或 b 不是数字返回 INVALID_ARGUMENT；否则执行 add",
+          "把结构化错误（如 {\"code\":\"INVALID_ARGUMENT\",\"message\":\"b is required\"}）作为 tool 消息 content 回传，观察模型提示用户补齐参数",
+          "用'参数 b 缺失'作为失败例，确认工具未执行且返回错误"
+        ],
+        "self_check": "能否说明：为什么不能直接执行模型输出的任意代码；参数缺失时返回什么、如何回传给模型、模型应做什么（提示补齐而非编造）。"
+      },
+      {
+        "node_key": "n5_logging_acceptance",
+        "title": "四项可读日志与验收自测",
+        "objectives": [
+          "保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志",
+          "用'计算 12 加 30'验证成功例（期望 42），用'参数 b 缺失'验证失败例",
+          "加入命令行交互（读取输入、循环、退出）完成可运行助手"
+        ],
+        "prerequisite_keys": [
+          "n4_safety_failure"
+        ],
+        "minutes": 25,
+        "requirement_ids": [
+          "REQ-001",
+          "REQ-006",
+          "REQ-010"
+        ],
+        "finding_ids": [
+          "f_upload_acceptance",
+          "f_upload_safety",
+          "f_ds_toolcall_code"
+        ],
+        "source_ids": [
+          "ev_fb2f5ea8065010389dbad4f3",
+          "ev_3a4e3ed27d507a784ac1cdc1"
+        ],
+        "learning_activities": [
+          "在代码中打印四项日志：用户问题、tool_calls 参数、工具执行结果、最终回答",
+          "用 input() 循环读取用户问题，支持退出命令，串起完整命令行助手",
+          "分别运行成功例与失败例，核对输出：成功例 42，失败例工具未执行且返回 INVALID_ARGUMENT"
+        ],
+        "self_check": "能否运行完整助手，展示四项日志，并分别复现成功例（42）与失败例（参数 b 缺失返回错误且模型提示补齐）。"
+      }
+    ],
+    "limitations": [
+      "DeepSeek 官方文档未提供'参数缺失后把结构化错误回传并让模型提示补齐'的逐字完整示例，本路径依据上传材料的结构化错误定义与官方 tool 消息回传机制推导实现，学习者需自行组合。",
+      "模型名以官方文档为准（deepseek-v4-flash / deepseek-v4-pro），旧名 deepseek-chat/deepseek-reasoner 已弃用，请勿混用旧示例。",
+      "strict 模式为 Beta 且需 base_url 用 /beta，属可选进阶，不影响核心目标。"
+    ]
+  },
+  "coverage": [
+    {
+      "requirement_id": "REQ-001",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_upload_loop",
+        "f_upload_acceptance",
+        "f_ds_toolcall_code",
+        "f_ds_auth",
+        "f_ds_model"
+      ],
+      "reason": "上传材料给出练习目标与验收要求，DeepSeek 官方文档给出完整可运行 Python 工具调用示例，两者结合足以在两小时内做出命令行助手。"
+    },
+    {
+      "requirement_id": "REQ-002",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "教学顺序要求：路径首节点先给最小可运行小例子，后续节点再解释原理，符合'先小例子再原理'。"
+    },
+    {
+      "requirement_id": "REQ-003",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_upload_loop",
+        "f_ds_toolcall_code",
+        "f_ds_auth",
+        "f_ds_model",
+        "f_ds_strict"
+      ],
+      "reason": "已读取上传材料全文，并联网补充 DeepSeek 官方 API 文档（api-docs.deepseek.com 的 Tool Calls 指南与首页），使用其工具调用接口实现。"
+    },
+    {
+      "requirement_id": "REQ-004",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "排除项：路径不涉及模型训练、多 Agent 协作、Web 部署，仅聚焦单次工具调用的命令行助手。"
+    },
+    {
+      "requirement_id": "REQ-005",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_upload_loop"
+      ],
+      "reason": "上传材料明确练习目标：Python 命令行助手让模型选择 add(a,b) 工具并返回结果，单次工具调用，不要求多轮记忆或自主规划。"
+    },
+    {
+      "requirement_id": "REQ-006",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_upload_acceptance"
+      ],
+      "reason": "上传材料明确验收要求：四项可读日志，成功例'计算 12 加 30'期望 42，失败例'参数 b 缺失'。"
+    },
+    {
+      "requirement_id": "REQ-007",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_upload_tooldef"
+      ],
+      "reason": "上传材料明确 add 工具 schema：object，a/b 为 number 且 required，返回 a+b，描述说明用途与参数。"
+    },
+    {
+      "requirement_id": "REQ-008",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_upload_loop",
+        "f_ds_toolcall_code"
+      ],
+      "reason": "上传材料明确调用流程（发问题+schema→读 name/arguments/call_id→校验执行→相同 call_id 回传→最终回答），DeepSeek 官方文档给出对应 tool_calls/tool 消息实现。"
+    },
+    {
+      "requirement_id": "REQ-009",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_upload_safety",
+        "f_ds_toolcall_code"
+      ],
+      "reason": "上传材料完整定义安全与失败行为（只执行已注册函数、结构化错误 INVALID_ARGUMENT、模型提示补齐、不编造结果），DeepSeek 文档提供 tool 消息回传机制用于把错误回传给模型。"
+    },
+    {
+      "requirement_id": "REQ-010",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_upload_safety",
+        "f_upload_acceptance"
+      ],
+      "reason": "上传材料给出参考伪代码（UNKNOWN_TOOL/INVALID_ARGUMENT/执行 add 记录结果交回模型），成功例 42、缺失 b 返回错误。"
+    }
+  ]
+}
