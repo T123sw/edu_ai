@@ -196,17 +196,25 @@ class ResearchAgent:
                 'upload_reads': upload_reads + int(candidate.url.startswith('upload://'))})
             if reserve:
                 reserve(state)
-            full_content = self.sources.read(candidate.url, timeout=timeout).strip()
+            snapshot = self.sources.read_snapshot(candidate.url, timeout=timeout) if hasattr(self.sources, 'read_snapshot') else None
+            full_content = snapshot.content if snapshot else self.sources.read(candidate.url, timeout=timeout)
+            if len(full_content.strip()) < (20 if candidate.url.startswith('upload://') else 100):
+                raise ValueError('正文未能有效提取，不能使用搜索摘要代替')
+            previous=[e for e in state.evidence if e.candidate_id==candidate.candidate_id]
+            if any((snapshot and e.snapshot_id and e.snapshot_id!=snapshot.snapshot_id)
+                   or full_content[e.offset_chars:e.offset_chars+len(e.content)]!=e.content for e in previous):
+                raise ResearchError('SOURCE_VERSION_CONFLICT','来源正文版本已变化；保留旧证据，不能混合分页版本')
             if args.offset_chars >= len(full_content):
                 raise ValueError(f'正文已结束，总长 {len(full_content)} 字符；不能继续读取该偏移，请使用已有证据')
             content = full_content[args.offset_chars:args.offset_chars + 5000]
-            if len(content) < (20 if candidate.url.startswith('upload://') else 100):
-                raise ValueError('正文未能有效提取，不能使用搜索摘要代替')
             digest = hashlib.sha256(content.encode()).hexdigest()
-            evidence = SourceEvidence(source_id='ev_' + hashlib.sha256((candidate.url + digest).encode()).hexdigest()[:24],
+            evidence = SourceEvidence(source_id='ev_' + hashlib.sha256((candidate.url + str(args.offset_chars) + (snapshot.snapshot_id if snapshot else '') + digest).encode()).hexdigest()[:24],
                 candidate_id=candidate.candidate_id, url=candidate.url, title=candidate.title,
                 content=content, offset_chars=args.offset_chars, total_chars=len(full_content),
-                next_offset=args.offset_chars+5000 if args.offset_chars+5000<len(full_content) else None, content_sha256=digest, retrieved_at=datetime.now(timezone.utc).isoformat())
+                snapshot_id=snapshot.snapshot_id if snapshot else None,
+                snapshot_sha256=snapshot.content_sha256 if snapshot else None,
+                canonical_url=snapshot.canonical_url if snapshot else None,
+                next_offset=args.offset_chars+5000 if args.offset_chars+5000<len(full_content) else None, content_sha256=digest, retrieved_at=snapshot.retrieved_at if snapshot else datetime.now(timezone.utc).isoformat())
             return state.model_copy(update={'evidence': (*state.evidence, evidence)})
         if name == 'record_evidence_finding':
             from .evidence_spans import span_registry
@@ -248,7 +256,7 @@ class ResearchAgent:
                     if source is not None and citation.quote not in source.content:
                         # Exact text, same already-read page, uniquely located excerpt only.
                         matches = [(e, locate_quote(e.content, citation.quote))
-                                   for e in state.evidence if e.url == source.url]
+                                   for e in state.evidence if e.url == source.url and e.snapshot_id == source.snapshot_id]
                         matches = [(e, quote) for e, quote in matches if quote is not None]
                         if len(matches) == 1:
                             resolved, raw_quote = matches[0]

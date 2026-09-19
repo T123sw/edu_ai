@@ -4,7 +4,7 @@ import hashlib
 from .research_contracts import ResearchState, Candidate
 from .runner import StepResult
 from .adapters.sources import upload_url
-from .adapters.documents import DocumentUnreadable
+from .adapters.documents import DocumentUnreadable, controlled_parse
 from .research_agent import ResearchError
 
 
@@ -38,7 +38,8 @@ class ResearchStages:
         agent=self.agent_factory(context,request,checkpoint)
         agent.extra_context = {**agent.extra_context, 'input_documents': checkpoint.get('input_documents', [])}
         def reserve(value):
-            self.repository.checkpoint(context,{**checkpoint,'research_state':value.model_dump(mode='json')})
+            checkpoint['research_state']=value.model_dump(mode='json')
+            self.repository.checkpoint(context,checkpoint)
         remaining=(datetime.fromisoformat(context.deadline)-datetime.now(timezone.utc)).total_seconds()
         if state.blocker is not None:
             checkpoint['research_blocker']=state.blocker.model_dump(mode='json')
@@ -96,7 +97,8 @@ class ResearchStages:
         completed=list(checkpoint.get('ingested_documents',[]))
         if len(completed)<len(request.uploads):
             ref=request.uploads[len(completed)]
-            parsed=self.documents.parse(context.owner_user_id,ref)
+            parsed=controlled_parse(self.documents, context.owner_user_id, ref,
+                context=context, repository=self.repository, checkpoint=checkpoint)
             if parsed['defects'] and ref.usage in ('auto','primary','coverage'):
                 raise DocumentUnreadable('CORE_SOURCE_UNREADABLE',parsed['defects'])
             metadata=self.documents.authorize(context.owner_user_id,ref)

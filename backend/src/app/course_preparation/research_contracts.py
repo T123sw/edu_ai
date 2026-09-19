@@ -60,6 +60,9 @@ class SourceEvidence(Contract):
     offset_chars: int = 0
     total_chars: int | None = None
     next_offset: int | None = None
+    snapshot_id: str | None = None
+    snapshot_sha256: str | None = None
+    canonical_url: str | None = None
     coverage: Literal['extracted_excerpt'] = 'extracted_excerpt'
 
 
@@ -176,3 +179,16 @@ class ReferencedFinding(Contract):
     finding_id: Identifier
     claim: ShortText
     citation_refs: tuple[Identifier,...]=Field(min_length=1,max_length=8)
+
+
+class ReadEvidenceArgs(Contract):
+    source_id: Identifier | None = None
+    citation_ref: Identifier | None = None
+    offset_chars: int = Field(default=0, ge=0)
+    limit: int = Field(default=5000, ge=1, le=5000)
+
+    @model_validator(mode='after')
+    def one_handle(self):
+        if bool(self.source_id)==bool(self.citation_ref):
+            raise ValueError('指定且仅指定 source_id 或 citation_ref')
+        return self

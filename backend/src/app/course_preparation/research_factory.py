@@ -1,5 +1,9 @@
 """Configured research assembly. Secrets remain in provider configuration only."""
 import os
+import hashlib
+import json
+from .source_snapshots import SourceSnapshots, SnapshotScope
+from .adapters.documents import controlled_parse
 from .research_dependencies import agent_factory as legacy_factory
 from .adapters.sources import PolicySources
 from .budget_meter import PreparationModelMeter
@@ -36,13 +40,28 @@ def research_factory(repository,documents,memory):
         agent.model.meter=PreparationModelMeter(repository,context,
             micro_usd_per_token_upper_bound=int(os.getenv('PREPARATION_MODEL_MICRO_USD_PER_TOKEN_CEILING','10')))
         agent.max_calls=60
-        agent.upload_read_limit=max(8, 2*len(request.uploads))
+        agent.upload_read_limit=max(8, 2*len(request.uploads),
+            sum((d.get('characters',0)+4999)//5000 for d in checkpoint.get('input_documents',[])))
         agent.incremental_findings=True
         agent.source_policy=request.source_policy.mode
         agent.extra_context={'preferences':checkpoint.get('memory_view',{}), 'existing_target':checkpoint.get('target_snapshot'),
             'input_documents':checkpoint.get('input_documents',[]),
             'preference_rule':'本次 request 明确要求优先；偏好仅调整教学表达，不能作为来源或掌握事实'}
-        agent.sources=MeteredSources(repository,context,PolicySources(owner=context.owner_user_id,request=request,
-            documents=documents,web=agent.sources))
+        web=agent.sources
+        meter=MeteredSources(repository,context,web)
+        if hasattr(web, 'attempt'):
+            web.attempt=meter._call
+        else:
+            web=meter  # Legacy ports still count each real read/search.
+        scope=SnapshotScope(owner=context.owner_user_id, preparation=context.preparation_id,
+            source_policy=request.source_policy.mode,
+            config_version=hashlib.sha256(json.dumps(checkpoint['config_snapshot'],sort_keys=True).encode()).hexdigest(),
+            guard=lambda:repository.heartbeat(context))
+        snapshots=SourceSnapshots(checkpoint.setdefault('source_snapshots',{}),
+            persist=lambda:repository.checkpoint(context,checkpoint))
+        agent.sources=PolicySources(owner=context.owner_user_id,request=request,documents=documents,web=web,
+            snapshots=snapshots,scope=scope,parse=lambda ref:controlled_parse(documents,context.owner_user_id,ref,
+                context=context,repository=repository,checkpoint=checkpoint))
+        agent.extra_context['source_capabilities']=agent.sources.capabilities()
         return agent
     return build
