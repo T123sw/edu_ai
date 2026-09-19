@@ -53,3 +53,5 @@ PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:$PATH \
 - Playwright `--list`：桌面/窄屏两项加载成功，非浏览器执行。
 - 完整 PostgreSQL 回归、A–F 最终集成与真实服务/浏览器结果后续填写。
 - 独立资源组合规划继续暂缓。
+
+前端专用构建完成后，在构建目录写入 `preparation-build.json`，内容为 `{"code_sha":"实际构建SHA"}`；浏览器会与当前 Git 和后端同时核对，缺失时失败。已定位工具链：Node v22.23.2、pnpm 10.28.2（`/home/zxqs_ep/miniforge3/envs/edu-ai/bin`）。

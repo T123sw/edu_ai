@@ -153,6 +153,7 @@ def run_case(client, engine, owner, case, output, timeout):
     write_json(output/'accepted.json', accepted)
     result = {'preparation_id': pid, 'test_status': 'failed', 'input_digest': digest(payload), 'upload_sha256': __import__('hashlib').sha256(data).hexdigest()}
     observed = []
+    public = None
     try:
         while True:
             public = get_json(client, 'GET', f'/api/course-preparations/{pid}')
@@ -176,10 +177,18 @@ def run_case(client, engine, owner, case, output, timeout):
         result.update(test_status='passed', model_completions=assert_harness_receipts(evidence['actions']),
                       budget=evidence['budget'], semantic_review='not_run', browser='not_run')
     except Exception as exc:
+        if public is None or public.get('status') not in TERMINAL:
+            try:
+                canceled = get_json(client, 'POST', f'/api/course-preparations/{pid}/cancel', json={})
+                result['cleanup_status'] = canceled.get('status')
+            except Exception:
+                result['cleanup_status'] = 'cancel_request_failed'
         result['error'] = {'type': type(exc).__name__, 'code': str(exc) if isinstance(exc, (AssertionError, TimeoutError)) else 'SEE_PRIVATE_RUNTIME_LOG'}
         # Even failed model/contract assertions keep terminal checkpoint and cost evidence.
         try:
-            write_json(output/'evidence.json', collect_evidence(engine, owner, pid))
+            failed_evidence = collect_evidence(engine, owner, pid)
+            write_json(output/'evidence.json', failed_evidence)
+            result['budget'] = failed_evidence['budget']
         except Exception:
             result['evidence_collection'] = 'failed'
     result['elapsed_seconds'] = round(time.monotonic()-start, 2)

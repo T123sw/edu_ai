@@ -29,6 +29,9 @@ test('fresh upload through workers to exact versions and real playback', async (
     }, true);
   });
   try {
+    const buildResponse = await page.request.get('/preparation-build.json');
+    expect(buildResponse.ok(), 'final build provenance required').toBeTruthy();
+    expect(await buildResponse.json()).toMatchObject({ code_sha: sha });
     await page.goto('/');
     await page.getByLabel('账号', { exact: true }).fill(credentials.username);
     await page.getByLabel('密码', { exact: true }).fill(credentials.password);
