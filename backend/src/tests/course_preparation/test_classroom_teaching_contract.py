@@ -67,7 +67,7 @@ def test_quiz_answers_have_only_submit_feedback_and_flow_has_real_targets():
     assert meta['duration']['value_minutes'] == 3.5
     assert meta['duration']['basis'] == 'estimated'
     assert meta['media_duration']['basis'] == 'unknown'
-    assert meta['objective_bindings'][-1]['locator']['question_id'] == 'r:check:q1'
+    assert meta['question_bindings'][-1]['question_id'] == 'r:check:q1'
 
 
 @pytest.mark.parametrize('change', ['answer', 'objective', 'purpose', 'duplicate', 'leak'])
@@ -100,6 +100,13 @@ class Gateway:
         self.calls = []; self.phases = []; self.raw = raw or board_data()
     def chat(self, messages, **kwargs):
         self.calls.append(messages)
+        request = json.loads(messages[-1]['content'])
+        if 'preparation' in request:
+            checks = [{'binding_type': key, 'binding_id': item[key], 'locator': item['locator'],
+                       'passed': True, 'reason': '测试替身确认具体教学位置'}
+                      for key, collection in [('requirement_id', 'applied_requirements'), ('objective_id', 'objective_bindings')]
+                      for item in request['preparation'][collection]]
+            return json.dumps({'preparation_checks': checks}, ensure_ascii=False)
         return json.dumps(self.raw, ensure_ascii=False)
 
 
@@ -135,7 +142,7 @@ def generation(monkeypatch):
     monkeypatch.setattr(review_module, 'review_classroom', review)
     payload = SimpleNamespace(title='课堂', focus='', research_context='授权证据', teaching_context=teaching_context())
     args = {'payload': payload, 'gateway': gateway, 'context': None,
-            'artifact': {'resource_id': 'r', 'spec_digest': 'spec-1', 'artifact_id': 'a1'}}
+            'artifact': {'resource_id': 'r', 'spec_digest': 'spec-1', 'artifact_id': 'a1', 'spec': {'schema_version': 2}}}
     return args, review_module
 
 
@@ -165,7 +172,7 @@ def test_review_format_failure_resumes_same_content_without_rewriting(generation
         classroom.generate_classroom_draft(**args, checkpoint=checkpoint)
     assert checkpoint.candidate['review_state']['storyboard']
     classroom.generate_classroom_draft(**args, checkpoint=checkpoint)
-    assert len(args['gateway'].calls) == 1 and seen[0] == seen[1]
+    assert len(args['gateway'].calls) == 2 and seen[0] == seen[1]
 
 
 @pytest.mark.parametrize('field', ['spec_digest', 'content_digest', 'teaching_context_digest'])
@@ -269,6 +276,8 @@ def test_structural_repair_rebuilds_only_broken_scene_then_reviews_again(generat
     calls = 0
     def chat(messages, **kwargs):
         nonlocal calls
+        if 'preparation' in json.loads(messages[-1]['content']):
+            return Gateway().chat(messages, **kwargs)
         calls += 1
         data = board_data()
         if calls == 2: data['scenes'] = data['scenes'][:1]
@@ -278,4 +287,35 @@ def test_structural_repair_rebuilds_only_broken_scene_then_reviews_again(generat
     assert len(seen) == 2
     assert seen[0]['scenes'][1:] == seen[1]['scenes'][1:]
     assert result['generation_state']['preparation']['render_checks']['passed']
-    assert [p[0] for p in args['gateway'].phases] == ['classroom_write', 'classroom_repair']
+    assert [p[0] for p in args['gateway'].phases] == ['classroom_write', 'classroom_repair', 'resource_review']
+
+
+def test_v1_checkpoint_keeps_legacy_resource_without_inventing_teaching_context(generation, monkeypatch):
+    args, review_module = generation
+    args['payload'].teaching_context = None
+    args['artifact']['spec'] = {}  # Missing schema_version is historical v1.
+    port = Checkpoint()
+    script = classroom.TeachingScript(slides=[{'title': '旧课堂', 'points': ['旧内容保留'],
+        'narration': '旧任务按原规格恢复，不重算摘要。' * 8}] * 2)
+    old = classroom.native_classroom(script, '旧资源', 'r')
+    port.save_review_candidate(content=old, content_digest=digest(old), spec_digest='spec-1', review_state={})
+    def review(content, config, gateway=None, checkpoint=None): return content, passed_audit(content)
+    monkeypatch.setattr(review_module, 'review_classroom', review)
+    result = classroom.generate_classroom_draft(**args, checkpoint=port)
+    assert result['content'] == old and not args['gateway'].calls
+    assert 'preparation' not in result['generation_state']
+
+
+@pytest.mark.parametrize('fault', ['missing', 'rejected'])
+def test_binding_review_does_not_accept_missing_or_semantically_rejected_bindings(generation, fault):
+    args, _ = generation; original = args['gateway'].chat
+    def chat(messages, **kwargs):
+        result = json.loads(original(messages, **kwargs))
+        if 'preparation_checks' in result:
+            if fault == 'missing': result['preparation_checks'].pop()
+            else: result['preparation_checks'][0]['passed'] = False
+        return json.dumps(result, ensure_ascii=False)
+    args['gateway'].chat = chat
+    with pytest.raises(ClassroomFailure) as failure:
+        classroom.generate_classroom_draft(**args)
+    assert failure.value.code == ('CLASSROOM_BINDING_REVIEW_INVALID' if fault == 'missing' else 'CLASSROOM_BINDING_REJECTED')

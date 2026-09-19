@@ -11,7 +11,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field, StringConstraints, model_validator
 
-from .schemas import Contract
+from .schemas import Contract, Identifier
 
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 Identity = Annotated[str, StringConstraints(pattern=r'^[A-Za-z0-9_:-]{1,160}$')]
@@ -47,8 +47,8 @@ class SceneQuestion(Contract):
 
 class StoryboardScene(Contract):
     scene_id: Identity
-    objective_ids: tuple[Identity, ...] = Field(min_length=1, max_length=20)
-    requirement_ids: tuple[Identity, ...] = Field(default=(), max_length=30)
+    objective_ids: tuple[Identifier, ...] = Field(min_length=1, max_length=20)
+    requirement_ids: tuple[Identifier, ...] = Field(default=(), max_length=30)
     purpose: Literal['example', 'explanation', 'demonstration', 'practice', 'feedback']
     title: Text = Field(max_length=40)
     screen: tuple[Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)], ...] = Field(min_length=1, max_length=3)
@@ -100,6 +100,10 @@ def validate_teaching_bindings(board, teaching_context, *, max_scenes=MAX_SCENES
             raise ValueError('CLASSROOM_UNKNOWN_OBJECTIVE')
         if not set(scene.requirement_ids) <= requirements:
             raise ValueError('CLASSROOM_UNKNOWN_REQUIREMENT')
+    if set().union(*(set(s.requirement_ids) for s in board.scenes)) != requirements:
+        raise ValueError('CLASSROOM_REQUIREMENT_COVERAGE_INCOMPLETE')
+    if set().union(*(set(s.objective_ids) for s in board.scenes)) != objectives:
+        raise ValueError('CLASSROOM_OBJECTIVE_COVERAGE_INCOMPLETE')
     if not any(s.steps for s in board.scenes):
         raise ValueError('CLASSROOM_PROCESS_VISUAL_REQUIRED')
     if not any(s.question for s in board.scenes):
@@ -179,11 +183,12 @@ def render_storyboard(board, title, resource_id):
 
 
 def storyboard_metadata(board, content):
-    bindings, requirements, plans = [], [], []
+    bindings, requirements, plans, questions = [], [], [], []
     for plan, scene in zip(board.scenes, content['scenes'], strict=True):
         locator = {'scene_id': scene['id']}
         if plan.question:
-            locator['question_id'] = scene['content']['questions'][0]['id']
+            questions.append({'scene_id': scene['id'], 'question_id': scene['content']['questions'][0]['id'],
+                              'objective_ids': list(plan.objective_ids)})
         else:
             locator['action_id'] = scene['actions'][0]['id']
         role = 'check' if plan.question else 'explanation'
@@ -194,7 +199,7 @@ def storyboard_metadata(board, content):
                       'student_action': plan.student_action, 'feedback': plan.feedback,
                       'estimated_seconds': plan.estimated_seconds})
     return {'objective_bindings': bindings, 'applied_requirements': requirements,
-            'scene_plans': plans, 'duration': {
+            'scene_plans': plans, 'question_bindings': questions, 'duration': {
                 'value_minutes': round(sum(s.estimated_seconds for s in board.scenes) / 60, 2),
                 'basis': 'estimated', 'method': 'sum_storyboard_learning_seconds_including_answer_time'},
             'media_duration': {'value_minutes': None, 'basis': 'unknown',
