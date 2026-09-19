@@ -1,0 +1,4 @@
+...s.                                                                    [100%]
+=========================== short test summary info ============================
+SKIPPED [1] backend/src/tests/course_preparation/test_review_resume.py:141: PostgreSQL row lock competition
+4 passed, 1 skipped, 37 deselected in 8.91s
