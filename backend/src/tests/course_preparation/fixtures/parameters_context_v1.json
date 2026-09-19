@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "request_goal": "我会 Python，请先用 12 加 30 的例子再讲原理。",
+  "requirements": [
+    {
+      "requirement_id": "r1",
+      "text": "先例后理",
+      "source_quote": "请先用 12 加 30 的例子再讲原理",
+      "source_document_id": null,
+      "source_ref": null
+    }
+  ],
+  "prior_knowledge": "会 Python",
+  "desired_outcomes": [
+    "解释分工"
+  ],
+  "exclusions": [],
+  "language": "zh-CN",
+  "depth": null,
+  "source_policy": {
+    "mode": "open"
+  },
+  "effective_preferences": {
+    "learning_style": {
+      "value": "解释简洁",
+      "memory_id": "m1",
+      "revision": "v1"
+    }
+  },
+  "node_id": "n1",
+  "objective_ids": [
+    "n1:o1"
+  ],
+  "objectives": [
+    "解释分工"
+  ],
+  "prerequisites": [],
+  "learning_activities": [
+    "先追踪 12 加 30，再解释模型和程序分工"
+  ],
+  "self_check": "指出谁实际执行工具",
+  "node_budget_minutes": 10,
+  "resource_target_minutes": null,
+  "assumptions": [],
+  "limitations": [],
+  "requirement_ids": [
+    "r1"
+  ],
+  "requested_changes": [],
+  "learning_context": null
+}
