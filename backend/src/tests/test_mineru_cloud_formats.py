@@ -35,8 +35,9 @@ def test_batch_preserves_format_and_selects_html_model(monkeypatch, suffix):
         return httpx.Response(200, content=output.getvalue())
     client = httpx.Client
     monkeypatch.setattr(mineru_cloud.httpx, 'Client', lambda **kw: client(transport=httpx.MockTransport(respond), **kw))
-    monkeypatch.setattr(mineru_cloud.time, 'sleep', lambda _: None)
-    parsed = mineru_cloud.MinerUCloudProvider(api_key='test').parse(b'original bytes', filename='讲义'+suffix.upper())
+    clock=[0.]
+    def sleep(seconds): clock[0]+=seconds
+    parsed = mineru_cloud.MinerUCloudProvider(api_key='test',clock=lambda:clock[0],sleep=sleep).parse(b'original bytes', filename='讲义'+suffix.upper())
     assert parsed.metadata['fileName'] == '讲义'+suffix
     assert parsed.metadata['parser'] == 'mineru-cloud'
     assert parsed.metadata['pageCount'] == 1

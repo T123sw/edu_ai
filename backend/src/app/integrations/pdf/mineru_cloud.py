@@ -73,18 +73,66 @@ def _is_retryable(err: Exception) -> bool:
     return any(s in msg for s in _RETRYABLE)
 
 
-def _retry(fn, context: str, attempts: int = 4):
-    """带退避的重试（仅对瞬时错误），对齐 TS fetchWithRetry。"""
-    last: Optional[Exception] = None
+class ParseStopped(PdfParseError):
+    def __init__(self, code, remote_task=None):
+        self.code, self.remote_task = code, remote_task
+        super().__init__(code)
+
+
+class ParseControl:
+    """Process-local monotonic deadline and live cancellation; never serialized."""
+    def __init__(self, *, deadline=None, canceled=None, clock=time.monotonic,
+                 sleep=time.sleep, on_remote_task=None):
+        self.deadline, self.canceled = deadline, canceled
+        self.clock, self.sleep, self.on_remote_task = clock, sleep, on_remote_task
+        self.remote_task = None
+
+    def check(self):
+        if self.canceled and self.canceled():
+            raise ParseStopped('CANCELED', self.remote_task)
+        if self.deadline is not None and self.clock() >= self.deadline:
+            raise ParseStopped('DEADLINE_EXCEEDED', self.remote_task)
+
+    def timeout(self, ceiling):
+        self.check()
+        remaining = self.deadline-self.clock() if self.deadline is not None else ceiling
+        if remaining <= 0: raise ParseStopped('DEADLINE_EXCEEDED', self.remote_task)
+        return min(ceiling, remaining)
+
+    def wait(self, seconds):
+        end = self.clock() + seconds
+        while self.clock() < end:
+            self.sleep(self.timeout(min(.25, end-self.clock())))
+        self.check()
+
+    def submitted(self, batch_id):
+        self.remote_task = {'provider': 'mineru-cloud', 'task_id': str(batch_id)}
+        if self.on_remote_task:
+            try:
+                self.on_remote_task(dict(self.remote_task))
+            except Exception as exc:
+                exc.remote_task = self.remote_task
+                raise
+        self.check()
+
+
+def _retry(fn, context: str, attempts: int = 4, *, control=None):
+    control = control or ParseControl()
     for i in range(1, attempts + 1):
+        control.check()
         try:
-            return fn()
-        except Exception as err:  # noqa: BLE001 — 由 _is_retryable 判定是否重试
-            last = err
+            result = fn()
+            control.check()
+            return result
+        except ParseStopped:
+            raise
+        except Exception as err:
             if not _is_retryable(err) or i == attempts:
-                break
-            time.sleep(0.4 * i)
-    raise PdfParseError(f"MinerU Cloud {context} failed: {last}")
+                # Do not expose signed URLs, authentication headers or response bodies.
+                failure = PdfParseError(f'MinerU Cloud {context} failed ({type(err).__name__})')
+                failure.remote_task = control.remote_task
+                raise failure from err
+            control.wait(.4 * i)
 
 
 def _read_envelope(resp: httpx.Response, context: str) -> Any:
@@ -121,7 +169,10 @@ class MinerUCloudProvider(PdfParseProvider):
         enable_formula: bool = True,
         enable_table: bool = True,
         model_version: str = "vlm",
+        client_factory=None, clock=time.monotonic, sleep=time.sleep,
     ) -> None:
+        self.client_factory = client_factory or httpx.Client
+        self.clock, self.sleep = clock, sleep
         self.api_key = api_key or os.getenv("PDF_MINERU_CLOUD_API_KEY", "")
         self.base_url = (base_url or os.getenv("PDF_MINERU_CLOUD_BASE_URL") or MINERU_CLOUD_DEFAULT_BASE).rstrip("/")
         self.language = language
@@ -133,15 +184,19 @@ class MinerUCloudProvider(PdfParseProvider):
         return bool(self.api_key)
 
     # ── 主入口 ──────────────────────────────────────────────────────────────
-    def parse(self, pdf: bytes, *, filename: str = "document.pdf") -> ParsedPdf:
+    def parse(self, pdf: bytes, *, filename: str = "document.pdf", deadline=None,
+              canceled=None, on_remote_task=None) -> ParsedPdf:
+        control = ParseControl(deadline=deadline, canceled=canceled, clock=self.clock,
+                               sleep=self.sleep, on_remote_task=on_remote_task)
+        control.check()
         if not self.api_key:
             raise PdfParseError("MinerU Cloud API key is required (PDF_MINERU_CLOUD_API_KEY)")
 
         upload_name = _sanitize_filename(filename)
         headers = {"Authorization": f"Bearer {self.api_key}"}
-        started = time.time()
+        started = self.clock()
 
-        with httpx.Client(trust_env=False) as client:
+        with self.client_factory(trust_env=False) as client:
             # Step 1: 建 batch，拿预签名上传 URL
             def _create_batch():
                 resp = client.post(
@@ -154,11 +209,14 @@ class MinerUCloudProvider(PdfParseProvider):
                         "model_version": "MinerU-HTML" if upload_name.endswith(".html") else self.model_version,
                         "language": self.language,
                     },
-                    timeout=_TIMEOUT_BATCH,
+                    timeout=control.timeout(_TIMEOUT_BATCH),
                 )
-                return _read_envelope(resp, "file-urls/batch")
+                data = _read_envelope(resp, "file-urls/batch")
+                if data and data.get("batch_id"):
+                    control.submitted(data["batch_id"])
+                return data
 
-            batch = _retry(_create_batch, "create batch")
+            batch = _retry(_create_batch, "create batch", control=control)
             batch_id = batch.get("batch_id")
             upload_urls = batch.get("file_urls") or batch.get("files")
             if not batch_id or not upload_urls:
@@ -166,29 +224,31 @@ class MinerUCloudProvider(PdfParseProvider):
 
             # Step 2: PUT 上传到预签名 URL（★ 绝不带 Content-Type）
             def _upload():
-                return client.put(upload_urls[0], content=pdf, timeout=_TIMEOUT_UPLOAD)
+                return client.put(upload_urls[0], content=pdf, timeout=control.timeout(_TIMEOUT_UPLOAD))
 
-            put_resp = _retry(_upload, "presigned upload", attempts=5)
+            put_resp = _retry(_upload, "presigned upload", attempts=5, control=control)
             if put_resp.status_code >= 400:
                 raise PdfParseError(
                     f"MinerU Cloud upload failed ({put_resp.status_code}): {put_resp.text[:400]}"
                 )
 
-            time.sleep(1.5)  # 给后端一点注册时间
+            control.wait(1.5)  # 给后端一点注册时间
 
             # Step 3: 轮询
-            deadline = time.time() + _POLL_MAX_S
+            poll_deadline = self.clock() + _POLL_MAX_S
+            control.deadline = min(control.deadline, poll_deadline) if control.deadline is not None else poll_deadline
             last_state = ""
-            while time.time() < deadline:
+            while True:
+                control.check()
                 def _poll():
                     resp = client.get(
                         f"{self.base_url}/extract-results/batch/{batch_id}",
                         headers={**headers, "Accept": "application/json"},
-                        timeout=_TIMEOUT_POLL,
+                        timeout=control.timeout(_TIMEOUT_POLL),
                     )
                     return _read_envelope(resp, "extract-results/batch")
 
-                status = _retry(_poll, "poll batch", attempts=3)
+                status = _retry(_poll, "poll batch", attempts=3, control=control)
                 rows = status.get("extract_result")
                 rows_list: List[Dict[str, Any]] = (
                     rows if isinstance(rows, list) else [rows] if rows else []
@@ -204,7 +264,7 @@ class MinerUCloudProvider(PdfParseProvider):
 
                 state = (row or {}).get("state")
                 if not state:
-                    time.sleep(_POLL_INTERVAL_S)
+                    control.wait(_POLL_INTERVAL_S)
                     continue
                 if state != last_state:
                     last_state = state
@@ -213,28 +273,27 @@ class MinerUCloudProvider(PdfParseProvider):
                         f"MinerU Cloud parsing failed: {(row or {}).get('err_msg') or 'unknown error'}"
                     )
                 if state == "done" and row.get("full_zip_url"):
-                    result = self._parse_zip(client, row["full_zip_url"])
+                    result = self._parse_zip(client, row["full_zip_url"], control=control)
                     result.metadata.update(
                         {
                             "parser": self.provider_id,
                             "taskId": batch_id,
-                            "processingTime": round(time.time() - started, 2),
+                            "processingTime": round(self.clock() - started, 2),
                             "fileName": upload_name,
                         }
                     )
+                    control.check()
                     return result
-                time.sleep(_POLL_INTERVAL_S)
+                control.wait(_POLL_INTERVAL_S)
 
-            raise PdfParseError(
-                f"MinerU Cloud timed out after {_POLL_MAX_S}s (batch: {batch_id})"
-            )
 
     # ── ZIP 解包与归一 ──────────────────────────────────────────────────────
-    def _parse_zip(self, client: httpx.Client, zip_url: str) -> ParsedPdf:
+    def _parse_zip(self, client: httpx.Client, zip_url: str, *, control=None) -> ParsedPdf:
+        control = control or ParseControl()
         def _download():
-            return client.get(zip_url, timeout=_TIMEOUT_ZIP, follow_redirects=True)
+            return client.get(zip_url, timeout=control.timeout(_TIMEOUT_ZIP), follow_redirects=True)
 
-        resp = _retry(_download, "ZIP download")
+        resp = _retry(_download, "ZIP download", control=control)
         if resp.status_code >= 400:
             raise PdfParseError(
                 f"MinerU Cloud ZIP download failed ({resp.status_code}): {resp.text[:300]}"
@@ -321,5 +380,7 @@ class MinerUCloudProvider(PdfParseProvider):
             metadata={
                 "pageCount": page_count,
                 "imageMapping": image_mapping,
+                "pageIndices": sorted(set(pages)) if isinstance(content_list, list) else [],
+                "layout": content_list if isinstance(content_list, list) else [],
             },
         )

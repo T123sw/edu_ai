@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic import Field, ValidationError
 from .schemas import Contract, ShortText, SourcePolicy
 from .research_agent import ResearchError
-from .adapters.documents import DocumentUnreadable
+from .adapters.documents import DocumentUnreadable, controlled_parse
 from .intake_references import document_passages, reference_id, with_references
 
 CHUNK_CHARS = 12000
@@ -57,7 +57,8 @@ def understand_next_document(stages, context, checkpoint, request):
         doc['document_id'] == ref.document_id and doc['version'] == ref.version and doc['complete'] for doc in documents)), None)
     if pending is None:
         return {**checkpoint, 'input_documents': documents}, False
-    parsed = stages.documents.parse(context.owner_user_id, pending)
+    parsed = controlled_parse(stages.documents, context.owner_user_id, pending,
+        context=context, repository=getattr(stages, 'repository', None), checkpoint=checkpoint)
     if parsed['defects'] and pending.usage in ('auto', 'primary', 'coverage'):
         raise DocumentUnreadable('CORE_SOURCE_UNREADABLE', parsed['defects'])
     text = parsed['content']
