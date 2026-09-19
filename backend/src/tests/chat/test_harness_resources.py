@@ -274,13 +274,13 @@ def test_quiz_review_blocks_wrong_distractor_explanation_even_with_correct_answe
     import json
     from app.chat.harness.reviewed_resource import review_content
     content = {'questions': [{'type': 'single_choice', 'stem': '2000+5*8=?', 'options': ['2040', '2013'],
-        'answer': 'A', 'explanation': 'B 是第七个元素的地址'}]}
+        'answer': 'A', 'explanation': 'A 按乘法优先计算得2040。B 是第七个元素的地址'}]}
     response = {'checks': [{'criterion': c, 'passed': True, 'reason': '逐题检查主要答案为2040'} for c in CRITERIA],
         'blocking_issues': [], 'suggestions': [], 'question_checks': [{'question_index': 0,
             'independent_solution': '2000+5*8=2040；2013是把2000、5、8相加，与第七个元素无关',
             'answer_matches': True, 'explanation_valid': False,
-            'option_checks': [{'option_index': 0, 'reasoning': '乘法优先计算得2040', 'explanation_valid': True},
-                {'option_index': 1, 'reasoning': '2013来自2000+5+8，原解析不成立', 'explanation_valid': False}]}]}
+            'option_checks': [{'option_index': 0, 'reasoning': '乘法优先计算得2040', 'explanation_valid': True, 'independent_correct': True, 'explanation_excerpt': 'A 按乘法优先计算得2040'},
+                {'option_index': 1, 'reasoning': '2013来自2000+5+8，原解析不成立', 'explanation_valid': False, 'independent_correct': False, 'explanation_excerpt': 'B 是第七个元素的地址'}]}]}
     class Gateway:
         def chat(self, *args, **kwargs): return json.dumps(response)
     _, feedback = review_content('quiz', content, {}, Gateway())

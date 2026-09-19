@@ -17,7 +17,7 @@ class Gateway:
         self.reviews=iter(reviews)
         self.writes=[]
     def chat(self, messages, **kwargs):
-        payload=json.loads(messages[-1]['content'])
+        payload=json.loads(next(m['content'] for m in reversed(messages) if m['role']=='user' and m['content'].lstrip().startswith('{')))
         if 'schema' in payload:
             return json.dumps(next(self.reviews))
         self.writes.append(payload)
@@ -46,7 +46,7 @@ def test_failed_review_never_returns_publishable_artifact():
 
 def test_malformed_review_does_not_implicitly_pass():
     with pytest.raises(ReportReviewFailed,match='response_invalid'):
-        generate_reviewed_report(payload(),Gateway([{'checks':[]}]))
+        generate_reviewed_report(payload(),Gateway([{'checks':[]}, {'checks':[]}]))
     assert not verified_review({'content':BODY})
 
 def test_incomplete_or_failed_criteria_cannot_pass():
