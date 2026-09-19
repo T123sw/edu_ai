@@ -26,8 +26,8 @@
 
 ## Task A1：锁定参数缺失反例，交付可独立使用的上下文构建器
 
-- [ ] 从审查的 `quality-counterexamples.json` 固化用户要求、路径活动、生成报告首章不一致的样例；不复制运行凭据或无关数据。
-- [ ] 新增以下契约测试，先执行确认当前没有新模块或无法保留字段，再实现纯构建函数。测试输入直接写在测试文件中：
+- [x] 从审查的 `quality-counterexamples.json` 固化用户要求、路径活动、生成报告首章不一致的样例；不复制运行凭据或无关数据。
+- [x] 新增以下契约测试，先执行确认当前没有新模块或无法保留字段，再实现纯构建函数。测试输入直接写在测试文件中：
 
 ```python
 def test_node_activities_and_memory_values_survive_context_build():
@@ -54,17 +54,17 @@ def test_node_activities_and_memory_values_survive_context_build():
     assert context.resource_target_minutes is None
 ```
 
-- [ ] 严格校验节点来自已审阅路径、先修真实存在、目标与 ID 顺序一致；不存在引用时抛出明确契约错误，不能删引用后继续。
-- [ ] 保留当前 request 原始目标和 requirement 出处，不用固定关键词分类代替原要求。白名单传递有关偏好，缺失基础标为空/未知。
-- [ ] 增加空记忆、冲突要求、无先修、存在先修、无 depth、限制来源和局部目标样例；原输入不被函数原地修改。
-- [ ] 执行 `test_generation_context.py`，提交 A0 接口、样例和测试给 B/D/E/F/G。
+- [x] 严格校验节点来自已审阅路径、先修真实存在、目标与 ID 顺序一致；不存在引用时抛出明确契约错误，不能删引用后继续。
+- [x] 保留当前 request 原始目标和 requirement 出处，不用固定关键词分类代替原要求。白名单传递有关偏好，缺失基础标为空/未知。
+- [x] 增加空记忆、冲突要求、无先修、存在先修、无 depth、限制来源和局部目标样例；原输入不被函数原地修改。
+- [x] 执行 `test_generation_context.py`，提交 A0 接口、样例和测试给 B/D/E/F/G。
 
 ## Task A2：版本化规格与恢复兼容
 
-- [ ] 在 `test_spec_compatibility.py` 固化一个真实 v1 spec、存储的 spec_digest、对应 action key；断言旧记录只读/恢复后这些值完全相同。
-- [ ] v2 规格必须含结构化 teaching_context；保留旧字段的兼容含义，禁止把省略字段解释为用户明确要求。
-- [ ] 在 `production_stages.py` 仍按现有 kinds 创建资源，将已审阅上下文放入每份规格；同一节点各资源共享节点语义，不赋予各自整节点时间。
-- [ ] 接口示例，A 实现此调用，具体资源身份/权限字段继续使用现有服务器构建值：
+- [x] 在 `test_spec_compatibility.py` 固化一个真实 v1 spec、存储的 spec_digest、对应 action key；断言旧记录只读/恢复后这些值完全相同。
+- [x] v2 规格必须含结构化 teaching_context；保留旧字段的兼容含义，禁止把省略字段解释为用户明确要求。
+- [x] 在 `production_stages.py` 仍按现有 kinds 创建资源，将已审阅上下文放入每份规格；同一节点各资源共享节点语义，不赋予各自整节点时间。
+- [x] 接口示例，A 实现此调用，具体资源身份/权限字段继续使用现有服务器构建值：
 
 ```python
 teaching = build_teaching_context(request=request, checkpoint=checkpoint, node=node)
@@ -72,14 +72,14 @@ teaching = build_teaching_context(request=request, checkpoint=checkpoint, node=n
 spec_fields.update(schema_version=2, teaching_context=teaching.model_dump(mode='json'))
 ```
 
-- [ ] 区分新任务与旧规格恢复：旧任务继续走已标明的 v1 语义；需要升级时由 F 创建有记录的新修订，不补空字段假装已满足 v2。
-- [ ] 测试 v1 完全相同摘要、v2 上下文变化导致新摘要、局部修订保留目标范围、记忆变化不误复用；提交兼容策略给 F/G。
+- [x] 区分新任务与旧规格恢复：旧任务继续走已标明的 v1 语义；需要升级时由 F 创建有记录的新修订，不补空字段假装已满足 v2。
+- [x] 测试 v1 完全相同摘要、v2 上下文变化导致新摘要、局部修订保留目标范围、记忆变化不误复用；提交兼容策略给 F/G。
 
 ## Task A3：生成 payload 去固定模板，交给 B 接线
 
-- [ ] 新 `generation_context.automatic_payload()` 传结构化 teaching_context、完整节点证据和明确执行策略；兼容旧生成器需要的 title、subject、audience、focus 等字段，但不把 focus 作为唯一上下文。
-- [ ] v2 不填“案例与面试表达”等固定章节。D 负责在生成器中根据活动组织正文；不能删除章节后让旧 `generate_reviewed_report` 直接报缺大纲。
-- [ ] 测试用代码约束这一交接：
+- [x] 新 `generation_context.automatic_payload()` 传结构化 teaching_context、完整节点证据和明确执行策略；兼容旧生成器需要的 title、subject、audience、focus 等字段，但不把 focus 作为唯一上下文。
+- [x] v2 不填“案例与面试表达”等固定章节。D 负责在生成器中根据活动组织正文；不能删除章节后让旧 `generate_reviewed_report` 直接报缺大纲。
+- [x] 测试用代码约束这一交接：
 
 ```python
 def assert_v2_payload(payload, expected_context):
@@ -89,10 +89,23 @@ def assert_v2_payload(payload, expected_context):
 ```
 
 - [ ] 与 B 集成后检查 handler 的实际输入；与 D/E/G 验证相反教学顺序确实改变产物，不能以字段进入 prompt 宣布参数有效。
-- [ ] 运行新测试以及既有 `test_contracts.py`、`test_resource_reuse.py`、`test_route_adjustment.py`；独立提交 A 的文件。
+- [x] 运行新测试以及既有 `test_contracts.py`、`test_resource_reuse.py`、`test_route_adjustment.py`；独立提交 A 的文件。
 
 ## 完成门槛与交付记录
 
 必须同时有：来源可追踪的上下文、v1 恢复证据、v2 参数消费样例、B 主流程接线回执、D/E 的实际产物定位。不以新建 dataclass 或复制字段作为最终完成。
 
-- [ ] 基线 SHA、模块 SHA、测试命令/结果、参数追踪表、兼容策略、对 B/F 的明确交接已写入模块验收文档。
+- [x] 基线 SHA、模块 SHA、测试命令/结果、参数追踪表、兼容策略、对 B/F 的明确交接已写入模块验收文档。
+
+
+## A 窗口实施记录（2026-09-19）
+
+A 自有代码和独立验证已完成，**跨窗口最终完成门槛尚未满足**。B handler 接线及 D/E 实际产物定位尚无回执，不宣称端到端教学参数已生效。
+
+- 临时代码基线：`67fc18b85ffbd82406c5ab33703eff8ea627c222`。启动时 G0 尚未发布；未将主工作区未提交改动擅自打包成共同基线。
+- 分支：`feat/preparation-parameters-20260919`，独立 worktree：`.worktrees/preparation-parameters-20260919`。
+- A0 接口/完整字段样例/真实旧规格 fixture：`e3d3ce6b`。
+- A2/A3 规格、produce 接入、payload 和兼容测试：`d7d26fc8`。
+- 最终相关测试：**70 passed, 17 skipped**；跳过项为未配置隔离 PostgreSQL 库及仅 PostgreSQL 的并发用例。
+- 参数追踪、逐步测试记录、v1 恢复证据、对 B/C/D/E/F/G 的接口交接见[模块验收与交接](../../../acceptance/2026-09-19-preparation-parameters.md)。
+- A0 接口和后续提交通过上述本地 Git 分支交付；其他窗口实际集成状态由其回执确认。本次未修改 B/C/D/E/F/G 拥有的生产文件。
