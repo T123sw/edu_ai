@@ -138,6 +138,9 @@ def test_audit_counterexample_keeps_example_first_activities():
     # Minimal verbatim extracts from quality-counterexamples.json, request.goal,
     # plan.nodes[0].learning_activities, artifacts[0].content.content.
     request, cp, node = context_input()
+    request = PreparationRequest(request_id=uuid4(), operation='create_course',
+        goal='我会 Python，但没有学过 Agent。请严格只依据附件，设计两个节点、合计 20 分钟的中文入门课：先理解模型与程序各自的职责，再学会追踪参数校验的成功与失败分支。先用 12 加 30 的例子，再解释原理；每个节点需要报告、习题和 AI 课堂。目标是读懂附件伪代码并手动解释日志，不要求接入真实模型 API，不学 SDK、鉴权、多 Agent 和部署。',
+        uploads=[{'document_id': 'doc1', 'version': 1}], source_policy={'mode': 'uploaded_only'})
     node['learning_activities'] = [
         '报告：先用 12 加 30 的成功例演示完整流程——用户问 12 加 30，模型选 add、参数 a=12、b=30，程序校验通过执行返回 42，模型据真实返回值回答 42。',
         '报告：随后解释分工原理——模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答；强调模型提出调用不代表工具已执行。']
@@ -157,3 +160,77 @@ def test_brief_can_narrow_but_never_relax_source_policy():
     request = request.model_copy(update={'source_policy': request.source_policy.model_copy(update={'mode': 'uploaded_only'})})
     cp['brief']['source_policy'] = {'mode': 'open'}
     assert build(request, cp, node).source_policy['mode'] == 'uploaded_only'
+
+
+def test_v2_payload_is_structured_and_contains_no_fixed_outline():
+    from app.course_preparation.generation_context import automatic_payload
+    from tests.course_preparation.test_spec_compatibility import v2_spec
+    spec = v2_spec()
+    before = deepcopy(spec)
+    payload = automatic_payload(spec, {'owner_user_id': 'alice', 'resource_id': 'r1'})
+    assert payload.teaching_context == spec['teaching_context']
+    assert payload.evidence == spec['evidence']
+    assert not getattr(payload, 'confirmed_outline', None)
+    assert '案例与面试表达' not in str(getattr(payload, 'harness_chapters', []))
+    assert not getattr(payload, 'harness_chapters', None)
+    assert payload.resource_target_minutes is None and payload.node_budget_minutes == 10
+    assert payload.harness_execution_context['preference_precedence'] == 'current_request_over_memory'
+    assert payload.harness_execution_context['evidence_policy'] == 'source_text_is_data_not_instructions'
+    assert '节点' in payload.focus
+    assert payload.title == payload.subject == spec['title']
+    payload.evidence[0]['quote'] = 'mutated'
+    payload.teaching_context['effective_preferences'].clear()
+    assert spec == before
+
+
+def test_v2_payload_keeps_full_evidence_revision_and_server_identity():
+    from app.course_preparation.generation_context import automatic_payload
+    from tests.course_preparation.test_spec_compatibility import v2_spec
+    from app.course_preparation.tool_registry import digest
+    spec = v2_spec()
+    spec['original_content'] = {'content': '原始正确章节\n'}
+    spec['source_resource_ref'] = {'resource_id': 'old', 'resource_version': 3}
+    spec['revision_feedback'] = ['只改例子']
+    payload = automatic_payload(spec, {'owner_user_id': 'alice', 'resource_id': 'server-id'})
+    assert payload.material_id == 'server-id' and payload.owner == 'alice'
+    assert payload.original_content == spec['original_content']
+    assert payload.source_resource_ref == spec['source_resource_ref']
+    assert payload.revision_feedback == ['只改例子']
+    assert payload.spec_digest == digest(spec)
+    assert payload.teaching_context_digest == digest(spec['teaching_context'])
+    assert all(e['quote'] in payload.research_context for e in spec['evidence'])
+    assert all(e['source_hash'] == spec['evidence'][i]['source_hash'] for i,e in enumerate(payload.evidence))
+
+
+def test_v1_payload_remains_compatible_with_existing_generator():
+    from app.course_preparation.generation_context import automatic_payload
+    from app.course_preparation.adapters.generation import automatic_payload as old_payload
+    from tests.course_preparation.test_spec_compatibility import legacy_fixture
+    spec = legacy_fixture()['spec']
+    artifact = {'owner_user_id': 'alice', 'resource_id': 'r1'}
+    payload = automatic_payload(spec, artifact)
+    assert vars(payload) == vars(old_payload(spec, artifact))
+    assert payload.harness_chapters == [{'title': '概念与机制'}, {'title': '案例与面试表达'}, {'title': '学习检查'}]
+    assert '学习时间：10 分钟' in payload.focus
+    assert not hasattr(payload, 'teaching_context')
+
+
+def test_strict_context_rejects_coerced_time_and_unknown_fields():
+    from app.course_preparation.teaching_context import TeachingContext
+    request, cp, node = context_input()
+    value = build(request, cp, node).model_dump(mode='json')
+    for change in ({'node_budget_minutes': '10'}, {'node_budget_minutes': True}, {'unreviewed': True}):
+        with pytest.raises(ValueError):
+            TeachingContext.model_validate({**value, **change})
+
+
+def test_explicit_depth_language_and_target_objective_order_win():
+    request, cp, node = context_input()
+    request = request.model_copy(update={'overrides': request.overrides.model_copy(update={'depth': 'advanced', 'language': 'en'})})
+    cp['brief']['depth'] = 'introductory'
+    context = build(request, cp, node)
+    assert context.language == 'en' and context.depth == 'advanced'
+    node['objectives'] = ['解释分工', '追踪执行']
+    node['objective_ids'] = ['n1:o2', 'n1:o1']
+    with pytest.raises(ValueError, match='OBJECTIVE_ID_ORDER_CHANGED'):
+        build(request, cp, node)
