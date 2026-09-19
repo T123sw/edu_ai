@@ -66,7 +66,7 @@ PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:$PATH \
 
 A 的计划文档发生 add/add 冲突：保留 A 自己交付的复选框与验收记录，其他模块计划未改。C 的快照基线 `1c1b9fd0` 与 G0 内容重复，未重复挑入；仅集成其领域实现提交。
 
-- `cdff0ef8` 对准备套件与 `chat/test_reviewed_report.py`：324 passed / 3 failed / 5 skipped，351.79 秒；5 项跳过是 SQLite 参数下仅 PostgreSQL 适用的竞争用例，PostgreSQL 对应项已运行。
+- 从 `33681583` 启动的基线回归对准备套件与 `chat/test_reviewed_report.py`：324 passed / 3 failed / 5 skipped，351.79 秒；运行期间另行提交了 G 工具改动 `cdff0ef8`，因此该组不作为同一最终 SHA 的验收证明；5 项跳过是 SQLite 参数下仅 PostgreSQL 适用的竞争用例，PostgreSQL 对应项已运行。
 - `75b9ee49` 对 `test_reviewed_report.py`、`test_report_review_policy.py`、`test_generation_context.py`、`test_spec_compatibility.py`：76 passed，10.33 秒；历史三个报告失败全部修复。
 - `d2d912a5` 对文档适配、解析取消、MinerU 格式和 G 验收工具：73 passed，7.14 秒。
 - 已在专用端口 55447 的专用数据库执行 Alembic 正向迁移。此为测试库，不涉及业务迁移。

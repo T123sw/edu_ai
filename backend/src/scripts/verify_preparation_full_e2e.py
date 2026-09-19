@@ -84,6 +84,46 @@ def assert_outcome(case, public, evidence):
     assert_harness_receipts(evidence['actions'])
 
 
+def action_summary(actions):
+    models = [a for a in actions if a['kind'] == 'model_completion']
+    phases = {}
+    for action in models:
+        phase = ((action.get('receipt') or {}).get('model_response') or {}).get('phase', 'unattributed')
+        phases.setdefault(phase, {'completed': 0, 'failed': 0, 'pending': 0})[action['status']] += 1
+    return {'model_attempts': len(models),
+            'model_completions': sum(a['status'] == 'completed' for a in models),
+            'failed_model_attempts': sum(a['status'] == 'failed' for a in models),
+            'source_actions': sum(a['kind'] in ('source_read', 'search') for a in actions),
+            'phases': phases}
+
+
+def parameter_ledger(evidence):
+    """Actual persisted payload plus native mappings; unknown effects stay unverified."""
+    fields = ('request_goal', 'language', 'depth', 'prior_knowledge', 'effective_preferences',
+              'prerequisites', 'learning_activities', 'self_check', 'source_policy',
+              'node_budget_minutes', 'resource_target_minutes')
+    result = []
+    for artifact in evidence['artifacts']:
+        spec = artifact['spec']; context = spec.get('teaching_context') or {}
+        body = artifact.get('content') or {}
+        meta = (body.get('generation_state') or {}).get('preparation') or {}
+        rows = [{'input_path': 'teaching_context.' + field, 'validated_value': context.get(field),
+                 'consumer': artifact['resource_type'], 'artifact_locator': None,
+                 'check_result': 'payload_present_effect_requires_semantic_review' if field in context else 'missing'} for field in fields]
+        rows += [{'input_path': 'requirements.' + mapping['requirement_id'],
+                  'validated_value': next((r for r in context.get('requirements', []) if r['requirement_id'] == mapping['requirement_id']), None),
+                  'consumer': artifact['resource_type'], 'artifact_locator': mapping.get('locator'),
+                  'candidate_explanation': mapping.get('explanation'), 'check_result': 'candidate_mapping_requires_independent_review'}
+                 for mapping in meta.get('applied_requirements', [])]
+        result.append({'artifact_id': artifact['artifact_id'], 'resource_id': artifact['resource_id'],
+                       'resource_version': artifact['resource_version'], 'spec_digest': artifact['spec_digest'],
+                       'content_digest': artifact['content_digest'], 'rows': rows,
+                       'objective_bindings': meta.get('objective_bindings', []), 'duration': meta.get('duration'),
+                       'memory_refs': spec.get('memory_refs'), 'memory_epoch': spec.get('memory_epoch'),
+                       'source_evidence': spec.get('evidence')})
+    return result
+
+
 def collect_evidence(engine, owner, preparation_id):
     from sqlalchemy import select
     from sqlalchemy.orm import Session
@@ -170,6 +210,8 @@ def run_case(client, engine, owner, case, output, timeout):
         evidence = collect_evidence(engine, owner, pid)
         evidence['stages'] = sorted(set(evidence['stages']) | {p['public']['stage'] for p in observed})
         write_json(output/'evidence.json', evidence)
+        write_json(output/'parameters.json', parameter_ledger(evidence))
+        result.update(action_summary(evidence['actions']))
         assert_outcome(case, public, evidence)
         if public['status'] == 'succeeded':
             readback = learning_readback(client, evidence['manifests'][-1], evidence['artifacts'])
@@ -189,6 +231,7 @@ def run_case(client, engine, owner, case, output, timeout):
             failed_evidence = collect_evidence(engine, owner, pid)
             write_json(output/'evidence.json', failed_evidence)
             result['budget'] = failed_evidence['budget']
+            result.update(action_summary(failed_evidence['actions']))
         except Exception:
             result['evidence_collection'] = 'failed'
     result['elapsed_seconds'] = round(time.monotonic()-start, 2)
@@ -256,6 +299,7 @@ def main(argv=None):
                     result = run_case(client, engine, owner, case, output/f'run-{index+1:02}', args.timeout_seconds)
                 except Exception as exc:
                     result = {'test_status': 'failed', 'business_status': 'unknown', 'error': {'type': type(exc).__name__, 'code': 'HTTP_OR_FIXTURE_SETUP_FAILED'}}
+                result['evidence_path'] = f'run-{index+1:02}'
                 ledger['runs'].append(result)
                 write_json(output/'ledger.json', ledger)
             successes = sum(r['test_status'] == 'passed' for r in ledger['runs'])

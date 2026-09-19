@@ -100,6 +100,14 @@ test('fresh upload through workers to exact versions and real playback', async (
           for (let index = 0; index < material.scenes.length; index++) {
             await expect(frame.locator('.classroom-page-count')).toHaveText(`${index + 1} / ${material.scenes.length}`);
             const scene = material.scenes[index];
+            if (scene.type === 'quiz') {
+              await expect(frame.getByText(/正确答案：/)).toHaveCount(0);
+              await expect(frame.getByRole('radio').first()).toBeVisible();
+              await frame.getByRole('radio').first().check();
+              await frame.getByRole('button', { name: '提交并查看解析', exact: true }).click();
+              await expect(frame.getByText(/正确答案：/).first()).toBeVisible();
+              await expect(frame.getByText(/回答正确|回答错误|回答不正确/).first()).toBeVisible();
+            }
             if (scene.actions?.some((a: any) => a.type === 'speech')) {
               await frame.getByRole('button', { name: /^(播放当前页|重新播放当前页|重播当前页)$/ }).click();
               await expect(frame.locator('.classroom-subtitle')).toBeVisible();
@@ -111,7 +119,7 @@ test('fresh upload through workers to exact versions and real playback', async (
               }), { timeout: 120_000 }).not.toEqual({ narration: initial, page: `${index + 1} / ${material.scenes.length}` });
             }
             const images = frame.locator('img');
-            for (const img of await images.all()) expect(await img.evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth > 0)).toBe(true);
+            for (const img of await images.all()) await expect.poll(() => img.evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth > 0)).toBe(true);
             expect(await frame.locator('body').evaluate(e => e.scrollWidth <= e.clientWidth + 2), 'horizontal overflow').toBe(true);
             await page.screenshot({ path: info.outputPath(`${chapter.id}-${kind}-${version}-page${index + 1}.png`) });
             if (index < material.scenes.length - 1) {

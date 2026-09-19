@@ -92,3 +92,22 @@ def test_fixture_docx_is_real_zip_with_non_interview_topic():
     document = Document(io.BytesIO(fixture_bytes('fractions')))
     text = '\n'.join(p.text for p in document.paragraphs)
     assert '1/2+1/3' in text and '面试' not in text
+
+
+def test_cost_summary_counts_provider_failures_and_sources_separately():
+    from scripts.verify_preparation_full_e2e import action_summary
+    failed = completion(); failed['status'] = 'failed'
+    summary = action_summary([completion(), failed, {'kind': 'source_read', 'status': 'completed'}])
+    assert summary['model_attempts'] == 2 and summary['model_completions'] == 1
+    assert summary['failed_model_attempts'] == 1 and summary['source_actions'] == 1
+    assert summary['phases']['resource_review'] == {'completed': 1, 'failed': 1, 'pending': 0}
+
+
+def test_parameter_ledger_does_not_turn_prompt_presence_into_semantic_success():
+    from scripts.verify_preparation_full_e2e import parameter_ledger
+    rows = parameter_ledger({'artifacts': [{'artifact_id': 'a', 'resource_id': 'r', 'resource_version': 1,
+        'resource_type': 'report', 'spec_digest': 'a'*64, 'content_digest': 'b'*64,
+        'spec': {'teaching_context': {'language': 'zh-CN'}}, 'content': {}}]})
+    language = next(r for r in rows[0]['rows'] if r['input_path'] == 'teaching_context.language')
+    assert language['validated_value'] == 'zh-CN' and language['artifact_locator'] is None
+    assert language['check_result'] == 'payload_present_effect_requires_semantic_review'
