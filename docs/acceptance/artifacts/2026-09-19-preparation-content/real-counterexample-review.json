@@ -1,0 +1,96 @@
+{
+  "scope": "real model semantic review; not native Harness integration",
+  "content": {
+    "questions": [
+      {
+        "id": "q-tool-roles",
+        "type": "single_choice",
+        "stem": "工具调用中模型与程序的职责是什么？",
+        "options": [
+          "模型提出工具名与参数，程序校验并执行",
+          "模型和程序都负责执行工具，只是先后顺序不同"
+        ],
+        "answer": "A",
+        "explanation": "A 正确，模型提出请求，程序执行。B 错误，该选项错误地认为程序也参与工具选择。"
+      }
+    ]
+  },
+  "review": {
+    "checks": [
+      {
+        "criterion": "requirements",
+        "passed": true,
+        "reason": "题目为中文单选，直接覆盖目标“区分模型提出调用与程序执行”；当前 specification 未指定题量、难度或受众限制，因此不因仅有一题或未指定难度而判定违背要求，结构字段问题另归 completeness。"
+      },
+      {
+        "criterion": "correctness",
+        "passed": true,
+        "reason": "选项 A 正确描述模型提出工具名与参数、程序校验并执行；选项 B 错误地称模型和程序都负责执行工具，而实际执行由程序完成。答案 A 与独立判断一致，知识点本身无误。"
+      },
+      {
+        "criterion": "examples",
+        "passed": false,
+        "reason": "独立求解可得 A：模型提出调用，程序校验并执行；B 错在认为模型也执行工具。但原解析对 B 的说明为“错误地认为程序也参与工具选择”，而 B 选项文本并未提及工具选择，错误点在“模型和程序都负责执行工具”，解析与选项表述不匹配。"
+      },
+      {
+        "criterion": "teaching_structure",
+        "passed": true,
+        "reason": "题干简洁、无答案泄露，两个选项区分了正确职责与常见混淆点；单题不存在正确答案连续出现的位置规律问题。"
+      },
+      {
+        "criterion": "sources",
+        "passed": true,
+        "reason": "本题为概念性单选，不需要外部数据或来源引用；无来源要求，按不适用项通过。"
+      },
+      {
+        "criterion": "completeness",
+        "passed": false,
+        "reason": "内容缺少顶级 title 字段；题目 q-tool-roles 缺少 difficulty 字段。其余题干、选项、答案和解析字段存在，但结构不完整。"
+      }
+    ],
+    "blocking_issues": [
+      "内容缺少顶级 title 字段，resource_contract 要求输出 title 与 questions。",
+      "题目 q-tool-roles 缺少 difficulty 字段，resource_contract 要求每题提供 easy / medium / hard。",
+      "B 选项解析不准确：选项文本为“模型和程序都负责执行工具，只是先后顺序不同”，解析却称其错误是“程序也参与工具选择”，未针对实际错误；应说明模型不负责执行，执行由程序完成。"
+    ],
+    "suggestions": [
+      "可在后续扩展题组时调整正确选项位置，避免 A 选项连续正确。",
+      "若题量允许，可增加一个更聚焦“模型不执行工具”或“程序只执行、不选择工具”的干扰项，强化目标区分。"
+    ],
+    "question_checks": [
+      {
+        "question_index": 0,
+        "independent_solution": "工具调用中，模型负责提出工具名与参数，程序或运行时负责校验参数并执行工具，因此应选 A。B 错误，因为模型不负责执行工具，执行由程序完成，“先后顺序不同”不是主要职责区分。",
+        "answer_matches": true,
+        "explanation_valid": false,
+        "option_checks": [
+          {
+            "option_index": 0,
+            "reasoning": "在常见工具调用/函数调用流程中，模型生成工具名和参数，程序侧校验并执行，描述正确。",
+            "explanation_valid": true,
+            "option_text": "模型提出工具名与参数，程序校验并执行",
+            "explanation_excerpt": "A 正确，模型提出请求，程序执行。",
+            "independent_correct": true
+          },
+          {
+            "option_index": 1,
+            "reasoning": "该选项称模型和程序都负责执行工具，这是错误的；模型只提出调用而不执行，程序才是执行方。“先后顺序不同”不能弥补前半句的事实错误。",
+            "explanation_valid": false,
+            "option_text": "模型和程序都负责执行工具，只是先后顺序不同",
+            "explanation_excerpt": "B 错误，该选项错误地认为程序也参与工具选择。",
+            "independent_correct": false
+          }
+        ]
+      }
+    ]
+  },
+  "feedback": [
+    "内容缺少顶级 title 字段，resource_contract 要求输出 title 与 questions。",
+    "题目 q-tool-roles 缺少 difficulty 字段，resource_contract 要求每题提供 easy / medium / hard。",
+    "B 选项解析不准确：选项文本为“模型和程序都负责执行工具，只是先后顺序不同”，解析却称其错误是“程序也参与工具选择”，未针对实际错误；应说明模型不负责执行，执行由程序完成。",
+    "独立求解可得 A：模型提出调用，程序校验并执行；B 错在认为模型也执行工具。但原解析对 B 的说明为“错误地认为程序也参与工具选择”，而 B 选项文本并未提及工具选择，错误点在“模型和程序都负责执行工具”，解析与选项表述不匹配。",
+    "内容缺少顶级 title 字段；题目 q-tool-roles 缺少 difficulty 字段。其余题干、选项、答案和解析字段存在，但结构不完整。",
+    "第 1 题：工具调用中，模型负责提出工具名与参数，程序或运行时负责校验参数并执行工具，因此应选 A。B 错误，因为模型不负责执行工具，执行由程序完成，“先后顺序不同”不是主要职责区分。",
+    "第 1 题选项 2 的解析：该选项称模型和程序都负责执行工具，这是错误的；模型只提出调用而不执行，程序才是执行方。“先后顺序不同”不能弥补前半句的事实错误。"
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "scope": "real model quality experiment; direct gateway, not native Harness",
+  "teaching_context": {
+    "schema_version": 1,
+    "request_goal": "学习工具调用，不要面试话术",
+    "requirements": [
+      {
+        "requirement_id": "req-order",
+        "text": "先例后理",
+        "source_quote": "本次要求",
+        "source_document_id": null
+      }
+    ],
+    "prior_knowledge": "会 Python，没有 Agent 基础",
+    "desired_outcomes": [
+      "解释工具职责"
+    ],
+    "exclusions": [
+      "面试话术"
+    ],
+    "language": "zh-CN",
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "uploaded_only"
+    },
+    "effective_preferences": {},
+    "node_id": "tools",
+    "objective_ids": [
+      "tools:o1",
+      "tools:o2"
+    ],
+    "objectives": [
+      "解释工具职责",
+      "检查缺失参数"
+    ],
+    "prerequisites": [],
+    "learning_activities": [
+      "追踪12+30例子",
+      "解释模型与程序职责"
+    ],
+    "self_check": "程序是否执行了工具？",
+    "node_budget_minutes": 10,
+    "resource_target_minutes": null,
+    "assumptions": [],
+    "limitations": []
+  },
+  "content": "<a id=\"tools-example\"></a>\n## 从 12+30 例子追踪工具调用\n\n先看一个具体例子。模型输出工具名和参数：\n\n```text\nadd(a=12, b=30)\n```\n\n程序收到这个输出后，先校验名称和参数，再执行工具。`add(a, b)` 的功能是计算两个数的和，所以执行结果是：\n\n```text\n42\n```\n\n这里有两个角色在协作：\n\n- **模型**：负责决定调用哪个工具、给出什么参数。它输出的是文本，不是直接计算结果。\n- **程序**：负责检查工具名是否存在、参数是否齐全，然后真正执行工具。\n\n可以把这个过程理解为：模型写了一张“调用单”，程序是执行这张单子的操作员。模型说“用 add，a 是 12，b 是 30”，程序核对无误后算出 42。\n\n<a id=\"tools-responsibility\"></a>\n## 工具职责：模型与程序各管什么\n\n工具调用的核心职责划分是：\n\n- **模型负责“提出调用”**：它根据任务判断需要哪个工具，并生成工具名和参数。\n- **程序负责“校验并执行”**：它验证工具名存在、参数符合要求，然后运行工具。\n- **工具负责“完成具体计算”**：例如 `add(a, b)` 只做加法，返回两个数的和。\n\n所以“解释工具职责”可以这样概括：工具是程序可执行的一段功能，模型通过输出名称和参数来请求调用，程序校验通过后才真正执行。模型不直接操作工具，它只是发出结构化的调用请求。\n\n<a id=\"tools-missing-param\"></a>\n## 缺失参数时会发生什么\n\n再看一个失败例子。如果模型输出：\n\n```text\nadd(a=12)\n```\n\n程序校验时发现缺少参数 `b`，于是校验失败，工具不执行。\n\n这说明“检查缺失参数”是程序侧的职责，不是模型侧的职责。模型可能漏给参数，但程序必须拦住，不能带着不完整的参数去执行工具。\n\n可以用一个检查问题来确认理解：\n\n> 程序是否执行了工具？\n\n判断方法是看校验是否通过。名称正确且参数齐全时，程序执行工具；缺少参数时，程序不执行工具。上面的 `add(a=12)` 就没有执行。\n\n<a id=\"tools-practice\"></a>\n## 练习：判断执行结果\n\n根据已给材料，判断下面两种情况：\n\n1. 模型输出 `add(a=12, b=30)`，程序校验通过后执行工具，结果是什么？\n2. 模型输出 `add(a=12)`，程序会执行工具吗？为什么？\n\n参考答案：\n\n1. 结果是 `42`，因为 `add(a, b)` 计算两个数的和，12 加 30 等于 42。\n2. 不会执行，因为缺少参数 `b`，校验失败，工具不执行。\n\n<a id=\"tools-summary\"></a>\n## 小结\n\n- 工具调用由模型提出、程序校验并执行。\n- `add(a, b)` 的职责是计算两个数的和。\n- 参数缺失时校验失败，工具不执行。\n- 判断“程序是否执行了工具”，要看工具名和参数是否都通过校验。",
+  "generation_state": {
+    "report_review": {
+      "decision": "pass",
+      "method": "model_review",
+      "content_sha256": "da87442cae3785f844ce00983a544458c05a110c3741d47611dca24efd4bacfb",
+      "version": 1,
+      "checks": [
+        {
+          "criterion": "requirements",
+          "passed": true,
+          "reason": "正文满足先例后理要求：tools-example 先展示 add(a=12, b=30) 的具体例子和 42 的结果，tools-responsibility 再归纳模型与程序的职责，顺序正确。"
+        },
+        {
+          "criterion": "correctness",
+          "passed": true,
+          "reason": "技术内容正确：add(a=12, b=30) 得 42，add(a=12) 缺少 b 导致校验失败且工具不执行，与已给材料一致；模型输出文本、程序校验并执行的职责划分也准确。"
+        },
+        {
+          "criterion": "examples",
+          "passed": true,
+          "reason": "成功例子 add(a=12, b=30) 和失败例子 add(a=12) 均被实际推演，结果分别为 42 和不执行，覆盖成功与失败分支；材料未提供相等分支或更复杂输入域，未引入不存在的边界。"
+        },
+        {
+          "criterion": "teaching_structure",
+          "passed": true,
+          "reason": "教学顺序落实在实际章节：tools-example 先例，tools-responsibility 后理，tools-missing-param 再讲失败分支，tools-practice 提供练习，tools-summary 收尾；无面试话术，符合学习目标。"
+        },
+        {
+          "criterion": "sources",
+          "passed": true,
+          "reason": "source_policy 为 uploaded_only，正文仅使用已给材料中的 add 例子和校验行为，未引入外部来源或未提供的引用。"
+        },
+        {
+          "criterion": "completeness",
+          "passed": true,
+          "reason": "覆盖两个目标：tools-responsibility 解释工具职责，tools-missing-param 检查缺失参数；练习和自检问题也包含在内，未遗漏材料中的关键行为。"
+        }
+      ],
+      "suggestions": [
+        "tools-practice 的参考答案直接跟在题目后，可能削弱练习效果，可考虑折叠或移到文末。",
+        "tools-example 中“调用单”比喻可保留，但可补充一句说明模型输出是结构化文本而非自然语言，以强化工具调用概念。"
+      ],
+      "history": [
+        {
+          "version": 1,
+          "content_sha256": "da87442cae3785f844ce00983a544458c05a110c3741d47611dca24efd4bacfb",
+          "structural_issues": [],
+          "review": {
+            "checks": [
+              {
+                "criterion": "requirements",
+                "passed": true,
+                "reason": "正文满足先例后理要求：tools-example 先展示 add(a=12, b=30) 的具体例子和 42 的结果，tools-responsibility 再归纳模型与程序的职责，顺序正确。"
+              },
+              {
+                "criterion": "correctness",
+                "passed": true,
+                "reason": "技术内容正确：add(a=12, b=30) 得 42，add(a=12) 缺少 b 导致校验失败且工具不执行，与已给材料一致；模型输出文本、程序校验并执行的职责划分也准确。"
+              },
+              {
+                "criterion": "examples",
+                "passed": true,
+                "reason": "成功例子 add(a=12, b=30) 和失败例子 add(a=12) 均被实际推演，结果分别为 42 和不执行，覆盖成功与失败分支；材料未提供相等分支或更复杂输入域，未引入不存在的边界。"
+              },
+              {
+                "criterion": "teaching_structure",
+                "passed": true,
+                "reason": "教学顺序落实在实际章节：tools-example 先例，tools-responsibility 后理，tools-missing-param 再讲失败分支，tools-practice 提供练习，tools-summary 收尾；无面试话术，符合学习目标。"
+              },
+              {
+                "criterion": "sources",
+                "passed": true,
+                "reason": "source_policy 为 uploaded_only，正文仅使用已给材料中的 add 例子和校验行为，未引入外部来源或未提供的引用。"
+              },
+              {
+                "criterion": "completeness",
+                "passed": true,
+                "reason": "覆盖两个目标：tools-responsibility 解释工具职责，tools-missing-param 检查缺失参数；练习和自检问题也包含在内，未遗漏材料中的关键行为。"
+              }
+            ],
+            "blocking_issues": [],
+            "suggestions": [
+              "tools-practice 的参考答案直接跟在题目后，可能削弱练习效果，可考虑折叠或移到文末。",
+              "tools-example 中“调用单”比喻可保留，但可补充一句说明模型输出是结构化文本而非自然语言，以强化工具调用概念。"
+            ],
+            "preparation_checks": [
+              {
+                "binding_type": "requirement_id",
+                "binding_id": "req-order",
+                "locator": {
+                  "section_id": "tools-example"
+                },
+                "passed": true,
+                "reason": "tools-example 从 add(a=12, b=30) 的具体例子开始，展示模型输出、程序校验和执行结果 42，先例后理落实在实际章节顺序中。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o1",
+                "locator": {
+                  "section_id": "tools-responsibility"
+                },
+                "passed": true,
+                "reason": "tools-responsibility 明确解释模型负责提出调用、程序负责校验并执行、工具负责具体计算，并概括工具职责，支持解释工具职责目标。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o1",
+                "locator": {
+                  "section_id": "tools-practice"
+                },
+                "passed": true,
+                "reason": "tools-practice 第 1 题要求判断 add(a=12, b=30) 的结果，参考答案为 42，练习了工具职责的理解。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o2",
+                "locator": {
+                  "section_id": "tools-missing-param"
+                },
+                "passed": true,
+                "reason": "tools-missing-param 展示 add(a=12) 缺少 b 时校验失败、工具不执行，并说明检查缺失参数是程序侧职责，支持检查缺失参数目标。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o2",
+                "locator": {
+                  "section_id": "tools-practice"
+                },
+                "passed": true,
+                "reason": "tools-practice 第 2 题要求判断 add(a=12) 是否执行并说明原因，参考答案指出缺少 b 导致校验失败，练习了缺失参数检查。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o2",
+                "locator": {
+                  "section_id": "tools-summary"
+                },
+                "passed": true,
+                "reason": "tools-summary 总结参数缺失时校验失败、工具不执行，并提示判断程序是否执行要看工具名和参数是否通过校验，起到检查作用。"
+              }
+            ]
+          },
+          "decision": "pass"
+        }
+      ],
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "binding_type": "requirement_id",
+          "binding_id": "req-order",
+          "locator": {
+            "section_id": "tools-example"
+          },
+          "passed": true,
+          "reason": "tools-example 从 add(a=12, b=30) 的具体例子开始，展示模型输出、程序校验和执行结果 42，先例后理落实在实际章节顺序中。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o1",
+          "locator": {
+            "section_id": "tools-responsibility"
+          },
+          "passed": true,
+          "reason": "tools-responsibility 明确解释模型负责提出调用、程序负责校验并执行、工具负责具体计算，并概括工具职责，支持解释工具职责目标。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o1",
+          "locator": {
+            "section_id": "tools-practice"
+          },
+          "passed": true,
+          "reason": "tools-practice 第 1 题要求判断 add(a=12, b=30) 的结果，参考答案为 42，练习了工具职责的理解。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-missing-param"
+          },
+          "passed": true,
+          "reason": "tools-missing-param 展示 add(a=12) 缺少 b 时校验失败、工具不执行，并说明检查缺失参数是程序侧职责，支持检查缺失参数目标。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-practice"
+          },
+          "passed": true,
+          "reason": "tools-practice 第 2 题要求判断 add(a=12) 是否执行并说明原因，参考答案指出缺少 b 导致校验失败，练习了缺失参数检查。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-summary"
+          },
+          "passed": true,
+          "reason": "tools-summary 总结参数缺失时校验失败、工具不执行，并提示判断程序是否执行要看工具名和参数是否通过校验，起到检查作用。"
+        }
+      ],
+      "preparation_sha256": "f927ebd6d270f425991d357a7ab0e40b486348cdaca59beb61336524d0455f5f",
+      "limitation": "模型审阅，非人工审阅或全面事实核验"
+    },
+    "preparation": {
+      "schema_version": 1,
+      "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "teaching_context_digest": "11a57b0291f51451facbd410781b919fc2d8a5cda12a2b027eeafe37f2f92ce6",
+      "applied_requirements": [
+        {
+          "requirement_id": "req-order",
+          "locator": {
+            "section_id": "tools-example"
+          },
+          "explanation": "正文从 12+30 的具体例子开始追踪工具调用，先展示模型输出、程序校验和执行结果，再在后续章节归纳模型与程序的职责，符合先例后理的要求。"
+        }
+      ],
+      "objective_bindings": [
+        {
+          "objective_id": "tools:o1",
+          "locator": {
+            "section_id": "tools-responsibility"
+          },
+          "role": "explanation"
+        },
+        {
+          "objective_id": "tools:o1",
+          "locator": {
+            "section_id": "tools-practice"
+          },
+          "role": "practice"
+        },
+        {
+          "objective_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-missing-param"
+          },
+          "role": "explanation"
+        },
+        {
+          "objective_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-practice"
+          },
+          "role": "practice"
+        },
+        {
+          "objective_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-summary"
+          },
+          "role": "check"
+        }
+      ],
+      "duration": {
+        "value_minutes": 2.3,
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises"
+      },
+      "sections": [
+        {
+          "section_id": "tools-example",
+          "content_sha256": "e5fa9af54dcbd5aa8f906424f88f02c2444966a3d34855ba217c78e6f5b4b01c"
+        },
+        {
+          "section_id": "tools-responsibility",
+          "content_sha256": "0c01c7dc59129dce305cbe83ddfa91e50dfcac12da485b097b96c3513bc3ceec"
+        },
+        {
+          "section_id": "tools-missing-param",
+          "content_sha256": "b06b715af6fea8c76460f2afe5c66eb47dd954927330ebee23241e021863211e"
+        },
+        {
+          "section_id": "tools-practice",
+          "content_sha256": "934c113cce235ac3f8a0ce487aabf327b360ba6f814b1e9395840dfcd4229782"
+        },
+        {
+          "section_id": "tools-summary",
+          "content_sha256": "3c544bdbaab9640037fa019e023fdfd7392b6962a41939338304e0026778858f"
+        }
+      ]
+    }
+  }
+}

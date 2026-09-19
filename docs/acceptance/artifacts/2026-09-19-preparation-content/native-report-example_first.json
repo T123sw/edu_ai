@@ -1,0 +1,375 @@
+{
+  "scope": "real native Harness SDK and provider; in-memory usage ledger; not full course delivery",
+  "teaching_context": {
+    "schema_version": 1,
+    "request_goal": "学习工具调用，不要面试话术",
+    "requirements": [
+      {
+        "requirement_id": "req-order",
+        "text": "先例后理",
+        "source_quote": "本次要求",
+        "source_document_id": null
+      }
+    ],
+    "prior_knowledge": "会 Python，没有 Agent 基础",
+    "desired_outcomes": [
+      "解释工具职责"
+    ],
+    "exclusions": [
+      "面试话术"
+    ],
+    "language": "zh-CN",
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "uploaded_only"
+    },
+    "effective_preferences": {},
+    "node_id": "tools",
+    "objective_ids": [
+      "tools:o1",
+      "tools:o2"
+    ],
+    "objectives": [
+      "解释工具职责",
+      "检查缺失参数"
+    ],
+    "prerequisites": [],
+    "learning_activities": [
+      "追踪12+30例子",
+      "解释模型与程序职责"
+    ],
+    "self_check": "程序是否执行了工具？",
+    "node_budget_minutes": 10,
+    "resource_target_minutes": null,
+    "assumptions": [],
+    "limitations": []
+  },
+  "artifact": {
+    "content": "# 工具调用：模型与程序的分工\n\n<a id=\"example-add\"></a>\n## 先看一个例子：add(a, b)\n\n假设有一个工具叫 `add`，它的职责是「计算两个数的和」。工具定义如下：\n\n```python\ndef add(a, b):\n    return a + b\n```\n\n现在模型想调用这个工具，它会输出两样东西：\n\n1. **工具名**：`add`\n2. **参数**：`a=12, b=30`\n\n程序收到这两样东西后，会做三件事：\n\n1. 校验工具名 `add` 是否存在；\n2. 校验调用者是否有权限使用它；\n3. 校验参数是否齐全、类型是否正确。\n\n全部通过后，程序才真正执行 `add(12, 30)`，得到结果 `42`。\n\n<a id=\"missing-param\"></a>\n## 缺一个参数会怎样\n\n再看一个反例。模型这次只输出了 `a=12`，没有给 `b`：\n\n```\n工具名: add\n参数: a=12\n```\n\n程序在校验参数这一步发现 `b` 缺失，于是**校验失败，工具不执行**。\n\n关键点在于：模型只是「提出要调用哪个工具、给什么参数」，真正动手执行的是程序。程序在动手之前会先检查，检查不过就不执行。\n\n<a id=\"division-of-labor\"></a>\n## 模型与程序各自负责什么\n\n从上面的例子可以归纳出分工：\n\n| 角色 | 职责 |\n| --- | --- |\n| 模型 | 决定调用哪个工具、给出参数 |\n| 程序 | 校验工具名、权限、参数，然后执行工具 |\n\n- **模型不直接执行工具**。它只输出「意图」——想调什么、传什么参数。\n- **程序是唯一真正执行工具的一方**。它先校验，再执行。\n\n所以「工具调用」并不是模型自己把函数跑了一遍，而是模型提出请求，程序把关并执行。\n\n<a id=\"self-check\"></a>\n## 自检：程序到底执行了工具吗\n\n判断一个工具调用是否真正发生，可以问一个问题：\n\n> 程序是否执行了工具？\n\n- 如果参数齐全、校验通过，程序执行了 `add(12, 30)`，答案是「是」，结果为 `42`。\n- 如果缺了 `b`，校验失败，程序没有执行工具，答案是「否」。\n\n用这个标准去检查任何一次工具调用，就能分清「模型想调用」和「程序真的执行了」这两件事。\n",
+    "generation_state": {
+      "report_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "content_sha256": "0359b54df5f142e15b4290a9084d96ad31b754e003e5114e3cb860029c79575b",
+        "version": 1,
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "唯一需求 req-order「先例后理」在正文实际落实：第一节「先看一个例子：add(a, b)」先给出具体例子（工具定义、模型输出工具名与参数、程序三步校验、执行得42），随后第三节「模型与程序各自负责什么」才归纳分工表格。顺序为例子在前、理论归纳在后，符合要求。无面试话术内容，符合排除项。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "概念正确：正文明确「模型不直接执行工具，只输出意图」「程序是唯一真正执行工具的一方，先校验再执行」，与提供的依据「模型输出工具名与参数，程序校验名称、权限和参数后执行工具」一致。add(a=12,b=30)得42、缺b时校验失败工具不执行，均与依据吻合。未出现「严格减小等于精确减半」类算法错误，本节点无算法分支要求。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "例子可推演：add(a,b) 定义 return a+b，模型输出 a=12,b=30，程序校验通过后执行 add(12,30)=42，计算正确。反例缺 b 时校验失败、工具不执行，边界（缺参数）覆盖到位。学习活动「追踪12+30例子」在第一节落实，「解释模型与程序职责」在第三节落实。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "教学顺序实际体现在章节而非声称：example-add（例子）→ missing-param（反例）→ division-of-labor（归纳分工）→ self-check（自检）。受众为「会 Python、无 Agent 基础」，正文用 Python 函数定义与简单表格，无 Agent 前置术语，深度 introductory 合适，语言 zh-CN。自检问题「程序是否执行了工具？」在第四节落实。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "来源策略为 uploaded_only，正文未引用任何外部来源，全部内容来自提供的依据（模型输出工具名与参数、程序校验名称/权限/参数后执行、add 例子、缺 b 校验失败）。未谎称外部全文核查，无来源越界。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "两个目标均覆盖：tools:o1「解释工具职责」在 division-of-labor 章节以表格和要点解释模型与程序各自职责；tools:o2「检查缺失参数」在 missing-param 章节给出缺 b 反例并在 self-check 章节以自检问题检查。desired_outcomes「解释工具职责」达成。无遗漏。"
+          }
+        ],
+        "suggestions": [
+          "可在「缺一个参数会怎样」章节补充一句「类型错误同样会导致校验失败」，使校验维度（名称、权限、参数齐全、类型）与第一节提到的「类型是否正确」呼应更完整。",
+          "自检章节可增加一个「参数齐全但类型错误」的变体，帮助读者区分「参数缺失」与「参数类型错误」两类校验失败。"
+        ],
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "0359b54df5f142e15b4290a9084d96ad31b754e003e5114e3cb860029c79575b",
+            "structural_issues": [],
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "唯一需求 req-order「先例后理」在正文实际落实：第一节「先看一个例子：add(a, b)」先给出具体例子（工具定义、模型输出工具名与参数、程序三步校验、执行得42），随后第三节「模型与程序各自负责什么」才归纳分工表格。顺序为例子在前、理论归纳在后，符合要求。无面试话术内容，符合排除项。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "概念正确：正文明确「模型不直接执行工具，只输出意图」「程序是唯一真正执行工具的一方，先校验再执行」，与提供的依据「模型输出工具名与参数，程序校验名称、权限和参数后执行工具」一致。add(a=12,b=30)得42、缺b时校验失败工具不执行，均与依据吻合。未出现「严格减小等于精确减半」类算法错误，本节点无算法分支要求。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "例子可推演：add(a,b) 定义 return a+b，模型输出 a=12,b=30，程序校验通过后执行 add(12,30)=42，计算正确。反例缺 b 时校验失败、工具不执行，边界（缺参数）覆盖到位。学习活动「追踪12+30例子」在第一节落实，「解释模型与程序职责」在第三节落实。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "教学顺序实际体现在章节而非声称：example-add（例子）→ missing-param（反例）→ division-of-labor（归纳分工）→ self-check（自检）。受众为「会 Python、无 Agent 基础」，正文用 Python 函数定义与简单表格，无 Agent 前置术语，深度 introductory 合适，语言 zh-CN。自检问题「程序是否执行了工具？」在第四节落实。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "来源策略为 uploaded_only，正文未引用任何外部来源，全部内容来自提供的依据（模型输出工具名与参数、程序校验名称/权限/参数后执行、add 例子、缺 b 校验失败）。未谎称外部全文核查，无来源越界。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "两个目标均覆盖：tools:o1「解释工具职责」在 division-of-labor 章节以表格和要点解释模型与程序各自职责；tools:o2「检查缺失参数」在 missing-param 章节给出缺 b 反例并在 self-check 章节以自检问题检查。desired_outcomes「解释工具职责」达成。无遗漏。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "可在「缺一个参数会怎样」章节补充一句「类型错误同样会导致校验失败」，使校验维度（名称、权限、参数齐全、类型）与第一节提到的「类型是否正确」呼应更完整。",
+                "自检章节可增加一个「参数齐全但类型错误」的变体，帮助读者区分「参数缺失」与「参数类型错误」两类校验失败。"
+              ],
+              "preparation_checks": [
+                {
+                  "binding_type": "requirement_id",
+                  "binding_id": "req-order",
+                  "locator": {
+                    "section_id": "example-add"
+                  },
+                  "passed": true,
+                  "reason": "正文第一节 example-add 先以 add(a,b) 具体例子展开（工具定义、模型输出、程序三步校验、执行得42），后续 division-of-labor 才归纳分工，实际章节顺序为例子在前、理论在后，真正落实「先例后理」，而非仅声称。"
+                },
+                {
+                  "binding_type": "objective_id",
+                  "binding_id": "tools:o1",
+                  "locator": {
+                    "section_id": "division-of-labor"
+                  },
+                  "passed": true,
+                  "reason": "division-of-labor 章节以表格列出「模型：决定调用哪个工具、给出参数」「程序：校验工具名、权限、参数，然后执行工具」，并明确「模型不直接执行工具」「程序是唯一真正执行工具的一方」，内容实质解释工具职责，支持目标 tools:o1。"
+                },
+                {
+                  "binding_type": "objective_id",
+                  "binding_id": "tools:o2",
+                  "locator": {
+                    "section_id": "missing-param"
+                  },
+                  "passed": true,
+                  "reason": "missing-param 章节给出模型只输出 a=12、缺 b 的反例，说明程序在校验参数步骤发现 b 缺失导致校验失败、工具不执行，实质覆盖「检查缺失参数」目标 tools:o2。"
+                },
+                {
+                  "binding_type": "objective_id",
+                  "binding_id": "tools:o2",
+                  "locator": {
+                    "section_id": "self-check"
+                  },
+                  "passed": true,
+                  "reason": "self-check 章节以「程序是否执行了工具？」为自检标准，区分「参数齐全校验通过则执行」与「缺 b 校验失败则不执行」，作为对缺失参数检查的验证环节，支持目标 tools:o2 的 check 角色。"
+                }
+              ]
+            },
+            "decision": "pass"
+          }
+        ],
+        "external_review": null,
+        "preparation_checks": [
+          {
+            "binding_type": "requirement_id",
+            "binding_id": "req-order",
+            "locator": {
+              "section_id": "example-add"
+            },
+            "passed": true,
+            "reason": "正文第一节 example-add 先以 add(a,b) 具体例子展开（工具定义、模型输出、程序三步校验、执行得42），后续 division-of-labor 才归纳分工，实际章节顺序为例子在前、理论在后，真正落实「先例后理」，而非仅声称。"
+          },
+          {
+            "binding_type": "objective_id",
+            "binding_id": "tools:o1",
+            "locator": {
+              "section_id": "division-of-labor"
+            },
+            "passed": true,
+            "reason": "division-of-labor 章节以表格列出「模型：决定调用哪个工具、给出参数」「程序：校验工具名、权限、参数，然后执行工具」，并明确「模型不直接执行工具」「程序是唯一真正执行工具的一方」，内容实质解释工具职责，支持目标 tools:o1。"
+          },
+          {
+            "binding_type": "objective_id",
+            "binding_id": "tools:o2",
+            "locator": {
+              "section_id": "missing-param"
+            },
+            "passed": true,
+            "reason": "missing-param 章节给出模型只输出 a=12、缺 b 的反例，说明程序在校验参数步骤发现 b 缺失导致校验失败、工具不执行，实质覆盖「检查缺失参数」目标 tools:o2。"
+          },
+          {
+            "binding_type": "objective_id",
+            "binding_id": "tools:o2",
+            "locator": {
+              "section_id": "self-check"
+            },
+            "passed": true,
+            "reason": "self-check 章节以「程序是否执行了工具？」为自检标准，区分「参数齐全校验通过则执行」与「缺 b 校验失败则不执行」，作为对缺失参数检查的验证环节，支持目标 tools:o2 的 check 角色。"
+          }
+        ],
+        "preparation_sha256": "63a70d1d3863f17d9fbae2e6e7f90f8a0d6325c8dcfd19c7b64493a2540f7c38",
+        "limitation": "模型审阅，非人工审阅或全面事实核验"
+      },
+      "preparation": {
+        "schema_version": 1,
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "teaching_context_digest": "11a57b0291f51451facbd410781b919fc2d8a5cda12a2b027eeafe37f2f92ce6",
+        "applied_requirements": [
+          {
+            "requirement_id": "req-order",
+            "locator": {
+              "section_id": "example-add"
+            },
+            "explanation": "正文先以 add(a,b) 的具体例子展开，再在后续章节归纳模型与程序的分工，落实「先例后理」。"
+          }
+        ],
+        "objective_bindings": [
+          {
+            "objective_id": "tools:o1",
+            "locator": {
+              "section_id": "division-of-labor"
+            },
+            "role": "explanation"
+          },
+          {
+            "objective_id": "tools:o2",
+            "locator": {
+              "section_id": "missing-param"
+            },
+            "role": "explanation"
+          },
+          {
+            "objective_id": "tools:o2",
+            "locator": {
+              "section_id": "self-check"
+            },
+            "role": "check"
+          }
+        ],
+        "duration": {
+          "value_minutes": 1.7,
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises"
+        },
+        "sections": [
+          {
+            "section_id": "example-add",
+            "content_sha256": "2c60dd2be1739683994568a8c32833f69a73ee4989cc9cf4ad35bca4bb4c7943"
+          },
+          {
+            "section_id": "missing-param",
+            "content_sha256": "eac6b167490ac7faeda86a7112e949dc39a6651067d8639d64f43aeb6e79c670"
+          },
+          {
+            "section_id": "division-of-labor",
+            "content_sha256": "88d6cbca505673d0727fcccd472667f9a7ca2ed00932254d6a89cd981b0e21a2"
+          },
+          {
+            "section_id": "self-check",
+            "content_sha256": "db8124e7195d6aaa815802391ea2473c6f17467f60b9b1090c39ef560cea07ef"
+          }
+        ]
+      }
+    }
+  },
+  "calls": [
+    {
+      "action_id": "provider:83ce8e2b3a4740898370a35d2d7886cf",
+      "reserved": {
+        "calls": 1,
+        "tokens": 24271,
+        "cost_micro_usd": 242710
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_write",
+        "skill": {
+          "name": "generate-learning-resource",
+          "sha256": "bf2179f426c47684bcafe3c013eadd2d724feb2f28cb9ae3e33f5579e4e848d8",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 2321,
+        "completion_tokens": 876,
+        "total_tokens": 3197,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2321
+      }
+    },
+    {
+      "action_id": "provider:915487ac41384cfd871604e1fc7290b4",
+      "reserved": {
+        "calls": 1,
+        "tokens": 25582,
+        "cost_micro_usd": 255820
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_review",
+        "skill": {
+          "name": "review-learning-resource",
+          "sha256": "66ac9930402cc00f78da102eb070bbcbfa0c0b0fe9c2e6125a69647102b6597c",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 3737,
+        "completion_tokens": 56,
+        "total_tokens": 3793,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 3737
+      }
+    },
+    {
+      "action_id": "provider:6872c68a57ff4e76ae6693b82d82b090",
+      "reserved": {
+        "calls": 1,
+        "tokens": 27861,
+        "cost_micro_usd": 278610
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_review",
+        "skill": {
+          "name": "review-learning-resource",
+          "sha256": "66ac9930402cc00f78da102eb070bbcbfa0c0b0fe9c2e6125a69647102b6597c",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 4215,
+        "completion_tokens": 1259,
+        "total_tokens": 5474,
+        "prompt_tokens_details": {
+          "cached_tokens": 3712
+        },
+        "prompt_cache_hit_tokens": 3712,
+        "prompt_cache_miss_tokens": 503
+      }
+    }
+  ]
+}

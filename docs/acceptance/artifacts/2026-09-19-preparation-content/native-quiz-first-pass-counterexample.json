@@ -1,0 +1,556 @@
+{
+  "scope": "real native Harness SDK and provider; in-memory usage ledger; not full course delivery",
+  "teaching_context": {
+    "schema_version": 1,
+    "request_goal": "学习工具调用，不要面试话术",
+    "requirements": [
+      {
+        "requirement_id": "req-order",
+        "text": "每题先给具体调用例子，再问职责或缺失参数；总共两道单选题，每项都有对应解析",
+        "source_quote": "本次要求",
+        "source_document_id": null
+      }
+    ],
+    "prior_knowledge": "会 Python，没有 Agent 基础",
+    "desired_outcomes": [
+      "解释工具职责"
+    ],
+    "exclusions": [
+      "面试话术"
+    ],
+    "language": "zh-CN",
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "uploaded_only"
+    },
+    "effective_preferences": {},
+    "node_id": "tools",
+    "objective_ids": [
+      "tools:o1",
+      "tools:o2"
+    ],
+    "objectives": [
+      "解释工具职责",
+      "检查缺失参数"
+    ],
+    "prerequisites": [],
+    "learning_activities": [
+      "追踪12+30例子",
+      "解释模型与程序职责"
+    ],
+    "self_check": "程序是否执行了工具？",
+    "node_budget_minutes": 10,
+    "resource_target_minutes": null,
+    "assumptions": [],
+    "limitations": []
+  },
+  "artifact": {
+    "artifact_type": "quiz",
+    "title": "工具调用",
+    "content": {
+      "title": "工具调用：职责与缺失参数",
+      "questions": [
+        {
+          "id": "q1",
+          "type": "single_choice",
+          "stem": "模型输出了一次工具调用：add(a=12, b=30)，程序随后返回结果 42。在这次调用里，模型和程序各自负责什么？",
+          "options": [
+            "模型负责执行加法并返回 42，程序负责决定调用哪个工具",
+            "模型负责输出工具名和参数，程序负责校验名称、权限和参数后执行工具",
+            "模型负责校验参数是否齐全，程序负责计算 12 与 30 的和",
+            "模型和程序都负责执行工具，谁先响应谁返回结果"
+          ],
+          "answer": "B",
+          "explanation": "模型只负责决定调用哪个工具并给出参数（这里是工具名 add 和参数 a=12、b=30），它本身不执行加法。程序收到后先校验工具名是否存在、调用方是否有权限、参数是否齐全，校验通过才真正执行 add 并返回 42。选项 A 把执行加法的职责错给了模型，且把“决定调用哪个工具”错给了程序；选项 C 把参数校验错给了模型，把计算错给了程序，方向反了；选项 D 认为双方都执行工具，与“模型只输出、程序才执行”的分工不符。",
+          "difficulty": "easy"
+        },
+        {
+          "id": "q2",
+          "type": "single_choice",
+          "stem": "模型输出了工具调用 add(a=12)，但没有给出参数 b。程序会怎样处理？",
+          "options": [
+            "程序自动把 b 补成 0，然后返回 12",
+            "程序校验发现缺少参数 b，校验失败，工具不执行",
+            "程序忽略缺失的 b，直接返回 a 的值 12",
+            "程序把 b 当作空字符串，返回字符串拼接结果"
+          ],
+          "answer": "B",
+          "explanation": "add 需要两个参数 a 和 b，缺了 b 就无法完成求和。程序在真正执行前会校验参数是否齐全，发现 b 缺失时校验失败，因此工具不会被执行，也不会返回任何计算结果。选项 A 假设程序会自动补默认值 0，但材料没有给出这种默认行为；选项 C 假设程序会忽略缺失参数直接返回 a，这等于跳过校验；选项 D 假设 b 被当作空字符串并做字符串拼接，既没有依据，也混淆了数值加法与字符串拼接。",
+          "difficulty": "medium"
+        }
+      ]
+    },
+    "generation_state": {
+      "resource_review": {
+        "decision": "pass",
+        "method": "model_review",
+        "resource_type": "quiz",
+        "content_sha256": "aaefb76c2e924ff79b5718e7bccb6924efb2b3e6a1f527b663145d626acb13b8",
+        "checks": [
+          {
+            "criterion": "requirements",
+            "passed": true,
+            "reason": "req-order 要求每题先给具体调用例子再问职责或缺失参数，共两道单选题且每项有解析。q1 题干先给 add(a=12,b=30) 返回 42 再问职责，q2 题干先给 add(a=12) 缺 b 再问缺失参数处理，均为 single_choice，每题四个选项且 explanation 逐项说明，符合要求。"
+          },
+          {
+            "criterion": "correctness",
+            "passed": true,
+            "reason": "q1 正确答案 B：模型输出工具名与参数、程序校验后执行，与材料『模型输出工具名与参数，程序校验名称、权限和参数后执行工具』一致；add(12,30)=42 数值正确。q2 正确答案 B：缺 b 校验失败工具不执行，与材料『缺少 b 时校验失败，工具不执行』一致。两题答案与解析均正确。"
+          },
+          {
+            "criterion": "examples",
+            "passed": true,
+            "reason": "习题逐题独立求解：q1 独立求解得 B（模型只输出、程序校验并执行），与 answer B 一致；q2 独立求解得 B（缺参校验失败不执行），与 answer B 一致。逐选项核验见 question_checks，各选项解析均准确。"
+          },
+          {
+            "criterion": "teaching_structure",
+            "passed": true,
+            "reason": "受众为会 Python、无 Agent 基础，深度 introductory，两题难度 easy/medium 恰当；q1 对应目标 tools:o1（解释工具职责），q2 对应 tools:o2（检查缺失参数），覆盖两个 objective。排除项『面试话术』未出现，语言 zh-CN 一致。"
+          },
+          {
+            "criterion": "sources",
+            "passed": true,
+            "reason": "source_policy 为 uploaded_only，材料仅提供 add(a,b) 求和、add(12,30)=42、缺 b 校验失败不执行。两题内容均来自该材料，未引入外部未提供的事实（如默认值、字符串拼接等均作为干扰项被明确否定），无越界引用。"
+          },
+          {
+            "criterion": "completeness",
+            "passed": true,
+            "reason": "两道单选题齐全，每题含 id、type、stem、options（4 项）、answer、explanation、difficulty，符合 resource_contract 的 quiz 结构；答案位置 B/B 虽相同但仅两题且干扰项真实，不构成缺陷。"
+          }
+        ],
+        "version": 1,
+        "history": [
+          {
+            "version": 1,
+            "content_sha256": "aaefb76c2e924ff79b5718e7bccb6924efb2b3e6a1f527b663145d626acb13b8",
+            "decision": "pass",
+            "review": {
+              "checks": [
+                {
+                  "criterion": "requirements",
+                  "passed": true,
+                  "reason": "req-order 要求每题先给具体调用例子再问职责或缺失参数，共两道单选题且每项有解析。q1 题干先给 add(a=12,b=30) 返回 42 再问职责，q2 题干先给 add(a=12) 缺 b 再问缺失参数处理，均为 single_choice，每题四个选项且 explanation 逐项说明，符合要求。"
+                },
+                {
+                  "criterion": "correctness",
+                  "passed": true,
+                  "reason": "q1 正确答案 B：模型输出工具名与参数、程序校验后执行，与材料『模型输出工具名与参数，程序校验名称、权限和参数后执行工具』一致；add(12,30)=42 数值正确。q2 正确答案 B：缺 b 校验失败工具不执行，与材料『缺少 b 时校验失败，工具不执行』一致。两题答案与解析均正确。"
+                },
+                {
+                  "criterion": "examples",
+                  "passed": true,
+                  "reason": "习题逐题独立求解：q1 独立求解得 B（模型只输出、程序校验并执行），与 answer B 一致；q2 独立求解得 B（缺参校验失败不执行），与 answer B 一致。逐选项核验见 question_checks，各选项解析均准确。"
+                },
+                {
+                  "criterion": "teaching_structure",
+                  "passed": true,
+                  "reason": "受众为会 Python、无 Agent 基础，深度 introductory，两题难度 easy/medium 恰当；q1 对应目标 tools:o1（解释工具职责），q2 对应 tools:o2（检查缺失参数），覆盖两个 objective。排除项『面试话术』未出现，语言 zh-CN 一致。"
+                },
+                {
+                  "criterion": "sources",
+                  "passed": true,
+                  "reason": "source_policy 为 uploaded_only，材料仅提供 add(a,b) 求和、add(12,30)=42、缺 b 校验失败不执行。两题内容均来自该材料，未引入外部未提供的事实（如默认值、字符串拼接等均作为干扰项被明确否定），无越界引用。"
+                },
+                {
+                  "criterion": "completeness",
+                  "passed": true,
+                  "reason": "两道单选题齐全，每题含 id、type、stem、options（4 项）、answer、explanation、difficulty，符合 resource_contract 的 quiz 结构；答案位置 B/B 虽相同但仅两题且干扰项真实，不构成缺陷。"
+                }
+              ],
+              "blocking_issues": [],
+              "suggestions": [
+                "两题正确答案均为 B，若后续扩充题量建议打乱答案位置，避免规律。"
+              ],
+              "question_checks": [
+                {
+                  "question_index": 0,
+                  "question_id": "q1",
+                  "independent_solution": "题干：模型输出 add(a=12,b=30)，程序返回 42。材料明确模型只输出工具名与参数，程序负责校验名称、权限、参数后执行。因此模型职责=输出工具名和参数，程序职责=校验并执行，选 B。",
+                  "answer_matches": true,
+                  "explanation_valid": true,
+                  "option_checks": [
+                    {
+                      "option_index": 0,
+                      "reasoning": "材料明确模型不执行加法、程序不决定调用哪个工具，该选项把两者职责颠倒，错误。",
+                      "explanation_valid": true,
+                      "option_text": "模型负责执行加法并返回 42，程序负责决定调用哪个工具",
+                      "explanation_excerpt": "选项 A 把执行加法的职责错给了模型，且把“决定调用哪个工具”错给了程序",
+                      "independent_correct": false
+                    },
+                    {
+                      "option_index": 1,
+                      "reasoning": "与材料『模型输出工具名与参数，程序校验名称、权限和参数后执行工具』完全一致，正确。",
+                      "explanation_valid": true,
+                      "option_text": "模型负责输出工具名和参数，程序负责校验名称、权限和参数后执行工具",
+                      "explanation_excerpt": "模型只负责决定调用哪个工具并给出参数（这里是工具名 add 和参数 a=12、b=30），它本身不执行加法。程序收到后先校验工具名是否存在、调用方是否有权限、参数是否齐全，校验通过才真正执行 add 并返回 42。",
+                      "independent_correct": true
+                    },
+                    {
+                      "option_index": 2,
+                      "reasoning": "材料明确校验由程序负责、计算由工具（程序执行）完成，模型不校验参数，该选项方向颠倒，错误。",
+                      "explanation_valid": true,
+                      "option_text": "模型负责校验参数是否齐全，程序负责计算 12 与 30 的和",
+                      "explanation_excerpt": "选项 C 把参数校验错给了模型，把计算错给了程序，方向反了",
+                      "independent_correct": false
+                    },
+                    {
+                      "option_index": 3,
+                      "reasoning": "材料明确只有程序执行工具，模型只输出不执行，该选项认为双方都执行，错误。",
+                      "explanation_valid": true,
+                      "option_text": "模型和程序都负责执行工具，谁先响应谁返回结果",
+                      "explanation_excerpt": "选项 D 认为双方都执行工具，与“模型只输出、程序才执行”的分工不符。",
+                      "independent_correct": false
+                    }
+                  ]
+                },
+                {
+                  "question_index": 1,
+                  "question_id": "q2",
+                  "independent_solution": "题干：模型输出 add(a=12) 缺 b。材料明确缺少 b 时校验失败、工具不执行。因此程序校验发现缺参、校验失败、不执行，选 B。",
+                  "answer_matches": true,
+                  "explanation_valid": true,
+                  "option_checks": [
+                    {
+                      "option_index": 0,
+                      "reasoning": "材料未给出任何默认值行为，程序不会自动补 0，该选项无依据，错误。",
+                      "explanation_valid": true,
+                      "option_text": "程序自动把 b 补成 0，然后返回 12",
+                      "explanation_excerpt": "选项 A 假设程序会自动补默认值 0，但材料没有给出这种默认行为",
+                      "independent_correct": false
+                    },
+                    {
+                      "option_index": 1,
+                      "reasoning": "与材料『缺少 b 时校验失败，工具不执行』完全一致，正确。",
+                      "explanation_valid": true,
+                      "option_text": "程序校验发现缺少参数 b，校验失败，工具不执行",
+                      "explanation_excerpt": "程序在真正执行前会校验参数是否齐全，发现 b 缺失时校验失败，因此工具不会被执行，也不会返回任何计算结果。",
+                      "independent_correct": true
+                    },
+                    {
+                      "option_index": 2,
+                      "reasoning": "材料明确缺参会导致校验失败不执行，程序不会忽略缺失参数直接返回，该选项跳过校验，错误。",
+                      "explanation_valid": true,
+                      "option_text": "程序忽略缺失的 b，直接返回 a 的值 12",
+                      "explanation_excerpt": "选项 C 假设程序会忽略缺失参数直接返回 a，这等于跳过校验",
+                      "independent_correct": false
+                    },
+                    {
+                      "option_index": 3,
+                      "reasoning": "材料无此行为，且混淆数值加法与字符串拼接，无依据，错误。",
+                      "explanation_valid": true,
+                      "option_text": "程序把 b 当作空字符串，返回字符串拼接结果",
+                      "explanation_excerpt": "选项 D 假设 b 被当作空字符串并做字符串拼接，既没有依据，也混淆了数值加法与字符串拼接。",
+                      "independent_correct": false
+                    }
+                  ]
+                }
+              ],
+              "preparation_checks": [
+                {
+                  "binding_type": "requirement_id",
+                  "binding_id": "req-order",
+                  "locator": {
+                    "question_id": "q1"
+                  },
+                  "passed": true,
+                  "reason": "q1 题干先给出具体调用例子 add(a=12,b=30) 返回 42，再问模型与程序职责，符合『先给调用例子再问职责』；四个选项均有对应解析。"
+                },
+                {
+                  "binding_type": "requirement_id",
+                  "binding_id": "req-order",
+                  "locator": {
+                    "question_id": "q2"
+                  },
+                  "passed": true,
+                  "reason": "q2 题干先给出具体调用例子 add(a=12) 缺 b，再问程序如何处理缺失参数，符合『先给调用例子再问缺失参数』；四个选项均有对应解析。"
+                },
+                {
+                  "binding_type": "objective_id",
+                  "binding_id": "tools:o1",
+                  "locator": {
+                    "question_id": "q1"
+                  },
+                  "passed": true,
+                  "reason": "q1 直接考察模型与程序各自职责（模型输出、程序校验执行），语义上支持『解释工具职责』目标。"
+                },
+                {
+                  "binding_type": "objective_id",
+                  "binding_id": "tools:o2",
+                  "locator": {
+                    "question_id": "q2"
+                  },
+                  "passed": true,
+                  "reason": "q2 直接考察缺参时程序校验失败不执行，语义上支持『检查缺失参数』目标。"
+                }
+              ]
+            }
+          }
+        ],
+        "suggestions": [
+          "两题正确答案均为 B，若后续扩充题量建议打乱答案位置，避免规律。"
+        ],
+        "preparation_sha256": "8b0cd53c855f2cea8a0e16d24db694f9927f09beea99ecd188c052bb8830daec",
+        "option_binding_version": 1,
+        "question_checks": [
+          {
+            "question_index": 0,
+            "question_id": "q1",
+            "independent_solution": "题干：模型输出 add(a=12,b=30)，程序返回 42。材料明确模型只输出工具名与参数，程序负责校验名称、权限、参数后执行。因此模型职责=输出工具名和参数，程序职责=校验并执行，选 B。",
+            "answer_matches": true,
+            "explanation_valid": true,
+            "option_checks": [
+              {
+                "option_index": 0,
+                "reasoning": "材料明确模型不执行加法、程序不决定调用哪个工具，该选项把两者职责颠倒，错误。",
+                "explanation_valid": true,
+                "option_text": "模型负责执行加法并返回 42，程序负责决定调用哪个工具",
+                "explanation_excerpt": "选项 A 把执行加法的职责错给了模型，且把“决定调用哪个工具”错给了程序",
+                "independent_correct": false
+              },
+              {
+                "option_index": 1,
+                "reasoning": "与材料『模型输出工具名与参数，程序校验名称、权限和参数后执行工具』完全一致，正确。",
+                "explanation_valid": true,
+                "option_text": "模型负责输出工具名和参数，程序负责校验名称、权限和参数后执行工具",
+                "explanation_excerpt": "模型只负责决定调用哪个工具并给出参数（这里是工具名 add 和参数 a=12、b=30），它本身不执行加法。程序收到后先校验工具名是否存在、调用方是否有权限、参数是否齐全，校验通过才真正执行 add 并返回 42。",
+                "independent_correct": true
+              },
+              {
+                "option_index": 2,
+                "reasoning": "材料明确校验由程序负责、计算由工具（程序执行）完成，模型不校验参数，该选项方向颠倒，错误。",
+                "explanation_valid": true,
+                "option_text": "模型负责校验参数是否齐全，程序负责计算 12 与 30 的和",
+                "explanation_excerpt": "选项 C 把参数校验错给了模型，把计算错给了程序，方向反了",
+                "independent_correct": false
+              },
+              {
+                "option_index": 3,
+                "reasoning": "材料明确只有程序执行工具，模型只输出不执行，该选项认为双方都执行，错误。",
+                "explanation_valid": true,
+                "option_text": "模型和程序都负责执行工具，谁先响应谁返回结果",
+                "explanation_excerpt": "选项 D 认为双方都执行工具，与“模型只输出、程序才执行”的分工不符。",
+                "independent_correct": false
+              }
+            ]
+          },
+          {
+            "question_index": 1,
+            "question_id": "q2",
+            "independent_solution": "题干：模型输出 add(a=12) 缺 b。材料明确缺少 b 时校验失败、工具不执行。因此程序校验发现缺参、校验失败、不执行，选 B。",
+            "answer_matches": true,
+            "explanation_valid": true,
+            "option_checks": [
+              {
+                "option_index": 0,
+                "reasoning": "材料未给出任何默认值行为，程序不会自动补 0，该选项无依据，错误。",
+                "explanation_valid": true,
+                "option_text": "程序自动把 b 补成 0，然后返回 12",
+                "explanation_excerpt": "选项 A 假设程序会自动补默认值 0，但材料没有给出这种默认行为",
+                "independent_correct": false
+              },
+              {
+                "option_index": 1,
+                "reasoning": "与材料『缺少 b 时校验失败，工具不执行』完全一致，正确。",
+                "explanation_valid": true,
+                "option_text": "程序校验发现缺少参数 b，校验失败，工具不执行",
+                "explanation_excerpt": "程序在真正执行前会校验参数是否齐全，发现 b 缺失时校验失败，因此工具不会被执行，也不会返回任何计算结果。",
+                "independent_correct": true
+              },
+              {
+                "option_index": 2,
+                "reasoning": "材料明确缺参会导致校验失败不执行，程序不会忽略缺失参数直接返回，该选项跳过校验，错误。",
+                "explanation_valid": true,
+                "option_text": "程序忽略缺失的 b，直接返回 a 的值 12",
+                "explanation_excerpt": "选项 C 假设程序会忽略缺失参数直接返回 a，这等于跳过校验",
+                "independent_correct": false
+              },
+              {
+                "option_index": 3,
+                "reasoning": "材料无此行为，且混淆数值加法与字符串拼接，无依据，错误。",
+                "explanation_valid": true,
+                "option_text": "程序把 b 当作空字符串，返回字符串拼接结果",
+                "explanation_excerpt": "选项 D 假设 b 被当作空字符串并做字符串拼接，既没有依据，也混淆了数值加法与字符串拼接。",
+                "independent_correct": false
+              }
+            ]
+          }
+        ],
+        "preparation_checks": [
+          {
+            "binding_type": "requirement_id",
+            "binding_id": "req-order",
+            "locator": {
+              "question_id": "q1"
+            },
+            "passed": true,
+            "reason": "q1 题干先给出具体调用例子 add(a=12,b=30) 返回 42，再问模型与程序职责，符合『先给调用例子再问职责』；四个选项均有对应解析。"
+          },
+          {
+            "binding_type": "requirement_id",
+            "binding_id": "req-order",
+            "locator": {
+              "question_id": "q2"
+            },
+            "passed": true,
+            "reason": "q2 题干先给出具体调用例子 add(a=12) 缺 b，再问程序如何处理缺失参数，符合『先给调用例子再问缺失参数』；四个选项均有对应解析。"
+          },
+          {
+            "binding_type": "objective_id",
+            "binding_id": "tools:o1",
+            "locator": {
+              "question_id": "q1"
+            },
+            "passed": true,
+            "reason": "q1 直接考察模型与程序各自职责（模型输出、程序校验执行），语义上支持『解释工具职责』目标。"
+          },
+          {
+            "binding_type": "objective_id",
+            "binding_id": "tools:o2",
+            "locator": {
+              "question_id": "q2"
+            },
+            "passed": true,
+            "reason": "q2 直接考察缺参时程序校验失败不执行，语义上支持『检查缺失参数』目标。"
+          }
+        ]
+      },
+      "preparation": {
+        "schema_version": 1,
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "teaching_context_digest": "0a1f979bbc8f23b78675d0e251af497074e71f6d67105d5d76f787ae92de57ff",
+        "applied_requirements": [
+          {
+            "requirement_id": "req-order",
+            "locator": {
+              "question_id": "q1"
+            },
+            "explanation": "题干先给出具体调用例子 add(a=12, b=30) 返回 42，再问模型与程序的职责，符合“先给调用例子再问职责”的顺序；四个选项均给出对应解析。"
+          },
+          {
+            "requirement_id": "req-order",
+            "locator": {
+              "question_id": "q2"
+            },
+            "explanation": "题干先给出具体调用例子 add(a=12) 缺 b，再问程序如何处理缺失参数，符合“先给调用例子再问缺失参数”的顺序；四个选项均给出对应解析。"
+          }
+        ],
+        "objective_bindings": [
+          {
+            "objective_id": "tools:o1",
+            "locator": {
+              "question_id": "q1"
+            },
+            "role": "practice"
+          },
+          {
+            "objective_id": "tools:o2",
+            "locator": {
+              "question_id": "q2"
+            },
+            "role": "practice"
+          }
+        ],
+        "duration": {
+          "value_minutes": null,
+          "basis": "unknown",
+          "method": "No calibrated learner solving-time estimate"
+        }
+      }
+    }
+  },
+  "calls": [
+    {
+      "action_id": "provider:0c7e8d69b1cc4801b66bd0ccf44d0ad9",
+      "reserved": {
+        "calls": 1,
+        "tokens": 33971,
+        "cost_micro_usd": 339710
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_write",
+        "skill": {
+          "name": "generate-learning-resource",
+          "sha256": "bf2179f426c47684bcafe3c013eadd2d724feb2f28cb9ae3e33f5579e4e848d8",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 4388,
+        "completion_tokens": 57,
+        "total_tokens": 4445,
+        "prompt_tokens_details": {
+          "cached_tokens": 512
+        },
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 3876
+      }
+    },
+    {
+      "action_id": "provider:227c9342a3da4d1780ee51244bc4bf25",
+      "reserved": {
+        "calls": 1,
+        "tokens": 36357,
+        "cost_micro_usd": 363570
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_write",
+        "skill": {
+          "name": "generate-learning-resource",
+          "sha256": "bf2179f426c47684bcafe3c013eadd2d724feb2f28cb9ae3e33f5579e4e848d8",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 4887,
+        "completion_tokens": 780,
+        "total_tokens": 5667,
+        "prompt_tokens_details": {
+          "cached_tokens": 4352
+        },
+        "prompt_cache_hit_tokens": 4352,
+        "prompt_cache_miss_tokens": 535
+      }
+    },
+    {
+      "action_id": "provider:50dc6e58c1074519a70b825db4ed2a76",
+      "reserved": {
+        "calls": 1,
+        "tokens": 60312,
+        "cost_micro_usd": 603120
+      },
+      "failed": false,
+      "evidence": {
+        "runtime": "deepseek-harness",
+        "phase": "resource_review",
+        "skill": {
+          "name": "review-learning-resource",
+          "sha256": "66ac9930402cc00f78da102eb070bbcbfa0c0b0fe9c2e6125a69647102b6597c",
+          "loaded": true
+        },
+        "provider": "configured",
+        "model": "deepseek-v4-pro",
+        "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "usage": {
+        "prompt_tokens": 5676,
+        "completion_tokens": 2194,
+        "total_tokens": 7870,
+        "prompt_tokens_details": {
+          "cached_tokens": 512
+        },
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 5164
+      }
+    }
+  ]
+}
