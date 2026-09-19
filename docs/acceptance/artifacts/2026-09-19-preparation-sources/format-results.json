@@ -1,0 +1,227 @@
+[
+  {
+    "format": "docx",
+    "status": "parsed",
+    "characters": 372,
+    "source_hash": "73879f1d0d970b0032cbd0ceabfbc38ada19ffd5eb7d7e5c58e75f1e3576fae9",
+    "defects": [],
+    "assets": 1,
+    "units": 1,
+    "checks": {
+      "TOOLS NEED VALIDATED ARGUMENTS": true,
+      "FAILURE RETURNS INVALID_ARGUMENT": false,
+      "SUCCESS ADDS 12 AND 30 TO GET 42": true,
+      "FINAL PAGE REQUIRES API AUTHENTICATION": true
+    },
+    "seconds": 10.232,
+    "calls": [
+      {
+        "method": "POST",
+        "phase": "batch",
+        "status": 200,
+        "seconds": 0.255
+      },
+      {
+        "method": "PUT",
+        "phase": "upload",
+        "status": 200,
+        "seconds": 0.293
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.078
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.079
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.078
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.08
+      },
+      {
+        "method": "GET",
+        "phase": "download",
+        "status": 200,
+        "seconds": 0.266
+      }
+    ],
+    "remote_tasks": [
+      {
+        "provider": "mineru-cloud",
+        "task_id": "5c4e8f0b-4094-4c96-931b-f10049782ffb"
+      }
+    ],
+    "reviewed_content_checks": {
+      "TOOLS NEED VALIDATED ARGUMENTS": true,
+      "FAILURE RETURNS INVALID_ARGUMENT": true,
+      "SUCCESS ADDS 12 AND 30 TO GET 42": true,
+      "FINAL PAGE REQUIRES API AUTHENTICATION": true
+    },
+    "manual_review": {
+      "method": "逐项阅读原始合成文本和 MinerU Markdown；未由最终用户签字验收",
+      "markdown_escape": "INVALID_ARGUMENT becomes INVALID\\_ARGUMENT; bytes preserved for citations",
+      "table": "12 + 30 maps to 42; both columns present",
+      "late_content": "API AUTHENTICATION retained on final PDF page / final slide / final DOCX paragraph",
+      "diagram": "asset extracted; diagram OCR text present in scanned PDF; Office diagram retained as image reference"
+    }
+  },
+  {
+    "format": "pdf",
+    "status": "parsed",
+    "characters": 309,
+    "source_hash": "8b2ec6cdc3986c9ea59b58570773cb5a1634b1e8e01947b650bf2ec10165603f",
+    "defects": [],
+    "assets": 1,
+    "units": 1,
+    "checks": {
+      "TOOLS NEED VALIDATED ARGUMENTS": true,
+      "FAILURE RETURNS INVALID_ARGUMENT": false,
+      "SUCCESS ADDS 12 AND 30 TO GET 42": true,
+      "FINAL PAGE REQUIRES API AUTHENTICATION": true
+    },
+    "seconds": 7.709,
+    "calls": [
+      {
+        "method": "POST",
+        "phase": "batch",
+        "status": 200,
+        "seconds": 0.24
+      },
+      {
+        "method": "PUT",
+        "phase": "upload",
+        "status": 200,
+        "seconds": 0.346
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.077
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.079
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.077
+      },
+      {
+        "method": "GET",
+        "phase": "download",
+        "status": 200,
+        "seconds": 0.297
+      }
+    ],
+    "remote_tasks": [
+      {
+        "provider": "mineru-cloud",
+        "task_id": "f9d52b89-66c1-48cc-8b27-9bd8fe108659"
+      }
+    ],
+    "reviewed_content_checks": {
+      "TOOLS NEED VALIDATED ARGUMENTS": true,
+      "FAILURE RETURNS INVALID_ARGUMENT": true,
+      "SUCCESS ADDS 12 AND 30 TO GET 42": true,
+      "FINAL PAGE REQUIRES API AUTHENTICATION": true
+    },
+    "manual_review": {
+      "method": "逐项阅读原始合成文本和 MinerU Markdown；未由最终用户签字验收",
+      "markdown_escape": "INVALID_ARGUMENT becomes INVALID\\_ARGUMENT; bytes preserved for citations",
+      "table": "not in PDF fixture",
+      "late_content": "API AUTHENTICATION retained on final PDF page / final slide / final DOCX paragraph",
+      "diagram": "asset extracted; diagram OCR text present in scanned PDF; Office diagram retained as image reference"
+    }
+  },
+  {
+    "format": "pptx",
+    "status": "parsed",
+    "characters": 397,
+    "source_hash": "30f9d57c8aa67ed340a4c647e3320445786a3cf6a057106f33ee481405f58a02",
+    "defects": [],
+    "assets": 1,
+    "units": 1,
+    "checks": {
+      "TOOLS NEED VALIDATED ARGUMENTS": true,
+      "FAILURE RETURNS INVALID_ARGUMENT": false,
+      "SUCCESS ADDS 12 AND 30 TO GET 42": true,
+      "FINAL PAGE REQUIRES API AUTHENTICATION": true
+    },
+    "seconds": 7.487,
+    "calls": [
+      {
+        "method": "POST",
+        "phase": "batch",
+        "status": 200,
+        "seconds": 0.272
+      },
+      {
+        "method": "PUT",
+        "phase": "upload",
+        "status": 200,
+        "seconds": 0.233
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.08
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.079
+      },
+      {
+        "method": "GET",
+        "phase": "poll",
+        "status": 200,
+        "seconds": 0.081
+      },
+      {
+        "method": "GET",
+        "phase": "download",
+        "status": 200,
+        "seconds": 0.219
+      }
+    ],
+    "remote_tasks": [
+      {
+        "provider": "mineru-cloud",
+        "task_id": "1d44011b-ac06-4e2c-8425-1232a5fc5e24"
+      }
+    ],
+    "reviewed_content_checks": {
+      "TOOLS NEED VALIDATED ARGUMENTS": true,
+      "FAILURE RETURNS INVALID_ARGUMENT": true,
+      "SUCCESS ADDS 12 AND 30 TO GET 42": true,
+      "FINAL PAGE REQUIRES API AUTHENTICATION": true
+    },
+    "manual_review": {
+      "method": "逐项阅读原始合成文本和 MinerU Markdown；未由最终用户签字验收",
+      "markdown_escape": "INVALID_ARGUMENT becomes INVALID\\_ARGUMENT; bytes preserved for citations",
+      "table": "12 + 30 maps to 42; both columns present",
+      "late_content": "API AUTHENTICATION retained on final PDF page / final slide / final DOCX paragraph",
+      "diagram": "asset extracted; diagram OCR text present in scanned PDF; Office diagram retained as image reference"
+    }
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "scope": "real Tavily search/extract with isolated SQLite action ledger; authentication stub for synthetic owner only",
+  "search_hits": 2,
+  "body_characters": 7860,
+  "body_sha256": "1bacf71420f6da38764e0a3bc06508bbc150e8511ef3559dd41f48217b4953fe",
+  "receipts": [
+    {
+      "kind": "search",
+      "provider": "tavily_search",
+      "receipt": {
+        "status": "read",
+        "kind": "search",
+        "elapsed_seconds": 3.273368
+      },
+      "consumed": {
+        "calls": 1,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      }
+    },
+    {
+      "kind": "extract",
+      "provider": "tavily_extract",
+      "receipt": {
+        "status": "read",
+        "kind": "extract",
+        "elapsed_seconds": 1.169659
+      },
+      "consumed": {
+        "calls": 1,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      }
+    }
+  ],
+  "code_commit": "73d6eed3"
+}

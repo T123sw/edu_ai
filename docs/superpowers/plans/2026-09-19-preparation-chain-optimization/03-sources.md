@@ -26,9 +26,9 @@
 
 ## Task C1：解析生命周期与可用性
 
-- [ ] 为解析器加可选 deadline/canceled 控制，接口向旧调用兼容；由准备任务调用方传真实控制句柄，不把句柄写入检查点。
-- [ ] 在提交远端、上传、每次轮询、下载结果前检查剩余时间和取消；HTTP timeout 不超过剩余预算。取消后不得登记为已读成功，记录真实已发生的远端任务引用。
-- [ ] 轮询控制的验收代码采用注入时钟/传输，避免真实等待 15 分钟：
+- [x] 为解析器加可选 deadline/canceled 控制，接口向旧调用兼容；由准备任务调用方传真实控制句柄，不把句柄写入检查点。
+- [x] 在提交远端、上传、每次轮询、下载结果前检查剩余时间和取消；HTTP timeout 不超过剩余预算。取消后不得登记为已读成功，记录真实已发生的远端任务引用。
+- [x] 轮询控制的验收代码采用注入时钟/传输，避免真实等待 15 分钟：
 
 ```python
 def assert_canceled_parse_stops_before_next_poll(run_parse, poll_count):
@@ -40,30 +40,40 @@ def assert_canceled_parse_stops_before_next_poll(run_parse, poll_count):
     assert poll_count() == 1
 ```
 
-- [ ] 上述测试中的可调用夹具必须在新测试文件定义并驱动真实解析控制代码；不能 mock 掉待验证的取消分支。
-- [ ] 测试正常 DOCX、文本、扫描 PDF、表格/幻灯片的结构样例，以及空文档、损坏、核心解析缺页。保留真实定位，Office 无页码时不伪造页码。
-- [ ] 给 E 输出可选的解析图片/版面资产引用契约，来源带 owner/document/version/hash；原始资产不得匿名外泄，提取不到时明确无资产。完整视觉接入由 E 完成。
-- [ ] 真测 DOCX、PDF、PPTX 至少各一份，分别记录解析成功和人工核对覆盖结果；其余支持格式列清已测/未测，不概括为全格式通过。
+- [x] 上述测试中的可调用夹具必须在新测试文件定义并驱动真实解析控制代码；不能 mock 掉待验证的取消分支。
+- [x] 测试正常 DOCX、文本、扫描 PDF、表格/幻灯片的结构样例，以及空文档、损坏、核心解析缺页。保留真实定位，Office 无页码时不伪造页码。
+- [x] 给 E 输出可选的解析图片/版面资产引用契约，来源带 owner/document/version/hash；原始资产不得匿名外泄，提取不到时明确无资产。完整视觉接入由 E 完成。
+- [x] 真测 DOCX、PDF、PPTX 至少各一份，分别记录解析成功和人工核对覆盖结果；其余支持格式列清已测/未测，不概括为全格式通过。
 
 ## Task C2：网页快照分页与检索能力协商
 
-- [ ] 新增任务内不可变正文快照，最小接口：`SourceSnapshots.get_or_fetch(url, *, read, scope, timeout) -> SourceSnapshot`，snapshot 含 canonical_url/content/content_sha256/retrieved_at；scope 包含 owner、preparation、来源策略与配置版本。
-- [ ] 原 `fetch_source` 的 offset/limit 从同一快照切片；首次提取才计外部 I/O，分页和恢复不重新请求整页。缓存命中前仍检查来源授权与任务状态。
-- [ ] 在测试中用计数 read 返回超过 10,000 字符正文，依次请求 0、5000、10000，断言外部 read 仅一次、三个片段同属一个快照且可拼回正文；重启后再分页仍复用同一版本。
-- [ ] URL 重定向的 canonical identity、过期策略、提取失败不缓存为成功、不同用户/配置不串缓存，均分别测试。旧 evidence 仍能读取，不能用新网页覆盖其已验证引文。
-- [ ] 提供可用能力结构：search provider、extract provider、各自配置/健康状态。Tavily 临时失败且 Bocha 可用时有限回退搜索；正文能力缺失时明确 EXTRACT_NOT_CONFIGURED，不假装搜索结果能直接支持路径。
-- [ ] 统一 429/超时/5xx、认证、权限、无正文的类别与有限重试；每次外部尝试都计预算，来源/查询达到上限后换来源或输出 blocker。
+- [x] 新增任务内不可变正文快照，最小接口：`SourceSnapshots.get_or_fetch(url, *, read, scope, timeout) -> SourceSnapshot`，snapshot 含 canonical_url/content/content_sha256/retrieved_at；scope 包含 owner、preparation、来源策略与配置版本。
+- [x] 原 `fetch_source` 的 offset/limit 从同一快照切片；首次提取才计外部 I/O，分页和恢复不重新请求整页。缓存命中前仍检查来源授权与任务状态。
+- [x] 在测试中用计数 read 返回超过 10,000 字符正文，依次请求 0、5000、10000，断言外部 read 仅一次、三个片段同属一个快照且可拼回正文；重启后再分页仍复用同一版本。
+- [x] URL 重定向的 canonical identity、过期策略、提取失败不缓存为成功、不同用户/配置不串缓存，均分别测试。旧 evidence 仍能读取，不能用新网页覆盖其已验证引文。
+- [x] 提供可用能力结构：search provider、extract provider、各自配置/健康状态。Tavily 临时失败且 Bocha 可用时有限回退搜索；正文能力缺失时明确 EXTRACT_NOT_CONFIGURED，不假装搜索结果能直接支持路径。
+- [x] 统一 429/超时/5xx、认证、权限、无正文的类别与有限重试；每次外部尝试都计预算，来源/查询达到上限后换来源或输出 blocker。
 
 ## Task C3：长资料上下文与覆盖判断
 
-- [ ] 为 B 提供 `build_research_context_view(state, *, required_ids, max_bytes) -> dict`，优先保留原要求、未解决缺口、已读定位、结论及精确引用；内容省略带明确标记和可读取的来源 ID。
-- [ ] 已读证据的短句 ID 必须能由工具回读，不能只摘要掉原文再假称逐字校验。检索回执不重传旧候选，汇总不反复携带全部重复正文。
-- [ ] 通过分页、独立研究会话恢复或有验证的紧凑视图控制预算；不取消 context guard，不单纯将上限翻倍。当前字节估计与实际 usage 分开报告。
-- [ ] 测试多附件、目标位于长文后部、先修证据缺口、版本冲突和相反附件指令；每条 requirement 的 coverage 必须与实际能力匹配。
-- [ ] 使用现有 `verify_preparation_intake_e2e.py` 跑联网路径和 expect-blocker，再把长资料用例交 G 的统一脚本。只到 produce 的测试明确标成路径交接测试。
+- [x] 为 B 提供 `build_research_context_view(state, *, required_ids, max_bytes) -> dict`，优先保留原要求、未解决缺口、已读定位、结论及精确引用；内容省略带明确标记和可读取的来源 ID。
+- [x] 已读证据的短句 ID 必须能由工具回读，不能只摘要掉原文再假称逐字校验。检索回执不重传旧候选，汇总不反复携带全部重复正文。
+- [x] 通过分页、独立研究会话恢复或有验证的紧凑视图控制预算；不取消 context guard，不单纯将上限翻倍。当前字节估计与实际 usage 分开报告。
+- [x] 测试多附件、目标位于长文后部、先修证据缺口、版本冲突和相反附件指令；每条 requirement 的 coverage 必须与实际能力匹配。
+- [x] 使用现有 `verify_preparation_intake_e2e.py` 跑联网路径和 expect-blocker，再把长资料用例交 G 的统一脚本。只到 produce 的测试明确标成路径交接测试。
 
 ## 完成门槛与交付记录
 
-- [ ] 真实文件内容进入证据及后续生成；网页分页/恢复不重复提取；取消与超时有界；无来源能力时给具体失败。
-- [ ] 交 A 的 brief/引用兼容说明、交 B 的上下文接口、交 E 的资产接口、交 G 的迁移与真实样例清单齐全。
-- [ ] 记录每种工具的调用数、耗时、解析缺陷、有效证据和未测范围，而不是只记录 HTTP 200。
+- [ ] 真实文件内容进入证据及后续生成；网页分页/恢复不重复提取；取消与超时有界；无来源能力时给具体失败。**C 范围已验证到 node_evidence / produce 交接；真实后续生成由 G 集成 D/E 后验收。**
+- [x] 交 A 的 brief/引用兼容说明、交 B 的上下文接口、交 E 的资产接口、交 G 的迁移与真实样例清单齐全。
+- [x] 记录每种工具的调用数、耗时、解析缺陷、有效证据和未测范围，而不是只记录 HTTP 200。
+
+
+## C 窗口执行记录（2026-09-19）
+
+- 依赖快照 `1c1b9fd0`；这是原工作区必要未提交成果的隔离快照，尚非 G 确认的共同基线。原工作区与暂存区保持原样。
+- 分支 `feat/preparation-sources-20260919`，工作树 `.worktrees/preparation-sources-20260919`。
+- 模块提交：C1 `868320bb`；C2 `f115f629`；C3 `8864ee7c`；来源耗时回执补充 `73d6eed3`。
+- C1–C3 各实现步骤及模块级测试已完成，勾选不表示最终课程/课堂/浏览器验收完成。现有 SQL JSON 检查点存正文快照，无新增表、无迁移编号。
+- 真实联网路径、仅上传 expect-blocker 均通过；真实 DOCX、两页扫描 PDF、PPTX 内容已逐项核对。其余格式及 PostgreSQL/并发/课堂视觉未测范围详见交付记录。
+- 统一交付格式、A/B/E/G 接口、参数追踪、命令/结果、原始断言差异及后续范围见[验收与交接](../../../acceptance/2026-09-19-preparation-sources.md)。

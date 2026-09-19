@@ -1,0 +1,1050 @@
+{
+  "scope": "HTTP API with isolated authenticated identity, SQLite and personal files; real MinerU and model; stop at requested handoff boundary",
+  "status": "passed",
+  "through": "path",
+  "network_research": true,
+  "seconds": 220.81,
+  "steps": [
+    {
+      "step": 1,
+      "result": {
+        "claimed": true,
+        "stage": "normalize",
+        "waiting": false
+      },
+      "seconds": 26.61
+    },
+    {
+      "step": 2,
+      "result": {
+        "claimed": true,
+        "stage": "ingest",
+        "waiting": false
+      },
+      "seconds": 16.97
+    },
+    {
+      "step": 3,
+      "result": {
+        "claimed": true,
+        "stage": "research_scope",
+        "waiting": false
+      },
+      "seconds": 1.05
+    },
+    {
+      "step": 4,
+      "result": {
+        "claimed": true,
+        "stage": "plan",
+        "waiting": false
+      },
+      "seconds": 108.21
+    },
+    {
+      "step": 5,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 7.75
+    },
+    {
+      "step": 6,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 10.75
+    },
+    {
+      "step": 7,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 10.92
+    },
+    {
+      "step": 8,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 9.45
+    },
+    {
+      "step": 9,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 9.61
+    },
+    {
+      "step": 10,
+      "result": {
+        "claimed": true,
+        "stage": "research_nodes",
+        "waiting": false
+      },
+      "seconds": 9.15
+    },
+    {
+      "step": 11,
+      "result": {
+        "claimed": true,
+        "stage": "produce",
+        "waiting": false
+      },
+      "seconds": 9.54
+    }
+  ],
+  "web_calls": [
+    {
+      "kind": "search",
+      "query": "DeepSeek API 工具调用 function calling 官方文档 tool message"
+    },
+    {
+      "kind": "read",
+      "url": "https://api-docs.deepseek.com/zh-cn/guides/tool_calls"
+    }
+  ],
+  "all_model_calls_used_harness_skills": true,
+  "code_commit": "8864ee7c",
+  "boundary": "path handoff only; stops before resource generation",
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "cost_micro_usd": 10000000,
+      "seconds": 3600
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 32,
+      "tokens": 372160,
+      "cost_micro_usd": 3721600
+    },
+    "deadline": "2026-09-19T10:47:39.911260+00:00"
+  },
+  "parse_tasks": [
+    {
+      "provider": "mineru-cloud",
+      "task_id": "c2d92b50-8cec-4a22-afeb-cf304ae6ca5c",
+      "document_id": "doc-9d5ceff1f8a448f4873e9896bf998cef",
+      "version": 1
+    }
+  ],
+  "evidence": [
+    {
+      "source_id": "ev_f119911a64b3c015a4986c3a",
+      "candidate_id": "src_7deeede1b2883bff860d",
+      "url": "upload://doc-9d5ceff1f8a448f4873e9896bf998cef/1",
+      "title": "calculator-agent.docx",
+      "content_sha256": "00435ca934bb78cf99b6293f43aa292f288544e6bf63a1cdc4dd0830f9a57a78",
+      "retrieved_at": "2026-09-19T09:48:32.310316+00:00",
+      "offset_chars": 0,
+      "total_chars": 812,
+      "next_offset": null,
+      "snapshot_id": null,
+      "snapshot_sha256": null,
+      "canonical_url": null,
+      "coverage": "extracted_excerpt"
+    },
+    {
+      "source_id": "ev_947056892ce46712d31d1b25",
+      "candidate_id": "src_3cf8c5e48ea63d1e9e61",
+      "url": "https://api-docs.deepseek.com/zh-cn/guides/tool_calls",
+      "title": "Tool Calls | DeepSeek API Docs",
+      "content_sha256": "7fd34632be0279d0c233d987976ce71427122e726e36a4f08b3bcf92aea2c0f8",
+      "retrieved_at": "2026-09-19T09:48:43.330668+00:00",
+      "offset_chars": 0,
+      "total_chars": 12229,
+      "next_offset": 5000,
+      "snapshot_id": "snapshot_dd818e05e9d637c416a71a42",
+      "snapshot_sha256": "72ef80707dd3c0858da4d2cea506ac2a554b702c9da0ac191d4a21e17c483e6b",
+      "canonical_url": "https://api-docs.deepseek.com/zh-cn/guides/tool_calls",
+      "coverage": "extracted_excerpt"
+    },
+    {
+      "source_id": "ev_1cae974bb18c186ff88da038",
+      "candidate_id": "src_3cf8c5e48ea63d1e9e61",
+      "url": "https://api-docs.deepseek.com/zh-cn/guides/tool_calls",
+      "title": "Tool Calls | DeepSeek API Docs",
+      "content_sha256": "d7c5811373c9a0d121facab89643fc9c055cc457b735041917993aa065e2cf67",
+      "retrieved_at": "2026-09-19T09:48:43.330668+00:00",
+      "offset_chars": 5000,
+      "total_chars": 12229,
+      "next_offset": 10000,
+      "snapshot_id": "snapshot_dd818e05e9d637c416a71a42",
+      "snapshot_sha256": "72ef80707dd3c0858da4d2cea506ac2a554b702c9da0ac191d4a21e17c483e6b",
+      "canonical_url": "https://api-docs.deepseek.com/zh-cn/guides/tool_calls",
+      "coverage": "extracted_excerpt"
+    },
+    {
+      "source_id": "ev_20d15e44485aa178956b2bde",
+      "candidate_id": "src_3cf8c5e48ea63d1e9e61",
+      "url": "https://api-docs.deepseek.com/zh-cn/guides/tool_calls",
+      "title": "Tool Calls | DeepSeek API Docs",
+      "content_sha256": "df862f61c34fff069f323a27c230f3d95661e3fa854aa62613f749dd9ad26522",
+      "retrieved_at": "2026-09-19T09:48:43.330668+00:00",
+      "offset_chars": 10000,
+      "total_chars": 12229,
+      "next_offset": null,
+      "snapshot_id": "snapshot_dd818e05e9d637c416a71a42",
+      "snapshot_sha256": "72ef80707dd3c0858da4d2cea506ac2a554b702c9da0ac191d4a21e17c483e6b",
+      "canonical_url": "https://api-docs.deepseek.com/zh-cn/guides/tool_calls",
+      "coverage": "extracted_excerpt"
+    }
+  ],
+  "coverage": [
+    {
+      "requirement_id": "REQ-001",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F1",
+        "F2",
+        "F4",
+        "F6"
+      ],
+      "reason": "附件 F1/F2 给出练习目标与调用流程，官方文档 F4/F6 给出可运行 Python 代码（openai SDK + base_url + tools + tool_calls + role:tool 回传），足以在两小时内做出可调用计算器的命令行助手。"
+    },
+    {
+      "requirement_id": "REQ-002",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F3",
+        "F6"
+      ],
+      "reason": "附件 F3 明确失败处理：参数缺失返回结构化错误 INVALID_ARGUMENT、模型提示补齐参数、不得编造结果；F6 说明结果以 role:tool 回传，两者结合可解释并实现失败处理闭环。"
+    },
+    {
+      "requirement_id": "REQ-003",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "教学顺序要求：路径首节点先给最小可运行例子（成功例 12+30=42），后续节点再解释最小调用循环原理与失败处理，符合'先小例子再原理'。"
+    },
+    {
+      "requirement_id": "REQ-004",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F4",
+        "F5",
+        "F6"
+      ],
+      "reason": "已优先采用 DeepSeek 官方 API 文档（api-docs.deepseek.com/zh-cn/guides/tool_calls），使用其工具调用接口（openai SDK + base_url + tools + tool_calls）实现可运行程序，并补充 strict 模式 JSON Schema 约束。"
+    },
+    {
+      "requirement_id": "REQ-005",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "排除项：路径不涉及模型训练、多 Agent 协作、Web 部署，仅覆盖单次工具调用的最小循环。"
+    },
+    {
+      "requirement_id": "REQ-006",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F1"
+      ],
+      "reason": "F1 完整记录练习目标：Python 命令行助手、模型选择 add(a,b)、单次工具调用、不要求多轮记忆或自主规划。"
+    },
+    {
+      "requirement_id": "REQ-007",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F1"
+      ],
+      "reason": "F1 记录四项日志验收要求与成功例（12+30=42）、失败例（参数 b 缺失）。"
+    },
+    {
+      "requirement_id": "REQ-008",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F2"
+      ],
+      "reason": "F2 记录 add 工具 schema：object 类型、a/b 为 number、required 含 a/b、返回 a+b。"
+    },
+    {
+      "requirement_id": "REQ-009",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F2",
+        "F6"
+      ],
+      "reason": "F2 记录调用流程（发 schema→读 name/arguments/call_id→校验→执行→同 call_id 回传→最终回答），F6 补充官方 role:tool 回传细节，模型请求工具不等于工具已执行。"
+    },
+    {
+      "requirement_id": "REQ-010",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F3"
+      ],
+      "reason": "F3 记录安全与失败：只执行已注册 add、不执行任意代码、参数缺失返回 INVALID_ARGUMENT、模型提示补齐、不得编造结果。"
+    },
+    {
+      "requirement_id": "REQ-011",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "F3"
+      ],
+      "reason": "F3 记录参考伪代码：name!=add 返回 UNKNOWN_TOOL、非数字返回 INVALID_ARGUMENT、否则执行 add 并交回模型，成功例 42、缺失 b 工具未执行返回错误。"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "F1",
+      "claim": "最小计算器 Agent 的练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户，只需单次工具调用，不要求多轮记忆或自主规划。验收要求保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志，用\"计算 12 加 30\"作成功例（期望 42），用\"参数 b 缺失\"作失败例。",
+      "citations": [
+        {
+          "source_id": "ev_f119911a64b3c015a4986c3a",
+          "quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "F2",
+      "claim": "add 工具定义：输入 schema 为 object，a 和 b 必须为 number 且 required 包含 a、b，函数返回 a+b。调用流程：先把用户问题与工具 schema 发给模型；收到工具调用时读取 name、arguments 和 call_id，校验名称和 JSON 参数后执行 add；再把结果与相同 call_id 作为工具消息发回模型取得最终回答。模型请求工具不等于工具已经执行。",
+      "citations": [
+        {
+          "source_id": "ev_f119911a64b3c015a4986c3a",
+          "quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "F3",
+      "claim": "安全与失败处理：只允许执行已注册的 add 函数，不执行模型输出的任意代码；参数缺失或类型不符时不运行函数，返回结构化错误（如 code=INVALID_ARGUMENT、message=b is required）；模型可提示用户补齐参数，不得编造计算结果。参考伪代码：name != add 返回 UNKNOWN_TOOL；a 或 b 非数字返回 INVALID_ARGUMENT；否则执行 add(a,b) 记录结果并交回模型。",
+      "citations": [
+        {
+          "source_id": "ev_f119911a64b3c015a4986c3a",
+          "quote": "\n安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码。参数缺失或类型不符时，不运行函数，返回结构化错误，例如 code=INVALID\\_ARGUMENT、message=b is required。模型可提示用户补齐参数，不得编造计算结果。\n"
+        },
+        {
+          "source_id": "ev_f119911a64b3c015a4986c3a",
+          "quote": "\n参考伪代码：若 name != add 则返回 UNKNOWN\\_TOOL；若 a 或 b 不是数字则返回 INVALID\\_ARGUMENT；否则执行 add(a,b)，记录结果并交回模型。成功用例期望结果为 42；缺失 b 的用例期望工具未执行且返回错误。\n\n范围：这份材料只讲模型与工具之间的最小循环，不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例。若需要真实 API 程序，这部分材料还需要补充；不能假装附件已经给出。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "F4",
+      "claim": "DeepSeek 官方 Tool Calls 文档提供完整可运行的 Python 代码：使用 openai SDK，client = OpenAI(api_key=..., base_url=\"https://api.deepseek.com\")，通过 client.chat.completions.create(model=\"deepseek-flash\", messages=messages, tools=tools) 发起请求；tools 数组元素为 {\"type\":\"function\",\"function\":{\"name\":...,\"description\":...,\"parameters\":{...}}}，parameters 为 object 类型、含 properties 与 required。",
+      "citations": [
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "# Tool Calls\n\nTool Calls 让模型能够调用外部工具，来增强自身能力。\n\n---\n\n## 非思考模式[​](#非思考模式 \"非思考模式的直接链接\")\n\n### 样例代码[​](#样例代码 \"样例代码的直接链接\")\n\n这里以获取用户当前位置的天气信息为例，展示了使用 Tool Calls 的完整 Python 代码。\n\nTool Calls 的具体 API 格式请参考[对话补全](/zh-cn/api/create-chat-completion/)文档。\n"
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "\n```\nfrom openai import OpenAI from  openai import  OpenAI def send_messages(messages): def  send_messages(messages):     response = client.chat.completions.create(    response =  client. chat. completions. "
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "create(        model=\"deepseek-flash\",         model =\"deepseek-flash\",         messages=messages,         messages = messages,         tools=tools         tools = tools    )     )     return response.choices[0].message     return  response"
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": ". choices[0]. message client = OpenAI(client =  OpenAI(    api_key=\"<your api key>\",     api_key =\"<your api key>\",     base_url=\"https://api.deepseek.com\",     base_url =\"https://api.deepseek.com\", ) )  tools = [tools =  [    {    {       "
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": " \"type\": \"function\",         \"type\":  \"function\",         \"function\": {        \"function\":  {            \"name\": \"get_weather\",             \"name\":  \"get_weather\",             \"description\": \"Get weather of a location, the user should suppl"
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": ",     }, ] ]  messages = [{\"role\": \"user\", \"content\": \"How's the weather in Hangzhou, Zhejiang?\"}] messages =  [{\"role\":  \"user\",  \"content\":  \"How's the weather in Hangzhou, Zhejiang?\"}] message = send_messages(messages) message =  send_me"
+        }
+      ]
+    },
+    {
+      "finding_id": "F5",
+      "claim": "DeepSeek 工具调用支持 strict 模式（Beta）：需设置 base_url=\"https://api.deepseek.com/beta\"，function 中设 strict=true，服务端校验 JSON Schema。strict 模式支持的 JSON Schema 类型包括 object、string、number、integer、boolean、array、enum、anyOf；object 类型要求所有属性设为 required 且 additionalProperties 必须为 false；number/integer 支持 minimum、maximum 等约束。这可用于 add 工具的 a、b 参数（number 类型、required）的严格校验。",
+      "citations": [
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "es API。\n\n---\n\n## `strict` 模式（Beta）[​](#strict-模式beta \"strict-模式beta的直接链接\")\n\n在 `strict` 模式下，模型在输出 Function 调用时会严格遵循 Function 的 JSON Schema 的格式要求，以确保模型输出的 Function 符合用户的定义。在思考与非思考模式下的工具调用，均可使用 `strict` 模式。\n\n要使用 `strict` 模式，需要：\n\n1. "
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "用户需要设置 `base_url=\"https://api.deepseek.com/beta\"` 来开启 Beta 功能\n2. 在传入的 `tools` 列表中，所有 `function` 均需设置 `strict` 属性为 `true`\n3. 服务端会对用户传入的 Function 的 JSON Schema 进行校验，如不符合规范，或遇到服务端不支持的 JSON Schema 类型，将返回错误信息\n\n以下是 `strict` 模式下 tool 的定义样例：\n\n"
+        },
+        {
+          "source_id": "ev_1cae974bb18c186ff88da038",
+          "quote": "* object\n* string\n* number\n* integer\n* boolean\n* array\n* enum\n* anyOf\n\n---\n\n#### object 类型[​](#object-类型 \"object 类型的直接链接\")\n\n"
+        },
+        {
+          "source_id": "ev_1cae974bb18c186ff88da038",
+          "quote": "object 定义一个包含键值对的深层结构，其中 properties 定义了对象中每个键（属性）的 schema。**每个 `object` 的所有属性均需设置为 `required`，且 `object` 中 `additionalProperties` 属性必须为 `false`**。\n\n示例：\n\n"
+        },
+        {
+          "source_id": "ev_1cae974bb18c186ff88da038",
+          "quote": "#### number/integer 类型[​](#numberinteger-类型 \"number/integer 类型的直接链接\")\n\n* 支持的参数\n  + const：固定数字为常数\n  + default：数字的默认值\n  + minimum：最小值\n  + maximum：最大值\n  + exclusiveMinimum：不小于\n  + exclusiveMaximum：不大于\n  + multipleOf：数字输出为这个值的倍数\n\n示例：\n\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "F6",
+      "claim": "DeepSeek 工具调用回传流程：模型返回 message.tool_calls（含 tool.id），客户端执行函数后以 {\"role\":\"tool\",\"tool_call_id\":tool.id,\"content\":\"结果\"} 追加回 messages，再调用一次 send_messages 取得最终自然语言回答。执行流程为：用户提问 → 模型返回 function 调用 → 客户端执行函数并回传 → 模型返回自然语言。模型本身不执行具体函数，函数功能需由用户提供。",
+      "citations": [
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "ssages(messages) print(f\"User>\\t {messages[0]['content']}\") print(f\"User>\\t {messages[0]['content']} \")  tool = message.tool_calls[0] tool =  message. tool_calls[0] messages.append(message) messages. "
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "append(message)  messages.append({\"role\": \"tool\", \"tool_call_id\": tool.id, \"content\": \"24℃\"}) messages. append({\"role\":  \"tool\",  \"tool_call_id\":  tool. "
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "id,  \"content\":  \"24℃\"}) message = send_messages(messages) message =  send_messages(messages) print(f\"Model>\\t {message.content}\") print(f\"Model>\\t {message. content} \")\n```\n\n这个例子的执行流程如下：\n\n1. 用户：询问现在的天气\n2. "
+        },
+        {
+          "source_id": "ev_947056892ce46712d31d1b25",
+          "quote": "模型：返回 function `get_weather({location: 'Hangzhou'})`\n3. 用户：调用 function `get_weather({location: 'Hangzhou'})`，并传给模型。\n4. 模型：返回自然语言，\"The current temperature in Hangzhou is 24°C.\"\n\n注：上述代码中 `get_weather` 函数功能需由用户提供，模型本身不执行具体函数。\n\n---\n\n"
+        }
+      ]
+    }
+  ],
+  "brief": {
+    "required_resource_types": [],
+    "learning_goal": "用户想学习 Agent，希望在两小时内按附件做出一个能调用计算器（add 工具）的命令行助手，并能解释一次工具调用失败该如何处理。要求先给一个小例子再解释原理，结合上传资料，允许联网补充，优先 DeepSeek 官方 API 文档，使用其工具调用接口实现可运行程序。",
+    "prior_knowledge": "会 Python，写过普通函数；没做过 Agent，也没接过工具调用。",
+    "desired_outcomes": [
+      "能解释模型与工具之间的最小调用循环（用户问题 → 工具 schema → 模型请求工具 → 执行工具 → 结果回传 → 最终回答）",
+      "能用 Python 写出一个命令行助手，调用 DeepSeek 工具调用接口完成 add(a,b) 计算",
+      "能保留用户问题、工具调用参数、工具执行结果、最终回答四项可读日志",
+      "能处理一次工具调用失败（如参数 b 缺失），返回结构化错误并让模型提示用户补齐参数，而不是编造结果",
+      "能解释为什么模型请求工具不等于工具已经执行，以及为什么只执行已注册的 add 函数"
+    ],
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "uploads_preferred"
+    },
+    "source_policy_quote": null,
+    "topic": "用 Python 制作能调用计算器工具的 Agent（最小工具调用循环）",
+    "audience": "会 Python、写过普通函数，但没做过 Agent、没接过工具调用的学习者",
+    "language": "中文",
+    "total_minutes": 120,
+    "assumptions": [],
+    "exclusions": [
+      "模型训练",
+      "多 Agent 协作",
+      "Web 部署"
+    ],
+    "material_gaps": [
+      "材料明确说明不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例，而用户目标是用 DeepSeek 官方 API 工具调用接口做出可运行程序，这部分需要补充",
+      "材料未提供 DeepSeek 工具调用接口的具体请求/响应格式、消息结构（system/user/tool 消息）及 call_id 回传的完整可运行代码示例",
+      "材料未覆盖工具调用失败（如参数缺失）时如何把结构化错误作为工具消息回传模型、让模型提示用户补齐参数的完整闭环示例"
+    ],
+    "requirements": [
+      {
+        "requirement_id": "REQ-001",
+        "text": "用两小时按附件做出一个能调用计算器的命令行助手",
+        "source_quote": "希望用两小时，按附件做出一个能调用计算器的命令行助手",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "REQ-002",
+        "text": "能解释一次工具调用失败该怎么处理",
+        "source_quote": "并能解释一次工具调用失败该怎么处理",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "REQ-003",
+        "text": "先给一个小例子再解释原理",
+        "source_quote": "请用中文，先给一个小例子再解释原理",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "REQ-004",
+        "text": "结合上传资料，允许联网补充，优先 DeepSeek 官方 API 文档，使用其工具调用接口实现",
+        "source_quote": "结合上传资料，允许联网补充，优先 DeepSeek 官方 API 文档，使用其工具调用接口实现",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "REQ-005",
+        "text": "不学模型训练、多 Agent 协作和 Web 部署",
+        "source_quote": "不学模型训练、多 Agent 协作和 Web 部署",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "REQ-006",
+        "text": "练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户，只需单次工具调用，不要求多轮记忆或自主规划",
+        "source_quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n",
+        "source_ref": "ip_56e9d37f2b9d47112d0f33a4",
+        "source_document_id": "doc-9d5ceff1f8a448f4873e9896bf998cef"
+      },
+      {
+        "requirement_id": "REQ-007",
+        "text": "验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志；用“计算 12 加 30”作成功例，用“参数 b 缺失”作失败例",
+        "source_quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n",
+        "source_ref": "ip_56e9d37f2b9d47112d0f33a4",
+        "source_document_id": "doc-9d5ceff1f8a448f4873e9896bf998cef"
+      },
+      {
+        "requirement_id": "REQ-008",
+        "text": "工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b",
+        "source_quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n",
+        "source_ref": "ip_790740b8a808d9e058076c8e",
+        "source_document_id": "doc-9d5ceff1f8a448f4873e9896bf998cef"
+      },
+      {
+        "requirement_id": "REQ-009",
+        "text": "调用流程：先把用户问题与工具 schema 发给模型；收到工具调用时读取 name、arguments 和 call_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call_id 作为工具消息发回模型，取得最终回答；模型请求工具不等于工具已经执行",
+        "source_quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n",
+        "source_ref": "ip_790740b8a808d9e058076c8e",
+        "source_document_id": "doc-9d5ceff1f8a448f4873e9896bf998cef"
+      },
+      {
+        "requirement_id": "REQ-010",
+        "text": "安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码；参数缺失或类型不符时不运行函数，返回结构化错误（如 code=INVALID_ARGUMENT、message=b is required）；模型可提示用户补齐参数，不得编造计算结果",
+        "source_quote": "\n安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码。参数缺失或类型不符时，不运行函数，返回结构化错误，例如 code=INVALID\\_ARGUMENT、message=b is required。模型可提示用户补齐参数，不得编造计算结果。\n",
+        "source_ref": "ip_70c8270417869d24032ca353",
+        "source_document_id": "doc-9d5ceff1f8a448f4873e9896bf998cef"
+      },
+      {
+        "requirement_id": "REQ-011",
+        "text": "参考伪代码：若 name != add 返回 UNKNOWN_TOOL；若 a 或 b 不是数字返回 INVALID_ARGUMENT；否则执行 add(a,b) 记录结果并交回模型；成功用例期望 42，缺失 b 的用例期望工具未执行且返回错误",
+        "source_quote": "\n参考伪代码：若 name != add 则返回 UNKNOWN\\_TOOL；若 a 或 b 不是数字则返回 INVALID\\_ARGUMENT；否则执行 add(a,b)，记录结果并交回模型。成功用例期望结果为 42；缺失 b 的用例期望工具未执行且返回错误。\n\n范围：这份材料只讲模型与工具之间的最小循环，不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例。若需要真实 API 程序，这部分材料还需要补充；不能假装附件已经给出。\n",
+        "source_ref": "ip_f66cdb469d3ae4438caf1438",
+        "source_document_id": "doc-9d5ceff1f8a448f4873e9896bf998cef"
+      }
+    ]
+  },
+  "path": {
+    "title": "用 Python 制作能调用计算器工具的 Agent（最小工具调用循环）",
+    "summary": "面向会 Python、写过普通函数但没做过 Agent 的学习者，用两小时按附件做出一个调用 DeepSeek 工具调用接口的 add 计算器命令行助手。路径先给最小可运行例子（成功例 12+30=42），再解释最小调用循环原理，最后处理工具调用失败（参数 b 缺失）并说明安全边界。全程使用 DeepSeek 官方 API 文档的 openai SDK 工具调用接口，不涉及模型训练、多 Agent 协作与 Web 部署。",
+    "nodes": [
+      {
+        "node_key": "n1",
+        "title": "跑通最小例子：让模型调用 add 算出 42",
+        "objectives": [
+          "配置 openai SDK 与 DeepSeek base_url，用 API key 建立 client",
+          "定义 add 工具的 schema（object、a/b 为 number、required 含 a/b）",
+          "发起一次 chat.completions.create 并读取 message.tool_calls",
+          "执行 add 后以 role:tool 回传，取得最终回答 42"
+        ],
+        "prerequisite_keys": [],
+        "minutes": 35,
+        "requirement_ids": [
+          "REQ-001",
+          "REQ-003",
+          "REQ-004",
+          "REQ-005",
+          "REQ-006",
+          "REQ-008"
+        ],
+        "finding_ids": [
+          "F1",
+          "F2",
+          "F4",
+          "F6"
+        ],
+        "source_ids": [
+          "ev_f119911a64b3c015a4986c3a",
+          "ev_947056892ce46712d31d1b25"
+        ],
+        "learning_activities": [
+          "安装 openai 库，设置 api_key 与 base_url=https://api.deepseek.com",
+          "照官方样例把 get_weather 换成 add：tools 数组里 function.name=add，parameters 为 object 且 a/b 为 number、required=[a,b]",
+          "输入'计算 12 加 30'，打印 message.tool_calls 观察 name 与 arguments",
+          "执行 add(12,30)，以 role:tool、tool_call_id 回传，打印最终回答，确认得到 42"
+        ],
+        "self_check": "运行后模型是否返回 42？能否在代码里看到 tool_calls 里的 name='add' 和 arguments={'a':12,'b':30}？"
+      },
+      {
+        "node_key": "n2",
+        "title": "理解最小调用循环：模型请求工具 ≠ 工具已执行",
+        "objectives": [
+          "说出六步循环：用户问题→工具 schema→模型请求工具→执行工具→结果回传→最终回答",
+          "解释为什么模型只输出 tool_calls 而不自己算结果",
+          "说明 call_id 在回传时保持一致的作用"
+        ],
+        "prerequisite_keys": [
+          "n1"
+        ],
+        "minutes": 25,
+        "requirement_ids": [
+          "REQ-009"
+        ],
+        "finding_ids": [
+          "F2",
+          "F6"
+        ],
+        "source_ids": [
+          "ev_f119911a64b3c015a4986c3a",
+          "ev_947056892ce46712d31d1b25"
+        ],
+        "learning_activities": [
+          "对照 n1 的代码逐行标注六步循环发生在哪一行",
+          "故意不执行 add、直接回传，观察模型是否仍会编造结果，理解'请求≠执行'",
+          "画出消息列表 messages 在两次 create 调用之间的变化（user→assistant(tool_calls)→tool→assistant）"
+        ],
+        "self_check": "能否不看代码，口头复述六步循环，并指出 call_id 在哪一步被复用？"
+      },
+      {
+        "node_key": "n3",
+        "title": "保留四项可读日志",
+        "objectives": [
+          "在代码中记录用户问题、工具调用参数、工具执行结果、最终回答四项日志",
+          "用成功例（12+30）与失败例（参数 b 缺失）各跑一遍并核对日志"
+        ],
+        "prerequisite_keys": [
+          "n1"
+        ],
+        "minutes": 20,
+        "requirement_ids": [
+          "REQ-007"
+        ],
+        "finding_ids": [
+          "F1"
+        ],
+        "source_ids": [
+          "ev_f119911a64b3c015a4986c3a"
+        ],
+        "learning_activities": [
+          "在 n1 代码里加 print 或日志，分别输出四项内容",
+          "跑成功例，确认日志里 arguments 为 {a:12,b:30}、结果为 42",
+          "跑失败例'计算 12 加'，观察日志里工具执行结果这一项应显示未执行/错误"
+        ],
+        "self_check": "四项日志是否都能在输出里清晰区分？失败例里'工具执行结果'是否明确显示工具未执行？"
+      },
+      {
+        "node_key": "n4",
+        "title": "处理工具调用失败：结构化错误与补齐参数",
+        "objectives": [
+          "在收到 tool_calls 后校验 name 与参数，name!=add 返回 UNKNOWN_TOOL，参数缺失/非数字返回 INVALID_ARGUMENT",
+          "把结构化错误作为 role:tool 消息回传，让模型提示用户补齐参数而非编造结果",
+          "解释为什么只执行已注册的 add、不执行模型输出的任意代码"
+        ],
+        "prerequisite_keys": [
+          "n2",
+          "n3"
+        ],
+        "minutes": 30,
+        "requirement_ids": [
+          "REQ-002",
+          "REQ-010",
+          "REQ-011"
+        ],
+        "finding_ids": [
+          "F3",
+          "F6"
+        ],
+        "source_ids": [
+          "ev_f119911a64b3c015a4986c3a",
+          "ev_947056892ce46712d31d1b25"
+        ],
+        "learning_activities": [
+          "写校验函数：name!=add 返回 UNKNOWN_TOOL；a 或 b 缺失/非 number 返回 code=INVALID_ARGUMENT、message='b is required'",
+          "把错误对象作为 role:tool 的 content 回传，观察模型是否提示用户补齐 b",
+          "确认失败例中 add 函数未被调用（不执行任意代码），模型没有编造结果"
+        ],
+        "self_check": "输入'计算 12 加'时，模型是否提示补齐 b 而不是给出错误答案？add 函数是否确实没有被执行？"
+      },
+      {
+        "node_key": "n5",
+        "title": "可选加固：strict 模式与 JSON Schema 约束",
+        "objectives": [
+          "了解 strict 模式（base_url=/beta、strict=true）让模型严格遵循 schema",
+          "知道 object 类型要求所有属性 required 且 additionalProperties=false，number 支持 minimum/maximum"
+        ],
+        "prerequisite_keys": [
+          "n4"
+        ],
+        "minutes": 5,
+        "requirement_ids": [
+          "REQ-004"
+        ],
+        "finding_ids": [
+          "F5"
+        ],
+        "source_ids": [
+          "ev_947056892ce46712d31d1b25",
+          "ev_1cae974bb18c186ff88da038"
+        ],
+        "learning_activities": [
+          "阅读官方 strict 模式章节，尝试给 add 的 a/b 加 minimum/maximum 约束",
+          "对比开启 strict 前后模型输出参数的稳定性"
+        ],
+        "self_check": "能否说明 strict 模式下 object 的 required 与 additionalProperties 的强制要求？"
+      },
+      {
+        "node_key": "n6",
+        "title": "总结与自测：完整跑通成功例与失败例",
+        "objectives": [
+          "独立从零写出完整命令行助手（含四项日志与失败处理）",
+          "分别跑通成功例（42）与失败例（参数 b 缺失）并解释结果"
+        ],
+        "prerequisite_keys": [
+          "n4"
+        ],
+        "minutes": 5,
+        "requirement_ids": [
+          "REQ-001",
+          "REQ-002",
+          "REQ-007"
+        ],
+        "finding_ids": [
+          "F1",
+          "F3"
+        ],
+        "source_ids": [
+          "ev_f119911a64b3c015a4986c3a"
+        ],
+        "learning_activities": [
+          "不看参考，从空文件重写完整程序",
+          "跑成功例与失败例，核对四项日志与错误处理",
+          "口头解释：为什么模型请求工具不等于工具已执行、为什么只执行已注册的 add"
+        ],
+        "self_check": "能否独立完成并通过两个验收用例？能否向他人解释一次工具调用失败该如何处理？"
+      }
+    ],
+    "limitations": []
+  },
+  "blocker": null,
+  "tool_counts": {
+    "save_preparation_brief": 1,
+    "fetch_source": 4,
+    "search_sources": 1,
+    "record_evidence_finding": 6,
+    "finalize_research_summary": 1,
+    "save_course_plan": 1,
+    "submit_path_review": 1
+  },
+  "model_usage": [
+    {
+      "action_id": "paction_40623d7e5ddf4fde8dd275e86d20ab54",
+      "status": "completed",
+      "usage": {
+        "tokens": 4039,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_f2eaa2bcf2b74ffda9265a378b9257f0",
+      "status": "completed",
+      "usage": {
+        "tokens": 6807,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_a4ec0b6290054c23b7276ca36c980295",
+      "status": "completed",
+      "usage": {
+        "tokens": 6194,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_e60c78b497ad465cb128bc7587d1f8d2",
+      "status": "completed",
+      "usage": {
+        "tokens": 7380,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_eb2515b1821e4f75982a17676b5ef5b5",
+      "status": "completed",
+      "usage": {
+        "tokens": 5973,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_c3abdefce8534b35b2f679437dfb86a4",
+      "status": "completed",
+      "usage": {
+        "tokens": 9474,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_5efe2b8ce67440d0a86118d34486c2d0",
+      "status": "completed",
+      "usage": {
+        "tokens": 11379,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_a4afe4700d0642cd88757058b50d0046",
+      "status": "completed",
+      "usage": {
+        "tokens": 13809,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_a032ed6dd18b496ab29228670374c435",
+      "status": "completed",
+      "usage": {
+        "tokens": 16275,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_04f33649a4954bebb37a5fb1e067d2f6",
+      "status": "completed",
+      "usage": {
+        "tokens": 18771,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_fe10b4f110734e5d916e95a44cf81643",
+      "status": "completed",
+      "usage": {
+        "tokens": 21026,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_d53f1cccd3a74e08961aa2574037108e",
+      "status": "completed",
+      "usage": {
+        "tokens": 22781,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_c8514843c0a2417aa109d1763711ecb0",
+      "status": "completed",
+      "usage": {
+        "tokens": 24821,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_08039471ff4b44c58ee8adf88462990a",
+      "status": "completed",
+      "usage": {
+        "tokens": 27866,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_119f78afd8e3460e90ed161a751b6b7d",
+      "status": "completed",
+      "usage": {
+        "tokens": 29945,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_9273aec039104a88a1c7a72b36225ea0",
+      "status": "completed",
+      "usage": {
+        "tokens": 32036,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_c2d84fd8197f49aeb207c14e3c8ffa78",
+      "status": "completed",
+      "usage": {
+        "tokens": 17162,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_baad809dc27d4179aeb567574e871c2f",
+      "status": "completed",
+      "usage": {
+        "tokens": 16675,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_623ee05b93174142a7a8f1de34124d56",
+      "status": "completed",
+      "usage": {
+        "tokens": 7686,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_808fc69d60124aeeacb79204326bfe80",
+      "status": "completed",
+      "usage": {
+        "tokens": 7232,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_dbc390c4b4024b80bf922e7924404ef7",
+      "status": "completed",
+      "usage": {
+        "tokens": 7305,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_44b9359c2a40407bb4858c7f5e2b7882",
+      "status": "completed",
+      "usage": {
+        "tokens": 6857,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_bd34fe244e0c458e9f11f4cb75aec6fd",
+      "status": "completed",
+      "usage": {
+        "tokens": 5197,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_e9e8db8f2f0c444d88f73a6d1daa3a11",
+      "status": "completed",
+      "usage": {
+        "tokens": 4729,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_fd4c5e8e07a1457290f3540a1111e638",
+      "status": "completed",
+      "usage": {
+        "tokens": 7379,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_a5ddb3c24e42466dbacb6df73738fe44",
+      "status": "completed",
+      "usage": {
+        "tokens": 6932,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_7de6f34c190648beb8d70c229d86343e",
+      "status": "completed",
+      "usage": {
+        "tokens": 8344,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_5f54991e28a54887a526e3aa80b8d71f",
+      "status": "completed",
+      "usage": {
+        "tokens": 7908,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_d42ed3e654de451ba735f3483594141d",
+      "status": "completed",
+      "usage": {
+        "tokens": 5330,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_8722a0f46c3645cd8c24fe8cf9a53c2e",
+      "status": "completed",
+      "usage": {
+        "tokens": 4848,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    }
+  ],
+  "context_byte_estimates": [
+    {
+      "schema_version": 1,
+      "max_bytes": 48000,
+      "estimated_bytes": 454,
+      "actual_usage": null,
+      "omitted": [
+        "trace",
+        "candidate_snippets",
+        "unselected_evidence_passages"
+      ],
+      "read_tool": "read_research_evidence"
+    },
+    {
+      "schema_version": 1,
+      "max_bytes": 48000,
+      "estimated_bytes": 8829,
+      "actual_usage": null,
+      "omitted": [
+        "trace",
+        "candidate_snippets",
+        "unselected_evidence_passages"
+      ],
+      "read_tool": "read_research_evidence"
+    },
+    {
+      "schema_version": 1,
+      "max_bytes": 48000,
+      "estimated_bytes": 47942,
+      "actual_usage": null,
+      "omitted": [
+        "trace",
+        "candidate_snippets",
+        "unselected_evidence_passages"
+      ],
+      "read_tool": "read_research_evidence"
+    }
+  ]
+}
