@@ -1,5 +1,6 @@
 """Configured research assembly. Secrets remain in provider configuration only."""
 import os
+import time
 import hashlib
 import json
 from .source_snapshots import SourceSnapshots, SnapshotScope
@@ -17,11 +18,15 @@ class MeteredSources:
     def _call(self,kind,payload,call):
         from uuid import uuid4
         action=self.repository.begin_action(self.context,'source:'+uuid4().hex,kind,payload,BudgetCost(calls=1))
+        started=time.monotonic()
         try: result=call()
-        except Exception:
-            self.repository.finish_action(self.context,action['action_id'],{'status':'failed'},failed=True)
+        except Exception as exc:
+            self.repository.finish_action(self.context,action['action_id'],
+                {'status':'failed','kind':kind,'elapsed_seconds':round(time.monotonic()-started,6),
+                 'error_code':getattr(exc,'code',type(exc).__name__)},failed=True)
             raise
-        self.repository.finish_action(self.context,action['action_id'],{'status':'read','kind':kind})
+        self.repository.finish_action(self.context,action['action_id'],
+            {'status':'read','kind':kind,'elapsed_seconds':round(time.monotonic()-started,6)})
         return result
 
     def search(self,query,**kwargs):

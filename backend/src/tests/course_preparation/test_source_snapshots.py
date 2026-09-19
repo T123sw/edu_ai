@@ -97,7 +97,7 @@ def test_provider_error_categories(status,category,retry):
 
 def test_production_factory_sql_resume_keeps_snapshot_and_meters_only_external_io(runtime_engine,monkeypatch):
     from sqlalchemy.orm import Session
-    from app.database.models import PreparationExecution
+    from app.database.models import PreparationExecution, PreparationAction
     from app.course_preparation import research_factory as module
     from tests.course_preparation.test_runtime_foundation import repo,request
     from app.course_preparation.research_sources import ResearchSources
@@ -125,6 +125,10 @@ def test_production_factory_sql_resume_keeps_snapshot_and_meters_only_external_i
     assert ''.join(e.content for e in state.evidence)==content
     assert len({e.snapshot_id for e in state.evidence})==1
     assert repository.get_public('alice',context.preparation_id)['budget']['consumed']['calls']==1
+    from sqlalchemy import select
+    with Session(runtime_engine) as session:
+        action=session.scalar(select(PreparationAction).where(PreparationAction.preparation_id==context.preparation_id))
+        assert action.receipt['kind']=='extract' and action.receipt['elapsed_seconds']>=0
     repository.cancel('alice',context.preparation_id)
     with pytest.raises(Exception):
         factory(context,req,checkpoint).sources.read('https://example.edu/page',timeout=10)
