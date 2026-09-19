@@ -62,3 +62,22 @@ def test_malformed_review_is_repaired_before_any_commit(monkeypatch):
     model.valid=True
     result=stages.review(context)
     assert 'a' in result.checkpoint['node_quality_reviews'] and result.next_stage is None
+
+
+def test_format_repair_updates_job_receipt_without_spec_revision():
+    from copy import deepcopy
+    spec={'node_id':'a','revision':1}
+    failure={'code':'MISSING_OPTIONS','phase':'resource_review','category':'review_format','message':'缺少选项审阅',
+             'retry_scope':'review','artifact_id':'a','content_digest':None}
+    artifact={'artifact_id':'a','spec_digest':digest(spec),'failure_detail':failure,'content':{'_review_candidate':{'content':'saved'}}}
+    cp={'resource_specs':[spec],'artifacts':[artifact],'generation_receipts':{digest(spec):{'job_id':'failed-job'}},
+        'quality':{'issues':[{'artifact_ids':['a'],'reason':'missing fields'}]}}
+    calls=[]
+    def resume(context,artifact_id,**kwargs):
+        calls.append((artifact_id,kwargs))
+        return {'artifact_id':artifact_id,'job_id':'review-job-1'}
+    stages=QualityStages(None,SimpleNamespace(resume_review=resume),SimpleNamespace(validate=lambda *_:None),None)
+    result=stages.repair(SimpleNamespace(checkpoint=deepcopy(cp),preparation_id='prep'))
+    assert result.checkpoint['resource_specs']==[spec]
+    assert result.checkpoint['generation_receipts'][digest(spec)]['job_id']=='review-job-1'
+    assert calls and result.next_stage=='produce'
