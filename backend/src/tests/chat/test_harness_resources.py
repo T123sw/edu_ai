@@ -279,8 +279,8 @@ def test_quiz_review_blocks_wrong_distractor_explanation_even_with_correct_answe
         'blocking_issues': [], 'suggestions': [], 'question_checks': [{'question_index': 0,
             'independent_solution': '2000+5*8=2040；2013是把2000、5、8相加，与第七个元素无关',
             'answer_matches': True, 'explanation_valid': False,
-            'option_checks': [{'option_index': 0, 'reasoning': '乘法优先计算得2040', 'explanation_valid': True, 'independent_correct': True, 'explanation_excerpt': 'A 按乘法优先计算得2040'},
-                {'option_index': 1, 'reasoning': '2013来自2000+5+8，原解析不成立', 'explanation_valid': False, 'independent_correct': False, 'explanation_excerpt': 'B 是第七个元素的地址'}]}]}
+            'option_checks': [{'option_index': 0, 'reasoning': '乘法优先计算得2040', 'explanation_valid': True, 'independent_correct': True, 'explanation_reasoning':'已独立逐句检查解析中的主张是否对应原选项。', 'explanation_excerpt': 'A 按乘法优先计算得2040'},
+                {'option_index': 1, 'reasoning': '2013来自2000+5+8，原解析不成立', 'explanation_valid': False, 'independent_correct': False, 'explanation_reasoning':'原解析不成立，2013来自相加而非第七个元素地址。', 'explanation_excerpt': 'B 是第七个元素的地址'}]}]}
     class Gateway:
         def chat(self, *args, **kwargs): return json.dumps(response)
     _, feedback = review_content('quiz', content, {}, Gateway())

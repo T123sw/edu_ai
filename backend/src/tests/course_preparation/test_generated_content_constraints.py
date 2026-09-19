@@ -53,8 +53,8 @@ def completion_review(data, kind='report'):
             for item in metadata[collection]]
     if kind == 'quiz':
         result['question_checks']=[dict(question_index=0,independent_solution='模型提出调用，程序校验并执行工具，因此答案是A。',answer_matches=True,explanation_valid=True,
-            option_checks=[dict(option_index=0,reasoning='程序校验后负责实际执行',explanation_valid=True,independent_correct=True,explanation_excerpt='A 正确，程序执行。'),
-                dict(option_index=1,reasoning='模型只负责提出调用请求',explanation_valid=True,independent_correct=False,explanation_excerpt='B 错误，模型只提出调用。')])]
+            option_checks=[dict(option_index=0,reasoning='程序校验后负责实际执行',explanation_valid=True,independent_correct=True,explanation_reasoning="已独立逐句检查解析中的主张是否对应原选项。",explanation_excerpt='A 正确，程序执行。'),
+                dict(option_index=1,reasoning='模型只负责提出调用请求',explanation_valid=True,independent_correct=False,explanation_reasoning="已独立逐句检查解析中的主张是否对应原选项。",explanation_excerpt='B 错误，模型只提出调用。')])]
     return result
 
 
@@ -310,3 +310,25 @@ def test_native_harness_generates_and_reviews_real_content(kind,order):
     if destination:
         Path(destination,f'native-{kind}-{order}.json').write_text(json.dumps({'scope':'real native Harness SDK and provider; in-memory usage ledger; not full course delivery',
             'teaching_context':value.teaching_context, 'artifact':artifact,'calls':ledger.actions},ensure_ascii=False,indent=2))
+
+
+@pytest.mark.parametrize('kind',['report','quiz'])
+def test_A_payload_D_content_F_alignment_use_the_same_real_contract(phases,kind):
+    from app.course_preparation.generation_context import automatic_payload
+    from app.course_preparation.generation_contracts import ResourceSpec
+    from app.course_preparation.resource_alignment import validate_artifact
+    from tests.course_preparation.test_generation_adapter import spec as legacy_spec
+    specification=ResourceSpec.model_validate({**legacy_spec(), 'schema_version':2, 'resource_type':kind,
+        'teaching_context':context(), 'objectives':context()['objectives'], 'objective_ids':context()['objective_ids'],
+        'learning_check':context()['self_check']}).model_dump(mode='json')
+    value=automatic_payload(specification,{'owner_user_id':'alice','resource_id':'resource-tools'})
+    gateway=CountingGateway(kind)
+    if kind=='report':
+        body,state=reviewed_report.generate_reviewed_report(value,gateway)
+        content={'content':body,'generation_state':state}
+    else:
+        content=reviewed_resource.ReviewedResourceGenerator(gateway).generate(value,job_id='j',config_snapshot_id='c')['artifacts'][0]
+    artifact={'spec':specification,'spec_digest':value_digest(specification),'resource_type':kind,
+              'content':content,'content_digest':value_digest(content)}
+    validate_artifact(artifact)
+    assert content['generation_state']['preparation']['spec_digest']==artifact['spec_digest']

@@ -20,7 +20,7 @@ def teaching_context(payload):
 
 
 def phase_gateway(gateway, payload, phase):
-    preparation = bool(getattr(payload, 'preparation_policy', None) or teaching_context(payload))
+    preparation = bool(getattr(payload, 'preparation_policy', None) or teaching_context(payload) is not None)
     if not preparation:
         return gateway
     # B owns phase binding and verifies that the runtime is native Harness.

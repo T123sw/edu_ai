@@ -28,8 +28,8 @@ def rejection(reason, *, answer=True, option_valid=False):
     response=review(True)
     response['question_checks']=[{'question_index':0,'independent_solution':reason,'answer_matches':answer,
         'explanation_valid':option_valid,'option_checks':[
-            {'option_index':0,'independent_correct':True,'explanation_excerpt':'A 正确，模型提出请求，程序执行。','reasoning':'模型提出请求，程序执行工具','explanation_valid':True},
-            {'option_index':1,'independent_correct':False,'explanation_excerpt':COUNTEREXAMPLE['explanation'],'reasoning':reason,'explanation_valid':option_valid}]}]
+            {'option_index':0,'independent_correct':True,'explanation_reasoning':'已独立逐句检查解析中的主张是否对应原选项。', 'explanation_excerpt':'A 正确，模型提出请求，程序执行。','reasoning':'模型提出请求，程序执行工具','explanation_valid':True},
+            {'option_index':1,'independent_correct':False,'explanation_reasoning':reason, 'explanation_excerpt':COUNTEREXAMPLE['explanation'],'reasoning':reason,'explanation_valid':option_valid}]}]
     return response
 
 
@@ -110,8 +110,16 @@ def test_process_retry_uses_actual_private_checkpoint_without_rewriting(generati
     saved=port.load_review_candidate()
     before=saved['content_digest']
     assert error.value.detail.content_digest==before
-    # A new adapter instance loads the durable SQL candidate, not process memory.
-    new_port=checkpoint_module.ArtifactResourceCheckpoint(adapter.artifacts,child)
+    # Persist failure and exercise F's real retry/lease transition before a
+    # fresh store/port loads the same SQL candidate.
+    from app.course_preparation.artifact_store import ArtifactStore
+    adapter.artifacts.fail(child,error.value.detail)
+    recovered=ArtifactStore(repo)
+    recovery=recovered.resume_review(parent,child['artifact_id'],recovery_key='d-review-retry')
+    assert recovery['retry_scope']=='review'
+    next_child=recovered.claim('alice',child['artifact_id'])
+    assert next_child['lease_token']!=child['lease_token']
+    new_port=checkpoint_module.ArtifactResourceCheckpoint(recovered,next_child)
     final=run(new_port)
     assert calls=={'writer':1,'review':2}
     assert new_port.load_review_candidate()['content_digest']==before
@@ -289,3 +297,129 @@ def test_actual_private_checkpoint_rejects_candidate_tampering_before_generation
             SimpleNamespace(resource_type='quiz', title='工具调用', spec_digest=child['spec_digest']),
             job_id='tampered', config_snapshot_id='cfg')
     assert adapter.artifacts.get('alice', child['artifact_id'])['status'] == 'running'
+
+
+def test_report_review_resume_in_a_separate_python_process(generation,tmp_path):
+    import subprocess
+    import sys
+    from app.course_preparation.generation_failures import GenerationFailure
+    repo,parent,adapter=generation
+    if repo.engine.dialect.name!='sqlite':
+        pytest.skip('subprocess smoke uses an isolated SQLite file; SQL fencing is parametrized separately')
+    _,receipt=submit(generation)
+    child=adapter.artifacts.claim('alice',receipt['artifact_id'])
+    port=adapter.artifacts.checkpoint_port(child)
+    value=report_payload();value.spec_digest=child['spec_digest']
+    calls={'writer':0,'review':0}
+    class FirstProcessGateway:
+        def chat(self,messages,**kwargs):
+            if 'schema' in json.loads(messages[-1]['content']):
+                calls['review']+=1;return '{}'
+            calls['writer']+=1;return BODY
+    with pytest.raises(GenerationFailure) as error:
+        generate_reviewed_report(value,FirstProcessGateway(),checkpoint=port)
+    before=port.load_review_candidate()['content_digest']
+    adapter.artifacts.fail(child,error.value.detail)
+    adapter.artifacts.resume_review(parent,child['artifact_id'],recovery_key='d-process-retry')
+    output=tmp_path/'child-review.json'
+    script=r'''
+import json,sys
+from pathlib import Path
+import dotenv
+dotenv.load_dotenv=lambda *a,**k:False
+from sqlalchemy import create_engine
+from app.course_preparation.lifecycle_repository import LifecycleRepository
+from app.course_preparation.artifact_store import ArtifactStore
+from app.chat.harness.reviewed_report import generate_reviewed_report,verified_review
+from tests.chat.test_reviewed_report import payload,review
+args=json.loads(sys.stdin.read())
+class Auth:
+    def authorize(self,*args):pass
+store=ArtifactStore(LifecycleRepository(create_engine(args['database']),authorizer=Auth()))
+child=store.claim('alice',args['artifact_id'])
+port=store.checkpoint_port(child)
+value=payload();value.spec_digest=child['spec_digest']
+class Gateway:
+    writer_calls=0
+    review_calls=0
+    def chat(self,messages,**kwargs):
+        if 'schema' not in json.loads(messages[-1]['content']):
+            self.writer_calls+=1
+            raise AssertionError('writer must not run in recovered process')
+        self.review_calls+=1
+        return json.dumps(review(True))
+gateway=Gateway()
+body,state=generate_reviewed_report(value,gateway,checkpoint=port)
+Path(args['output']).write_text(json.dumps({'writer':gateway.writer_calls,'review':gateway.review_calls,
+    'digest':port.load_review_candidate()['content_digest'],'verified':verified_review({'content':body,'generation_state':state})}))
+'''
+    result=subprocess.run([sys.executable,'-c',script],input=json.dumps({'database':str(repo.engine.url),
+        'artifact_id':child['artifact_id'],'output':str(output)}),text=True,capture_output=True,timeout=60)
+    assert result.returncode==0,result.stderr
+    final=json.loads(output.read_text())
+    assert calls['writer']+final['writer']==1
+    assert calls['review']+final['review']==2
+    assert final['digest']==before and final['verified']
+
+
+@pytest.mark.parametrize('kind',['report','quiz'])
+def test_review_only_retry_escalates_semantic_error_before_writing(generation,kind):
+    from app.course_preparation.generation_failures import GenerationFailure
+    repo,parent,adapter=generation
+    _,receipt=submit(generation)
+    child=adapter.artifacts.claim('alice',receipt['artifact_id'])
+    port=adapter.artifacts.checkpoint_port(child)
+    value=report_payload() if kind=='report' else SimpleNamespace(resource_type='quiz',title='工具调用')
+    value.spec_digest=child['spec_digest']
+    calls={'writer':0,'review':0}
+    class Gateway:
+        def chat(self,messages,**kwargs):
+            data=json.loads(messages[-1]['content'])
+            if 'schema' in data:
+                calls['review']+=1
+                if calls['review']==1:return '{}'
+                response=completion_review(data,kind)
+                response['blocking_issues']=['正文中的职责解释不准确，必须修复。']
+                return json.dumps(response)
+            calls['writer']+=1
+            return BODY if kind=='report' else json.dumps(quiz_envelope()['content'])
+    gateway=Gateway()
+    def run(checkpoint):
+        if kind=='report':return generate_reviewed_report(value,gateway,checkpoint=checkpoint)
+        return ReviewedResourceGenerator(gateway,checkpoint=checkpoint).generate(value,job_id='j',config_snapshot_id='c')
+    with pytest.raises(GenerationFailure) as first:run(port)
+    before=port.load_review_candidate()['content_digest']
+    adapter.artifacts.fail(child,first.value.detail)
+    adapter.artifacts.resume_review(parent,child['artifact_id'],recovery_key='semantic-rejection')
+    renewed=adapter.artifacts.claim('alice',child['artifact_id'])
+    resumed=adapter.artifacts.checkpoint_port(renewed)
+    with pytest.raises(GenerationFailure) as error:run(resumed)
+    assert error.value.detail.category=='content' and error.value.detail.retry_scope=='content'
+    assert calls=={'writer':1,'review':2}
+    assert resumed.load_review_candidate()['content_digest']==before
+    # Replay the persisted rejection after a crash between save and raise.
+    with pytest.raises(GenerationFailure) as replay:run(resumed)
+    assert replay.value.detail.category=='content'
+    assert calls=={'writer':1,'review':2}
+
+
+@pytest.mark.skipif(os.getenv('D_CONTENT_REAL_MODEL')!='1',reason='opt-in real review of the newly observed mixed-claim counterexample')
+def test_real_model_rejects_wrong_criticism_of_a_correct_subclaim():
+    from pathlib import Path
+    import dotenv
+    from app.chat.harness.content_gateway import ContentGateway
+    evidence_dir=Path(__file__).resolve().parents[4]/'docs/acceptance/artifacts/2026-09-19-preparation-content'
+    previous=json.loads((evidence_dir/'native-quiz-first-pass-counterexample.json').read_text())
+    content=previous['artifact']['content']
+    assert '把计算错给了程序' in content['questions'][0]['explanation']
+    settings=dotenv.dotenv_values(os.environ['D_CONTENT_ENV_FILE'])
+    gateway=ContentGateway(api_base=settings['DEEPSEEK_BASE_URL'],api_key=settings['DEEPSEEK_API_KEY'],
+        model_name=settings.get('LLM_MODEL') or 'deepseek-v4-pro')
+    checked,feedback=review_content('quiz',content,{'teaching_context':previous['teaching_context']},gateway)
+    option=checked.question_checks[0].option_checks[2]
+    assert feedback and not option.explanation_valid
+    assert option.independent_correct is False
+    if os.getenv('D_CONTENT_EVIDENCE_DIR'):
+        Path(os.environ['D_CONTENT_EVIDENCE_DIR'],'real-mixed-claim-review.json').write_text(json.dumps({
+            'scope':'real direct-model re-review of exact native false-negative candidate',
+            'content':content,'review':checked.model_dump(),'feedback':feedback},ensure_ascii=False,indent=2))

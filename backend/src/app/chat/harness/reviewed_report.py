@@ -74,6 +74,7 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
     spec_digest = getattr(payload, 'spec_digest', None) or (value_digest(specification) if context is None else None)
     candidate = ReviewCandidate(checkpoint, spec_digest, digest)
     saved = candidate.load()
+    review_only = bool(saved and saved.get('recovery_scope') == 'review')
     body, feedback, audit, metadata = initial_body, list(initial_feedback or []), [], None
     external_review = {'previous_content_sha256':digest(initial_body), 'feedback':feedback} if initial_body else None
     start_version = 1
@@ -91,7 +92,11 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
                     phase='resource_review', retry_scope='none') from exc
         external_review = state.get('external_review')
         if state.get('needs_repair'):
-            feedback, saved = state.get('feedback', []), None
+            feedback = state.get('feedback', [])
+            if review_only:
+                raise generation_failure('REPORT_CONTENT_REJECTED', '; '.join(feedback)[:1500], category='content',
+                    phase='resource_review', retry_scope='content', content_digest=value_digest(body))
+            saved = None
     for version in range(start_version, 4):
         if not saved:
             repairing = context is not None and bool(body)
@@ -171,6 +176,9 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
         if feedback:
             candidate.save(body, {'version':version + 1, 'history':audit, 'preparation':metadata,
                 'external_review':external_review, 'needs_repair':True, 'feedback':feedback})
+            if review_only:
+                raise generation_failure('REPORT_CONTENT_REJECTED', '; '.join(feedback)[:1500], category='content',
+                    phase='resource_review', retry_scope='content', content_digest=value_digest(body))
         if not feedback:
             return body, {'report_review': {'decision':'pass','method':'model_review',
                 'content_sha256':digest(body),'version':version,'checks':audit[-1]['review']['checks'],
