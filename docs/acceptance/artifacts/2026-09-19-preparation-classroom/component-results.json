@@ -1,0 +1,18 @@
+[
+  {
+    "viewport": "desktop",
+    "passed": true,
+    "page_errors": [],
+    "playback": "reading_dwell_completed",
+    "audio_listening": "not_tested",
+    "scope": "deterministic fixture with actual native React components; no backend"
+  },
+  {
+    "viewport": "narrow",
+    "passed": true,
+    "page_errors": [],
+    "playback": "reading_dwell_completed",
+    "audio_listening": "not_tested",
+    "scope": "deterministic fixture with actual native React components; no backend"
+  }
+]

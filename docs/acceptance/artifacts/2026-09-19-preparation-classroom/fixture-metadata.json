@@ -1,0 +1,12 @@
+{
+  "origin": "deterministic_contract_fixture_not_real_preparation",
+  "content_digest": "7cad3a9ca47f18359004e9cf83773157c8334006d875c14f54677f213e116400",
+  "render_checks": {
+    "schema_version": 1,
+    "passed": true,
+    "issues": [],
+    "invalid_scene_ids": [],
+    "browser_layout": "not_checked",
+    "audio_listening": "not_checked"
+  }
+}
