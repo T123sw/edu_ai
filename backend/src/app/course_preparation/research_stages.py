@@ -52,8 +52,24 @@ class ResearchStages:
                 self.repository.heartbeat(context)
                 if self.memory:
                     self.memory.validate(context, checkpoint)
-            state=agent.model.run_learning_path(agent,request,state,reserve=reserve,guard=guard,
-                                               timeout=max(1,min(480,remaining)))
+            starting_calls=state.calls
+            try:
+                state=agent.model.run_learning_path(agent,request,state,reserve=reserve,guard=guard,
+                                                   timeout=max(1,min(480,remaining)))
+            except ResearchError as exc:
+                # Reassemble a fresh native session from exact durable evidence;
+                # keep the provider guard and all spent calls. Two bounded
+                # resumptions prevent looping on irreducible hard constraints.
+                latest=ResearchState.model_validate(checkpoint.get('research_state',{}))
+                restarts=checkpoint.get('research_context_restarts',0)
+                if exc.code != 'CONTEXT_BUDGET_EXCEEDED' or restarts>=2 or latest.calls<=starting_calls:
+                    raise
+                checkpoint['research_context_restarts']=restarts+1
+                from .research_context_view import build_research_context_view
+                checkpoint['research_context_estimated_bytes']=build_research_context_view(
+                    latest,required_ids=(),max_bytes=48000)['context_view']['estimated_bytes']
+                self.repository.checkpoint(context,checkpoint)
+                return checkpoint,latest
         else:
             state=agent.step(request,state,timeout=max(1,min(90,remaining)),reserve=reserve)
         if self.memory:

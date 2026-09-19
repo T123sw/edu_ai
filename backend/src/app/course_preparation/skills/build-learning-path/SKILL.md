@@ -54,3 +54,12 @@ finalize_research_summary 必须提供 coverage，逐条对应 brief.requirement
 existing_target 表示已授权的既有课程范围。supplement_node / revise_resource 只规划 target.node_id 的一个节点，node_key 和原 objectives 保持一致。adjust_course 按 requested_changes 修改，未改变的节点保留 node_key 与 objectives。不修改原目标来绕过授权。
 
 成功保存路径或资料不足报告后结束。独立路径审阅和节点依据检查由程序后续执行；这里不能调用审阅工具、声称检查通过或课程已交付。
+
+
+### 长资料与不可变正文
+
+- fetch_source 的后续 offset 来自同一任务快照；遵守 next_offset，不重复抓取已读段落。
+- context_view.estimated_bytes 是 JSON 字节估计，不是真实模型 token usage。
+- content_omitted=true 表示原文仍保留在检查点。用 read_research_evidence 的 source_id 或 citation_ref 回读后再引用；不得根据摘要伪造逐字校验。
+- source_capabilities 分别列搜索和正文提取能力。没有正文提取时不能以搜索摘要支撑学习路径。
+- 能力、先修或版本存在缺口时继续有限研究或报告 blocker；不能降低原始要求或把缺口写入排除项。

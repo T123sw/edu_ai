@@ -8,7 +8,7 @@ from .citation_locator import locate_quote
 
 from .research_contracts import (
     Candidate, FetchArgs, LearningPath, PathReview, ResearchBrief, ResearchRequest,
-    ResearchState, ResearchSummary, SearchArgs, SourceEvidence, Finding, FinalizeSummary, ReferencedFinding, ResearchBlocker,
+    ResearchState, ResearchSummary, SearchArgs, SourceEvidence, Finding, FinalizeSummary, ReferencedFinding, ResearchBlocker, ReadEvidenceArgs,
 )
 
 
@@ -23,6 +23,7 @@ class RecoverableSourceError(ResearchError):
 
 
 REGISTRY = {
+    'read_research_evidence': (ReadEvidenceArgs, '从已读证据回读精确原文或 citation_ref，不请求网络，不消耗外部读取预算；省略的上下文不能替代原文。'),
     'report_research_blocker': (ResearchBlocker, '无法取得足够依据时结束研究，保存每条需求覆盖情况、具体缺口和补充建议；不生成或交付路径。'),
     'record_evidence_finding': (ReferencedFinding, '保存有依据的研究结论，citation_refs 只能选择 evidence.passages 中真实的引用编号；无需重写原文。'),
     'record_research_finding': (Finding, '记录一条有已读原文依据的结论，短引用必须逐字匹配正文；同 finding_id 可修正。'),
@@ -35,8 +36,8 @@ REGISTRY = {
     'submit_path_review': (PathReview, '独立检查用户原话、研究结论与学习路径，发现事实、覆盖、时间或先修问题必须 fail。'),
 }
 MOUNTS = {'intent': ('save_preparation_brief',),
-          'research': ('search_sources', 'fetch_source', 'save_research_summary'),
-          'plan': ('save_course_plan',), 'review': ('submit_path_review',)}
+          'research': ('search_sources', 'fetch_source', 'read_research_evidence', 'save_research_summary'),
+          'plan': ('read_research_evidence', 'save_course_plan',), 'review': ('submit_path_review',)}
 
 
 def unique(values, label):
@@ -69,6 +70,8 @@ class ResearchAgent:
             names = tuple(n for n in names if n != 'save_research_summary') + ('record_evidence_finding', 'finalize_research_summary')
         if self.source_policy == "uploaded_only":
             names = tuple(n for n in names if n != "search_sources")
+        if state is not None and not state.evidence:
+            names = tuple(n for n in names if n != 'read_research_evidence')
         if state is not None and phase == 'research':
             names = tuple(name for name in names
                           if not (name == 'search_sources' and (state.searches >= 6 or self.read_budget(state)['web_reads'] == 0))
@@ -113,8 +116,8 @@ class ResearchAgent:
             from .intake_references import with_references
             context['input_documents'] = with_references(context.get('input_documents', []))
         if self.incremental_findings:
-            from .evidence_spans import evidence_context
-            context['evidence'] = evidence_context(state)
+            from .research_context_view import build_research_context_view
+            context.update(build_research_context_view(state, required_ids=(), max_bytes=48000))
         # Review is a fresh independent request: no generator self-assessment or tool history.
         if state.phase == 'review':
             context.pop('trace', None)
@@ -128,7 +131,7 @@ class ResearchAgent:
             args = REGISTRY[name][0].model_validate(raw_args)
             updated = self._execute(name, args, request, state, timeout=min(timeout, 25), reserve=persist)
             entry = {'call': state.calls, 'phase': state.phase, 'tool': name, 'status': 'ok'}
-            return updated.model_copy(update={'errors': 0, 'last_error': None,
+            return updated.model_copy(update={'errors': 0, 'last_error': updated.last_error if name=='read_research_evidence' else None,
                                              'trace': (*updated.trace, entry)})
         except (ValueError, ValidationError) as exc:
             message = str(exc)[:1600]
@@ -151,6 +154,9 @@ class ResearchAgent:
             'trace': (*state.trace, {'call': state.calls, 'phase': state.phase, 'status': 'error', 'code': code, 'message': message})})
 
     def _execute(self, name, args, request, state, *, timeout, reserve):
+        if name == 'read_research_evidence':
+            result=self.read_evidence(state,args)
+            return state.model_copy(update={'last_error':{'code':'EVIDENCE_READ_RECEIPT','evidence':result}})
         if name == 'save_preparation_brief':
             unique([r.requirement_id for r in args.requirements], '要求ID')
             from .intake import validate_brief
@@ -299,6 +305,14 @@ class ResearchAgent:
                 'phase': args.repair_phase, 'path': None,
                 'summary': None if args.repair_phase in ('intent', 'research') else state.summary})
         raise ValueError('unsupported tool')
+
+    def read_evidence(self, state, args):
+        from .research_context_view import read_research_evidence
+        result=read_research_evidence(state,**args.model_dump())
+        evidence=next(e for e in state.evidence if e.source_id==result['source_id'])
+        if hasattr(self.sources,'authorize_read'):
+            self.sources.authorize_read(evidence.url)
+        return result
 
     @staticmethod
     def _validate_path(path, state):

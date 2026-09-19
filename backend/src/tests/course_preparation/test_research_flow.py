@@ -226,7 +226,7 @@ def test_exhausted_read_budget_unmounts_retrieval_and_allows_grounded_summary():
     for _ in range(3):
         state = agent.step(request(), state)
     state = state.model_copy(update={'reads': 8})
-    assert [t['function']['name'] for t in agent.tools('research', state)] == ['save_research_summary']
+    assert [t['function']['name'] for t in agent.tools('research', state)] == ['read_research_evidence', 'save_research_summary']
     next_state = agent.step(request(), state)
     assert next_state.phase == 'plan' and next_state.summary
     assert next_state.reads == 8

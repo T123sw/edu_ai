@@ -11,7 +11,7 @@ from .research_agent import REGISTRY, ResearchError, RecoverableSourceError
 class LearningPathTools:
     def __init__(self, agent, request, state, *, reserve, guard, timeout):
         self.agent, self.request, self.state = agent, request, state
-        agent.upload_read_limit = max(8, 2*len(request.uploads))
+        agent.upload_read_limit = max(agent.upload_read_limit, 8, 2*len(request.uploads))
         self.reserve, self.guard = reserve, guard
         if state.summary is not None and not state.draft_findings:
             self.state = state.model_copy(update={'draft_findings':state.summary.findings})
@@ -109,6 +109,7 @@ class LearningPathTools:
                     key = self.source_key(name, arguments)
                     failures = {**self.state.source_failures, key:self.state.source_failures.get(key, 0)+1}
                     error = {'code':exc.code, 'message':str(exc), 'recoverable':True,
+                             'category':getattr(exc,'category','no_body' if exc.code=='EXTRACT_NO_BODY' else 'temporary'),
                              'attempts':failures[key], 'retry_allowed':failures[key]<2}
                     self.check()
                     self.persist(self.state.model_copy(update={'source_failures':failures, 'last_error':error,
@@ -121,7 +122,9 @@ class LearningPathTools:
                     self.persist(failed)
                     return {'ok': False, 'error': failed.last_error, 'available_tools': self.available()}
                 data = {}
-                if name == 'search_sources':
+                if name == 'read_research_evidence':
+                    data['evidence_read']=self.agent.read_evidence(updated,args)
+                elif name == 'search_sources':
                     previous_ids = {c.candidate_id for c in before.candidates}
                     data['candidates'] = [c.model_dump(mode='json') for c in updated.candidates if c.candidate_id not in previous_ids]
                     data['message'] = '仅返回新增候选；已有候选继续有效，不重复返回。'
@@ -142,6 +145,8 @@ class LearningPathTools:
                 elif name == 'save_course_plan':
                     self.result = updated
                     data['path_saved'] = True
+                if name in ('search_sources','fetch_source') and hasattr(self.agent.sources,'capabilities'):
+                    data['source_capabilities']=self.agent.sources.capabilities()
                 return {'ok': True, **data, 'phase': updated.phase, 'available_tools': self.available(),
                         'remaining_actions': self.agent.max_calls-updated.calls,
                         'remaining_budget':self.agent.read_budget(updated)}
@@ -154,7 +159,8 @@ class LearningPathTools:
 
 
 def workflow_context(agent, request, state):
-    return {**agent.extra_context, **state.model_dump(mode='json'), 'phase': 'learning_path',
-            'request': request.model_dump(mode='json'), 'evidence': evidence_context(state),
-            'remaining_budget': {'actions': agent.max_calls-state.calls,
-                                 'searches': max(0, 6-state.searches), **agent.read_budget(state)}}
+    from .research_context_view import build_research_context_view
+    return {**agent.extra_context, **build_research_context_view(state,required_ids=(),max_bytes=48000),
+            'phase':'learning_path', 'request':request.model_dump(mode='json'),
+            'remaining_budget':{'actions':agent.max_calls-state.calls,
+                                'searches':max(0,6-state.searches),**agent.read_budget(state)}}
