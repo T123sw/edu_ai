@@ -111,3 +111,84 @@ def test_parameter_ledger_does_not_turn_prompt_presence_into_semantic_success():
     language = next(r for r in rows[0]['rows'] if r['input_path'] == 'teaching_context.language')
     assert language['validated_value'] == 'zh-CN' and language['artifact_locator'] is None
     assert language['check_result'] == 'payload_present_effect_requires_semantic_review'
+
+
+def test_upload_only_case_rejects_any_network_attempt_even_failed():
+    case = {'expected_business_status': 'failed', 'expected_error_code': 'RESEARCH_INSUFFICIENT', 'source_mode': 'uploaded_only'}
+    public = {'status': 'failed', 'error_code': 'RESEARCH_INSUFFICIENT'}
+    evidence = {'actions': [completion(), {'kind': 'search', 'status': 'failed'}]}
+    with pytest.raises(AssertionError, match='UPLOADED_ONLY_USED_NETWORK'):
+        assert_outcome(case, public, evidence)
+
+
+def test_learning_readback_checks_body_not_only_version_label():
+    from scripts.verify_preparation_full_e2e import assert_material_readback
+    from app.course_preparation.tool_registry import digest
+    original = {'content': '# First example\n12 + 30 = 42'}
+    resource = {'version': 2, 'resource_type': 'report', 'content_sha256': digest(original)}
+    material = {'version': 2, 'visibility': 'private', 'content_hash': digest(original),
+                'preparation_artifact': original, 'content': original['content']}
+    assert_material_readback(material, resource)
+    material['content'] = 'silently substituted body'
+    with pytest.raises(AssertionError, match='LEARNING_BODY_PROJECTION_MISMATCH'):
+        assert_material_readback(material, resource)
+
+
+# Reuse actual SQL artifacts/parent leases and queue fixtures; only the final
+# generator body is intercepted. This is wiring evidence, never live content QA.
+from tests.course_preparation.test_generation_adapter import generation
+
+
+@pytest.mark.parametrize('kind', ['report', 'quiz', 'classroom'])
+def test_registered_resource_handler_delivers_a_context_and_f_checkpoint_to_generators(generation, monkeypatch, kind):
+    pytest.importorskip('app.course_preparation.harness_generation', reason='B native gateway not integrated')
+    from types import SimpleNamespace
+    from app.course_preparation.adapters.generation import PreparationResourceHandler
+    from app.course_preparation.runtime_contracts import BudgetCost
+    from app.course_preparation.tool_registry import digest
+    from tests.course_preparation.test_spec_compatibility import v2_spec
+    from app.course_preparation import research_dependencies
+    from app.chat.harness import reviewed_report, reviewed_resource
+    from app.course_preparation.adapters import classroom
+
+    repo, parent, adapter = generation
+    value = {**v2_spec(), 'resource_type': kind}
+    action = repo.begin_action(parent, 'g-wiring-' + kind, 'generate_resource', value, BudgetCost(calls=1))
+    receipt = adapter.submit(parent, value, action['action_id'])
+    configured = SimpleNamespace(candidates=[{'model_name': 'contract-only'}])
+    monkeypatch.setattr(research_dependencies, 'agent_factory', lambda *args: SimpleNamespace(model=SimpleNamespace(gateway=configured)))
+    checked = []
+
+    def inspect_input(payload, gateway, checkpoint):
+        assert gateway.preparation_harness is True
+        assert payload.teaching_context == value['teaching_context']
+        assert payload.resource_target_minutes is None
+        assert not getattr(payload, 'harness_chapters', None)
+        assert checkpoint is not None, 'F_CHECKPOINT_NOT_WIRED'
+        checkpoint.save_review_candidate(content='private candidate', content_digest=digest('private candidate'),
+            spec_digest=digest(value), review_state={'phase': 'resource_review'})
+        assert checkpoint.load_review_candidate()['content'] == 'private candidate'
+        checked.append(kind)
+
+    def report(payload, *, gateway, checkpoint=None, **kwargs):
+        inspect_input(payload, gateway, checkpoint)
+        return 'contract-only body', {}
+
+    def room(payload, *, gateway, checkpoint=None, **kwargs):
+        inspect_input(payload, gateway, checkpoint)
+        return {'artifact_type': 'classroom', 'content': {'scenes': []}}
+
+    class Quiz:
+        def __init__(self, *, gateway, checkpoint=None, **kwargs):
+            self.gateway, self.checkpoint = gateway, checkpoint
+        def generate(self, payload, **kwargs):
+            inspect_input(payload, self.gateway, self.checkpoint)
+            return {'artifacts': [{'artifact_type': 'quiz', 'content': {'questions': []}}]}
+
+    monkeypatch.setattr(reviewed_report, 'generate_reviewed_report', report)
+    monkeypatch.setattr(reviewed_resource, 'ReviewedResourceGenerator', Quiz)
+    monkeypatch.setattr(classroom, 'generate_classroom_draft', room)
+    context = SimpleNamespace(owner_user_id='alice', task_id=receipt['job_id'],
+                              is_cancel_requested=lambda: False, progress=lambda *a, **kw: None)
+    result = PreparationResourceHandler(lambda: SimpleNamespace(repository=repo))({'artifact_id': receipt['artifact_id']}, context)
+    assert result['saved'] is True and checked == [kind]

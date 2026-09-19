@@ -104,3 +104,6 @@ PYTHONPATH=backend/src /home/zxqs_ep/miniforge3/envs/edu-ai/bin/python \
 - 基线 PostgreSQL 回归 324 passed / 3 failed / 5 skipped；3 个历史共享报告失败在合入 D `ee818810` 后，相关 A/D 套件 76 passed。C 首批与 G 工具测试 73 passed。
 - E03 真实请求已得到 `RESEARCH_INSUFFICIENT` 且无课程，58.22 秒、总动作计费 calls=8、tokens=45692；B 尚未合入，严格回执检查 `COMPLETION_PHASE_MISSING`，因此**测试仍失败**，不能标整链路通过。
 - 详见 [G 验收记录](../../../acceptance/2026-09-19-preparation-chain-integration/README.md) 与 [场景账本](../../../acceptance/2026-09-19-preparation-chain-integration/ledger.json)。
+
+- 首批 A/C/D/E/F 全部可引用代码已集成；B 无提交，未擅自快照其在途代码。D/F 相关 176 passed / 10 skipped；E/C/G 追加 102 passed；G 接线门禁 24 passed / 6 skipped（B 未集成）。正式前端构建通过。
+- G1–G4 保持未完成：E04–E09 专项驱动尚待实现，完整模型、真实浏览器及同一最终 SHA 验收未进行；当前不是可交付结论。

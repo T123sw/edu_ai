@@ -58,6 +58,7 @@ def assert_harness_receipts(actions):
         skill = response.get('skill') or {}
         assert response.get('runtime') == 'deepseek-harness', 'COMPLETION_BYPASSED_HARNESS'
         assert response.get('phase'), 'COMPLETION_PHASE_MISSING'
+        assert response.get('provider'), 'COMPLETION_PROVIDER_MISSING'
         assert response.get('spec_digest'), 'COMPLETION_SPEC_DIGEST_MISSING'
         assert skill.get('name') and len(skill.get('sha256', '')) == 64 and skill.get('loaded') is True, 'SKILL_LOAD_RECEIPT_MISSING'
         assert (receipt.get('usage') or {}).get('reported_by_provider') is True, 'REAL_USAGE_MISSING'
@@ -67,6 +68,12 @@ def assert_harness_receipts(actions):
 
 def assert_outcome(case, public, evidence):
     assert public['status'] == case['expected_business_status'], 'UNEXPECTED_BUSINESS_STATUS'
+    network = [a for a in evidence['actions'] if a['kind'] in ('search', 'extract') or (a['kind'] == 'source_read' and (a.get('payload') or {}).get('url', '').startswith(('http://', 'https://')))]
+    if case.get('source_mode') == 'uploaded_only':
+        assert not network, 'UPLOADED_ONLY_USED_NETWORK'
+    if case.get('scenario') == 'network-course':
+        assert any(a['kind'] == 'search' and a['status'] == 'completed' for a in network), 'REAL_SEARCH_MISSING'
+        assert any(a['kind'] in ('extract', 'source_read') and a['status'] == 'completed' for a in network), 'REAL_EXTRACTION_MISSING'
     if public['status'] == 'failed':
         assert public.get('error_code') == case['expected_error_code'], 'WRONG_BUSINESS_FAILURE'
         assert not public.get('result_ref') and not evidence['manifests'], 'FAILED_TASK_DELIVERED_COURSE'
@@ -76,6 +83,7 @@ def assert_outcome(case, public, evidence):
         assert evidence['manifests'], 'MANIFEST_MISSING'
         assert STAGES <= set(evidence['stages']), 'STAGE_EVIDENCE_INCOMPLETE'
         manifest = evidence['manifests'][-1]
+        assert manifest.get('space') == 'personal', 'PRIVATE_COURSE_REQUIRED'
         assert len(manifest['nodes']) == 2, 'EXPECTED_TWO_NODES'
         for node in manifest['nodes']:
             for resource in node['resources']:
@@ -93,7 +101,7 @@ def action_summary(actions):
     return {'model_attempts': len(models),
             'model_completions': sum(a['status'] == 'completed' for a in models),
             'failed_model_attempts': sum(a['status'] == 'failed' for a in models),
-            'source_actions': sum(a['kind'] in ('source_read', 'search') for a in actions),
+            'source_actions': sum(a['kind'] in ('source_read', 'search', 'extract') for a in actions),
             'phases': phases}
 
 
@@ -162,6 +170,20 @@ def get_json(client, method, path, **kwargs):
     return response.json()
 
 
+def assert_material_readback(material, resource):
+    from app.course_preparation.tool_registry import digest as content_digest
+    assert material.get('version') == resource['version'], 'LEARNING_VERSION_MISMATCH'
+    assert material.get('visibility') == 'private', 'PRIVATE_RESOURCE_REQUIRED'
+    assert material.get('content_hash') == resource['content_sha256'], 'LEARNING_HASH_MISMATCH'
+    original = material.get('preparation_artifact')
+    assert original and content_digest(original) == resource['content_sha256'], 'LEARNING_BODY_DIGEST_MISMATCH'
+    assert material.get('content') == original.get('content'), 'LEARNING_BODY_PROJECTION_MISMATCH'
+    if resource['resource_type'] == 'classroom':
+        assert material.get('scenes') == original['content'].get('scenes'), 'LEARNING_SCENE_PROJECTION_MISMATCH'
+    if resource['resource_type'] == 'quiz':
+        assert material.get('questions') == original['content'].get('questions'), 'LEARNING_QUIZ_PROJECTION_MISMATCH'
+
+
 def learning_readback(client, manifest, artifacts):
     course = manifest['course_id']
     room = get_json(client, 'GET', f'/api/self-learning/courses/{course}')
@@ -170,7 +192,7 @@ def learning_readback(client, manifest, artifacts):
         for resource in node['resources']:
             kind, rid, version = resource['resource_type'], resource['resource_id'], resource['version']
             material = get_json(client, 'GET', f'/api/self-learning/courses/{course}/materials/{kind}/{rid}/versions/{version}')
-            assert material.get('version') == version, 'LEARNING_VERSION_MISMATCH'
+            assert_material_readback(material, resource)
             artifact = next(a for a in artifacts if a['resource_id'] == rid and a['resource_version'] == version)
             assert artifact['content_digest'] == resource['content_sha256'], 'MANIFEST_CONTENT_DIGEST_MISMATCH'
             # Persist the actual readback for semantic review, not only its existence.

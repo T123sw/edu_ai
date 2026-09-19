@@ -106,7 +106,7 @@ test('fresh upload through workers to exact versions and real playback', async (
               await frame.getByRole('radio').first().check();
               await frame.getByRole('button', { name: '提交并查看解析', exact: true }).click();
               await expect(frame.getByText(/正确答案：/).first()).toBeVisible();
-              await expect(frame.getByText(/回答正确|回答错误|回答不正确/).first()).toBeVisible();
+              await expect(frame.getByText(/回答正确|回答有误/).first()).toBeVisible();
             }
             if (scene.actions?.some((a: any) => a.type === 'speech')) {
               await frame.getByRole('button', { name: /^(播放当前页|重新播放当前页|重播当前页)$/ }).click();
