@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "code_sha": "cdff0ef847886e0e6ae1baaeff26653a14fe8ba8",
+  "dirty": false,
+  "case_id": "E03",
+  "scenario": "blocked-course",
+  "scope": "real HTTP and durable workers; PostgreSQL read-only observer; real providers; no mock fallback",
+  "expected_business_status": "failed",
+  "requested_runs": 1,
+  "runs": [
+    {
+      "preparation_id": "prep_be0bfa5e1bbc4dfe9c4bf427bac8a973",
+      "test_status": "failed",
+      "input_digest": "d163dde9eae858dd2c1e06baa773a6e2bcfeeccfa7d93b1a33233e4cc67efd8d",
+      "upload_sha256": "907a45e425d70202fc58aaf69c86232dd16854fb48fa6c777ad3f6f2394fce12",
+      "business_status": "failed",
+      "error": {
+        "type": "AssertionError",
+        "code": "WRONG_BUSINESS_FAILURE"
+      },
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 4,
+          "tokens": 90812,
+          "cost_micro_usd": 908120
+        }
+      },
+      "elapsed_seconds": 29.34
+    }
+  ],
+  "test_status": "failed",
+  "semantic_review": "not_run",
+  "browser": "not_run",
+  "attestation": {
+    "database": "edu_ai_preparation_test_g",
+    "endpoint_digest": "8095f97c571a5de15c5c169f0e83e9b3ea0ee93a1ea8628ec46fe8454f112691",
+    "code_sha": "cdff0ef847886e0e6ae1baaeff26653a14fe8ba8",
+    "dirty": false,
+    "worker_started": true,
+    "preparation_enabled": true,
+    "test_identity": "prep-test-g-20260919",
+    "config_version": "215681c36e273daf914cd06585bcd4f73f801ebd04072e0496669af5192017d4",
+    "storage_root_digest": "176d2db5c1f6935db1605e24e1668c97a764fe3bef5d21ed3e09226508f584e1"
+  },
+  "test_identity": "prep-test-g-20260919",
+  "passed": 0,
+  "failed": 1,
+  "denominator": 1,
+  "repetition_requirement_met": true
+}

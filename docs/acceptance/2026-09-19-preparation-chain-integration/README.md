@@ -55,3 +55,21 @@ PATH=/home/zxqs_ep/miniforge3/envs/edu-ai/bin:$PATH \
 - 独立资源组合规划继续暂缓。
 
 前端专用构建完成后，在构建目录写入 `preparation-build.json`，内容为 `{"code_sha":"实际构建SHA"}`；浏览器会与当前 Git 和后端同时核对，缺失时失败。已定位工具链：Node v22.23.2、pnpm 10.28.2（`/home/zxqs_ep/miniforge3/envs/edu-ai/bin`）。
+
+## 2026-09-19 首批集成结果
+
+| 模块原 SHA | 集成 SHA | 范围 |
+| --- | --- | --- |
+| A e3d3ce6b / d7d26fc8 / c264070f | b2f61307 / c7705989 / 89a97e27 | 参数上下文、v1/v2 兼容及交接 |
+| D ee818810 | 75b9ee49 | 独立的历史共享报告策略修复，D 其余生成改动未交付 |
+| C 868320bb / f115f629 / 8864ee7c | d2d912a5 / 591d14d6 / ff3522d9 | 文档取消、持久正文分页、上下文有界 |
+
+A 的计划文档发生 add/add 冲突：保留 A 自己交付的复选框与验收记录，其他模块计划未改。C 的快照基线 `1c1b9fd0` 与 G0 内容重复，未重复挑入；仅集成其领域实现提交。
+
+- `cdff0ef8` 对准备套件与 `chat/test_reviewed_report.py`：324 passed / 3 failed / 5 skipped，351.79 秒；5 项跳过是 SQLite 参数下仅 PostgreSQL 适用的竞争用例，PostgreSQL 对应项已运行。
+- `75b9ee49` 对 `test_reviewed_report.py`、`test_report_review_policy.py`、`test_generation_context.py`、`test_spec_compatibility.py`：76 passed，10.33 秒；历史三个报告失败全部修复。
+- `d2d912a5` 对文档适配、解析取消、MinerU 格式和 G 验收工具：73 passed，7.14 秒。
+- 已在专用端口 55447 的专用数据库执行 Alembic 正向迁移。此为测试库，不涉及业务迁移。
+- E03 第一次使用错误的测试模型绑定，1/1 失败（BUDGET_EXHAUSTED，4 次失败模型尝试）。修正私有配置中 `ANSWER_LLM_API_BASE` / `ANSWER_LLM_API_KEY` / `ANSWER_LLM_MODEL` 后，第二次实际业务结果符合预期，但 B 回执契约尚缺 phase，所以严格验收仍 0/1 通过。两种原因分别记录，不合并成产品稳定性失败率。
+- 第二次 E03：58.22 秒，8 次计费动作（其中包括来源动作，不能等同模型调用数）、45692 tokens，未交付课程。不能与历史完整课性能比较。
+- 原始运行数据位于本机 `/tmp/preparation-validation-g-20260919`；提交的 [账本](ledger.json) 与 `evidence/` 仅含脱敏概要。浏览器完整执行及最终 SHA 回归尚未完成。
