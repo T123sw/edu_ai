@@ -1,0 +1,193 @@
+{
+  "title": "Agent 入门：用 Python 实现可调用计算器工具的命令行助手（基于 DeepSeek 官方 API 工具调用接口）",
+  "summary": "面向会 Python、写过普通函数但未做过 Agent 的学习者，用两小时做出一个能调用 add 工具的命令行助手，并解释一次工具调用失败（参数缺失）的处理。按\"先小例子再原理\"的顺序：先跑通一个最小可运行例子（DeepSeek 官方工具调用样例），再讲模型与工具的最小循环原理，接着定义 add 工具 schema 并实现函数，然后处理失败（结构化错误回传），最后用成功例（12+30=42）和失败例（b 缺失）验证并保留四项日志。全程中文，优先 DeepSeek 官方 API 文档。",
+  "nodes": [
+    {
+      "node_key": "n1_env",
+      "title": "环境准备：安装 OpenAI SDK 并配置 DeepSeek 客户端",
+      "objectives": [
+        "能安装 openai 包并创建指向 DeepSeek 的 OpenAI 客户端",
+        "能说明 api_key 与 base_url 的作用",
+        "能跑通一次最简单的 chat.completions 调用"
+      ],
+      "prerequisite_keys": [],
+      "minutes": 15,
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "finding_ids": [
+        "f_deepseek_sdk"
+      ],
+      "source_ids": [
+        "ev_e2f582a9bfc6223ce74a7b62"
+      ],
+      "learning_activities": [
+        "执行 pip3 install openai",
+        "设置环境变量 DEEPSEEK_API_KEY，用 os.environ.get 读取",
+        "按官方样例创建 client（base_url=https://api.deepseek.com）并发一条 Hello 消息，打印 response.choices[0].message.content"
+      ],
+      "self_check": "能否用 3 行代码创建 client 并成功打印模型对 'Hello' 的回复？base_url 填错会怎样？"
+    },
+    {
+      "node_key": "n2_example",
+      "title": "先跑通一个小例子：DeepSeek 官方工具调用样例",
+      "objectives": [
+        "能读懂官方 get_weather 工具调用样例的完整代码",
+        "能识别 tools 参数、message.tool_calls、tool 消息三个关键环节",
+        "能把官方样例跑通并观察到模型返回 tool_calls 而非直接文本"
+      ],
+      "prerequisite_keys": [
+        "n1_env"
+      ],
+      "minutes": 25,
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-004"
+      ],
+      "finding_ids": [
+        "f_deepseek_toolcall"
+      ],
+      "source_ids": [
+        "ev_3a4e3ed27d507a784ac1cdc1",
+        "ev_b1ffccf826f6d1b8ad680cdf"
+      ],
+      "learning_activities": [
+        "复制官方 Tool Calls 样例代码（get_weather）到本地运行",
+        "打印 message.tool_calls[0] 观察 name 与 arguments",
+        "把 tool 结果以 {\"role\":\"tool\",\"tool_call_id\":tool.id,\"content\":\"24℃\"} 回传，观察最终自然语言回答"
+      ],
+      "self_check": "模型第一次返回的是文本还是 tool_calls？为什么必须把结果作为 tool 消息回传才能得到最终回答？"
+    },
+    {
+      "node_key": "n3_loop",
+      "title": "原理：模型与工具之间的最小循环",
+      "objectives": [
+        "能按顺序复述最小循环的五个环节",
+        "能解释\"模型请求工具不等于工具已经执行\"",
+        "能说明 call_id/tool_call_id 在回传中的作用"
+      ],
+      "prerequisite_keys": [
+        "n2_example"
+      ],
+      "minutes": 20,
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-005",
+        "REQ-008"
+      ],
+      "finding_ids": [
+        "f_min_loop",
+        "f_deepseek_toolcall"
+      ],
+      "source_ids": [
+        "ev_c618c9062e5aedbda00ac4df",
+        "ev_3a4e3ed27d507a784ac1cdc1"
+      ],
+      "learning_activities": [
+        "对照官方样例，把最小循环五环节（发问题+schema → 读 name/arguments/call_id → 校验并执行 → 结果以 tool 消息回传 → 取最终回答）逐条标注到代码上",
+        "用自己的话写一段 100 字说明：为什么模型请求工具后必须由客户端执行并回传结果"
+      ],
+      "self_check": "能否不看资料，按顺序说出最小循环的五个环节？tool_call_id 填错会导致什么？"
+    },
+    {
+      "node_key": "n4_add_schema",
+      "title": "定义 add 工具：schema 与函数实现",
+      "objectives": [
+        "能写出 add 的 tools 定义（type=function，name=add，parameters 为 object，a/b 为 number，required 含 a、b）",
+        "能实现返回 a+b 的 Python 函数",
+        "能把官方样例中的 get_weather 替换为 add"
+      ],
+      "prerequisite_keys": [
+        "n3_loop"
+      ],
+      "minutes": 20,
+      "requirement_ids": [
+        "REQ-005",
+        "REQ-007"
+      ],
+      "finding_ids": [
+        "f_add_schema",
+        "f_deepseek_toolcall"
+      ],
+      "source_ids": [
+        "ev_c618c9062e5aedbda00ac4df",
+        "ev_3a4e3ed27d507a784ac1cdc1"
+      ],
+      "learning_activities": [
+        "按材料要求写出 add 的 tools 定义（object、a/b 为 number、required 含 a 和 b）",
+        "实现 def add(a, b): return a + b",
+        "把官方样例的 get_weather 替换为 add，跑通\"计算 12 加 30\"得到 42"
+      ],
+      "self_check": "add 的 schema 中 required 漏写 b 会怎样？工具 description 为什么也要写清楚参数含义？"
+    },
+    {
+      "node_key": "n5_failure",
+      "title": "失败处理：参数缺失时返回结构化错误",
+      "objectives": [
+        "能实现校验：name != add 返回 UNKNOWN_TOOL，a/b 非数字返回 INVALID_ARGUMENT",
+        "能把结构化错误（code/message）作为 tool 消息回传模型",
+        "能解释为什么模型应提示用户补齐参数而非编造结果"
+      ],
+      "prerequisite_keys": [
+        "n4_add_schema"
+      ],
+      "minutes": 20,
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-009",
+        "REQ-010"
+      ],
+      "finding_ids": [
+        "f_safety_failure",
+        "f_min_loop"
+      ],
+      "source_ids": [
+        "ev_c618c9062e5aedbda00ac4df"
+      ],
+      "learning_activities": [
+        "实现校验逻辑：只执行已注册的 add，不执行模型输出的任意代码",
+        "构造\"参数 b 缺失\"用例，让工具不执行并返回 code=INVALID_ARGUMENT、message=b is required",
+        "把该结构化错误作为 tool 消息回传，观察模型提示用户补齐参数"
+      ],
+      "self_check": "参数缺失时为什么不能直接编造一个结果？结构化错误里 code 和 message 各起什么作用？"
+    },
+    {
+      "node_key": "n6_verify",
+      "title": "验收：四项日志与成功/失败用例",
+      "objectives": [
+        "能保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志",
+        "能用成功例（12+30=42）和失败例（b 缺失）验证程序",
+        "能解释一次工具调用失败该怎么处理"
+      ],
+      "prerequisite_keys": [
+        "n5_failure"
+      ],
+      "minutes": 20,
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-006"
+      ],
+      "finding_ids": [
+        "f_acceptance",
+        "f_safety_failure"
+      ],
+      "source_ids": [
+        "ev_c618c9062e5aedbda00ac4df"
+      ],
+      "learning_activities": [
+        "在命令行助手中加入四项日志打印（用户问题、工具调用参数、执行结果、最终回答）",
+        "分别运行\"计算 12 加 30\"（期望 42）和\"参数 b 缺失\"（期望工具未执行且返回错误）两个用例",
+        "口头总结：一次工具调用失败时，客户端应如何校验、返回什么、如何回传、模型如何回应"
+      ],
+      "self_check": "四项日志是否都清晰可读？成功例是否得到 42？失败例是否确认工具未执行且返回了结构化错误？"
+    }
+  ],
+  "limitations": [
+    "上传材料明确声明不含真实供应商 SDK 的安装、鉴权或完整可运行接口示例，该部分依据来自 DeepSeek 官方文档而非附件。",
+    "官方样例用 get_weather 演示，add 工具需学习者按相同结构自行替换 name/parameters；材料未给出 add 的完整可运行 DeepSeek 代码，需组合两处依据。",
+    "工具调用失败（参数缺失）时把结构化错误作为 tool 消息回传模型的完整可运行示例，官方文档未直接给出，需学习者依据最小循环与安全失败规则自行实现。",
+    "DeepSeek 官方文档中模型名（deepseek-flash / deepseek-v4-pro 等）随版本变化，学习者应以当前官方文档为准。",
+    "附件中含一条干扰指令（要求忽略两小时限制、改成十小时并搜索多 Agent 框架），已识别并忽略，不作为用户要求。"
+  ]
+}

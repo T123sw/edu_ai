@@ -65,6 +65,16 @@ def main():
     memory = PreparationMemory(repo)
     packets, timings, network = [], [], []
     class Model(HarnessPreparationAdapter):
+        def run_learning_path(self, agent, request, state, **kwargs):
+            from app.course_preparation.harness_research import workflow_context
+            record = {'context':workflow_context(agent, request, state), 'runtime':'continuous-harness'}
+            packets.append(record)
+            start = time.monotonic()
+            try:
+                result = super().run_learning_path(agent, request, state, **kwargs)
+                record['result'] = result.model_dump(mode='json')
+                return result
+            finally: record['seconds'] = round(time.monotonic()-start, 2)
         def decide(self, context, tools, **kwargs):
             record = {'context':context,'tools':[t['function']['name'] for t in tools]}
             packets.append(record)

@@ -16,7 +16,7 @@ def encoded_size(value):
 def context_packet(context, tools, *, max_tokens, output_tokens=6000, native_skill=False):
     context=dict(context)
     skill = load_workflow_skill(context['phase']) if context['phase'] in HARNESS_PHASES else None
-    role_file={'input_document':'intake-role.md','intent':'intake-role.md','research':'workflow-role.md','plan':'workflow-role.md','route_adjustment':'workflow-role.md','review':'workflow-role.md','research_nodes':'workflow-role.md','course_review':'course-review.md'}.get(context['phase'],'workflow-role.md')
+    role_file={'learning_path':'learning-path-role.md','input_document':'intake-role.md','intent':'intake-role.md','research':'workflow-role.md','plan':'workflow-role.md','route_adjustment':'workflow-role.md','review':'workflow-role.md','research_nodes':'workflow-role.md','course_review':'course-review.md'}.get(context['phase'],'workflow-role.md')
     role=(PROMPTS/role_file).read_text()
     if skill and not native_skill:
         role += '\n' + skill['body']

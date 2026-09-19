@@ -1,0 +1,67 @@
+{
+  "before": {
+    "status": "passed",
+    "total_seconds": 348.11,
+    "model_calls": 45,
+    "tokens": 534445,
+    "research_to_path": {
+      "seconds": 216.25,
+      "model_calls": 28,
+      "tokens": 400223
+    },
+    "calls_by_skill": {
+      "understand-learning-request": 5,
+      "research-learning-sources": 23,
+      "plan-learning-path": 5,
+      "review-learning-path": 12
+    },
+    "nodes": 5,
+    "minutes": 120,
+    "recoverable_errors": [
+      {
+        "call": 4,
+        "phase": "research",
+        "status": "error",
+        "code": "INVALID_TOOL_RESULT",
+        "message": "该正文已读取，请使用已有证据；不要重复抓取"
+      },
+      {
+        "call": 13,
+        "phase": "plan",
+        "status": "error",
+        "code": "INVALID_TOOL_RESULT",
+        "message": "学习路径缺少需求 ['REQ-005']"
+      }
+    ]
+  },
+  "after": {
+    "status": "passed",
+    "total_seconds": 193.89,
+    "model_calls": 29,
+    "tokens": 307448,
+    "research_to_path": {
+      "seconds": 75.92,
+      "model_calls": 8,
+      "tokens": 155474
+    },
+    "calls_by_skill": {
+      "understand-learning-request": 7,
+      "build-learning-path": 8,
+      "review-learning-path": 14
+    },
+    "nodes": 6,
+    "minutes": 120,
+    "recoverable_errors": [
+      {
+        "call": 1,
+        "phase": "intent",
+        "status": "error",
+        "code": "INVALID_TOOL_RESULT",
+        "message": "要求原话必须在本次用户需求中实际出现；附件依据需指定 source_document_id"
+      }
+    ]
+  },
+  "all_model_calls_used_harness_skills": true,
+  "continuous_sessions": 1,
+  "comparison_note": "Same synthetic DOCX, request text, empty memory and model configuration; live provider timings and source selections vary. Includes independent reviews through produce entry, excludes materials generation."
+}

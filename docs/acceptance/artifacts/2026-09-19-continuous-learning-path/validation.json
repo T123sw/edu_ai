@@ -1,0 +1,14 @@
+{
+  "regression": {
+    "passed": 212,
+    "skipped": 78,
+    "seconds": 61.36
+  },
+  "continuous_targeted": {
+    "passed": 7,
+    "seconds": 3.56
+  },
+  "skill_format": "passed",
+  "real_e2e": "passed",
+  "backend_restart": "blocked: sudo requires password"
+}

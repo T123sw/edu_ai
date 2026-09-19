@@ -4,6 +4,7 @@ from pathlib import Path
 
 SKILLS_ROOT = Path(__file__).parent / 'skills'
 PHASE_SKILLS = {
+    'learning_path': 'build-learning-path',
     'input_document': 'understand-learning-request',
     'intent': 'understand-learning-request',
     'research': 'research-learning-sources',

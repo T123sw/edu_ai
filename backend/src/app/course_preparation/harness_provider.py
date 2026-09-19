@@ -14,7 +14,7 @@ from .research_agent import ResearchError
 
 
 @contextmanager
-def harness_provider(adapter, *, timeout, toolset=None):
+def harness_provider(adapter, *, timeout, toolset=None, max_calls=4):
     token = secrets.token_urlsafe(32)
     deadline = time.monotonic() + timeout
     lock = threading.Lock()
@@ -49,6 +49,8 @@ def harness_provider(adapter, *, timeout, toolset=None):
                         from .workflow_skills import skill_is_loaded
                         if not skill_is_loaded(payload.get('messages', []), required_skill):
                             raise ResearchError('SKILL_NOT_LOADED', '当前阶段 Skill 未由 Harness 加载，未调用模型')
+                    if getattr(toolset, 'continuous', False):
+                        toolset.check()
                     stream = payload.pop('stream', False)
                     payload.pop('stream_options', None)
                     payload.update(stream=False, max_tokens=6000, parallel_tool_calls=False, temperature=0.1)
@@ -60,7 +62,7 @@ def harness_provider(adapter, *, timeout, toolset=None):
                     data = None
                     for candidate in adapter.gateway.candidates:
                         remaining = deadline - time.monotonic()
-                        if state['calls'] >= 4 or remaining <= 0:
+                        if state['calls'] >= max_calls or remaining <= 0:
                             raise ResearchError('BUDGET_EXHAUSTED', 'Harness 当前决策调用次数或时间已耗尽')
                         state['calls'] += 1
                         model = candidate['model_name']
@@ -104,8 +106,8 @@ def harness_provider(adapter, *, timeout, toolset=None):
                         if toolset is None or not isinstance(calls, list) or not calls:
                             ResearchModelAdapter.parse(data, allowed)
                         else:
-                            # Let the native SDK dispatch the batch. The checkpoint
-                            # bridge accepts one action and explicitly defers the rest.
+                            # Validate the entire batch before native SDK dispatch.
+                            # Each bridge enforces its live execution policy.
                             ids = set()
                             for call in calls:
                                 single = {**choices[0], 'message': {**choices[0]['message'], 'tool_calls': [call]}}

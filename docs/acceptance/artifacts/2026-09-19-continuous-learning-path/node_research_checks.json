@@ -1,0 +1,59 @@
+{
+  "n1_env": {
+    "node_key": "n1_env",
+    "sufficient": true,
+    "reason": "节点 n1_env 的目标是\"安装 OpenAI SDK 并配置 DeepSeek 客户端\"，三个学习活动（pip3 install openai、设置 DEEPSEEK_API_KEY 环境变量、按官方样例创建 client 并发 Hello 消息）与自测（3 行代码创建 client、base_url 填错会怎样）均有直接依据。\n\nsource_1（DeepSeek 官方 API 文档 chat_python 样例）完整覆盖了本节点的核心 claim：`pip3 install openai`、`from openai import OpenAI`、`api_key=os.environ.get('DEEPSEEK_API_KEY')`、`base_url=\"https://api.deepseek.com\"`、`client.chat.completions.create(...)` 以及 `print(response.choices[0].message.content)`。这正好支撑\"安装 openai 包并创建指向 DeepSeek 的 OpenAI 客户端\"\"说明 api_key 与 base_url 的作用\"\"跑通一次最简单的 chat.completions 调用\"三个目标。\n\n关于自测中\"base_url 填错会怎样\"：官方样例给出了正确的 base_url 值，足以让学习者对照理解 base_url 的作用（指向 DeepSeek 端点而非 OpenAI 默认端点），属于可从样例合理推导的边界说明，不构成实质证据缺口。\n\n本节点只要求 REQ-004（优先 DeepSeek 官方 API 文档、使用其工具调用接口实现），source_1 正是官方文档，满足该需求。节点不涉及工具调用 schema 或失败处理（那是后续节点职责），无需为此追加搜索。依据充分。",
+    "source_ids": [
+      "ev_e2f582a9bfc6223ce74a7b62"
+    ],
+    "gap_queries": []
+  },
+  "n2_example": {
+    "node_key": "n2_example",
+    "sufficient": true,
+    "reason": "本节点目标是\"读懂官方 get_weather 工具调用样例、识别 tools/tool_calls/tool 消息三环节、跑通并观察 tool_calls\"。evidence 中 source_1（英文官方 Tool Calls 页）与 source_2（中文官方 Tool Calls 页）均完整给出官方样例代码：client 用 OpenAI(base_url=\"https://api.deepseek.com\")、tools 列表含 type=function/name/description/parameters、send_messages 传 tools、message.tool_calls[0] 取 name/arguments、messages.append(message) 后追加 {\"role\":\"tool\",\"tool_call_id\":tool.id,\"content\":\"24℃\"} 再调用取得最终自然语言回答，并明确\"模型本身不执行具体函数，函数功能需由用户提供\"。这三点正好覆盖三个 objectives 与三个 learning_activities（复制样例、打印 tool_calls[0]、回传 tool 消息观察最终回答），也支撑 self_check 关于\"第一次返回 tool_calls 而非文本、必须回传 tool 消息\"的答案。findings 的 claim 与 source_1/source_2 正文一致，无超出证据的断言。依据充分。",
+    "source_ids": [
+      "ev_3a4e3ed27d507a784ac1cdc1",
+      "ev_b1ffccf826f6d1b8ad680cdf"
+    ],
+    "gap_queries": []
+  },
+  "n3_loop": {
+    "node_key": "n3_loop",
+    "sufficient": true,
+    "reason": "本节点目标是\"复述最小循环五环节、解释模型请求工具≠工具已执行、说明 call_id/tool_call_id 作用\"，学习活动是\"对照官方样例把五环节标注到代码上\"和\"写 100 字说明为何必须由客户端执行并回传\"。\n\n证据充分覆盖：\n1) source_1（附件 calculator-agent.docx）明确给出五环节顺序：发问题+schema → 读 name/arguments/call_id → 校验并执行 add → 结果与相同 call_id 作为工具消息回传 → 取得最终回答，并明确\"模型请求工具不等于工具已经执行\"。这直接支撑目标一、二。\n2) source_2（DeepSeek 官方 Tool Calls 文档）给出可运行 Python 样例，展示 tools 列表定义、message.tool_calls[0]、把 message 追加回 messages、再追加 {\"role\":\"tool\",\"tool_call_id\":tool.id,\"content\":\"结果\"} 后二次调用 send_messages 取得最终回答，并明确\"模型本身不执行具体函数，函数功能需由用户提供\"。这支撑目标三（call_id/tool_call_id 作用）以及活动一\"对照官方样例标注代码\"。\n\ncall_id 与 tool_call_id 的对应关系在 source_1（\"相同 call_id\"）与 source_2（\"tool_call_id\": tool.id）中均有体现，足以支撑自测中\"tool_call_id 填错会导致什么\"的讨论基础。\n\n两个 findings 的 claim 均能由 source_1、source_2 正文直接支撑，无超出证据的断言。本节点为原理讲解节点，不要求可运行程序（那是后续节点职责），故无需补充 SDK 鉴权等材料。依据充分。",
+    "source_ids": [
+      "ev_c618c9062e5aedbda00ac4df",
+      "ev_3a4e3ed27d507a784ac1cdc1"
+    ],
+    "gap_queries": []
+  },
+  "n4_add_schema": {
+    "node_key": "n4_add_schema",
+    "sufficient": true,
+    "reason": "节点目标（写出 add 的 tools 定义、实现 add 函数、把官方 get_weather 样例替换为 add）均有充分依据。\n\nsource_1（附件 calculator-agent.docx）明确给出：add 的输入 schema 是 object，a/b 为 number，required 含 a 和 b；函数实现返回 a+b；工具描述要说明用途和参数含义。这直接支撑\"写出 tools 定义\"与\"实现函数\"两个目标。\n\nsource_2（DeepSeek 官方 Tool Calls 文档）给出完整可运行的 Python 样例：tools 列表结构（type=function，含 name/description/parameters）、chat.completions.create 传入 tools、读取 message.tool_calls[0]、追加 tool 消息（role=tool, tool_call_id, content）后再次调用取得最终回答，并明确\"模型本身不执行函数，函数功能需用户提供\"。这支撑\"把 get_weather 替换为 add\"的目标，且补齐了附件缺失的真实 API 鉴权（api_key/base_url）、SDK（openai 客户端）与可运行接口示例。\n\n自测问题（required 漏写 b 会怎样、description 为何要写清参数含义）也能从 source_1 的 required 含 a/b 与\"工具描述要说明用途和参数含义\"、source_2 的 required 字段语义中得到依据。\n\n学习活动三项（写 tools 定义、实现 def add、替换 get_weather 跑通 12+30=42）与两份证据一一对应，依据充分，无需补充检索。",
+    "source_ids": [
+      "ev_c618c9062e5aedbda00ac4df",
+      "ev_3a4e3ed27d507a784ac1cdc1"
+    ],
+    "gap_queries": []
+  },
+  "n5_failure": {
+    "node_key": "n5_failure",
+    "sufficient": true,
+    "reason": "本节点（n5_failure，失败处理）的目标、活动与自测均有充分依据。source_1（calculator-agent.docx）明确给出：安全与失败处理要求——只执行已注册的 add、不执行模型任意代码；参数缺失或类型不符时不运行函数，返回结构化错误（code=INVALID_ARGUMENT、message=b is required）；模型可提示用户补齐参数、不得编造结果。参考伪代码给出 name != add → UNKNOWN_TOOL、a/b 非数字 → INVALID_ARGUMENT 的分支，以及成功用例期望 42、缺失 b 用例期望工具未执行且返回错误。这些直接支撑本节点的三个目标（实现校验、把结构化错误作为 tool 消息回传、解释为何提示补齐而非编造）和三项学习活动（实现校验逻辑、构造 b 缺失用例返回 INVALID_ARGUMENT、回传错误观察模型提示）。自检问题（为何不能编造结果、code/message 各起什么作用）也能从材料中\"不得编造计算结果\"与结构化错误示例得到依据。findings 的两条 claim 均正确引用 source_1，与材料正文一致。本节点不涉及真实 SDK 安装/鉴权等缺口（那是可运行程序整体目标层面的缺口，属于其他节点/路径层面，不构成本节点失败处理教学依据的不足）。",
+    "source_ids": [
+      "ev_c618c9062e5aedbda00ac4df"
+    ],
+    "gap_queries": []
+  },
+  "n6_verify": {
+    "node_key": "n6_verify",
+    "sufficient": true,
+    "reason": "本节点（n6_verify）的目标、活动与自测均有充分依据。source_1（calculator-agent.docx）明确给出：验收要求保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志，成功例\"计算 12 加 30\"期望 42，失败例\"参数 b 缺失\"期望工具未执行且返回错误；安全与失败处理要求参数缺失/类型不符时不运行函数、返回结构化错误（code=INVALID_ARGUMENT、message=b is required）、模型提示用户补齐而非编造。这些直接支撑三项 objectives 与三项 learning_activities（四项日志打印、两个用例运行、口头总结失败处理），也覆盖 self_check 的三项检查点。REQ-001/002/006 均被本节点 requirement_ids 关联且证据可追溯。无需补充检索。",
+    "source_ids": [
+      "ev_c618c9062e5aedbda00ac4df"
+    ],
+    "gap_queries": []
+  }
+}

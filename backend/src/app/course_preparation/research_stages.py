@@ -1,4 +1,4 @@
-"""Persist one research decision per queue step; uploads and model usage share parent state."""
+"""Checkpoint preparation stages; research and planning can share a continuous Harness session."""
 from datetime import datetime, timezone
 import hashlib
 from .research_contracts import ResearchState, Candidate
@@ -39,7 +39,15 @@ class ResearchStages:
         def reserve(value):
             self.repository.checkpoint(context,{**checkpoint,'research_state':value.model_dump(mode='json')})
         remaining=(datetime.fromisoformat(context.deadline)-datetime.now(timezone.utc)).total_seconds()
-        state=agent.step(request,state,timeout=max(1,min(90,remaining)),reserve=reserve)
+        if state.phase in ('research', 'plan') and hasattr(agent.model, 'run_learning_path'):
+            def guard():
+                self.repository.heartbeat(context)
+                if self.memory:
+                    self.memory.validate(context, checkpoint)
+            state=agent.model.run_learning_path(agent,request,state,reserve=reserve,guard=guard,
+                                               timeout=max(1,min(480,remaining)))
+        else:
+            state=agent.step(request,state,timeout=max(1,min(90,remaining)),reserve=reserve)
         if self.memory:
             self.memory.validate(context,checkpoint)
         checkpoint={**checkpoint,'research_state':state.model_dump(mode='json')}
@@ -95,7 +103,7 @@ class ResearchStages:
             checkpoint['research_summary']={'overview':'保留已交付资料及其来源；本次只修改路径安排，不引入新知识。','findings':[]}
             return StepResult(checkpoint,'plan')
         checkpoint,state=self._decision(context,dict(context.checkpoint))
-        return StepResult(checkpoint,'plan' if state.phase=='plan' else None)
+        return StepResult(checkpoint,'plan' if state.phase in ('plan','review','done') else None)
 
     def plan(self,context):
         if context.checkpoint.get('route_only_adjustment'):

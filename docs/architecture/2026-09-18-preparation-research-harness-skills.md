@@ -1,5 +1,7 @@
 # 课程准备：Harness 资料研究与学习路径 Skills
 
+> 2026-09-19 更新：research/plan 生产路径已改为[总控 Skill 的连续工具会话](2026-09-19-continuous-learning-path-harness.md)。本文记录此前的逐动作实现，其余独立阶段继续沿用。
+
 资料研究、学习路径规划、路径独立审阅和节点依据检查统一通过 `HarnessPreparationAdapter` 执行。生产 `research_dependencies.agent_factory` 使用该适配器；`HarnessIntakeAdapter` 保留为兼容导入，指向同一个实现。
 
 ## 阶段与 Skill
