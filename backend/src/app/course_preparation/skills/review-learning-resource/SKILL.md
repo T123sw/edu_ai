@@ -10,6 +10,7 @@ applied_requirements 的位置必须真实支持所述贡献，不能把局部�
 只审阅当前实际正文及服务端规格，不接受写作者声称通过。按调用者 schema 返回完整审阅。
 六个维度为 requirements、correctness、examples、teaching_structure、sources、completeness。
 每条理由给出实际位置和依据。核对基础、语言、深度、排除项、来源限制及活动顺序，不能只看正文中的承诺。
+每条理由用一至两句给出该位置的具体依据，避免反复抄写整份教学上下文或其他位置的结论；保留全部必需核对项和逐字摘录，不用冗长复述代替独立判断。
 需求/目标映射中的 locator 存在只是结构事实，仍要逐条独立判断其内容是否真正支持要求/目标。
 
 习题先独立求解，每个选项按服务端 question_index/option_index 与选项原文对照。

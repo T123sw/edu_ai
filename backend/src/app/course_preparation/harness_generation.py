@@ -104,13 +104,22 @@ class PreparationHarnessGateway:
             raise ResearchError('OUTPUT_BUDGET_INVALID', '当前阶段输出预算不合法')
         remaining = (datetime.fromisoformat(self.deadline) - datetime.now(timezone.utc)).total_seconds()
         timeout = min(120, remaining)
-        session_deadline = time.monotonic() + timeout
+        started = time.monotonic()
+        session_deadline = started + timeout
+        parent_deadline = started + remaining
+        toolset = None
 
         def check():
             if self.canceled():
                 raise ResearchError('CANCELED', '备课生成已取消')
-            if time.monotonic() >= session_deadline:
-                raise ResearchError('BUDGET_EXHAUSTED', '备课会话或父任务时限耗尽')
+            now = time.monotonic()
+            if now >= parent_deadline:
+                raise ResearchError('BUDGET_EXHAUSTED', '备课父任务时限耗尽')
+            if now >= session_deadline and (toolset is None or toolset.result is None):
+                raise ResearchError('PROVIDER_TIMEOUT', 'Harness 本次会话超过时限，尚未提交结果')
+            # Submission is checked before result is set. Native final ACK and
+            # shutdown may finish afterwards, but cancellation/lease/parent
+            # deadline guards still apply to the accepted result.
             self.guard()
 
         check()

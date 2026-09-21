@@ -133,7 +133,10 @@ def check_classroom_render(content, *, media_receipts=None):
                         or not set(q.get('answer', [])) <= set(values)):
                     issues.append(f'{sid}: invalid quiz/answer reference')
                 seen.add(q.get('id'))
-            allowed_speech = {q.get('question', '') + '。请选择答案，提交后查看解析。' for q in questions}
+            from .classroom_storyboard import quiz_narration
+            allowed_speech = {text for q in questions for text in (
+                quiz_narration(q.get('question', '')),
+                q.get('question', '') + '。请选择答案，提交后查看解析。')}
         for action in scene.get('actions', []):
             aid = action.get('id')
             if aid in all_actions:

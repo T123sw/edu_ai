@@ -128,6 +128,11 @@ def _shape(identity, left, top, width, height, *, arrow=False):
             'path': 'M0 35 L60 35 L60 0 L100 50 L60 100 L60 65 L0 65 Z' if arrow else 'M0 0 L100 0 L100 100 L0 100 Z'}
 
 
+def quiz_narration(prompt):
+    separator = '' if prompt.endswith(('。', '？', '?', '！', '!', '.')) else '。'
+    return prompt + separator + '请选择答案，提交后查看解析。'
+
+
 def render_storyboard(board, title, resource_id):
     now = int(datetime.now(timezone.utc).timestamp() * 1000)
     stage = {'id': resource_id, 'name': title, 'createdAt': now, 'updatedAt': now}
@@ -145,7 +150,7 @@ def render_storyboard(board, title, resource_id):
             # Only the prompt is spoken before submission. Never schedule the
             # model's quiz narration (which can inadvertently contain answers).
             scene['actions'] = [{'id': f'{sid}:speech', 'type': 'speech',
-                                 'text': q.prompt + '。请选择答案，提交后查看解析。'}]
+                                 'text': quiz_narration(q.prompt)}]
         else:
             elements = [_text(f'{sid}:title', plan.title, 50, 25, 900, 95, 34)]
             actions = [{'id': f'{sid}:speech', 'type': 'speech', 'text': plan.narration}]

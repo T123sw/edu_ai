@@ -17,6 +17,25 @@ def test_controlled_renderer_passes_without_claiming_browser_or_audio_acceptance
                       'browser_layout': 'not_checked', 'audio_listening': 'not_checked'}
 
 
+@pytest.mark.parametrize('ending', ['？', '?', '。', ''])
+def test_quiz_narration_punctuation_does_not_trigger_content_rebuild(ending):
+    board=board_data()
+    prompt='程序返回什么'+ending
+    board['scenes'][-1]['question']['prompt']=prompt
+    board['scenes'][-1].update(screen=[prompt],narration=prompt)
+    c=render_storyboard(ClassroomStoryboard.model_validate(board),'课堂','r')
+    speech=c['scenes'][-1]['actions'][0]
+    expected=prompt+('' if ending else '。')+'请选择答案，提交后查看解析。'
+    assert speech['text']==expected
+    assert check_classroom_render(c)['passed']
+    # Existing persisted candidates remain readable; this extra separator
+    # cannot reveal an answer and must not force a model rewrite.
+    speech['text']=prompt+'。请选择答案，提交后查看解析。'
+    assert check_classroom_render(c)['passed']
+    speech['text']=expected+'正确答案是 A。'
+    assert not check_classroom_render(c)['passed']
+
+
 @pytest.mark.parametrize('failure', ['bounds', 'font', 'empty', 'stage', 'element', 'scene', 'type', 'nan', 'image', 'action', 'quiz_leak'])
 def test_invalid_render_and_references_are_blocked(failure):
     c = content(); s = c['scenes'][0]; e = s['content']['canvas']['elements'][0]
