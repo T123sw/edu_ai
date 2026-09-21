@@ -19,6 +19,8 @@ def run_review(change=lambda response: None):
                 {'segment_index': 0, 'text': 'A 正确，程序执行。'},
                 {'segment_index': 1, 'text': 'B 错误，模型只提出调用。'}]
             response = completion_review({'preparation': metadata}, 'quiz')
+            response['preparation_checks'] = [{'binding_index': index, 'passed': check['passed'], 'reason': check['reason']}
+                for index, check in enumerate(response['preparation_checks'])]
             for index, option in enumerate(response['question_checks'][0]['option_checks']):
                 option.pop('explanation_excerpt')
                 option['explanation_span'] = {'start_segment': index, 'end_segment': index}
@@ -50,3 +52,18 @@ def test_missing_explanation_is_rejected_content_not_invented_quote():
     review, feedback = run_review(change)
     assert review.question_checks[0].option_checks[0].explanation_excerpt == ''
     assert feedback
+
+
+@pytest.mark.parametrize('fault', ['duplicate', 'missing', 'unknown', 'rejected'])
+def test_indexed_bindings_keep_full_coverage_and_semantic_rejection(fault):
+    def change(response):
+        checks=response['preparation_checks']
+        if fault=='duplicate':checks[1]['binding_index']=checks[0]['binding_index']
+        elif fault=='missing':checks.pop()
+        elif fault=='unknown':checks[0]['binding_index']=999
+        else:checks[0]['passed']=False
+    if fault=='rejected':
+        _,feedback=run_review(change)
+        assert feedback
+    else:
+        with pytest.raises(GenerationFailure,match='RESOURCE_REVIEW_RESPONSE_INVALID'):run_review(change)

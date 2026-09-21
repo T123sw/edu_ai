@@ -1,5 +1,6 @@
 import json
 import httpx
+import pytest
 from deepseek_harness import DeepSeekHarness
 from app.course_preparation.harness_generation import ContentTools
 from tests.course_preparation.test_harness_generation import gateway
@@ -46,7 +47,10 @@ def test_report_writer_and_independent_reviewer_use_native_object_submissions():
     from app.chat.harness.reviewed_report import generate_reviewed_report, verified_review
     request=payload();envelope=report_envelope();calls=[]
     metadata=preparation_metadata('report',envelope['content'],envelope,request.teaching_context,request.spec_digest)
-    replies=[envelope,completion_review({'preparation':metadata})]
+    review=completion_review({'preparation':metadata})
+    review['preparation_checks']=[{'binding_index':i,'passed':c['passed'],'reason':c['reason']}
+                                  for i,c in enumerate(review['preparation_checks'])]
+    replies=[envelope,review]
     def complete(http_request):
         body=json.loads(http_request.content);calls.append(body)
         name=next(t['function']['name'] for t in body['tools'] if t['function']['name']!='skill')
@@ -62,17 +66,20 @@ def test_report_writer_and_independent_reviewer_use_native_object_submissions():
     assert {row['receipt']['model_response']['phase'] for row in ledger.actions}=={'resource_write','resource_review'}
 
 
-def test_native_quiz_review_selects_original_explanation_spans_and_persists_canonical_audit():
+@pytest.mark.parametrize('malformed_first', [False, True])
+def test_native_quiz_review_selects_original_explanation_spans_and_persists_canonical_audit(malformed_first):
     from tests.course_preparation.test_generated_content_constraints import payload, quiz_envelope, completion_review
     from app.chat.harness.preparation_content import preparation_metadata
     from app.chat.harness.reviewed_resource import ReviewedResourceGenerator, verified_resource
     request=payload('quiz');envelope=quiz_envelope();calls=[]
     metadata=preparation_metadata('quiz',envelope['content'],envelope,request.teaching_context,request.spec_digest)
     review=completion_review({'preparation':metadata},'quiz')
+    review['preparation_checks']=[{'binding_index':i,'passed':c['passed'],'reason':c['reason']}
+                                  for i,c in enumerate(review['preparation_checks'])]
     for index,option in enumerate(review['question_checks'][0]['option_checks']):
         option.pop('explanation_excerpt')
         option['explanation_span']={'start_segment':index,'end_segment':index}
-    replies=[envelope,review]
+    replies=([{'title':'bad wrapper','questions':[]}] if malformed_first else [])+[envelope,review]
     def complete(http_request):
         body=json.loads(http_request.content);calls.append(body)
         name=body['tools'][0]['function']['name']
@@ -87,4 +94,4 @@ def test_native_quiz_review_selects_original_explanation_spans_and_persists_cano
     checks=artifact['generation_state']['resource_review']['question_checks'][0]['option_checks']
     assert checks[0]['explanation_excerpt']=='A 正确，程序执行。'
     assert checks[1]['explanation_excerpt']=='B 错误，模型只提出调用。'
-    assert len(calls)==len(ledger.actions)==2
+    assert len(calls)==len(ledger.actions)==(3 if malformed_first else 2)

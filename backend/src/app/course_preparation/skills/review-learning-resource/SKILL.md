@@ -12,6 +12,7 @@ applied_requirements 的位置必须真实支持所述贡献，不能把局部�
 每条理由给出实际位置和依据。核对基础、语言、深度、排除项、来源限制及活动顺序，不能只看正文中的承诺。
 每条理由用一至两句给出该位置的具体依据，避免反复抄写整份教学上下文或其他位置的结论；保留全部必需核对项和逐字摘录，不用冗长复述代替独立判断。
 需求/目标映射中的 locator 存在只是结构事实，仍要逐条独立判断其内容是否真正支持要求/目标。
+当前 schema 使用 binding_index 时，每个原绑定编号恰好返回一次，只附 passed 和具体 reason，由服务端还原原始 ID 与定位；不得新增或替换绑定。旧 schema 才直接返回 binding_type、binding_id 和 locator。
 
 习题先独立求解，每个选项按服务端 question_index/option_index 与选项原文对照。
 option_checks 必须与原题 options 数组精确对应。options 为空或不存在时（判断题、简答题）返回 []，

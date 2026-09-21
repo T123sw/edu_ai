@@ -75,14 +75,14 @@ def report_sections(body):
     def finish():
         if current is not None:
             prose = '\n'.join(line for line in lines if not re.match(r'^#{1,6}\s', line)).strip()
-            if not prose or not any(re.match(r'^##\s+\S', line) for line in lines):
+            if not prose or not any(re.match(r'^#{2,6}\s+\S', line) for line in lines):
                 raise ValueError('preparation_section_has_no_content')
             sections[current] = '\n'.join(lines).strip()
     for line in body.splitlines():
         if re.match(r'^\s*(```|~~~)', line):
             fenced = not fenced
         anchor = r'''<a\s+id=(["'])([A-Za-z0-9_.:-]+)\1></a>'''
-        heading = bool(re.match(r'^##\s+\S', line))
+        heading = bool(re.match(r'^#{2,6}\s+\S', line))
         match = (re.search(anchor, line) if heading else re.fullmatch(r'\s*' + anchor + r'\s*', line)) if not fenced else None
         if match:
             finish()

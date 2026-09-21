@@ -9,12 +9,14 @@ from app.chat.harness.preparation_content import preparation_metadata, report_se
 from tests.chat.test_reviewed_report import BODY, payload as legacy_payload, review
 
 
-@pytest.mark.parametrize('heading', ['## <a id="example"></a>实例', "## 实例 <a id='example'></a>"])
+@pytest.mark.parametrize('heading', ['## <a id="example"></a>实例', "## 实例 <a id='example'></a>",
+                                    '### <a id="example"></a>实例', '<a id="example"></a>\n### 实例'])
 def test_native_report_heading_anchor_resolves_without_rewriting_body(heading):
     body = heading + '\n真实示例。\n```html\n<a id="fake"></a>\n```'
-    assert report_sections(body) == {'example': body}
+    section = body.removeprefix('<a id="example"></a>\n')
+    assert report_sections(body) == {'example': section}
     from app.chat.harness.preparation_content import resolve_locator
-    assert resolve_locator('report', body, {'section_id': 'example'}) == body
+    assert resolve_locator('report', body, {'section_id': 'example'}) == section
     with pytest.raises(ValueError, match='duplicate_section'):
         report_sections(body + '\n' + heading + '\n重复位置。')
 
@@ -148,6 +150,33 @@ class CountingGateway:
         return json.dumps(report_envelope(order) if self.kind=='report' else quiz_envelope(),ensure_ascii=False)
 
 
+@pytest.mark.parametrize('kind', ['report', 'quiz'])
+@pytest.mark.parametrize('failures', [1, 3])
+def test_invalid_writer_envelope_gets_bounded_correction_before_any_review(phases, kind, failures):
+    class Gateway(CountingGateway):
+        def chat(self, messages, **kwargs):
+            data=json.loads(messages[-1]['content'])
+            if 'schema' not in data:
+                if self.writer_calls:
+                    assert not data['previous_draft']
+                    assert 'preparation_content_envelope_missing' in str(data['feedback'])
+                if self.writer_calls < failures:
+                    self.writer_calls += 1
+                    return json.dumps({'title':'missing envelope', 'questions':[]})
+            return super().chat(messages, **kwargs)
+    gateway=Gateway(kind)
+    def generate():
+        if kind=='report': return reviewed_report.generate_reviewed_report(payload(kind),gateway)
+        return reviewed_resource.ReviewedResourceGenerator(gateway).generate(payload(kind),job_id='j',config_snapshot_id='c')
+    if failures==3:
+        from app.course_preparation.generation_failures import GenerationFailure
+        with pytest.raises(GenerationFailure,match='PREPARATION_CONTENT_CONTRACT'):generate()
+        assert gateway.writer_calls==3 and gateway.review_calls==0
+    else:
+        generate()
+        assert gateway.writer_calls==2 and gateway.review_calls==1
+
+
 @pytest.fixture
 def phases(monkeypatch):
     # Native B runtime is tested separately; this fixture checks explicit routing.
@@ -203,7 +232,7 @@ def test_invalid_locator_or_identity_is_contract_error_before_review(phases,muta
     gateway=Gateway()
     with pytest.raises(GenerationFailure) as error:
         reviewed_report.generate_reviewed_report(payload(),gateway)
-    assert error.value.detail.category=='contract' and gateway.writer_calls==1
+    assert error.value.detail.category=='contract' and gateway.writer_calls==3
 
 
 def test_teaching_context_accepts_A_strict_model(phases):
