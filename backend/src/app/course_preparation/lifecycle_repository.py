@@ -15,6 +15,7 @@ from .tool_registry import digest
 
 class StaleLease(RuntimeError): pass
 class BudgetExceeded(RuntimeError): pass
+class BudgetReservationPending(BudgetExceeded): pass
 class RevisionConflict(ValueError): pass
 class NoProgress(RuntimeError): pass
 
@@ -285,9 +286,15 @@ class LifecycleRepository(PreparationRepository):
                 raise ValueError('ACTION_PAYLOAD_CONFLICT')
             return self._action_view(old, replay=True)
         limits, reserved, consumed = budget.limits, dict(budget.reserved), budget.consumed
+        # A genuinely exhausted metric takes precedence over a temporary hold
+        # in another metric. Waiting can only help if this request could fit
+        # after other in-flight actions settle their conservative reservations.
+        for metric, amount in cost.model_dump().items():
+            if consumed[metric] + amount > limits[metric]:
+                raise BudgetExceeded('BUDGET_EXHAUSTED:' + metric)
         for metric, amount in cost.model_dump().items():
             if consumed[metric] + reserved[metric] + amount > limits[metric]:
-                raise BudgetExceeded('BUDGET_EXHAUSTED:' + metric)
+                raise BudgetReservationPending('BUDGET_RESERVED:' + metric)
             reserved[metric] += amount
         budget.reserved = reserved
         action = Action(action_id='paction_' + uuid4().hex, preparation_id=prep.preparation_id,

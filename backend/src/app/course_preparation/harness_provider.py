@@ -130,8 +130,10 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                                 'model': model,
                                 **({'skill': {'name': required_skill['name'], 'sha256': required_skill['sha256'], 'loaded': True}} if required_skill else {}),
                             }
-                            action = adapter.meter.start(input_upper_bound=size, output_limit=effective_output, model=model) if adapter.meter else None
+                            action = adapter.meter.start(input_upper_bound=size, output_limit=effective_output,
+                                model=model, deadline=deadline) if adapter.meter else None
                             try:
+                                remaining = max(.001, deadline - time.monotonic())
                                 with adapter.client_factory(timeout=httpx.Timeout(remaining, connect=min(10, remaining))) as client:
                                     with client.stream('POST', candidate['api_base'].rstrip('/') + '/chat/completions',
                                             headers=adapter.gateway._build_headers(candidate.get('api_key')), json=payload) as response:
