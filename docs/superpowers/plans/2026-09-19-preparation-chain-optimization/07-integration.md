@@ -125,3 +125,5 @@ PYTHONPATH=backend/src /home/zxqs_ep/miniforge3/envs/edu-ai/bin/python \
 - 历史 `3461e4a8` 的 Pro 桌面新课程曾完整交付并通过报告、习题保存回读和课堂页面/旁白推进，窄屏失败。该成绩不移记到 Flash 或当前源码；真实 TTS 未验收。
 - 新整课智能阶段已验证实际原生 DeepSeekHarness + Skill/MCP → `deepseek-v4-flash`，供应商响应名 `deepseek-flash`。旧学习对话及其部分补充/修订入口仍有 BoundedModelAdapter，不能称全应用已迁移。
 - G2–G4 仍未完成。完整账本保存 **105 个已启动任务**，含失败/取消，未启动轮次另列；历史报告未覆盖。见 [故障修复与 Flash 复验报告](../../../acceptance/2026-09-21-preparation-chain-recovery/README.md)、[逐轮账本](../../../acceptance/2026-09-21-preparation-chain-recovery/runs.md) 和 [未覆盖矩阵](../../../acceptance/2026-09-21-preparation-chain-recovery/not-run.json)。本次合并没有自动部署或重启业务服务。
+
+- 清理前全库补查：本轮账本 105 个任务的预留均为零，但更早验收留下的 5 个取消任务仍有旧预留，未纳入本轮分母，也未手工清零或伪造实际用量。历史迁移/对账仍有缺口，详见报告的旧预留记录。

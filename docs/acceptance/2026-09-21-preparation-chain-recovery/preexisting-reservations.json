@@ -1,0 +1,57 @@
+[
+  {
+    "preparation_id": "prep_bd6ed2e73ebe4ff88782f925ba841a78",
+    "created_at": "2026-09-21T04:25:09.745272+00:00",
+    "status": "canceled",
+    "reserved": {
+      "calls": 1,
+      "tokens": 52316,
+      "cost_micro_usd": 523160
+    },
+    "in_recovery_ledger": false
+  },
+  {
+    "preparation_id": "prep_6085c56391274805996a25bcf4839be0",
+    "created_at": "2026-09-21T04:08:25.607879+00:00",
+    "status": "canceled",
+    "reserved": {
+      "calls": 1,
+      "tokens": 47940,
+      "cost_micro_usd": 479400
+    },
+    "in_recovery_ledger": false
+  },
+  {
+    "preparation_id": "prep_fd7b6e0b83c74f66998249ec8d8546b8",
+    "created_at": "2026-09-21T04:09:54.309308+00:00",
+    "status": "canceled",
+    "reserved": {
+      "calls": 1,
+      "tokens": 120927,
+      "cost_micro_usd": 1209270
+    },
+    "in_recovery_ledger": false
+  },
+  {
+    "preparation_id": "prep_74945c1474734f8fb3e3f34738683a7a",
+    "created_at": "2026-09-21T04:13:01.349753+00:00",
+    "status": "canceled",
+    "reserved": {
+      "calls": 1,
+      "tokens": 40203,
+      "cost_micro_usd": 402030
+    },
+    "in_recovery_ledger": false
+  },
+  {
+    "preparation_id": "prep_9fe6e450dd5a459393b8ca3805bcfec0",
+    "created_at": "2026-09-21T04:26:59.038289+00:00",
+    "status": "canceled",
+    "reserved": {
+      "calls": 1,
+      "tokens": 50820,
+      "cost_micro_usd": 508200
+    },
+    "in_recovery_ledger": false
+  }
+]

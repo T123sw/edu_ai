@@ -19,7 +19,7 @@
 | R01 / run-01 | canceled | passed | 34.4 | 2 | 8977 | 2 | — |
 | browser-desktop / fresh-course | failed | failed | 601.82 | 77 | 918809 | 63 | QUALITY_GATE_FAILED |
 
-E03 的业务失败只有在 `RESEARCH_INSUFFICIENT`、无最终课程且严格回执断言通过时才算测试通过；R01 同理要求准确取消和预留结清。所有已启动任务均保留，当前及历史终态任务的 reserved 已归零。
+E03 的业务失败只有在 `RESEARCH_INSUFFICIENT`、无最终课程且严格回执断言通过时才算测试通过；R01 同理要求准确取消和预留结清。本轮账本中的 105 个已启动任务均保留且 reserved 已归零。全库额外核对发现更早（04:08–04:26 UTC）的 5 个取消任务仍有旧预留，均不在本轮账本内；未手工改写或回填历史计量，见 [旧预留记录](preexisting-reservations.json)。这些旧任务无活动 attempt，不能据本轮修复宣称历史欠账已自动迁移结清。
 
 E01 要求连续三次独立成功。启用 stop-on-failure 后，首轮失败则第 2/3 轮为 **not_run**；Playwright 桌面失败则窄屏为 **not_run**，不能计作通过或已启动样本。
 
