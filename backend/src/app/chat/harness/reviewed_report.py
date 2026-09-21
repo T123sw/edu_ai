@@ -163,6 +163,8 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
             candidate.save(body, state)
             schema = IndexedPreparationReview if context is not None else Review
             reviewer = phase_gateway(gateway, payload, 'resource_review')
+            if callable(getattr(reviewer, 'with_response_schema', None)):
+                reviewer = reviewer.with_response_schema(schema.model_json_schema())
             review_specification = {**specification, 'evidence': getattr(payload, 'review_research_context', specification['evidence'])}
             messages = [
                 {'role':'system','content': '你是独立的报告审阅者。审阅完整正文，不是大纲。只输出符合 schema 的 JSON。'

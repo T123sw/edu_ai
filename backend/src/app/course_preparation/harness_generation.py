@@ -27,7 +27,7 @@ class ContentTools:
     terminal_on_result = True
     content_submission = True
 
-    def __init__(self, guard, *, structured=False):
+    def __init__(self, guard, *, structured=False, response_schema=None):
         self.guard = guard
         self.structured = structured
         self.lock = threading.RLock()
@@ -41,13 +41,19 @@ class ContentTools:
                            'required': ['text'], 'additionalProperties': False},
         }}
         if structured:
+            value_schema = deepcopy(response_schema) if response_schema is not None else {'type': 'object', 'additionalProperties': True}
+            # References are rooted at the tool parameters, not at value.
+            definitions = value_schema.pop('$defs', None)
             self.tools = {'submit_resource_json': {
                 'name': 'submit_resource_json',
                 'description': '提交本轮结构化结果对象；value 直接放 JSON 对象，不要再次编码为字符串。业务层随后独立校验。',
                 'parameters': {'type': 'object', 'properties': {
-                    'value': {'type': 'object', 'additionalProperties': True}},
+                    'value': value_schema},
                     'required': ['value'], 'additionalProperties': False},
             }}
+
+            if definitions is not None:
+                self.tools['submit_resource_json']['parameters']['$defs'] = definitions
 
     def schemas(self):
         return [{'name': name, 'description': spec['description'], 'inputSchema': spec['parameters']}
@@ -111,6 +117,9 @@ class PreparationHarnessGateway:
         view._phase_context = deepcopy(context)
         return view
 
+    def with_response_schema(self, schema):
+        return self.for_phase(self.phase, context={**self._phase_context, 'response_schema': schema})
+
     def chat(self, messages, temperature=.2, max_tokens=12000):
         if self.phase is None:
             raise ResearchError('HARNESS_PHASE_REQUIRED', '备课生成必须显式绑定写作、审阅或修复阶段')
@@ -140,12 +149,14 @@ class PreparationHarnessGateway:
             self.guard()
 
         check()
-        toolset = ContentTools(check, structured=self._phase_context.get('response_format') == 'json')
+        toolset = ContentTools(check, structured=self._phase_context.get('response_format') == 'json',
+                               response_schema=self._phase_context.get('response_schema'))
         adapter = HarnessPreparationAdapter(self.configured, client_factory=self.client_factory,
             context_tokens=self.context_tokens, sdk_factory=self.sdk_factory,
             meter=PreparationModelMeter(self.store, self.context))
         spec = self.context.get('spec', {})
-        context = {**self._phase_context, 'phase': self.phase, 'messages': deepcopy(messages),
+        phase_context = {k: v for k, v in self._phase_context.items() if k != 'response_schema'}
+        context = {**phase_context, 'phase': self.phase, 'messages': deepcopy(messages),
                    'artifact_id': self.context.get('artifact_id'),
                    'node_id': spec.get('node_id', self._phase_context.get('node_id'))}
         if self.context.get('spec_digest'):

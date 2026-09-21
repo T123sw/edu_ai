@@ -55,6 +55,16 @@ def test_report_writer_and_independent_reviewer_use_native_object_submissions():
         body=json.loads(http_request.content);calls.append(body)
         name=next(t['function']['name'] for t in body['tools'] if t['function']['name']!='skill')
         assert name.endswith('submit_resource_json')
+        if len(calls) == len(replies):
+            from jsonschema import Draft202012Validator
+            parameters = body['tools'][0]['function']['parameters']
+            value_schema = parameters['properties']['value']
+            assert 'preparation_checks' in value_schema['required']
+            Draft202012Validator.check_schema(parameters)
+            validator = Draft202012Validator(parameters)
+            validator.validate({'value': replies[-1]})
+            missing = {k: v for k, v in replies[-1].items() if k != 'preparation_checks'}
+            assert not validator.is_valid({'value': missing})
         return httpx.Response(200,json={'id':'report','object':'chat.completion','created':1,'model':body['model'],
             'choices':[{'index':0,'message':{'role':'assistant','content':None,'tool_calls':[
                 {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps({'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
@@ -84,6 +94,16 @@ def test_native_quiz_review_selects_original_explanation_spans_and_persists_cano
         body=json.loads(http_request.content);calls.append(body)
         name=body['tools'][0]['function']['name']
         assert name.endswith('submit_resource_json')
+        if len(calls) == len(replies):
+            from jsonschema import Draft202012Validator
+            parameters = body['tools'][0]['function']['parameters']
+            value_schema = parameters['properties']['value']
+            assert 'preparation_checks' in value_schema['required']
+            Draft202012Validator.check_schema(parameters)
+            validator = Draft202012Validator(parameters)
+            validator.validate({'value': replies[-1]})
+            missing = {k: v for k, v in replies[-1].items() if k != 'preparation_checks'}
+            assert not validator.is_valid({'value': missing})
         return httpx.Response(200,json={'id':'quiz','object':'chat.completion','created':1,'model':body['model'],
             'choices':[{'index':0,'message':{'role':'assistant','content':None,'tool_calls':[
                 {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps({'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
@@ -95,3 +115,24 @@ def test_native_quiz_review_selects_original_explanation_spans_and_persists_cano
     assert checks[0]['explanation_excerpt']=='A 正确，程序执行。'
     assert checks[1]['explanation_excerpt']=='B 错误，模型只提出调用。'
     assert len(calls)==len(ledger.actions)==(3 if malformed_first else 2)
+
+
+def test_review_schema_references_remain_valid_and_are_isolated_per_session():
+    from copy import deepcopy
+    from jsonschema import Draft202012Validator
+    from app.chat.harness.reviewed_resource import IndexedQuizTransportReview
+    schema = IndexedQuizTransportReview.model_json_schema()
+    original = deepcopy(schema)
+    tools = ContentTools(lambda: None, structured=True, response_schema=schema)
+    parameters = tools.schemas()[0]['inputSchema']
+    Draft202012Validator.check_schema(parameters)
+    assert schema == original
+    assert parameters['$defs'] == original['$defs']
+    assert 'preparation_checks' in parameters['properties']['value']['required']
+    assert 'question_checks' in parameters['properties']['value']['required']
+    assert parameters['$defs']['IndexedQuestionReview']['additionalProperties'] is False
+    parameters['$defs'].clear()
+    assert schema == original
+    generic = ContentTools(lambda: None, structured=True).schemas()[0]['inputSchema']
+    assert '$defs' not in generic
+    assert generic['properties']['value']['additionalProperties'] is True

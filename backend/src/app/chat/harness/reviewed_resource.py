@@ -360,6 +360,8 @@ def review_content(kind, content, spec, gateway, *, durable=False, candidate=Non
         review_schema = PreparationQuizReview
     indexed_quiz = kind == 'quiz' and bool(spec.get('preparation'))
     transport_schema = IndexedQuizTransportReview if indexed_quiz else review_schema
+    if callable(getattr(gateway, 'with_response_schema', None)):
+        gateway = gateway.with_response_schema(transport_schema.model_json_schema())
     wire_spec = {**spec, 'preparation': indexed_preparation(spec['preparation'])} if indexed_quiz else spec
     binding_instruction = ('preparation_checks 对每条原绑定返回 binding_index、passed、reason，每个原编号恰好一次；'
         '服务端还原 ID 与定位，不增加绑定或改变原定位。' if indexed_quiz else
