@@ -49,7 +49,7 @@ learning_activities 和 self_check 展开真实内容，教学顺序必须体现
 遵守 exclusions 和 source_policy，只引用已给 evidence；不足就明确指出，不编造依据。
 不沿用固定面试模板；只有本次用户明确要求面试才安排面试话术。
 node_budget_minutes 是整个节点的时间上限，不是每份资源各自的时长；resource_target_minutes
-为空时不自行分配。控制篇幅，正文包含可实际学习的例子、解释和检查。
+为空时不自行宣称获得硬配额，但仍须为同节点其他必需资源留出学习时间。控制篇幅，正文包含可实际学习的例子、解释和检查；各资源合计覆盖节点，不能各自扩写成一套完整课程。
 resource_target_minutes 有值时是本资源必须满足的上限，duration_constraint 给出程序的计算方式。
 resource_repair_target_minutes 是本轮跨资源分配的修订目标，尽量通过实际缩减满足；不等于用户单资源硬上限。
 未达到修订目标的候选也必须接受独立审阅与节点/整课实际总时长门禁，不能自行标为可交付。

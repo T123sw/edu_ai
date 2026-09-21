@@ -11,6 +11,11 @@ description: 在受计量的 classroom_write/classroom_repair 阶段制作单份
 
 按用户要求安排实际 scenes 顺序，例如先例子后原理。页数由可执行内容决定；max_scenes 是安全上限，不是固定页数质量标准。node_budget_minutes 是整节点约束；resource_target_minutes 非空时是显式单资源硬上限，resource_repair_target_minutes 非空时是服务端联合修订目标，应通过实际删减或合并冗余工作量尽量满足。estimated_seconds 包含讲解、观察和作答，不能标为实测。全部候选最终按真实估算合计检查节点和整课硬上限，不能以降低数字冒充减少工作量。
 
+本次同时需要报告、习题和课堂时，课堂承担直观演示与必要讲解，不再逐章复述报告或复制整套习题。
+对于不超过10分钟的入门节点，用户未指定页数时，先用2–4个场景承接完整例子、关键机制与必要检查；
+这是最小充分工作量的起点而非页数硬上限，目标确有需要时可以增加。一个步骤图场景可以完整演示多个步骤，
+不要把每条目标、每个定义和每项排除主题各扩成一页。合并重复场景、删掉重复旁白来减少用时，不能仅下调 estimated_seconds。
+
 至少用一个有序步骤图表达真实过程：每步 label、detail 和 narration 指向同一个例子、输入与结果，失败分支不得计算成功结果。步骤由已支持的形状、文本与 spotlight/speech 播放；不生成 HTML 小程序、网络资源地址或无人消费的动作。步骤页 screen 只写一句概述，普通页 screen 写简短要点。
 
 练习映射为原生 quiz 页，student_action=answer、feedback=on_submit。screen 仅含题干，narration 也只重复题干；answer 和 analysis 只写在 question 内，由提交按钮触发显示。题目必须有唯一选项值，answer 引用一个真实选项；解析逐项核对，不能在其他页、标题或前置旁白泄题。教学 purpose 不得冒充原生 scene.type。
