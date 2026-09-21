@@ -1,5 +1,6 @@
 """Persistent question snapshots and immutable attempts; judgments never mark completion."""
 import json
+import re
 import time
 from typing import Literal
 from uuid import UUID, uuid4
@@ -150,6 +151,10 @@ class CheckService(SessionRepository):
         mapping.update({o.id: o.id for o in parsed})
         answer = raw.get('correct_option_ids', raw.get('answer'))
         keys = answer if isinstance(answer, list) else [answer]
+        if raw.get('type') == 'multiple_choice' and 'correct_option_ids' not in raw and isinstance(answer, str):
+            labels = answer.strip().upper()
+            if re.fullmatch(r'[A-Z](?:[\s,，、;；]*[A-Z])*', labels):
+                keys = list(re.sub(r'[\s,，、;；]', '', labels))
         # Only explicit whole option IDs/labels, never regex-extract letters from prose.
         if any(str(k) not in mapping for k in keys):
             raise ValueError('ambiguous legacy answer format')

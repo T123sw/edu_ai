@@ -136,3 +136,19 @@ def test_material_quiz_uses_snapshot_ids_and_blocks_legacy_writes(checks):
 def test_generated_short_answer_keeps_reference(checks):
     question=checks.bank_question({'form':'short_answer','stem':'变量是什么','reference_answer':'变量名绑定值','explanation':'区分名称和值'})
     assert question.reference_answer=='变量名绑定值'
+
+
+@pytest.mark.parametrize('answer', ['A,B,C', 'ABC', 'a，b、c', 'A; B; C'])
+def test_native_multiple_choice_labels_preserve_exact_answer_set(answer):
+    from app.self_learning.check_service import CheckService
+    question=CheckService.bank_question({'type':'multiple_choice', 'stem':'哪些环节属于程序？',
+        'options':['校验','执行','回传','模型选择'], 'answer':answer, 'explanation':'程序负责前三项。'})
+    assert question.correct_option_ids==['option_1','option_2','option_3']
+
+
+@pytest.mark.parametrize('answer', ['答案是 A,B', 'A 或 B', 'A,D', 'A,B 因为二者正确'])
+def test_native_multiple_choice_never_extracts_labels_from_ambiguous_prose(answer):
+    from app.self_learning.check_service import CheckService
+    with pytest.raises(ValueError):
+        CheckService.bank_question({'type':'multiple_choice','stem':'选择明确正确项',
+            'options':['第一项','第二项','第三项'],'answer':answer})
