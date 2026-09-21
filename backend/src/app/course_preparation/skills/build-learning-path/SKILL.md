@@ -10,6 +10,8 @@ description: 从已理解的学习需求出发，在同一 Harness 会话中读�
 
 工具直接返回真实结果并保存进度。每次根据返回结果选择下一步；不要调用后就结束会话。成功路径以 save_course_plan 返回 path_saved=true 为完成标志。确实无法补齐核心依据时，调用 report_research_blocker，返回 research_stopped=true 后结束；这代表资料不足，不代表成功交付路径。纯文本、研究汇总成功、路径校验失败都不是完成。
 
+save_course_plan 每次接收完整课程对象：title、summary、nodes（全部节点数组）、limitations。校验失败后也要修正并一次重交完整对象，保留其他正确节点；不要把单个节点放在顶层，不要拆成多次调用。
+
 | 工具 | 何时使用 | 返回结果 |
 | --- | --- | --- |
 | fetch_source | 读取上传候选或网络候选正文 | evidence、引用编号 citation_ref、分页偏移 |

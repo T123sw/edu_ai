@@ -54,6 +54,19 @@ def quiz_envelope():
         'objective_bindings':[{'objective_id':'tools:o1','locator':{'question_id':'q-tools'},'role':'check'}]}
 
 
+@pytest.mark.parametrize('kind', ['report', 'quiz'])
+def test_repair_duration_cap_checks_actual_content_estimate(kind):
+    envelope = report_envelope() if kind == 'report' else quiz_envelope()
+    if kind == 'quiz':
+        envelope['question_time_estimates'] = [{'question_id': 'q-tools', 'thinking_seconds': 45,
+                                               'reason': '追踪请求、执行与回传后选择答案'}]
+    teaching = context()
+    actual = preparation_metadata(kind, envelope['content'], envelope, teaching, 'spec')['duration']['value_minutes']
+    with pytest.raises(ValueError, match='RESOURCE_DURATION_EXCEEDED'):
+        preparation_metadata(kind, envelope['content'], envelope, {**teaching, 'resource_target_minutes': actual - .1}, 'spec')
+    assert preparation_metadata(kind, envelope['content'], envelope, {**teaching, 'resource_target_minutes': actual}, 'spec')['duration']['value_minutes'] == actual
+
+
 def test_quiz_duration_uses_question_work_and_reading_not_node_budget():
     value=quiz_envelope()
     value['question_time_estimates']=[{'question_id':'q-tools','thinking_seconds':45,

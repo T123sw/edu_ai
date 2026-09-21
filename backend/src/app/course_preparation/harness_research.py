@@ -118,7 +118,13 @@ class LearningPathTools:
                     return {'ok':False, 'error':error, 'available_tools':self.available(),
                             'remaining_budget':self.agent.read_budget(self.state)}
                 except (ValueError, ValidationError) as exc:
-                    failed = self.agent._error(self.state, 'INVALID_TOOL_RESULT', str(exc)[:1600])
+                    message = str(exc)[:1200]
+                    if isinstance(exc, ValidationError):
+                        message = '; '.join(f'{e["loc"]}: {e["msg"]}' for e in exc.errors(include_input=False))[:1200]
+                    if name == 'save_course_plan':
+                        message += ('；save_course_plan 每次接收完整课程对象：title、summary、nodes（全部节点数组）、limitations。'
+                                    '修订时也必须一次重交完整对象，不能把单个节点当顶层参数，不能拆成多次调用。')
+                    failed = self.agent._error(self.state, 'INVALID_TOOL_RESULT', message)
                     self.persist(failed)
                     return {'ok': False, 'error': failed.last_error, 'available_tools': self.available()}
                 data = {}

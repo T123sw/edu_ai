@@ -57,6 +57,17 @@ def test_planning_can_return_to_research_and_invalidates_old_summary():
     assert tools.state.path is None
 
 
+def test_plan_correction_rejects_node_patch_and_explains_full_envelope():
+    tools, saved = setup_tools()
+    research(tools)
+    complete = path(tools.state.evidence[0].source_id)
+    invalid = tools.call('save_course_plan', complete['nodes'][0])
+    assert not invalid['ok'] and tools.state.path is None
+    assert '完整课程对象' in invalid['error']['message']
+    assert '不能拆成多次调用' in invalid['error']['message']
+    assert tools.call('save_course_plan', complete)['path_saved']
+
+
 def test_uploaded_only_unmounted_review_and_bad_references_cannot_execute():
     tools, saved = setup_tools(source_policy='uploaded_only')
     assert 'search_sources' not in tools.tools

@@ -171,6 +171,10 @@ def preparation_metadata(kind, content, envelope, context, spec_digest):
                     'method': 'per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated'}
     else:
         duration = {'value_minutes': None, 'basis': 'unknown', 'method': 'No calibrated learner solving-time estimate'}
+    cap = context.get('resource_target_minutes')
+    if cap is not None and (duration['value_minutes'] is None or duration['value_minutes'] > cap):
+        raise ValueError(f'RESOURCE_DURATION_EXCEEDED: estimated={duration["value_minutes"]}, '
+                         f'maximum={cap}; shorten actual content and workload, preserve objective coverage')
     return {'schema_version': 1, 'spec_digest': spec_digest,
             'teaching_context_digest': value_digest(context), 'applied_requirements': applied,
             'objective_bindings': bindings, 'duration': duration,

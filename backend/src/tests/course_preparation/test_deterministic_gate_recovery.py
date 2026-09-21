@@ -67,7 +67,10 @@ def test_joint_duration_repair_targets_are_feasible_without_changing_estimates()
         assert limit > 0
         assert issue['artifact_ids'][0] not in limits
         limits[issue['artifact_ids'][0]]=limit
-    assert set(limits)=={'n1classroom','n2classroom','n2quiz'}
+    assert set(limits)=={a['artifact_id'] for a in rows}
+    for issue in issues:
+        assert issue['resource_duration_cap_minutes'] == limits[issue['artifact_ids'][0]]
+    assert limits['n2classroom'] > 4
     for node in ['n1','n2']:
         assert sum(limits.get(a['artifact_id'],a['content']['generation_state']['preparation']['duration']['value_minutes']) for a in rows if a['spec']['node_id']==node)<=10
 
@@ -83,3 +86,22 @@ def test_global_duration_cap_uses_proposed_node_reductions_once():
     assert rows==before and len(issues)==2
     targets={i['artifact_ids'][0]:float(re.search(r'不超过 ([0-9.]+) 分钟',i['reason']).group(1)) for i in issues}
     assert sum(targets.values())<=10 and max(targets.values())<=6
+
+
+def test_duration_repair_keeps_retained_resources_fixed():
+    rows=[]
+    for key in ('retained:old', 'new'):
+        row=quiz();row['artifact_id']=key;row['spec']['node_id']='n'
+        row['content']['generation_state']['preparation']['duration']={'basis':'estimated','value_minutes':4}
+        rows.append(row)
+    issues=QualityStages._duration_issues(rows,[{'node_key':'n','minutes':6}],6)
+    assert len(issues)==1 and issues[0]['artifact_ids']==['new']
+    assert issues[0]['resource_duration_cap_minutes']==2
+
+
+def test_fractional_duration_targets_are_valid_context_but_zero_and_nan_are_not():
+    from app.course_preparation.teaching_context import TeachingContext
+    from tests.course_preparation.test_generated_content_constraints import context
+    assert TeachingContext.model_validate({**context(), 'resource_target_minutes': 2.37}).resource_target_minutes==2.37
+    for value in (0,-1,float('inf'),float('nan')):
+        with pytest.raises(ValueError):TeachingContext.model_validate({**context(), 'resource_target_minutes': value})

@@ -32,7 +32,7 @@ REGISTRY = {
     'search_sources': (SearchArgs, '搜索与当前学习目标相关的可靠资料；只返回候选摘要，不代表正文已读取。'),
     'fetch_source': (FetchArgs, '读取候选正文的5000字符节选；offset_chars默认0，需要后文时传5000、10000等偏移。取得可引用的source_id。'),
     'save_research_summary': (ResearchSummary, '汇总已读正文，逐条 finding 附 source_id 和原文短引文；不能引用搜索摘要。'),
-    'save_course_plan': (LearningPath, '根据研究证据生成有序学习路径，覆盖要求、先修、活动、自测和时间；不是已生成教学资源。'),
+    'save_course_plan': (LearningPath, '提交完整课程对象 title、summary、nodes（全部节点数组）、limitations，修订也必须完整重交，不能提交单个节点或拆成多次调用。覆盖要求、先修、活动、自测和时间；不是已生成教学资源。'),
     'submit_path_review': (PathReview, '独立检查用户原话、研究结论与学习路径，发现事实、覆盖、时间或先修问题必须 fail。'),
 }
 MOUNTS = {'intent': ('save_preparation_brief',),

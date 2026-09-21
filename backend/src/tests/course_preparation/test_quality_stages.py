@@ -5,6 +5,24 @@ from app.course_preparation.schemas import PreparationRequest
 from uuid import uuid4
 
 
+def test_duration_repair_persists_fractional_cap_without_changing_prior_spec():
+    from copy import deepcopy
+    from tests.course_preparation.test_resource_alignment import quiz
+    artifact = quiz()
+    spec = artifact['spec']; spec['revision'] = 1
+    artifact['spec_digest'] = digest(spec)
+    before = deepcopy(spec)
+    cp = {'resource_specs': [spec], 'artifacts': [artifact], 'generation_receipts': {},
+          'quality': {'issues': [{'artifact_ids': [artifact['artifact_id']], 'reason': 'shorten actual content',
+                                 'resource_duration_cap_minutes': 2.37}]}}
+    stages = QualityStages(None, None, SimpleNamespace(validate=lambda *_: None), None)
+    result = stages.repair(SimpleNamespace(checkpoint=cp, preparation_id='prep'))
+    revised = result.checkpoint['resource_specs'][0]
+    assert spec == before
+    assert revised['teaching_context']['resource_target_minutes'] == 2.37
+    assert revised['revision'] == 2 and digest(revised) != digest(spec)
+
+
 def test_full_bodies_are_reviewed_one_node_at_a_time_before_course_gate(monkeypatch):
     import app.course_preparation.quality as module
     monkeypatch.setattr(module.ResearchState, 'model_validate', lambda _: SimpleNamespace(path={}))

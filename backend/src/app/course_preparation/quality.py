@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v5'
+RULE_VERSION='preparation-delivery-v6'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
     validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
@@ -137,15 +137,14 @@ class QualityStages:
             total = sum(projected[key] for key in ids)
             if total <= budget:
                 continue
-            selected, untouched = [], total
-            for key in sorted(ids, key=lambda key: projected[key], reverse=True):
-                selected.append(key)
-                untouched -= projected[key]
-                available = budget - untouched
-                selected_total = sum(projected[item] for item in selected)
-                if available * min(projected[item] for item in selected) / selected_total >= .01:
-                    break
+            # Share the reduction across mutable resources. Taking the whole
+            # excess from one classroom can leave it an unusably small slot.
+            selected = [key for key in ids if not key.startswith('retained:') and projected[key] > 0]
+            untouched = sum(projected[key] for key in ids if key not in selected)
             available = budget - untouched
+            if not selected or available <= 0:
+                issues.append({'artifact_ids': ids, 'reason': code + '；保留资源已占满时间，需要明确授权修订保留内容。'})
+                continue
             selected_total = sum(projected[key] for key in selected)
             for key in selected:
                 target = math.floor(available * projected[key] / selected_total * 100) / 100
@@ -153,7 +152,8 @@ class QualityStages:
                 reasons.setdefault(key, []).append(f'{code}；本范围原估算 {sum(known[k] for k in ids):.2f} 分钟，上限 {budget} 分钟；'
                     f'同时修订 {len(selected)} 份资源，保留其余资源')
         for key, scope_reasons in reasons.items():
-            issues.append({'artifact_ids': [key], 'reason': '；'.join(scope_reasons) +
+            issues.append({'artifact_ids': [key], 'resource_duration_cap_minutes': projected[key],
+                'reason': '；'.join(scope_reasons) +
                 f'；本资源当前估算 {known[key]:.2f} 分钟，通过实际删减后可用不超过 {projected[key]:.2f} 分钟。'
                 '缩减冗余正文、场景或练习工作量，保留目标覆盖与稳定ID；全部新正文重新独立审阅、估算并校核。'
                 '不得只改小估算数字或复制节点预算。'})
@@ -308,7 +308,14 @@ class QualityStages:
                 reasons=list(affected[artifact['artifact_id']])
                 if detail and detail.get('message') and detail['message'] not in reasons:
                     reasons.append(detail['message'])
+                revised_context = deepcopy(spec.get('teaching_context'))
+                caps = [issue['resource_duration_cap_minutes'] for issue in checkpoint['quality']['issues']
+                        if artifact['artifact_id'] in issue['artifact_ids'] and 'resource_duration_cap_minutes' in issue]
+                if caps and revised_context is not None:
+                    previous_cap = revised_context.get('resource_target_minutes')
+                    revised_context['resource_target_minutes'] = min([*caps, *([previous_cap] if previous_cap else [])])
                 specifications.append({**spec,'revision':spec['revision']+1,
+                    **({'teaching_context': revised_context} if revised_context is not None else {}),
                     'revision_feedback':reasons,
                     'original_content':(artifact.get('content') or {}).get('content')
                         or (artifact.get('content') or {}).get('_review_candidate',{}).get('content')

@@ -68,7 +68,7 @@ prerequisites: list[NodeReference]         # node_id、title、objectives
 learning_activities: list[str]
 self_check: str
 node_budget_minutes: int
-resource_target_minutes: int | null
+resource_target_minutes: positive finite number | null  # 经校核的修订配额允许小数分钟；默认仍为 null
 assumptions: list[str]
 limitations: list[str]                    # 路径/来源真实限制，非免责替代核心目标
 ```
