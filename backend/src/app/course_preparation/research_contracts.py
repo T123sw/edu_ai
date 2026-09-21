@@ -25,6 +25,10 @@ class Requirement(Contract):
 
 
 class ResearchBrief(Contract):
+    node_count: int | None = Field(default=None, strict=True, ge=1, le=12,
+        description='本次用户明确要求的课程节点总数；未明确则 null，不自行推断。属于交付结构约束，不是正文教学要求。')
+    node_count_quote: str | None = Field(default=None, max_length=400,
+        description='node_count 非空时逐字引用本次用户明确要求节点数量的原话。')
     required_resource_types: tuple[Literal['report', 'quiz', 'classroom'], ...] = Field(default=(), max_length=3)
     learning_goal: str = Field(default="", max_length=2000)
     prior_knowledge: str = Field(default="", max_length=2000)
@@ -39,7 +43,9 @@ class ResearchBrief(Contract):
     assumptions: tuple[ShortText, ...] = Field(default=(), max_length=10, description="仅记录输入确实缺失时采用的默认值；已知目标、时长、基础不是假设。材料缺失只写 material_gaps，不得据此排除课程范围或降低目标。没有必要假设时传空数组。")
     exclusions: tuple[ShortText, ...] = Field(default=(), max_length=10, description="用户明确不学或不做的内容；不得把材料缺失写成排除项")
     material_gaps: tuple[ShortText, ...] = Field(default=(), max_length=8, description="附件不足以支持用户目标的资料缺口，交给后续研究，不降低原目标")
-    requirements: tuple[Requirement, ...] = Field(min_length=1, max_length=12)
+    requirements: tuple[Requirement, ...] = Field(min_length=1, max_length=12,
+        description='需要在教学正文讲授、练习或实际体现的内容/教学方式，例如手工追踪和先例后理。'
+        '节点数量、时间、语言、资源形式、来源限制、排除项分别保存在对应专用字段，不重复作为正文覆盖要求。')
 
 
 class Candidate(Contract):

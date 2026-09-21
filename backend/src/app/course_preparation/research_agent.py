@@ -328,6 +328,8 @@ class ResearchAgent:
         sources = {e.source_id for e in state.evidence}
         unique([n.node_key for n in path.nodes], '知识点ID')
         seen, covered, errors = set(), set(), []
+        if state.brief.node_count is not None and len(path.nodes) != state.brief.node_count:
+            errors.append(f'节点数 {len(path.nodes)} 不符合用户明确要求的 {state.brief.node_count} 个节点')
         for node in path.nodes:
             if not set(node.prerequisite_keys) <= seen:
                 errors.append(f'{node.node_key}: 先修必须在路径前面存在；可选 {sorted(seen)}')

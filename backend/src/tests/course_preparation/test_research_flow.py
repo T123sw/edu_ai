@@ -323,3 +323,30 @@ def test_finding_supports_multiple_sources_with_a_bounded_reference_list():
     from pydantic import ValidationError
     assert len(ReferencedFinding(finding_id='f',claim='多来源依据',citation_refs=[f'q{i}_1' for i in range(5)]).citation_refs)==5
     with pytest.raises(ValidationError):ReferencedFinding(finding_id='f',claim='多来源依据',citation_refs=[f'q{i}_1' for i in range(9)])
+
+
+def test_course_node_count_is_checked_without_inventing_a_teaching_requirement():
+    from app.course_preparation.research_contracts import ResearchBrief, LearningPath
+    state = run(ResearchAgent(model=Model(), sources=Sources()))
+    brief_with_count = ResearchBrief.model_validate({**state.brief.model_dump(), 'node_count': 2})
+    scoped = state.model_copy(update={'brief': brief_with_count})
+    assert [r.requirement_id for r in scoped.brief.requirements] == ['req1']
+    with pytest.raises(ValueError, match='节点数'):
+        ResearchAgent._validate_path(state.path, scoped)
+    original = state.path.nodes[0].model_dump()
+    two_nodes = LearningPath.model_validate({**state.path.model_dump(), 'nodes': [
+        {**original, 'minutes': 15}, {**original, 'node_key': 'n2', 'minutes': 15, 'prerequisite_keys': ['n1']}]})
+    ResearchAgent._validate_path(two_nodes, scoped)
+    # Historical briefs still accept their original one-node plan.
+    ResearchAgent._validate_path(state.path, state)
+
+
+def test_explicit_node_count_requires_an_exact_user_quote():
+    from app.course_preparation.intake import validate_brief
+    from app.course_preparation.research_contracts import ResearchBrief
+    req = request().model_copy(update={'goal':'用30分钟理解递归终止条件，分成两个节点'})
+    value = ResearchBrief.model_validate({**brief(), 'node_count':2, 'node_count_quote':'两个节点'})
+    validate_brief(value, req, [])
+    for bad_quote in (None, '三个节点'):
+        with pytest.raises(ValueError, match='节点数'):
+            validate_brief(value.model_copy(update={'node_count_quote':bad_quote}), req, [])

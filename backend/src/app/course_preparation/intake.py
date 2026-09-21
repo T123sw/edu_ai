@@ -32,6 +32,8 @@ def effective_request(request, checkpoint):
 
 def validate_brief(brief, request, documents):
     texts = [request.goal, *request.requested_changes]
+    if brief.node_count is not None and (not brief.node_count_quote or not any(brief.node_count_quote in text for text in texts)):
+        raise ValueError('节点数必须引用本次用户明确要求的原话 node_count_quote')
     quotes = {doc['document_id']: [p['source_quote'] for part in doc['parts'] for p in part['relevant_points']] for doc in documents}
     for requirement in brief.requirements:
         if requirement.source_document_id:
