@@ -8,6 +8,7 @@ import { CourseMaterialArtifactPreview } from '../stitch/pages/CourseMaterialArt
 import { apiRequest } from '../stitch/api/client';
 import type { CourseMaterial } from '../stitch/api/types';
 import '../stitch/styles.css';
+import './live.css';
 import { LiveQuiz } from './Quiz';
 function Material() {
   const { user, authReady } = useAuth();

@@ -54,6 +54,11 @@ export function CheckCard({ course, topic, owner, refreshKey, checkId }: { cours
         <button disabled={busy || check.source_available === false || (!choice.length && !answer.trim())} onClick={() => void run(() => submit())}>提交检查答案</button>
         <button disabled={busy} onClick={() => void run(() => submit(true))}>跳过这道检查</button>
       </> : <div role="status">
+        {attempt.status !== 'skipped' && <fieldset aria-label="已保存的作答" disabled>
+          <legend>你的作答</legend>
+          {check.public_question.options.map(option => <label key={option.id}><input type="checkbox" checked={attempt.option_ids.includes(option.id)} readOnly />{option.text}</label>)}
+          {check.public_question.form === 'short_answer' && <p>{attempt.text}</p>}
+        </fieldset>}
         <span>{attempt.status === 'skipped' ? '已跳过，未产生理解证据。' : attempt.status === 'graded' ? `${attempt.evaluator === 'model' ? 'AI 评价' : '客观批改'} · ${attempt.correct ? '本题正确' : '建议回顾本题'}` : '答案已保存，评价尚未完成。'}</span>
         <p>{attempt.feedback}</p>
         {(attempt.status === 'evaluation_failed' || attempt.status === 'pending_evaluation') && <button disabled={busy} onClick={() => void run(() => apiRequest(`/api/self-learning/checks/${check.check_id}/attempts/${attempt.attempt_id}/evaluate`, { method: 'POST' }))}>重试评价</button>}

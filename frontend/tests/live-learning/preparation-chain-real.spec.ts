@@ -88,13 +88,19 @@ test('fresh upload through workers to exact versions and real playback', async (
         await page.goto(`/#/classroom/${courseId}?resource=${resource.id}`);
         const frame = page.frameLocator('iframe.sl-live-material');
         if (kind === 'quiz') {
-          const question = frame.locator('fieldset:has(input[type="radio"]), fieldset:has(input[type="checkbox"])').first();
+          const question = frame.getByRole('region', { name: '理解检查', exact: true }).first();
+          await expect(question.locator('input').first()).toBeVisible({ timeout: 30_000 });
+          const stem = await question.locator(':scope > p').first().innerText();
           await question.locator('input').first().check();
-          await question.getByRole('button', { name: '保存作答' }).click();
-          await expect(frame.getByRole('status').first()).toContainText(/本题|答案已保存/);
+          await question.getByRole('button', { name: '提交检查答案' }).click();
+          await expect(question.getByRole('status')).toContainText(/本题|答案已保存/, { timeout: 30_000 });
+          await expect(question.getByRole('group', { name: '已保存的作答' }).locator('input').first()).toBeChecked();
           await page.reload();
-          await expect(frame.getByRole('status').first()).toContainText(/本题|答案已保存/);
-          await expect(frame.locator('fieldset input:checked').first()).toBeChecked();
+          await expect(question.locator(':scope > p').first()).toHaveText(stem, { timeout: 30_000 });
+          await expect(question.getByRole('status')).toContainText(/本题|答案已保存/, { timeout: 30_000 });
+          const saved = question.getByRole('group', { name: '已保存的作答' }).locator('input').first();
+          await expect(saved).toBeChecked();
+          await expect(saved).toBeDisabled();
         } else if (kind === 'classroom') {
           expect(material.scenes.length).toBeGreaterThan(0);
           for (let index = 0; index < material.scenes.length; index++) {
