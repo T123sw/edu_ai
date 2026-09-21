@@ -7,6 +7,10 @@ import re
 from copy import deepcopy
 
 
+class ResourceDurationExceeded(ValueError):
+    """Valid resource content needs less work; eligible for bounded rewriting."""
+
+
 def value_digest(value):
     return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True,
                                      separators=(',', ':')).encode()).hexdigest()
@@ -191,7 +195,7 @@ def preparation_metadata(kind, content, envelope, context, spec_digest):
         duration = {'value_minutes': None, 'basis': 'unknown', 'method': 'No calibrated learner solving-time estimate'}
     cap = context.get('resource_target_minutes')
     if cap is not None and (duration['value_minutes'] is None or duration['value_minutes'] > cap):
-        raise ValueError(f'RESOURCE_DURATION_EXCEEDED: estimated={duration["value_minutes"]}, '
+        raise ResourceDurationExceeded(f'RESOURCE_DURATION_EXCEEDED: estimated={duration["value_minutes"]}, '
                          f'maximum={cap}; reading_characters={reading}, thinking_seconds={seconds}; '
                          f'reading_character_ceiling_after_thinking={max(0, int((cap-seconds/60)*500))}; '
                          'shorten actual content and workload, preserve objective coverage')

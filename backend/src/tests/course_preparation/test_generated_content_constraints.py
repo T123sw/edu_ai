@@ -505,3 +505,27 @@ def test_only_timed_preparation_repair_can_remove_redundant_question(phases, cap
         assert artifact['content'] == quiz_envelope()['content']
         assert artifact['generation_state']['preparation']['question_time_estimates'] == estimates[:1]
         assert reviewed_resource.verified_resource(artifact, 'quiz')
+
+
+@pytest.mark.parametrize('kind', ['report', 'quiz'])
+def test_exhausted_duration_correction_uses_existing_content_repair_budget(phases, kind):
+    from app.course_preparation.generation_failures import GenerationFailure, recovery_scope
+    value = payload(kind)
+    value.teaching_context['resource_target_minutes'] = .1
+    oversized = report_envelope() if kind == 'report' else quiz_envelope()
+    if kind == 'quiz':
+        oversized['question_time_estimates'] = [{'question_id': 'q-tools', 'thinking_seconds': 45,
+                                                'reason': '追踪模型与程序的分工后判断答案'}]
+    class Gateway(CountingGateway):
+        def chat(self, messages, **kwargs):
+            self.writer_calls += 1
+            return json.dumps(oversized)
+    gateway = Gateway(kind)
+    with pytest.raises(GenerationFailure) as error:
+        if kind == 'report': reviewed_report.generate_reviewed_report(value, gateway)
+        else: reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')
+    assert gateway.writer_calls == 3
+    assert error.value.detail.code == 'RESOURCE_DURATION_EXCEEDED'
+    assert error.value.detail.category == 'content'
+    assert recovery_scope(error.value.detail, attempts=1) == 'content'
+    with pytest.raises(GenerationFailure): recovery_scope(error.value.detail, attempts=2)

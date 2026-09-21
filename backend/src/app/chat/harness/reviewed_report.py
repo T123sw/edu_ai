@@ -7,7 +7,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 from .preparation_content import (CONTENT_INSTRUCTIONS, ReviewCandidate, generation_failure,
     parse_envelope, phase_gateway, preparation_metadata, report_sections, teaching_context,
-    validate_preparation_review, value_digest, duration_constraint)
+    validate_preparation_review, value_digest, duration_constraint, ResourceDurationExceeded)
 from .preparation_review_transport import IndexedPreparationCheck, indexed_preparation, restore_preparation_checks
 
 CRITERIA = {'requirements', 'correctness', 'examples', 'teaching_structure', 'sources', 'completeness'}
@@ -137,13 +137,16 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
                     metadata = preparation_metadata('report', body, envelope, context, spec_digest)
                     rejected_draft = None
                 except (ValueError, TypeError, KeyError) as exc:
-                    if str(exc).startswith('RESOURCE_DURATION_EXCEEDED'):
+                    if isinstance(exc, ResourceDurationExceeded):
                         rejected_draft = envelope
                     body, metadata = previous_body, previous_metadata
                     feedback = ['本轮输出格式或映射校验失败：' + str(exc)[:1200] +
                                 '。请按本轮格式重交完整封装及必需教学映射，保留有效的原正文和稳定ID。']
                     if version < 3:
                         continue
+                    if isinstance(exc, ResourceDurationExceeded):
+                        raise generation_failure('RESOURCE_DURATION_EXCEEDED', str(exc), category='content',
+                            phase='resource_write', retry_scope='content') from exc
                     raise generation_failure('PREPARATION_CONTENT_CONTRACT', str(exc), category='contract',
                         phase='resource_write', retry_scope='none') from exc
             else:

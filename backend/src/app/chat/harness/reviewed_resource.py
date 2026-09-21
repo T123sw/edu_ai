@@ -11,7 +11,7 @@ from app.artifact_revision.adapters import validate, apply_edits
 from .reviewed_report import Review, CRITERIA, PreparationCheck
 from .preparation_content import (CONTENT_INSTRUCTIONS, ReviewCandidate, generation_failure,
     parse_envelope, phase_gateway, preparation_metadata, teaching_context,
-    validate_preparation_review, value_digest, duration_constraint)
+    validate_preparation_review, value_digest, duration_constraint, ResourceDurationExceeded)
 from .resource_profiles import resource_contract
 from .preparation_review_transport import IndexedPreparationCheck, indexed_preparation, restore_preparation_checks
 
@@ -534,7 +534,7 @@ class ReviewedResourceGenerator:
                     rejected_draft = None
                 except (ValueError, TypeError, KeyError, AttributeError, SchemaValidationError) as exc:
                     if context is not None:
-                        if str(exc).startswith('RESOURCE_DURATION_EXCEEDED'):
+                        if isinstance(exc, ResourceDurationExceeded):
                             rejected_draft = json.loads(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw))
                         previous, metadata, content = previous_valid, metadata_valid, previous_valid
                         feedback = ['本轮输出格式或映射校验失败：' + str(exc)[:1200] +
@@ -542,6 +542,9 @@ class ReviewedResourceGenerator:
                         if version < 3:
                             history.append({'version': version, 'decision': 'revise', 'structural_issues': feedback})
                             continue
+                        if isinstance(exc, ResourceDurationExceeded):
+                            raise generation_failure('RESOURCE_DURATION_EXCEEDED', str(exc), category='content',
+                                phase='resource_write', retry_scope='content') from exc
                         raise generation_failure('PREPARATION_CONTENT_CONTRACT', str(exc), category='contract',
                             phase='resource_write', retry_scope='none') from exc
                     feedback = ([*feedback, str(exc)[:1200]] if patch_revision else [str(exc)[:1200]])
