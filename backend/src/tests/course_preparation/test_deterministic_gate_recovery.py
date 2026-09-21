@@ -1,6 +1,5 @@
 from types import SimpleNamespace
 import copy
-import re
 from uuid import uuid4
 import pytest
 from tests.course_preparation.test_resource_alignment import quiz, checkpoint
@@ -63,7 +62,7 @@ def test_joint_duration_repair_targets_are_feasible_without_changing_estimates()
     limits={}
     for issue in issues:
         assert len(issue['artifact_ids'])==1
-        limit=float(re.search(r'本资源.*不超过 ([0-9.]+) 分钟',issue['reason']).group(1))
+        limit=issue['resource_duration_cap_minutes']
         assert limit > 0
         assert issue['artifact_ids'][0] not in limits
         limits[issue['artifact_ids'][0]]=limit
@@ -84,7 +83,7 @@ def test_global_duration_cap_uses_proposed_node_reductions_once():
     before=copy.deepcopy(rows)
     issues=QualityStages._duration_issues(rows,[{'node_key':'a','minutes':6},{'node_key':'b','minutes':6}],10)
     assert rows==before and len(issues)==2
-    targets={i['artifact_ids'][0]:float(re.search(r'不超过 ([0-9.]+) 分钟',i['reason']).group(1)) for i in issues}
+    targets={i['artifact_ids'][0]:i['resource_duration_cap_minutes'] for i in issues}
     assert sum(targets.values())<=10 and max(targets.values())<=6
 
 
