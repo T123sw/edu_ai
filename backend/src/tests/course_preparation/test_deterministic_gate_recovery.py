@@ -103,5 +103,7 @@ def test_fractional_duration_targets_are_valid_context_but_zero_and_nan_are_not(
     from app.course_preparation.teaching_context import TeachingContext
     from tests.course_preparation.test_generated_content_constraints import context
     assert TeachingContext.model_validate({**context(), 'resource_target_minutes': 2.37}).resource_target_minutes==2.37
+    integer_context = {**context(), 'resource_target_minutes': 2}
+    assert isinstance(TeachingContext.model_validate(integer_context).model_dump()['resource_target_minutes'], int)
     for value in (0,-1,float('inf'),float('nan')):
         with pytest.raises(ValueError):TeachingContext.model_validate({**context(), 'resource_target_minutes': value})

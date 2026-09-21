@@ -68,6 +68,29 @@ def test_plan_correction_rejects_node_patch_and_explains_full_envelope():
     assert tools.call('save_course_plan', complete)['path_saved']
 
 
+def test_identical_findings_are_idempotent_without_clearing_errors_or_invalidating_summary():
+    tools, saved = setup_tools()
+    research(tools)
+    before = tools.state.model_copy(update={'errors': 1})
+    tools.state = before
+    for index in range(3):
+        receipt = tools.call('record_evidence_finding', {'finding_id': 'f1', 'claim': '递归需要终止条件', 'citation_refs': ['q1_1']})
+        assert receipt['ok'] and receipt['reused']
+        assert tools.state.summary == before.summary and tools.state.phase == before.phase
+        assert tools.state.draft_findings == before.draft_findings and tools.state.errors == 1
+        assert tools.state.calls == before.calls + index + 1
+    assert tools.call('save_course_plan', path(tools.state.evidence[0].source_id))['path_saved']
+
+
+def test_idempotent_finding_replay_still_consumes_action_budget():
+    tools, saved = setup_tools()
+    research(tools)
+    tools.agent.max_calls = tools.state.calls + 1
+    args = {'finding_id': 'f1', 'claim': '递归需要终止条件', 'citation_refs': ['q1_1']}
+    assert tools.call('record_evidence_finding', args)['ok']
+    assert tools.call('record_evidence_finding', args)['error'] == 'BUDGET_EXHAUSTED'
+
+
 def test_uploaded_only_unmounted_review_and_bad_references_cannot_execute():
     tools, saved = setup_tools(source_policy='uploaded_only')
     assert 'search_sources' not in tools.tools
@@ -94,7 +117,7 @@ def test_revoked_guard_stops_all_later_side_effects():
     assert isinstance(tools.fatal, PermissionError) and not tools.agent.sources.reads
 
 
-@pytest.mark.parametrize('batch_findings', [False, True])
+@pytest.mark.parametrize('batch_findings', [False, True, 'replay'])
 def test_native_sdk_continues_with_real_results_until_path_saved(batch_findings):
     from deepseek_harness import DeepSeekHarness
     saved, requests = [], []
@@ -127,7 +150,7 @@ def test_native_sdk_continues_with_real_results_until_path_saved(batch_findings)
         if batch_findings and not current.draft_findings and current.evidence:
             second = json.loads(json.dumps(message['tool_calls'][0]))
             second['id'] += '_second'
-            second['function']['arguments'] = json.dumps({**args, 'finding_id':'f2'})
+            second['function']['arguments'] = json.dumps({**args, 'finding_id':'f1' if batch_findings == 'replay' else 'f2'})
             message['tool_calls'].append(second)
         return httpx.Response(200,json={'id':'continuous','object':'chat.completion','created':1,'model':'test',
             'choices':[{'index':0,'message':message,'finish_reason':'stop' if current.path else 'tool_calls'}],
@@ -144,7 +167,7 @@ def test_native_sdk_continues_with_real_results_until_path_saved(batch_findings)
             model.context_tokens = 1
     result=model.run_learning_path(agent,request(),state,reserve=persist,guard=lambda:None,timeout=30)
     assert result.phase=='review' and result.path and len(requests)==5
-    assert len(result.draft_findings) == (2 if batch_findings else 1)
+    assert len(result.draft_findings) == (2 if batch_findings is True else 1)
     assert len(sources.searches)==len(sources.reads)==1
     assert model.required_skill['name']=='build-learning-path'
 

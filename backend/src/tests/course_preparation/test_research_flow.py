@@ -275,7 +275,7 @@ def test_incremental_findings_keep_verified_sources_and_finalize_by_id():
     state=agent._execute('record_research_finding',found,request(),state,timeout=1,reserve=None)
     assert state.phase=='research' and state.summary is None
     assert state.draft_findings[0].citations[0].quote in state.evidence[0].content
-    with pytest.raises(ValueError): agent._execute('record_research_finding',found,request(),state,timeout=1,reserve=None)
+    assert agent._execute('record_research_finding',found,request(),state,timeout=1,reserve=None) is state
     final=agent._execute('finalize_research_summary',FinalizeSummary(overview='递归终止',finding_ids=['f1']),request(),state,timeout=1,reserve=None)
     assert final.phase=='plan' and final.summary.findings==(found,)
     assert 'save_research_summary' not in [t['function']['name'] for t in agent.tools('research',state)]

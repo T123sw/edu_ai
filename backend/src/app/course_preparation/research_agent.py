@@ -130,8 +130,10 @@ class ResearchAgent:
                 return self._error(state, 'TOOL_NOT_AVAILABLE', '当前阶段未挂载该工具')
             args = REGISTRY[name][0].model_validate(raw_args)
             updated = self._execute(name, args, request, state, timeout=min(timeout, 25), reserve=persist)
-            entry = {'call': state.calls, 'phase': state.phase, 'tool': name, 'status': 'ok'}
-            return updated.model_copy(update={'errors': 0, 'last_error': updated.last_error if name=='read_research_evidence' else None,
+            reused = updated is state
+            entry = {'call': state.calls, 'phase': state.phase, 'tool': name, 'status': 'reused' if reused else 'ok'}
+            return updated.model_copy(update={'errors': state.errors if reused else 0,
+                                             'last_error': updated.last_error if reused or name=='read_research_evidence' else None,
                                              'trace': (*updated.trace, entry)})
         except (ValueError, ValidationError) as exc:
             message = str(exc)[:1600]
@@ -235,7 +237,9 @@ class ResearchAgent:
             findings = {finding.finding_id:finding for finding in state.draft_findings}
             normalized = checked.summary.findings[0]
             if findings.get(args.finding_id) == normalized:
-                raise ValueError('该结论已保存，不能重复记录；请完成汇总或补具体缺口')
+                # A resumed native session may replay a validated finding.
+                # Keep the stored finding/summary; the action still costs budget.
+                return state
             if args.finding_id not in findings and len(findings) >= 12: raise ValueError('研究结论已达上限')
             findings[args.finding_id] = normalized
             return state.model_copy(update={'draft_findings':tuple(findings.values()),'trace':checked.trace})

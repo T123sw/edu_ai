@@ -53,7 +53,7 @@ class TeachingContext(ContextContract):
     learning_activities: list[str]
     self_check: str = Field(min_length=1)
     node_budget_minutes: int = Field(ge=1)
-    resource_target_minutes: float | None = Field(default=None, gt=0, allow_inf_nan=False)
+    resource_target_minutes: int | float | None = Field(default=None, gt=0, allow_inf_nan=False)
     assumptions: list[str]
     limitations: list[str]
     requirement_ids: list[Identifier] = Field(default_factory=list)

@@ -93,16 +93,18 @@ class LearningPathTools:
                             raise ValueError('该请求已暂时失败两次，请换来源/查询，或 report_research_blocker')
                         updated = self.agent._execute(name, args, self.request, self.state,
                             timeout=max(.1, min(25, self.deadline-time.monotonic())), reserve=self.persist)
+                    reused = updated is before
                     if name == 'finalize_research_summary' and any(row.status != 'covered' for row in args.coverage):
                         updated = updated.model_copy(update={'phase':'research'})
                     # New evidence/findings invalidate an earlier summary. Planning
                     # can return to research without switching Harness sessions.
-                    if name in ('fetch_source', 'record_evidence_finding', 'record_research_finding'):
+                    if not reused and name in ('fetch_source', 'record_evidence_finding', 'record_research_finding'):
                         updated = updated.model_copy(update={'phase': 'research', 'summary': None, 'path': None})
-                    updated = updated.model_copy(update={'errors': 0, 'last_error': None,
+                    updated = updated.model_copy(update={'errors': before.errors if reused else 0,
+                        'last_error': before.last_error if reused else None,
                         'source_failures':{k:v for k,v in updated.source_failures.items() if k != key},
                         'trace': (*updated.trace, {'call': updated.calls, 'phase': before.phase,
-                                                  'tool': name, 'status': 'ok'})})
+                                                  'tool': name, 'status': 'reused' if reused else 'ok'})})
                     self.check()
                     self.persist(updated)
                 except RecoverableSourceError as exc:
@@ -141,6 +143,8 @@ class LearningPathTools:
                     data['finding'] = {'finding_id':finding.finding_id, 'claim':finding.claim,
                         'citations':[{'source_id':c.source_id} for c in finding.citations]}
                     data['message'] = '引用已逐字校验并保存；原文见此前 evidence，不重复返回。'
+                    if reused:
+                        data.update(reused=True, message='该结论已保存，本次未重复写入；继续汇总或处理尚未解决的缺口。')
                 elif name in ('finalize_research_summary', 'save_research_summary'):
                     data['summary'] = updated.summary.model_dump(mode='json', exclude={'findings'})
                     data['summary']['finding_ids'] = [f.finding_id for f in updated.summary.findings]
