@@ -268,7 +268,8 @@ def bind_option_reviews(content, review):
                 raise ValueError('quiz_review_option_text_mismatch')
             option.option_text = original
             if option.explanation_excerpt not in question['explanation']:
-                raise ValueError('quiz_review_explanation_excerpt_mismatch')
+                raise ValueError(f'quiz_review_explanation_excerpt_mismatch: question_index={check.question_index}, '
+                                 f'option_index={option.option_index}; excerpt 必须逐字取自该题 explanation，不得改写。')
             if not option.explanation_excerpt.strip() and option.explanation_valid:
                 raise ValueError('quiz_review_explanation_excerpt_missing')
     return review
@@ -295,6 +296,7 @@ def review_content(kind, content, spec, gateway, *, durable=False, candidate=Non
          '资源组合、节点总数和其他节点内容由整节点/整课门禁核对，不要求本资源包含其他资源类型或重复其他节点。'
          '需求映射只核验当前位置的真实贡献，完整跨资源满足性由整节点审阅决定。'
          'preparation_checks 对 preparation 每条需求/目标映射给出 binding_type、binding_id、locator、passed、reason；位置存在不等于语义支持。'
+         '同一 binding_id 对应多个位置时逐位置分别核对，不按ID去重，不在审阅中改写原定位。'
          '习题逐选项必须返回 independent_correct 独立真假判断和 explanation_excerpt（从该题原解析逐字摘取对应片段；缺少则为空且 explanation_valid=false）。'
          'option_checks 严格对应原题 options 数组；数组为空或不存在时必须返回 []，判断题和简答题不得虚构第0个选项。'
          '没有选项的题仍须在 question_checks 中独立求解、核对答案和解析。review_format_feedback 是上次具体格式错误，修复该错误并保留真实内容缺陷。'

@@ -183,7 +183,8 @@ def test_recovery_enqueues_exact_new_job_and_replays_lost_queue_receipt(generati
     assert store.checkpoint_port(claimed).load_review_candidate()['content']==body
 
 
-def test_handler_preserves_provider_failure_phase_for_recovery(generation,monkeypatch):
+@pytest.mark.parametrize('failure_code', ['PROVIDER_UNAVAILABLE', 'MODEL_RESPONSE_INVALID'])
+def test_handler_preserves_provider_failure_phase_for_recovery(generation,monkeypatch,failure_code):
     from types import SimpleNamespace
     from app.course_preparation.adapters.generation import PreparationResourceHandler
     from app.course_preparation import research_dependencies
@@ -192,7 +193,7 @@ def test_handler_preserves_provider_failure_phase_for_recovery(generation,monkey
     repo,parent,adapter=generation;_,receipt=submit(generation)
     monkeypatch.setattr(research_dependencies,'agent_factory',lambda *args:SimpleNamespace(model=SimpleNamespace(gateway=SimpleNamespace(candidates=[]))))
     def fail(*args,**kwargs):
-        exc=ResearchError('PROVIDER_UNAVAILABLE','provider unavailable')
+        exc=ResearchError(failure_code,'provider response unavailable')
         exc.preparation_phase='resource_review'
         raise exc
     monkeypatch.setattr(reviewed_report,'generate_reviewed_report',fail)

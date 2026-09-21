@@ -181,7 +181,7 @@ def test_provider_guards_block_calls_and_incomplete_results(case):
         with pytest.raises(HTTPError):
             post()
         assert state['error'] is not None
-    assert len(calls) == (4 if case == 'call_limit' else 1 if case == 'truncated' else 0)
+    assert len(calls) == (4 if case == 'call_limit' else 3 if case == 'truncated' else 0)
     assert len(finishes) == len(calls)
 
 

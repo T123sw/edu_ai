@@ -178,7 +178,12 @@ def validate_preparation_review(content, kind, metadata, checks):
                 for item in metadata[collection]]
     actual = [(c.binding_type, c.binding_id, c.locator) for c in checks]
     if sorted(map(value_digest, expected)) != sorted(map(value_digest, actual)):
-        raise ValueError('preparation_review_binding_coverage_incomplete')
+        from collections import Counter
+        encode = lambda item: json.dumps(item, ensure_ascii=False, sort_keys=True)
+        missing = list((Counter(map(encode, expected)) - Counter(map(encode, actual))).elements())
+        extra = list((Counter(map(encode, actual)) - Counter(map(encode, expected))).elements())
+        raise ValueError('preparation_review_binding_coverage_incomplete: '
+                         + json.dumps({'missing': missing, 'extra': extra}, ensure_ascii=False))
     for check in checks:
         resolve_locator(kind, content, check.locator)
     return [f'{c.binding_id} @ {c.locator}: {c.reason}' for c in checks if not c.passed]

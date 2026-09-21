@@ -139,6 +139,7 @@ class PreparationResourceHandler:
             code=getattr(exc,'code','RESOURCE_GENERATION_FAILED')
             detail=getattr(exc,'detail',None)
             categories={'PROVIDER_UNAVAILABLE':('provider','provider'), 'HARNESS_UNAVAILABLE':('provider','provider'),
+                'MODEL_RESPONSE_INVALID':('provider','provider'),
                 'CANCELED':('canceled','none'), 'BUDGET_EXHAUSTED':('budget','none'),
                 'CONTEXT_BUDGET_EXCEEDED':('budget','none')}
             category=categories.get(code)

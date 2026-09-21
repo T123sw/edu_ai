@@ -118,6 +118,18 @@ def test_step_scene_mapping_covers_the_process_instead_of_only_intro_speech():
     assert location == {'scene_id': 'r:example'}
 
 
+def test_binding_format_feedback_names_missing_locations_for_repeated_objective():
+    from app.chat.harness.preparation_content import validate_preparation_review
+    metadata = {'applied_requirements': [], 'objective_bindings': [
+        {'objective_id': 'o1', 'locator': {'section_id': section}} for section in ('s1', 's2', 's3')]}
+    checks = [SimpleNamespace(binding_type='objective_id', binding_id='o1', locator={'section_id': 's1'})]
+    with pytest.raises(ValueError) as error:
+        validate_preparation_review('', 'report', metadata, checks)
+    details = json.loads(str(error.value).split(': ', 1)[1])
+    assert len(details['missing']) == 2 and details['extra'] == []
+    assert {json.loads(item)[2]['section_id'] for item in details['missing']} == {'s2', 's3'}
+
+
 def test_classroom_content_revision_receives_the_persisted_failure_reason(classroom_generation):
     from app.course_preparation.adapters.classroom import generate_classroom_draft
     args, _ = classroom_generation

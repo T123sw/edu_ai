@@ -116,6 +116,26 @@ def test_persisted_preparation_feedback_reaches_report_writer():
     assert gateway.writes[0]['feedback'] == value.revision_feedback
 
 
+def test_durable_report_format_retry_preserves_body_and_exact_error():
+    from tests.course_preparation.test_classroom_teaching_contract import Checkpoint
+    from app.course_preparation.generation_failures import GenerationFailure
+    checkpoint = Checkpoint()
+    gateway = Gateway([{**review(True), 'checks': []}, review(True)])
+    value = payload()
+    with pytest.raises(GenerationFailure):
+        generate_reviewed_report(value, gateway, checkpoint=checkpoint)
+    saved_digest = checkpoint.candidate['content_digest']
+    original = gateway.chat
+    def respond(messages, **kwargs):
+        request = json.loads(messages[-1]['content'])
+        assert 'review_criteria_incomplete' in request['specification']['review_format_feedback']
+        return original(messages, **kwargs)
+    gateway.chat = respond
+    generate_reviewed_report(value, gateway, checkpoint=checkpoint)
+    assert len(gateway.writes) == 1
+    assert checkpoint.candidate['content_digest'] == saved_digest
+
+
 def test_writer_receives_current_execution_and_confirmed_facts():
     value = payload()
     value.focus = '先只给大纲'
