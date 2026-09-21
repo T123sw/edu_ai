@@ -46,6 +46,9 @@ learning_activities 和 self_check 展开真实内容，教学顺序必须体现
 不沿用固定面试模板；只有本次用户明确要求面试才安排面试话术。
 node_budget_minutes 是整个节点的时间上限，不是每份资源各自的时长；resource_target_minutes
 为空时不自行分配。控制篇幅，正文包含可实际学习的例子、解释和检查。
+resource_target_minutes 有值时是本资源必须满足的上限，duration_constraint 给出程序的计算方式。
+时长修订必须删减真实阅读量和作答工作量；允许减少冗余题，未删除题目保留ID，仍满足明确题量要求和目标覆盖。
+rejected_draft 是上一轮未通过校验的输出，仅供纠错，不是已通过正文；根据实际字数和思考秒数缩减，不只调低估算。
 本次写作直接返回 JSON {"content":原生正文,"applied_requirements":[{"requirement_id":"真实ID",
 "locator":定位对象,"explanation":"该位置如何落实要求"}],"objective_bindings":[{"objective_id":"真实ID",
 "locator":定位对象,"role":"explanation|practice|check"}]}，不要增加规划调用。
@@ -60,6 +63,18 @@ requirements 保留整课要求；requirement_ids 是当前节点分工。只标
 题量按当前节点时间、目标和其他配套资源控制，不机械生成固定数量。
 选择题的 explanation 必须逐项说明每个正确选项和干扰项为何成立或不成立，不能遗漏任何选项。
 '''
+
+
+def duration_constraint(kind, context):
+    cap = (context or {}).get('resource_target_minutes')
+    if cap is None or kind not in {'report', 'quiz'}:
+        return None
+    return {'maximum_minutes': cap,
+            'formula': ('non_whitespace_characters / 500' if kind == 'report' else
+                        'sum(thinking_seconds) / 60 + stem_options_explanation_non_whitespace_characters / 500'),
+            'reading_character_ceiling_before_thinking': int(cap * 500),
+            'instruction': ('报告所有正文、标题和标记均计入字数。' if kind == 'report' else
+                            '先扣除真实作答秒数，剩余时间才能容纳题干、选项和解析。减少冗余题目或简化推演，不能靠低报思考时间。')}
 
 
 def parse_envelope(raw):
@@ -150,7 +165,9 @@ def preparation_metadata(kind, content, envelope, context, spec_digest):
             raise ValueError('preparation_objective_binding_invalid')
         resolve_locator(kind, content, item.get('locator'))
     if kind == 'report':
-        duration = {'value_minutes': round(max(0.1, len(re.sub(r'\s', '', content)) / 500), 1),
+        reading = len(re.sub(r'\s', '', content))
+        seconds = 0
+        duration = {'value_minutes': round(max(0.1, reading / 500), 1),
                     'basis': 'estimated', 'method': 'non_whitespace_characters / 500 per minute; reading only, excludes exercises'}
     elif kind == 'quiz' and envelope.get('question_time_estimates'):
         estimates = envelope['question_time_estimates']
@@ -170,11 +187,14 @@ def preparation_metadata(kind, content, envelope, context, spec_digest):
         duration = {'value_minutes': round(seconds / 60 + reading / 500, 2), 'basis': 'estimated',
                     'method': 'per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated'}
     else:
+        reading, seconds = 0, 0
         duration = {'value_minutes': None, 'basis': 'unknown', 'method': 'No calibrated learner solving-time estimate'}
     cap = context.get('resource_target_minutes')
     if cap is not None and (duration['value_minutes'] is None or duration['value_minutes'] > cap):
         raise ValueError(f'RESOURCE_DURATION_EXCEEDED: estimated={duration["value_minutes"]}, '
-                         f'maximum={cap}; shorten actual content and workload, preserve objective coverage')
+                         f'maximum={cap}; reading_characters={reading}, thinking_seconds={seconds}; '
+                         f'reading_character_ceiling_after_thinking={max(0, int((cap-seconds/60)*500))}; '
+                         'shorten actual content and workload, preserve objective coverage')
     return {'schema_version': 1, 'spec_digest': spec_digest,
             'teaching_context_digest': value_digest(context), 'applied_requirements': applied,
             'objective_bindings': bindings, 'duration': duration,

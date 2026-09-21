@@ -122,6 +122,8 @@ generation_state.preparation:
 
 `locator` 为现有原生资源中的稳定定位对象：报告 section_id、习题 question_id、课堂 scene_id/action_id。`role` 为 explanation/practice/check。生成器提供的是候选映射，F 要验证位置存在并审阅是否真的支持目标，不能照抄为可信事实。目标 ID 不得指向其他节点；内容变更使摘要绑定的审阅和估算失效。无法可靠估算时明确 unknown，不生成假精度。
 
+备课习题在 `resource_target_minutes` 非空的时长修订中，可以删除冗余题目以减少实际工作量；保留题目的 ID 和相对顺序不变，原版本不修改。必须同步更新题目估算与教学映射，并重新独立审阅、检查目标和明确题量要求。未指定单资源时限的既有局部修订仍保留完整题目身份。报告/习题超时反馈包括实际计入的字数和思考秒数，下一次有限纠错可读取上次被拒绝的草稿，但它不是可交付候选。
+
 F 拟新增 `generation_failures.py`，提供统一 `GenerationFailure`（异常）和 `FailureDetail`（schema）：
 
 ```text

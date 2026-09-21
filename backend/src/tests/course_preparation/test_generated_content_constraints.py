@@ -430,3 +430,78 @@ def test_A_payload_D_content_F_alignment_use_the_same_real_contract(phases,kind)
               'content':content,'content_digest':value_digest(content)}
     validate_artifact(artifact)
     assert content['generation_state']['preparation']['spec_digest']==artifact['spec_digest']
+
+
+@pytest.mark.parametrize('kind', ['report', 'quiz'])
+def test_duration_rejection_exposes_actual_draft_and_workload_for_bounded_rewrite(phases, kind):
+    compact = report_envelope() if kind == 'report' else quiz_envelope()
+    if kind == 'quiz':
+        compact['question_time_estimates'] = [{'question_id': 'q-tools', 'thinking_seconds': 45,
+                                               'reason': '追踪两个角色的职责后选择答案'}]
+    oversized = copy.deepcopy(compact)
+    if kind == 'report':
+        oversized['content'] += '\n' + '可删除的重复说明。' * 200
+    else:
+        oversized['content']['questions'].append({**copy.deepcopy(compact['content']['questions'][0]), 'id': 'q-redundant'})
+        oversized['question_time_estimates'].append({'question_id': 'q-redundant', 'thinking_seconds': 45,
+                                                    'reason': '重复追踪已经检查过的两个角色'})
+    value = payload(kind)
+    value.teaching_context['resource_target_minutes'] = preparation_metadata(
+        kind, compact['content'], compact, value.teaching_context, 'spec')['duration']['value_minutes'] + .1
+    class Gateway(CountingGateway):
+        def chat(self, messages, **kwargs):
+            data = json.loads(messages[-1]['content'])
+            if 'schema' in data:
+                self.review_calls += 1
+                assert data.get('content', data.get('body')) == compact['content']
+                return json.dumps(completion_review(data, kind))
+            self.writer_calls += 1
+            if self.writer_calls == 2:
+                assert data['rejected_draft'] == oversized
+                assert 'reading_characters=' in str(data['feedback'])
+                if kind == 'quiz': assert 'thinking_seconds=90' in str(data['feedback'])
+            return json.dumps(oversized if self.writer_calls == 1 else compact)
+    gateway = Gateway(kind)
+    if kind == 'report':
+        body, state = reviewed_report.generate_reviewed_report(value, gateway)
+        assert body == compact['content']
+    else:
+        artifact = reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')['artifacts'][0]
+        assert artifact['content'] == compact['content']
+    assert gateway.writer_calls == 2 and gateway.review_calls == 1
+
+
+@pytest.mark.parametrize('cap', [None, 2.0])
+def test_only_timed_preparation_repair_can_remove_redundant_question(phases, cap):
+    value = payload('quiz')
+    value.teaching_context['resource_target_minutes'] = cap
+    envelope = quiz_envelope()
+    extra = {**copy.deepcopy(envelope['content']['questions'][0]), 'id': 'q-redundant'}
+    envelope['content']['questions'].append(extra)
+    estimates = [{'question_id': q['id'], 'thinking_seconds': 30, 'reason': '追踪角色职责后判断选项'}
+                 for q in envelope['content']['questions']]
+    envelope['question_time_estimates'] = estimates
+    class Gateway(CountingGateway):
+        def chat(self, messages, **kwargs):
+            data = json.loads(messages[-1]['content'])
+            if 'schema' in data:
+                self.review_calls += 1
+                result = completion_review(data, 'quiz')
+                if self.review_calls == 1:
+                    result['question_checks'].append({**copy.deepcopy(result['question_checks'][0]), 'question_index': 1})
+                    result['blocking_issues'] = ['重复题占用学习时间，删除第二道重复题并保留目标覆盖。']
+                return json.dumps(result)
+            self.writer_calls += 1
+            if self.writer_calls == 1: return json.dumps(envelope)
+            return json.dumps({'edits': [{'op': 'delete', 'path': ['questions', 1], 'before': extra, 'after': None}],
+                               'question_time_estimates': estimates[:1]})
+    gateway = Gateway('quiz')
+    generate = lambda: reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')
+    if cap is None:
+        from app.course_preparation.generation_failures import GenerationFailure
+        with pytest.raises(GenerationFailure, match='quiz_repair_changed_question_identity'): generate()
+    else:
+        artifact = generate()['artifacts'][0]
+        assert artifact['content'] == quiz_envelope()['content']
+        assert artifact['generation_state']['preparation']['question_time_estimates'] == estimates[:1]
+        assert reviewed_resource.verified_resource(artifact, 'quiz')
