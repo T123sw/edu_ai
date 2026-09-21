@@ -6,7 +6,7 @@ import { CourseRouteProvider } from '../stitch/course/CourseRouteProvider';
 import { ClassroomPlaybackSurface } from '../stitch/course/classroomCatalog/ClassroomPlaybackSurface';
 import { CourseMaterialArtifactPreview } from '../stitch/pages/CourseMaterialArtifactPreview';
 import { apiRequest } from '../stitch/api/client';
-import type { CourseMaterial } from '../stitch/api/types';
+import type { ClassroomMaterial, CourseMaterial } from '../stitch/api/types';
 import '../stitch/styles.css';
 import './live.css';
 import { LiveQuiz } from './Quiz';
@@ -20,6 +20,7 @@ function Material() {
   const selectedText = useRef('');
   const lastScene = useRef<{ scene_id: string; reached_end: boolean }>();
   const [material, setMaterial] = useState<CourseMaterial>();
+  const [classroom, setClassroom] = useState<ClassroomMaterial>();
   const [error, setError] = useState('');
   const [paused, setPaused] = useState(false);
   const initialPosition = Number(params.get('position')) || 0;
@@ -56,7 +57,7 @@ function Material() {
   }, []);
   useLayoutEffect(() => { if (material) scrollTo(0, initialPosition); }, [material, initialPosition]);
   useEffect(() => {
-    if (!material) return;
+    if (!material || kind === 'classroom') return;
     let pending: ReturnType<typeof setTimeout> | undefined;
     const scroll = () => {
       positionChange(scrollY);
@@ -70,18 +71,18 @@ function Material() {
     document.addEventListener('selectionchange', selection);
     window.addEventListener('scroll', scroll);
     return () => { clearTimeout(pending); document.removeEventListener('selectionchange', selection); window.removeEventListener('scroll', scroll); };
-  }, [material, initialPosition, positionChange, emit]);
+  }, [material, kind, initialPosition, positionChange, emit]);
   useEffect(() => {
-    if (!user || kind === 'classroom') return;
+    if (!user) return;
     let active = true;
-    void apiRequest<CourseMaterial>(`/api/self-learning/courses/${encodeURIComponent(courseId)}/materials/${encodeURIComponent(kind)}/${encodeURIComponent(materialId)}/versions/${version}`).then(m => { if (!active) return; if (m.version !== version) throw new Error('资料版本已变化，请返回课堂刷新后重新打开'); setMaterial(m); loaded.current = true; parent.postMessage({ type: 'learning-context-request' }, location.origin); }).catch(e => active && setError(e.message));
+    void apiRequest<CourseMaterial & ClassroomMaterial>(`/api/self-learning/courses/${encodeURIComponent(courseId)}/materials/${encodeURIComponent(kind)}/${encodeURIComponent(materialId)}/versions/${version}`).then(m => { if (!active) return; if (m.version !== version) throw new Error('资料版本已变化，请返回课堂刷新后重新打开'); if (kind === 'classroom') setClassroom(m); else setMaterial(m); loaded.current = true; parent.postMessage({ type: 'learning-context-request' }, location.origin); }).catch(e => active && setError(e.message));
     return () => { active = false; };
   }, [courseId, kind, materialId, version, user]);
   if (!authReady) return <p>正在读取资料…</p>;
   if (!user) return <p role="alert">登录已过期，请返回首页登录。</p>;
   if (error) return <p role="alert">{error}</p>;
   return <AuthSessionProvider user={{ ...user, role: user.role === 'teacher' || user.role === 'admin' ? user.role : 'student' }} authenticated><CourseRouteProvider enabled><main style={{ padding: 16, minHeight: '100vh', background: 'white' }}>
-    {kind === 'classroom' ? <ClassroomPlaybackSurface initialSceneId={params.get('scene_id') || undefined} resourceVersion={version} onReadingContext={onClassroomReading} initialScene={initialPosition} externallyPaused={paused} onPositionChange={positionChange} courseId={courseId} classroomId={materialId} mode="learn" kind={params.get('visibility') === 'private' ? 'personal_classroom' : 'classroom'} /> : material ? kind === 'quiz' ? <LiveQuiz material={material} /> : <CourseMaterialArtifactPreview material={material} /> : <p>正在读取资料…</p>}
+    {kind === 'classroom' ? classroom ? <ClassroomPlaybackSurface exactMaterial={classroom} initialSceneId={params.get('scene_id') || undefined} resourceVersion={version} onReadingContext={onClassroomReading} initialScene={initialPosition} externallyPaused={paused} onPositionChange={positionChange} courseId={courseId} classroomId={materialId} mode="learn" kind={params.get('visibility') === 'private' ? 'personal_classroom' : 'classroom'} /> : <p>正在读取资料…</p> : material ? kind === 'quiz' ? <LiveQuiz material={material} /> : <CourseMaterialArtifactPreview material={material} /> : <p>正在读取资料…</p>}
   {material && <div data-reading-end aria-label="资料末尾" />}</main></CourseRouteProvider></AuthSessionProvider>;
 }
 export default function MaterialEntry() { return <AuthProvider><Material /></AuthProvider>; }
