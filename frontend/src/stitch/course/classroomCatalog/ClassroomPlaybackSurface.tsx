@@ -611,6 +611,7 @@ export function ClassroomPlaybackSurface({
                 <button
                   type="button"
                   onClick={() => goTo(currentIndex - 1)}
+                  aria-label="上一页"
                   disabled={qaLocksPlayback || currentIndex <= 0}
                   className="classroom-control-button"
                 >
@@ -640,6 +641,7 @@ export function ClassroomPlaybackSurface({
                 <button
                   type="button"
                   onClick={() => goTo(currentIndex + 1)}
+                  aria-label="下一页"
                   disabled={qaLocksPlayback || currentIndex >= scenes.length - 1}
                   className="classroom-control-button"
                 >
