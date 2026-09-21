@@ -36,6 +36,7 @@ def research_factory(repository,documents,memory):
         agent.model.meter=PreparationModelMeter(repository,context,
             micro_usd_per_token_upper_bound=int(os.getenv('PREPARATION_MODEL_MICRO_USD_PER_TOKEN_CEILING','10')))
         agent.max_calls=60
+        agent.upload_read_limit=max(8, 2*len(request.uploads))
         agent.incremental_findings=True
         agent.source_policy=request.source_policy.mode
         agent.extra_context={'preferences':checkpoint.get('memory_view',{}), 'existing_target':checkpoint.get('target_snapshot'),

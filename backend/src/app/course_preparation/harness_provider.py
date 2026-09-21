@@ -14,13 +14,17 @@ from .research_agent import ResearchError
 
 
 @contextmanager
-def harness_provider(adapter, *, timeout, toolset=None, max_calls=4):
+def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_tokens=6000, temperature=.1):
     token = secrets.token_urlsafe(32)
     deadline = time.monotonic() + timeout
     lock = threading.Lock()
-    state = {'calls': 0, 'error': None}
+    state = {'calls': 0, 'completed_calls': 0, 'error': None}
 
     class Handler(BaseHTTPRequestHandler):
+        def setup(self):
+            super().setup()
+            self.connection.settimeout(max(.1, deadline - time.monotonic()))
+
         def log_message(self, *_):
             pass
 
@@ -29,7 +33,10 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4):
             self.send_header('Content-Type', content_type)
             self.send_header('Content-Length', str(len(body)))
             self.end_headers()
-            self.wfile.write(body)
+            try:
+                self.wfile.write(body)
+            except OSError:
+                self.close_connection = True
 
         def do_POST(self):
             if not hmac.compare_digest(self.headers.get('Authorization', ''), 'Bearer ' + token):
@@ -49,18 +56,37 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4):
                         from .workflow_skills import skill_is_loaded
                         if not skill_is_loaded(payload.get('messages', []), required_skill):
                             raise ResearchError('SKILL_NOT_LOADED', '当前阶段 Skill 未由 Harness 加载，未调用模型')
-                    if getattr(toolset, 'continuous', False):
+                    if state['error'] is not None:
+                        raise state['error']
+                    if hasattr(toolset, 'check'):
                         toolset.check()
                     stream = payload.pop('stream', False)
                     payload.pop('stream_options', None)
-                    payload.update(stream=False, max_tokens=6000, parallel_tool_calls=False, temperature=0.1)
+                    if (getattr(toolset, 'continuous', False) or getattr(toolset, 'terminal_on_result', False)) and toolset.result is not None:
+                        # The tool already accepted a terminal result. Close
+                        # the SDK loop locally; this is not a provider/model call.
+                        message = {'role':'assistant', 'content':'本阶段结果已接收，会话结束。'}
+                        data = {'id':'preparation-terminal', 'object':'chat.completion',
+                            'created':int(time.time()), 'model':'workflow-terminal',
+                            'choices':[{'index':0,'message':message,'finish_reason':'stop'}],
+                            'usage':{'prompt_tokens':0,'completion_tokens':0,'total_tokens':0}}
+                        if stream:
+                            data['object'] = 'chat.completion.chunk'
+                            data['choices'] = [{'index':0,'delta':message,'finish_reason':'stop'}]
+                            self.reply(200, ('data: '+json.dumps(data)+'\n\ndata: [DONE]\n\n').encode(), 'text/event-stream')
+                        else:
+                            self.reply(200, json.dumps(data).encode())
+                        return
+                    payload.update(stream=False, max_tokens=output_tokens, parallel_tool_calls=False, temperature=temperature)
                     if toolset is not None and toolset.result is not None:
                         payload['tool_choice'] = 'none'
                     size = encoded_size(payload) + 512
-                    if size + 6000 > adapter.context_tokens:
+                    if size + output_tokens > adapter.context_tokens:
                         raise ResearchError('CONTEXT_BUDGET_EXCEEDED', 'Harness 上下文超过窗口')
                     data = None
                     for candidate in adapter.gateway.candidates:
+                        if hasattr(toolset, 'check'):
+                            toolset.check()
                         remaining = deadline - time.monotonic()
                         if state['calls'] >= max_calls or remaining <= 0:
                             raise ResearchError('BUDGET_EXHAUSTED', 'Harness 当前决策调用次数或时间已耗尽')
@@ -70,7 +96,15 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4):
                         payload.update(adapter.gateway._thinking_params(model))
                         if str(model).startswith('deepseek-v4'):
                             payload['thinking'] = {'type': 'disabled'}
-                        action = adapter.meter.start(input_upper_bound=size, output_limit=6000, model=model) if adapter.meter else None
+                        metadata = getattr(adapter, 'last_packet_metadata', {})
+                        audit = {
+                            'runtime': 'deepseek-harness',
+                            **{key: metadata[key] for key in ('phase', 'spec_digest', 'context_digest') if key in metadata},
+                            'provider': candidate.get('provider') or candidate.get('provider_name') or 'configured',
+                            'model': model,
+                            **({'skill': {'name': required_skill['name'], 'sha256': required_skill['sha256'], 'loaded': True}} if required_skill else {}),
+                        }
+                        action = adapter.meter.start(input_upper_bound=size, output_limit=output_tokens, model=model) if adapter.meter else None
                         try:
                             with adapter.client_factory(timeout=httpx.Timeout(remaining, connect=min(10, remaining))) as client:
                                 with client.stream('POST', candidate['api_base'].rstrip('/') + '/chat/completions',
@@ -82,18 +116,20 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4):
                                         if len(body) > 2_000_000 or time.monotonic() >= deadline:
                                             raise ValueError('MODEL_PROTOCOL_ERROR: response limit exceeded')
                                     data = json.loads(body)
+                                    if not isinstance(data, dict):
+                                        raise ValueError('MODEL_PROTOCOL_ERROR: response must be an object')
                         except Exception as exc:
                             if adapter.meter:
-                                adapter.meter.finish(action, failed=True)
+                                adapter.meter.finish(action, failed=True, response_data={**audit, 'response': None})
                             if isinstance(exc, httpx.HTTPError):
                                 continue
                             raise
                         if adapter.meter:
                             adapter.meter.finish(action, usage=data.get('usage'), response_data={
-                                'runtime': 'deepseek-harness',
-                                **({'skill': {'name': required_skill['name'], 'sha256': required_skill['sha256'], 'loaded': True}} if required_skill else {}),
-                                'response': data})
+                                **audit, 'response': data})
                         break
+                    if hasattr(toolset, 'check'):
+                        toolset.check()
                     if data is None:
                         raise ResearchError('PROVIDER_UNAVAILABLE', 'Harness 模型服务不可用')
                     choices = data.get('choices') or []
@@ -115,6 +151,7 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4):
                                 if call['id'] in ids:
                                     raise ValueError('MODEL_PROTOCOL_ERROR: duplicate tool call ID')
                                 ids.add(call['id'])
+                    state['completed_calls'] += 1
                     state['error'] = None
                     if not stream:
                         self.reply(200, json.dumps(data).encode())

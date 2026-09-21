@@ -19,6 +19,10 @@ def setup_tools(*, guard=lambda: None, source_policy='open'):
     return tools, saved
 
 
+def coverage():
+    return [{'requirement_id':'req1','kind':'knowledge','status':'covered','finding_ids':['f1'],'reason':'已读正文支撑递归终止条件'}]
+
+
 def research(tools):
     found = tools.call('search_sources', {'query': '递归终止'})
     read = tools.call('fetch_source', {'candidate_id': found['candidates'][0]['candidate_id']})
@@ -26,7 +30,7 @@ def research(tools):
     result = tools.call('record_evidence_finding', {'finding_id': 'f1', 'claim': '递归需要终止条件',
                                                    'citation_refs': ['q1_1']})
     assert result['finding']['citations'][0]['source_id'] == tools.state.evidence[0].source_id
-    return tools.call('finalize_research_summary', {'overview': '递归终止', 'finding_ids': ['f1']})
+    return tools.call('finalize_research_summary', {'overview': '递归终止', 'finding_ids': ['f1'], 'coverage':coverage()})
 
 
 def test_real_results_validation_repair_and_checkpoint_resume():
@@ -103,7 +107,7 @@ def test_native_sdk_continues_with_real_results_until_path_saved(batch_findings)
                 assert '递归需要终止条件' in results and 'q1_1' in results
                 name,args='record_evidence_finding',{'finding_id':'f1','claim':'递归需要终止条件','citation_refs':['q1_1']}
             elif not current.summary:
-                name,args='finalize_research_summary',{'overview':'递归终止','finding_ids':['f1']}
+                name,args='finalize_research_summary',{'overview':'递归终止','finding_ids':['f1'],'coverage':coverage()}
             else:
                 name,args='save_course_plan',path(current.evidence[0].source_id)
             mounted=next(t['function']['name'] for t in body['tools'] if t['function']['name'].endswith('__'+name))
@@ -122,8 +126,13 @@ def test_native_sdk_continues_with_real_results_until_path_saved(batch_findings)
     model=HarnessPreparationAdapter(gateway,sdk_factory=DeepSeekHarness,
         client_factory=lambda **kw:httpx.Client(transport=httpx.MockTransport(complete),**kw))
     agent=ResearchAgent(model=model,sources=sources,incremental_findings=True)
-    result=model.run_learning_path(agent,request(),state,reserve=saved.append,guard=lambda:None,timeout=30)
-    assert result.phase=='review' and result.path and len(requests)==6
+    def persist(current):
+        saved.append(current)
+        if current.path:
+            # Terminal closure must not require another model/context budget.
+            model.context_tokens = 1
+    result=model.run_learning_path(agent,request(),state,reserve=persist,guard=lambda:None,timeout=30)
+    assert result.phase=='review' and result.path and len(requests)==5
     assert len(result.draft_findings) == (2 if batch_findings else 1)
     assert len(sources.searches)==len(sources.reads)==1
     assert model.required_skill['name']=='build-learning-path'

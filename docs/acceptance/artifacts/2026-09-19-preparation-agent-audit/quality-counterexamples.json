@@ -1,0 +1,1896 @@
+{
+  "request": {
+    "schema_version": 1,
+    "request_id": "38f998d1-50cb-41ff-88e6-9d7bdfdb2c4d",
+    "operation": "create_course",
+    "goal": "我会 Python，但没有学过 Agent。请严格只依据附件，设计两个节点、合计 20 分钟的中文入门课：先理解模型与程序各自的职责，再学会追踪参数校验的成功与失败分支。先用 12 加 30 的例子，再解释原理；每个节点需要报告、习题和 AI 课堂。目标是读懂附件伪代码并手动解释日志，不要求接入真实模型 API，不学 SDK、鉴权、多 Agent 和部署。",
+    "target": null,
+    "origin": null,
+    "learning_context": null,
+    "requested_changes": [],
+    "uploads": [
+      {
+        "document_id": "doc-2a2664bfe927410b960b9c5d2b90bb9a",
+        "version": 1,
+        "usage": "auto"
+      }
+    ],
+    "overrides": {
+      "language": null,
+      "total_minutes": 20,
+      "depth": null,
+      "required_resource_types": [
+        "classroom"
+      ]
+    },
+    "source_policy": {
+      "mode": "uploaded_only"
+    }
+  },
+  "plan": {
+    "nodes": [
+      {
+        "title": "模型与程序的分工：从 12 加 30 说起",
+        "minutes": 10,
+        "node_key": "n1_division",
+        "objectives": [
+          "能说出模型与程序在工具调用中的各自职责：模型返回工具名和参数，程序负责校验并执行真实工具",
+          "能解释\"模型提出调用不代表工具已执行\"的含义",
+          "能手动追踪成功例（12 加 30）的完整流程并得出 42",
+          "能读懂并解释日志中依次记录的用户问题、工具名及参数、执行结果、最终回答"
+        ],
+        "self_check": "不看材料，能说出：模型负责返回工具名和参数，程序负责校验并执行；12 加 30 的完整流程最终得到 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+        "source_ids": [
+          "ev_e7b29589b8f50963aebf1dd7"
+        ],
+        "finding_ids": [
+          "f_division",
+          "f_pseudocode_scope",
+          "f_success_case"
+        ],
+        "requirement_ids": [
+          "REQ-01",
+          "REQ-02",
+          "REQ-03",
+          "REQ-04",
+          "REQ-05",
+          "REQ-07",
+          "REQ-08"
+        ],
+        "prerequisite_keys": [],
+        "learning_activities": [
+          "报告：先用 12 加 30 的成功例演示完整流程——用户问 12 加 30，模型选 add、参数 a=12、b=30，程序校验通过执行返回 42，模型据真实返回值回答 42。",
+          "报告：随后解释分工原理——模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答；强调模型提出调用不代表工具已执行。",
+          "习题：口头回答\"谁执行工具？\"，并说明为什么模型返回 add(a=12,b=30) 后，真正做 a+b 的是程序而不是模型。",
+          "习题：按顺序复述成功例日志的四项内容（用户问题、工具名及参数、执行结果、最终回答）。",
+          "AI 课堂：引导学员用自己的话解释\"模型提出调用不代表工具已执行\"，并核对成功例最终回答 42 来自真实返回值而非模型编造。"
+        ]
+      },
+      {
+        "title": "参数校验的成功与失败分支：读懂伪代码与日志",
+        "minutes": 10,
+        "node_key": "n2_validation",
+        "objectives": [
+          "能手动追踪失败例（add(a=12) 缺 b）的校验分支，识别 INVALID_ARGUMENT 与 b is required",
+          "能判断未知工具名（如 subtract）对应的校验分支与错误类型（UNKNOWN_TOOL）",
+          "能读懂伪代码分支：工具名不是 add 返回 UNKNOWN_TOOL，否则检查 a、b 是否为数字，缺失或类型错误返回 INVALID_ARGUMENT，仅通过后计算 a+b",
+          "能说明 call_id 与回传结果关联、成功和失败都保留可追溯日志"
+        ],
+        "self_check": "能独立判断：add(a=12) 缺 b 返回 INVALID_ARGUMENT（b is required）且不执行求和；工具名 subtract 返回 UNKNOWN_TOOL；成功和失败都保留可追溯日志。",
+        "source_ids": [
+          "ev_e7b29589b8f50963aebf1dd7"
+        ],
+        "finding_ids": [
+          "f_failure_case",
+          "f_branches",
+          "f_check_exercises"
+        ],
+        "requirement_ids": [
+          "REQ-01",
+          "REQ-02",
+          "REQ-03",
+          "REQ-05",
+          "REQ-06",
+          "REQ-09",
+          "REQ-10",
+          "REQ-11"
+        ],
+        "prerequisite_keys": [
+          "n1_division"
+        ],
+        "learning_activities": [
+          "报告：逐行讲解伪代码分支——工具名不是 add 返回 UNKNOWN_TOOL；否则检查 a、b 是否为数字，缺失或类型错误返回 INVALID_ARGUMENT；仅通过后计算 a+b。",
+          "报告：讲解失败例 add(a=12) 缺 b——校验层返回 INVALID_ARGUMENT、message 为 b is required；不得运行 add、不得把错误当 0 或编造成功结果，应要求补全参数。",
+          "习题：回答\"为什么缺少 b 时不能继续求和\"，并说明失败例应记录未执行工具并提示补全 b。",
+          "习题（拓展）：给出未知工具名 subtract，判断走哪个校验分支、返回哪种错误类型（UNKNOWN_TOOL）。",
+          "AI 课堂：引导学员解释 call_id 与回传结果如何关联，以及为什么成功和失败都要保留可追溯日志。"
+        ]
+      }
+    ],
+    "title": "工具调用入门：模型选择，程序执行",
+    "summary": "面向会 Python、未学过 Agent 的学习者，严格依据附件教材，用两个节点（合计 20 分钟）讲清工具调用中\"模型选择、程序执行\"的分工，并学会手动追踪参数校验的成功与失败分支、读懂并解释日志。节点1以 12 加 30 成功例入手，讲模型与程序各自职责；节点2讲伪代码校验分支（UNKNOWN_TOOL / INVALID_ARGUMENT）与失败例、日志解读。全程不接入真实模型 API，不学 SDK、鉴权、多 Agent 和部署。",
+    "limitations": [
+      "附件未展开 call_id 与回传结果关联的具体机制或日志字段格式，仅提及需保留可追溯日志；本课只要求读懂并手动解释日志，不深入实现细节。",
+      "附件未说明 UNKNOWN_TOOL 与 INVALID_ARGUMENT 两种错误类型在日志中的具体记录方式或返回结构差异。",
+      "附件不提供实际模型 SDK 程序或可运行代码，仅伪代码；本课目标为读懂伪代码并手动解释日志，不涉及真实 API 接入、SDK 安装或鉴权。"
+    ]
+  },
+  "quality": {
+    "issues": [],
+    "decision": "pass",
+    "limitations": [
+      "附件未展开 call_id 与回传结果关联的具体机制或日志字段格式，仅提及需保留可追溯日志；课程只要求读懂并手动解释日志，不深入实现细节。",
+      "附件未说明 UNKNOWN_TOOL 与 INVALID_ARGUMENT 两种错误类型在日志中的具体记录方式或返回结构差异。",
+      "附件不提供实际模型 SDK 程序或可运行代码，仅伪代码；课程目标为读懂伪代码并手动解释日志，不涉及真实 API 接入、SDK 安装或鉴权。",
+      "节点1报告中\"医生助理/药剂师\"类比为生成者自行添加的比喻，非附件原文，仅作辅助理解，不引入附件之外的事实性内容。"
+    ],
+    "input_digest": "a1984f17095ef594801339977a533de70013cb3094d7babf5338a674a70be945",
+    "rule_version": "preparation-delivery-v2",
+    "checked_node_ids": [
+      "n1_division",
+      "n2_validation"
+    ]
+  },
+  "node_quality_reviews": {
+    "n1_division": {
+      "issues": [],
+      "decision": "pass",
+      "limitations": [
+        "附件未展开 call_id 与回传结果关联的具体机制或日志字段格式，仅提及需保留可追溯日志；本节点不涉及该细节，留待节点2处理。",
+        "报告中的\"医生助理/药剂师\"类比为课程生成者自行添加的比喻，非附件原文，但仅作辅助理解，不引入附件之外的事实性内容，不构成阻塞。"
+      ],
+      "checked_node_ids": [
+        "n1_division"
+      ]
+    },
+    "n2_validation": {
+      "issues": [],
+      "decision": "pass",
+      "limitations": [
+        "附件未展开 call_id 与回传结果关联的具体机制或日志字段格式，仅提及需保留可追溯日志；本节点只要求读懂并手动解释日志，不深入实现细节。",
+        "附件未说明 UNKNOWN_TOOL 与 INVALID_ARGUMENT 两种错误类型在日志中的具体记录方式或返回结构差异。",
+        "附件不提供实际模型 SDK 程序或可运行代码，仅伪代码；本节点目标为读懂伪代码并手动解释日志，不涉及真实 API 接入、SDK 安装或鉴权。"
+      ],
+      "checked_node_ids": [
+        "n2_validation"
+      ]
+    }
+  },
+  "resource_specs": [
+    {
+      "title": "模型与程序的分工：从 12 加 30 说起",
+      "minutes": 10,
+      "node_id": "n1_division",
+      "audience": "会 Python、未学过 Agent 的学习者",
+      "evidence": [
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "工具调用中模型与程序分工：模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。模型提出调用不代表工具已执行。",
+          "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_division",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "本课采用可手动追踪的伪代码，不接入外部模型 API，不学 SDK 安装或鉴权；工具 add(a,b) 仅接受两个数字，执行 a+b。",
+          "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_pseudocode_scope",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "成功例：用户问 12 加 30，模型选 add、参数 a=12、b=30，程序校验通过执行返回 42，模型据真实返回值回答 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+          "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_success_case",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        }
+      ],
+      "language": "中文",
+      "required": true,
+      "revision": 1,
+      "objectives": [
+        "能说出模型与程序在工具调用中的各自职责：模型返回工具名和参数，程序负责校验并执行真实工具",
+        "能解释\"模型提出调用不代表工具已执行\"的含义",
+        "能手动追踪成功例（12 加 30）的完整流程并得出 42",
+        "能读懂并解释日志中依次记录的用户问题、工具名及参数、执行结果、最终回答"
+      ],
+      "memory_refs": {},
+      "memory_epoch": 0,
+      "objective_ids": [
+        "n1_division:o1",
+        "n1_division:o2",
+        "n1_division:o3",
+        "n1_division:o4"
+      ],
+      "resource_type": "report",
+      "learning_check": "不看材料，能说出：模型负责返回工具名和参数，程序负责校验并执行；12 加 30 的完整流程最终得到 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+      "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "config_snapshot": {},
+      "original_content": null,
+      "revision_feedback": [],
+      "preparation_policy": "automatic_personal_draft_v1",
+      "source_resource_ref": null,
+      "delivery_resource_id": null,
+      "delivery_resource_version": 1
+    },
+    {
+      "title": "模型与程序的分工：从 12 加 30 说起",
+      "minutes": 10,
+      "node_id": "n1_division",
+      "audience": "会 Python、未学过 Agent 的学习者",
+      "evidence": [
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "工具调用中模型与程序分工：模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。模型提出调用不代表工具已执行。",
+          "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_division",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "本课采用可手动追踪的伪代码，不接入外部模型 API，不学 SDK 安装或鉴权；工具 add(a,b) 仅接受两个数字，执行 a+b。",
+          "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_pseudocode_scope",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "成功例：用户问 12 加 30，模型选 add、参数 a=12、b=30，程序校验通过执行返回 42，模型据真实返回值回答 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+          "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_success_case",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        }
+      ],
+      "language": "中文",
+      "required": true,
+      "revision": 1,
+      "objectives": [
+        "能说出模型与程序在工具调用中的各自职责：模型返回工具名和参数，程序负责校验并执行真实工具",
+        "能解释\"模型提出调用不代表工具已执行\"的含义",
+        "能手动追踪成功例（12 加 30）的完整流程并得出 42",
+        "能读懂并解释日志中依次记录的用户问题、工具名及参数、执行结果、最终回答"
+      ],
+      "memory_refs": {},
+      "memory_epoch": 0,
+      "objective_ids": [
+        "n1_division:o1",
+        "n1_division:o2",
+        "n1_division:o3",
+        "n1_division:o4"
+      ],
+      "resource_type": "quiz",
+      "learning_check": "不看材料，能说出：模型负责返回工具名和参数，程序负责校验并执行；12 加 30 的完整流程最终得到 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+      "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "config_snapshot": {},
+      "original_content": null,
+      "revision_feedback": [],
+      "preparation_policy": "automatic_personal_draft_v1",
+      "source_resource_ref": null,
+      "delivery_resource_id": null,
+      "delivery_resource_version": 1
+    },
+    {
+      "title": "模型与程序的分工：从 12 加 30 说起",
+      "minutes": 10,
+      "node_id": "n1_division",
+      "audience": "会 Python、未学过 Agent 的学习者",
+      "evidence": [
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "工具调用中模型与程序分工：模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。模型提出调用不代表工具已执行。",
+          "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_division",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "本课采用可手动追踪的伪代码，不接入外部模型 API，不学 SDK 安装或鉴权；工具 add(a,b) 仅接受两个数字，执行 a+b。",
+          "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_pseudocode_scope",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "成功例：用户问 12 加 30，模型选 add、参数 a=12、b=30，程序校验通过执行返回 42，模型据真实返回值回答 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+          "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_success_case",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        }
+      ],
+      "language": "中文",
+      "required": true,
+      "revision": 1,
+      "objectives": [
+        "能说出模型与程序在工具调用中的各自职责：模型返回工具名和参数，程序负责校验并执行真实工具",
+        "能解释\"模型提出调用不代表工具已执行\"的含义",
+        "能手动追踪成功例（12 加 30）的完整流程并得出 42",
+        "能读懂并解释日志中依次记录的用户问题、工具名及参数、执行结果、最终回答"
+      ],
+      "memory_refs": {},
+      "memory_epoch": 0,
+      "objective_ids": [
+        "n1_division:o1",
+        "n1_division:o2",
+        "n1_division:o3",
+        "n1_division:o4"
+      ],
+      "resource_type": "classroom",
+      "learning_check": "不看材料，能说出：模型负责返回工具名和参数，程序负责校验并执行；12 加 30 的完整流程最终得到 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+      "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "config_snapshot": {},
+      "original_content": null,
+      "revision_feedback": [],
+      "preparation_policy": "automatic_personal_draft_v1",
+      "source_resource_ref": null,
+      "delivery_resource_id": null,
+      "delivery_resource_version": 1
+    },
+    {
+      "title": "参数校验的成功与失败分支：读懂伪代码与日志",
+      "minutes": 10,
+      "node_id": "n2_validation",
+      "audience": "会 Python、未学过 Agent 的学习者",
+      "evidence": [
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "失败例：模型给 add(a=12) 缺 b，校验层返回 INVALID_ARGUMENT、message 为 b is required；不得运行 add、不得把错误当 0 或编造成功结果，应要求补全参数。",
+          "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_failure_case",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "伪代码分支：工具名不是 add 返回 UNKNOWN_TOOL；否则检查 a、b 是否为数字，缺失或类型错误返回 INVALID_ARGUMENT；仅通过后计算 a+b。call_id 与回传结果关联，成功和失败都保留可追溯日志。",
+          "quote": "\n伪代码：如果工具名不是 add，返回 UNKNOWN\\_TOOL；否则检查 a 和 b 是否为数字，缺失或类型错误时返回 INVALID\\_ARGUMENT；仅通过检查后计算 a+b。工具请求的 call\\_id 与回传结果关联，成功和失败都要保留可追溯日志。\n\n检查题：谁执行工具？为什么缺少 b 时不能继续求和？成功例应得 42；失败例应记录未执行工具并提示补全 b。拓展练习：给出未知工具名 subtract，判断校验分支和错误类型。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_branches",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "检查题：谁执行工具、为什么缺 b 不能继续求和、成功例应得 42、失败例应记录未执行并提示补全 b；拓展练习给出未知工具名 subtract 判断校验分支和错误类型（UNKNOWN_TOOL）。",
+          "quote": "\n伪代码：如果工具名不是 add，返回 UNKNOWN\\_TOOL；否则检查 a 和 b 是否为数字，缺失或类型错误时返回 INVALID\\_ARGUMENT；仅通过检查后计算 a+b。工具请求的 call\\_id 与回传结果关联，成功和失败都要保留可追溯日志。\n\n检查题：谁执行工具？为什么缺少 b 时不能继续求和？成功例应得 42；失败例应记录未执行工具并提示补全 b。拓展练习：给出未知工具名 subtract，判断校验分支和错误类型。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_check_exercises",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        }
+      ],
+      "language": "中文",
+      "required": true,
+      "revision": 1,
+      "objectives": [
+        "能手动追踪失败例（add(a=12) 缺 b）的校验分支，识别 INVALID_ARGUMENT 与 b is required",
+        "能判断未知工具名（如 subtract）对应的校验分支与错误类型（UNKNOWN_TOOL）",
+        "能读懂伪代码分支：工具名不是 add 返回 UNKNOWN_TOOL，否则检查 a、b 是否为数字，缺失或类型错误返回 INVALID_ARGUMENT，仅通过后计算 a+b",
+        "能说明 call_id 与回传结果关联、成功和失败都保留可追溯日志"
+      ],
+      "memory_refs": {},
+      "memory_epoch": 0,
+      "objective_ids": [
+        "n2_validation:o1",
+        "n2_validation:o2",
+        "n2_validation:o3",
+        "n2_validation:o4"
+      ],
+      "resource_type": "report",
+      "learning_check": "能独立判断：add(a=12) 缺 b 返回 INVALID_ARGUMENT（b is required）且不执行求和；工具名 subtract 返回 UNKNOWN_TOOL；成功和失败都保留可追溯日志。",
+      "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "config_snapshot": {},
+      "original_content": null,
+      "revision_feedback": [],
+      "preparation_policy": "automatic_personal_draft_v1",
+      "source_resource_ref": null,
+      "delivery_resource_id": null,
+      "delivery_resource_version": 1
+    },
+    {
+      "title": "参数校验的成功与失败分支：读懂伪代码与日志",
+      "minutes": 10,
+      "node_id": "n2_validation",
+      "audience": "会 Python、未学过 Agent 的学习者",
+      "evidence": [
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "失败例：模型给 add(a=12) 缺 b，校验层返回 INVALID_ARGUMENT、message 为 b is required；不得运行 add、不得把错误当 0 或编造成功结果，应要求补全参数。",
+          "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_failure_case",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "伪代码分支：工具名不是 add 返回 UNKNOWN_TOOL；否则检查 a、b 是否为数字，缺失或类型错误返回 INVALID_ARGUMENT；仅通过后计算 a+b。call_id 与回传结果关联，成功和失败都保留可追溯日志。",
+          "quote": "\n伪代码：如果工具名不是 add，返回 UNKNOWN\\_TOOL；否则检查 a 和 b 是否为数字，缺失或类型错误时返回 INVALID\\_ARGUMENT；仅通过检查后计算 a+b。工具请求的 call\\_id 与回传结果关联，成功和失败都要保留可追溯日志。\n\n检查题：谁执行工具？为什么缺少 b 时不能继续求和？成功例应得 42；失败例应记录未执行工具并提示补全 b。拓展练习：给出未知工具名 subtract，判断校验分支和错误类型。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_branches",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "检查题：谁执行工具、为什么缺 b 不能继续求和、成功例应得 42、失败例应记录未执行并提示补全 b；拓展练习给出未知工具名 subtract 判断校验分支和错误类型（UNKNOWN_TOOL）。",
+          "quote": "\n伪代码：如果工具名不是 add，返回 UNKNOWN\\_TOOL；否则检查 a 和 b 是否为数字，缺失或类型错误时返回 INVALID\\_ARGUMENT；仅通过检查后计算 a+b。工具请求的 call\\_id 与回传结果关联，成功和失败都要保留可追溯日志。\n\n检查题：谁执行工具？为什么缺少 b 时不能继续求和？成功例应得 42；失败例应记录未执行工具并提示补全 b。拓展练习：给出未知工具名 subtract，判断校验分支和错误类型。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_check_exercises",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        }
+      ],
+      "language": "中文",
+      "required": true,
+      "revision": 2,
+      "objectives": [
+        "能手动追踪失败例（add(a=12) 缺 b）的校验分支，识别 INVALID_ARGUMENT 与 b is required",
+        "能判断未知工具名（如 subtract）对应的校验分支与错误类型（UNKNOWN_TOOL）",
+        "能读懂伪代码分支：工具名不是 add 返回 UNKNOWN_TOOL，否则检查 a、b 是否为数字，缺失或类型错误返回 INVALID_ARGUMENT，仅通过后计算 a+b",
+        "能说明 call_id 与回传结果关联、成功和失败都保留可追溯日志"
+      ],
+      "memory_refs": {},
+      "memory_epoch": 0,
+      "objective_ids": [
+        "n2_validation:o1",
+        "n2_validation:o2",
+        "n2_validation:o3",
+        "n2_validation:o4"
+      ],
+      "resource_type": "quiz",
+      "learning_check": "能独立判断：add(a=12) 缺 b 返回 INVALID_ARGUMENT（b is required）且不执行求和；工具名 subtract 返回 UNKNOWN_TOOL；成功和失败都保留可追溯日志。",
+      "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "config_snapshot": {},
+      "original_content": null,
+      "revision_feedback": [
+        "RESOURCE_GENERATION_FAILED"
+      ],
+      "preparation_policy": "automatic_personal_draft_v1",
+      "source_resource_ref": null,
+      "delivery_resource_id": null,
+      "delivery_resource_version": 1
+    },
+    {
+      "title": "参数校验的成功与失败分支：读懂伪代码与日志",
+      "minutes": 10,
+      "node_id": "n2_validation",
+      "audience": "会 Python、未学过 Agent 的学习者",
+      "evidence": [
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "失败例：模型给 add(a=12) 缺 b，校验层返回 INVALID_ARGUMENT、message 为 b is required；不得运行 add、不得把错误当 0 或编造成功结果，应要求补全参数。",
+          "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_failure_case",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "伪代码分支：工具名不是 add 返回 UNKNOWN_TOOL；否则检查 a、b 是否为数字，缺失或类型错误返回 INVALID_ARGUMENT；仅通过后计算 a+b。call_id 与回传结果关联，成功和失败都保留可追溯日志。",
+          "quote": "\n伪代码：如果工具名不是 add，返回 UNKNOWN\\_TOOL；否则检查 a 和 b 是否为数字，缺失或类型错误时返回 INVALID\\_ARGUMENT；仅通过检查后计算 a+b。工具请求的 call\\_id 与回传结果关联，成功和失败都要保留可追溯日志。\n\n检查题：谁执行工具？为什么缺少 b 时不能继续求和？成功例应得 42；失败例应记录未执行工具并提示补全 b。拓展练习：给出未知工具名 subtract，判断校验分支和错误类型。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_branches",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        },
+        {
+          "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+          "claim": "检查题：谁执行工具、为什么缺 b 不能继续求和、成功例应得 42、失败例应记录未执行并提示补全 b；拓展练习给出未知工具名 subtract 判断校验分支和错误类型（UNKNOWN_TOOL）。",
+          "quote": "\n伪代码：如果工具名不是 add，返回 UNKNOWN\\_TOOL；否则检查 a 和 b 是否为数字，缺失或类型错误时返回 INVALID\\_ARGUMENT；仅通过检查后计算 a+b。工具请求的 call\\_id 与回传结果关联，成功和失败都要保留可追溯日志。\n\n检查题：谁执行工具？为什么缺少 b 时不能继续求和？成功例应得 42；失败例应记录未执行工具并提示补全 b。拓展练习：给出未知工具名 subtract，判断校验分支和错误类型。\n",
+          "source_id": "ev_e7b29589b8f50963aebf1dd7",
+          "finding_id": "f_check_exercises",
+          "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+        }
+      ],
+      "language": "中文",
+      "required": true,
+      "revision": 1,
+      "objectives": [
+        "能手动追踪失败例（add(a=12) 缺 b）的校验分支，识别 INVALID_ARGUMENT 与 b is required",
+        "能判断未知工具名（如 subtract）对应的校验分支与错误类型（UNKNOWN_TOOL）",
+        "能读懂伪代码分支：工具名不是 add 返回 UNKNOWN_TOOL，否则检查 a、b 是否为数字，缺失或类型错误返回 INVALID_ARGUMENT，仅通过后计算 a+b",
+        "能说明 call_id 与回传结果关联、成功和失败都保留可追溯日志"
+      ],
+      "memory_refs": {},
+      "memory_epoch": 0,
+      "objective_ids": [
+        "n2_validation:o1",
+        "n2_validation:o2",
+        "n2_validation:o3",
+        "n2_validation:o4"
+      ],
+      "resource_type": "classroom",
+      "learning_check": "能独立判断：add(a=12) 缺 b 返回 INVALID_ARGUMENT（b is required）且不执行求和；工具名 subtract 返回 UNKNOWN_TOOL；成功和失败都保留可追溯日志。",
+      "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "config_snapshot": {},
+      "original_content": null,
+      "revision_feedback": [],
+      "preparation_policy": "automatic_personal_draft_v1",
+      "source_resource_ref": null,
+      "delivery_resource_id": null,
+      "delivery_resource_version": 1
+    }
+  ],
+  "artifacts": [
+    {
+      "spec": {
+        "title": "模型与程序的分工：从 12 加 30 说起",
+        "minutes": 10,
+        "node_id": "n1_division",
+        "audience": "会 Python、未学过 Agent 的学习者",
+        "evidence": [
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "工具调用中模型与程序分工：模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。模型提出调用不代表工具已执行。",
+            "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_division",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          },
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "本课采用可手动追踪的伪代码，不接入外部模型 API，不学 SDK 安装或鉴权；工具 add(a,b) 仅接受两个数字，执行 a+b。",
+            "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_pseudocode_scope",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          },
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "成功例：用户问 12 加 30，模型选 add、参数 a=12、b=30，程序校验通过执行返回 42，模型据真实返回值回答 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+            "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_success_case",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          }
+        ],
+        "language": "中文",
+        "required": true,
+        "revision": 1,
+        "objectives": [
+          "能说出模型与程序在工具调用中的各自职责：模型返回工具名和参数，程序负责校验并执行真实工具",
+          "能解释\"模型提出调用不代表工具已执行\"的含义",
+          "能手动追踪成功例（12 加 30）的完整流程并得出 42",
+          "能读懂并解释日志中依次记录的用户问题、工具名及参数、执行结果、最终回答"
+        ],
+        "memory_refs": {},
+        "memory_epoch": 0,
+        "objective_ids": [
+          "n1_division:o1",
+          "n1_division:o2",
+          "n1_division:o3",
+          "n1_division:o4"
+        ],
+        "resource_type": "report",
+        "learning_check": "不看材料，能说出：模型负责返回工具名和参数，程序负责校验并执行；12 加 30 的完整流程最终得到 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+        "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+        "config_snapshot": {},
+        "original_content": null,
+        "revision_feedback": [],
+        "preparation_policy": "automatic_personal_draft_v1",
+        "source_resource_ref": null,
+        "delivery_resource_id": null,
+        "delivery_resource_version": 1
+      },
+      "status": "draft",
+      "content": {
+        "title": "模型与程序的分工：从 12 加 30 说起",
+        "content": "## 概念与机制\n\n工具调用中，模型与程序的分工可以概括为一句话：**模型负责“提出要调用什么”，程序负责“真正执行并校验”**。模型读取用户问题和已注册工具的描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把工具结果交回模型生成回答。\n\n这里有一个容易被忽略但必须理解的关键点：**模型提出调用不代表工具已经执行**。模型只是输出一个“调用意图”——例如“我想调用 add，参数是 12 和 30”。这个意图本身不会产生任何计算结果。真正执行加法、返回 42 的是程序。如果程序没有运行，或者校验失败，工具就不会被执行，42 也不会凭空出现。\n\n可以用一个类比来理解：模型像一位只会写“取药单”的医生助理，程序像药房的药剂师。助理在单子上写“取阿司匹林，一次一片”，但这张单子本身不会让药片进入患者手中。药剂师必须核对药名和剂量是否正确，确认无误后才真正发药。如果单子上剂量写错了，药剂师会退回单子要求更正，而不是随便抓一把药发出去。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，也不学习 SDK 安装或鉴权。工具 `add(a,b)` 仅接受两个数字，执行 `a+b`。这意味着你可以把每一步写在纸上，逐行追踪整个流程，而不需要任何编程环境。\n\n## 案例与面试表达\n\n以“12 加 30”为例，完整流程如下：\n\n1. **用户问题**：用户输入“12 加 30”。\n2. **模型决策**：模型读取用户问题和已注册工具描述，判断需要调用 `add`，返回工具名 `add` 和参数 `a=12`、`b=30`。\n3. **程序校验与执行**：程序收到这个调用请求，校验工具名存在、参数完整且类型正确。校验通过后，程序执行真实的 `add(12, 30)`，得到结果 `42`。\n4. **模型生成回答**：程序把 `42` 交回模型，模型根据这个真实返回值生成最终回答：“结果是 42”。\n\n整个流程最终得到 **42**。注意，42 来自程序的真实执行，而不是模型“算出来”的。模型只是根据程序返回的结果组织语言。\n\n日志会依次记录四个环节：**用户问题 → 工具名及参数 → 执行结果 → 最终回答**。读懂日志的顺序，就是读懂工具调用流程的顺序。\n\n面试中如果被问到“模型和程序在工具调用中分别做什么”，可以用一句话回答：**模型负责返回工具名和参数，程序负责校验并执行真实工具**。如果追问“模型说调用工具了，是不是就等于工具执行了”，回答应该是：**不是，模型提出调用只是表达了意图，真正执行和产生结果的是程序；如果程序不执行或校验失败，工具就没有运行**。\n\n## 学习检查\n\n请在不看材料的情况下，回答以下问题：\n\n1. 模型负责做什么？程序负责做什么？\n2. “12 加 30”的完整流程最终得到什么结果？\n3. 日志依次记录哪四个环节？\n\n参考答案：\n\n1. 模型负责返回工具名和参数；程序负责校验并执行真实工具。\n2. 最终得到 42。\n3. 依次记录：用户问题、工具名及参数、执行结果、最终回答。",
+        "artifact_type": "report",
+        "generation_state": {
+          "report_review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "正文覆盖了所有要求：在“概念与机制”中明确模型返回工具名和参数、程序负责校验并执行真实工具，并解释“模型提出调用不代表工具已执行”；“案例与面试表达”手动追踪了12加30的完整流程并得出42；日志顺序在案例部分和学习检查中均说明为用户问题、工具名及参数、执行结果、最终回答。学习检查部分包含三个问题及参考答案，与要求一致。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "关键例子12加30推演正确：模型返回add(a=12,b=30)，程序校验通过执行add(12,30)得42，模型据真实返回值回答42。概念前提与证据一致：模型只提出调用意图，程序负责校验和执行；工具add仅接受两个数字执行a+b。正文未出现与来源矛盾的事实。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "成功例完整覆盖：用户问题、模型决策、程序校验与执行、模型生成回答，最终得到42。正文还通过“取药单”类比说明模型提出调用不等于执行，并提及校验失败时不会执行工具，虽未展开失败例的完整参数缺失场景，但成功例和关键边界（程序不运行则42不会出现）已说明。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "结构按大纲分为概念与机制、案例与面试表达、学习检查三部分。先讲分工和关键概念，再用具体案例追踪流程，最后给出检查题和参考答案，顺序适合10分钟学习。解释具体，如“42来自程序的真实执行，而不是模型算出来的”，并提供了面试表达。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "正文内容与提供的来源一致：模型读取用户问题和工具描述返回工具名和参数、程序校验并执行、模型提出调用不代表工具已执行、add(a,b)仅接受两个数字执行a+b、成功例12加30得42、日志顺序等均可在证据中找到对应原文。未发现编造来源或与来源矛盾的主张。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "正文完整覆盖了规格中要求的全部学习目标：能说出模型与程序各自职责、能解释“模型提出调用不代表工具已执行”、能手动追踪12加30流程并得出42、能读懂并解释日志四个环节。学习检查也覆盖了这三个核心点。",
+                "criterion": "completeness"
+              }
+            ],
+            "method": "model_review",
+            "history": [
+              {
+                "review": {
+                  "checks": [
+                    {
+                      "passed": true,
+                      "reason": "正文覆盖了所有要求：在“概念与机制”中明确模型返回工具名和参数、程序负责校验并执行真实工具，并解释“模型提出调用不代表工具已执行”；“案例与面试表达”手动追踪了12加30的完整流程并得出42；日志顺序在案例部分和学习检查中均说明为用户问题、工具名及参数、执行结果、最终回答。学习检查部分包含三个问题及参考答案，与要求一致。",
+                      "criterion": "requirements"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "关键例子12加30推演正确：模型返回add(a=12,b=30)，程序校验通过执行add(12,30)得42，模型据真实返回值回答42。概念前提与证据一致：模型只提出调用意图，程序负责校验和执行；工具add仅接受两个数字执行a+b。正文未出现与来源矛盾的事实。",
+                      "criterion": "correctness"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "成功例完整覆盖：用户问题、模型决策、程序校验与执行、模型生成回答，最终得到42。正文还通过“取药单”类比说明模型提出调用不等于执行，并提及校验失败时不会执行工具，虽未展开失败例的完整参数缺失场景，但成功例和关键边界（程序不运行则42不会出现）已说明。",
+                      "criterion": "examples"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "结构按大纲分为概念与机制、案例与面试表达、学习检查三部分。先讲分工和关键概念，再用具体案例追踪流程，最后给出检查题和参考答案，顺序适合10分钟学习。解释具体，如“42来自程序的真实执行，而不是模型算出来的”，并提供了面试表达。",
+                      "criterion": "teaching_structure"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "正文内容与提供的来源一致：模型读取用户问题和工具描述返回工具名和参数、程序校验并执行、模型提出调用不代表工具已执行、add(a,b)仅接受两个数字执行a+b、成功例12加30得42、日志顺序等均可在证据中找到对应原文。未发现编造来源或与来源矛盾的主张。",
+                      "criterion": "sources"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "正文完整覆盖了规格中要求的全部学习目标：能说出模型与程序各自职责、能解释“模型提出调用不代表工具已执行”、能手动追踪12加30流程并得出42、能读懂并解释日志四个环节。学习检查也覆盖了这三个核心点。",
+                      "criterion": "completeness"
+                    }
+                  ],
+                  "suggestions": [
+                    "可在“案例与面试表达”中补充一句失败例的简要说明，例如“若模型只给add(a=12)缺少b，程序校验会返回参数缺失，不会执行add”，以进一步强化“模型提出调用不代表工具已执行”的理解。",
+                    "学习检查的参考答案可以稍微展开第1题，例如补充“模型只返回调用意图，不执行工具”，帮助学习者自查是否真正理解关键点。"
+                  ],
+                  "blocking_issues": []
+                },
+                "version": 1,
+                "decision": "pass",
+                "content_sha256": "8cf2187ce174703839e1339ed014c4a27faf262be83d4717ab2d570b2826c366",
+                "structural_issues": []
+              }
+            ],
+            "version": 1,
+            "decision": "pass",
+            "limitation": "模型审阅，非人工审阅或全面事实核验",
+            "suggestions": [
+              "可在“案例与面试表达”中补充一句失败例的简要说明，例如“若模型只给add(a=12)缺少b，程序校验会返回参数缺失，不会执行add”，以进一步强化“模型提出调用不代表工具已执行”的理解。",
+              "学习检查的参考答案可以稍微展开第1题，例如补充“模型只返回调用意图，不执行工具”，帮助学习者自查是否真正理解关键点。"
+            ],
+            "content_sha256": "8cf2187ce174703839e1339ed014c4a27faf262be83d4717ab2d570b2826c366",
+            "external_review": null
+          }
+        }
+      },
+      "error_code": null,
+      "artifact_id": "artifact_99b4d6a539e9500febc1ac2c62447923",
+      "resource_id": "resource_99b4d6a539e9500febc1ac2c62447923",
+      "spec_digest": "4864a130d6b83eb359e5f9499591d52e3b83bc5e71fe1b6dd0eb4dc43c77cd5a",
+      "owner_user_id": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "resource_type": "report",
+      "content_digest": "72f2525bc6ac8713d0be57f4bc48e4fbbc70320394918de96324f6e3657c9d84",
+      "preparation_id": "prep_843b108995784776a8c620caf73449f9",
+      "resource_version": 1
+    },
+    {
+      "spec": {
+        "title": "模型与程序的分工：从 12 加 30 说起",
+        "minutes": 10,
+        "node_id": "n1_division",
+        "audience": "会 Python、未学过 Agent 的学习者",
+        "evidence": [
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "工具调用中模型与程序分工：模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。模型提出调用不代表工具已执行。",
+            "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_division",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          },
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "本课采用可手动追踪的伪代码，不接入外部模型 API，不学 SDK 安装或鉴权；工具 add(a,b) 仅接受两个数字，执行 a+b。",
+            "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_pseudocode_scope",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          },
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "成功例：用户问 12 加 30，模型选 add、参数 a=12、b=30，程序校验通过执行返回 42，模型据真实返回值回答 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+            "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_success_case",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          }
+        ],
+        "language": "中文",
+        "required": true,
+        "revision": 1,
+        "objectives": [
+          "能说出模型与程序在工具调用中的各自职责：模型返回工具名和参数，程序负责校验并执行真实工具",
+          "能解释\"模型提出调用不代表工具已执行\"的含义",
+          "能手动追踪成功例（12 加 30）的完整流程并得出 42",
+          "能读懂并解释日志中依次记录的用户问题、工具名及参数、执行结果、最终回答"
+        ],
+        "memory_refs": {},
+        "memory_epoch": 0,
+        "objective_ids": [
+          "n1_division:o1",
+          "n1_division:o2",
+          "n1_division:o3",
+          "n1_division:o4"
+        ],
+        "resource_type": "quiz",
+        "learning_check": "不看材料，能说出：模型负责返回工具名和参数，程序负责校验并执行；12 加 30 的完整流程最终得到 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+        "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+        "config_snapshot": {},
+        "original_content": null,
+        "revision_feedback": [],
+        "preparation_policy": "automatic_personal_draft_v1",
+        "source_resource_ref": null,
+        "delivery_resource_id": null,
+        "delivery_resource_version": 1
+      },
+      "status": "draft",
+      "content": {
+        "title": "模型与程序的分工：从 12 加 30 说起",
+        "content": {
+          "title": "模型与程序的分工：从 12 加 30 说起",
+          "questions": [
+            {
+              "id": "q1",
+              "stem": "在工具调用流程中，模型和程序各自的核心职责是什么？",
+              "type": "single_choice",
+              "answer": "B",
+              "options": [
+                "模型负责校验参数并执行工具，程序负责返回工具名和参数",
+                "模型负责返回工具名和参数，程序负责校验并执行真实工具",
+                "模型和程序都负责执行工具，只是先后顺序不同",
+                "模型负责记录日志，程序负责生成最终回答"
+              ],
+              "difficulty": "easy",
+              "explanation": "根据工具调用机制，模型读取用户问题和已注册工具描述后，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。选项 A 把两者职责颠倒；选项 C 错误地认为程序也参与工具选择；选项 D 把日志记录和回答生成的职责也弄反了。"
+            },
+            {
+              "id": "q2",
+              "stem": "模型提出调用某个工具，就意味着该工具已经被真实执行了。",
+              "type": "true_false",
+              "answer": "错误",
+              "difficulty": "easy",
+              "explanation": "模型提出调用只是返回了工具名和参数，并不代表工具已经执行。真正执行工具的是程序，且程序需要先校验名称和参数，校验通过后才执行。如果校验失败，工具根本不会运行。"
+            },
+            {
+              "id": "q3",
+              "stem": "用户问“12 加 30”，模型返回调用 add(a=12, b=30)。程序校验通过后执行 add，得到的执行结果是什么？",
+              "type": "single_choice",
+              "answer": "C",
+              "options": [
+                "12",
+                "30",
+                "42",
+                "无法确定"
+              ],
+              "difficulty": "easy",
+              "explanation": "工具 add(a,b) 执行 a+b。将 a=12、b=30 代入，12+30=42，因此执行结果为 42。选项 A 和 B 分别只取了其中一个参数，选项 D 忽略了 add 的确定行为。"
+            },
+            {
+              "id": "q4",
+              "stem": "在“12 加 30”的成功案例中，模型最终回答 42 的依据是什么？",
+              "type": "single_choice",
+              "answer": "C",
+              "options": [
+                "模型自己心算得出的结果",
+                "程序直接展示给用户的数字",
+                "程序执行 add 后返回的真实结果",
+                "日志中预先写好的答案"
+              ],
+              "difficulty": "easy",
+              "explanation": "模型根据程序执行 add 后返回的真实结果 42 来生成最终回答。模型本身不执行计算，也不应凭空编造结果；日志只是记录过程，不是答案来源。"
+            },
+            {
+              "id": "q5",
+              "stem": "一次成功的工具调用日志中，记录内容的正确顺序是什么？",
+              "type": "single_choice",
+              "answer": "B",
+              "options": [
+                "执行结果 → 工具名及参数 → 用户问题 → 最终回答",
+                "用户问题 → 工具名及参数 → 执行结果 → 最终回答",
+                "工具名及参数 → 用户问题 → 最终回答 → 执行结果",
+                "最终回答 → 执行结果 → 工具名及参数 → 用户问题"
+              ],
+              "difficulty": "medium",
+              "explanation": "日志依次记录：用户问题、工具名及参数、执行结果、最终回答。这个顺序反映了从用户输入到模型选择工具、程序执行、模型生成回答的完整流程。其他选项打乱了这一因果顺序。"
+            },
+            {
+              "id": "q6",
+              "stem": "关于工具调用中模型与程序的分工，下列说法正确的有哪些？",
+              "type": "multiple_choice",
+              "answer": "A,B,C,D",
+              "options": [
+                "模型读取用户问题和已注册工具描述",
+                "模型可以返回工具名和参数",
+                "程序负责校验工具名称及参数",
+                "程序执行真实工具后把结果交回模型"
+              ],
+              "difficulty": "medium",
+              "explanation": "四个选项都正确描述了分工：模型读取用户问题和工具描述，返回工具名和参数；程序负责校验名称及参数，执行真实工具，并将结果交回模型生成回答。这是工具调用流程的完整闭环。"
+            },
+            {
+              "id": "q7",
+              "stem": "请用自己的话解释“模型提出调用不代表工具已执行”这句话的含义。",
+              "type": "short_answer",
+              "answer": "模型只是根据用户问题和工具描述返回了工具名和参数，这只是一个调用提议；真正执行工具的是程序，而且程序必须先校验名称和参数，校验通过后才会执行。因此模型提出调用时，工具可能尚未运行，甚至可能因校验失败而不会运行。",
+              "difficulty": "medium",
+              "explanation": "这句话强调模型与程序的职责分离：模型负责“提出调用”，程序负责“执行”。模型返回工具名和参数不等于工具已经运行，执行权在程序手中，且执行前还有校验环节。"
+            },
+            {
+              "id": "q8",
+              "stem": "请手动追踪“12 加 30”的完整工具调用流程，写出每一步发生了什么，并给出最终结果。",
+              "type": "short_answer",
+              "answer": "第一步，用户提出问题“12 加 30”。第二步，模型读取用户问题和已注册工具描述，选择 add 工具，返回工具名 add 和参数 a=12、b=30。第三步，程序校验工具名和参数，校验通过后执行 add(12,30)，得到执行结果 42。第四步，模型根据真实返回值 42 生成最终回答“42”。最终结果为 42。",
+              "difficulty": "medium",
+              "explanation": "完整流程包含四个环节：用户输入、模型选择工具并返回参数、程序校验并执行、模型根据执行结果回答。每一步的产出依次衔接，最终得到 42。"
+            }
+          ]
+        },
+        "artifact_type": "quiz",
+        "generation_state": {
+          "resource_review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "题目数量为8道，覆盖概念与机制（q1、q2、q6、q7）、案例与面试表达（q3、q4、q8）、学习检查（q5、q7、q8）三个章节，题型包含单选、多选、判断和简答，难度以easy和medium为主，符合10分钟学习时长和中文受众要求。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "所有题目的答案和解析均与已确认方案中的知识断言一致：模型返回工具名和参数，程序校验并执行；12+30=42；日志顺序为用户问题、工具名及参数、执行结果、最终回答。未发现事实性错误。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "q3、q4、q8围绕12加30案例展开，q5围绕日志顺序展开，q1、q2、q6、q7围绕分工概念展开，例子与考点对应，无冗余或无关内容。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "题目从概念辨析（q1、q2）到案例追踪（q3、q4、q8）再到日志理解（q5）和综合判断（q6、q7），难度递进合理，符合学习目标中'能说出分工''能追踪流程''能读懂日志'的层次。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "题目内容与research_context中提供的来源一致，未引入外部API、SDK安装或鉴权等超出范围的内容，工具add(a,b)仅接受两个数字并执行a+b的设定得到正确使用。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "题目覆盖了学习目标中的所有关键点：模型与程序分工、模型提出调用不代表已执行、12加30完整流程得到42、日志顺序。题型和难度分布合理，无遗漏。",
+                "criterion": "completeness"
+              }
+            ],
+            "method": "model_review",
+            "history": [
+              {
+                "review": {
+                  "checks": [
+                    {
+                      "passed": true,
+                      "reason": "题目数量为8道，覆盖概念与机制（q1、q2、q6、q7）、案例与面试表达（q3、q4、q8）、学习检查（q5、q7、q8）三个章节，题型包含单选、多选、判断和简答，难度以easy和medium为主，符合10分钟学习时长和中文受众要求。",
+                      "criterion": "requirements"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "所有题目的答案和解析均与已确认方案中的知识断言一致：模型返回工具名和参数，程序校验并执行；12+30=42；日志顺序为用户问题、工具名及参数、执行结果、最终回答。未发现事实性错误。",
+                      "criterion": "correctness"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "q3、q4、q8围绕12加30案例展开，q5围绕日志顺序展开，q1、q2、q6、q7围绕分工概念展开，例子与考点对应，无冗余或无关内容。",
+                      "criterion": "examples"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "题目从概念辨析（q1、q2）到案例追踪（q3、q4、q8）再到日志理解（q5）和综合判断（q6、q7），难度递进合理，符合学习目标中'能说出分工''能追踪流程''能读懂日志'的层次。",
+                      "criterion": "teaching_structure"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "题目内容与research_context中提供的来源一致，未引入外部API、SDK安装或鉴权等超出范围的内容，工具add(a,b)仅接受两个数字并执行a+b的设定得到正确使用。",
+                      "criterion": "sources"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "题目覆盖了学习目标中的所有关键点：模型与程序分工、模型提出调用不代表已执行、12加30完整流程得到42、日志顺序。题型和难度分布合理，无遗漏。",
+                      "criterion": "completeness"
+                    }
+                  ],
+                  "suggestions": [
+                    "q7和q8作为简答题，答案较长，建议在预览时默认折叠答案，让用户主动展开，以符合资源契约要求。",
+                    "q1的选项A和D虽然正确指出了职责颠倒，但可以考虑增加一个更贴近真实误区的干扰项，例如'模型负责执行工具，程序负责生成回答'，以增强干扰项的迷惑性。"
+                  ],
+                  "blocking_issues": [],
+                  "question_checks": [
+                    {
+                      "option_checks": [
+                        {
+                          "reasoning": "选项A将模型和程序的职责颠倒，模型不负责校验和执行，程序不负责返回工具名和参数，因此错误。",
+                          "option_index": 0,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项B准确描述了模型返回工具名和参数、程序校验并执行的职责分工，因此正确。",
+                          "option_index": 1,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项C错误地认为程序也参与工具选择，实际上程序只负责校验和执行，不负责选择工具，因此错误。",
+                          "option_index": 2,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项D将日志记录和回答生成的职责弄反，模型负责生成最终回答，程序负责执行工具，日志记录是程序或系统的职责，因此错误。",
+                          "option_index": 3,
+                          "explanation_valid": true
+                        }
+                      ],
+                      "answer_matches": true,
+                      "question_index": 0,
+                      "explanation_valid": true,
+                      "independent_solution": "模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。因此正确选项是B。"
+                    },
+                    {
+                      "option_checks": [],
+                      "answer_matches": true,
+                      "question_index": 1,
+                      "explanation_valid": true,
+                      "independent_solution": "模型提出调用只是返回工具名和参数，不代表工具已执行。真正执行工具的是程序，且需要先校验。因此答案为'错误'。"
+                    },
+                    {
+                      "option_checks": [
+                        {
+                          "reasoning": "选项A只取了参数a的值12，忽略了参数b，因此错误。",
+                          "option_index": 0,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项B只取了参数b的值30，忽略了参数a，因此错误。",
+                          "option_index": 1,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项C正确，12+30=42。",
+                          "option_index": 2,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项D忽略了add的确定行为，add(a,b)明确执行a+b，结果确定，因此错误。",
+                          "option_index": 3,
+                          "explanation_valid": true
+                        }
+                      ],
+                      "answer_matches": true,
+                      "question_index": 2,
+                      "explanation_valid": true,
+                      "independent_solution": "add(a,b)执行a+b，a=12，b=30，12+30=42，因此执行结果为42，正确选项是C。"
+                    },
+                    {
+                      "option_checks": [
+                        {
+                          "reasoning": "选项A错误，模型不自己心算，而是依赖程序返回的结果。",
+                          "option_index": 0,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项B错误，程序不直接展示给用户，而是将结果交回模型生成回答。",
+                          "option_index": 1,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项C正确，模型依据程序执行add后返回的真实结果42生成回答。",
+                          "option_index": 2,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项D错误，日志只是记录过程，不是答案来源。",
+                          "option_index": 3,
+                          "explanation_valid": true
+                        }
+                      ],
+                      "answer_matches": true,
+                      "question_index": 3,
+                      "explanation_valid": true,
+                      "independent_solution": "模型根据程序执行add后返回的真实结果42来生成最终回答，模型本身不执行计算，因此正确选项是C。"
+                    },
+                    {
+                      "option_checks": [
+                        {
+                          "reasoning": "选项A顺序错误，执行结果应在工具名及参数之后，用户问题应在最前。",
+                          "option_index": 0,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项B正确，顺序为用户问题→工具名及参数→执行结果→最终回答。",
+                          "option_index": 1,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项C顺序错误，用户问题应在最前，最终回答应在最后。",
+                          "option_index": 2,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项D顺序完全颠倒，最终回答应在最后，用户问题应在最前。",
+                          "option_index": 3,
+                          "explanation_valid": true
+                        }
+                      ],
+                      "answer_matches": true,
+                      "question_index": 4,
+                      "explanation_valid": true,
+                      "independent_solution": "日志依次记录用户问题、工具名及参数、执行结果、最终回答，因此正确选项是B。"
+                    },
+                    {
+                      "option_checks": [
+                        {
+                          "reasoning": "选项A正确，模型确实读取用户问题和已注册工具描述。",
+                          "option_index": 0,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项B正确，模型可以返回工具名和参数。",
+                          "option_index": 1,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项C正确，程序负责校验工具名称及参数。",
+                          "option_index": 2,
+                          "explanation_valid": true
+                        },
+                        {
+                          "reasoning": "选项D正确，程序执行真实工具后把结果交回模型生成回答。",
+                          "option_index": 3,
+                          "explanation_valid": true
+                        }
+                      ],
+                      "answer_matches": true,
+                      "question_index": 5,
+                      "explanation_valid": true,
+                      "independent_solution": "四个选项均正确：模型读取用户问题和工具描述，返回工具名和参数；程序校验名称及参数，执行工具后把结果交回模型。因此答案为A,B,C,D。"
+                    },
+                    {
+                      "option_checks": [],
+                      "answer_matches": true,
+                      "question_index": 6,
+                      "explanation_valid": true,
+                      "independent_solution": "模型提出调用只是返回工具名和参数，不代表工具已执行。真正执行工具的是程序，且程序需要先校验名称和参数，校验通过后才执行。因此答案应包含：模型返回调用提议，程序负责校验和执行，模型提出调用时工具可能尚未运行或不会运行。"
+                    },
+                    {
+                      "option_checks": [],
+                      "answer_matches": true,
+                      "question_index": 7,
+                      "explanation_valid": true,
+                      "independent_solution": "第一步用户提问'12加30'；第二步模型读取用户问题和工具描述，选择add，返回工具名add和参数a=12、b=30；第三步程序校验通过后执行add(12,30)，得到42；第四步模型根据真实返回值42生成最终回答'42'。最终结果为42。"
+                    }
+                  ]
+                },
+                "version": 1,
+                "decision": "pass",
+                "content_sha256": "0e03c6dc8d1f4eaf7670b232d723082cc2c60b35ecb5830986100701c1b77d9e"
+              }
+            ],
+            "version": 1,
+            "decision": "pass",
+            "suggestions": [
+              "q7和q8作为简答题，答案较长，建议在预览时默认折叠答案，让用户主动展开，以符合资源契约要求。",
+              "q1的选项A和D虽然正确指出了职责颠倒，但可以考虑增加一个更贴近真实误区的干扰项，例如'模型负责执行工具，程序负责生成回答'，以增强干扰项的迷惑性。"
+            ],
+            "resource_type": "quiz",
+            "content_sha256": "0e03c6dc8d1f4eaf7670b232d723082cc2c60b35ecb5830986100701c1b77d9e",
+            "question_checks": [
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项A将模型和程序的职责颠倒，模型不负责校验和执行，程序不负责返回工具名和参数，因此错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项B准确描述了模型返回工具名和参数、程序校验并执行的职责分工，因此正确。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项C错误地认为程序也参与工具选择，实际上程序只负责校验和执行，不负责选择工具，因此错误。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项D将日志记录和回答生成的职责弄反，模型负责生成最终回答，程序负责执行工具，日志记录是程序或系统的职责，因此错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 0,
+                "explanation_valid": true,
+                "independent_solution": "模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。因此正确选项是B。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 1,
+                "explanation_valid": true,
+                "independent_solution": "模型提出调用只是返回工具名和参数，不代表工具已执行。真正执行工具的是程序，且需要先校验。因此答案为'错误'。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项A只取了参数a的值12，忽略了参数b，因此错误。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项B只取了参数b的值30，忽略了参数a，因此错误。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项C正确，12+30=42。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项D忽略了add的确定行为，add(a,b)明确执行a+b，结果确定，因此错误。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 2,
+                "explanation_valid": true,
+                "independent_solution": "add(a,b)执行a+b，a=12，b=30，12+30=42，因此执行结果为42，正确选项是C。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项A错误，模型不自己心算，而是依赖程序返回的结果。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项B错误，程序不直接展示给用户，而是将结果交回模型生成回答。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项C正确，模型依据程序执行add后返回的真实结果42生成回答。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项D错误，日志只是记录过程，不是答案来源。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 3,
+                "explanation_valid": true,
+                "independent_solution": "模型根据程序执行add后返回的真实结果42来生成最终回答，模型本身不执行计算，因此正确选项是C。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项A顺序错误，执行结果应在工具名及参数之后，用户问题应在最前。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项B正确，顺序为用户问题→工具名及参数→执行结果→最终回答。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项C顺序错误，用户问题应在最前，最终回答应在最后。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项D顺序完全颠倒，最终回答应在最后，用户问题应在最前。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 4,
+                "explanation_valid": true,
+                "independent_solution": "日志依次记录用户问题、工具名及参数、执行结果、最终回答，因此正确选项是B。"
+              },
+              {
+                "option_checks": [
+                  {
+                    "reasoning": "选项A正确，模型确实读取用户问题和已注册工具描述。",
+                    "option_index": 0,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项B正确，模型可以返回工具名和参数。",
+                    "option_index": 1,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项C正确，程序负责校验工具名称及参数。",
+                    "option_index": 2,
+                    "explanation_valid": true
+                  },
+                  {
+                    "reasoning": "选项D正确，程序执行真实工具后把结果交回模型生成回答。",
+                    "option_index": 3,
+                    "explanation_valid": true
+                  }
+                ],
+                "answer_matches": true,
+                "question_index": 5,
+                "explanation_valid": true,
+                "independent_solution": "四个选项均正确：模型读取用户问题和工具描述，返回工具名和参数；程序校验名称及参数，执行工具后把结果交回模型。因此答案为A,B,C,D。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 6,
+                "explanation_valid": true,
+                "independent_solution": "模型提出调用只是返回工具名和参数，不代表工具已执行。真正执行工具的是程序，且程序需要先校验名称和参数，校验通过后才执行。因此答案应包含：模型返回调用提议，程序负责校验和执行，模型提出调用时工具可能尚未运行或不会运行。"
+              },
+              {
+                "option_checks": [],
+                "answer_matches": true,
+                "question_index": 7,
+                "explanation_valid": true,
+                "independent_solution": "第一步用户提问'12加30'；第二步模型读取用户问题和工具描述，选择add，返回工具名add和参数a=12、b=30；第三步程序校验通过后执行add(12,30)，得到42；第四步模型根据真实返回值42生成最终回答'42'。最终结果为42。"
+              }
+            ]
+          }
+        }
+      },
+      "error_code": null,
+      "artifact_id": "artifact_e41b91e429987e405d31ecf0b7c0ea62",
+      "resource_id": "resource_e41b91e429987e405d31ecf0b7c0ea62",
+      "spec_digest": "70a2bb3b0dfac69305ce6072c385df6743e419a818c7db63c7fbc88da33e25d9",
+      "owner_user_id": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "resource_type": "quiz",
+      "content_digest": "3b25b8072babe1892ec5c8fd82d71a184830ea239e00d48ba1e8d39ef770a2bf",
+      "preparation_id": "prep_843b108995784776a8c620caf73449f9",
+      "resource_version": 1
+    },
+    {
+      "spec": {
+        "title": "模型与程序的分工：从 12 加 30 说起",
+        "minutes": 10,
+        "node_id": "n1_division",
+        "audience": "会 Python、未学过 Agent 的学习者",
+        "evidence": [
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "工具调用中模型与程序分工：模型读取用户问题和已注册工具描述，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。模型提出调用不代表工具已执行。",
+            "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_division",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          },
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "本课采用可手动追踪的伪代码，不接入外部模型 API，不学 SDK 安装或鉴权；工具 add(a,b) 仅接受两个数字，执行 a+b。",
+            "quote": "工具调用入门课：模型选择，程序执行\n\n模型读取用户问题和已注册工具描述，可以返回工具名和参数。程序负责校验名称及参数并执行真实工具，再将工具结果交回模型生成回答。模型提出调用不代表工具已经执行。\n\n本课采用可手动追踪的伪代码，不接入任何外部模型 API，不学习 SDK 安装或鉴权。工具 add(a,b) 仅接受两个数字，执行 a+b。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_pseudocode_scope",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          },
+          {
+            "url": "upload://doc-2a2664bfe927410b960b9c5d2b90bb9a/1",
+            "claim": "成功例：用户问 12 加 30，模型选 add、参数 a=12、b=30，程序校验通过执行返回 42，模型据真实返回值回答 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+            "quote": "\n成功例：用户问 12 加 30。模型选择 add，参数 a=12、b=30。程序校验通过并执行，返回 42；模型根据真实返回值回答 42。日志依次记录用户问题、工具名称及参数、执行结果、最终回答。\n\n失败例：模型给出 add(a=12)，缺少 b。校验层返回 INVALID\\_ARGUMENT，message 为 b is required。不得运行 add，不得把错误当作 0 或编造成功结果，应要求补全参数。\n",
+            "source_id": "ev_e7b29589b8f50963aebf1dd7",
+            "finding_id": "f_success_case",
+            "source_hash": "6acf5924b6de00d162980e780714f6587eb1fb90c9abe24af3aab24b34ce0ec5"
+          }
+        ],
+        "language": "中文",
+        "required": true,
+        "revision": 1,
+        "objectives": [
+          "能说出模型与程序在工具调用中的各自职责：模型返回工具名和参数，程序负责校验并执行真实工具",
+          "能解释\"模型提出调用不代表工具已执行\"的含义",
+          "能手动追踪成功例（12 加 30）的完整流程并得出 42",
+          "能读懂并解释日志中依次记录的用户问题、工具名及参数、执行结果、最终回答"
+        ],
+        "memory_refs": {},
+        "memory_epoch": 0,
+        "objective_ids": [
+          "n1_division:o1",
+          "n1_division:o2",
+          "n1_division:o3",
+          "n1_division:o4"
+        ],
+        "resource_type": "classroom",
+        "learning_check": "不看材料，能说出：模型负责返回工具名和参数，程序负责校验并执行；12 加 30 的完整流程最终得到 42；日志依次记录用户问题、工具名及参数、执行结果、最终回答。",
+        "memory_subject": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+        "config_snapshot": {},
+        "original_content": null,
+        "revision_feedback": [],
+        "preparation_policy": "automatic_personal_draft_v1",
+        "source_resource_ref": null,
+        "delivery_resource_id": null,
+        "delivery_resource_version": 1
+      },
+      "status": "draft",
+      "content": {
+        "title": "模型与程序的分工：从 12 加 30 说起",
+        "content": {
+          "stage": {
+            "id": "resource_e5ae59bde07394333faaac5c99c1b862",
+            "name": "模型与程序的分工：从 12 加 30 说起",
+            "createdAt": 1789806714682,
+            "updatedAt": 1789806714682
+          },
+          "scenes": [
+            {
+              "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene1",
+              "type": "slide",
+              "order": 0,
+              "title": "工具调用中的两个角色",
+              "actions": [
+                {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene1:speech",
+                  "text": "我们先建立最核心的分工概念。在工具调用中，模型和程序各司其职。模型读取用户的问题和已经注册的工具描述，然后返回一个工具名和对应的参数。比如用户问'12加30'，模型看到有add工具，就返回add和参数a=12、b=30。但注意，模型只是'提出'要调用什么，它自己并不执行任何计算。真正干活的是程序：程序拿到模型返回的工具名和参数后，先校验名称是否存在、参数是否合法，校验通过才去执行真实的工具函数，比如真的算12加30。所以'模型提出调用'和'工具已执行'是两回事，中间隔着程序的校验和执行环节。这个区分是理解后续所有流程的基础。",
+                  "type": "speech"
+                }
+              ],
+              "content": {
+                "type": "slide",
+                "canvas": {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene1:canvas",
+                  "theme": {
+                    "fontName": "sans-serif",
+                    "fontColor": "#172033",
+                    "themeColors": [
+                      "#2563eb"
+                    ],
+                    "backgroundColor": "#ffffff"
+                  },
+                  "elements": [
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene1:title",
+                      "top": 35,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 100,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:36px;line-height:1.4\">工具调用中的两个角色</div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    },
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene1:body",
+                      "top": 155,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 350,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型：读取问题与工具描述，返回工具名和参数</p><p>程序：校验名称及参数，执行真实工具</p><p>模型提出调用 ≠ 工具已执行</p></div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    }
+                  ],
+                  "background": {
+                    "type": "solid",
+                    "color": "#ffffff"
+                  },
+                  "viewportSize": 1000,
+                  "viewportRatio": 0.5625
+                }
+              },
+              "stageId": "resource_e5ae59bde07394333faaac5c99c1b862",
+              "createdAt": 1789806714682,
+              "updatedAt": 1789806714682
+            },
+            {
+              "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene2",
+              "type": "slide",
+              "order": 1,
+              "title": "成功例：12 加 30 的完整追踪",
+              "actions": [
+                {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene2:speech",
+                  "text": "现在手动追踪一个成功案例。第一步，用户输入问题：12加30。第二步，模型读取问题，在已注册的工具里找到add，它知道add需要两个数字参数a和b，于是返回工具名add，参数a等于12，b等于30。第三步，程序收到这个调用请求，先校验：工具名add存在吗？存在。参数a和b都是数字吗？是的，12和30都是数字。校验通过，程序执行真实的add函数，计算12加30，得到结果42。第四步，程序把42这个真实返回值交回给模型，模型基于这个真实结果生成最终回答：'结果是42'。整个链条里，模型只负责选择和传参，计算是程序做的。",
+                  "type": "speech"
+                }
+              ],
+              "content": {
+                "type": "slide",
+                "canvas": {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene2:canvas",
+                  "theme": {
+                    "fontName": "sans-serif",
+                    "fontColor": "#172033",
+                    "themeColors": [
+                      "#2563eb"
+                    ],
+                    "backgroundColor": "#ffffff"
+                  },
+                  "elements": [
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene2:title",
+                      "top": 35,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 100,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:36px;line-height:1.4\">成功例：12 加 30 的完整追踪</div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    },
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene2:body",
+                      "top": 155,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 350,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:28px;line-height:1.4\"><p>用户问：12 加 30</p><p>模型返回：add，a=12，b=30</p><p>程序执行：校验通过，返回 42</p></div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    }
+                  ],
+                  "background": {
+                    "type": "solid",
+                    "color": "#ffffff"
+                  },
+                  "viewportSize": 1000,
+                  "viewportRatio": 0.5625
+                }
+              },
+              "stageId": "resource_e5ae59bde07394333faaac5c99c1b862",
+              "createdAt": 1789806714682,
+              "updatedAt": 1789806714682
+            },
+            {
+              "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene3",
+              "type": "slide",
+              "order": 2,
+              "title": "日志里依次记录了什么",
+              "actions": [
+                {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene3:speech",
+                  "text": "为了验证流程是否按预期走，日志会依次记录四个关键信息。第一条是用户问题，也就是'12加30'。第二条是模型返回的工具名及参数，这里是add，a等于12，b等于30。第三条是程序执行工具后得到的真实结果，也就是42。第四条是模型基于这个结果生成的最终回答，同样是42。读日志时要注意顺序：先有问题，再有工具调用请求，然后才是执行结果，最后才是回答。如果日志里出现了工具名但后面没有执行结果，就说明调用可能被校验拦截了，工具并没有真正运行。",
+                  "type": "speech"
+                }
+              ],
+              "content": {
+                "type": "slide",
+                "canvas": {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene3:canvas",
+                  "theme": {
+                    "fontName": "sans-serif",
+                    "fontColor": "#172033",
+                    "themeColors": [
+                      "#2563eb"
+                    ],
+                    "backgroundColor": "#ffffff"
+                  },
+                  "elements": [
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene3:title",
+                      "top": 35,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 100,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:36px;line-height:1.4\">日志里依次记录了什么</div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    },
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene3:body",
+                      "top": 155,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 350,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:28px;line-height:1.4\"><p>用户问题：12 加 30</p><p>工具名及参数：add，a=12，b=30</p><p>执行结果：42，最终回答：42</p></div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    }
+                  ],
+                  "background": {
+                    "type": "solid",
+                    "color": "#ffffff"
+                  },
+                  "viewportSize": 1000,
+                  "viewportRatio": 0.5625
+                }
+              },
+              "stageId": "resource_e5ae59bde07394333faaac5c99c1b862",
+              "createdAt": 1789806714682,
+              "updatedAt": 1789806714682
+            },
+            {
+              "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene4",
+              "type": "slide",
+              "order": 3,
+              "title": "为什么'提出调用'不等于'已执行'",
+              "actions": [
+                {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene4:speech",
+                  "text": "这个区分在失败案例里尤其重要。假设模型返回了add，但只给了参数a等于12，漏掉了b。程序校验时发现参数不完整，会返回一个错误，比如INVALID_ARGUMENT，提示'b is required'。此时程序不会运行add，也不会把缺失的b当成0去算，更不会编造一个成功结果。模型提出的调用请求被校验层拦下了，工具根本没有执行。所以当我们看到模型返回了工具名和参数，不能默认事情已经办成，必须看程序校验是否通过、执行结果是否真实返回。只有程序真正执行并返回结果，才算完成了一次工具调用。",
+                  "type": "speech"
+                }
+              ],
+              "content": {
+                "type": "slide",
+                "canvas": {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene4:canvas",
+                  "theme": {
+                    "fontName": "sans-serif",
+                    "fontColor": "#172033",
+                    "themeColors": [
+                      "#2563eb"
+                    ],
+                    "backgroundColor": "#ffffff"
+                  },
+                  "elements": [
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene4:title",
+                      "top": 35,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 100,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:36px;line-height:1.4\">为什么&#x27;提出调用&#x27;不等于&#x27;已执行&#x27;</div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    },
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene4:body",
+                      "top": 155,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 350,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型只产出调用请求，不执行计算</p><p>程序校验失败时，工具不会运行</p><p>失败例：add(a=12) 缺 b，返回 INVALID_ARGUMENT</p></div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    }
+                  ],
+                  "background": {
+                    "type": "solid",
+                    "color": "#ffffff"
+                  },
+                  "viewportSize": 1000,
+                  "viewportRatio": 0.5625
+                }
+              },
+              "stageId": "resource_e5ae59bde07394333faaac5c99c1b862",
+              "createdAt": 1789806714682,
+              "updatedAt": 1789806714682
+            },
+            {
+              "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5",
+              "type": "slide",
+              "order": 4,
+              "title": "学习检查",
+              "actions": [
+                {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5:speech",
+                  "text": "最后做一次快速自检。第一，不看材料，说出模型和程序在工具调用中各自的职责：模型负责返回工具名和参数，程序负责校验名称及参数并执行真实工具。第二，手动追踪12加30的完整流程：用户问12加30，模型返回add和a等于12、b等于30，程序校验通过执行得到42，模型回答42。第三，解释日志的四个记录项及其顺序：用户问题、工具名及参数、执行结果、最终回答。如果这三点都能独立说清楚，就说明你已经掌握了本课的核心内容。",
+                  "type": "speech"
+                }
+              ],
+              "content": {
+                "type": "slide",
+                "canvas": {
+                  "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5:canvas",
+                  "theme": {
+                    "fontName": "sans-serif",
+                    "fontColor": "#172033",
+                    "themeColors": [
+                      "#2563eb"
+                    ],
+                    "backgroundColor": "#ffffff"
+                  },
+                  "elements": [
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5:title",
+                      "top": 35,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 100,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    },
+                    {
+                      "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5:body",
+                      "top": 155,
+                      "left": 60,
+                      "type": "text",
+                      "width": 880,
+                      "height": 350,
+                      "rotate": 0,
+                      "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型负责返回工具名和参数，程序负责校验并执行</p><p>12 加 30 的完整流程最终得到 42</p><p>日志依次记录：用户问题、工具名及参数、执行结果、最终回答</p></div>",
+                      "lineHeight": 1.4,
+                      "defaultColor": "#172033",
+                      "defaultFontName": "sans-serif"
+                    }
+                  ],
+                  "background": {
+                    "type": "solid",
+                    "color": "#ffffff"
+                  },
+                  "viewportSize": 1000,
+                  "viewportRatio": 0.5625
+                }
+              },
+              "stageId": "resource_e5ae59bde07394333faaac5c99c1b862",
+              "createdAt": 1789806714682,
+              "updatedAt": 1789806714682
+            }
+          ]
+        },
+        "limitations": [
+          "文本投屏与讲解动作；未生成外部图片、视频或预合成配音。"
+        ],
+        "artifact_type": "classroom",
+        "generation_state": {
+          "resource_review": {
+            "checks": [
+              {
+                "passed": true,
+                "reason": "资源为课堂类型，共5个场景，覆盖概念与机制、案例与面试表达、学习检查三个章节；语言为中文，受众为会Python未学过Agent的学习者，10分钟时长合理；目标中的模型返回工具名和参数、程序校验并执行、12加30得到42、日志四项顺序均被覆盖。",
+                "criterion": "requirements"
+              },
+              {
+                "passed": true,
+                "reason": "逐场景核验投屏与讲解：模型与程序分工表述正确；12+30=42计算正确；日志顺序为用户问题、工具名及参数、执行结果、最终回答，与来源一致；失败例add(a=12)缺b返回INVALID_ARGUMENT且不执行工具，表述准确。",
+                "criterion": "correctness"
+              },
+              {
+                "passed": true,
+                "reason": "成功例12加30完整追踪：模型返回add(a=12,b=30)，程序校验通过执行得42，模型回答42，推导正确；失败例add(a=12)缺b被校验拦截，不执行、不补0、不编造结果，示例恰当且与目标一致。",
+                "criterion": "examples"
+              },
+              {
+                "passed": true,
+                "reason": "场景顺序为概念引入、成功例追踪、日志解读、失败例辨析、学习检查，符合开场、解释/示范、练习/反馈与总结的结构；每个场景有投屏和讲解动作，讲解不逐字朗读标题，学习检查有明确自检问题。",
+                "criterion": "teaching_structure"
+              },
+              {
+                "passed": true,
+                "reason": "内容与来源ev_e7b29589b8f50963aebf1dd7一致：模型读取问题和工具描述返回工具名和参数，程序校验并执行，模型提出调用不代表已执行；add(a,b)仅接受两个数字执行a+b；成功例和失败例细节均与来源吻合。",
+                "criterion": "sources"
+              },
+              {
+                "passed": true,
+                "reason": "5个场景完整覆盖已确认分组：概念与机制（场景0、3）、案例与面试表达（场景1、2）、学习检查（场景4）；学习检查三点均对应目标，无缺失场景或动作。",
+                "criterion": "completeness"
+              }
+            ],
+            "method": "model_review",
+            "history": [
+              {
+                "review": {
+                  "checks": [
+                    {
+                      "passed": true,
+                      "reason": "资源为课堂类型，共5个场景，覆盖概念与机制、案例与面试表达、学习检查三个章节；语言为中文，受众为会Python未学过Agent的学习者，10分钟时长合理；目标中的模型返回工具名和参数、程序校验并执行、12加30得到42、日志四项顺序均被覆盖。",
+                      "criterion": "requirements"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "逐场景核验投屏与讲解：模型与程序分工表述正确；12+30=42计算正确；日志顺序为用户问题、工具名及参数、执行结果、最终回答，与来源一致；失败例add(a=12)缺b返回INVALID_ARGUMENT且不执行工具，表述准确。",
+                      "criterion": "correctness"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "成功例12加30完整追踪：模型返回add(a=12,b=30)，程序校验通过执行得42，模型回答42，推导正确；失败例add(a=12)缺b被校验拦截，不执行、不补0、不编造结果，示例恰当且与目标一致。",
+                      "criterion": "examples"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "场景顺序为概念引入、成功例追踪、日志解读、失败例辨析、学习检查，符合开场、解释/示范、练习/反馈与总结的结构；每个场景有投屏和讲解动作，讲解不逐字朗读标题，学习检查有明确自检问题。",
+                      "criterion": "teaching_structure"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "内容与来源ev_e7b29589b8f50963aebf1dd7一致：模型读取问题和工具描述返回工具名和参数，程序校验并执行，模型提出调用不代表已执行；add(a,b)仅接受两个数字执行a+b；成功例和失败例细节均与来源吻合。",
+                      "criterion": "sources"
+                    },
+                    {
+                      "passed": true,
+                      "reason": "5个场景完整覆盖已确认分组：概念与机制（场景0、3）、案例与面试表达（场景1、2）、学习检查（场景4）；学习检查三点均对应目标，无缺失场景或动作。",
+                      "criterion": "completeness"
+                    }
+                  ],
+                  "suggestions": [
+                    "场景2投屏中'执行结果：42，最终回答：42'可拆分为两行，使日志四项顺序更直观。",
+                    "场景4可补充一句'校验通过后程序才执行'的正面表述，与失败例形成对照。"
+                  ],
+                  "scene_checks": [
+                    {
+                      "scene_index": 0,
+                      "screen_passed": true,
+                      "speech_checks": [
+                        {
+                          "passed": true,
+                          "reasoning": "讲解明确模型读取问题和工具描述返回工具名和参数，程序校验名称及参数后执行真实工具，并强调模型提出调用不等于已执行；以12加30为例说明模型返回add(a=12,b=30)，程序执行计算，分工表述正确。",
+                          "action_index": 0
+                        }
+                      ],
+                      "screen_reasoning": "投屏标题'工具调用中的两个角色'，正文三行分别说明模型职责、程序职责和'模型提出调用≠工具已执行'，与来源分工表述一致，无事实错误。"
+                    },
+                    {
+                      "scene_index": 1,
+                      "screen_passed": true,
+                      "speech_checks": [
+                        {
+                          "passed": true,
+                          "reasoning": "讲解按四步追踪：用户输入12加30，模型返回add(a=12,b=30)，程序校验工具名存在且参数为数字后执行得42，模型基于真实返回值回答42；12+30=42计算正确，职责划分准确。",
+                          "action_index": 0
+                        }
+                      ],
+                      "screen_reasoning": "投屏展示成功例三步：用户问12加30、模型返回add(a=12,b=30)、程序校验通过返回42，计算正确且流程完整。"
+                    },
+                    {
+                      "scene_index": 2,
+                      "screen_passed": true,
+                      "speech_checks": [
+                        {
+                          "passed": true,
+                          "reasoning": "讲解依次说明日志四项：用户问题12加30、工具名及参数add(a=12,b=30)、执行结果42、最终回答42，并指出顺序为问题→调用请求→执行结果→回答；补充说明日志有工具名但无执行结果说明被校验拦截，逻辑正确。",
+                          "action_index": 0
+                        }
+                      ],
+                      "screen_reasoning": "投屏列出用户问题、工具名及参数、执行结果42和最终回答42，顺序与来源日志四项一致。"
+                    },
+                    {
+                      "scene_index": 3,
+                      "screen_passed": true,
+                      "speech_checks": [
+                        {
+                          "passed": true,
+                          "reasoning": "讲解以失败例add(a=12)缺b说明校验返回INVALID_ARGUMENT和'b is required'，程序不运行add、不把b当0、不编造结果，强调必须看校验和执行结果；表述准确且与来源一致。",
+                          "action_index": 0
+                        }
+                      ],
+                      "screen_reasoning": "投屏说明模型只产出调用请求不执行计算，程序校验失败时工具不运行，失败例add(a=12)缺b返回INVALID_ARGUMENT，与来源一致。"
+                    },
+                    {
+                      "scene_index": 4,
+                      "screen_passed": true,
+                      "speech_checks": [
+                        {
+                          "passed": true,
+                          "reasoning": "讲解逐项自检：模型负责返回工具名和参数、程序负责校验并执行；12加30流程为模型返回add(a=12,b=30)、程序执行得42、模型回答42；日志四项为用户问题、工具名及参数、执行结果、最终回答；三点均正确且完整。",
+                          "action_index": 0
+                        }
+                      ],
+                      "screen_reasoning": "投屏学习检查三点：模型返回工具名和参数、程序校验并执行；12加30完整流程得42；日志四项顺序，与学习目标一致。"
+                    }
+                  ],
+                  "blocking_issues": []
+                },
+                "version": 1,
+                "decision": "pass"
+              }
+            ],
+            "decision": "pass",
+            "scene_checks": [
+              {
+                "scene_index": 0,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解明确模型读取问题和工具描述返回工具名和参数，程序校验名称及参数后执行真实工具，并强调模型提出调用不等于已执行；以12加30为例说明模型返回add(a=12,b=30)，程序执行计算，分工表述正确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏标题'工具调用中的两个角色'，正文三行分别说明模型职责、程序职责和'模型提出调用≠工具已执行'，与来源分工表述一致，无事实错误。"
+              },
+              {
+                "scene_index": 1,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解按四步追踪：用户输入12加30，模型返回add(a=12,b=30)，程序校验工具名存在且参数为数字后执行得42，模型基于真实返回值回答42；12+30=42计算正确，职责划分准确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏展示成功例三步：用户问12加30、模型返回add(a=12,b=30)、程序校验通过返回42，计算正确且流程完整。"
+              },
+              {
+                "scene_index": 2,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解依次说明日志四项：用户问题12加30、工具名及参数add(a=12,b=30)、执行结果42、最终回答42，并指出顺序为问题→调用请求→执行结果→回答；补充说明日志有工具名但无执行结果说明被校验拦截，逻辑正确。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏列出用户问题、工具名及参数、执行结果42和最终回答42，顺序与来源日志四项一致。"
+              },
+              {
+                "scene_index": 3,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解以失败例add(a=12)缺b说明校验返回INVALID_ARGUMENT和'b is required'，程序不运行add、不把b当0、不编造结果，强调必须看校验和执行结果；表述准确且与来源一致。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏说明模型只产出调用请求不执行计算，程序校验失败时工具不运行，失败例add(a=12)缺b返回INVALID_ARGUMENT，与来源一致。"
+              },
+              {
+                "scene_index": 4,
+                "screen_passed": true,
+                "speech_checks": [
+                  {
+                    "passed": true,
+                    "reasoning": "讲解逐项自检：模型负责返回工具名和参数、程序负责校验并执行；12加30流程为模型返回add(a=12,b=30)、程序执行得42、模型回答42；日志四项为用户问题、工具名及参数、执行结果、最终回答；三点均正确且完整。",
+                    "action_index": 0
+                  }
+                ],
+                "screen_reasoning": "投屏学习检查三点：模型返回工具名和参数、程序校验并执行；12加30完整流程得42；日志四项顺序，与学习目标一致。"
+              }
+            ],
+            "resource_type": "classroom",
+            "content_sha256": "e57ead5a3784cb9882a1b52f4509a30c7f1c42eb78a15b61938c39b00793ec33"
+          }
+        }
+      },
+      "error_code": null,
+      "artifact_id": "artifact_e5ae59bde07394333faaac5c99c1b862",
+      "resource_id": "resource_e5ae59bde07394333faaac5c99c1b862",
+      "spec_digest": "c278430d20aedab325b8418d72d953e367271e86d57c38e873a9c33791fc460d",
+      "owner_user_id": "stage-smoke-a7fcd60e3c1b42fdb95d8cf1be3d4301",
+      "resource_type": "classroom",
+      "content_digest": "164a7cb0f6e77f06a338a8b093192a0661f9cf2b22fa429e58b854fa8c830e1d",
+      "preparation_id": "prep_843b108995784776a8c620caf73449f9",
+      "resource_version": 1
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # 从已理解需求到学习路径：连续 Harness 会话
 
+> 后续优化见[覆盖、预算与不足退出](2026-09-19-learning-path-robustness.md)，其中包括分离读取预算和终态本地结束，替代本文对应旧行为。
+
 这一步采用总控 `build-learning-path` Skill。正常情况下，从已理解需求出发，读取附件、搜索网络、读取正文、保存结论、汇总和提交学习路径在同一 DeepSeek Harness 会话内完成。原有需求理解、独立路径审阅和逐节点依据检查仍在边界外执行。
 
 本设计替代 2026-09-18 实现中研究和规划“每个动作退出 Harness，由外层执行后重新启动”的做法。原有阶段 Skills 与单步适配器保留兼容入口；生产 `ResearchStages._decision` 对 research/plan 调用 `run_learning_path`，新总控 Skill 不加载包含“提交一个动作后结束”规则的旧 Skills。

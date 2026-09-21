@@ -43,4 +43,4 @@ class PreparationService:
         with Session(self.repository.engine) as session:
             run = session.get(PreparationExecution, (preparation_id, public['attempt_no']))
             checkpoint = run.checkpoint if run else {}
-            return {key: checkpoint[key] for key in ('brief', 'input_documents', 'research_summary', 'plan', 'node_evidence', 'quality', 'candidate_manifest') if key in checkpoint}
+            return {key: checkpoint[key] for key in ('brief', 'input_documents', 'research_summary', 'research_blocker', 'plan', 'node_evidence', 'quality', 'candidate_manifest') if key in checkpoint}

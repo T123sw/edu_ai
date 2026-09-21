@@ -1,0 +1,67 @@
+{
+  "observed_head": "67fc18b8",
+  "g0_baseline_fixed": false,
+  "note": "Two shared files use the observed uncommitted starting snapshots; other modified files use HEAD. No unrelated baseline changes included.",
+  "files": [
+    {
+      "path": "backend/src/app/course_preparation/adapters/generation.py",
+      "baseline_sha256": "b49256051e2ffd2af7266c2666c9d4ead987bdabe45a7c82db4b09dc964082ba",
+      "result_sha256": "dcdbcb2af4eb421267b8cfc5cbb810ad68b1ed4efb2715c27f5f31c33adbc0af"
+    },
+    {
+      "path": "backend/src/app/course_preparation/context.py",
+      "baseline_sha256": "d8506d571b97c16362861f1d83b8ad3852d0eb0cda43499e73d4bcb335834372",
+      "result_sha256": "9c5483061f8477a47931d55fd450ddc17494c1cdfd78e8c0765787487a6acf58"
+    },
+    {
+      "path": "backend/src/app/course_preparation/generation_gateway.py",
+      "baseline_sha256": "4914ba5c98c7b6841f6b3568c978dec25e3554b64d3f71e647664ba2d754c4c6",
+      "result_sha256": "4614201fa6b7cab0629431a1e6a0db88224772d6c1fa44af69c53c80a5f6c058"
+    },
+    {
+      "path": "backend/src/app/course_preparation/harness_adapter.py",
+      "baseline_sha256": "52a1a5794a223b82fbe1076d539bb29fa75b9a27b709a6a87b343e4ade2ecf3d",
+      "result_sha256": "3059ea54869415785527556df451c00e3bac3913e21bef568f180740ee1bd39d"
+    },
+    {
+      "path": "backend/src/app/course_preparation/harness_provider.py",
+      "baseline_sha256": "bf5e6f92051997febe593fe32fdc74ae3b944f71b01b7a86255418ff77f06929",
+      "result_sha256": "521769bea5bc9aef2f96aa974f15a3f3e11800db24d9a729ee1052c686b57d25"
+    },
+    {
+      "path": "backend/src/app/course_preparation/workflow_skills.py",
+      "baseline_sha256": "71d4a6a9905d46b263fead09bff26bf05beff647bd5bc7e76852942c5e32d095",
+      "result_sha256": "1db83f9888460b639f973384a04ffc95836c2be331c2ca0e110a300e597ca8fb"
+    },
+    {
+      "path": "backend/src/tests/course_preparation/test_harness_intake.py",
+      "baseline_sha256": "db19bc15ce449fae33aa9a3ec15cf82b52671f5cac9aa98ef77052a998e5e37f",
+      "result_sha256": "87ca5ffea1205c69cf5b98949207802e5a3ec2b7d09066b2a4697b7cca34a1f9"
+    },
+    {
+      "path": "backend/src/tests/course_preparation/test_generation_adapter.py",
+      "baseline_sha256": "c0c18f5fbfba5b63d5fc7b64ad9a367f6f6a0612d70dc9ff8cac65aaff9f1516",
+      "result_sha256": "d402ba102c1d69a3735751257039d66a447c78da82d989adc6df8f24391ef689"
+    },
+    {
+      "path": "backend/src/app/course_preparation/harness_generation.py",
+      "baseline_sha256": null,
+      "result_sha256": "4d85e7e29fafba72b519941e935ba1e53cd66d4fad326df23df994d3207ea64c"
+    },
+    {
+      "path": "backend/src/app/course_preparation/harness_content_bridge.py",
+      "baseline_sha256": null,
+      "result_sha256": "b0e6b43d55c669ddb4186be7d43fd56df8d6a4398477f6655c3731991beba22e"
+    },
+    {
+      "path": "backend/src/app/course_preparation/prompts/content-role.md",
+      "baseline_sha256": null,
+      "result_sha256": "5a98f3a4acfd4a1c697b6e58b460f4b9aae7ca6de61601064c9cb3f85b5c1637"
+    },
+    {
+      "path": "backend/src/tests/course_preparation/test_harness_generation.py",
+      "baseline_sha256": null,
+      "result_sha256": "6f44fc0f0aec75475d878c2f4d6c4fc3fff09f5e146570d03f2fc1d299154ea3"
+    }
+  ]
+}

@@ -74,9 +74,10 @@ def test_harness_failure_cannot_become_success_or_fallback(mode, monkeypatch):
     assert FakeHarness.closed
 
 
-def test_later_phases_keep_existing_adapter(monkeypatch):
-    monkeypatch.setattr(ResearchModelAdapter, 'decide', lambda *a, **k: ('existing', {}))
-    assert adapter().decide({'phase': 'course_review'}, [], timeout=1) == ('existing', {})
+def test_unknown_preparation_phase_cannot_fall_back(monkeypatch):
+    monkeypatch.setattr(ResearchModelAdapter, 'decide', lambda *a, **k: pytest.fail('must not fall back'))
+    with pytest.raises(RuntimeError, match='HARNESS_PHASE_UNKNOWN'):
+        adapter().decide({'phase': 'unknown_intelligence'}, [], timeout=1)
 
 
 def test_tools_reject_unmounted_calls_and_defer_second_decision():

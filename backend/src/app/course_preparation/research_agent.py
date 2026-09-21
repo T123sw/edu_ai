@@ -8,7 +8,7 @@ from .citation_locator import locate_quote
 
 from .research_contracts import (
     Candidate, FetchArgs, LearningPath, PathReview, ResearchBrief, ResearchRequest,
-    ResearchState, ResearchSummary, SearchArgs, SourceEvidence, Finding, FinalizeSummary, ReferencedFinding,
+    ResearchState, ResearchSummary, SearchArgs, SourceEvidence, Finding, FinalizeSummary, ReferencedFinding, ResearchBlocker,
 )
 
 
@@ -18,10 +18,15 @@ class ResearchError(RuntimeError):
         super().__init__(f'{code}: {message}')
 
 
+class RecoverableSourceError(ResearchError):
+    pass
+
+
 REGISTRY = {
+    'report_research_blocker': (ResearchBlocker, '无法取得足够依据时结束研究，保存每条需求覆盖情况、具体缺口和补充建议；不生成或交付路径。'),
     'record_evidence_finding': (ReferencedFinding, '保存有依据的研究结论，citation_refs 只能选择 evidence.passages 中真实的引用编号；无需重写原文。'),
     'record_research_finding': (Finding, '记录一条有已读原文依据的结论，短引用必须逐字匹配正文；同 finding_id 可修正。'),
-    'finalize_research_summary': (FinalizeSummary, '依据已保存的结论 ID 完成研究汇总，不重新输出引文；通常4至6条足够。'),
+    'finalize_research_summary': (FinalizeSummary, '依据已保存结论汇总，并在 coverage 逐条判定证据能否完整支持原始需求；部分支持必须 partial，不通过缩小目标声称 covered。'),
     'save_preparation_brief': (ResearchBrief, '理解用户本次学习目标、时间与排除项；用户要求引用原话；附件要求使用 source_ref 由程序回填原文；材料缺失写入 material_gaps，不作为 exclusions。'),
     'search_sources': (SearchArgs, '搜索与当前学习目标相关的可靠资料；只返回候选摘要，不代表正文已读取。'),
     'fetch_source': (FetchArgs, '读取候选正文的5000字符节选；offset_chars默认0，需要后文时传5000、10000等偏移。取得可引用的source_id。'),
@@ -41,10 +46,22 @@ def unique(values, label):
 
 class ResearchAgent:
     def __init__(self, *, model, sources, max_calls=30, source_policy="open", extra_context=None, incremental_findings=False):
+        self.upload_read_limit = 8
         self.incremental_findings = incremental_findings
         self.extra_context = extra_context or {}
         self.source_policy = source_policy
         self.model, self.sources, self.max_calls = model, sources, max_calls
+
+    def read_budget(self, state):
+        # Legacy checkpoints predate the split counter. Completed upload excerpts
+        # establish a lower bound without refunding any spent reads.
+        uploads = max(state.upload_reads, sum(e.url.startswith('upload://') for e in state.evidence))
+        return {'upload_reads': max(0, self.upload_read_limit-uploads),
+                'web_reads': max(0, 8-max(0, state.reads-uploads))}
+
+    def can_read(self, url, state):
+        key = 'upload_reads' if url.startswith('upload://') else 'web_reads'
+        return self.read_budget(state)[key] > 0
 
     def tools(self, phase, state=None):
         names = MOUNTS.get(phase, ())
@@ -54,11 +71,12 @@ class ResearchAgent:
             names = tuple(n for n in names if n != "search_sources")
         if state is not None and phase == 'research':
             names = tuple(name for name in names
-                          if not (name == 'search_sources' and (state.searches >= 6 or state.reads >= 8))
-                          and not (name == 'fetch_source' and state.reads >= 8))
+                          if not (name == 'search_sources' and (state.searches >= 6 or self.read_budget(state)['web_reads'] == 0))
+                          and not (name == 'fetch_source' and not any(self.read_budget(state).values())))
         if state is not None and phase == 'research' and state.candidates:
             available = False
             for candidate in state.candidates:
+                if not self.can_read(candidate.url, state): continue
                 pieces = sorted((e for e in state.evidence if e.candidate_id == candidate.candidate_id), key=lambda e:e.offset_chars)
                 if not pieces or pieces[-1].total_chars is None:
                     available = True; break
@@ -90,7 +108,7 @@ class ResearchAgent:
         context = {**self.extra_context, 'request': request.model_dump(mode='json'), **state.model_dump(mode='json'),
                    'remaining_budget': {'model_calls': self.max_calls - state.calls,
                                         'searches': max(0, 6 - state.searches),
-                                        'reads': max(0, 8 - state.reads)}}
+                                        **self.read_budget(state)}}
         if state.phase == 'intent':
             from .intake_references import with_references
             context['input_documents'] = with_references(context.get('input_documents', []))
@@ -163,17 +181,19 @@ class ResearchAgent:
                 url = hit['url']
                 candidates.setdefault(url, Candidate(candidate_id='src_' + hashlib.sha256(url.encode()).hexdigest()[:20],
                     url=url, title=hit['title'][:300], snippet=hit['snippet'][:600]))
-            return state.model_copy(update={'candidates': tuple(candidates.values())[:30],
+            return state.model_copy(update={'candidates': tuple(candidates.values())[:30 + len(request.uploads)],
                 'trace': (*state.trace, {'query': args.query, 'hits': len(hits)})})
         if name == 'fetch_source':
-            if state.reads >= 8:
-                raise ResearchError('BUDGET_EXHAUSTED', '正文读取次数已达上限')
             candidate = next((c for c in state.candidates if c.candidate_id == args.candidate_id), None)
             if not candidate:
                 raise ValueError('只能读取本任务搜索发现的候选')
             if any(e.candidate_id == args.candidate_id and e.offset_chars == args.offset_chars for e in state.evidence):
                 raise ValueError('该正文已读取，请使用已有证据；不要重复抓取')
-            state = state.model_copy(update={'reads': state.reads + 1})
+            if not self.can_read(candidate.url, state):
+                raise ValueError('该类来源的读取预算已耗尽；选择其他允许来源或报告资料缺口')
+            upload_reads = max(state.upload_reads, sum(e.url.startswith('upload://') for e in state.evidence))
+            state = state.model_copy(update={'reads': state.reads + 1,
+                'upload_reads': upload_reads + int(candidate.url.startswith('upload://'))})
             if reserve:
                 reserve(state)
             full_content = self.sources.read(candidate.url, timeout=timeout).strip()
@@ -210,7 +230,7 @@ class ResearchAgent:
             unique(args.finding_ids, '结论ID')
             if not set(args.finding_ids) <= findings.keys(): raise ValueError('只能汇总已保存的结论 ID')
             return self._execute('save_research_summary', ResearchSummary(overview=args.overview,
-                findings=tuple(findings[key] for key in args.finding_ids),limitations=args.limitations),
+                findings=tuple(findings[key] for key in args.finding_ids),limitations=args.limitations,coverage=args.coverage),
                 request,state,timeout=timeout,reserve=reserve)
         if name == 'save_research_summary':
             evidence = {e.source_id: e for e in state.evidence}
@@ -274,6 +294,9 @@ class ResearchAgent:
 
     @staticmethod
     def _validate_path(path, state):
+        if state.summary.coverage:
+            from .research_coverage import validate_ready
+            validate_ready(state.summary, state.brief)
         requirements = {r.requirement_id for r in state.brief.requirements}
         findings = {f.finding_id: f for f in state.summary.findings}
         sources = {e.source_id for e in state.evidence}
@@ -289,6 +312,10 @@ class ResearchAgent:
             cited = {c.source_id for fid in node.finding_ids if fid in findings for c in findings[fid].citations}
             if not set(node.source_ids) <= cited:
                 errors.append(f'{node.node_key}: source_ids 与 finding_ids 不匹配；当前结论支持的 source_ids 只有 {sorted(cited)}')
+            for row in state.summary.coverage:
+                if (row.requirement_id in node.requirement_ids and row.kind == 'knowledge'
+                        and not set(row.finding_ids).intersection(node.finding_ids)):
+                    errors.append(f'{node.node_key}: 需求 {row.requirement_id} 未使用 coverage 中的支撑结论')
             covered.update(node.requirement_ids)
             seen.add(node.node_key)
         if covered != requirements:

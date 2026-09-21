@@ -1,0 +1,368 @@
+{
+  "status": "succeeded",
+  "seconds": 295.36,
+  "scope": "real MinerU + DeepSeek + PostgreSQL + resource queue + review/repair + transactional private delivery + PreparedCourses readback; parent runner directly invoked; no frontend/browser playback",
+  "global_memory": {
+    "preferences": {},
+    "memory_epoch": 0
+  },
+  "parser": "mineru-cloud",
+  "nodes": 2,
+  "resources": [
+    {
+      "node": "n1_division",
+      "type": "report",
+      "revision": 1,
+      "allocated_minutes": 10,
+      "required": true,
+      "characters": 1277,
+      "headings": [
+        "## 概念与机制",
+        "## 案例与面试表达",
+        "## 学习检查"
+      ]
+    },
+    {
+      "node": "n1_division",
+      "type": "quiz",
+      "revision": 1,
+      "allocated_minutes": 10,
+      "required": true,
+      "questions": 8,
+      "first_question": {
+        "id": "q1",
+        "stem": "在工具调用流程中，模型和程序各自的核心职责是什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "模型负责校验参数并执行工具，程序负责返回工具名和参数",
+          "模型负责返回工具名和参数，程序负责校验并执行真实工具",
+          "模型和程序都负责执行工具，只是先后顺序不同",
+          "模型负责记录日志，程序负责生成最终回答"
+        ],
+        "difficulty": "easy",
+        "explanation": "根据工具调用机制，模型读取用户问题和已注册工具描述后，返回工具名和参数；程序负责校验名称及参数并执行真实工具，再把结果交回模型生成回答。选项 A 把两者职责颠倒；选项 C 错误地认为程序也参与工具选择；选项 D 把日志记录和回答生成的职责也弄反了。"
+      }
+    },
+    {
+      "node": "n1_division",
+      "type": "classroom",
+      "revision": 1,
+      "allocated_minutes": 10,
+      "required": true,
+      "scenes": 5,
+      "elements": {
+        "text": 10
+      },
+      "actions": {
+        "speech": 5
+      },
+      "narration_characters": 1192,
+      "first_title": "工具调用中的两个角色",
+      "last_scene": {
+        "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5",
+        "type": "slide",
+        "order": 4,
+        "title": "学习检查",
+        "actions": [
+          {
+            "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5:speech",
+            "text": "最后做一次快速自检。第一，不看材料，说出模型和程序在工具调用中各自的职责：模型负责返回工具名和参数，程序负责校验名称及参数并执行真实工具。第二，手动追踪12加30的完整流程：用户问12加30，模型返回add和a等于12、b等于30，程序校验通过执行得到42，模型回答42。第三，解释日志的四个记录项及其顺序：用户问题、工具名及参数、执行结果、最终回答。如果这三点都能独立说清楚，就说明你已经掌握了本课的核心内容。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_e5ae59bde07394333faaac5c99c1b862:scene5:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>模型负责返回工具名和参数，程序负责校验并执行</p><p>12 加 30 的完整流程最终得到 42</p><p>日志依次记录：用户问题、工具名及参数、执行结果、最终回答</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_e5ae59bde07394333faaac5c99c1b862",
+        "createdAt": 1789806714682,
+        "updatedAt": 1789806714682
+      }
+    },
+    {
+      "node": "n2_validation",
+      "type": "report",
+      "revision": 1,
+      "allocated_minutes": 10,
+      "required": true,
+      "characters": 2515,
+      "headings": [
+        "## 概念与机制",
+        "## 案例与面试表达",
+        "## 学习检查"
+      ]
+    },
+    {
+      "node": "n2_validation",
+      "type": "quiz",
+      "revision": 2,
+      "allocated_minutes": 10,
+      "required": true,
+      "questions": 10,
+      "first_question": {
+        "id": "q1",
+        "stem": "根据伪代码：如果工具名不是 add，返回 UNKNOWN_TOOL；否则检查 a 和 b 是否为数字，缺失或类型错误时返回 INVALID_ARGUMENT；仅通过检查后计算 a+b。当模型给出工具调用 add(a=12)，缺少参数 b 时，校验层会返回什么？",
+        "type": "single_choice",
+        "answer": "B",
+        "options": [
+          "UNKNOWN_TOOL，因为参数不完整",
+          "INVALID_ARGUMENT，message 为 b is required",
+          "INVALID_ARGUMENT，message 为 a is required",
+          "直接执行 add，把 b 当作 0 计算"
+        ],
+        "difficulty": "easy",
+        "explanation": "工具名是 add，所以不会进入 UNKNOWN_TOOL 分支。进入参数检查后，a=12 是数字，但 b 缺失，属于“缺失”情况，因此返回 INVALID_ARGUMENT，message 为 b is required。此时不得运行 add，也不能把 b 当作 0 或编造结果。选项 A 混淆了工具名错误与参数错误两个分支；选项 C 把缺失的参数说成 a，与题干不符；选项 D 违反了“仅通过检查后计算”的规则。"
+      }
+    },
+    {
+      "node": "n2_validation",
+      "type": "classroom",
+      "revision": 1,
+      "allocated_minutes": 10,
+      "required": true,
+      "scenes": 6,
+      "elements": {
+        "text": 12
+      },
+      "actions": {
+        "speech": 6
+      },
+      "narration_characters": 1246,
+      "first_title": "场景：工具调用与参数校验",
+      "last_scene": {
+        "id": "resource_859ee5f81506704ef399809b476954fe:scene6",
+        "type": "slide",
+        "order": 5,
+        "title": "学习检查",
+        "actions": [
+          {
+            "id": "resource_859ee5f81506704ef399809b476954fe:scene6:speech",
+            "text": "最后做学习检查。第一题：add(a=12) 缺 b，判断校验分支和错误类型。答案是：工具名是 add，进入参数检查，发现 b 缺失，返回 INVALID_ARGUMENT，message 为 b is required，且不执行求和。第二题：工具名 subtract，判断校验分支和错误类型。答案是：第一步工具名检查失败，返回 UNKNOWN_TOOL。第三题：成功和失败是否都保留日志？答案是：都保留，call_id 关联请求与结果，失败例记录未执行工具并提示补全 b。如果你能独立完成这三题，就达到了本课目标。",
+            "type": "speech"
+          }
+        ],
+        "content": {
+          "type": "slide",
+          "canvas": {
+            "id": "resource_859ee5f81506704ef399809b476954fe:scene6:canvas",
+            "theme": {
+              "fontName": "sans-serif",
+              "fontColor": "#172033",
+              "themeColors": [
+                "#2563eb"
+              ],
+              "backgroundColor": "#ffffff"
+            },
+            "elements": [
+              {
+                "id": "resource_859ee5f81506704ef399809b476954fe:scene6:title",
+                "top": 35,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 100,
+                "rotate": 0,
+                "content": "<div style=\"font-size:36px;line-height:1.4\">学习检查</div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              },
+              {
+                "id": "resource_859ee5f81506704ef399809b476954fe:scene6:body",
+                "top": 155,
+                "left": 60,
+                "type": "text",
+                "width": 880,
+                "height": 350,
+                "rotate": 0,
+                "content": "<div style=\"font-size:28px;line-height:1.4\"><p>add(a=12) 缺 b → INVALID_ARGUMENT，b is required，不求和</p><p>工具名 subtract → UNKNOWN_TOOL</p><p>成功和失败都保留可追溯日志</p></div>",
+                "lineHeight": 1.4,
+                "defaultColor": "#172033",
+                "defaultFontName": "sans-serif"
+              }
+            ],
+            "background": {
+              "type": "solid",
+              "color": "#ffffff"
+            },
+            "viewportSize": 1000,
+            "viewportRatio": 0.5625
+          }
+        },
+        "stageId": "resource_859ee5f81506704ef399809b476954fe",
+        "createdAt": 1789806760270,
+        "updatedAt": 1789806760270
+      }
+    }
+  ],
+  "model_calls": 34,
+  "runtime_counts": {
+    "direct": 18,
+    "deepseek-harness": 16
+  },
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 1800,
+      "cost_micro_usd": 20000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 42,
+      "tokens": 257027,
+      "cost_micro_usd": 2570270
+    },
+    "deadline": "2026-09-19T08:59:14.870844+00:00"
+  },
+  "repairs": 1,
+  "readbacks": [
+    {
+      "node": "n1_division",
+      "type": "report",
+      "version": 1,
+      "material_id": "resource_99b4d6a539e9500febc1ac2c62447923"
+    },
+    {
+      "node": "n1_division",
+      "type": "quiz",
+      "version": 1,
+      "material_id": "resource_e41b91e429987e405d31ecf0b7c0ea62"
+    },
+    {
+      "node": "n1_division",
+      "type": "classroom",
+      "version": 1,
+      "material_id": "resource_e5ae59bde07394333faaac5c99c1b862"
+    },
+    {
+      "node": "n2_validation",
+      "type": "report",
+      "version": 1,
+      "material_id": "resource_56506358dcc2a1d0c3e1699ced99b590"
+    },
+    {
+      "node": "n2_validation",
+      "type": "quiz",
+      "version": 1,
+      "material_id": "resource_f38a9616be8a2d6e4c6601e7aab47c8f"
+    },
+    {
+      "node": "n2_validation",
+      "type": "classroom",
+      "version": 1,
+      "material_id": "resource_859ee5f81506704ef399809b476954fe"
+    }
+  ],
+  "quality": {
+    "issues": [],
+    "decision": "pass",
+    "limitations": [
+      "附件未展开 call_id 与回传结果关联的具体机制或日志字段格式，仅提及需保留可追溯日志；课程只要求读懂并手动解释日志，不深入实现细节。",
+      "附件未说明 UNKNOWN_TOOL 与 INVALID_ARGUMENT 两种错误类型在日志中的具体记录方式或返回结构差异。",
+      "附件不提供实际模型 SDK 程序或可运行代码，仅伪代码；课程目标为读懂伪代码并手动解释日志，不涉及真实 API 接入、SDK 安装或鉴权。",
+      "节点1报告中\"医生助理/药剂师\"类比为生成者自行添加的比喻，非附件原文，仅作辅助理解，不引入附件之外的事实性内容。"
+    ],
+    "input_digest": "a1984f17095ef594801339977a533de70013cb3094d7babf5338a674a70be945",
+    "rule_version": "preparation-delivery-v2",
+    "checked_node_ids": [
+      "n1_division",
+      "n2_validation"
+    ]
+  },
+  "manifest_checks": [
+    {
+      "node": "n1_division",
+      "checks": [
+        {
+          "check_id": "n1_division:check",
+          "objective_ids": [
+            "n1_division:o1",
+            "n1_division:o2",
+            "n1_division:o3",
+            "n1_division:o4"
+          ],
+          "mode": "self_check",
+          "resource_id": "resource_99b4d6a539e9500febc1ac2c62447923",
+          "resource_version": 1,
+          "locator": {
+            "section_id": "学习检查",
+            "question_id": null,
+            "page": null
+          }
+        }
+      ]
+    },
+    {
+      "node": "n2_validation",
+      "checks": [
+        {
+          "check_id": "n2_validation:check",
+          "objective_ids": [
+            "n2_validation:o1",
+            "n2_validation:o2",
+            "n2_validation:o3",
+            "n2_validation:o4"
+          ],
+          "mode": "self_check",
+          "resource_id": "resource_56506358dcc2a1d0c3e1699ced99b590",
+          "resource_version": 1,
+          "locator": {
+            "section_id": "学习检查",
+            "question_id": null,
+            "page": null
+          }
+        }
+      ]
+    }
+  ]
+}

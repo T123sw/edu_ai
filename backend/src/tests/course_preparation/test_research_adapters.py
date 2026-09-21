@@ -67,7 +67,7 @@ def test_search_snippet_is_not_body(monkeypatch):
     assert hit['url'] == 'https://example.edu/page'
     with pytest.raises(ValueError):
         source.read(hit['url'], timeout=10)
-    with pytest.raises(ResearchError, match='EXTRACT_UNAVAILABLE'):
+    with pytest.raises(ResearchError, match='EXTRACT_NOT_CONFIGURED'):
         ResearchSources(tavily_key='').read(hit['url'], timeout=10)
 
 

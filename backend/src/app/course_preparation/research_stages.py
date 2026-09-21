@@ -24,8 +24,9 @@ class ResearchStages:
             checkpoint=self.memory.prepare(context,checkpoint,request)
         state=ResearchState.model_validate(checkpoint.get('research_state',{}))
         if checkpoint.get('research_attempt') != context.attempt_no:
-            state=state.model_copy(update={'errors':0})
+            state=state.model_copy(update={'errors':0,'blocker':None,'source_failures':{}})
             checkpoint={**checkpoint,'research_attempt':context.attempt_no}
+            checkpoint.pop('research_blocker',None)
         # Upgrade old bounded excerpts: a short final slice proves EOF without rereading.
         totals={e.candidate_id:e.offset_chars+len(e.content) for e in state.evidence if e.total_chars is None and len(e.content)<5000}
         if totals:
@@ -39,6 +40,12 @@ class ResearchStages:
         def reserve(value):
             self.repository.checkpoint(context,{**checkpoint,'research_state':value.model_dump(mode='json')})
         remaining=(datetime.fromisoformat(context.deadline)-datetime.now(timezone.utc)).total_seconds()
+        if state.blocker is not None:
+            checkpoint['research_blocker']=state.blocker.model_dump(mode='json')
+            checkpoint.pop('plan',None)
+            checkpoint.pop('research_summary',None)
+            self.repository.checkpoint(context,checkpoint)
+            raise ResearchError('RESEARCH_INSUFFICIENT',state.blocker.reason)
         if state.phase in ('research', 'plan') and hasattr(agent.model, 'run_learning_path'):
             def guard():
                 self.repository.heartbeat(context)
@@ -53,6 +60,12 @@ class ResearchStages:
         checkpoint={**checkpoint,'research_state':state.model_dump(mode='json')}
         for key,value in (('brief',state.brief),('research_summary',state.summary),('plan',state.path)):
             if value is not None: checkpoint[key]=value.model_dump(mode='json')
+        if state.blocker is not None:
+            checkpoint['research_blocker']=state.blocker.model_dump(mode='json')
+            checkpoint.pop('plan',None)
+            checkpoint.pop('research_summary',None)
+            self.repository.checkpoint(context,checkpoint)
+            raise ResearchError('RESEARCH_INSUFFICIENT',state.blocker.reason)
         return checkpoint,state
 
     def normalize(self,context):

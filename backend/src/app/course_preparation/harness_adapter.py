@@ -9,7 +9,7 @@ from uuid import uuid4
 from app.chat.harness.bridge import tool_bridge
 from .context import context_packet
 from .harness_provider import harness_provider
-from .workflow_skills import HARNESS_PHASES
+from .workflow_skills import CONTENT_PHASE_SKILLS, HARNESS_PHASES
 from .model_adapter import ResearchModelAdapter
 from .research_agent import ResearchError
 
@@ -40,7 +40,7 @@ class PreparationTools:
 
 def preparation_patch(url, token, persona, skills_root, *, continuous=False):
     proxy = Path(__file__).resolve().parents[1] / 'chat/harness/mcp_proxy.py'
-    instruction = ('工具返回真实执行结果；持续研究和规划，直到 save_course_plan 成功后结束。' if continuous
+    instruction = ('工具返回真实执行结果；持续研究和规划，直到 save_course_plan 或 report_research_blocker 成功后结束。' if continuous
                    else '必须调用本阶段工具提交一个结构化结果，然后结束。')
     return json.dumps([
         *[{'id': name, 'disabled': True} for name in ('persistent-bash', 'persistent-pwsh', 'str-replace-editor')],
@@ -65,8 +65,10 @@ class HarnessPreparationAdapter(ResearchModelAdapter):
 
     def decide(self, context, tools, *, timeout):
         if context['phase'] not in HARNESS_PHASES:
-            return super().decide(context, tools, timeout=timeout)
-        return self._run(context, tools, timeout=timeout, toolset=PreparationTools(tools))
+            raise ResearchError('HARNESS_PHASE_UNKNOWN', '备课智能阶段未注册，不能回退直连模型')
+        toolset = PreparationTools(tools)
+        toolset.terminal_on_result = context['phase'] in CONTENT_PHASE_SKILLS
+        return self._run(context, tools, timeout=timeout, toolset=toolset)
 
     def run_learning_path(self, agent, request, state, *, reserve, guard, timeout):
         from .harness_research import LearningPathTools, workflow_context
@@ -74,17 +76,26 @@ class HarnessPreparationAdapter(ResearchModelAdapter):
         tools = [{'type': 'function', 'function': spec} for spec in toolset.tools.values()]
         return self._run(workflow_context(agent, request, state), tools, timeout=timeout, toolset=toolset)
 
-    def _run(self, context, tools, *, timeout, toolset):
+    def _run(self, context, tools, *, timeout, toolset, output_tokens=6000, temperature=.1):
         self.last_rejected_decision = None
-        packet = context_packet(context, tools, max_tokens=self.context_tokens, native_skill=True)
+        packet = context_packet(context, tools, max_tokens=self.context_tokens,
+                                output_tokens=output_tokens, native_skill=True)
         self.last_packet_metadata = {k: v for k, v in packet.items() if k not in ('messages', 'skill')}
         self.last_packet_metadata['runtime'] = 'deepseek-harness'
         self.required_skill = packet['skill']
         factory = self.sdk_factory
         if factory is None:
-            from deepseek_harness import DeepSeekHarness
+            try:
+                from deepseek_harness import DeepSeekHarness
+            except ImportError as exc:
+                raise ResearchError('HARNESS_UNAVAILABLE', '课程准备 Harness SDK 不可用') from exc
             factory = DeepSeekHarness
-        with tool_bridge(toolset) as (url, token), tempfile.TemporaryDirectory(prefix='edu-preparation-dsh-') as temp:
+        if getattr(toolset, 'content_submission', False):
+            from .harness_content_bridge import content_tool_bridge
+            bridge = content_tool_bridge(toolset, timeout=timeout)
+        else:
+            bridge = tool_bridge(toolset)
+        with bridge as (url, token), tempfile.TemporaryDirectory(prefix='edu-preparation-dsh-') as temp:
             skills_root = Path(temp) / 'skills'
             skill_dir = skills_root / self.required_skill['name']
             skill_dir.mkdir(parents=True)
@@ -93,28 +104,42 @@ class HarnessPreparationAdapter(ResearchModelAdapter):
             patch.write_text(preparation_patch(url, token, packet['messages'][0]['content'], skills_root,
                 continuous=getattr(toolset, 'continuous', False)))
             with harness_provider(self, timeout=timeout, toolset=toolset,
+                                  output_tokens=output_tokens, temperature=temperature,
                                   max_calls=60 if getattr(toolset, 'continuous', False) else 4) as (endpoint, credential, transport):
                 harness = factory(provider='deepseek-official', model=self.gateway.candidates[0]['model_name'],
-                    max_tokens=6000, api_key=credential, base_url=endpoint, profile='sdk-minimal',
+                    max_tokens=output_tokens, api_key=credential, base_url=endpoint, profile='sdk-minimal',
                     cwd=temp, dsh_home=str(Path(temp) / 'home'), patches=(str(patch),),
                     initialize_timeout_seconds=min(30, timeout), request_timeout_seconds=timeout,
                     shutdown_timeout_seconds=2,
                     env={'DSH_TELEMETRY_DISABLED': '1', 'EDU_MCP_TOKEN': token})
                 try:
-                    with harness:
-                        response = harness.run('/' + self.required_skill['name'] + '\n' + packet['messages'][1]['content'], session_id='preparation-' + uuid4().hex)
-                except Exception as exc:
+                    harness.__enter__()
+                    response = harness.run('/' + self.required_skill['name'] + '\n' + packet['messages'][1]['content'], session_id='preparation-' + uuid4().hex)
+                    if getattr(toolset, 'fatal', None) is not None:
+                        raise toolset.fatal
                     if transport['error'] is not None:
-                        raise transport['error'] from exc
+                        raise transport['error']
+                    if getattr(toolset, 'terminal_on_result', False) and not transport['completed_calls']:
+                        raise ResearchError('HARNESS_COMPLETION_MISSING', '正文缺少实际 SDK 模型调用证据')
+                    if response.finish_reason not in (None, 'stop', 'end_turn', 'completed'):
+                        raise ValueError(f'MODEL_PROTOCOL_ERROR: Harness 未正常结束 ({response.finish_reason})')
+                    if toolset.invalid or toolset.result is None:
+                        raise ValueError('MODEL_PROTOCOL_ERROR: Harness 必须提交唯一的阶段工具结果')
+                    if hasattr(toolset, 'check'):
+                        toolset.check()
+                    return toolset.result
+                except Exception as exc:
+                    if getattr(toolset, 'fatal', None) is not None:
+                        raise toolset.fatal
+                    if transport['error'] is not None:
+                        raise transport['error']
+                    if isinstance(exc, (ValueError, ResearchError)):
+                        raise
                     raise ResearchError('HARNESS_UNAVAILABLE', '课程准备 Harness 未完成本轮') from exc
                 finally:
-                    harness.close()
-                if getattr(toolset, 'fatal', None) is not None:
-                    raise toolset.fatal
-                if transport['error'] is not None:
-                    raise transport['error']
-                if response.finish_reason not in (None, 'stop', 'end_turn', 'completed'):
-                    raise ValueError(f'MODEL_PROTOCOL_ERROR: Harness 未正常结束 ({response.finish_reason})')
-                if toolset.invalid or toolset.result is None:
-                    raise ValueError('MODEL_PROTOCOL_ERROR: Harness 必须提交唯一的阶段工具结果')
-                return toolset.result
+                    failed = sys.exc_info()[0] is not None
+                    try:
+                        harness.close()
+                    except Exception as exc:
+                        if not failed:
+                            raise ResearchError('HARNESS_SHUTDOWN_FAILED', '课程准备 Harness 关闭失败') from exc

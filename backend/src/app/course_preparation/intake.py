@@ -38,7 +38,7 @@ def validate_brief(brief, request, documents):
             if requirement.source_quote not in quotes.get(requirement.source_document_id, []):
                 raise ValueError(f'{requirement.requirement_id}: 附件引用不匹配；使用 input_documents 对应要点的 source_ref，不从摘要编写 source_quote')
         elif not requirement.source_quote.strip() or not any(requirement.source_quote in text for text in texts):
-            raise ValueError('要求原话必须在本次用户需求中实际出现；附件依据需指定 source_document_id')
+            raise ValueError(f'{requirement.requirement_id}: 要求原话必须在本次用户需求中实际出现；source_quote={requirement.source_quote!r} 不匹配。请逐字截取用户原话子串，保留分号、句号等标点；附件依据需指定 source_document_id')
     if brief.source_policy and brief.source_policy.mode == 'uploaded_only':
         if not request.uploads:
             raise ValueError('仅使用上传资料需要至少一份附件')

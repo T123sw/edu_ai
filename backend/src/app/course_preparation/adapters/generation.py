@@ -6,7 +6,7 @@ from .memory import PreparationMemory
 from ..artifact_store import ArtifactStore
 from ..generation_contracts import ResourceSpec
 from ..tool_registry import digest
-from ..generation_gateway import GenerationGateway
+from ..generation_gateway import PreparationHarnessGateway
 
 
 class GenerationAdapter:
@@ -55,6 +55,21 @@ class GenerationAdapter:
 
 
 def automatic_payload(spec,artifact):
+    # A owns the normalized builder. Keep the historical v1 reader available
+    # while that module is being integrated; never feed a v2 spec to it.
+    try:
+        from ..generation_context import automatic_payload as build_payload
+    except ModuleNotFoundError as exc:
+        if exc.name != 'app.course_preparation.generation_context':
+            raise
+        if spec.get('schema_version', 1) != 1:
+            from ..research_agent import ResearchError
+            raise ResearchError('PREPARATION_CONTEXT_UNAVAILABLE', '规范化教学上下文构造器尚未接入') from exc
+        return _legacy_automatic_payload(spec,artifact)
+    return build_payload(spec,artifact)
+
+
+def _legacy_automatic_payload(spec,artifact):
     spec=ResourceSpec.model_validate(spec)
     # No confirmed_outline or fabricated user confirmation is sent.
     return SimpleNamespace(resource_type=spec.resource_type,title=spec.title,subject=spec.title,
@@ -83,7 +98,7 @@ class PreparationResourceHandler:
             username=PreparationMemory(app.repository).subject(context.owner_user_id)
             configured=agent_factory(username,artifact['spec']['config_snapshot']).model.gateway
             parent=app.repository.get_public(context.owner_user_id,artifact['preparation_id'])
-            gateway=GenerationGateway(configured,store,artifact,deadline=parent['budget']['deadline'],canceled=context.is_cancel_requested)
+            gateway=PreparationHarnessGateway(configured,store,artifact,deadline=parent['budget']['deadline'],canceled=context.is_cancel_requested)
             payload=automatic_payload(artifact['spec'],artifact)
             if artifact['resource_type']=='report':
                 from app.chat.harness.reviewed_report import generate_reviewed_report
