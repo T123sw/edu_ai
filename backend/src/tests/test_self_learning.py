@@ -109,3 +109,16 @@ def test_practice_uses_server_answer_and_is_version_and_owner_bound(service):
     with pytest.raises(HTTPException) as stale:
         service.practice('course', 'alice', 'quiz', 2, {'q1': 'A'})
     assert stale.value.status_code == 409
+
+
+@pytest.mark.parametrize('duration,minutes,basis', [
+    ({'basis':'estimated','value_minutes':1.9},1.9,'estimated'),
+    ({'basis':'measured','value_minutes':2.4},2.4,'measured'),
+    ({'basis':'unknown','value_minutes':None},0,'unknown'),
+])
+def test_prepared_resource_card_uses_its_own_duration(duration,minutes,basis):
+    from app.self_learning.service import LearningService
+    card=LearningService.resource(None, {'material_type':'report','material_id':'r','version':2,
+        'generation_state':{'preparation':{'duration':duration}}})
+    assert card['minutes']==minutes
+    assert card['minutesBasis']==basis

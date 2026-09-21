@@ -14,6 +14,7 @@ export type LearningResource = {
   kind: ResourceKind;
   ready: boolean;
   minutes: number;
+  minutesBasis?: 'estimated' | 'measured' | 'unknown';
   createdAt: number;
   courseId?: string;
   chapterId?: string;
@@ -24,6 +25,11 @@ export type LearningResource = {
   live?: boolean;
   remote?: { materialType: string; materialId: string; courseId: string; version: number; visibility: string };
 };
+export function resourceDurationLabel(resource: LearningResource): string {
+  if (resource.minutesBasis === 'unknown' || resource.minutes <= 0) return '时长待估';
+  return `${resource.minutesBasis === 'measured' ? '' : '约 '}${resource.minutes} 分钟`;
+}
+
 export type Chapter = {
   id: string;
   title: string;

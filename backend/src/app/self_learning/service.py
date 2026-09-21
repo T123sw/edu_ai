@@ -118,9 +118,19 @@ class LearningService:
     def resource(self, value, topic=''):
         kind = value.get('material_type', 'report')
         material_id = value.get('material_id') or value.get('id')
+        preparation = (value.get('generation_state') or {}).get('preparation')
+        minutes, duration_basis = value.get('duration_minutes') or 5, None
+        if preparation is not None:
+            import math
+            duration = preparation.get('duration') or {}
+            estimate, basis = duration.get('value_minutes'), duration.get('basis')
+            known = (basis in ('estimated', 'measured') and type(estimate) in (int, float)
+                     and math.isfinite(estimate) and estimate > 0)
+            minutes, duration_basis = (estimate, basis) if known else (0, 'unknown')
         return {'id': material_id, 'title': value.get('title') or value.get('topic') or topic or material_id,
                 'topic': value.get('topic') or topic, 'kind': 'video' if kind == 'classroom' else 'quiz' if kind == 'quiz' else 'report',
-                'ready': True, 'minutes': value.get('duration_minutes') or 5,
+                'ready': True, 'minutes': minutes,
+                **({'minutesBasis': duration_basis} if duration_basis else {}),
                 'createdAt': millis(value.get('created_at')), 'courseId': value.get('course_id'),
                 'chapterId': value.get('scope_id'), 'version': value.get('version') or 1,
                 'pinned': bool(value.get('pinned') or value.get('is_pinned')),

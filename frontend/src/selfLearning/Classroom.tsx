@@ -11,6 +11,7 @@ import {
   completion,
   resourceEvidence,
   kindLabel,
+  resourceDurationLabel,
   updateEvidence,
   updateRoom,
   type Classroom as Room,
@@ -140,7 +141,7 @@ export function Classroom({
                   <Icon name={r.kind} size={17} />
                   <span>
                     {r.sourceResourceId ? r.title : kindLabel[r.kind]}
-                    <small>{r.ready ? `${r.minutes} 分钟` : "正在准备"}</small>
+                    <small>{r.ready ? resourceDurationLabel(r) : "正在准备"}</small>
                   </span>
                   {resourceEvidence(room, r).completed ? (
                     <span className="sl-done">

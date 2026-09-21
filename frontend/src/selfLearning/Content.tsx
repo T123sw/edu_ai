@@ -2,7 +2,7 @@ import type { ReadingSnapshot } from '../liveLearning/agentTurns';
 import { acceptReadingMessage, resourceRef, refKey } from '../liveLearning/readingContext';
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { emptyEvidence, uid, type Evidence, type LearningResource } from "./model";
+import { emptyEvidence, uid, resourceDurationLabel, type Evidence, type LearningResource } from "./model";
 import { Icon } from "./ui";
 
 // Shared by the reader and Markdown export so exported examples match the preview.
@@ -275,7 +275,7 @@ export function LearningContent({
       <p className="sl-article-lead">把知识拆开看，再把它们连接起来。</p>
       <div className="sl-article-meta">
         <span>
-          <Icon name="clock" size={15} />约 {resource.minutes} 分钟
+          <Icon name="clock" size={15} />{resourceDurationLabel(resource)}
         </span>
         <span>示例内容</span>
       </div>

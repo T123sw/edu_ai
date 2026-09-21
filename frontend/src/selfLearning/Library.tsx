@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { allResources, kindLabel, type Classroom, type LearningResource } from "./model";
+import { allResources, kindLabel, resourceDurationLabel, type Classroom, type LearningResource } from "./model";
 import { LearningContent, reportParagraphs } from "./Content";
 import { Empty, Icon, Modal } from "./ui";
 import { reviewEnabled, reviewWorkbenchHref } from "./review";
@@ -74,7 +74,7 @@ export function ResourceCenter({ resources, classroomId, room, resourceId, workb
     <section className="sl-library-detail" aria-label="资源预览">{current ? <>
       <header className="sl-library-detail-heading">
         <button className="sl-library-back sl-text-button" onClick={() => choose(undefined)}><Icon name="back" size={17} />资源列表</button>
-        <div className="sl-library-title-row"><div><span className="sl-eyebrow">我的作品 / {kindLabel[current.kind]}</span><h2>{current.title}</h2><p>{room?.title || "个人资源"} · 第 {current.version || 1} 版 · {current.minutes} 分钟</p></div>{<button className="sl-icon-button" aria-label={current.pinned ? "取消置顶" : "置顶资源"} aria-pressed={!!current.pinned} onClick={() => onPin?.(current.id)}><Icon name="spark" size={18} /></button>}</div>
+        <div className="sl-library-title-row"><div><span className="sl-eyebrow">我的作品 / {kindLabel[current.kind]}</span><h2>{current.title}</h2><p>{room?.title || "个人资源"} · 第 {current.version || 1} 版 · {resourceDurationLabel(current)}</p></div>{<button className="sl-icon-button" aria-label={current.pinned ? "取消置顶" : "置顶资源"} aria-pressed={!!current.pinned} onClick={() => onPin?.(current.id)}><Icon name="spark" size={18} /></button>}</div>
         <div className="sl-library-actions"><a className="sl-secondary-button" href={studioHref}><Icon name="chat" size={16} />引用到工作台</a>{<><button className="sl-text-button" onClick={() => { setName(current.title); setDialog("rename"); }}>重命名</button><button className="sl-text-button" onClick={() => setDialog("remove")}>删除资源</button></>}{current.kind === "report" && <button className="sl-text-button" onClick={() => download(current)}><Icon name="download" size={16} />下载 Markdown</button>}</div>
       </header>
       <div className="sl-library-preview"><LearningContent key={current.id} resource={current} /></div>
