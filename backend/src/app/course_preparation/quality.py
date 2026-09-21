@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v8'
+RULE_VERSION='preparation-delivery-v9'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
     validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
@@ -112,7 +112,7 @@ class QualityStages:
         self.repository,self.generation,self.memory,self.model_factory=repository,generation,memory,model_factory
 
     @staticmethod
-    def _duration_issues(artifacts, nodes, hard_limit):
+    def _duration_issues(artifacts, nodes, hard_limit, *, prefer_local=False):
         import math
         required = [a for a in artifacts if a['spec'].get('required', True)]
         durations = {a['artifact_id']: preparation_metadata(a).get('duration', {}) for a in required}
@@ -140,6 +140,15 @@ class QualityStages:
             # Share the reduction across mutable resources. Taking the whole
             # excess from one classroom can leave it an unusably small slot.
             selected = [key for key in ids if not key.startswith('retained:') and projected[key] > 0]
+            if prefer_local:
+                # After a joint revision, do not regenerate every reviewed
+                # sibling to remove a small residual excess. Choose the
+                # smallest resource able to absorb it while retaining at
+                # least half its estimated workload. Larger gaps still use
+                # proportional joint repair; actual content must pass all gates.
+                local = [key for key in selected if total - budget <= projected[key] / 2]
+                if local:
+                    selected = [min(local, key=lambda key: (projected[key], key))]
             untouched = sum(projected[key] for key in ids if key not in selected)
             available = budget - untouched
             if not selected or available <= 0:
@@ -198,7 +207,8 @@ class QualityStages:
                 alignment_issues.extend(node_requirement_issues(artifacts,checkpoint['plan']['nodes']))
                 alignment_issues.extend(node_objective_issues(artifacts,checkpoint['plan']['nodes']))
             # Collect all known deterministic defects in the same round.
-            alignment_issues.extend(self._duration_issues(artifacts, checkpoint['plan']['nodes'], request.overrides.total_minutes))
+            alignment_issues.extend(self._duration_issues(artifacts, checkpoint['plan']['nodes'], request.overrides.total_minutes,
+                prefer_local=checkpoint.get('repair_counts', {}).get('content', 0) > 0))
         if alignment_issues:
             checkpoint['quality']={'decision':'fail','issues':alignment_issues}
             return StepResult(checkpoint,'repair')

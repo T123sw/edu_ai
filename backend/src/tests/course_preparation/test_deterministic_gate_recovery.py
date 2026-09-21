@@ -106,3 +106,56 @@ def test_fractional_duration_targets_are_valid_context_but_zero_and_nan_are_not(
     assert isinstance(TeachingContext.model_validate(integer_context).model_dump()['resource_target_minutes'], int)
     for value in (0,-1,float('inf'),float('nan')):
         with pytest.raises(ValueError):TeachingContext.model_validate({**context(), 'resource_target_minutes': value})
+
+
+@pytest.mark.parametrize('values,expected_count', [([2, 2.18, 5.83], 1), ([4.7, 6.17, 9.5], 3)])
+def test_followup_duration_repair_preserves_siblings_when_one_resource_can_cover_gap(monkeypatch, values, expected_count):
+    import app.course_preparation.quality as module
+    monkeypatch.setattr(module.ResearchState, 'model_validate', lambda _: SimpleNamespace(path={}))
+    monkeypatch.setattr(module.ResearchAgent, '_validate_path', lambda *_: None)
+    rows = []
+    for i, value in enumerate(values):
+        row = quiz(); row['artifact_id'] = f'a{i}'; row['resource_id'] = f'r{i}'
+        row['spec']['title'] = f'加法练习{i}'
+        meta = row['content']['generation_state']['preparation']
+        meta['duration']['value_minutes'] = value
+        meta['spec_digest'] = row['spec_digest'] = digest(row['spec'])
+        row['content_digest'] = digest(row['content']); rows.append(row)
+    before = copy.deepcopy(rows)
+    cp = checkpoint(rows[0]); cp.update(research_state={}, repair_counts={'content': 1}, production_repairs=1,
+        resource_specs=[a['spec'] for a in rows],
+        generation_receipts={a['spec_digest']: {'index': i} for i, a in enumerate(rows)})
+    request = PreparationRequest(request_id=uuid4(), operation='create_course', goal='学习加法', overrides={'total_minutes': 20})
+    stages = QualityStages(SimpleNamespace(get=lambda **_: SimpleNamespace(request=request)),
+        SimpleNamespace(read_result=lambda owner, receipt: rows[receipt['index']]),
+        SimpleNamespace(validate=lambda *_: None), lambda *_: pytest.fail('duration must be checked before model review'))
+    context = SimpleNamespace(checkpoint=cp, owner_user_id='alice', preparation_id='prep-x')
+    result = stages.review(context)
+    assert result.next_stage == 'repair'
+    issues = result.checkpoint['quality']['issues']
+    assert len(issues) == expected_count
+    targets = {i['artifact_ids'][0]: i['resource_duration_cap_minutes'] for i in issues}
+    assert sum(targets.get(a['artifact_id'], value) for a, value in zip(rows, values)) <= 10
+    if expected_count == 1:
+        assert set(targets) == {'a0'}
+        repaired = stages.repair(SimpleNamespace(**{**vars(context), 'checkpoint': result.checkpoint})).checkpoint
+        assert repaired['resource_specs'][1:] == cp['resource_specs'][1:]
+        assert repaired['repair_counts']['content'] == 2
+    assert rows == before
+
+
+def test_local_duration_repair_preserves_retained_resources_and_course_hard_limit():
+    rows = []
+    for node in ('a', 'b'):
+        for i, minutes in enumerate([2, 2.18, 5.83]):
+            row = quiz(); row['artifact_id'] = f'{node}{i}'; row['spec']['node_id'] = node
+            row['content']['generation_state']['preparation']['duration']['value_minutes'] = minutes
+            rows.append(row)
+    rows[0]['artifact_id'] = 'retained:old'
+    before = copy.deepcopy(rows)
+    issues = QualityStages._duration_issues(rows, [{'node_key': n, 'minutes': 10} for n in ('a', 'b')], 19, prefer_local=True)
+    targets = {i['artifact_ids'][0]: i['resource_duration_cap_minutes'] for i in issues}
+    assert 'retained:old' not in targets and rows == before
+    totals = {node: sum(targets.get(a['artifact_id'], a['content']['generation_state']['preparation']['duration']['value_minutes'])
+        for a in rows if a['spec']['node_id'] == node) for node in ('a', 'b')}
+    assert max(totals.values()) <= 10 and sum(totals.values()) <= 19
