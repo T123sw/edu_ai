@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v6'
+RULE_VERSION='preparation-delivery-v7'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
     validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
@@ -179,7 +179,13 @@ class QualityStages:
                 if not artifact.get('failure_detail'):
                     raise ResearchError(artifact.get('error_code') or 'FAILURE_DETAIL_MISSING','子任务缺少可安全恢复的错误分类')
                 recovery_scope(artifact['failure_detail'])
-            checkpoint['quality']={'decision':'fail','issues':[{'artifact_ids':[r['artifact_id']], 'reason':r.get('error_code') or 'RESOURCE_NOT_READY'} for r in failed]}
+            from .duration_reallocation import reallocate_duration_caps
+            released = reallocate_duration_caps(artifacts, checkpoint['plan']['nodes'],
+                request.overrides.total_minutes, checkpoint.get('duration_cap_origins', {}))
+            checkpoint['quality']={'decision':'fail','issues':[{'artifact_ids':[r['artifact_id']],
+                'reason':r.get('error_code') or 'RESOURCE_NOT_READY',
+                **({'resource_duration_cap_minutes': released[r['artifact_id']], 'duration_cap_reallocated': True}
+                   if r['artifact_id'] in released else {})} for r in failed]}
             return StepResult(checkpoint,'repair')
         alignment_issues=[]
         for artifact in artifacts:
@@ -289,6 +295,7 @@ class QualityStages:
             if counts[scope]>2:
                 raise ResearchError('QUALITY_GATE_FAILED',f'{scope} 两轮恢复后仍未通过课程门禁')
         specifications=[]
+        cap_origins=dict(checkpoint.get('duration_cap_origins', {}))
         receipts=dict(checkpoint.get('generation_receipts',{}))
         for spec in checkpoint['resource_specs']:
             artifact=by_spec[digest(spec)]
@@ -313,14 +320,28 @@ class QualityStages:
                         if artifact['artifact_id'] in issue['artifact_ids'] and 'resource_duration_cap_minutes' in issue]
                 if caps and revised_context is not None:
                     previous_cap = revised_context.get('resource_target_minutes')
-                    revised_context['resource_target_minutes'] = min([*caps, *([previous_cap] if previous_cap else [])])
-                specifications.append({**spec,'revision':spec['revision']+1,
+                    original_cap = cap_origins.get(digest(spec), previous_cap)
+                    reallocated = digest(spec) in cap_origins and any(
+                        issue.get('duration_cap_reallocated') and artifact['artifact_id'] in issue['artifact_ids']
+                        for issue in checkpoint['quality']['issues'])
+                    ceiling = original_cap if reallocated else previous_cap
+                    revised_context['resource_target_minutes'] = min([*caps, *([ceiling] if ceiling else [])])
+                    if reallocated:
+                        reasons.append(f'其余已完成资料已释放时间，本资源新上限为 {revised_context["resource_target_minutes"]:g} 分钟；'
+                            '旧错误中的临时 maximum 已被此上限替代，节点和整课硬上限不变。正文仍须重新独立审阅和估算。')
+                revised={**spec,'revision':spec['revision']+1,
                     **({'teaching_context': revised_context} if revised_context is not None else {}),
                     'revision_feedback':reasons,
                     'original_content':(artifact.get('content') or {}).get('content')
                         or (artifact.get('content') or {}).get('_review_candidate',{}).get('content')
-                        or spec.get('original_content')})
+                        or spec.get('original_content')}
+                if caps and revised_context is not None:
+                    cap_origins[digest(revised)] = original_cap
+                elif digest(spec) in cap_origins:
+                    cap_origins[digest(revised)] = cap_origins[digest(spec)]
+                specifications.append(revised)
         checkpoint.update(resource_specs=specifications,generation_receipts=receipts,production_repairs=repairs,repair_counts=counts,
+            duration_cap_origins=cap_origins,
             invalidated_drafts=[*checkpoint.get('invalidated_drafts',[]),{'artifacts':[r for r in checkpoint['artifacts'] if r['artifact_id'] in affected]}])
         checkpoint.pop('quality',None); checkpoint.pop('candidate_manifest',None)
         return StepResult(checkpoint,'produce')
