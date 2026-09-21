@@ -134,5 +134,20 @@ class PreparationResourceHandler:
             saved=store.save(artifact,result)
             return {'saved':True,'result_ref':{'kind':'preparation_draft','artifact_id':saved['artifact_id']}}
         except Exception as exc:
-            store.fail(artifact,getattr(exc,'detail',None) or getattr(exc,'code','RESOURCE_GENERATION_FAILED'))
+            from ..generation_failures import FailureDetail
+            from ..lifecycle_repository import BudgetExceeded, StaleLease
+            code=getattr(exc,'code','RESOURCE_GENERATION_FAILED')
+            detail=getattr(exc,'detail',None)
+            categories={'PROVIDER_UNAVAILABLE':('provider','provider'), 'HARNESS_UNAVAILABLE':('provider','provider'),
+                'CANCELED':('canceled','none'), 'BUDGET_EXHAUSTED':('budget','none'),
+                'CONTEXT_BUDGET_EXCEEDED':('budget','none')}
+            category=categories.get(code)
+            if isinstance(exc,BudgetExceeded):code='BUDGET_EXHAUSTED';category=('budget','none')
+            elif isinstance(exc,PermissionError):code='RESOURCE_PERMISSION_DENIED';category=('permission','none')
+            elif isinstance(exc,StaleLease):code='RESOURCE_LEASE_EXPIRED';category=('permission','none')
+            if detail is None and category:
+                detail=FailureDetail(code=code,phase=getattr(exc,'preparation_phase','resource_write'),
+                    category=category[0],retry_scope=category[1],artifact_id=artifact['artifact_id'],
+                    message='生成调用未完成：'+code)
+            store.fail(artifact,detail or code)
             raise

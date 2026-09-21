@@ -288,6 +288,9 @@ def review_content(kind, content, spec, gateway, *, durable=False):
          '将每条讲解与对应检测题的具体数据对齐：下标、序数、移动次数分别核算，第 n 个元素与零基下标 n-1 不能混用；讲解即使孤立看成立，指向了题目之外的另一个对象也必须修正。一次审阅收齐全部已发现错误。'
          '六项维度按 resource_contract 解释：examples 对习题核验求解，对闪卡核验问答，对导图核验关系，对游戏核验任务。没有必要的例子不算缺陷，不适用项通过并说明原因。不要要求闪卡、导图或游戏变成报告。缺陷与重要遗漏放 blocking_issues，风格建议放 suggestions。'
          '逐条核对 teaching_context 的实际语言、基础、教学顺序、排除项、活动和本节点目标，不能因为ID齐全就判通过。'
+         '当前只审阅 resource_type 指定的资源；requirements 是整课背景，requirement_ids 是本节点分工。'
+         '资源组合、节点总数和其他节点内容由整节点/整课门禁核对，不要求本资源包含其他资源类型或重复其他节点。'
+         '需求映射只核验当前位置的真实贡献，完整跨资源满足性由整节点审阅决定。'
          'preparation_checks 对 preparation 每条需求/目标映射给出 binding_type、binding_id、locator、passed、reason；位置存在不等于语义支持。'
          '习题逐选项必须返回 independent_correct 独立真假判断和 explanation_excerpt（从该题原解析逐字摘取对应片段；缺少则为空且 explanation_valid=false）。'
          'option_text 如返回必须逐字匹配原选项；服务器按 question_index/option_index 回填原文。不得把一个选项没有说的话当作其错误理由。'
@@ -301,7 +304,11 @@ def review_content(kind, content, spec, gateway, *, durable=False):
             'content': content, 'resource_contract': resource_contract(kind), 'schema': review_schema.model_json_schema()}, ensure_ascii=False)},
     ]
     for attempt in range(1 if durable else 2):
-        raw = gateway.chat(messages, temperature=0.1, max_tokens=65536 if kind == 'classroom' else 32768)
+        # Prepared classrooms share the 128k window with exact source/context
+        # and rendered scenes. Reserve a bounded review, retaining every input
+        # field and coverage check; truncation remains a protocol failure.
+        output_limit = 32768 if spec.get('teaching_context') else 65536
+        raw = gateway.chat(messages, temperature=0.1, max_tokens=output_limit if kind == 'classroom' else 32768)
         try:
             review = review_schema.model_validate_json(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip()))
             if kind == 'quiz':
@@ -393,7 +400,7 @@ class ReviewedResourceGenerator:
                         if kind == 'quiz' and [q.get('id') for q in content['questions']] != [q.get('id') for q in previous['questions']]:
                             raise ValueError('quiz_repair_changed_question_identity')
                         if context is not None:
-                            metadata = preparation_metadata(kind, content, {**metadata, **{k:patch[k] for k in ('applied_requirements','objective_bindings') if k in patch}}, context, spec_digest)
+                            metadata = preparation_metadata(kind, content, {**metadata, **{k:patch[k] for k in ('applied_requirements','objective_bindings','question_time_estimates') if k in patch}}, context, spec_digest)
                         previous = content
                     elif context is not None:
                         content, envelope = parse_envelope(raw)

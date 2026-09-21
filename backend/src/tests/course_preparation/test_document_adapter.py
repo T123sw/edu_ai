@@ -94,8 +94,9 @@ def test_legacy_word_cache_is_reparsed_once_with_mineru(db_engine):
     from app.course_preparation.schemas import UploadRef
     from app.integrations.pdf.base import ParsedPdf
     PreparationDocumentVersion.__table__.create(db_engine)
+    source = docx_bytes()  # ZIP timestamps must not change the registered source hash.
     class Reader:
-        def read_bytes(self, owner, doc): return {'filename':'notes.docx'}, docx_bytes()
+        def read_bytes(self, owner, doc): return {'filename':'notes.docx'}, source
     calls = []
     class MinerU:
         def parse(self, data, *, filename):

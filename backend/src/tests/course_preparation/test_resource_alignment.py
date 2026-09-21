@@ -8,6 +8,27 @@ from app.course_preparation.schemas import PreparationRequest
 from app.course_preparation.tool_registry import digest
 
 
+def test_node_requirements_are_covered_across_resources_without_cross_node_substitution():
+    from app.course_preparation.resource_alignment import node_requirement_issues
+    a=quiz(); b=deepcopy(a)
+    for item,rid in [(a,'req1'),(b,'req2')]:
+        context=item['spec']['teaching_context']
+        context['requirements'] += [{'requirement_id':'req2','text':'解释进位'}, {'requirement_id':'other','text':'后续节点内容'}]
+        context['requirement_ids']=['req1','req2']
+        meta=item['content']['generation_state']['preparation']
+        meta['applied_requirements'][0]['requirement_id']=rid
+        item['spec_digest']=meta['spec_digest']=digest(item['spec'])
+        meta['teaching_context_digest']=digest(context)
+        item['content_digest']=digest(item['content'])
+        validate_artifact(item)
+    b['artifact_id']='b'; b['resource_id']='b-resource'
+    nodes=[{'node_key':'n','requirement_ids':['req1','req2']}]
+    assert node_requirement_issues([a,b],nodes)==[]
+    assert node_requirement_issues([a],nodes)[0]['reason']=='NODE_REQUIREMENT_COVERAGE_MISSING:req2'
+    b['spec']['node_id']='other-node'
+    assert node_requirement_issues([a,b],nodes)[0]['reason']=='NODE_REQUIREMENT_COVERAGE_MISSING:req2'
+
+
 def quiz():
     context={'node_id':'n','objective_ids':['n:o1'], 'requirements':[{'requirement_id':'req1','text':'练习加法'}]}
     spec={'schema_version':2,'node_id':'n','title':'加法','resource_type':'quiz','required':True,'revision':1,

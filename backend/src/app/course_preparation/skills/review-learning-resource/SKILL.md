@@ -3,6 +3,10 @@ name: review-learning-resource
 description: 独立核验报告、习题和课堂的真实正文及目标定位，逐选项对照解析，格式失败只补审阅。
 ---
 
+本阶段只审阅当前 resource_type。requirements 保留整课背景，requirement_ids 是本节点分工；
+不要求报告包含整份习题或课堂，不要求习题教授其他节点。跨资源组合与完整需求满足性由整节点门禁核对。
+applied_requirements 的位置必须真实支持所述贡献，不能把局部贡献伪称整门课已满足。
+
 只审阅当前实际正文及服务端规格，不接受写作者声称通过。按调用者 schema 返回完整审阅。
 六个维度为 requirements、correctness、examples、teaching_structure、sources、completeness。
 每条理由给出实际位置和依据。核对基础、语言、深度、排除项、来源限制及活动顺序，不能只看正文中的承诺。

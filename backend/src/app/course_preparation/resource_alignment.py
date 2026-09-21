@@ -84,7 +84,7 @@ def validate_artifact(artifact):
         if applied.get('requirement_id') not in requirements or not str(applied.get('explanation', '')).strip():
             raise ValueError('APPLIED_REQUIREMENT_INVALID')
         resolve_locator(artifact['resource_type'], body, applied.get('locator'))
-    if {a['requirement_id'] for a in meta.get('applied_requirements', [])} != requirements:
+    if 'requirement_ids' not in context and {a['requirement_id'] for a in meta.get('applied_requirements', [])} != requirements:
         raise ValueError('APPLIED_REQUIREMENT_COVERAGE_MISSING')
     duration = meta.get('duration', {})
     basis, value = duration.get('basis'), duration.get('value_minutes')
@@ -95,6 +95,33 @@ def validate_artifact(artifact):
     elif (isinstance(value, bool) or not isinstance(value, (int,float)) or not math.isfinite(value)
           or value <= 0 or not str(duration.get('method', '')).strip()):
         raise ValueError('DURATION_EVIDENCE_MISSING')
+
+
+def node_requirement_issues(artifacts, nodes):
+    """Aggregate real locations over a node's resources, not over unrelated nodes."""
+    issues = []
+    for node in nodes:
+        rows = [a for a in artifacts if a['spec']['node_id'] == node['node_key']]
+        scoped = [a for a in rows if 'requirement_ids' in (a['spec'].get('teaching_context') or {})]
+        if not scoped:
+            continue  # Historical unscoped contexts keep per-resource checks.
+        expected = set(node.get('requirement_ids', []))
+        for row in scoped:
+            context = row['spec']['teaching_context']
+            expected.update(context['requirement_ids'])
+            if not set(context['requirement_ids']) <= {r['requirement_id'] for r in context['requirements']}:
+                raise ValueError('REQUIREMENT_REFERENCE_INVALID')
+        covered = set()
+        for row in rows:
+            validate_artifact(row)
+            covered.update(r['requirement_id'] for r in preparation_metadata(row).get('applied_requirements', []))
+        missing = expected - covered
+        if missing:
+            # Repair one explanatory resource, preserving other valid resources.
+            target = next((a for a in scoped if a['resource_type'] == 'report'), scoped[0])
+            issues.append({'artifact_ids': [target['artifact_id']],
+                           'reason': 'NODE_REQUIREMENT_COVERAGE_MISSING:' + ','.join(sorted(missing))})
+    return issues
 
 
 def resource_objectives(artifact):
