@@ -89,18 +89,27 @@ test('fresh upload through workers to exact versions and real playback', async (
         const frame = page.frameLocator('iframe.sl-live-material');
         if (kind === 'quiz') {
           const question = frame.getByRole('region', { name: '理解检查', exact: true }).first();
-          await expect(question.locator('input').first()).toBeVisible({ timeout: 30_000 });
+          await expect(question.locator('input, textarea').first()).toBeVisible({ timeout: 30_000 });
           const stem = await question.locator(':scope > p').first().innerText();
-          await question.locator('input').first().check();
+          const shortAnswer = await question.getByRole('textbox', { name: '检查答案' }).count() > 0;
+          const answerText = '我的理解：模型选择工具，程序校验参数并执行；缺少参数时不执行。';
+          if (shortAnswer) await question.getByRole('textbox', { name: '检查答案' }).fill(answerText);
+          else await question.locator('input').first().check();
           await question.getByRole('button', { name: '提交检查答案' }).click();
           await expect(question.getByRole('status')).toContainText(/本题|答案已保存/, { timeout: 30_000 });
-          await expect(question.getByRole('group', { name: '已保存的作答' }).locator('input').first()).toBeChecked();
+          const savedAnswer = question.getByRole('group', { name: '已保存的作答' });
+          if (shortAnswer) await expect(savedAnswer).toContainText(answerText);
+          else await expect(savedAnswer.locator('input').first()).toBeChecked();
           await page.reload();
           await expect(question.locator(':scope > p').first()).toHaveText(stem, { timeout: 30_000 });
           await expect(question.getByRole('status')).toContainText(/本题|答案已保存/, { timeout: 30_000 });
-          const saved = question.getByRole('group', { name: '已保存的作答' }).locator('input').first();
-          await expect(saved).toBeChecked();
-          await expect(saved).toBeDisabled();
+          if (shortAnswer) {
+            await expect(savedAnswer).toContainText(answerText);
+            await expect(question.getByRole('textbox', { name: '检查答案' })).toHaveCount(0);
+          } else {
+            await expect(savedAnswer.locator('input').first()).toBeChecked();
+            await expect(savedAnswer.locator('input').first()).toBeDisabled();
+          }
         } else if (kind === 'classroom') {
           expect(material.scenes.length).toBeGreaterThan(0);
           for (let index = 0; index < material.scenes.length; index++) {
