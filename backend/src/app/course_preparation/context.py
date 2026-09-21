@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 from .research_agent import ResearchError
-from .workflow_skills import HARNESS_PHASES, load_workflow_skill
+from .workflow_skills import CONTENT_PHASE_SKILLS, HARNESS_PHASES, load_workflow_skill
 
 PROMPTS = Path(__file__).parent/'prompts'
 
@@ -17,6 +17,8 @@ def context_packet(context, tools, *, max_tokens, output_tokens=6000, native_ski
     context=dict(context)
     skill = load_workflow_skill(context['phase']) if context['phase'] in HARNESS_PHASES else None
     role_file={'learning_path':'learning-path-role.md','input_document':'intake-role.md','intent':'intake-role.md','research':'workflow-role.md','plan':'workflow-role.md','route_adjustment':'workflow-role.md','review':'workflow-role.md','research_nodes':'workflow-role.md','course_review':'course-review.md'}.get(context['phase'],'workflow-role.md')
+    if context['phase'] in CONTENT_PHASE_SKILLS and ('messages' in context or context['phase'] != 'course_review'):
+        role_file = 'content-role.md'
     role=(PROMPTS/role_file).read_text()
     if skill and not native_skill:
         role += '\n' + skill['body']
@@ -41,6 +43,9 @@ def context_packet(context, tools, *, max_tokens, output_tokens=6000, native_ski
         size=encoded_size({'messages':messages(),'tools':tools})+512+(encoded_size(skill['text']) if skill and native_skill else 0)
     if size+output_tokens>max_tokens:
         raise ResearchError('CONTEXT_BUDGET_EXCEEDED','硬约束与必要证据超过窗口，不能静默丢弃')
-    return {**({'skill':skill,'skill_name':skill['name'],'skill_sha256':skill['sha256']} if skill else {}), 'messages':messages(),'input_token_upper_bound':size,
+    context_digest = hashlib.sha256(json.dumps(context, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    return {'phase':context['phase'], 'spec_digest':context.get('spec_digest') or context_digest,
+        'context_digest':context_digest,
+        **({'skill':skill,'skill_name':skill['name'],'skill_sha256':skill['sha256']} if skill else {}), 'messages':messages(),'input_token_upper_bound':size,
         'role_version':role_file+':'+hashlib.sha256(role.encode()).hexdigest(),
         'tool_set_digest':hashlib.sha256(json.dumps(tools,sort_keys=True).encode()).hexdigest()}

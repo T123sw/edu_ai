@@ -141,7 +141,8 @@ from tests.course_preparation.test_generation_adapter import generation
 
 @pytest.mark.parametrize('kind', ['report', 'quiz', 'classroom'])
 def test_registered_resource_handler_delivers_a_context_and_f_checkpoint_to_generators(generation, monkeypatch, kind):
-    pytest.importorskip('app.course_preparation.harness_generation', reason='B native gateway not integrated')
+    from app.course_preparation.harness_generation import PreparationHarnessGateway
+    from app.course_preparation.generation_failures import GenerationFailure, FailureDetail
     from types import SimpleNamespace
     from app.course_preparation.adapters.generation import PreparationResourceHandler
     from app.course_preparation.runtime_contracts import BudgetCost
@@ -152,7 +153,7 @@ def test_registered_resource_handler_delivers_a_context_and_f_checkpoint_to_gene
     from app.course_preparation.adapters import classroom
 
     repo, parent, adapter = generation
-    value = {**v2_spec(), 'resource_type': kind}
+    value = {**v2_spec(), 'resource_type': kind, 'memory_subject': 'alice', 'memory_refs': {}, 'memory_epoch': 0}
     action = repo.begin_action(parent, 'g-wiring-' + kind, 'generate_resource', value, BudgetCost(calls=1))
     receipt = adapter.submit(parent, value, action['action_id'])
     configured = SimpleNamespace(candidates=[{'model_name': 'contract-only'}])
@@ -169,6 +170,11 @@ def test_registered_resource_handler_delivers_a_context_and_f_checkpoint_to_gene
             spec_digest=digest(value), review_state={'phase': 'resource_review'})
         assert checkpoint.load_review_candidate()['content'] == 'private candidate'
         checked.append(kind)
+        # Stop at the real generator boundary with a typed review failure.
+        # This tests wiring and persistence without inventing reviewed content.
+        raise GenerationFailure(FailureDetail(code='TEST_REVIEW_FORMAT', phase='resource_review',
+            category='review_format', retry_scope='review', message='injected review format failure',
+            content_digest=digest('private candidate')))
 
     def report(payload, *, gateway, checkpoint=None, **kwargs):
         inspect_input(payload, gateway, checkpoint)
@@ -190,5 +196,9 @@ def test_registered_resource_handler_delivers_a_context_and_f_checkpoint_to_gene
     monkeypatch.setattr(classroom, 'generate_classroom_draft', room)
     context = SimpleNamespace(owner_user_id='alice', task_id=receipt['job_id'],
                               is_cancel_requested=lambda: False, progress=lambda *a, **kw: None)
-    result = PreparationResourceHandler(lambda: SimpleNamespace(repository=repo))({'artifact_id': receipt['artifact_id']}, context)
-    assert result['saved'] is True and checked == [kind]
+    with pytest.raises(GenerationFailure, match='TEST_REVIEW_FORMAT'):
+        PreparationResourceHandler(lambda: SimpleNamespace(repository=repo))({'artifact_id': receipt['artifact_id']}, context)
+    failed=adapter.artifacts.get('alice',receipt['artifact_id'],content=True)
+    assert checked == [kind] and failed['status']=='failed'
+    assert failed['failure_detail']['retry_scope']=='review'
+    assert failed['content']['_review_candidate']['content']=='private candidate'

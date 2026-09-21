@@ -6,7 +6,7 @@ from .memory import PreparationMemory
 from ..artifact_store import ArtifactStore
 from ..generation_contracts import ResourceSpec
 from ..tool_registry import digest
-from ..generation_gateway import GenerationGateway
+from ..generation_gateway import PreparationHarnessGateway
 
 
 class GenerationAdapter:
@@ -32,6 +32,22 @@ class GenerationAdapter:
         # failed task lookup propagates; it is not interpreted as missing.
         return self.submit(context,spec,action_id)
 
+    def resume_review(self,context,artifact_id,*,recovery_key):
+        receipt=self.artifacts.resume_review(context,artifact_id,recovery_key=recovery_key)
+        job_id=receipt['job_id']
+        command={'artifact_id':artifact_id}
+        existing=self.task_store.get_durable(job_id)
+        if existing is None:
+            self.task_store.enqueue(task_id=job_id,workflow_type='preparation_resource',handler_version=1,
+                owner_user_id=context.owner_user_id,course_id=None,scope_type='preparation',scope_id=context.preparation_id,
+                command=command,config_snapshot_id=None,idempotency_key=job_id,
+                max_attempts=2,deadline_at=datetime.fromisoformat(context.deadline))
+            existing=self.task_store.get_durable(job_id)
+        if (existing is None or existing.owner_user_id!=context.owner_user_id or existing.command!=command
+                or existing.workflow_type!='preparation_resource' or existing.scope_id!=context.preparation_id):
+            raise PermissionError('CHILD_JOB_IDENTITY_CONFLICT')
+        return receipt
+
     def read_result(self,owner,receipt):
         artifact=self.artifacts.get(owner,receipt['artifact_id'],content=True)
         job=self.task_store.get_durable(receipt['job_id'])
@@ -55,6 +71,21 @@ class GenerationAdapter:
 
 
 def automatic_payload(spec,artifact):
+    # A owns the normalized builder. Keep the historical v1 reader available
+    # while that module is being integrated; never feed a v2 spec to it.
+    try:
+        from ..generation_context import automatic_payload as build_payload
+    except ModuleNotFoundError as exc:
+        if exc.name != 'app.course_preparation.generation_context':
+            raise
+        if spec.get('schema_version', 1) != 1:
+            from ..research_agent import ResearchError
+            raise ResearchError('PREPARATION_CONTEXT_UNAVAILABLE', '规范化教学上下文构造器尚未接入') from exc
+        return _legacy_automatic_payload(spec,artifact)
+    return build_payload(spec,artifact)
+
+
+def _legacy_automatic_payload(spec,artifact):
     spec=ResourceSpec.model_validate(spec)
     # No confirmed_outline or fabricated user confirmation is sent.
     return SimpleNamespace(resource_type=spec.resource_type,title=spec.title,subject=spec.title,
@@ -83,22 +114,25 @@ class PreparationResourceHandler:
             username=PreparationMemory(app.repository).subject(context.owner_user_id)
             configured=agent_factory(username,artifact['spec']['config_snapshot']).model.gateway
             parent=app.repository.get_public(context.owner_user_id,artifact['preparation_id'])
-            gateway=GenerationGateway(configured,store,artifact,deadline=parent['budget']['deadline'],canceled=context.is_cancel_requested)
+            port=store.checkpoint_port(artifact)
+            gateway=PreparationHarnessGateway(configured,store,artifact,deadline=parent['budget']['deadline'],
+                canceled=context.is_cancel_requested,guard=port.load_review_candidate)
             payload=automatic_payload(artifact['spec'],artifact)
+            payload.spec_digest=artifact['spec_digest']
             if artifact['resource_type']=='report':
                 from app.chat.harness.reviewed_report import generate_reviewed_report
-                body,state=generate_reviewed_report(payload,gateway=gateway)
+                body,state=generate_reviewed_report(payload,gateway=gateway,checkpoint=port)
                 result={'artifact_type':'report','title':payload.title,'content':body,'generation_state':state}
             elif artifact['resource_type']=='classroom':
                 from .classroom import generate_classroom_draft
-                result=generate_classroom_draft(payload,gateway=gateway,context=context,artifact=artifact)
+                result=generate_classroom_draft(payload,gateway=gateway,context=context,artifact=artifact,checkpoint=port)
             else:
                 from app.chat.harness.reviewed_resource import ReviewedResourceGenerator
-                result=ReviewedResourceGenerator(gateway=gateway,progress=context.progress).generate(payload,
+                result=ReviewedResourceGenerator(gateway=gateway,progress=context.progress,checkpoint=port).generate(payload,
                     job_id=context.task_id,config_snapshot_id='')['artifacts'][0]
             if context.is_cancel_requested(): raise RuntimeError('CANCELED')
             saved=store.save(artifact,result)
             return {'saved':True,'result_ref':{'kind':'preparation_draft','artifact_id':saved['artifact_id']}}
         except Exception as exc:
-            store.fail(artifact,getattr(exc,'code','RESOURCE_GENERATION_FAILED'))
+            store.fail(artifact,getattr(exc,'detail',None) or getattr(exc,'code','RESOURCE_GENERATION_FAILED'))
             raise

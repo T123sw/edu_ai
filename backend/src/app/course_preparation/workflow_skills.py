@@ -3,7 +3,16 @@ import hashlib
 from pathlib import Path
 
 SKILLS_ROOT = Path(__file__).parent / 'skills'
+CONTENT_PHASE_SKILLS = {
+    'resource_write': 'generate-learning-resource',
+    'resource_repair': 'generate-learning-resource',
+    'resource_review': 'review-learning-resource',
+    'classroom_write': 'generate-ai-classroom',
+    'classroom_repair': 'generate-ai-classroom',
+    'course_review': 'review-course-delivery',
+}
 PHASE_SKILLS = {
+    **CONTENT_PHASE_SKILLS,
     'learning_path': 'build-learning-path',
     'input_document': 'understand-learning-request',
     'intent': 'understand-learning-request',
@@ -17,8 +26,14 @@ HARNESS_PHASES = frozenset(PHASE_SKILLS)
 
 
 def load_workflow_skill(phase):
+    from .research_agent import ResearchError
+    if phase not in PHASE_SKILLS:
+        raise ResearchError('HARNESS_PHASE_UNKNOWN', '备课智能阶段未注册')
     name = PHASE_SKILLS[phase]
-    text = (SKILLS_ROOT / name / 'SKILL.md').read_text(encoding='utf-8')
+    try:
+        text = (SKILLS_ROOT / name / 'SKILL.md').read_text(encoding='utf-8')
+    except FileNotFoundError as exc:
+        raise ResearchError('WORKFLOW_SKILL_UNAVAILABLE', f'备课阶段缺少 Skill: {name}') from exc
     if not text.startswith('---\n'):
         raise ValueError('WORKFLOW_SKILL_INVALID: missing frontmatter')
     _, header, body = text.split('---', 2)

@@ -1,0 +1,614 @@
+{
+  "sdk": {
+    "package": "deepseek-harness-sdk",
+    "version": "0.1.2rc1",
+    "native": true
+  },
+  "provider": "httpx.MockTransport; no live model",
+  "skills": "Temporary protocol fixtures; NOT business D/E/F Skills",
+  "acceptance_scope": "SDK/MCP protocol, isolated phases, reported mock-provider usage; not content quality",
+  "samples": [
+    {
+      "phase": "resource_write",
+      "resource_type": "report",
+      "result": "# 工具调用\n模型提出调用；服务端核验参数与权限后执行，并回传结果。",
+      "model_calls": 1,
+      "tools": [
+        "mcp__preparation__submit_resource_text",
+        "skill"
+      ],
+      "action": {
+        "action_id": "provider:69d62e3c54ce4bc59e6cd9a89ba92cd3",
+        "kind": "model_completion",
+        "payload": {
+          "model": "deepseek-v4-flash",
+          "input_token_upper_bound": 5846,
+          "output_limit": 10000,
+          "micro_usd_per_token_upper_bound": 10
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 15846,
+          "cost_micro_usd": 158460
+        },
+        "context": {
+          "artifact_id": "a",
+          "spec_digest": "spec-a"
+        },
+        "receipt": {
+          "usage": {
+            "tokens": 70,
+            "reported_by_provider": true
+          },
+          "cost_basis": "configured_upper_bound",
+          "model_response": {
+            "runtime": "deepseek-harness",
+            "phase": "resource_write",
+            "spec_digest": "spec-a",
+            "context_digest": "30678f4a9ee2ce440966a0a4c2ec292f2c8f40d68e60cf2cf7a8d972635a8578",
+            "provider": "fixture",
+            "model": "deepseek-v4-flash",
+            "skill": {
+              "name": "generate-learning-resource",
+              "sha256": "09f0b77db1f6ae586e355cd1e23b4e92d828f26458b9d9ba89e19b5faaadb4b1",
+              "loaded": true
+            },
+            "response": {
+              "id": "fixture",
+              "object": "chat.completion",
+              "created": 1,
+              "model": "deepseek-v4-flash",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "c1",
+                        "type": "function",
+                        "function": {
+                          "name": "mcp__preparation__submit_resource_text",
+                          "arguments": "{\"text\": \"# \\u5de5\\u5177\\u8c03\\u7528\\n\\u6a21\\u578b\\u63d0\\u51fa\\u8c03\\u7528\\uff1b\\u670d\\u52a1\\u7aef\\u6838\\u9a8c\\u53c2\\u6570\\u4e0e\\u6743\\u9650\\u540e\\u6267\\u884c\\uff0c\\u5e76\\u56de\\u4f20\\u7ed3\\u679c\\u3002\"}"
+                        }
+                      }
+                    ]
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 50,
+                "completion_tokens": 20,
+                "total_tokens": 70
+              }
+            }
+          }
+        },
+        "status": "completed",
+        "actual": {
+          "calls": 1,
+          "tokens": 70,
+          "cost_micro_usd": 700
+        }
+      }
+    },
+    {
+      "phase": "resource_write",
+      "resource_type": "quiz",
+      "result": "{\"questions\":[{\"id\":\"q1\",\"stem\":\"谁执行工具？\",\"options\":[\"服务端\",\"模型\"],\"answer\":\"A\"}]}",
+      "model_calls": 1,
+      "tools": [
+        "mcp__preparation__submit_resource_text",
+        "skill"
+      ],
+      "action": {
+        "action_id": "provider:962ba0e9bd354b399c3c4b2c748637c3",
+        "kind": "model_completion",
+        "payload": {
+          "model": "deepseek-v4-flash",
+          "input_token_upper_bound": 5844,
+          "output_limit": 10000,
+          "micro_usd_per_token_upper_bound": 10
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 15844,
+          "cost_micro_usd": 158440
+        },
+        "context": {
+          "artifact_id": "a",
+          "spec_digest": "spec-a"
+        },
+        "receipt": {
+          "usage": {
+            "tokens": 70,
+            "reported_by_provider": true
+          },
+          "cost_basis": "configured_upper_bound",
+          "model_response": {
+            "runtime": "deepseek-harness",
+            "phase": "resource_write",
+            "spec_digest": "spec-a",
+            "context_digest": "8e91b198f23dc0feb6d8df0a194425edaa74f62f431d6065ddfa523ea41701e4",
+            "provider": "fixture",
+            "model": "deepseek-v4-flash",
+            "skill": {
+              "name": "generate-learning-resource",
+              "sha256": "09f0b77db1f6ae586e355cd1e23b4e92d828f26458b9d9ba89e19b5faaadb4b1",
+              "loaded": true
+            },
+            "response": {
+              "id": "fixture",
+              "object": "chat.completion",
+              "created": 1,
+              "model": "deepseek-v4-flash",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "c1",
+                        "type": "function",
+                        "function": {
+                          "name": "mcp__preparation__submit_resource_text",
+                          "arguments": "{\"text\": \"{\\\"questions\\\":[{\\\"id\\\":\\\"q1\\\",\\\"stem\\\":\\\"\\u8c01\\u6267\\u884c\\u5de5\\u5177\\uff1f\\\",\\\"options\\\":[\\\"\\u670d\\u52a1\\u7aef\\\",\\\"\\u6a21\\u578b\\\"],\\\"answer\\\":\\\"A\\\"}]}\"}"
+                        }
+                      }
+                    ]
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 50,
+                "completion_tokens": 20,
+                "total_tokens": 70
+              }
+            }
+          }
+        },
+        "status": "completed",
+        "actual": {
+          "calls": 1,
+          "tokens": 70,
+          "cost_micro_usd": 700
+        }
+      }
+    },
+    {
+      "phase": "resource_repair",
+      "resource_type": "report",
+      "result": "# 工具调用（修订）\n模型提出调用；服务端核验参数、权限与预算后执行。",
+      "model_calls": 1,
+      "tools": [
+        "mcp__preparation__submit_resource_text",
+        "skill"
+      ],
+      "action": {
+        "action_id": "provider:936be9b3134c41ae94e5d793679a5764",
+        "kind": "model_completion",
+        "payload": {
+          "model": "deepseek-v4-flash",
+          "input_token_upper_bound": 5847,
+          "output_limit": 10000,
+          "micro_usd_per_token_upper_bound": 10
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 15847,
+          "cost_micro_usd": 158470
+        },
+        "context": {
+          "artifact_id": "a",
+          "spec_digest": "spec-a"
+        },
+        "receipt": {
+          "usage": {
+            "tokens": 70,
+            "reported_by_provider": true
+          },
+          "cost_basis": "configured_upper_bound",
+          "model_response": {
+            "runtime": "deepseek-harness",
+            "phase": "resource_repair",
+            "spec_digest": "spec-a",
+            "context_digest": "026001a396faaea4356db42a0ef6b8d9c77e7a33bd0cc3095becfe23f1e933cf",
+            "provider": "fixture",
+            "model": "deepseek-v4-flash",
+            "skill": {
+              "name": "generate-learning-resource",
+              "sha256": "09f0b77db1f6ae586e355cd1e23b4e92d828f26458b9d9ba89e19b5faaadb4b1",
+              "loaded": true
+            },
+            "response": {
+              "id": "fixture",
+              "object": "chat.completion",
+              "created": 1,
+              "model": "deepseek-v4-flash",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "c1",
+                        "type": "function",
+                        "function": {
+                          "name": "mcp__preparation__submit_resource_text",
+                          "arguments": "{\"text\": \"# \\u5de5\\u5177\\u8c03\\u7528\\uff08\\u4fee\\u8ba2\\uff09\\n\\u6a21\\u578b\\u63d0\\u51fa\\u8c03\\u7528\\uff1b\\u670d\\u52a1\\u7aef\\u6838\\u9a8c\\u53c2\\u6570\\u3001\\u6743\\u9650\\u4e0e\\u9884\\u7b97\\u540e\\u6267\\u884c\\u3002\"}"
+                        }
+                      }
+                    ]
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 50,
+                "completion_tokens": 20,
+                "total_tokens": 70
+              }
+            }
+          }
+        },
+        "status": "completed",
+        "actual": {
+          "calls": 1,
+          "tokens": 70,
+          "cost_micro_usd": 700
+        }
+      }
+    },
+    {
+      "phase": "resource_review",
+      "resource_type": "report",
+      "result": "{\"decision\":\"pass\",\"scope\":\"protocol fixture only\"}",
+      "model_calls": 1,
+      "tools": [
+        "mcp__preparation__submit_resource_text",
+        "skill"
+      ],
+      "action": {
+        "action_id": "provider:73874b2e509e4ea3aa16dd9a8b903973",
+        "kind": "model_completion",
+        "payload": {
+          "model": "deepseek-v4-flash",
+          "input_token_upper_bound": 5839,
+          "output_limit": 10000,
+          "micro_usd_per_token_upper_bound": 10
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 15839,
+          "cost_micro_usd": 158390
+        },
+        "context": {
+          "artifact_id": "a",
+          "spec_digest": "spec-a"
+        },
+        "receipt": {
+          "usage": {
+            "tokens": 70,
+            "reported_by_provider": true
+          },
+          "cost_basis": "configured_upper_bound",
+          "model_response": {
+            "runtime": "deepseek-harness",
+            "phase": "resource_review",
+            "spec_digest": "spec-a",
+            "context_digest": "c695f3aeb07fc390061065ae1ac499ba1f90a74459ccb161fa43f06dd1728325",
+            "provider": "fixture",
+            "model": "deepseek-v4-flash",
+            "skill": {
+              "name": "review-learning-resource",
+              "sha256": "ba5f4398a65ebb2c446f8fdf91248902ff21ac373c8efb91c38970131af206a3",
+              "loaded": true
+            },
+            "response": {
+              "id": "fixture",
+              "object": "chat.completion",
+              "created": 1,
+              "model": "deepseek-v4-flash",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "c1",
+                        "type": "function",
+                        "function": {
+                          "name": "mcp__preparation__submit_resource_text",
+                          "arguments": "{\"text\": \"{\\\"decision\\\":\\\"pass\\\",\\\"scope\\\":\\\"protocol fixture only\\\"}\"}"
+                        }
+                      }
+                    ]
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 50,
+                "completion_tokens": 20,
+                "total_tokens": 70
+              }
+            }
+          }
+        },
+        "status": "completed",
+        "actual": {
+          "calls": 1,
+          "tokens": 70,
+          "cost_micro_usd": 700
+        }
+      }
+    },
+    {
+      "phase": "classroom_write",
+      "resource_type": "classroom",
+      "result": "{\"scenes\":[{\"id\":\"scene-1\",\"text\":\"服务端执行工具。\"}]}",
+      "model_calls": 1,
+      "tools": [
+        "mcp__preparation__submit_resource_text",
+        "skill"
+      ],
+      "action": {
+        "action_id": "provider:34a07735667c4d61be9ef27eab2ebd76",
+        "kind": "model_completion",
+        "payload": {
+          "model": "deepseek-v4-flash",
+          "input_token_upper_bound": 5830,
+          "output_limit": 10000,
+          "micro_usd_per_token_upper_bound": 10
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 15830,
+          "cost_micro_usd": 158300
+        },
+        "context": {
+          "artifact_id": "a",
+          "spec_digest": "spec-a"
+        },
+        "receipt": {
+          "usage": {
+            "tokens": 70,
+            "reported_by_provider": true
+          },
+          "cost_basis": "configured_upper_bound",
+          "model_response": {
+            "runtime": "deepseek-harness",
+            "phase": "classroom_write",
+            "spec_digest": "spec-a",
+            "context_digest": "a0c3d5da4f5b5eee76c73eff9dea73d33b7db46b285530c2ad79f32a9bc1ebf1",
+            "provider": "fixture",
+            "model": "deepseek-v4-flash",
+            "skill": {
+              "name": "generate-ai-classroom",
+              "sha256": "9123ce03aea2959901ddbcd10a651a191c8db4895974bc4e54cec3c47ae04f44",
+              "loaded": true
+            },
+            "response": {
+              "id": "fixture",
+              "object": "chat.completion",
+              "created": 1,
+              "model": "deepseek-v4-flash",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "c1",
+                        "type": "function",
+                        "function": {
+                          "name": "mcp__preparation__submit_resource_text",
+                          "arguments": "{\"text\": \"{\\\"scenes\\\":[{\\\"id\\\":\\\"scene-1\\\",\\\"text\\\":\\\"\\u670d\\u52a1\\u7aef\\u6267\\u884c\\u5de5\\u5177\\u3002\\\"}]}\"}"
+                        }
+                      }
+                    ]
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 50,
+                "completion_tokens": 20,
+                "total_tokens": 70
+              }
+            }
+          }
+        },
+        "status": "completed",
+        "actual": {
+          "calls": 1,
+          "tokens": 70,
+          "cost_micro_usd": 700
+        }
+      }
+    },
+    {
+      "phase": "classroom_repair",
+      "resource_type": "classroom",
+      "result": "{\"scenes\":[{\"id\":\"scene-1\",\"text\":\"服务端核验后执行工具。\"}]}",
+      "model_calls": 1,
+      "tools": [
+        "mcp__preparation__submit_resource_text",
+        "skill"
+      ],
+      "action": {
+        "action_id": "provider:87385fe6020f491584f02b598de5501c",
+        "kind": "model_completion",
+        "payload": {
+          "model": "deepseek-v4-flash",
+          "input_token_upper_bound": 5831,
+          "output_limit": 10000,
+          "micro_usd_per_token_upper_bound": 10
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 15831,
+          "cost_micro_usd": 158310
+        },
+        "context": {
+          "artifact_id": "a",
+          "spec_digest": "spec-a"
+        },
+        "receipt": {
+          "usage": {
+            "tokens": 70,
+            "reported_by_provider": true
+          },
+          "cost_basis": "configured_upper_bound",
+          "model_response": {
+            "runtime": "deepseek-harness",
+            "phase": "classroom_repair",
+            "spec_digest": "spec-a",
+            "context_digest": "bec0f8cb73b5128fb8213b793f11e300c15f9d390ab3503d26b3081541ac7840",
+            "provider": "fixture",
+            "model": "deepseek-v4-flash",
+            "skill": {
+              "name": "generate-ai-classroom",
+              "sha256": "9123ce03aea2959901ddbcd10a651a191c8db4895974bc4e54cec3c47ae04f44",
+              "loaded": true
+            },
+            "response": {
+              "id": "fixture",
+              "object": "chat.completion",
+              "created": 1,
+              "model": "deepseek-v4-flash",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "c1",
+                        "type": "function",
+                        "function": {
+                          "name": "mcp__preparation__submit_resource_text",
+                          "arguments": "{\"text\": \"{\\\"scenes\\\":[{\\\"id\\\":\\\"scene-1\\\",\\\"text\\\":\\\"\\u670d\\u52a1\\u7aef\\u6838\\u9a8c\\u540e\\u6267\\u884c\\u5de5\\u5177\\u3002\\\"}]}\"}"
+                        }
+                      }
+                    ]
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 50,
+                "completion_tokens": 20,
+                "total_tokens": 70
+              }
+            }
+          }
+        },
+        "status": "completed",
+        "actual": {
+          "calls": 1,
+          "tokens": 70,
+          "cost_micro_usd": 700
+        }
+      }
+    },
+    {
+      "phase": "course_review",
+      "resource_type": "course",
+      "result": "{\"decision\":\"pass\",\"checked_node_ids\":[\"tools\"]}",
+      "model_calls": 1,
+      "tools": [
+        "mcp__preparation__submit_resource_text",
+        "skill"
+      ],
+      "action": {
+        "action_id": "provider:46082600448949c78f8a446679c4fd11",
+        "kind": "model_completion",
+        "payload": {
+          "model": "deepseek-v4-flash",
+          "input_token_upper_bound": 5829,
+          "output_limit": 10000,
+          "micro_usd_per_token_upper_bound": 10
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 15829,
+          "cost_micro_usd": 158290
+        },
+        "context": {
+          "artifact_id": "a",
+          "spec_digest": "spec-a"
+        },
+        "receipt": {
+          "usage": {
+            "tokens": 70,
+            "reported_by_provider": true
+          },
+          "cost_basis": "configured_upper_bound",
+          "model_response": {
+            "runtime": "deepseek-harness",
+            "phase": "course_review",
+            "spec_digest": "spec-a",
+            "context_digest": "76917325538a4dca17fb999bb80b269f852cad8fd8bdac86a28160317f779ccc",
+            "provider": "fixture",
+            "model": "deepseek-v4-flash",
+            "skill": {
+              "name": "review-course-delivery",
+              "sha256": "4d093dbe2343d6edb9da2591fb489290cb4891aed269a314596259523e97e965",
+              "loaded": true
+            },
+            "response": {
+              "id": "fixture",
+              "object": "chat.completion",
+              "created": 1,
+              "model": "deepseek-v4-flash",
+              "choices": [
+                {
+                  "index": 0,
+                  "message": {
+                    "role": "assistant",
+                    "content": null,
+                    "tool_calls": [
+                      {
+                        "id": "c1",
+                        "type": "function",
+                        "function": {
+                          "name": "mcp__preparation__submit_resource_text",
+                          "arguments": "{\"text\": \"{\\\"decision\\\":\\\"pass\\\",\\\"checked_node_ids\\\":[\\\"tools\\\"]}\"}"
+                        }
+                      }
+                    ]
+                  },
+                  "finish_reason": "tool_calls"
+                }
+              ],
+              "usage": {
+                "prompt_tokens": 50,
+                "completion_tokens": 20,
+                "total_tokens": 70
+              }
+            }
+          }
+        },
+        "status": "completed",
+        "actual": {
+          "calls": 1,
+          "tokens": 70,
+          "cost_micro_usd": 700
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+Window B verification, 2026-09-19
+Observed HEAD: 67fc18b8 (not a G0 baseline commit)
+
+Command (repository root):
+COURSE_PREPARATION_ENABLED=false PYTHONPATH=backend/src /home/zxqs_ep/miniforge3/envs/edu-ai/bin/python - <<'PY'
+import dotenv, pytest
+dotenv.load_dotenv=lambda *a, **kw:False
+raise SystemExit(pytest.main([
+    'backend/src/tests/course_preparation/test_harness_generation.py',
+    'backend/src/tests/course_preparation/test_harness_intake.py',
+    'backend/src/tests/course_preparation/test_harness_research.py',
+    'backend/src/tests/course_preparation/test_generation_adapter.py',
+    'backend/src/tests/course_preparation/test_context_memory.py',
+    '-q', '-ra']))
+PY
+
+Result: 77 passed, 8 skipped in 55.74s.
+All 8 skips require PREPARATION_TEST_DATABASE_URL pointing to an isolated PostgreSQL database.
+The corresponding SQLite cases ran. No business .env was loaded.
+
+Additional native SDK evidence:
+7 native DeepSeek Harness SDK 0.1.2rc1 + real MCP sessions against httpx.MockTransport.
+Includes report Markdown and quiz JSON writing and all six registered content phases.
+Each session generated exactly one metered provider completion; the local terminal acknowledgement generated none.
+All evidence actions passed the required runtime / nonempty phase / loaded Skill / Skill sha256 gate.
+Fixture Skills and provider usage are explicitly marked as simulated; this is not live-model quality evidence.
+
+Patch verification:
+B-only b0-changes.patch passed git apply --check against all 12 starting file snapshots.
+The initial harness_adapter.py and harness_provider.py included existing uncommitted research changes.
+Their starting and resulting sha256 values are recorded in patch-manifest.json.
+The patch excludes unrelated changes and does not contain a synthetic G0 or module commit.
+git diff --check passed.
+
+Not executed:
+- Live-model content quality (business-owned D/E/F Skills are absent).
+- Full real preparation course (A/C/D/E/F/G integration remains pending).
+- PostgreSQL tests (isolated database URL not configured).
+- Review-candidate checkpoint recovery and structured FailureDetail persistence (F API pending).

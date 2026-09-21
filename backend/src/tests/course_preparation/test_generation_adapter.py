@@ -111,3 +111,73 @@ def test_inflight_usage_settles_after_parent_cancel_without_publishing(generatio
     assert public['status']=='canceled' and public['budget']['consumed']['tokens']==60
     assert public['budget']['reserved']['tokens']==0
     with pytest.raises(StaleLease): adapter.artifacts.save(child,{'content':'late'})
+
+
+def test_automatic_payload_delegates_to_parameter_module(monkeypatch):
+    import sys
+    from types import ModuleType
+    module = ModuleType('app.course_preparation.generation_context')
+    calls = []
+    expected = object()
+    def build(value, artifact):
+        calls.append((value, artifact))
+        return expected
+    module.automatic_payload = build
+    monkeypatch.setitem(sys.modules, module.__name__, module)
+    value, artifact = {'schema_version': 2}, {'artifact_id': 'a'}
+    assert automatic_payload(value, artifact) is expected
+    assert calls == [(value, artifact)]
+
+
+def test_v2_payload_cannot_fall_back_to_historical_template(monkeypatch):
+    import sys
+    monkeypatch.setitem(sys.modules, 'app.course_preparation.generation_context', None)
+    with pytest.raises(RuntimeError, match='PREPARATION_CONTEXT_UNAVAILABLE'):
+        automatic_payload({'schema_version': 2}, {})
+
+
+def test_handler_supplies_native_gateway_and_fails_unscoped_consumer(generation, monkeypatch):
+    from types import SimpleNamespace
+    from app.course_preparation.adapters.generation import PreparationResourceHandler
+    from app.course_preparation import research_dependencies
+    from app.chat.harness import reviewed_report
+    from app.course_preparation.harness_generation import PreparationHarnessGateway
+    repo, parent_context, adapter = generation
+    _, receipt = submit(generation)
+    configured = SimpleNamespace(candidates=[])
+    monkeypatch.setattr(research_dependencies, 'agent_factory',
+                        lambda *args: SimpleNamespace(model=SimpleNamespace(gateway=configured)))
+    def consumer(payload, *, gateway, checkpoint):
+        assert isinstance(gateway, PreparationHarnessGateway)
+        assert gateway.phase is None
+        return gateway.chat([])
+    monkeypatch.setattr(reviewed_report, 'generate_reviewed_report', consumer)
+    handler = PreparationResourceHandler(lambda: SimpleNamespace(repository=repo))
+    context = SimpleNamespace(owner_user_id='alice', is_cancel_requested=lambda: False)
+    with pytest.raises(RuntimeError, match='HARNESS_PHASE_REQUIRED'):
+        handler({'artifact_id': receipt['artifact_id']}, context)
+    artifact = adapter.artifacts.get('alice', receipt['artifact_id'], content=True)
+    assert artifact['status'] == 'failed' and artifact['content'] is None
+    assert artifact['error_code'] == 'HARNESS_PHASE_REQUIRED'
+
+
+def test_recovery_enqueues_exact_new_job_and_replays_lost_queue_receipt(generation, monkeypatch):
+    from tests.course_preparation.test_review_resume import candidate, failure
+    repo,parent,store,child,body=candidate(generation)
+    adapter=generation[2]
+    store.fail(child,failure(child))
+    enqueue=adapter.task_store.enqueue
+    calls=[]
+    def lost_response(**kwargs):
+        calls.append(kwargs['task_id'])
+        enqueue(**kwargs)
+        raise ConnectionError('queue response lost after commit')
+    monkeypatch.setattr(adapter.task_store,'enqueue',lost_response)
+    with pytest.raises(ConnectionError):
+        adapter.resume_review(parent,child['artifact_id'],recovery_key='queue-repair')
+    receipt=adapter.resume_review(parent,child['artifact_id'],recovery_key='queue-repair')
+    assert calls==[receipt['job_id']]
+    assert receipt['job_id']==f"generate_{child['artifact_id']}_recovery_1"
+    assert adapter.read_result('alice',receipt)['status']=='pending'
+    claimed=store.claim('alice',child['artifact_id'])
+    assert store.checkpoint_port(claimed).load_review_candidate()['content']==body

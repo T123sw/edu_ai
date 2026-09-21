@@ -7,6 +7,9 @@ from .budget_meter import PreparationModelMeter
 from .context import encoded_size
 from .research_agent import ResearchError
 
+# Public compatibility location for consumers of the preparation gateway.
+from .harness_generation import PreparationHarnessGateway, scoped_gateway
+
 
 class GenerationGateway:
     def __init__(self,configured,store,context,*,deadline,canceled=lambda:False,client_factory=httpx.Client):
