@@ -68,6 +68,17 @@ def test_node_scoped_resource_keeps_global_requirements_without_fake_locations()
     assert [r['requirement_id'] for r in meta['applied_requirements']]==['req-order']
 
 
+@pytest.mark.parametrize('kind',['true_false','short_answer'])
+def test_non_choice_empty_options_are_valid_without_changing_content(kind):
+    value={'questions':[{'id':'q1','type':kind,'stem':'谁执行工具？','options':[],
+                         'answer':'程序','explanation':'程序校验参数并执行工具。'}]}
+    before=copy.deepcopy(value)
+    reviewed_resource.validate_resource('quiz',value)
+    assert value==before
+    value['questions'][0]['type']='single_choice'
+    with pytest.raises(ValueError):reviewed_resource.validate_resource('quiz',value)
+
+
 def completion_review(data, kind='report'):
     result = review(True)
     metadata = data.get('preparation') or data.get('specification', {}).get('preparation')

@@ -70,6 +70,10 @@ def validate(kind: str, content):
                     raise ValueError("题目 ID 重复")
                 ids.add(q["id"])
             options = q.get("options")
+            # Non-choice native questions may serialize their absent options as
+            # an empty list. This does not change the saved body or its digest.
+            if options == [] and q.get("type") in ("true_false", "short_answer"):
+                options = None
             if options is not None:
                 if not isinstance(options, list) or len(options) < 2 or not all(_text(o) for o in options):
                     raise ValueError("习题选项无效")

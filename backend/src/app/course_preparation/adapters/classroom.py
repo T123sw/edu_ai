@@ -116,6 +116,7 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
         board = ClassroomStoryboard.model_validate(state['storyboard'])
         validate_teaching_bindings(board, teaching, max_scenes=max_scenes)
     else:
+        previous_storyboard = None
         for attempt in range(3):
             _check_canceled(context)
             raw = writer.chat([
@@ -125,6 +126,10 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
                  'node_budget_minutes 是整节点上限，不是本课堂目标时长。先例后理等要求必须落实在 scenes 顺序。'
                  '至少一页用 steps 表达有意义的有序过程，同一例子的投屏/步骤/旁白数值必须一致。'
                  '普通页 screen 是投屏要点；步骤页 screen 只有一句概述；题目页 screen 和 narration 只能重复题干。'
+                 'screen 最多3条，绝不能返回4条；有4个过程点时用 steps，screen 仍只有一句。'
+                 '题目页 screen 必须严格等于 [question.prompt]，narration 必须逐字等于 question.prompt，不加提示语。'
+                 '普通总结页用 purpose=explanation、student_action=observe、feedback=none；practice/feedback 页必须带 question。'
+                 '收到 previous_storyboard 时仅修正 feedback 指出的无效字段，保留其余场景和ID，不从头重新设计。'
                  '练习用 question 配 student_action=answer、feedback=on_submit，答案/分析只放 question.answer/analysis。'
                  '不要在其他页或旁白提前揭示待答题答案。预计时长包含阅读、讲解和作答，是估算。'
                  '每页绑定本节点 objective_ids，落实要求则保留 requirement_ids。'
@@ -136,14 +141,16 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
                     'evidence': getattr(payload, 'research_context', ''),
                     'revision_baseline': getattr(payload, 'original_content', None),
                     'schema': ClassroomStoryboard.model_json_schema(),
-                    'max_scenes': max_scenes, 'feedback': feedback}, ensure_ascii=False)}], max_tokens=12000)
+                    'max_scenes': max_scenes, 'feedback': feedback,
+                    'previous_storyboard': previous_storyboard}, ensure_ascii=False)}], max_tokens=12000)
             _check_canceled(context)
             try:
                 board = ClassroomStoryboard.model_validate_json(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip()))
                 validate_teaching_bindings(board, teaching, max_scenes=max_scenes)
                 break
             except ValueError as exc:
-                feedback = [str(exc)[:1600]]
+                feedback = [str(exc)[:6000]]
+                previous_storyboard = raw[:60000]
         else:
             raise ClassroomFailure('CLASSROOM_STORYBOARD_INVALID', '受限分镜校验三次未通过', category='content')
         content = render_storyboard(board, payload.title, artifact['resource_id'])
