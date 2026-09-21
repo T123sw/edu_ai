@@ -9,6 +9,16 @@ from app.chat.harness.preparation_content import preparation_metadata, report_se
 from tests.chat.test_reviewed_report import BODY, payload as legacy_payload, review
 
 
+@pytest.mark.parametrize('heading', ['## <a id="example"></a>实例', "## 实例 <a id='example'></a>"])
+def test_native_report_heading_anchor_resolves_without_rewriting_body(heading):
+    body = heading + '\n真实示例。\n```html\n<a id="fake"></a>\n```'
+    assert report_sections(body) == {'example': body}
+    from app.chat.harness.preparation_content import resolve_locator
+    assert resolve_locator('report', body, {'section_id': 'example'}) == body
+    with pytest.raises(ValueError, match='duplicate_section'):
+        report_sections(body + '\n' + heading + '\n重复位置。')
+
+
 def context(order='example_first'):
     return dict(schema_version=1, request_goal='学习工具调用，不要面试话术',
         requirements=[{'requirement_id': 'req-order', 'text': '先例后理' if order == 'example_first' else '先理后例',
@@ -91,6 +101,17 @@ def completion_review(data, kind='report'):
             option_checks=[dict(option_index=0,reasoning='程序校验后负责实际执行',explanation_valid=True,independent_correct=True,explanation_reasoning="已独立逐句检查解析中的主张是否对应原选项。",explanation_excerpt='A 正确，程序执行。'),
                 dict(option_index=1,reasoning='模型只负责提出调用请求',explanation_valid=True,independent_correct=False,explanation_reasoning="已独立逐句检查解析中的主张是否对应原选项。",explanation_excerpt='B 错误，模型只提出调用。')])]
     return result
+
+
+def test_quiz_review_reports_all_inexact_excerpts_in_one_recovery():
+    result = completion_review({}, 'quiz')
+    for option in result['question_checks'][0]['option_checks']:
+        option['explanation_excerpt'] = '这不是原文中的逐字引用'
+    review = reviewed_resource.BoundQuizReview.model_validate(result)
+    with pytest.raises(ValueError) as failure:
+        reviewed_resource.bind_option_reviews(quiz_envelope()['content'], review)
+    assert 'question_index=0, option_index=0' in str(failure.value)
+    assert 'question_index=0, option_index=1' in str(failure.value)
 
 
 class CountingGateway:

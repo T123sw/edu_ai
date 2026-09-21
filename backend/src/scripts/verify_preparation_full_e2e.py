@@ -288,6 +288,7 @@ def main(argv=None):
     parser.add_argument('--database-url-env', default='PREPARATION_TEST_DATABASE_URL')
     parser.add_argument('--scenario', required=True, choices=[c['scenario'] for c in json.loads(CASES.read_text())['cases']])
     parser.add_argument('--repeat', type=int, default=1)
+    parser.add_argument('--stop-on-failure', action='store_true')
     parser.add_argument('--timeout-seconds', type=int, default=1800)
     parser.add_argument('--output-dir', required=True)
     args = parser.parse_args(argv)
@@ -345,9 +346,11 @@ def main(argv=None):
                 result['evidence_path'] = f'run-{index+1:02}'
                 ledger['runs'].append(result)
                 write_json(output/'ledger.json', ledger)
+                if args.stop_on_failure and result['test_status'] != 'passed':
+                    break
             successes = sum(r['test_status'] == 'passed' for r in ledger['runs'])
             ledger.update(passed=successes, failed=len(ledger['runs'])-successes, denominator=len(ledger['runs']),
-                          repetition_requirement_met=args.repeat >= case.get('repeats_required', 1))
+                          repetition_requirement_met=len(ledger['runs']) >= case.get('repeats_required', 1))
             code = 0 if successes == args.repeat and ledger['repetition_requirement_met'] else 1
             ledger['test_status'] = 'passed' if code == 0 else 'failed'
     except Exception as exc:

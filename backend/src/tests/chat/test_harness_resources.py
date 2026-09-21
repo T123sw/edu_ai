@@ -462,20 +462,34 @@ async def test_classroom_repair_gets_field_handles_and_recovers_invalid_handle()
     assert original['scenes'][0]['actions'][0]['text'] == '2+3=6'
     assert revised['scenes'][0]['actions'][0]['text'] == '2+3=5'
     assert len(repairs) == 2 and '字段编号不在当前清单中' in repairs[1][-1]['content']
+    assert len(repairs[1]) == 3 and all(message['role'] != 'assistant' for message in repairs[1])
     assert audit['history'][0]['repair_issues'] == ['字段编号不在当前清单中']
     assert audit['decision'] == 'pass'
+
+
+def test_classroom_repair_handles_include_teaching_text_without_render_metadata():
+    from app.chat.harness.reviewed_resource import classroom_text_fields
+    source = {'stage': {'id': 'stable', 'name': '课程'}, 'scenes': [{'id': 's1', 'type': 'slide',
+        'content': {'canvas': {'elements': [{'id': 'e1', 'type': 'text', 'defaultFontName': 'Arial',
+            'defaultColor': '#333', 'content': '<p>真实教学内容</p>'}]}},
+        'actions': [{'id': 'a1', 'type': 'speech', 'text': '完整旁白', 'audioUrl': '/media/audio.mp3'}]}]}
+    fields = classroom_text_fields(source)
+    assert {f['text'] for f in fields} == {'课程', '<p>真实教学内容</p>', '完整旁白'}
+    assert [f['field_id'] for f in fields] == list(range(len(fields)))
 
 
 def test_whole_text_replacement_preserves_markup_and_identity_guards():
     from app.chat.harness.reviewed_resource import bind_text_replacements
     from app.artifact_revision.adapters import apply_edits
     source = {'id': 'scene1', 'text': '<b>2+3</b>：2+3=6'}
-    replacements = [{'field_id': 1, 'text': '<b>2+3</b>：2+3=5'}]
+    replacements = [{'field_id': 0, 'text': '<b>2+3</b>：2+3=5'}]
     assert apply_edits(source, bind_text_replacements(source, replacements)) == {
         'id': 'scene1', 'text': '<b>2+3</b>：2+3=5'}
     assert source['text'].endswith('=6')
+    with pytest.raises(ValueError, match='字段编号'):
+        bind_text_replacements(source, [{'field_id': 1, 'text': 'changed identity'}])
     with pytest.raises(ValueError, match='身份'):
-        apply_edits(source, bind_text_replacements(source, [{'field_id': 0, 'text': 'changed'}]))
+        apply_edits(source, [{'path': ['id'], 'before': 'scene1', 'after': 'changed'}])
     with pytest.raises(ValueError, match='一次'):
         bind_text_replacements(source, replacements * 2)
 

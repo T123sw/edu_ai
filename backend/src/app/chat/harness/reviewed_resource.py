@@ -108,11 +108,19 @@ def classroom_feedback(content, detailed):
 def classroom_text_fields(source):
     from app.artifact_revision.adapters import editable_paths
     fields = []
-    for field_id, path in enumerate(editable_paths(source)):
+    text_keys = {'name', 'title', 'text', 'content', 'question', 'stem', 'label',
+                 'analysis', 'explanation', 'answer', 'correctAnswer', 'correctAnswers', 'options',
+                 'description', 'caption', 'alt'}
+    for path in editable_paths(source):
+        # Rendering/identity strings are not teaching text. Exposing hundreds
+        # of font/color/ID handles doubled the native repair request size.
+        key = next((part for part in reversed(path) if isinstance(part, str)), None)
+        if key not in text_keys:
+            continue
         value = source
         for key in path:
             value = value[key]
-        fields.append({'field_id': field_id, 'path': path, 'text': value})
+        fields.append({'field_id': len(fields), 'path': path, 'text': value})
     return fields
 
 
@@ -259,6 +267,7 @@ def review_feedback(kind, content, review):
 def bind_option_reviews(content, review):
     # Validate indices before any indexing or server-side rebinding.
     review_feedback('quiz', content, review)
+    excerpt_errors = []
     for check in review.question_checks:
         question = content['questions'][check.question_index]
         if check.question_id is not None and check.question_id != question.get('id'):
@@ -270,10 +279,12 @@ def bind_option_reviews(content, review):
                 raise ValueError('quiz_review_option_text_mismatch')
             option.option_text = original
             if option.explanation_excerpt not in question['explanation']:
-                raise ValueError(f'quiz_review_explanation_excerpt_mismatch: question_index={check.question_index}, '
-                                 f'option_index={option.option_index}; excerpt 必须逐字取自该题 explanation，不得改写。')
+                excerpt_errors.append(f'question_index={check.question_index}, option_index={option.option_index}')
             if not option.explanation_excerpt.strip() and option.explanation_valid:
                 raise ValueError('quiz_review_explanation_excerpt_missing')
+    if excerpt_errors:
+        raise ValueError('quiz_review_explanation_excerpt_mismatch: ' + '; '.join(excerpt_errors)
+                         + '; excerpt 必须逐字取自该题 explanation，不得改写。')
     return review
 
 
@@ -542,8 +553,8 @@ def review_classroom(content, config, gateway=None, *, checkpoint=None):
                 if attempt == 2:
                     revised = content
                     break
-                repair_messages.extend([{'role': 'assistant', 'content': raw},
-                    {'role': 'user', 'content': '修改未应用：' + str(exc)[:800] + '。请根据 text_fields 修正完整 replacements，只使用真实 field_id 和完整的新字符串，不输出路径。'}])
+                repair_messages[2:] = [
+                    {'role': 'user', 'content': '修改未应用：' + str(exc)[:800] + '。请根据原始 text_fields 重新提交完整 replacements，只使用真实 field_id 和完整的新字符串，不输出路径。'}]
         # Speech text edits invalidate the associated synthesized audio.
         from app.artifact_revision.adapters import content_updates
         content = content_updates(content, 'classroom', revised)['content']

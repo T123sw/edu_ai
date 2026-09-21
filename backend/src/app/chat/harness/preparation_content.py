@@ -79,10 +79,12 @@ def report_sections(body):
     for line in body.splitlines():
         if re.match(r'^\s*(```|~~~)', line):
             fenced = not fenced
-        match = re.fullmatch(r'\s*<a id="([A-Za-z0-9_.:-]+)"></a>\s*', line) if not fenced else None
+        anchor = r'''<a\s+id=(["'])([A-Za-z0-9_.:-]+)\1></a>'''
+        heading = bool(re.match(r'^##\s+\S', line))
+        match = (re.search(anchor, line) if heading else re.fullmatch(r'\s*' + anchor + r'\s*', line)) if not fenced else None
         if match:
             finish()
-            current, lines = match.group(1), []
+            current, lines = match.group(2), [line] if heading else []
             if current in sections:
                 raise ValueError('preparation_duplicate_section_id')
         else:
