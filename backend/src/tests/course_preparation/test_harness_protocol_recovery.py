@@ -5,6 +5,54 @@ from deepseek_harness import DeepSeekHarness
 from tests.course_preparation.test_harness_intake import adapter, CONTEXT, TOOL
 
 
+@pytest.mark.parametrize('always_multiple', [False, True])
+def test_content_submission_batch_is_corrected_before_any_tool_dispatch(always_multiple):
+    from app.course_preparation.harness_generation import ContentTools
+    requests, ledger, dispatched = [], [], []
+
+    class RecordingTools(ContentTools):
+        def call(self, name, arguments):
+            dispatched.append((name, arguments))
+            return super().call(name, arguments)
+
+    toolset = RecordingTools(lambda: None, structured=True)
+
+    def complete(request):
+        payload = json.loads(request.content)
+        requests.append(payload)
+        name = next(t['function']['name'] for t in payload['tools'] if t['function']['name'].endswith('submit_resource_json'))
+        if len(requests) > 1:
+            assert '只提交当前资源' in payload['messages'][-1]['content']
+            assert not dispatched
+        values = [{'content': 'report'}, {'content': {'questions': []}}] if always_multiple or len(requests) == 1 else [{'content': 'corrected report'}]
+        return httpx.Response(200, json={'id': 'batch-recovery', 'object': 'chat.completion', 'created': 1,
+            'model': 'test', 'choices': [{'index': 0, 'finish_reason': 'tool_calls', 'message': {
+                'role': 'assistant', 'content': None, 'tool_calls': [
+                    {'id': f'call-{i}', 'type': 'function', 'function': {'name': name, 'arguments': json.dumps({'value': value})}}
+                    for i, value in enumerate(values)]}}],
+            'usage': {'prompt_tokens': 50, 'completion_tokens': 10, 'total_tokens': 60}})
+
+    class Meter:
+        def start(self, **kwargs): ledger.append({}); return ledger[-1]
+        def finish(self, action, **kwargs): action.update(kwargs)
+
+    model = adapter(DeepSeekHarness, client_factory=lambda **kw: httpx.Client(transport=httpx.MockTransport(complete), **kw), meter=Meter())
+    model.gateway._build_headers = lambda key: {}
+    model.gateway._thinking_params = lambda name: {}
+    tools = [{'type': 'function', 'function': spec} for spec in toolset.tools.values()]
+    run = lambda: model._run({**CONTEXT, 'phase': 'resource_write'}, tools, timeout=30, toolset=toolset)
+    if always_multiple:
+        with pytest.raises(ValueError, match='after two corrections'):
+            run()
+        assert len(requests) == len(ledger) == 3
+        assert not dispatched and toolset.result is None
+    else:
+        assert json.loads(run()) == {'content': 'corrected report'}
+        assert len(requests) == len(ledger) == 2
+        assert dispatched == [('submit_resource_json', {'value': {'content': 'corrected report'}})]
+    assert all(row['usage']['total_tokens'] == 60 for row in ledger)
+
+
 @pytest.mark.parametrize('first_failure', ['invalid_json', 'large_invalid_json', 'length'])
 def test_native_session_requests_corrected_json_without_dispatching_invalid_arguments(first_failure):
     requests, ledger = [], []

@@ -17,6 +17,10 @@ class CompletionFormatError(ValueError):
     code = 'MODEL_RESPONSE_INVALID'
 
 
+class MultipleContentSubmissions(CompletionFormatError):
+    pass
+
+
 @contextmanager
 def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_tokens=6000, temperature=.1):
     token = secrets.token_urlsafe(32)
@@ -178,6 +182,11 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                                         if call['id'] in ids:
                                             raise ValueError('MODEL_PROTOCOL_ERROR: duplicate tool call ID')
                                         ids.add(call['id'])
+                                    if getattr(toolset, 'content_submission', False):
+                                        submissions = [call for call in calls if
+                                            call['function']['name'].split('__')[-1] in toolset.tools]
+                                        if len(submissions) > 1:
+                                            raise MultipleContentSubmissions('multiple content submissions in one completion')
                         except (json.JSONDecodeError, CompletionFormatError) as exc:
                             if protocol_attempt == 2:
                                 raise CompletionFormatError('MODEL_PROTOCOL_ERROR: incomplete response after two corrections') from exc
@@ -191,6 +200,11 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                                         'invalid_argument_excerpt': exc.doc[max(0, exc.pos-350):exc.pos+350],
                                         'excerpt_start': max(0, exc.pos-350)},
                                         ensure_ascii=False))
+                            elif isinstance(exc, MultipleContentSubmissions):
+                                feedback = ('上一轮同时调用了多个正文提交工具，整批工具均未执行。'
+                                    '只提交当前资源：遵循当前 messages 中的资源类型和格式，仅调用一次提交工具。'
+                                    '整课背景中的其他资源由各自独立任务生成；不要额外提交报告、习题或课堂。'
+                                    '保留当前资源必需内容和元数据，不降低质量标准。')
                             else:
                                 feedback = (f'上一轮达到 {effective_output} 输出上限，响应截断，整批工具均未执行。'
                                     '请在相同上限内重新提交完整工具参数，省去思考过程与重复解释；'
