@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v4'
+RULE_VERSION='preparation-delivery-v5'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
     validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
@@ -113,31 +113,50 @@ class QualityStages:
 
     @staticmethod
     def _duration_issues(artifacts, nodes, hard_limit):
-        issues = []
-        probes = [(artifacts, [], hard_limit)] if hard_limit is not None else []
-        probes.extend(([a for a in artifacts if a['spec']['node_id'] == n['node_key']], [n], None)
-                      for n in nodes)
-        for rows, scope, limit in probes:
-            try:
-                duration_summary(rows, scope, hard_limit=limit)
-            except ValueError as exc:
-                reason = str(exc)
-                if not reason.startswith(('HARD_DURATION_', 'NODE_DURATION_')):
-                    raise
-                candidates = [a for a in rows if a['spec'].get('required', True)]
-                if reason == 'HARD_DURATION_UNVERIFIED':
-                    targets = [a for a in candidates if preparation_metadata(a).get('duration', {}).get('basis', 'unknown') == 'unknown']
-                else:
-                    targets = [max(candidates, key=lambda a: preparation_metadata(a).get('duration', {}).get('value_minutes') or 0)] if candidates else []
-                known = sum(preparation_metadata(a).get('duration', {}).get('value_minutes') or 0 for a in candidates)
-                budget = scope[0].get('minutes') if scope else limit
-                for target in targets:
-                    current = preparation_metadata(target).get('duration', {}).get('value_minutes')
-                    detail = (f'；当前合计估算 {known:.2f} 分钟，上限 {budget} 分钟；其他必需资源占用 {known-current:.2f} 分钟，'
-                              f'本资源通过实际删减后可用不超过 {max(0, budget-known+current):.2f} 分钟'
-                              if current is not None and reason != 'HARD_DURATION_UNVERIFIED' else '')
-                    issues.append({'artifact_ids': [target['artifact_id']], 'reason': reason + detail +
-                        '；按整节点及整课硬约束缩减冗余正文/练习工作量，保留目标覆盖；未知用时需逐题给出有依据的思考估算。不得只改小估算数字或复制节点预算。'})
+        import math
+        required = [a for a in artifacts if a['spec'].get('required', True)]
+        durations = {a['artifact_id']: preparation_metadata(a).get('duration', {}) for a in required}
+        known = {key: value['value_minutes'] for key, value in durations.items()
+                 if value.get('basis', 'unknown') != 'unknown' and value.get('value_minutes') is not None}
+        projected = dict(known)  # Repair guidance only; never alters saved estimates.
+        reasons, issues = {}, []
+        if hard_limit is not None:
+            issues.extend({'artifact_ids': [a['artifact_id']], 'reason':
+                'HARD_DURATION_UNVERIFIED；逐题给出有依据的思考估算，不得复制节点预算。'}
+                for a in required if a['artifact_id'] not in known)
+        # Satisfy each node first. The whole-course pass uses those proposed
+        # reductions, so it never assigns the same global excess to one resource.
+        scopes = [([a for a in required if a['spec']['node_id'] == n['node_key']],
+                   n.get('minutes'), 'NODE_DURATION_EXCEEDED:' + n['node_key']) for n in nodes]
+        if hard_limit is not None:
+            scopes.append((required, hard_limit, 'HARD_DURATION_EXCEEDED'))
+        for rows, budget, code in scopes:
+            if budget is None:
+                continue
+            ids = [a['artifact_id'] for a in rows if a['artifact_id'] in projected]
+            total = sum(projected[key] for key in ids)
+            if total <= budget:
+                continue
+            selected, untouched = [], total
+            for key in sorted(ids, key=lambda key: projected[key], reverse=True):
+                selected.append(key)
+                untouched -= projected[key]
+                available = budget - untouched
+                selected_total = sum(projected[item] for item in selected)
+                if available * min(projected[item] for item in selected) / selected_total >= .01:
+                    break
+            available = budget - untouched
+            selected_total = sum(projected[key] for key in selected)
+            for key in selected:
+                target = math.floor(available * projected[key] / selected_total * 100) / 100
+                projected[key] = target
+                reasons.setdefault(key, []).append(f'{code}；本范围原估算 {sum(known[k] for k in ids):.2f} 分钟，上限 {budget} 分钟；'
+                    f'同时修订 {len(selected)} 份资源，保留其余资源')
+        for key, scope_reasons in reasons.items():
+            issues.append({'artifact_ids': [key], 'reason': '；'.join(scope_reasons) +
+                f'；本资源当前估算 {known[key]:.2f} 分钟，通过实际删减后可用不超过 {projected[key]:.2f} 分钟。'
+                '缩减冗余正文、场景或练习工作量，保留目标覆盖与稳定ID；全部新正文重新独立审阅、估算并校核。'
+                '不得只改小估算数字或复制节点预算。'})
         return issues
 
     def review(self,context):

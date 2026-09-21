@@ -1,4 +1,6 @@
 from types import SimpleNamespace
+import copy
+import re
 from uuid import uuid4
 import pytest
 from tests.course_preparation.test_resource_alignment import quiz, checkpoint
@@ -47,3 +49,37 @@ def test_all_overbudget_nodes_are_repaired_in_one_round(monkeypatch):
     result=stages.review(SimpleNamespace(checkpoint=cp,owner_user_id='alice',preparation_id='prep-x'))
     assert result.next_stage=='repair'
     assert {i['artifact_ids'][0] for i in result.checkpoint['quality']['issues']}=={'a','b'}
+
+
+def test_joint_duration_repair_targets_are_feasible_without_changing_estimates():
+    rows=[]
+    for node,values in [('n1',[3.5,3.1,7.5]),('n2',[3.7,7.86,8.42])]:
+        for kind,value in zip(['report','quiz','classroom'],values):
+            rows.append({'artifact_id':node+kind,'spec':{'node_id':node,'required':True},
+                'content':{'generation_state':{'preparation':{'duration':{'basis':'estimated','value_minutes':value}}}}})
+    before=copy.deepcopy(rows)
+    issues=QualityStages._duration_issues(rows,[{'node_key':'n1','minutes':10},{'node_key':'n2','minutes':10}],20)
+    assert rows==before
+    limits={}
+    for issue in issues:
+        assert len(issue['artifact_ids'])==1
+        limit=float(re.search(r'本资源.*不超过 ([0-9.]+) 分钟',issue['reason']).group(1))
+        assert limit > 0
+        assert issue['artifact_ids'][0] not in limits
+        limits[issue['artifact_ids'][0]]=limit
+    assert set(limits)=={'n1classroom','n2classroom','n2quiz'}
+    for node in ['n1','n2']:
+        assert sum(limits.get(a['artifact_id'],a['content']['generation_state']['preparation']['duration']['value_minutes']) for a in rows if a['spec']['node_id']==node)<=10
+
+
+def test_global_duration_cap_uses_proposed_node_reductions_once():
+    rows=[]
+    for node in ('a','b'):
+        row=quiz();row['artifact_id']=node;row['spec']['node_id']=node
+        row['content']['generation_state']['preparation']['duration']={'basis':'estimated','value_minutes':8}
+        rows.append(row)
+    before=copy.deepcopy(rows)
+    issues=QualityStages._duration_issues(rows,[{'node_key':'a','minutes':6},{'node_key':'b','minutes':6}],10)
+    assert rows==before and len(issues)==2
+    targets={i['artifact_ids'][0]:float(re.search(r'不超过 ([0-9.]+) 分钟',i['reason']).group(1)) for i in issues}
+    assert sum(targets.values())<=10 and max(targets.values())<=6
