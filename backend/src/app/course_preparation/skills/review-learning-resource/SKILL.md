@@ -17,7 +17,8 @@ applied_requirements 的位置必须真实支持所述贡献，不能把局部�
 option_checks 必须与原题 options 数组精确对应。options 为空或不存在时（判断题、简答题）返回 []，
 不得为题干或参考答案虚构一个选项；仍须提供该题的独立求解、答案及解析核验。
 review_format_feedback 是上次结构校验的具体错误；只修复审阅格式，不隐藏真实内容错误。
-返回 independent_correct、reasoning、explanation_excerpt、explanation_reasoning、explanation_valid。
+返回 independent_correct、reasoning、explanation_reasoning、explanation_valid，并按本次 schema 选择解析摘录。
+提供 explanation_segments 时，用 explanation_span 的 start_segment/end_segment 选择本题连续原文片段，服务端取回逐字原文；不要另写 explanation_excerpt。没有对应解析则 span=null 且 explanation_valid=false。旧 schema 没有编号时才返回逐字 explanation_excerpt。
 reasoning 判断选项；explanation_reasoning 单独逐分句核对原解析，不得用选项整体错误替代对解析理由的检查。
 同一选项中可以部分真、部分假。例如“模型校验参数，程序计算”，只有前半句错；
 原解析如果说“把计算错给了程序”，必须拒绝这一错误批评，即使选项整体确实不成立。摘录必须逐字来自本题解析，缺失则为空且不通过。
