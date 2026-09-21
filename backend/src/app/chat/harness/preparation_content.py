@@ -48,7 +48,12 @@ node_budget_minutes 是整个节点的时间上限，不是每份资源各自的
 "locator":定位对象,"role":"explanation|practice|check"}]}，不要增加规划调用。
 报告 content 为 Markdown，每个二级章节前放 <a id="稳定ID"></a>，locator 为 {"section_id":"该ID"}。
 习题 content 使用原生 quiz JSON，题目 id 为稳定 question_id，locator 为 {"question_id":"题目id"}。
+requirements 保留整课要求；requirement_ids 是当前节点分工。只标注本资源实际落实的要求，
+不要为其他节点重复教学或虚构位置；本节点全部资源合起来必须覆盖 requirement_ids。
 绑定具体目标到真正支持它的内容，不能机械给每题绑定所有目标。修订保留未受影响的内容和ID。
+习题同时返回 question_time_estimates:[{question_id,thinking_seconds,reason}]，逐题估计独立思考/作答秒数，
+不得把节点时间复制为估算；阅读题干、选项和解析的时间由程序另加。reason 解释所需推演步骤和基础。
+题量按当前节点时间、目标和其他配套资源控制，不机械生成固定数量。
 '''
 
 
@@ -131,7 +136,7 @@ def preparation_metadata(kind, content, envelope, context, spec_digest):
             raise ValueError('preparation_requirement_binding_invalid')
         resolve_locator(kind, content, item.get('locator'))
         found.add(item['requirement_id'])
-    if found != requirements:
+    if 'requirement_ids' not in context and found != requirements:
         raise ValueError('preparation_requirement_coverage_incomplete')
     for item in bindings:
         if item.get('objective_id') not in objectives or item.get('role') not in {'explanation', 'practice', 'check'}:
@@ -140,11 +145,29 @@ def preparation_metadata(kind, content, envelope, context, spec_digest):
     if kind == 'report':
         duration = {'value_minutes': round(max(0.1, len(re.sub(r'\s', '', content)) / 500), 1),
                     'basis': 'estimated', 'method': 'non_whitespace_characters / 500 per minute; reading only, excludes exercises'}
+    elif kind == 'quiz' and envelope.get('question_time_estimates'):
+        estimates = envelope['question_time_estimates']
+        questions = content['questions']
+        if (not isinstance(estimates, list) or len(estimates) != len(questions)
+                or {e.get('question_id') for e in estimates} != {q['id'] for q in questions}):
+            raise ValueError('quiz_time_estimate_coverage_invalid')
+        seconds = 0
+        for estimate in estimates:
+            thinking = estimate.get('thinking_seconds')
+            if (isinstance(thinking, bool) or not isinstance(thinking, (int, float))
+                    or not 15 <= thinking <= 1800 or len(str(estimate.get('reason', '')).strip()) < 5):
+                raise ValueError('quiz_time_estimate_invalid')
+            seconds += thinking
+        reading = sum(len(re.sub(r'\s', '', str(q.get('stem', '')) + ''.join(q.get('options') or [])
+                                + str(q.get('explanation', '')))) for q in questions)
+        duration = {'value_minutes': round(seconds / 60 + reading / 500, 2), 'basis': 'estimated',
+                    'method': 'per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated'}
     else:
         duration = {'value_minutes': None, 'basis': 'unknown', 'method': 'No calibrated learner solving-time estimate'}
     return {'schema_version': 1, 'spec_digest': spec_digest,
             'teaching_context_digest': value_digest(context), 'applied_requirements': applied,
             'objective_bindings': bindings, 'duration': duration,
+            **({'question_time_estimates': deepcopy(envelope['question_time_estimates'])} if kind == 'quiz' and envelope.get('question_time_estimates') else {}),
             **({'sections': [{'section_id': key, 'content_sha256': value_digest(text)} for key, text in sections.items()]} if sections else {})}
 
 

@@ -12,7 +12,7 @@ from .runner import StepResult
 RULE_VERSION='preparation-delivery-v3'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
-    validate_manifest_locations, preparation_metadata, duration_summary)
+    validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues)
 from .generation_failures import recovery_scope
 
 
@@ -74,6 +74,8 @@ def local_manifest(context, checkpoint, request):
 def candidate_manifest(context,checkpoint,request):
     if request.operation in ('supplement_node','revise_resource'):
         return local_manifest(context,checkpoint,request)
+    if node_requirement_issues([*checkpoint['artifacts'], *checkpoint.get('retained_artifacts', [])], checkpoint['plan']['nodes']):
+        raise ValueError('NODE_REQUIREMENT_COVERAGE_MISSING')
     course_id=request.target.course_id if request.target else 'learn-'+context.preparation_id.removeprefix('prep_')
     version=request.target.base_manifest_version+1 if request.target else 1
     nodes=[]
@@ -134,6 +136,8 @@ class QualityStages:
             try: validate_artifact(artifact)
             except ValueError as exc:
                 alignment_issues.append({'artifact_ids':[artifact['artifact_id']], 'reason':str(exc)})
+        if not alignment_issues and request.operation in ('create_course','adjust_course'):
+            alignment_issues.extend(node_requirement_issues(artifacts,checkpoint['plan']['nodes']))
         if alignment_issues:
             checkpoint['quality']={'decision':'fail','issues':alignment_issues}
             return StepResult(checkpoint,'repair')
@@ -142,6 +146,18 @@ class QualityStages:
             checkpoint['duration_summary']=duration_summary(artifacts,checkpoint['plan']['nodes'],
                 hard_limit=request.overrides.total_minutes)
         except ValueError as exc:
+            reason=str(exc)
+            if reason.startswith(('HARD_DURATION_', 'NODE_DURATION_')):
+                candidates=[a for a in artifacts if a['spec'].get('required',True)]
+                if reason.startswith('NODE_DURATION_'):
+                    candidates=[a for a in candidates if a['spec']['node_id']==reason.split(':',1)[1]]
+                if reason=='HARD_DURATION_UNVERIFIED':
+                    candidates=[a for a in candidates if preparation_metadata(a).get('duration',{}).get('basis','unknown')=='unknown']
+                if candidates:
+                    target=max(candidates,key=lambda a:preparation_metadata(a).get('duration',{}).get('value_minutes') or 0)
+                    checkpoint['quality']={'decision':'fail','issues':[{'artifact_ids':[target['artifact_id']],
+                        'reason':reason+'；按整节点及整课硬约束缩减冗余正文/练习工作量，保留目标覆盖；未知用时需逐题给出有依据的思考估算。不得只改小估算数字或复制节点预算。'}]}
+                    return StepResult(checkpoint,'repair')
             raise ResearchError('COURSE_CONTRACT_INVALID',str(exc)) from exc
         model=self.model_factory(context,request,checkpoint).model
         reviews = dict(checkpoint.get('node_quality_reviews', {}))

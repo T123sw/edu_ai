@@ -181,3 +181,23 @@ def test_recovery_enqueues_exact_new_job_and_replays_lost_queue_receipt(generati
     assert adapter.read_result('alice',receipt)['status']=='pending'
     claimed=store.claim('alice',child['artifact_id'])
     assert store.checkpoint_port(claimed).load_review_candidate()['content']==body
+
+
+def test_handler_preserves_provider_failure_phase_for_recovery(generation,monkeypatch):
+    from types import SimpleNamespace
+    from app.course_preparation.adapters.generation import PreparationResourceHandler
+    from app.course_preparation import research_dependencies
+    from app.course_preparation.research_agent import ResearchError
+    from app.chat.harness import reviewed_report
+    repo,parent,adapter=generation;_,receipt=submit(generation)
+    monkeypatch.setattr(research_dependencies,'agent_factory',lambda *args:SimpleNamespace(model=SimpleNamespace(gateway=SimpleNamespace(candidates=[]))))
+    def fail(*args,**kwargs):
+        exc=ResearchError('PROVIDER_UNAVAILABLE','provider unavailable')
+        exc.preparation_phase='resource_review'
+        raise exc
+    monkeypatch.setattr(reviewed_report,'generate_reviewed_report',fail)
+    with pytest.raises(ResearchError):
+        PreparationResourceHandler(lambda:SimpleNamespace(repository=repo))({'artifact_id':receipt['artifact_id']},
+            SimpleNamespace(owner_user_id='alice',is_cancel_requested=lambda:False))
+    detail=adapter.artifacts.get('alice',receipt['artifact_id'])['failure_detail']
+    assert detail['phase']=='resource_review' and detail['retry_scope']=='provider'

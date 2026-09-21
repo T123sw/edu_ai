@@ -125,10 +125,14 @@ class PreparationHarnessGateway:
         if self.context.get('spec_digest'):
             context['spec_digest'] = self.context['spec_digest']
         tools = [{'type': 'function', 'function': spec} for spec in toolset.tools.values()]
-        result = adapter._run(context, tools, timeout=timeout, toolset=toolset,
-                              output_tokens=max_tokens, temperature=temperature)
-        check()
-        return result
+        try:
+            result = adapter._run(context, tools, timeout=timeout, toolset=toolset,
+                                  output_tokens=max_tokens, temperature=temperature)
+            check()
+            return result
+        except Exception as exc:
+            exc.preparation_phase = self.phase
+            raise
 
 
 def scoped_gateway(gateway, *, phase, context, preparation):

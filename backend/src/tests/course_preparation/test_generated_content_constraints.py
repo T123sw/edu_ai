@@ -44,6 +44,30 @@ def quiz_envelope():
         'objective_bindings':[{'objective_id':'tools:o1','locator':{'question_id':'q-tools'},'role':'check'}]}
 
 
+def test_quiz_duration_uses_question_work_and_reading_not_node_budget():
+    value=quiz_envelope()
+    value['question_time_estimates']=[{'question_id':'q-tools','thinking_seconds':45,
+                                      'reason':'追踪模型提出请求与程序执行两个步骤，再选择选项'}]
+    teaching=context()
+    meta=preparation_metadata('quiz',value['content'],value,teaching,'a'*64)
+    assert meta['duration']['basis']=='estimated'
+    assert 0.75 < meta['duration']['value_minutes'] < 2
+    assert 'not measured or calibrated' in meta['duration']['method']
+    teaching['node_budget_minutes']=30
+    assert preparation_metadata('quiz',value['content'],value,teaching,'a'*64)['duration']==meta['duration']
+    value['question_time_estimates'][0]['thinking_seconds']=0
+    with pytest.raises(ValueError,match='quiz_time_estimate_invalid'):
+        preparation_metadata('quiz',value['content'],value,teaching,'a'*64)
+
+
+def test_node_scoped_resource_keeps_global_requirements_without_fake_locations():
+    teaching=context();teaching['requirements'].append({'requirement_id':'later','text':'后续节点内容'})
+    teaching['requirement_ids']=['req-order']
+    value=report_envelope()
+    meta=preparation_metadata('report',value['content'],value,teaching,'a'*64)
+    assert [r['requirement_id'] for r in meta['applied_requirements']]==['req-order']
+
+
 def completion_review(data, kind='report'):
     result = review(True)
     metadata = data.get('preparation') or data.get('specification', {}).get('preparation')

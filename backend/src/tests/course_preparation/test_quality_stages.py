@@ -81,3 +81,24 @@ def test_format_repair_updates_job_receipt_without_spec_revision():
     assert result.checkpoint['resource_specs']==[spec]
     assert result.checkpoint['generation_receipts'][digest(spec)]['job_id']=='review-job-1'
     assert calls and result.next_stage=='produce'
+
+
+def test_unknown_hard_duration_requests_bounded_content_repair_not_a_false_pass(monkeypatch):
+    import app.course_preparation.quality as module
+    monkeypatch.setattr(module.ResearchState,'model_validate',lambda _:SimpleNamespace(path={}))
+    monkeypatch.setattr(module.ResearchAgent,'_validate_path',lambda *_:None)
+    monkeypatch.setattr(module,'candidate_manifest',lambda *_:None)
+    spec={'node_id':'n','revision':1}
+    artifact={'artifact_id':'quiz-a','spec':spec,'spec_digest':digest(spec),'status':'draft',
+              'content':{'content':{'questions':[]}},'resource_type':'quiz'}
+    request=PreparationRequest(request_id=uuid4(),operation='create_course',goal='十分钟内完成',overrides={'total_minutes':10})
+    cp={'research_state':{},'resource_specs':[spec],'generation_receipts':{digest(spec):{}},
+        'plan':{'nodes':[{'node_key':'n','minutes':10}]}}
+    def no_model(*_):raise AssertionError('unknown duration cannot reach semantic pass')
+    stages=QualityStages(SimpleNamespace(get=lambda **_:SimpleNamespace(request=request)),
+        SimpleNamespace(read_result=lambda *_:artifact),SimpleNamespace(validate=lambda *_:None),no_model)
+    ctx=SimpleNamespace(checkpoint=cp,owner_user_id='alice',preparation_id='prep')
+    result=stages.review(ctx)
+    assert result.next_stage=='repair'
+    assert result.checkpoint['quality']['issues'][0]['artifact_ids']==['quiz-a']
+    assert result.checkpoint['quality']['issues'][0]['reason'].startswith('HARD_DURATION_UNVERIFIED')

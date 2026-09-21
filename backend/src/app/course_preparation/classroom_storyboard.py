@@ -100,7 +100,7 @@ def validate_teaching_bindings(board, teaching_context, *, max_scenes=MAX_SCENES
             raise ValueError('CLASSROOM_UNKNOWN_OBJECTIVE')
         if not set(scene.requirement_ids) <= requirements:
             raise ValueError('CLASSROOM_UNKNOWN_REQUIREMENT')
-    if set().union(*(set(s.requirement_ids) for s in board.scenes)) != requirements:
+    if 'requirement_ids' not in teaching_context and set().union(*(set(s.requirement_ids) for s in board.scenes)) != requirements:
         raise ValueError('CLASSROOM_REQUIREMENT_COVERAGE_INCOMPLETE')
     if set().union(*(set(s.objective_ids) for s in board.scenes)) != objectives:
         raise ValueError('CLASSROOM_OBJECTIVE_COVERAGE_INCOMPLETE')

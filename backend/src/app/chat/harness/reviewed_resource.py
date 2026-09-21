@@ -393,7 +393,7 @@ class ReviewedResourceGenerator:
                         if kind == 'quiz' and [q.get('id') for q in content['questions']] != [q.get('id') for q in previous['questions']]:
                             raise ValueError('quiz_repair_changed_question_identity')
                         if context is not None:
-                            metadata = preparation_metadata(kind, content, {**metadata, **{k:patch[k] for k in ('applied_requirements','objective_bindings') if k in patch}}, context, spec_digest)
+                            metadata = preparation_metadata(kind, content, {**metadata, **{k:patch[k] for k in ('applied_requirements','objective_bindings','question_time_estimates') if k in patch}}, context, spec_digest)
                         previous = content
                     elif context is not None:
                         content, envelope = parse_envelope(raw)
