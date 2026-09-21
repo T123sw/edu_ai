@@ -124,6 +124,7 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
                  '根据结构化节点上下文制作一份可执行课堂，不规划课程资源组合。只输出 schema JSON。'
                  '本次要求优先于历史偏好，使用基础、先修、活动和自测；页数取决于教学内容，max_scenes 只是上限。'
                  'node_budget_minutes 是整节点上限，不是本课堂目标时长。先例后理等要求必须落实在 scenes 顺序。'
+                 '要求先例后理时，首个实质讲解场景先完整演示具体输入、步骤和结果，再讲概念或通用伪代码；引入话题不算演示。'
                  '至少一页用 steps 表达有意义的有序过程，同一例子的投屏/步骤/旁白数值必须一致。'
                  '普通页 screen 是投屏要点；步骤页 screen 只有一句概述；题目页 screen 和 narration 只能重复题干。'
                  'screen 最多3条，绝不能返回4条；有4个过程点时用 steps，screen 仍只有一句。'

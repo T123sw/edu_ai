@@ -9,10 +9,10 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v3'
+RULE_VERSION='preparation-delivery-v4'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
-    validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues)
+    validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
 from .generation_failures import recovery_scope
 
 
@@ -76,6 +76,8 @@ def candidate_manifest(context,checkpoint,request):
         return local_manifest(context,checkpoint,request)
     if node_requirement_issues([*checkpoint['artifacts'], *checkpoint.get('retained_artifacts', [])], checkpoint['plan']['nodes']):
         raise ValueError('NODE_REQUIREMENT_COVERAGE_MISSING')
+    if node_objective_issues([*checkpoint['artifacts'], *checkpoint.get('retained_artifacts', [])], checkpoint['plan']['nodes']):
+        raise ValueError('NODE_OBJECTIVE_COVERAGE_MISSING')
     course_id=request.target.course_id if request.target else 'learn-'+context.preparation_id.removeprefix('prep_')
     version=request.target.base_manifest_version+1 if request.target else 1
     nodes=[]
@@ -109,6 +111,35 @@ class QualityStages:
     def __init__(self,repository,generation,memory,model_factory):
         self.repository,self.generation,self.memory,self.model_factory=repository,generation,memory,model_factory
 
+    @staticmethod
+    def _duration_issues(artifacts, nodes, hard_limit):
+        issues = []
+        probes = [(artifacts, [], hard_limit)] if hard_limit is not None else []
+        probes.extend(([a for a in artifacts if a['spec']['node_id'] == n['node_key']], [n], None)
+                      for n in nodes)
+        for rows, scope, limit in probes:
+            try:
+                duration_summary(rows, scope, hard_limit=limit)
+            except ValueError as exc:
+                reason = str(exc)
+                if not reason.startswith(('HARD_DURATION_', 'NODE_DURATION_')):
+                    raise
+                candidates = [a for a in rows if a['spec'].get('required', True)]
+                if reason == 'HARD_DURATION_UNVERIFIED':
+                    targets = [a for a in candidates if preparation_metadata(a).get('duration', {}).get('basis', 'unknown') == 'unknown']
+                else:
+                    targets = [max(candidates, key=lambda a: preparation_metadata(a).get('duration', {}).get('value_minutes') or 0)] if candidates else []
+                known = sum(preparation_metadata(a).get('duration', {}).get('value_minutes') or 0 for a in candidates)
+                budget = scope[0].get('minutes') if scope else limit
+                for target in targets:
+                    current = preparation_metadata(target).get('duration', {}).get('value_minutes')
+                    detail = (f'；当前合计估算 {known:.2f} 分钟，上限 {budget} 分钟；其他必需资源占用 {known-current:.2f} 分钟，'
+                              f'本资源通过实际删减后可用不超过 {max(0, budget-known+current):.2f} 分钟'
+                              if current is not None and reason != 'HARD_DURATION_UNVERIFIED' else '')
+                    issues.append({'artifact_ids': [target['artifact_id']], 'reason': reason + detail +
+                        '；按整节点及整课硬约束缩减冗余正文/练习工作量，保留目标覆盖；未知用时需逐题给出有依据的思考估算。不得只改小估算数字或复制节点预算。'})
+        return issues
+
     def review(self,context):
         checkpoint=dict(context.checkpoint); self.memory.validate(context,checkpoint)
         request=self.repository.get(owner_user_id=context.owner_user_id,preparation_id=context.preparation_id).request
@@ -136,8 +167,12 @@ class QualityStages:
             try: validate_artifact(artifact)
             except ValueError as exc:
                 alignment_issues.append({'artifact_ids':[artifact['artifact_id']], 'reason':str(exc)})
-        if not alignment_issues and request.operation in ('create_course','adjust_course'):
-            alignment_issues.extend(node_requirement_issues(artifacts,checkpoint['plan']['nodes']))
+        if not alignment_issues:
+            if request.operation in ('create_course','adjust_course'):
+                alignment_issues.extend(node_requirement_issues(artifacts,checkpoint['plan']['nodes']))
+                alignment_issues.extend(node_objective_issues(artifacts,checkpoint['plan']['nodes']))
+            # Collect all known deterministic defects in the same round.
+            alignment_issues.extend(self._duration_issues(artifacts, checkpoint['plan']['nodes'], request.overrides.total_minutes))
         if alignment_issues:
             checkpoint['quality']={'decision':'fail','issues':alignment_issues}
             return StepResult(checkpoint,'repair')
@@ -146,18 +181,6 @@ class QualityStages:
             checkpoint['duration_summary']=duration_summary(artifacts,checkpoint['plan']['nodes'],
                 hard_limit=request.overrides.total_minutes)
         except ValueError as exc:
-            reason=str(exc)
-            if reason.startswith(('HARD_DURATION_', 'NODE_DURATION_')):
-                candidates=[a for a in artifacts if a['spec'].get('required',True)]
-                if reason.startswith('NODE_DURATION_'):
-                    candidates=[a for a in candidates if a['spec']['node_id']==reason.split(':',1)[1]]
-                if reason=='HARD_DURATION_UNVERIFIED':
-                    candidates=[a for a in candidates if preparation_metadata(a).get('duration',{}).get('basis','unknown')=='unknown']
-                if candidates:
-                    target=max(candidates,key=lambda a:preparation_metadata(a).get('duration',{}).get('value_minutes') or 0)
-                    checkpoint['quality']={'decision':'fail','issues':[{'artifact_ids':[target['artifact_id']],
-                        'reason':reason+'；按整节点及整课硬约束缩减冗余正文/练习工作量，保留目标覆盖；未知用时需逐题给出有依据的思考估算。不得只改小估算数字或复制节点预算。'}]}
-                    return StepResult(checkpoint,'repair')
             raise ResearchError('COURSE_CONTRACT_INVALID',str(exc)) from exc
         model=self.model_factory(context,request,checkpoint).model
         reviews = dict(checkpoint.get('node_quality_reviews', {}))

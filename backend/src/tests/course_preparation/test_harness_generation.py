@@ -171,7 +171,7 @@ def test_protocol_failures_never_deliver_or_fall_back(content_skills, case):
     root, ledger = gateway(complete, sdk_factory=factory)
     with pytest.raises((ValueError, RuntimeError)):
         root.for_phase('resource_write', context={}).chat([])
-    assert len(ledger.actions) == (0 if case == 'skill_unloaded' else 1)
+    assert len(ledger.actions) == (0 if case == 'skill_unloaded' else 3 if case == 'truncated' else 1)
     assert factory.closes == 1
 
 
@@ -226,9 +226,9 @@ def test_cancel_during_response_settles_usage_but_never_submits(content_skills):
 def test_close_failure_keeps_original_protocol_error(content_skills):
     factory = type('Harness', (ProtocolHarness,), {'close_error': True, 'closes': 0})
     root, ledger = gateway(completion(reason='length'), sdk_factory=factory)
-    with pytest.raises(ValueError, match='incomplete Harness completion'):
+    with pytest.raises(ValueError, match='MODEL_PROTOCOL_ERROR: incomplete response after two corrections'):
         root.for_phase('resource_write', context={}).chat([])
-    assert len(ledger.actions) == 1 and factory.closes == 1
+    assert len(ledger.actions) == 3 and factory.closes == 1
 
 
 def test_successful_submission_with_close_failure_is_not_deliverable(content_skills):

@@ -39,6 +39,7 @@ def generation_failure(code, message, *, category, phase, retry_scope, content_d
 CONTENT_INSTRUCTIONS = '''teaching_context 是本次教学规格。原始 request_goal、requirements 优先于偏好；
 prior_knowledge 为空表示未知，不能假定已掌握。按 language、depth、desired_outcomes、先修、
 learning_activities 和 self_check 展开真实内容，教学顺序必须体现在正文，不能只在说明里承诺。
+若要求先例后理，先完整展示一个例子的具体输入、逐步过程和结果，再解释概念或通用伪代码；开头承诺“先看例子”不算已经演示例子。
 遵守 exclusions 和 source_policy，只引用已给 evidence；不足就明确指出，不编造依据。
 不沿用固定面试模板；只有本次用户明确要求面试才安排面试话术。
 node_budget_minutes 是整个节点的时间上限，不是每份资源各自的时长；resource_target_minutes
@@ -48,6 +49,7 @@ node_budget_minutes 是整个节点的时间上限，不是每份资源各自的
 "locator":定位对象,"role":"explanation|practice|check"}]}，不要增加规划调用。
 报告 content 为 Markdown，每个二级章节前放 <a id="稳定ID"></a>，locator 为 {"section_id":"该ID"}。
 习题 content 使用原生 quiz JSON，题目 id 为稳定 question_id，locator 为 {"question_id":"题目id"}。
+习题中对应真实作答题目的目标角色用 practice 或 check；解析属于该题反馈，不把整道题标为 explanation。
 requirements 保留整课要求；requirement_ids 是当前节点分工。只标注本资源实际落实的要求，
 不要为其他节点重复教学或虚构位置；本节点全部资源合起来必须覆盖 requirement_ids。
 绑定具体目标到真正支持它的内容，不能机械给每题绑定所有目标。修订保留未受影响的内容和ID。

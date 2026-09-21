@@ -124,6 +124,29 @@ def node_requirement_issues(artifacts, nodes):
     return issues
 
 
+def node_objective_issues(artifacts, nodes):
+    """Route missing deliverable checks to a real resource repair before manifest construction."""
+    issues = []
+    for node in nodes:
+        rows = [a for a in artifacts if a['spec']['node_id'] == node['node_key']]
+        if not any(a['spec'].get('schema_version', 1) >= 2 for a in rows):
+            continue  # Historical manifests retain their existing validation.
+        expected = {node['node_key'] + ':o' + str(i + 1) for i, _ in enumerate(node['objectives'])}
+        covered = {oid for a in rows if a['spec'].get('required', True) for oid in resource_objectives(a)}
+        checked = {oid for a in rows for check in resource_checks(a, node['node_key']) for oid in check['objective_ids']}
+        missing_content, missing_checks = expected - covered, expected - checked
+        if missing_content or missing_checks:
+            preferred = 'quiz' if missing_checks else 'report'
+            target = next((a for a in rows if a['resource_type'] == preferred),
+                          next((a for a in rows if a['resource_type'] == 'report'), rows[0]))
+            issues.append({'artifact_ids': [target['artifact_id']], 'reason':
+                'NODE_OBJECTIVE_COVERAGE_MISSING: 内容=' + ','.join(sorted(missing_content))
+                + '; 学习检查=' + ','.join(sorted(missing_checks))
+                + '。补齐这些目标对应的真实题目或报告自测及 practice/check 映射；已有题目只缺角色映射时仅修正映射，'
+                  '保留正确正文和稳定ID。不能把课堂场景伪装为习题或报告位置，也不能机械绑定无关目标。'})
+    return issues
+
+
 def resource_objectives(artifact):
     meta = preparation_metadata(artifact)
     if artifact['spec'].get('schema_version', 1) >= 2:
