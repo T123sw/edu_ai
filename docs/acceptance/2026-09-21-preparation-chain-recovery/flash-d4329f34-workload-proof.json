@@ -1,0 +1,508 @@
+[
+  {
+    "code_sha": "d4329f34",
+    "preparation_id": "prep_2291ca9f2e0f442295e2e200e877ab16",
+    "case": "E01",
+    "public_status": "failed",
+    "parent_error_code": "BUDGET_EXHAUSTED",
+    "repair_counts": {
+      "review": 1,
+      "content": 2
+    },
+    "quality": {},
+    "artifacts": [
+      {
+        "artifact_id": "artifact_50a5d7a9989f494ef470e064723f7ea0",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "report",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "85bc327d3cb6e6d249bf0e754373bbb30e93dcf93c87c82ecd980f9b5e160024",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 4.0
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "non_whitespace_characters": 1983
+      },
+      {
+        "artifact_id": "artifact_6650055bcd11ab4493ce19bbbdcc95be",
+        "node_id": "node-1-role-division",
+        "resource_type": "report",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "4b2bdc4191dfa1fdc0d6237bf48a37e612dd68e841768f43f90b79563e40c196",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.9
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "non_whitespace_characters": 1465
+      },
+      {
+        "artifact_id": "artifact_6dc3eafdfe9ffe9a313acb13fca13932",
+        "node_id": "node-1-role-division",
+        "resource_type": "quiz",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "a1ca9aa59d311f0cfce39b0cdd37f8fbee0f8f1a288b0b1d1f50bc361b1d7801",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 5.19
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "question_count": 3
+      },
+      {
+        "artifact_id": "artifact_5e56019d75e95722533e27b9a1977d5f",
+        "node_id": "node-1-role-division",
+        "resource_type": "classroom",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "96572034046429d64105e8a5700367bc46ac8ee7f2e102231fd72788bf21fb5a",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 8.5
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "scene_count": 5
+      },
+      {
+        "artifact_id": "artifact_93b92eee22cda10c4b952baac7835b87",
+        "node_id": "node-1-role-division",
+        "resource_type": "classroom",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "4dbf42f9479223b82be64141017ebe668e08afdc74d491b053ffb48fe8817f6f",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 4.75
+        },
+        "explicit_limit": null,
+        "repair_target": 5.12,
+        "scene_count": 5
+      },
+      {
+        "artifact_id": "artifact_801a4a27a5a58b0ef914ac640435e6ad",
+        "node_id": "node-1-role-division",
+        "resource_type": "report",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "1b61124ae4c720f9cd96531029bd2386b30c3137a9a6d2b1a0134a8daaf65985",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.4
+        },
+        "explicit_limit": null,
+        "repair_target": 1.74,
+        "non_whitespace_characters": 1211
+      },
+      {
+        "artifact_id": "artifact_ddd229939ab8877471b0d743a4bae0f4",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "quiz",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "b448839272d8da208dc815bb10ddd7d0659cad5701cca59eb918f3c6f6993143",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 6.41
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "question_count": 4
+      },
+      {
+        "artifact_id": "artifact_1856c67e5c490f99b5c65378f6311eb4",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "classroom",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "41a737bef5f98ca320a17c5c8157fe92fd477ebb2fd17426e9ae6d9ac5d85813",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 14.17
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "scene_count": 7
+      },
+      {
+        "artifact_id": "artifact_47d1fe6ec8f32a719c6664599d5ae995",
+        "node_id": "node-1-role-division",
+        "resource_type": "quiz",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "943d1032e6d5cd794266a7b018985b3b2174bafce8a171ace159906f8f82a706",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 2.39
+        },
+        "explicit_limit": null,
+        "repair_target": 3.12,
+        "question_count": 2
+      },
+      {
+        "artifact_id": "artifact_a0b96c710ada742c92f1b68e2d9c9e2d",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "report",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "a3a23e81cd1b17a55ca9dbdc580a3bc55c8d0234216da4d96cdbc74828d5fee6",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 3.3
+        },
+        "explicit_limit": null,
+        "repair_target": 1.62,
+        "non_whitespace_characters": 1662
+      },
+      {
+        "artifact_id": "artifact_f99d428857ced77b84220f311295ad79",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "classroom",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "dae0bf8fd8a2c6b06be55bd4ebed8510bc416518dcc45ae820d7187e639a1456",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 5.75
+        },
+        "explicit_limit": null,
+        "repair_target": 5.76,
+        "scene_count": 6
+      },
+      {
+        "artifact_id": "artifact_0e503eec21c87a4f94d10888aea185d8",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "quiz",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "4dde98172a6dee260f0667fa55c191c5eee7a2ffb7ee41cb9de55cbabb0de53d",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 4.04
+        },
+        "explicit_limit": null,
+        "repair_target": 2.6,
+        "question_count": 4
+      },
+      {
+        "artifact_id": "artifact_f50d6cc1ba4ba84bb6ed56a8252ed3b3",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "classroom",
+        "revision": 3,
+        "status": "failed",
+        "error_code": "BUDGET_EXHAUSTED",
+        "content_digest": "e4191761f37c8cd4f78c60468ce30b8b8f114f09addc7f0a2fcd286effcc487c",
+        "duration": null,
+        "explicit_limit": null,
+        "repair_target": 4.39
+      },
+      {
+        "artifact_id": "artifact_35ef9a996952b4e1ddeb59a7f69fdb8c",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "report",
+        "revision": 3,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "bdc42d8149d1b9be2794849510716cf0aeb1ba6d6a8e07dc245b33a2fbd5d14f",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 3.3
+        },
+        "explicit_limit": null,
+        "repair_target": 2.52,
+        "non_whitespace_characters": 1646
+      },
+      {
+        "artifact_id": "artifact_b15bd00b5800930f9391fde86392af85",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "quiz",
+        "revision": 3,
+        "status": "failed",
+        "error_code": "BUDGET_EXHAUSTED",
+        "content_digest": "532e885d194fa0d2dba16e841efee3f0607cbc3a931a49e948509c684e78029e",
+        "duration": null,
+        "explicit_limit": null,
+        "repair_target": 3.08
+      }
+    ]
+  },
+  {
+    "code_sha": "d4329f34",
+    "preparation_id": "prep_1c5b9dc929a04a07a622456215dc3993",
+    "case": "browser-desktop",
+    "public_status": "failed",
+    "parent_error_code": "QUALITY_GATE_FAILED",
+    "repair_counts": {
+      "review": 1,
+      "content": 2,
+      "provider": 1
+    },
+    "quality": {
+      "issues": [
+        {
+          "reason": "NODE_DURATION_EXCEEDED:node-1；本范围原估算 10.48 分钟，上限 10 分钟；同时修订 1 份资源，保留其余资源；本资源当前估算 2.40 分钟，通过实际删减后的本轮修订目标为 1.92 分钟。缩减冗余正文、场景或练习工作量，保留目标覆盖与稳定ID；全部新正文重新独立审阅、估算并校核。最终按全部候选的实际估算合计核验节点和整课硬上限，临时目标不替代最终门禁。不得只改小估算数字或复制节点预算。",
+          "artifact_ids": [
+            "artifact_2c564d2cfa2faca88f1cd370d8d312ac"
+          ],
+          "resource_duration_cap_minutes": 1.92
+        }
+      ],
+      "decision": "fail"
+    },
+    "artifacts": [
+      {
+        "artifact_id": "artifact_66986e43a94ad000af53e38f70c8b523",
+        "node_id": "node-1",
+        "resource_type": "quiz",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "68ef579cc71605f11b0d5ecb7e40449c27aa82e6c0951f3d5d7ad628beaba8c8",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 6.26
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "question_count": 4
+      },
+      {
+        "artifact_id": "artifact_509edb6621545803b2057fe94685d47c",
+        "node_id": "node-1",
+        "resource_type": "report",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "42e1bfdd96e172b89b29c4598b4a58bc6c46f94101c92398db708afd44109bf0",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 3.2
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "non_whitespace_characters": 1578
+      },
+      {
+        "artifact_id": "artifact_a122e57e90fab13ceab48991ec269e03",
+        "node_id": "node-1",
+        "resource_type": "classroom",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "b8e7f378b302b9b1fbfedb38651e9d16f531e376219401fd010cbffee256ceea",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 8.17
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "scene_count": 5
+      },
+      {
+        "artifact_id": "artifact_674c3c6911bb32d6444c934fbef13bf9",
+        "node_id": "node-2",
+        "resource_type": "report",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "167bcf69b9f6ab827484699b60263b9ce9d10f6ef7beab3304b8a6954c0885c6",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.8
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "non_whitespace_characters": 1414
+      },
+      {
+        "artifact_id": "artifact_78ba8e27a167f2ce522ac4960d45d0a8",
+        "node_id": "node-2",
+        "resource_type": "quiz",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "b2a7ccfacc310ea1a37970dbeb1b4f892875a885cf7ce42443bbfee158870d97",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 5.01
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "question_count": 3
+      },
+      {
+        "artifact_id": "artifact_b4eb0721052be6194c127a5e53271234",
+        "node_id": "node-1",
+        "resource_type": "report",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "63ba9860462022771fe35a341ef6b0ffcd2df16982e1d01bd748196c905b7969",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.5
+        },
+        "explicit_limit": null,
+        "repair_target": 1.81,
+        "non_whitespace_characters": 1226
+      },
+      {
+        "artifact_id": "artifact_433518a4a556a827f344ded0693bdcf8",
+        "node_id": "node-1",
+        "resource_type": "quiz",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "f8d0e9e22e3d1840212b41f2ea83a7becba5d43cbfbf2229288cfb4478ecae89",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 3.46
+        },
+        "explicit_limit": null,
+        "repair_target": 3.55,
+        "question_count": 2
+      },
+      {
+        "artifact_id": "artifact_82b869b4e7a2c13d7f418510df2ea913",
+        "node_id": "node-2",
+        "resource_type": "classroom",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "e2957f0d4e25395a5ff943a9b8266b44e68e705f7620e83dfcf84330ec31abf7",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 10.67
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "scene_count": 7
+      },
+      {
+        "artifact_id": "artifact_a05d05a5c7ced6b682e0ebfaff6bdb1c",
+        "node_id": "node-2",
+        "resource_type": "report",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "356cdc310e1ca8d82851f4f142dbd211c7ab6759a9ecffe8fe81f1327eca1096",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.4
+        },
+        "explicit_limit": null,
+        "repair_target": 1.51,
+        "non_whitespace_characters": 1198
+      },
+      {
+        "artifact_id": "artifact_7d0409c6d94d13a8f6e9b64e4dd99c38",
+        "node_id": "node-1",
+        "resource_type": "classroom",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "ba10eb50726691e3900febafbf66abdce10742ccd9c6a2c9372dfd8f2023e281",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 4.62
+        },
+        "explicit_limit": null,
+        "repair_target": 4.63,
+        "scene_count": 5
+      },
+      {
+        "artifact_id": "artifact_ae072f8415547fe1b82fc6ba7b21b458",
+        "node_id": "node-2",
+        "resource_type": "quiz",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "019877f4893b7002904238b55b5d94367dc777e2f86b6746e3ae0fbe9d8b5ac9",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 2.24
+        },
+        "explicit_limit": null,
+        "repair_target": 2.71,
+        "question_count": 2
+      },
+      {
+        "artifact_id": "artifact_0c618e5d916a15b5f3a5382d61a66fb0",
+        "node_id": "node-2",
+        "resource_type": "classroom",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "6ab26e5353e8df1fa69f1445df50cb72cc06b629ceb7dc2a7c8794042e1e8249",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 5.33
+        },
+        "explicit_limit": null,
+        "repair_target": 5.77,
+        "scene_count": 7
+      },
+      {
+        "artifact_id": "artifact_2c564d2cfa2faca88f1cd370d8d312ac",
+        "node_id": "node-1",
+        "resource_type": "report",
+        "revision": 3,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "476b8165116188bd6456ad79a9f09e8249a8b737223e0840298c501d6923d066",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.4
+        },
+        "explicit_limit": null,
+        "repair_target": 1.92,
+        "non_whitespace_characters": 1221
+      }
+    ]
+  }
+]

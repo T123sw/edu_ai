@@ -1,0 +1,39 @@
+{
+  "source_sha": "4c4ea1972e5408abb19687895caa311f4a1af120",
+  "backend_source_sha": "4c4ea1972e5408abb19687895caa311f4a1af120",
+  "preparation_shared": {
+    "passed": 846,
+    "skipped": 15,
+    "seconds": 494.98
+  },
+  "learning": {
+    "passed": 256,
+    "skipped": 3,
+    "seconds": 917.29
+  },
+  "frontend_scene_tests": {
+    "passed": 5,
+    "seconds": 0.686456
+  },
+  "frontend_types_lint": "passed",
+  "formal_build_seconds": 20.12,
+  "learning_source_sha": "13d9eeaf",
+  "learning_backend_unchanged_since_verified": true,
+  "quiz_shape_feedback": {
+    "passed": 58,
+    "skipped": 5,
+    "seconds": 7.28
+  },
+  "focused_native_protocol": {
+    "passed": 15,
+    "seconds": 69.83,
+    "provider_boundary": "scripted HTTP transport plus real native SDK; not real provider E2E"
+  },
+  "skipped_reasons": {
+    "preparation_shared": "7 opt-in real-model tests, 7 SQLite alternatives with PostgreSQL counterparts run, 1 SQLite-only subprocess parameter skipped for PostgreSQL",
+    "learning": "1 opt-in live model test and 2 SQLite alternatives; PostgreSQL counterparts run"
+  },
+  "frontend_scene_tests_source_sha": "7da6de7a",
+  "frontend_scene_tests_scope": "earlier targeted renderer tests; later aria-label and E2E test changes, not rerun on final source",
+  "frontend_types_lint_scope": "passed during earlier learning UI fixes; final formal Vite build independently passed"
+}

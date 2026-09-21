@@ -1,0 +1,484 @@
+[
+  {
+    "code_sha": "4c4ea197",
+    "preparation_id": "prep_4060a721ec6d469094659f3b19f395fd",
+    "case": "E01",
+    "public_status": "failed",
+    "parent_error_code": "BUDGET_EXHAUSTED",
+    "repair_counts": {
+      "content": 1,
+      "provider": 1
+    },
+    "quality": {},
+    "artifacts": [
+      {
+        "artifact_id": "artifact_a33edfd8eafca8e2934adab8d187986f",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "report",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "bc5a76bed1da17d215e0643c56dc23c977e68bc66c6d0114ea456cdb29d7730c",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.9
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "non_whitespace_characters": 1442
+      },
+      {
+        "artifact_id": "artifact_26928829dd8bd60a0eebc0fce9c4f7f8",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "report",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "a1c90bdfda2188f3446c23a95bdc506b3211a09df580ed534147e258eaa0b6e4",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 3.4
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "non_whitespace_characters": 1684
+      },
+      {
+        "artifact_id": "artifact_de602f3bddd1cdc8ca2dfea2dec4b9b9",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "quiz",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "08c98d6de14ece2b654d395623a7a5b945c8c42796a8010c5cb5b55b9bcff6e4",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 3.79
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "question_count": 2
+      },
+      {
+        "artifact_id": "artifact_15c8ef3ef6d8c6c8396880cca3d79d47",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "classroom",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "3e8140692dca3625c49b7d7994b18f51213c08568a388fb4e1217d07cb8ffd41",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 13.0
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "scene_count": 6
+      },
+      {
+        "artifact_id": "artifact_252a9fcc380f037550fa83b0567d2d2d",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "classroom",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "cb3365229556c1a90b5febfb758157850e81ece35b1f2e00d97b921932815439",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 10.0
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "scene_count": 7
+      },
+      {
+        "artifact_id": "artifact_e3a77fb6707430409476ba22f0954a24",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "quiz",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "ca634c06b54bf2119d91a9af5c41dee126d4a3f1c9742604612312cafed06e64",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 5.86
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "question_count": 3
+      },
+      {
+        "artifact_id": "artifact_6bf499810d9a1b97e237b736ef730e2d",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "classroom",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "b37e8aa4034ed09ba32a5503bb22eac1dfbc3115fc1fa1e48624662809ac25a0",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 6.6
+        },
+        "explicit_limit": null,
+        "repair_target": 6.6,
+        "scene_count": 6
+      },
+      {
+        "artifact_id": "artifact_ec5799a951a0cb96fb2dc6e6f4b683a5",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "classroom",
+        "revision": 2,
+        "status": "failed",
+        "error_code": "BUDGET_EXHAUSTED",
+        "content_digest": "70cc35af9aec63a5a67366b19d492173e45bf734442c9a0e2aee83baa47bfdf1",
+        "duration": null,
+        "explicit_limit": null,
+        "repair_target": 5.19
+      },
+      {
+        "artifact_id": "artifact_a8cab59d512f402605f0e138bb216810",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "report",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "b5c31301647f04be7c388b547c5ea84c3633faa15cb04fb02b76ce4307405559",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.7
+        },
+        "explicit_limit": null,
+        "repair_target": 1.47,
+        "non_whitespace_characters": 1326
+      },
+      {
+        "artifact_id": "artifact_f97aa2f7039942b8005e488470efa057",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "report",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "1bf1dac9280349bc0507eff891bd7f2f0a981c14b45fc10d42836b5bffde8cec",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.8
+        },
+        "explicit_limit": null,
+        "repair_target": 1.76,
+        "non_whitespace_characters": 1423
+      },
+      {
+        "artifact_id": "artifact_65ed588f435b4c405e8c4955a9403a69",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "quiz",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "e529fdd20ed583fc706e637121f7917fb753255839c1386bce99c5b2c77f653e",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 2.31
+        },
+        "explicit_limit": null,
+        "repair_target": 1.92,
+        "question_count": 2
+      },
+      {
+        "artifact_id": "artifact_a87d0d8bb99cc3f17d29dfa30c48f2b7",
+        "node_id": "node-2-trace-branches",
+        "resource_type": "quiz",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "f6a0c68f5dd181ed3ca046e08d706c4eec9524e1172d1202906be695a57f6128",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 2.83
+        },
+        "explicit_limit": null,
+        "repair_target": 3.04,
+        "question_count": 2
+      }
+    ]
+  },
+  {
+    "code_sha": "4c4ea197",
+    "preparation_id": "prep_af8e4d3a13d1499ead9d37f520b25591",
+    "case": "browser-desktop",
+    "public_status": "failed",
+    "parent_error_code": "QUALITY_GATE_FAILED",
+    "repair_counts": {
+      "content": 2
+    },
+    "quality": {
+      "issues": [
+        {
+          "reason": "NODE_DURATION_EXCEEDED:node-1-roles-and-success；本范围原估算 11.41 分钟，上限 10 分钟；同时修订 1 份资源，保留其余资源；本资源当前估算 3.59 分钟，通过实际删减后的本轮修订目标为 2.17 分钟。缩减冗余正文、场景或练习工作量，保留目标覆盖与稳定ID；全部新正文重新独立审阅、估算并校核。最终按全部候选的实际估算合计核验节点和整课硬上限，临时目标不替代最终门禁。不得只改小估算数字或复制节点预算。",
+          "artifact_ids": [
+            "artifact_06c5f826d78334b6b571f8fa554fbc7d"
+          ],
+          "resource_duration_cap_minutes": 2.17
+        },
+        {
+          "reason": "NODE_DURATION_EXCEEDED:node-2-branches-and-failure；本范围原估算 11.34 分钟，上限 10 分钟；同时修订 1 份资源，保留其余资源；本资源当前估算 2.80 分钟，通过实际删减后的本轮修订目标为 1.46 分钟。缩减冗余正文、场景或练习工作量，保留目标覆盖与稳定ID；全部新正文重新独立审阅、估算并校核。最终按全部候选的实际估算合计核验节点和整课硬上限，临时目标不替代最终门禁。不得只改小估算数字或复制节点预算。",
+          "artifact_ids": [
+            "artifact_e5f1791bb302a7b41e8c24ab957c4087"
+          ],
+          "resource_duration_cap_minutes": 1.46
+        }
+      ],
+      "decision": "fail"
+    },
+    "artifacts": [
+      {
+        "artifact_id": "artifact_c94255ac3ad7cae9332ef75b7feb31fa",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "report",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "6d431ebe4e166075a4dfac32b0fa0265cd072408afd13414b72efa80aadfb94b",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 3.0
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "non_whitespace_characters": 1506
+      },
+      {
+        "artifact_id": "artifact_b92cc95f18a6dcb0a117e76ce4a60bff",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "quiz",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "04a8ce7d87a3cdb068cabee9d73660b4ac07d4cf8b9a38843bb14896def98ce3",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 5.45
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "question_count": 2
+      },
+      {
+        "artifact_id": "artifact_2b75f5d73a963e10ee6a2d3850102588",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "classroom",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "a275c36b24ad10f797ba5fa574da04f23f5bca75eda8a2cd5af44d2837a3af52",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 10.0
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "scene_count": 6
+      },
+      {
+        "artifact_id": "artifact_7a250c95f2d36afd5f85b94fccce39b7",
+        "node_id": "node-2-branches-and-failure",
+        "resource_type": "report",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "bb4d0dc565dc917e3b9decf70d7d919d64d7c5f3ad963df4db500855d2a75052",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 3.1
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "non_whitespace_characters": 1540
+      },
+      {
+        "artifact_id": "artifact_904dfe7b6eafb7de962478cec1e9cfbd",
+        "node_id": "node-2-branches-and-failure",
+        "resource_type": "quiz",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "e3d901e1a2d0321f83d23784719674fbb85aec2d5ca7cfbc3bca9e6ca4bef88b",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 7.41
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "question_count": 3
+      },
+      {
+        "artifact_id": "artifact_298d9323cad028c3fa3910d5c8e5ac79",
+        "node_id": "node-2-branches-and-failure",
+        "resource_type": "classroom",
+        "revision": 1,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "07373b2ffb424a88af6a192f8da5fc21cea89cc572fd8fb3424d6a680a50952b",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 9.0
+        },
+        "explicit_limit": null,
+        "repair_target": null,
+        "scene_count": 6
+      },
+      {
+        "artifact_id": "artifact_042ba3316c1703613846cd01fb3d4cc0",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "classroom",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "18aae8f32e3f8b6cba129191c5c0dc29e189d71c7329641d869fd3066dcbe919",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 5.42
+        },
+        "explicit_limit": null,
+        "repair_target": 5.42,
+        "scene_count": 6
+      },
+      {
+        "artifact_id": "artifact_8e2b054f9774adf50aaeeb7ec03b90c9",
+        "node_id": "node-2-branches-and-failure",
+        "resource_type": "report",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "346d39fdaf60bdaac6cffea1e7dea8d3fce154e3ca1c09d6ff1dedf453092497",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.8
+        },
+        "explicit_limit": null,
+        "repair_target": 1.58,
+        "non_whitespace_characters": 1422
+      },
+      {
+        "artifact_id": "artifact_aba1f4750f5f4e660b48eca14f6dc3cd",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "report",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "1678c95a0bc94ae73514adbb727c0bf568e62294061733d727dd27b76fcbc472",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.4
+        },
+        "explicit_limit": null,
+        "repair_target": 1.62,
+        "non_whitespace_characters": 1188
+      },
+      {
+        "artifact_id": "artifact_be3d3bc0c27d4c56005c8d6b38c0a0fd",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "quiz",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "f7041435d819cff84144415bd421528ed28efac61744127e762538b340c86261",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 3.53
+        },
+        "explicit_limit": null,
+        "repair_target": 2.95,
+        "question_count": 2
+      },
+      {
+        "artifact_id": "artifact_1871928bf4cb793edfdb4ebe525682a9",
+        "node_id": "node-2-branches-and-failure",
+        "resource_type": "quiz",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "4460e1f5eea7e0ddbd01c206d6c7c826dc08f527b39ba9972d03e5912366854b",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 3.96
+        },
+        "explicit_limit": null,
+        "repair_target": 3.79,
+        "question_count": 3
+      },
+      {
+        "artifact_id": "artifact_06c5f826d78334b6b571f8fa554fbc7d",
+        "node_id": "node-1-roles-and-success",
+        "resource_type": "quiz",
+        "revision": 3,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "de45ccff60d5beb1d679f747ddbeab14fa84b6f2bbd8aeb1bb3f606cf87098b9",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 3.59
+        },
+        "explicit_limit": null,
+        "repair_target": 2.17,
+        "question_count": 2
+      },
+      {
+        "artifact_id": "artifact_692e99eb071bc81ac1db579715b34047",
+        "node_id": "node-2-branches-and-failure",
+        "resource_type": "classroom",
+        "revision": 2,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "8db252095ab1d7b53a9da78924e52d8f685d94e3231d35010dec0f7328e95a68",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 4.58
+        },
+        "explicit_limit": null,
+        "repair_target": 4.61,
+        "scene_count": 5
+      },
+      {
+        "artifact_id": "artifact_e5f1791bb302a7b41e8c24ab957c4087",
+        "node_id": "node-2-branches-and-failure",
+        "resource_type": "report",
+        "revision": 3,
+        "status": "draft",
+        "error_code": null,
+        "content_digest": "b7056ddb41b0cdce5ee983978f02c0b93897554723616c1ae2c178f452821a2c",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.8
+        },
+        "explicit_limit": null,
+        "repair_target": 1.46,
+        "non_whitespace_characters": 1421
+      }
+    ]
+  }
+]

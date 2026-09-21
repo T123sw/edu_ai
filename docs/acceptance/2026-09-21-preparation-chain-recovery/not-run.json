@@ -1,0 +1,47 @@
+[
+  {
+    "case_id": "E02",
+    "status": "not_run",
+    "reason": "本次故障修复复验尚未执行联网课程完整交付；不能复用历史仅到研究或生成阶段的成绩。"
+  },
+  {
+    "case_id": "E04",
+    "status": "not_run",
+    "reason": "参数对照专项驱动未完成；现有回归不能替代真实模型控制变量实验。"
+  },
+  {
+    "case_id": "E05",
+    "status": "not_run",
+    "reason": "偏好优先级与运行中删除偏好的完整真实专项驱动未完成。"
+  },
+  {
+    "case_id": "E06",
+    "status": "not_run",
+    "reason": "长 PDF、多附件、分页网页的完整真实覆盖专项驱动未完成。"
+  },
+  {
+    "case_id": "E07",
+    "status": "partial",
+    "reason": "已验证边界回归、真实自然故障及部分审阅恢复证据，未完成计划要求的全部真实 handler 故障注入矩阵。"
+  },
+  {
+    "case_id": "E08",
+    "status": "partial",
+    "reason": "R01 真实在途取消及结算通过；浏览器部分刷新有证据。重复提交、worker 重启、取消与 commit 竞争的完整真实矩阵未完成。"
+  },
+  {
+    "case_id": "E09",
+    "status": "not_run",
+    "reason": "补节点、修订资料、只调路线、版本冲突的完整真实专项驱动未完成；旧学习入口仍有 BoundedModelAdapter。"
+  },
+  {
+    "case_id": "E10",
+    "status": "not_run",
+    "reason": "本次复验尚未运行非 Agent 主题完整课程。"
+  },
+  {
+    "case_id": "external-media-and-tts",
+    "status": "not_run",
+    "reason": "未验证外部媒体生成、真实音频响应/解码/进度及人工抽听；旁白显示和页面推进不等于音频验收。"
+  }
+]

@@ -1,0 +1,94 @@
+{
+  "source_sha": "3461e4a8",
+  "preparation_id": "prep_3de8bbeb8dd24bf38e9ee7ac569e0498",
+  "viewport": "desktop",
+  "backend_contract_assertions": "passed",
+  "native_completions": 58,
+  "actions": {
+    "model_attempts": 58,
+    "model_completions": 58,
+    "failed_model_attempts": 0,
+    "source_actions": 0,
+    "phases": {
+      "input_document": {
+        "completed": 2,
+        "failed": 0,
+        "pending": 0
+      },
+      "intent": {
+        "completed": 2,
+        "failed": 0,
+        "pending": 0
+      },
+      "learning_path": {
+        "completed": 5,
+        "failed": 0,
+        "pending": 0
+      },
+      "review": {
+        "completed": 2,
+        "failed": 0,
+        "pending": 0
+      },
+      "research_nodes": {
+        "completed": 4,
+        "failed": 0,
+        "pending": 0
+      },
+      "resource_write": {
+        "completed": 16,
+        "failed": 0,
+        "pending": 0
+      },
+      "resource_review": {
+        "completed": 20,
+        "failed": 0,
+        "pending": 0
+      },
+      "classroom_write": {
+        "completed": 4,
+        "failed": 0,
+        "pending": 0
+      },
+      "course_review": {
+        "completed": 3,
+        "failed": 0,
+        "pending": 0
+      }
+    }
+  },
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "seconds": 3600,
+      "cost_micro_usd": 10000000
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 72,
+      "tokens": 755569,
+      "cost_micro_usd": 7555690
+    },
+    "deadline": "2026-09-21T11:55:19.978132+00:00"
+  },
+  "course_id": "learn-3de8bbeb8dd24bf38e9ee7ac569e0498",
+  "stages": [
+    "commit",
+    "ingest",
+    "normalize",
+    "plan",
+    "produce",
+    "repair",
+    "research_nodes",
+    "research_scope",
+    "review"
+  ],
+  "manifest_nodes": 2,
+  "exact_resource_readback": "passed",
+  "note": "Browser assertions are recorded separately in Playwright results."
+}

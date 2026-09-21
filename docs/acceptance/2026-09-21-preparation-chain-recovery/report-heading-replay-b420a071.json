@@ -1,0 +1,9 @@
+{
+  "scope": "deterministic replay of real rejected report, not model E2E",
+  "source_code_sha": "b420a071",
+  "artifact_id": "artifact_cc00bb43658adc8dbebca544c73d4304",
+  "body_sha256": "4afc9d1a50e4de7e900a0c9ee0bb04b77dd679557dbb9e197b116d93f4cfd2f0",
+  "body_unchanged": true,
+  "resolved_sections": 7,
+  "mapping_count": 8
+}

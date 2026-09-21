@@ -1,0 +1,7 @@
+{
+  "browser_file_sha256": "67679c3b5d1c615ce8bac36c72df2b28eeba3470bda6ed25400cc0d107903659",
+  "browser_and_cli_paragraphs_equal": true,
+  "paragraph_text_sha256": "05317ab72e7ae6db563d0a6101a192381f0814f1cdb6f8c47685fe517dcad92e",
+  "paragraph_text_characters": 476,
+  "note": "CLI creates a DOCX archive per run; ZIP metadata can change its file hash while paragraph content stays identical. Per-run archive hashes are in private CLI ledgers; this proof concerns semantic fixture equality."
+}

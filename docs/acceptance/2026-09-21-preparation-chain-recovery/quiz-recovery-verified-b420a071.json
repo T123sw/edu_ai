@@ -1,0 +1,10 @@
+{
+  "scope": "real native review-only recovery within failed parent course",
+  "code_sha": "b420a071",
+  "artifact_id": "artifact_3b042314dfec21b7e5d2280e448048d0",
+  "body_sha256_before": "48181a8ef90782bc42e8f70f71fd1d7c9d4ecd0a29390da748c87638e5e98056",
+  "body_sha256_after": "48181a8ef90782bc42e8f70f71fd1d7c9d4ecd0a29390da748c87638e5e98056",
+  "body_unchanged": true,
+  "final_resource_status": "draft",
+  "parent_course_passed": false
+}

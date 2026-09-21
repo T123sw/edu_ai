@@ -1,0 +1,22 @@
+[
+  {
+    "artifact_id": "artifact_b23eee5f8abe19f2da88aef67523329e",
+    "spec_digest": "6e090c3f49fb3d20d63fee6b304db16dde8492091c24c5138114700fd39b09c2",
+    "body_sha256": "5a17b5423456884b98ebe7c766db883609b5e5a14cfc6fee35ba397c0656f266",
+    "canonical_audit_verified": true,
+    "all_excerpts_exact": true,
+    "excerpt_count": 16,
+    "native_receipts": [
+      {
+        "runtime": "deepseek-harness",
+        "phase": "resource_review",
+        "skill": {
+          "name": "review-learning-resource",
+          "loaded": true,
+          "sha256": "c0aab86957f51e4f462c297b0c1e0b7cf623f2676d8461400e456b4b8b789f88"
+        },
+        "selected_spans": 16
+      }
+    ]
+  }
+]

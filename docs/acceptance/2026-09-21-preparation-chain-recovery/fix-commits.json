@@ -1,0 +1,138 @@
+[
+  {
+    "sha": "9b151db89adc182027b7e7f874accfdbb67523b5",
+    "subject": "fix(preparation): preserve repair feedback and settle canceled model usage"
+  },
+  {
+    "sha": "735e0a934e850a2f8426de33e4ed65d62ed3c072",
+    "subject": "fix(preparation): recover malformed completions and exact report review coverage"
+  },
+  {
+    "sha": "1ccebdf4724046835d3f4f2e79f18bb2c48df0ee",
+    "subject": "fix(preparation): batch coverage and duration repairs before delivery"
+  },
+  {
+    "sha": "559d1dda1451ca8bbf11f9660cff23d6096fbe49",
+    "subject": "fix(preparation): fit native review framing without repeating revision baselines"
+  },
+  {
+    "sha": "d9b0902f2eef683a181758740ac338e6c85ad254",
+    "subject": "fix(preparation): resolve native anchors and bound repair diagnostics"
+  },
+  {
+    "sha": "aa192e23d7791b8412f445b4516f35533aa471e0",
+    "subject": "fix(preparation): make joint duration repair targets feasible"
+  },
+  {
+    "sha": "2b8280afdabdefedca35c429a2de876c5351a127",
+    "subject": "fix(preparation): distinguish session expiry and normalize quiz narration"
+  },
+  {
+    "sha": "4c5102ea4bb324a0f9a7a65b512f7b0434431dc3",
+    "subject": "fix(preparation): submit structured candidates as native JSON objects"
+  },
+  {
+    "sha": "bdbadf12ff1b116ddae8a9c0ff128f77e20ba761",
+    "subject": "fix(preparation): avoid duplicate skills and compact binding review transport"
+  },
+  {
+    "sha": "48d253f8d224aa8b7fbe6d85a8ffc8f0ad7e2d4f",
+    "subject": "fix(preparation): enforce proportional duration repair caps and complete plan corrections"
+  },
+  {
+    "sha": "a035fdfe8aa0c79569c173c7e3be12c94c2be669",
+    "subject": "fix(preparation): acknowledge exact finding replays without losing research state"
+  },
+  {
+    "sha": "b420a0714d27b97680e52373cab170a815906d74",
+    "subject": "fix(preparation): review quiz explanations through exact source span references"
+  },
+  {
+    "sha": "38e7b0d097580ce87f7dd6dc26920e1a1f289b38",
+    "subject": "fix(preparation): recover writer formats and bind reviews to original mappings"
+  },
+  {
+    "sha": "26eb6e83356e8ddeffb0123d502e35ccd8111e47",
+    "subject": "fix(preparation): give duration repairs actionable workload feedback"
+  },
+  {
+    "sha": "3e549d989fa6579aa910d15b1c8a0a5ef194deec",
+    "subject": "fix(preparation): report concrete classroom duration corrections"
+  },
+  {
+    "sha": "7f089382c86fa430c461b7ab83e177618e4a4fbb",
+    "subject": "fix(preparation): recover overlong content within existing rewrite budget"
+  },
+  {
+    "sha": "2a825c845d4ee3b6749071bce1716208e166782a",
+    "subject": "fix(preparation): distinguish teaching requirements from delivery constraints"
+  },
+  {
+    "sha": "d69068b7dfe564949f93277dd7aaeb5cde7d7ed7",
+    "subject": "fix(learning): accept native multiple-choice answer labels"
+  },
+  {
+    "sha": "13d9eeaf0896eb2cb46e57987a5cf91476cd49a6",
+    "subject": "fix(learning): display prepared resource duration estimates"
+  },
+  {
+    "sha": "1e9d3f1f03dc6e8b448ec5ea4a131f57f0391b28",
+    "subject": "fix(learning): retain submitted answers in versioned quiz playback"
+  },
+  {
+    "sha": "7da6de7ac951392b2fe7b98e7a2dd82ad5a1a782",
+    "subject": "fix(learning): play authorized preparation classroom versions"
+  },
+  {
+    "sha": "ac396b2d5f4adc9e17b30782747cc5cb570b39e2",
+    "subject": "fix(classroom): name page controls on narrow screens"
+  },
+  {
+    "sha": "3461e4a84ac89172ca3f4faed87cc270f02b620e",
+    "subject": "fix(preparation): reuse sibling savings within unchanged duration budgets"
+  },
+  {
+    "sha": "4dd9a8028beec044a4d381b5ed8e3a39df270f2e",
+    "subject": "fix(preparation): judge provisional duration slots jointly against hard limits"
+  },
+  {
+    "sha": "40093a200a984020b2cb8700669c9c2ff923535e",
+    "subject": "test(preparation): verify structured duration guidance instead of prose"
+  },
+  {
+    "sha": "7f259d45ff845aaf533fc7c1778bfa4d14efb0bf",
+    "subject": "fix(preparation): align native review with joint duration semantics"
+  },
+  {
+    "sha": "b4a2f57b900c434ae1ecb96b5a083927727c8658",
+    "subject": "fix(preparation): recover multiple content submissions before tool dispatch"
+  },
+  {
+    "sha": "5a19f25b73d418227a5f5a9d88640642d30f73dd",
+    "subject": "fix(preparation): localize small duration corrections after joint repair"
+  },
+  {
+    "sha": "956670def2f12b3e97c6cd885e71da1ad653a99e",
+    "subject": "fix(preparation): await in-flight budget reservations within phase deadline"
+  },
+  {
+    "sha": "c119449bc9c924f4b27658e6a43c1ece244ff27e",
+    "subject": "fix(preparation): start short shared nodes with compact sufficient workloads"
+  },
+  {
+    "sha": "f607738e76cb65a300566eb366f0b50c3139712c",
+    "subject": "test(preparation): verify saved short answers in real learning flow"
+  },
+  {
+    "sha": "d4329f34cd79d90cf6caca96b3e2f55786d1cabc",
+    "subject": "fix(preparation): expose independent review schemas in native submission tools"
+  },
+  {
+    "sha": "f76c10d727821cebc9fdfcc1802a7892e8f6a428",
+    "subject": "fix(preparation): correct review schema errors before native tool dispatch"
+  },
+  {
+    "sha": "4c4ea1972e5408abb19687895caa311f4a1af120",
+    "subject": "fix(preparation): explain malformed quiz bodies before metadata binding"
+  }
+]

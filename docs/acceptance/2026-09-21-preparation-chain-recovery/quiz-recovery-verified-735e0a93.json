@@ -1,0 +1,16 @@
+[
+  {
+    "artifact_id": "artifact_b99619bac918f0003478ffc4de4f1eb8",
+    "status": "draft",
+    "before": "7611f9a8d32dc52effd1e79d6dcee129098d94921107edf9abe3aae0e1aa9477",
+    "after": "7611f9a8d32dc52effd1e79d6dcee129098d94921107edf9abe3aae0e1aa9477",
+    "unchanged": true
+  },
+  {
+    "artifact_id": "artifact_376c99f943c171abfce71f4f2626990f",
+    "status": "draft",
+    "before": "05995b6523ecf826abec6a87fca3feb7c8c35cf39ec0bc8c32dd4a32ef7144f3",
+    "after": "05995b6523ecf826abec6a87fca3feb7c8c35cf39ec0bc8c32dd4a32ef7144f3",
+    "unchanged": true
+  }
+]

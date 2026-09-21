@@ -1,0 +1,39 @@
+{
+  "source_sha": "4c4ea1972e5408abb19687895caa311f4a1af120",
+  "runtime": "native DeepSeekHarness",
+  "requested_model": "deepseek-v4-flash",
+  "provider_response_model": "deepseek-flash",
+  "phase_timeout_seconds": 120,
+  "parent_limits": {
+    "calls": 200,
+    "tokens": 2000000,
+    "seconds": 3600,
+    "cost_micro_usd": 10000000
+  },
+  "cost_basis": "conservative configured accounting, not provider invoice",
+  "input_scope": "same synthetic DOCX and goal: 2 nodes, report + quiz + classroom per node, 20 minutes, uploaded_only",
+  "validation_environment": {
+    "database": "dedicated PostgreSQL identity prep-test-g-20260919",
+    "backend_port": 8027,
+    "frontend_port": 5199,
+    "authenticated_synthetic_user": true,
+    "real_http_and_workers": true,
+    "fresh_browser_courses": true
+  },
+  "business_runtime": {
+    "last_user_restart": "2026-09-21T11:51:43Z",
+    "code_at_restart": "7f259d45",
+    "requested_models": [
+      "deepseek-v4-flash"
+    ],
+    "later_source_merges_restart_business": false
+  },
+  "whole_application_native_harness": false,
+  "legacy_boundaries": [
+    "learning model_adapter",
+    "legacy learning ProductionService._model_json supplement/revise operations"
+  ],
+  "audio_tts_verified": false,
+  "browser_input_file_sha256": "67679c3b5d1c615ce8bac36c72df2b28eeba3470bda6ed25400cc0d107903659",
+  "shared_fixture_paragraph_sha256": "05317ab72e7ae6db563d0a6101a192381f0814f1cdb6f8c47685fe517dcad92e"
+}

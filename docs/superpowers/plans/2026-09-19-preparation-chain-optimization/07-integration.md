@@ -114,3 +114,14 @@ PYTHONPATH=backend/src /home/zxqs_ep/miniforge3/envs/edu-ai/bin/python \
 - 最终备课/共享回归 706 passed / 15 skipped；学习端首轮 206 passed / 2 failed / 3 skipped，两个多进程启动方式问题修正后重跑 2 passed；前端播放器 23 passed，正式构建通过。
 - 真实 E03 通过；E01 和桌面浏览器新任务均在有限修复后以 QUALITY_GATE_FAILED 结束，未交付课程。取消任务仍有在途模型预留未结清。E01 连续三轮和浏览器学习/播放没有通过。
 - G2–G4 继续保持未完成；E04–E09 驱动、外部媒体及其他未覆盖项没有补记为通过。详见 [本次验收记录](../../../acceptance/2026-09-21-preparation-chain-integration/README.md)、场景账本及具体错误证据。
+
+
+## 2026-09-21 故障修复与 Flash 复验
+
+- 本次累计 34 个源码/测试提交已合回用户分支，被测源码 `4c4ea1972e5408abb19687895caa311f4a1af120`。修复涵盖取消结算、有限格式/内容恢复、原生工具提交与 schema 校验、时长修订、学习端多选/作答回读及私有课堂版本读取。原有未跟踪备份/构建未纳入提交。
+- 同一源码准备/共享回归 **846 passed / 15 skipped，494.98 秒**；正式构建 **20.12 秒**。学习域此前 `13d9eeaf` 为 **256 passed / 3 skipped**，其后相关学习后端文件未变；不记作最终 SHA 全域重跑。
+- 当前真实 Flash E03 和 R01 均通过，所有在途模型预留已结清。E01 首轮 **531.69 秒、76 计量 calls、895432 token**，以 `BUDGET_EXHAUSTED` 结束；第 2/3 轮未启动。
+- 当前桌面新课程 **601.82 秒、77 计量 calls、918809 token**，两轮内容修订后节点仍 **11.41 / 11.34 分钟 > 各 10 分钟**，以 `QUALITY_GATE_FAILED` 结束。未交付；窄屏未启动。Flash 正常课程完整闭环仍未通过。
+- 历史 `3461e4a8` 的 Pro 桌面新课程曾完整交付并通过报告、习题保存回读和课堂页面/旁白推进，窄屏失败。该成绩不移记到 Flash 或当前源码；真实 TTS 未验收。
+- 新整课智能阶段已验证实际原生 DeepSeekHarness + Skill/MCP → `deepseek-v4-flash`，供应商响应名 `deepseek-flash`。旧学习对话及其部分补充/修订入口仍有 BoundedModelAdapter，不能称全应用已迁移。
+- G2–G4 仍未完成。完整账本保存 **105 个已启动任务**，含失败/取消，未启动轮次另列；历史报告未覆盖。见 [故障修复与 Flash 复验报告](../../../acceptance/2026-09-21-preparation-chain-recovery/README.md)、[逐轮账本](../../../acceptance/2026-09-21-preparation-chain-recovery/runs.md) 和 [未覆盖矩阵](../../../acceptance/2026-09-21-preparation-chain-recovery/not-run.json)。本次合并没有自动部署或重启业务服务。
