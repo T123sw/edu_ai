@@ -344,3 +344,13 @@ def test_indexed_binding_review_restores_original_locations_without_mutating_met
                 for item in metadata[collection]]
     assert [(c['binding_type'], c['binding_id'], c['locator']) for c in checks] == list(reversed(expected))
     assert metadata == original
+
+
+def test_classroom_duration_feedback_identifies_actual_seconds_and_required_reduction():
+    board = ClassroomStoryboard.model_validate(board_data())
+    with pytest.raises(ValueError) as error:
+        validate_teaching_bindings(board, {**teaching_context(), 'resource_target_minutes': 2.5})
+    message = str(error.value)
+    assert 'estimated_seconds=210' in message
+    assert 'maximum_seconds=150' in message
+    assert 'reduce_seconds=60' in message
