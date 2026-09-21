@@ -19,7 +19,8 @@ def test_duration_repair_persists_fractional_cap_without_changing_prior_spec():
     result = stages.repair(SimpleNamespace(checkpoint=cp, preparation_id='prep'))
     revised = result.checkpoint['resource_specs'][0]
     assert spec == before
-    assert revised['teaching_context']['resource_target_minutes'] == 2.37
+    assert revised['teaching_context']['resource_target_minutes'] is None
+    assert revised['teaching_context']['resource_repair_target_minutes'] == 2.37
     assert revised['revision'] == 2 and digest(revised) != digest(spec)
 
 

@@ -74,6 +74,7 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
         render_storyboard, storyboard_metadata, validate_teaching_bindings)
     from ..classroom_render_checks import ClassroomFailure, require_renderable, check_classroom_render
     from ..tool_registry import digest
+    from ..teaching_context import resource_time_cap
 
     _check_canceled(context)
     if not getattr(payload, 'teaching_context', None) and artifact.get('spec', {}).get('schema_version', 1) == 1:
@@ -124,7 +125,8 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
                  '根据结构化节点上下文制作一份可执行课堂，不规划课程资源组合。只输出 schema JSON。'
                  '本次要求优先于历史偏好，使用基础、先修、活动和自测；页数取决于教学内容，max_scenes 只是上限。'
                  'node_budget_minutes 是整节点上限，不是本课堂目标时长。先例后理等要求必须落实在 scenes 顺序。'
-                 'maximum_total_seconds 非空时是本课堂全部 estimated_seconds 之和的硬上限。'
+                 'maximum_total_seconds 非空时是本课堂全部 estimated_seconds 之和的写作目标；'
+                 'resource_target_minutes 是显式硬上限，resource_repair_target_minutes 是联合修订目标；最终仍严格核验节点与整课总用时。'
                  '超时须删减或合并冗余场景和练习，保留目标覆盖、流程图、检查及未受影响ID，不能只调低估算数字。'
                  '要求先例后理时，首个实质讲解场景先完整演示具体输入、步骤和结果，再讲概念或通用伪代码；引入话题不算演示。'
                  '至少一页用 steps 表达有意义的有序过程，同一例子的投屏/步骤/旁白数值必须一致。'
@@ -145,12 +147,12 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
                     'revision_baseline': getattr(payload, 'original_content', None),
                     'schema': ClassroomStoryboard.model_json_schema(),
                     'max_scenes': max_scenes, 'feedback': feedback,
-                    'maximum_total_seconds': teaching['resource_target_minutes'] * 60 if teaching.get('resource_target_minutes') else None,
+                    'maximum_total_seconds': resource_time_cap(teaching) * 60 if resource_time_cap(teaching) else None,
                     'previous_storyboard': previous_storyboard}, ensure_ascii=False)}], max_tokens=12000)
             _check_canceled(context)
             try:
                 board = ClassroomStoryboard.model_validate_json(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip()))
-                validate_teaching_bindings(board, teaching, max_scenes=max_scenes)
+                validate_teaching_bindings(board, teaching, max_scenes=max_scenes, enforce_repair_target=attempt < 2)
                 break
             except ValueError as exc:
                 feedback = [str(exc)[:6000]]

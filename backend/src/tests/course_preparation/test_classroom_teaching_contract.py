@@ -354,3 +354,17 @@ def test_classroom_duration_feedback_identifies_actual_seconds_and_required_redu
     assert 'estimated_seconds=210' in message
     assert 'maximum_seconds=150' in message
     assert 'reduce_seconds=60' in message
+
+
+def test_classroom_keeps_actual_duration_after_bounded_provisional_target_attempts(generation):
+    args, _ = generation
+    args['payload'].teaching_context['resource_repair_target_minutes'] = 2.5
+    result = classroom.generate_classroom_draft(**args)
+    writing = [json.loads(messages[-1]['content']) for messages in args['gateway'].calls
+               if 'maximum_total_seconds' in json.loads(messages[-1]['content'])]
+    assert len(writing) == 3
+    assert result['generation_state']['preparation']['duration']['value_minutes'] == 3.5
+    # An explicit resource maximum is still enforced on the final attempt.
+    args['payload'].teaching_context['resource_target_minutes'] = 2.5
+    with pytest.raises(ClassroomFailure, match='CLASSROOM_RESOURCE_DURATION_EXCEEDED'):
+        classroom.generate_classroom_draft(**args)

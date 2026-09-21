@@ -94,6 +94,26 @@ def test_repair_tracks_derived_cap_and_preserves_explicit_origin():
                                       'duration_cap_reallocated': True}]}}
     next_result = stages.repair(SimpleNamespace(checkpoint=next_cp, preparation_id='prep'))
     final = next_result.checkpoint['resource_specs'][0]
-    assert final['teaching_context']['resource_target_minutes'] == 3.38
+    assert final['teaching_context']['resource_target_minutes'] is None
+    assert final['teaching_context']['resource_repair_target_minutes'] == 3.38
     assert next_result.checkpoint['duration_cap_origins'][digest(final)] is None
     assert next_result.checkpoint['repair_counts']['content'] == 2
+
+
+def test_joint_gate_uses_actual_duration_not_provisional_slots():
+    rows = [resource('report', 2.8), resource('quiz', 2.6), resource('classroom', 4.5)]
+    for row in rows:
+        row['spec']['teaching_context']['resource_repair_target_minutes'] = 2
+    nodes = [{'node_key': 'n', 'minutes': 10}]
+    assert QualityStages._duration_issues(rows, nodes, 10) == []
+    rows[-1] = resource('classroom', 4.7)
+    assert QualityStages._duration_issues(rows, nodes, 10)
+
+
+def test_new_guidance_field_does_not_change_old_context_serialization():
+    from app.course_preparation.teaching_context import TeachingContext
+    from tests.course_preparation.test_generated_content_constraints import context
+    old = TeachingContext.model_validate(context())
+    assert 'resource_repair_target_minutes' not in old.model_dump(mode='json')
+    new = TeachingContext.model_validate({**context(), 'resource_repair_target_minutes': 2.72})
+    assert new.model_dump(mode='json')['resource_repair_target_minutes'] == 2.72

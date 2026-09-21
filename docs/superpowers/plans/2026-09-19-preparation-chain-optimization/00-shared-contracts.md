@@ -31,6 +31,7 @@ SQL 检查点是进度事实，原生 Harness 是智能决策执行内核，工�
 | 节点目标/先修/活动/自测 | 已审阅 plan 的对应节点 | A/D/E/F | 生成与检查使用本节点信息，不能退回固定模板 |
 | node_budget_minutes | plan.nodes[].minutes | D/E/F | 这是整节点的学习时间约束，不是每份资源的独立时长 |
 | resource_target_minutes | 仅明确约束或既有可验证值；默认 null | D/E/F | null 表示没有单资源时间分配，不自动复制节点上限 |
+| resource_repair_target_minutes | 服务端按当前候选分配的修订目标；默认 null | D/E/F | 仅用于有界压缩指导，不替代用户单资源、节点和整课硬上限；最终按实际候选合计 |
 | 实际/估算用时 | 生成内容结构、音频实际时长、明确估算规则 | E/F/G | 区分 estimated/measured，不能从页数直接声称真实学习时长 |
 | 需求、目标、结论和来源 ID | 上游持久化对象 | 全部 | ID 可解引用；引用真实原文；不得用 ID 齐全冒充语义覆盖 |
 | config_snapshot | 服务端解析的运行配置版本 | B/C/E/F | 任务中一致使用；密钥不进入上下文或回执 |
@@ -68,7 +69,8 @@ prerequisites: list[NodeReference]         # node_id、title、objectives
 learning_activities: list[str]
 self_check: str
 node_budget_minutes: int
-resource_target_minutes: positive finite number | null  # 经校核的修订配额允许小数分钟；默认仍为 null
+resource_target_minutes: positive finite number | null  # 显式单资源硬上限，允许小数分钟；默认 null
+resource_repair_target_minutes: positive finite number | null  # 服务端临时联合修订目标，默认 null
 assumptions: list[str]
 limitations: list[str]                    # 路径/来源真实限制，非免责替代核心目标
 ```
@@ -122,7 +124,9 @@ generation_state.preparation:
 
 `locator` 为现有原生资源中的稳定定位对象：报告 section_id、习题 question_id、课堂 scene_id/action_id。`role` 为 explanation/practice/check。生成器提供的是候选映射，F 要验证位置存在并审阅是否真的支持目标，不能照抄为可信事实。目标 ID 不得指向其他节点；内容变更使摘要绑定的审阅和估算失效。无法可靠估算时明确 unknown，不生成假精度。
 
-备课习题在 `resource_target_minutes` 非空的时长修订中，可以删除冗余题目以减少实际工作量；保留题目的 ID 和相对顺序不变，原版本不修改。必须同步更新题目估算与教学映射，并重新独立审阅、检查目标和明确题量要求。未指定单资源时限的既有局部修订仍保留完整题目身份。报告/习题超时反馈包括实际计入的字数和思考秒数，下一次有限纠错可读取上次被拒绝的草稿，但它不是可交付候选。
+备课习题在 `resource_target_minutes` 或 `resource_repair_target_minutes` 非空的时长修订中，可以删除冗余题目以减少实际工作量；保留题目的 ID 和相对顺序不变，原版本不修改。必须同步更新题目估算与教学映射，并重新独立审阅、检查目标和明确题量要求。未指定这两类时限的既有局部修订仍保留完整题目身份。报告/习题超时反馈包括实际计入的字数和思考秒数，下一次有限纠错可读取上次被拒绝的草稿，但它不是可交付候选。
+
+服务端派生的跨资源修订目标单独存为 `resource_repair_target_minutes`，不覆盖显式单资源硬上限。沿用三次有界写作：前两次要求修订目标，最后一次仍严格要求显式硬上限，但允许结构有效的候选带实际估算进入独立审阅。所有候选随后按实际用时合计核验节点/整课硬上限；超出时仍阻断交付，内容修订仍最多两轮。不削小估算、不增加调用预算、不把候选视为课程通过。旧上下文未设置新字段时序列化保持原样；缺少服务端配额来源的旧上限不自动放宽。
 
 F 拟新增 `generation_failures.py`，提供统一 `GenerationFailure`（异常）和 `FailureDetail`（schema）：
 

@@ -134,7 +134,8 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
                         body, envelope = parse_envelope(raw)
                     if not isinstance(body, str):
                         raise ValueError('report_content_must_be_markdown')
-                    metadata = preparation_metadata('report', body, envelope, context, spec_digest)
+                    metadata = preparation_metadata('report', body, envelope, context, spec_digest,
+                                                    enforce_repair_target=version < 3)
                     rejected_draft = None
                 except (ValueError, TypeError, KeyError) as exc:
                     if isinstance(exc, ResourceDurationExceeded):

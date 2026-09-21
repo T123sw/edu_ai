@@ -2,7 +2,7 @@
 from copy import deepcopy
 from typing import Literal
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, model_validator, model_serializer
 
 from .schemas import Contract, Identifier, PreparationRequest
 
@@ -54,11 +54,19 @@ class TeachingContext(ContextContract):
     self_check: str = Field(min_length=1)
     node_budget_minutes: int = Field(ge=1)
     resource_target_minutes: int | float | None = Field(default=None, gt=0, allow_inf_nan=False)
+    resource_repair_target_minutes: int | float | None = Field(default=None, gt=0, allow_inf_nan=False)
     assumptions: list[str]
     limitations: list[str]
     requirement_ids: list[Identifier] = Field(default_factory=list)
     requested_changes: list[str] = Field(default_factory=list)
     learning_context: dict | None = None
+
+    @model_serializer(mode='wrap')
+    def preserve_existing_context(self, handler):
+        value = handler(self)
+        if 'resource_repair_target_minutes' not in self.model_fields_set:
+            value.pop('resource_repair_target_minutes', None)
+        return value
 
     @model_validator(mode='after')
     def references(self):
@@ -73,6 +81,15 @@ class TeachingContext(ContextContract):
             ):
                 raise TeachingContextError('PREFERENCE_PROVENANCE_MISSING')
         return self
+
+
+def resource_time_cap(context, *, include_repair_target=True):
+    """Explicit limits always apply; provisional slots only guide bounded writing."""
+    fields = ['resource_target_minutes']
+    if include_repair_target:
+        fields.append('resource_repair_target_minutes')
+    values = [(context or {}).get(field) for field in fields]
+    return min(value for value in values if value is not None) if any(value is not None for value in values) else None
 
 
 def build_teaching_context(*, request: PreparationRequest, checkpoint: dict, node: dict) -> TeachingContext:

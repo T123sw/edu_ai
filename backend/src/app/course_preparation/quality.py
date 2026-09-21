@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v7'
+RULE_VERSION='preparation-delivery-v8'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
     validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
@@ -154,8 +154,9 @@ class QualityStages:
         for key, scope_reasons in reasons.items():
             issues.append({'artifact_ids': [key], 'resource_duration_cap_minutes': projected[key],
                 'reason': '；'.join(scope_reasons) +
-                f'；本资源当前估算 {known[key]:.2f} 分钟，通过实际删减后可用不超过 {projected[key]:.2f} 分钟。'
+                f'；本资源当前估算 {known[key]:.2f} 分钟，通过实际删减后的本轮修订目标为 {projected[key]:.2f} 分钟。'
                 '缩减冗余正文、场景或练习工作量，保留目标覆盖与稳定ID；全部新正文重新独立审阅、估算并校核。'
+                '最终按全部候选的实际估算合计核验节点和整课硬上限，临时目标不替代最终门禁。'
                 '不得只改小估算数字或复制节点预算。'})
         return issues
 
@@ -324,10 +325,10 @@ class QualityStages:
                     reallocated = digest(spec) in cap_origins and any(
                         issue.get('duration_cap_reallocated') and artifact['artifact_id'] in issue['artifact_ids']
                         for issue in checkpoint['quality']['issues'])
-                    ceiling = original_cap if reallocated else previous_cap
-                    revised_context['resource_target_minutes'] = min([*caps, *([ceiling] if ceiling else [])])
+                    revised_context['resource_target_minutes'] = original_cap
+                    revised_context['resource_repair_target_minutes'] = min([*caps, *([original_cap] if original_cap else [])])
                     if reallocated:
-                        reasons.append(f'其余已完成资料已释放时间，本资源新上限为 {revised_context["resource_target_minutes"]:g} 分钟；'
+                        reasons.append(f'其余已完成资料已释放时间，本资源本轮修订目标为 {revised_context["resource_repair_target_minutes"]:g} 分钟；'
                             '旧错误中的临时 maximum 已被此上限替代，节点和整课硬上限不变。正文仍须重新独立审阅和估算。')
                 revised={**spec,'revision':spec['revision']+1,
                     **({'teaching_context': revised_context} if revised_context is not None else {}),

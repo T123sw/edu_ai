@@ -51,6 +51,8 @@ learning_activities 和 self_check 展开真实内容，教学顺序必须体现
 node_budget_minutes 是整个节点的时间上限，不是每份资源各自的时长；resource_target_minutes
 为空时不自行分配。控制篇幅，正文包含可实际学习的例子、解释和检查。
 resource_target_minutes 有值时是本资源必须满足的上限，duration_constraint 给出程序的计算方式。
+resource_repair_target_minutes 是本轮跨资源分配的修订目标，尽量通过实际缩减满足；不等于用户单资源硬上限。
+未达到修订目标的候选也必须接受独立审阅与节点/整课实际总时长门禁，不能自行标为可交付。
 时长修订必须删减真实阅读量和作答工作量；允许减少冗余题，未删除题目保留ID，仍满足明确题量要求和目标覆盖。
 rejected_draft 是上一轮未通过校验的输出，仅供纠错，不是已通过正文；根据实际字数和思考秒数缩减，不只调低估算。
 本次写作直接返回 JSON {"content":原生正文,"applied_requirements":[{"requirement_id":"真实ID",
@@ -70,10 +72,13 @@ requirements 保留整课要求；requirement_ids 是当前节点分工。只标
 
 
 def duration_constraint(kind, context):
-    cap = (context or {}).get('resource_target_minutes')
+    from app.course_preparation.teaching_context import resource_time_cap
+    cap = resource_time_cap(context)
     if cap is None or kind not in {'report', 'quiz'}:
         return None
     return {'maximum_minutes': cap,
+            'explicit_resource_limit_minutes': (context or {}).get('resource_target_minutes'),
+            'repair_target_minutes': (context or {}).get('resource_repair_target_minutes'),
             'formula': ('non_whitespace_characters / 500' if kind == 'report' else
                         'sum(thinking_seconds) / 60 + stem_options_explanation_non_whitespace_characters / 500'),
             'reading_character_ceiling_before_thinking': int(cap * 500),
@@ -139,7 +144,7 @@ def resolve_locator(kind, content, locator):
     raise ValueError('preparation_locator_not_found_or_empty')
 
 
-def preparation_metadata(kind, content, envelope, context, spec_digest):
+def preparation_metadata(kind, content, envelope, context, spec_digest, *, enforce_repair_target=False):
     if not isinstance(spec_digest, str) or not spec_digest:
         raise ValueError('preparation_spec_digest_missing')
     if kind == 'report':
@@ -193,7 +198,8 @@ def preparation_metadata(kind, content, envelope, context, spec_digest):
     else:
         reading, seconds = 0, 0
         duration = {'value_minutes': None, 'basis': 'unknown', 'method': 'No calibrated learner solving-time estimate'}
-    cap = context.get('resource_target_minutes')
+    from app.course_preparation.teaching_context import resource_time_cap
+    cap = resource_time_cap(context, include_repair_target=enforce_repair_target)
     if cap is not None and (duration['value_minutes'] is None or duration['value_minutes'] > cap):
         raise ResourceDurationExceeded(f'RESOURCE_DURATION_EXCEEDED: estimated={duration["value_minutes"]}, '
                          f'maximum={cap}; reading_characters={reading}, thinking_seconds={seconds}; '

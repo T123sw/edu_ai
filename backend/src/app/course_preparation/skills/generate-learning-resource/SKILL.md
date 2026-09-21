@@ -17,6 +17,8 @@ requirements 保留整课背景，requirement_ids 是本节点分工。仅对本
 `node_budget_minutes` 是整个节点时间上限，不是本资源获得的配额。`resource_target_minutes=null` 表示没有单资源分配。
 控制正文规模，不伪造真实学习时长。程序另行估算/测量并校核。
 `resource_target_minutes` 非空时是本资源的硬上限；`duration_constraint` 给出程序公式和字数预算。
+`resource_repair_target_minutes` 是服务端本轮联合分配的修订目标，按目标实际压缩内容；它不是用户硬上限。
+节点和整课最终按全部候选的实际估算合计核验，不能只改数字或自行宣称满足总时间。
 报告按全部非空白字数/500计分钟，习题按真实思考秒数/60加题干、选项、解析非空白字数/500计分钟。
 `rejected_draft` 是上一轮未通过的输出，结合实际字数/秒数反馈纠错，不能原样重交或只调低估算。
 习题在外层提交 question_time_estimates，逐题给 question_id、thinking_seconds（至少15秒）、reason；

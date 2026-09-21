@@ -19,7 +19,8 @@ def reallocate_duration_caps(artifacts, nodes, hard_limit, origins):
         if row['status'] == 'draft' and duration.get('basis') in ('estimated', 'measured') and _positive(value):
             known[key] = Decimal(str(value))
         else:
-            cap = (row['spec'].get('teaching_context') or {}).get('resource_target_minutes')
+            context = row['spec'].get('teaching_context') or {}
+            cap = context.get('resource_repair_target_minutes') or context.get('resource_target_minutes')
             if ((row.get('failure_detail') or {}).get('code') == 'RESOURCE_DURATION_EXCEEDED'
                     and row['spec_digest'] in origins and _positive(cap)
                     and not key.startswith('retained:')):

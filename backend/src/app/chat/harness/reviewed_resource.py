@@ -477,7 +477,8 @@ class ReviewedResourceGenerator:
         content = previous
         for version in range(start_version, 4):
             patch_revision = kind in {'lesson_plan', 'quiz'} and previous is not None
-            timed_quiz = kind == 'quiz' and context is not None and context.get('resource_target_minutes') is not None
+            timed_quiz = kind == 'quiz' and context is not None and any(context.get(key) is not None
+                for key in ('resource_target_minutes', 'resource_repair_target_minutes'))
             revision_format = ('仅返回 JSON 对象 {"edits":[{"path":[],"before":"原文唯一片段","after":"修正片段"}]}。'
                 '逐项修复 feedback，核对正文、表格、附录中关联的同一任务。before 必须逐字唯一匹配 previous_draft；'
                 '保持其余正确内容不变，不重新输出全文。若 previous_preparation 存在，同时返回 applied_requirements、objective_bindings；仅映射有错时 edits=[] 并修复映射。语义和具体修改由你决定。' if patch_revision else (CONTENT_INSTRUCTIONS + '\ncontent 字段内的原生格式：' + output_format if context is not None else output_format))
@@ -516,11 +517,13 @@ class ReviewedResourceGenerator:
                             if not new_ids or new_ids != allowed_ids:
                                 raise ValueError('quiz_repair_changed_question_identity')
                         if context is not None:
-                            metadata = preparation_metadata(kind, content, {**metadata, **{k:patch[k] for k in ('applied_requirements','objective_bindings','question_time_estimates') if k in patch}}, context, spec_digest)
+                            metadata = preparation_metadata(kind, content, {**metadata, **{k:patch[k] for k in ('applied_requirements','objective_bindings','question_time_estimates') if k in patch}}, context, spec_digest,
+                                                            enforce_repair_target=version < 3)
                         previous = content
                     elif context is not None:
                         content, envelope = parse_envelope(raw)
-                        metadata = preparation_metadata(kind, content, envelope, context, spec_digest)
+                        metadata = preparation_metadata(kind, content, envelope, context, spec_digest,
+                                                        enforce_repair_target=version < 3)
                         previous = content
                     else:
                         content = raw if kind in {'lesson_plan', 'blog'} else json.loads(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw))

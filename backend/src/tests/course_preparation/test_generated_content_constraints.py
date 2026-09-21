@@ -529,3 +529,37 @@ def test_exhausted_duration_correction_uses_existing_content_repair_budget(phase
     assert error.value.detail.category == 'content'
     assert recovery_scope(error.value.detail, attempts=1) == 'content'
     with pytest.raises(GenerationFailure): recovery_scope(error.value.detail, attempts=2)
+
+
+@pytest.mark.parametrize('kind', ['report', 'quiz'])
+def test_provisional_target_exhaustion_keeps_actual_candidate_for_joint_gate(phases, kind):
+    value = payload(kind)
+    value.teaching_context['resource_repair_target_minutes'] = .1
+    oversized = report_envelope() if kind == 'report' else quiz_envelope()
+    if kind == 'quiz':
+        oversized['question_time_estimates'] = [{'question_id': 'q-tools', 'thinking_seconds': 45,
+                                                'reason': '追踪模型与程序的分工后判断答案'}]
+    class Gateway(CountingGateway):
+        def chat(self, messages, **kwargs):
+            data = json.loads(messages[-1]['content'])
+            if 'schema' in data:
+                self.review_calls += 1
+                return json.dumps(completion_review(data, kind))
+            self.writer_calls += 1
+            return json.dumps(oversized)
+    gateway = Gateway(kind)
+    result = (reviewed_report.generate_reviewed_report(value, gateway) if kind == 'report' else
+              reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c'))
+    artifact = {'content': result[0], 'generation_state': result[1]} if kind == 'report' else result['artifacts'][0]
+    assert gateway.writer_calls == 3 and gateway.review_calls >= 1
+    assert artifact['content'] == oversized['content']
+    assert artifact['generation_state']['preparation']['duration']['value_minutes'] > .1
+    assert reviewed_resource.verified_resource(artifact, kind) if kind == 'quiz' else reviewed_report.verified_review(artifact)
+
+
+def test_advisory_target_does_not_bypass_explicit_resource_limit():
+    value = context()
+    value.update(resource_target_minutes=.1, resource_repair_target_minutes=.05)
+    envelope = report_envelope()
+    with pytest.raises(ValueError, match='RESOURCE_DURATION_EXCEEDED'):
+        preparation_metadata('report', envelope['content'], envelope, value, 's')

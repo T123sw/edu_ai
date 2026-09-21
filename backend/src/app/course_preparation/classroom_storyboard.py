@@ -90,7 +90,7 @@ class ClassroomStoryboard(Contract):
         return self
 
 
-def validate_teaching_bindings(board, teaching_context, *, max_scenes=MAX_SCENES):
+def validate_teaching_bindings(board, teaching_context, *, max_scenes=MAX_SCENES, enforce_repair_target=False):
     if not 1 <= max_scenes <= MAX_SCENES or len(board.scenes) > max_scenes:
         raise ValueError('CLASSROOM_SCENE_LIMIT')
     objectives = set(teaching_context['objective_ids'])
@@ -109,7 +109,8 @@ def validate_teaching_bindings(board, teaching_context, *, max_scenes=MAX_SCENES
     if not any(s.question for s in board.scenes):
         raise ValueError('CLASSROOM_CHECK_REQUIRED')
     # Single-resource target is independent of the whole-node ceiling.
-    target = teaching_context.get('resource_target_minutes')
+    from .teaching_context import resource_time_cap
+    target = resource_time_cap(teaching_context, include_repair_target=enforce_repair_target)
     total = sum(s.estimated_seconds for s in board.scenes)
     if target and total > target * 60:
         maximum = target * 60
