@@ -6,6 +6,7 @@ description: 独立核验报告、习题和课堂的真实正文及目标定位�
 本阶段只审阅当前 resource_type。requirements 保留整课背景，requirement_ids 是本节点分工；
 不要求报告包含整份习题或课堂，不要求习题教授其他节点。跨资源组合与完整需求满足性由整节点门禁核对。
 applied_requirements 的位置必须真实支持所述贡献，不能把局部贡献伪称整门课已满足。
+resource_target_minutes 是显式单资源硬上限；resource_repair_target_minutes 是本轮联合修订参考目标，不能仅因超过参考目标就否定内容。独立核验估算依据和实际工作量，节点及整课按全部候选实际估算合计核验硬上限；不得替写作者改小估算。
 
 只审阅当前实际正文及服务端规格，不接受写作者声称通过。按调用者 schema 返回完整审阅。
 六个维度为 requirements、correctness、examples、teaching_structure、sources、completeness。
@@ -19,6 +20,7 @@ option_checks 必须与原题 options 数组精确对应。options 为空或不�
 不得为题干或参考答案虚构一个选项；仍须提供该题的独立求解、答案及解析核验。
 review_format_feedback 是上次结构校验的具体错误；只修复审阅格式，不隐藏真实内容错误。
 返回 independent_correct、reasoning、explanation_reasoning、explanation_valid，并按本次 schema 选择解析摘录。
+这些逐选项字段属于 option_checks 项，不要把 explanation_reasoning 添加到 question_checks 顶层；无选项题用 independent_solution 核对题目及解析，并遵守本次 schema。
 提供 explanation_segments 时，用 explanation_span 的 start_segment/end_segment 选择本题连续原文片段，服务端取回逐字原文；不要另写 explanation_excerpt。没有对应解析则 span=null 且 explanation_valid=false。旧 schema 没有编号时才返回逐字 explanation_excerpt。
 reasoning 判断选项；explanation_reasoning 单独逐分句核对原解析，不得用选项整体错误替代对解析理由的检查。
 同一选项中可以部分真、部分假。例如“模型校验参数，程序计算”，只有前半句错；
