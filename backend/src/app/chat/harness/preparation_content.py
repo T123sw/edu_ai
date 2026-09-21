@@ -152,6 +152,10 @@ def preparation_metadata(kind, content, envelope, context, spec_digest, *, enfor
     else:
         sections = {}
     if kind == 'quiz':
+        if (not isinstance(content, dict) or not isinstance(content.get('questions'), list)
+                or not content['questions'] or not all(isinstance(q, dict) for q in content['questions'])):
+            raise ValueError('习题 content 必须是 JSON 对象，不能是字符串或再次编码的 JSON；'
+                             'questions 必须是非空对象数组，每题包含 id、type、stem、answer、explanation。')
         ids = [q.get('id') for q in content['questions']]
         if any(not isinstance(i, str) or not i.strip() for i in ids) or len(set(ids)) != len(ids):
             raise ValueError('preparation_question_ids_missing_or_duplicate')

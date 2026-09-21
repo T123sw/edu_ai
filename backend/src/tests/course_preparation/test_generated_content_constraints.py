@@ -563,3 +563,33 @@ def test_advisory_target_does_not_bypass_explicit_resource_limit():
     envelope = report_envelope()
     with pytest.raises(ValueError, match='RESOURCE_DURATION_EXCEEDED'):
         preparation_metadata('report', envelope['content'], envelope, value, 's')
+
+
+@pytest.mark.parametrize('invalid', ['{"questions":[]}', [], {'questions': ['q1']}, {'questions': {}}])
+def test_prepared_quiz_shape_errors_have_actionable_feedback(invalid):
+    value = quiz_envelope()
+    value['content'] = invalid
+    with pytest.raises(ValueError, match='content 必须是 JSON 对象.*questions 必须是非空对象数组'):
+        preparation_metadata('quiz', invalid, value, payload('quiz').teaching_context, 'spec')
+
+
+def test_prepared_quiz_corrects_string_content_within_existing_writer_attempts(phases):
+    class Gateway(CountingGateway):
+        sent_invalid_content = False
+        corrected = False
+        def chat(self, messages, **kwargs):
+            data = json.loads(messages[-1]['content'])
+            if 'schema' not in data and not self.sent_invalid_content:
+                self.sent_invalid_content = True
+                envelope = quiz_envelope()
+                envelope['content'] = json.dumps(envelope['content'], ensure_ascii=False)
+                return json.dumps(envelope, ensure_ascii=False)
+            if 'schema' not in data:
+                assert 'content 必须是 JSON 对象' in str(data['feedback'])
+                self.corrected = True
+            return super().chat(messages, **kwargs)
+    gateway = Gateway('quiz')
+    artifact = reviewed_resource.ReviewedResourceGenerator(gateway).generate(
+        payload('quiz'), job_id='j', config_snapshot_id='c')['artifacts'][0]
+    assert gateway.corrected and reviewed_resource.verified_resource(artifact, 'quiz')
+    assert artifact['content'] == quiz_envelope()['content']
