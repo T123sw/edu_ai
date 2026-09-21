@@ -30,6 +30,7 @@ class ContentTools:
     def __init__(self, guard, *, structured=False, response_schema=None):
         self.guard = guard
         self.structured = structured
+        self.response_schema = deepcopy(response_schema)
         self.lock = threading.RLock()
         self.result = None
         self.invalid = False
@@ -59,6 +60,17 @@ class ContentTools:
         return [{'name': name, 'description': spec['description'], 'inputSchema': spec['parameters']}
                 for name, spec in self.tools.items()]
 
+    def validate_arguments(self, name, arguments):
+        if self.response_schema is None or not self.structured:
+            return
+        from jsonschema import Draft202012Validator
+        from .harness_provider import ContentSchemaError
+        parameters = self.tools[name]['parameters']
+        error = next(Draft202012Validator(parameters).iter_errors(arguments), None)
+        if error is not None:
+            path = '.'.join(map(str, error.absolute_path)) or '$'
+            raise ContentSchemaError(f'{path}: {error.message}'[:1000])
+
     def check(self):
         if self.fatal is not None:
             raise self.fatal
@@ -70,6 +82,7 @@ class ContentTools:
                 self.check()
                 if name not in self.tools:
                     raise ValueError('TOOL_NOT_AVAILABLE')
+                self.validate_arguments(name, arguments)
                 if self.structured:
                     if (not isinstance(arguments, dict) or set(arguments) != {'value'}
                             or not isinstance(arguments['value'], dict)):

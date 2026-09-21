@@ -21,6 +21,10 @@ class MultipleContentSubmissions(CompletionFormatError):
     pass
 
 
+class ContentSchemaError(CompletionFormatError):
+    pass
+
+
 @contextmanager
 def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_tokens=6000, temperature=.1):
     token = secrets.token_urlsafe(32)
@@ -189,6 +193,9 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                                             call['function']['name'].split('__')[-1] in toolset.tools]
                                         if len(submissions) > 1:
                                             raise MultipleContentSubmissions('multiple content submissions in one completion')
+                                        for submission in submissions:
+                                            toolset.validate_arguments(submission['function']['name'].split('__')[-1],
+                                                json.loads(submission['function']['arguments']))
                         except (json.JSONDecodeError, CompletionFormatError) as exc:
                             if protocol_attempt == 2:
                                 raise CompletionFormatError('MODEL_PROTOCOL_ERROR: incomplete response after two corrections') from exc
@@ -202,6 +209,10 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                                         'invalid_argument_excerpt': exc.doc[max(0, exc.pos-350):exc.pos+350],
                                         'excerpt_start': max(0, exc.pos-350)},
                                         ensure_ascii=False))
+                            elif isinstance(exc, ContentSchemaError):
+                                feedback = ('上一轮工具参数不符合当前 schema，整批工具均未执行。'
+                                    '请按工具 schema 重新提交完整审阅，补齐必填字段、移除未定义字段。'
+                                    '保持独立判断，保留真实 blocking_issues，不将格式修正当成内容通过。具体错误：' + str(exc))
                             elif isinstance(exc, MultipleContentSubmissions):
                                 feedback = ('上一轮同时调用了多个正文提交工具，整批工具均未执行。'
                                     '只提交当前资源：遵循当前 messages 中的资源类型和格式，仅调用一次提交工具。'

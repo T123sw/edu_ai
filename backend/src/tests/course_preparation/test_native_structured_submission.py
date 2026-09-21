@@ -136,3 +136,47 @@ def test_review_schema_references_remain_valid_and_are_isolated_per_session():
     generic = ContentTools(lambda: None, structured=True).schemas()[0]['inputSchema']
     assert '$defs' not in generic
     assert generic['properties']['value']['additionalProperties'] is True
+
+
+@pytest.mark.parametrize('always_invalid', [False, True])
+def test_native_review_schema_errors_are_corrected_before_dispatch_with_bounded_metering(monkeypatch, always_invalid):
+    from copy import deepcopy
+    from app.course_preparation.harness_provider import CompletionFormatError
+    schema = {'type': 'object', 'additionalProperties': False,
+              'required': ['preparation_checks', 'blocking_issues'],
+              'properties': {'preparation_checks': {'type': 'array', 'items': {'type': 'object'}},
+                             'blocking_issues': {'type': 'array', 'items': {'type': 'string'}}}}
+    expected = {'preparation_checks': [], 'blocking_issues': ['实际推演存在错误，不能通过']}
+    calls, dispatched = [], []
+    original = ContentTools.call
+    def submit(self, name, arguments):
+        dispatched.append(deepcopy(arguments))
+        return original(self, name, arguments)
+    monkeypatch.setattr(ContentTools, 'call', submit)
+    def complete(request):
+        payload = json.loads(request.content);calls.append(payload)
+        value = deepcopy(expected)
+        if always_invalid or len(calls) == 1:
+            value.pop('preparation_checks')
+        elif len(calls) == 2:
+            value['explanation_valid_note'] = '不属于 schema'
+        if len(calls) > 1:
+            assert 'schema' in payload['messages'][-1]['content']
+            assert '未执行' in payload['messages'][-1]['content']
+        name = payload['tools'][0]['function']['name']
+        return httpx.Response(200, json={'id': 'schema', 'object': 'chat.completion', 'created': 1,
+            'model': payload['model'], 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': None,
+            'tool_calls': [{'id': 'c1', 'type': 'function', 'function': {'name': name,
+            'arguments': json.dumps({'value': value}, ensure_ascii=False)}}]}, 'finish_reason': 'tool_calls'}],
+            'usage': {'prompt_tokens': 50, 'completion_tokens': 20, 'total_tokens': 70}})
+    model, ledger = gateway(complete, sdk_factory=DeepSeekHarness)
+    reviewer = model.for_phase('resource_review', context={'response_format': 'json'}).with_response_schema(schema)
+    if always_invalid:
+        with pytest.raises(CompletionFormatError):reviewer.chat([{'role': 'user', 'content': '独立审查'}])
+        assert dispatched == []
+    else:
+        result = reviewer.chat([{'role': 'user', 'content': '独立审查'}])
+        assert json.loads(result) == expected
+        assert dispatched == [{'value': expected}]
+    assert len(calls) == len(ledger.actions) == 3
+    assert all(row['status'] == 'completed' for row in ledger.actions)
