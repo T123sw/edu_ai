@@ -87,3 +87,38 @@ def test_cancel_and_commit_race_has_one_authoritative_outcome(ready):
         count=session.scalar(select(func.count()).select_from(PreparedManifestVersion))
     assert (result['status'],count) in [('succeeded',1),('canceled',0)]
     assert (result['result_ref'] is not None)==(result['status']=='succeeded')
+
+
+@pytest.mark.parametrize('field', ['content','spec','version','owner'])
+def test_persisted_artifact_tampering_cannot_deliver(ready, field):
+    from app.database.models import PreparationArtifact
+    from copy import deepcopy
+    repo,context,delivery=ready
+    with Session(repo.engine) as db,db.begin():
+        row=db.get(PreparationArtifact,context.checkpoint['artifacts'][0]['artifact_id'])
+        if field=='content':row.content={**row.content,'content':'篡改正文'}
+        elif field=='spec':row.spec={**row.spec,'audience':'偷换教学上下文'}
+        elif field=='version':row.resource_version+=1
+        else:row.owner_user_id='bob'
+    with pytest.raises(ValueError,match='ARTIFACT_CHANGED'):delivery.commit(context)
+    assert repo.get_public('alice',context.preparation_id)['result_ref'] is None
+    with Session(repo.engine) as db:
+        assert db.scalar(select(func.count()).select_from(PreparedCoursePointer))==0
+
+
+def test_lost_parent_lease_cannot_deliver(ready):
+    from app.database.models import PreparationExecution
+    repo,context,delivery=ready
+    with Session(repo.engine) as db,db.begin():
+        db.get(PreparationExecution,(context.preparation_id,context.attempt_no)).lease_token='replacement'
+    with pytest.raises(StaleLease):delivery.commit(context)
+    assert repo.get_public('alice',context.preparation_id)['result_ref'] is None
+
+
+def test_deleted_memory_reference_blocks_commit(ready):
+    from app.chat.memory.lifecycle import MemoryChanged
+    repo,context,delivery=ready
+    cp={**context.checkpoint,'memory_refs':{'deleted-memory':'old-revision'}}
+    repo.checkpoint(context,cp)
+    with pytest.raises(MemoryChanged):delivery.commit(context)
+    assert repo.get_public('alice',context.preparation_id)['result_ref'] is None

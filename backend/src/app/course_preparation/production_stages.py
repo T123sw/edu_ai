@@ -1,5 +1,6 @@
 """Bounded child fan-out; waiting releases the parent worker slot."""
 from .generation_contracts import ResourceSpec
+from .teaching_context import build_teaching_context
 from .runtime_contracts import BudgetCost
 from .tool_registry import digest
 from .runner import StepResult
@@ -43,10 +44,11 @@ class ProductionStages:
                 if request.operation=='adjust_course' and original and node['objectives']==[o['text'] for o in original['objectives']]:
                     retained.append(node['node_key'])
                     continue
+                teaching=build_teaching_context(request=request,checkpoint=checkpoint,node=node)
                 for kind in kinds:
-                    spec=ResourceSpec(node_id=node['node_key'],title=node['title'],resource_type=kind,
-                        objectives=node['objectives'],objective_ids=([o['objective_id'] for o in target['node']['objectives']] if request.operation in ('supplement_node','revise_resource') else [node['node_key']+':o'+str(i+1) for i in range(len(node['objectives']))]),
-                        evidence=checkpoint['node_evidence'][node['node_key']],language=checkpoint['brief']['language'],
+                    spec=ResourceSpec(schema_version=2,teaching_context=teaching,node_id=node['node_key'],title=node['title'],resource_type=kind,
+                        objectives=node['objectives'],objective_ids=teaching.objective_ids,
+                        evidence=checkpoint['node_evidence'][node['node_key']],language=teaching.language,
                         audience=checkpoint['brief']['audience'],minutes=node['minutes'],learning_check=node['self_check'],
                         memory_subject=checkpoint['memory_subject'],memory_refs=checkpoint['memory_refs'],
                         memory_epoch=checkpoint['memory_view']['memory_epoch'],config_snapshot=checkpoint['config_snapshot'],

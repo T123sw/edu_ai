@@ -1,0 +1,8 @@
+.................................s............s.................s....... [ 66%]
+........s...........................                                     [100%]
+=========================== short test summary info ============================
+SKIPPED [1] backend/src/tests/course_preparation/test_review_resume.py:101: PostgreSQL row lock competition
+SKIPPED [1] backend/src/tests/course_preparation/test_delivery.py:76: PostgreSQL row lock competition
+SKIPPED [1] backend/src/tests/course_preparation/test_local_manifest.py:73: PostgreSQL concurrent version commit
+SKIPPED [1] backend/src/tests/course_preparation/test_lifecycle_guards.py:85: row locks require PostgreSQL
+104 passed, 4 skipped in 271.94s (0:04:31)

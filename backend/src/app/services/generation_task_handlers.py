@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from types import MappingProxyType, SimpleNamespace
 from typing import Any
 
+from app.chat.harness.review_policy import resolve_review_policy
 from app.services.durable_task_handlers import (
     DurableExecutionContext,
     DurableTaskHandlerRegistry,
@@ -224,7 +225,7 @@ class _AgentReportGenerationAdapter:
         job_id: str,
         config_snapshot_id: str,
     ) -> dict[str, Any]:
-        if getattr(payload, "review_policy", "standard") == "required":
+        if resolve_review_policy(payload) == "required":
             from app.chat.harness.reviewed_report import generate_reviewed_report, ReportReviewFailed
             from app.services.durable_task_handlers import DurableTaskExecutionError
             try:
@@ -571,12 +572,7 @@ class GenerationTaskHandler:
             }
         payload = self._build_payload(command, context, execution_context)
         context.progress(5, "generating", "正在准备生成内容")
-        review_required = (
-            command.get("review_policy") == "required"
-            or bool(config.get("harness_review_required"))
-        )
-        if review_required:
-            payload.review_policy = 'required'
+        review_required = resolve_review_policy(command) == "required"
         if review_required and resource_type == 'report':
             generator = _AgentReportGenerationAdapter()
         elif review_required:
@@ -670,7 +666,6 @@ class GenerationTaskHandler:
             "source_mode": execution_context.source.mode,
             "allow_rag": bool(execution_context.source.documents),
             "material_id": str(command.get("material_id") or ""),
-            "review_policy": str(command.get("review_policy") or "standard"),
         }
         # The reviewed generator consumes one common specification regardless
         # of the resource-specific legacy adapter shape. Generation Factory
@@ -751,6 +746,9 @@ class GenerationTaskHandler:
                 "source_snapshot": execution_context.source.to_snapshot(),
                 "source_mode": execution_context.source.mode,
                 "allow_rag": bool(execution_context.source.documents),
+                # Normalize after copying config so it cannot weaken the
+                # server requirement or erase an old Harness command marker.
+                "review_policy": resolve_review_policy(command),
             }
         )
         return SimpleNamespace(**base)
@@ -816,10 +814,7 @@ class GenerationTaskHandler:
                 "result_ref": {},
             }
         artifact = dict(artifacts[0])
-        review_required = (
-            command.get("review_policy") == "required"
-            or bool((command.get("config") or {}).get("harness_review_required"))
-        )
+        review_required = resolve_review_policy(command) == "required"
         if resource_type == "report" and review_required:
             from app.chat.harness.reviewed_report import verified_review
             if not verified_review(artifact):

@@ -147,7 +147,7 @@ def test_handler_supplies_native_gateway_and_fails_unscoped_consumer(generation,
     configured = SimpleNamespace(candidates=[])
     monkeypatch.setattr(research_dependencies, 'agent_factory',
                         lambda *args: SimpleNamespace(model=SimpleNamespace(gateway=configured)))
-    def consumer(payload, *, gateway):
+    def consumer(payload, *, gateway, checkpoint):
         assert isinstance(gateway, PreparationHarnessGateway)
         assert gateway.phase is None
         return gateway.chat([])
@@ -159,3 +159,25 @@ def test_handler_supplies_native_gateway_and_fails_unscoped_consumer(generation,
     artifact = adapter.artifacts.get('alice', receipt['artifact_id'], content=True)
     assert artifact['status'] == 'failed' and artifact['content'] is None
     assert artifact['error_code'] == 'HARNESS_PHASE_REQUIRED'
+
+
+def test_recovery_enqueues_exact_new_job_and_replays_lost_queue_receipt(generation, monkeypatch):
+    from tests.course_preparation.test_review_resume import candidate, failure
+    repo,parent,store,child,body=candidate(generation)
+    adapter=generation[2]
+    store.fail(child,failure(child))
+    enqueue=adapter.task_store.enqueue
+    calls=[]
+    def lost_response(**kwargs):
+        calls.append(kwargs['task_id'])
+        enqueue(**kwargs)
+        raise ConnectionError('queue response lost after commit')
+    monkeypatch.setattr(adapter.task_store,'enqueue',lost_response)
+    with pytest.raises(ConnectionError):
+        adapter.resume_review(parent,child['artifact_id'],recovery_key='queue-repair')
+    receipt=adapter.resume_review(parent,child['artifact_id'],recovery_key='queue-repair')
+    assert calls==[receipt['job_id']]
+    assert receipt['job_id']==f"generate_{child['artifact_id']}_recovery_1"
+    assert adapter.read_result('alice',receipt)['status']=='pending'
+    claimed=store.claim('alice',child['artifact_id'])
+    assert store.checkpoint_port(claimed).load_review_candidate()['content']==body

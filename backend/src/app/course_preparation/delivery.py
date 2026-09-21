@@ -11,6 +11,7 @@ from .schemas import PreparationRequest
 from .tool_registry import digest
 from .lifecycle_repository import RevisionConflict
 from .runner import DeliveryResult
+from .resource_alignment import validate_artifact,validate_manifest_locations,duration_summary
 
 
 class DeliveryService:
@@ -25,6 +26,7 @@ class DeliveryService:
             MemoryLifecycle.validate_refs_in_session(session,checkpoint['memory_subject'],checkpoint['memory_refs'])
             prep,attempt,run,budget=self.repository._locked(session,context)
             checkpoint=run.checkpoint
+            MemoryLifecycle.validate_refs_in_session(session,checkpoint['memory_subject'],checkpoint['memory_refs'])
             from .retained_resources import read_retained
             if checkpoint.get('retained_node_ids') and read_retained(self.repository,context,checkpoint)!=checkpoint.get('retained_artifacts'):
                 raise ValueError('RETAINED_RESOURCE_CHANGED_BEFORE_DELIVERY')
@@ -50,16 +52,23 @@ class DeliveryService:
             artifacts={r['artifact_id']:r for r in checkpoint['artifacts']}
             manifest_resources={r.resource_id:r for node in manifest.nodes for r in node.resources}
             for artifact_id,checked in artifacts.items():
-                row=session.get(Artifact,artifact_id)
+                row=session.scalar(select(Artifact).where(Artifact.artifact_id==artifact_id).with_for_update())
                 if (row is None or row.owner_user_id!=prep.owner_user_id or row.status!='draft' or row.content is None
-                        or row.spec_digest!=checked['spec_digest'] or digest(row.content)!=checked['content_digest']
+                        or row.preparation_id!=prep.preparation_id or row.resource_id!=checked['resource_id']
+                        or row.resource_type!=checked['resource_type'] or row.resource_version!=checked['resource_version']
+                        or row.spec_digest!=checked['spec_digest'] or digest(row.spec)!=row.spec_digest
+                        or row.spec!=checked['spec'] or digest(row.content)!=checked['content_digest']
                         or digest(checked['content'])!=row.content_digest):
                     raise ValueError('ARTIFACT_CHANGED_BEFORE_DELIVERY')
+                validate_artifact(checked)
                 resource=manifest_resources.get(row.resource_id)
                 if resource is None or resource.content_sha256!=row.content_digest or resource.version!=row.resource_version:
                     raise ValueError('MANIFEST_RESOURCE_MISMATCH')
                 # Revalidate the child's own dependency set, including late drafts.
                 MemoryLifecycle.validate_refs_in_session(session,row.spec['memory_subject'],row.spec['memory_refs'])
+            validate_manifest_locations(manifest,artifacts.values())
+            duration_summary([*artifacts.values(),*checkpoint.get('retained_artifacts',[])],checkpoint['plan']['nodes'],
+                hard_limit=PreparationRequest.model_validate(prep.request_payload).overrides.total_minutes)
             generated_ids={r['resource_id'] for r in artifacts.values()}
             retained={key:value for key,value in manifest_resources.items() if key not in generated_ids}
             base_resources={r['resource_id']:r for n in base_snapshot['manifest']['nodes'] for r in n['resources']} if base_snapshot else {}
@@ -71,6 +80,11 @@ class DeliveryService:
                     MaterialVersion.material_type==resource.resource_type,MaterialVersion.material_id==key,MaterialVersion.version==resource.version))
                 if stored is None or stored.payload.get('content_hash')!=resource.content_sha256:
                     raise ValueError('RETAINED_RESOURCE_UNAVAILABLE')
+                stored_artifact=stored.payload.get('preparation_artifact')
+                actual=digest(stored_artifact) if stored_artifact else digest({'content':stored.payload.get('content'),
+                    'title':stored.payload.get('title'),'artifact_type':resource.resource_type})
+                if actual!=resource.content_sha256 or (stored_artifact and stored_artifact.get('content')!=stored.payload.get('content')):
+                    raise ValueError('RETAINED_RESOURCE_BODY_CHANGED')
                 if stored.payload.get('owner_user_id')!=actor.username and stored.payload.get('visibility')!='course':
                     raise PermissionError('RETAINED_RESOURCE_NOT_READABLE')
             course=session.get(Course,manifest.course_id)

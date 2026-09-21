@@ -65,7 +65,7 @@ def test_search_snippet_is_not_body(monkeypatch):
     source = ResearchSources(tavily_key='test')
     hit = source.search('query', limit=5, timeout=10)[0]
     assert hit['url'] == 'https://example.edu/page'
-    with pytest.raises(ValueError):
+    with pytest.raises(ResearchError, match='EXTRACT_NO_BODY'):
         source.read(hit['url'], timeout=10)
     with pytest.raises(ResearchError, match='EXTRACT_NOT_CONFIGURED'):
         ResearchSources(tavily_key='').read(hit['url'], timeout=10)

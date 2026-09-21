@@ -47,7 +47,13 @@ class DocumentStore:
                 raise PermissionError('DOCUMENT_VERSION_CHANGED')
             return {'filename':row.filename,'content_sha256':row.content_sha256}
 
-    def parse(self,owner,ref):
+    def parse_controlled(self, owner, ref, **controls):
+        return self.parse(owner, ref, **controls)
+
+    def parse(self,owner,ref, **controls):
+        from app.integrations.pdf.mineru_cloud import ParseControl
+        control = ParseControl(**controls)
+        control.check()
         self.authorize(owner,ref)
         with Session(self.engine) as session:
             row=session.get(Version,(owner,ref.document_id,ref.version))
@@ -55,11 +61,13 @@ class DocumentStore:
             filename,digest,username=row.filename,row.content_sha256,self._username(session,owner)
         _,data=self.reader.read_bytes(username,ref.document_id)
         if hashlib.sha256(data).hexdigest()!=digest: raise PermissionError('DOCUMENT_VERSION_CHANGED')
-        result=asdict(self.parser.parse(data,filename=filename))
+        result=asdict(self.parser.parse(data,filename=filename, **controls))
+        control.check()
         self.authorize(owner,ref)
         with Session(self.engine) as session, session.begin():
             row=session.get(Version,(owner,ref.document_id,ref.version))
             if row is None: raise PermissionError('DOCUMENT_VERSION_UNAVAILABLE')
+            control.check()
             if row.parsed is None or _legacy_parse(row.parsed): row.parsed=result
             return dict(row.parsed)
 
@@ -73,3 +81,17 @@ class DocumentStore:
         return {'content':content[offset:offset+limit], 'offset_chars':offset,
             'next_offset':offset+limit if offset+limit<len(content) else None,
             'source_hash':parsed['source_hash'],'parser':parsed['parser'],'defects':parsed['defects']}
+
+    def asset_refs(self, owner, ref):
+        parsed = self.parse(owner, ref)
+        return {'status':'available' if parsed.get('assets') else 'no_assets', 'assets':[
+            {**{k:v for k,v in asset.items() if k != 'data'}, 'owner_user_id':owner,
+             'document_id':ref.document_id, 'version':ref.version, 'source_hash':parsed['source_hash']}
+            for asset in parsed.get('assets', [])]}
+
+    def read_asset(self, owner, ref, *, asset_id, content_sha256):
+        parsed = self.parse(owner, ref)  # reauthorizes original bytes, owner and version
+        asset = next((a for a in parsed.get('assets', []) if a['asset_id']==asset_id), None)
+        if asset is None or asset['content_sha256'] != content_sha256:
+            raise PermissionError('ASSET_VERSION_UNAVAILABLE')
+        return dict(asset)

@@ -1,0 +1,305 @@
+{
+  "scope": "real model quality experiment; direct gateway, not native Harness",
+  "teaching_context": {
+    "schema_version": 1,
+    "request_goal": "学习工具调用，不要面试话术",
+    "requirements": [
+      {
+        "requirement_id": "req-order",
+        "text": "先理后例",
+        "source_quote": "本次要求",
+        "source_document_id": null
+      }
+    ],
+    "prior_knowledge": "会 Python，没有 Agent 基础",
+    "desired_outcomes": [
+      "解释工具职责"
+    ],
+    "exclusions": [
+      "面试话术"
+    ],
+    "language": "zh-CN",
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "uploaded_only"
+    },
+    "effective_preferences": {},
+    "node_id": "tools",
+    "objective_ids": [
+      "tools:o1",
+      "tools:o2"
+    ],
+    "objectives": [
+      "解释工具职责",
+      "检查缺失参数"
+    ],
+    "prerequisites": [],
+    "learning_activities": [
+      "解释模型与程序职责",
+      "追踪12+30例子"
+    ],
+    "self_check": "程序是否执行了工具？",
+    "node_budget_minutes": 10,
+    "resource_target_minutes": null,
+    "assumptions": [],
+    "limitations": []
+  },
+  "content": "# 工具调用：模型与程序的协作\n\n<a id=\"tools-intro\"></a>\n## 工具调用是什么\n\n在工具调用中，模型并不直接执行工具。它的职责是**输出工具名和参数**，由程序负责校验并执行。可以把模型想象成“点菜的人”，程序是“厨房”：模型说“我要 add，参数 a=12，b=30”，程序检查菜单和食材是否齐全，然后才动手做菜。\n\n这个分工带来一个关键结果：**模型可以提出调用，但最终是否执行由程序决定**。如果参数不合法，程序会拒绝执行，工具根本不会运行。\n\n<a id=\"tools-responsibility\"></a>\n## 模型与程序各自做什么\n\n| 角色 | 职责 | 不负责 |\n|------|------|--------|\n| 模型 | 根据任务输出工具名和参数 | 不执行工具、不校验参数 |\n| 程序 | 校验名称和参数、执行工具、返回结果 | 不猜测模型意图 |\n\n模型输出的是一段结构化信息，例如：\n\n```\n工具名: add\n参数: a=12, b=30\n```\n\n程序收到后先检查两件事：\n\n1. **工具名是否存在**——有没有叫 `add` 的工具。\n2. **参数是否完整且合法**——`add` 需要 `a` 和 `b`，两个都必须在。\n\n只有两项检查都通过，程序才调用工具。任何一项失败，工具都不执行。\n\n<a id=\"tools-example\"></a>\n## 追踪一个完整例子：12 + 30\n\n以 `add(a, b)` 为例，它计算两个数的和。\n\n**第一步：模型输出调用请求**\n\n模型看到“计算 12 加 30”的任务，输出：\n\n```\n工具名: add\n参数: a=12, b=30\n```\n\n**第二步：程序校验**\n\n程序检查：\n- 工具名 `add` 存在吗？存在。\n- 参数 `a` 和 `b` 都提供了吗？都提供了。\n\n校验通过。\n\n**第三步：程序执行工具**\n\n程序调用 `add(a=12, b=30)`，得到结果 `42`。\n\n**第四步：返回结果**\n\n程序把 `42` 交给模型或用户。\n\n这个例子中，模型只做了“提出调用”，真正执行 `add` 的是程序。\n\n<a id=\"tools-missing-param\"></a>\n## 缺少参数时会发生什么\n\n假设模型输出：\n\n```\n工具名: add\n参数: a=12\n```\n\n程序校验时发现 `b` 缺失。`add` 需要两个参数，现在只有一个，校验失败。\n\n**结果：工具不执行。** 程序不会调用 `add`，也不会返回任何计算结果。它应该把错误信息反馈回去，例如“缺少参数 b”。\n\n这体现了程序校验的价值：即使模型漏了参数，系统也不会带着错误数据去执行工具。\n\n<a id=\"tools-check\"></a>\n## 检查：程序是否执行了工具？\n\n判断下面每种情况中，程序是否执行了 `add` 工具：\n\n1. 模型输出 `工具名: add，参数: a=5, b=7`，程序校验通过。\n2. 模型输出 `工具名: add，参数: a=5`，程序发现缺少 `b`。\n3. 模型输出 `工具名: subtract，参数: a=5, b=7`，但程序里只有 `add` 工具。\n\n**答案与解释：**\n\n1. **执行了。** 工具名存在，参数完整，校验通过，程序调用 `add(5, 7)`，返回 `12`。\n2. **没有执行。** 缺少参数 `b`，校验失败，工具不运行。\n3. **没有执行。** 工具名 `subtract` 不存在，校验失败，工具不运行。\n\n如果你能说出第 2 和第 3 种情况“工具不执行”的原因分别是什么，就说明你已经理解了程序校验的两个检查点：参数完整性和工具名有效性。\n",
+  "generation_state": {
+    "report_review": {
+      "decision": "pass",
+      "method": "model_review",
+      "content_sha256": "e40f7de70742b4d61fe5cd0b84c72bdd63ce45ff6f4015ac2c3b28db4f7bd302",
+      "version": 1,
+      "checks": [
+        {
+          "criterion": "requirements",
+          "passed": true,
+          "reason": "正文满足 req-order「先理后例」：tools-intro 先解释模型与程序的职责分工，tools-example 才进入 12+30 的具体例子，顺序正确。"
+        },
+        {
+          "criterion": "correctness",
+          "passed": true,
+          "reason": "技术内容正确：模型输出工具名与参数、程序校验名称和参数后执行；add(a=12,b=30) 得 42；缺少 b 时校验失败且工具不执行，均与 evidence 一致。"
+        },
+        {
+          "criterion": "examples",
+          "passed": true,
+          "reason": "12+30 例子完整追踪了模型输出、程序校验、执行和返回结果四步；tools-check 覆盖成功、缺参和工具名不存在三种分支，并给出答案与解释。"
+        },
+        {
+          "criterion": "teaching_structure",
+          "passed": true,
+          "reason": "教学顺序落实在实际章节中：tools-intro 先讲职责分工，tools-responsibility 用表格明确模型与程序职责，tools-example 再举例，tools-missing-param 讲失败分支，tools-check 做自检，符合先理后例且无面试话术。"
+        },
+        {
+          "criterion": "sources",
+          "passed": true,
+          "reason": "source_policy 为 uploaded_only，但 sources 为空且正文未引用外部来源，内容仅基于提供的 evidence，未引入未上传材料。"
+        },
+        {
+          "criterion": "completeness",
+          "passed": true,
+          "reason": "覆盖 desired_outcomes「解释工具职责」和 objectives tools:o1、tools:o2：职责分工在 tools-responsibility 说明，缺失参数在 tools-missing-param 和 tools-check 检查；未涉及排除主题面试话术。"
+        }
+      ],
+      "suggestions": [
+        "tools-check 第 3 题使用 subtract 工具名，虽用于说明工具名不存在，但可考虑补充一句「假设程序只注册了 add」，使前提更明确。"
+      ],
+      "history": [
+        {
+          "version": 1,
+          "content_sha256": "e40f7de70742b4d61fe5cd0b84c72bdd63ce45ff6f4015ac2c3b28db4f7bd302",
+          "structural_issues": [],
+          "review": {
+            "checks": [
+              {
+                "criterion": "requirements",
+                "passed": true,
+                "reason": "正文满足 req-order「先理后例」：tools-intro 先解释模型与程序的职责分工，tools-example 才进入 12+30 的具体例子，顺序正确。"
+              },
+              {
+                "criterion": "correctness",
+                "passed": true,
+                "reason": "技术内容正确：模型输出工具名与参数、程序校验名称和参数后执行；add(a=12,b=30) 得 42；缺少 b 时校验失败且工具不执行，均与 evidence 一致。"
+              },
+              {
+                "criterion": "examples",
+                "passed": true,
+                "reason": "12+30 例子完整追踪了模型输出、程序校验、执行和返回结果四步；tools-check 覆盖成功、缺参和工具名不存在三种分支，并给出答案与解释。"
+              },
+              {
+                "criterion": "teaching_structure",
+                "passed": true,
+                "reason": "教学顺序落实在实际章节中：tools-intro 先讲职责分工，tools-responsibility 用表格明确模型与程序职责，tools-example 再举例，tools-missing-param 讲失败分支，tools-check 做自检，符合先理后例且无面试话术。"
+              },
+              {
+                "criterion": "sources",
+                "passed": true,
+                "reason": "source_policy 为 uploaded_only，但 sources 为空且正文未引用外部来源，内容仅基于提供的 evidence，未引入未上传材料。"
+              },
+              {
+                "criterion": "completeness",
+                "passed": true,
+                "reason": "覆盖 desired_outcomes「解释工具职责」和 objectives tools:o1、tools:o2：职责分工在 tools-responsibility 说明，缺失参数在 tools-missing-param 和 tools-check 检查；未涉及排除主题面试话术。"
+              }
+            ],
+            "blocking_issues": [],
+            "suggestions": [
+              "tools-check 第 3 题使用 subtract 工具名，虽用于说明工具名不存在，但可考虑补充一句「假设程序只注册了 add」，使前提更明确。"
+            ],
+            "preparation_checks": [
+              {
+                "binding_type": "requirement_id",
+                "binding_id": "req-order",
+                "locator": {
+                  "section_id": "tools-intro"
+                },
+                "passed": true,
+                "reason": "tools-intro 先解释模型输出工具名与参数、程序校验并执行的分工，再在 tools-example 进入 12+30 例子，实际章节顺序符合先理后例。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o1",
+                "locator": {
+                  "section_id": "tools-responsibility"
+                },
+                "passed": true,
+                "reason": "tools-responsibility 用表格明确模型负责输出工具名和参数、不执行不校验，程序负责校验和执行，直接解释工具职责。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o1",
+                "locator": {
+                  "section_id": "tools-example"
+                },
+                "passed": true,
+                "reason": "tools-example 通过 12+30 例子展示模型只提出调用、程序实际执行 add，强化对工具职责的理解。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o2",
+                "locator": {
+                  "section_id": "tools-missing-param"
+                },
+                "passed": true,
+                "reason": "tools-missing-param 专门说明缺少 b 时程序校验失败、工具不执行，覆盖检查缺失参数的目标。"
+              },
+              {
+                "binding_type": "objective_id",
+                "binding_id": "tools:o2",
+                "locator": {
+                  "section_id": "tools-check"
+                },
+                "passed": true,
+                "reason": "tools-check 第 2 题要求判断缺参时程序是否执行 add，并解释校验失败原因，作为对缺失参数检查的练习。"
+              }
+            ]
+          },
+          "decision": "pass"
+        }
+      ],
+      "external_review": null,
+      "preparation_checks": [
+        {
+          "binding_type": "requirement_id",
+          "binding_id": "req-order",
+          "locator": {
+            "section_id": "tools-intro"
+          },
+          "passed": true,
+          "reason": "tools-intro 先解释模型输出工具名与参数、程序校验并执行的分工，再在 tools-example 进入 12+30 例子，实际章节顺序符合先理后例。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o1",
+          "locator": {
+            "section_id": "tools-responsibility"
+          },
+          "passed": true,
+          "reason": "tools-responsibility 用表格明确模型负责输出工具名和参数、不执行不校验，程序负责校验和执行，直接解释工具职责。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o1",
+          "locator": {
+            "section_id": "tools-example"
+          },
+          "passed": true,
+          "reason": "tools-example 通过 12+30 例子展示模型只提出调用、程序实际执行 add，强化对工具职责的理解。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-missing-param"
+          },
+          "passed": true,
+          "reason": "tools-missing-param 专门说明缺少 b 时程序校验失败、工具不执行，覆盖检查缺失参数的目标。"
+        },
+        {
+          "binding_type": "objective_id",
+          "binding_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-check"
+          },
+          "passed": true,
+          "reason": "tools-check 第 2 题要求判断缺参时程序是否执行 add，并解释校验失败原因，作为对缺失参数检查的练习。"
+        }
+      ],
+      "preparation_sha256": "e38da995c1bbf65b85438dcfc408b6c6f65268b5ffd9ce24a505f85301f6121b",
+      "limitation": "模型审阅，非人工审阅或全面事实核验"
+    },
+    "preparation": {
+      "schema_version": 1,
+      "spec_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "teaching_context_digest": "1a30237fc4e722148c9b3844c61372242c35fb3abb4b5256096e3f33325f3213",
+      "applied_requirements": [
+        {
+          "requirement_id": "req-order",
+          "locator": {
+            "section_id": "tools-intro"
+          },
+          "explanation": "正文先解释工具调用中模型与程序的职责分工，再进入12+30的具体例子，符合先理后例的要求。"
+        }
+      ],
+      "objective_bindings": [
+        {
+          "objective_id": "tools:o1",
+          "locator": {
+            "section_id": "tools-responsibility"
+          },
+          "role": "explanation"
+        },
+        {
+          "objective_id": "tools:o1",
+          "locator": {
+            "section_id": "tools-example"
+          },
+          "role": "practice"
+        },
+        {
+          "objective_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-missing-param"
+          },
+          "role": "explanation"
+        },
+        {
+          "objective_id": "tools:o2",
+          "locator": {
+            "section_id": "tools-check"
+          },
+          "role": "check"
+        }
+      ],
+      "duration": {
+        "value_minutes": 2.7,
+        "basis": "estimated",
+        "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises"
+      },
+      "sections": [
+        {
+          "section_id": "tools-intro",
+          "content_sha256": "58e5384d6fba5e8ce9a5e241d70915109c8efcb4f68994c0913004a458bfd7b3"
+        },
+        {
+          "section_id": "tools-responsibility",
+          "content_sha256": "b5970bc815a44b1619ea0ceeede0e3d51d82bdf9e3a949b3e879057f98dc7c3d"
+        },
+        {
+          "section_id": "tools-example",
+          "content_sha256": "2e1d7a0ef11b79119b9a80aa2ddcfbfd38df45ee2d0f922c1274fcb6762e53cf"
+        },
+        {
+          "section_id": "tools-missing-param",
+          "content_sha256": "0b0ffc046eb0c37044d1968827bc8b6f43773ffd92ae03fc62b490cc6a8ce50c"
+        },
+        {
+          "section_id": "tools-check",
+          "content_sha256": "2bd7f2cbe0dea7ff12a7e48d7b34d35187219c8b37285715e6c21fd1e9cf711a"
+        }
+      ]
+    }
+  }
+}

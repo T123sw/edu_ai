@@ -1,0 +1,636 @@
+{
+  "scope": "HTTP API with isolated authenticated identity, SQLite and personal files; real MinerU and model; stop at requested handoff boundary",
+  "status": "passed",
+  "through": "path",
+  "network_research": false,
+  "seconds": 115.73,
+  "steps": [
+    {
+      "step": 1,
+      "result": {
+        "claimed": true,
+        "stage": "normalize",
+        "waiting": false
+      },
+      "seconds": 29.47
+    },
+    {
+      "step": 2,
+      "result": {
+        "claimed": true,
+        "stage": "normalize",
+        "waiting": false
+      },
+      "seconds": 19.87
+    },
+    {
+      "step": 3,
+      "result": {
+        "claimed": true,
+        "stage": "ingest",
+        "waiting": false
+      },
+      "seconds": 16.57
+    },
+    {
+      "step": 4,
+      "result": {
+        "claimed": true,
+        "stage": "research_scope",
+        "waiting": false
+      },
+      "seconds": 1.25
+    },
+    {
+      "step": 5,
+      "result": {
+        "failed": true,
+        "code": "RESEARCH_INSUFFICIENT"
+      },
+      "seconds": 47.98
+    }
+  ],
+  "web_calls": [],
+  "all_model_calls_used_harness_skills": true,
+  "boundary": "path handoff only; stops before resource generation",
+  "budget": {
+    "limits": {
+      "calls": 200,
+      "tokens": 2000000,
+      "cost_micro_usd": 10000000,
+      "seconds": 3600
+    },
+    "reserved": {
+      "calls": 0,
+      "tokens": 0,
+      "cost_micro_usd": 0
+    },
+    "consumed": {
+      "calls": 10,
+      "tokens": 84054,
+      "cost_micro_usd": 840540
+    },
+    "deadline": "2026-09-19T10:36:19.309712+00:00"
+  },
+  "parse_tasks": [
+    {
+      "provider": "mineru-cloud",
+      "task_id": "5903b1d4-4dc4-4dd0-9609-17e3e553fa16",
+      "document_id": "doc-d1314fd6e4834c12ad6e106359407d2d",
+      "version": 1
+    }
+  ],
+  "evidence": [
+    {
+      "source_id": "ev_c5b211b93fa937c4e3e8e647",
+      "candidate_id": "src_ec1bb32631ab24cd4bdb",
+      "url": "upload://doc-d1314fd6e4834c12ad6e106359407d2d/1",
+      "title": "calculator-agent.docx",
+      "content_sha256": "00435ca934bb78cf99b6293f43aa292f288544e6bf63a1cdc4dd0830f9a57a78",
+      "retrieved_at": "2026-09-19T09:37:32.417689+00:00",
+      "offset_chars": 0,
+      "total_chars": 812,
+      "next_offset": null,
+      "snapshot_id": null,
+      "snapshot_sha256": null,
+      "canonical_url": null,
+      "coverage": "extracted_excerpt"
+    }
+  ],
+  "coverage": [
+    {
+      "requirement_id": "req_goal_agent",
+      "kind": "knowledge",
+      "status": "partial",
+      "finding_ids": [
+        "f_goal",
+        "f_tooldef",
+        "f_flow",
+        "f_scope"
+      ],
+      "reason": "材料给出目标、工具定义、调用流程与伪代码，但明确声明不含真实供应商 SDK 安装/鉴权/可运行接口示例；用户目标是做出可运行命令行助手，仅有流程与伪代码无法支撑可运行程序。"
+    },
+    {
+      "requirement_id": "req_goal_explain_failure",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_safety",
+        "f_pseudocode"
+      ],
+      "reason": "材料给出 UNKNOWN_TOOL 与 INVALID_ARGUMENT 两种错误分支、结构化错误格式及'不得编造结果'原则，足以支持解释工具调用失败如何处理。"
+    },
+    {
+      "requirement_id": "req_goal_example_first",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "教学顺序要求，可在路径编排中落实（先成功例再原理）。"
+    },
+    {
+      "requirement_id": "req_goal_chinese",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "语言要求，路径用中文。"
+    },
+    {
+      "requirement_id": "req_goal_two_hours",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "时长要求，总分钟数不超过 120。"
+    },
+    {
+      "requirement_id": "req_goal_uploaded_only",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "来源要求，仅用上传材料。"
+    },
+    {
+      "requirement_id": "req_exclude_training",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "排除项，不涉及模型训练。"
+    },
+    {
+      "requirement_id": "req_exclude_multiagent",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "排除项，不涉及多 Agent 协作。"
+    },
+    {
+      "requirement_id": "req_exclude_web",
+      "kind": "constraint",
+      "status": "covered",
+      "finding_ids": [],
+      "reason": "排除项，不涉及 Web 部署。"
+    },
+    {
+      "requirement_id": "req_doc_goal",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_goal"
+      ],
+      "reason": "材料明确给出练习目标。"
+    },
+    {
+      "requirement_id": "req_doc_log",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_log"
+      ],
+      "reason": "材料明确给出四项日志验收要求及成功/失败用例。"
+    },
+    {
+      "requirement_id": "req_doc_flow",
+      "kind": "knowledge",
+      "status": "covered",
+      "finding_ids": [
+        "f_flow"
+      ],
+      "reason": "材料明确给出完整调用流程。"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "f_goal",
+      "claim": "练习目标是用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户；只需单次工具调用，不要求多轮记忆或自主规划。",
+      "citations": [
+        {
+          "source_id": "ev_c5b211b93fa937c4e3e8e647",
+          "quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "f_log",
+      "claim": "验收要求保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志；成功例为\"计算 12 加 30\"（期望 42），失败例为\"参数 b 缺失\"。",
+      "citations": [
+        {
+          "source_id": "ev_c5b211b93fa937c4e3e8e647",
+          "quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "f_tooldef",
+      "claim": "add 工具的输入 schema 是 object，a 和 b 必须为 number 且 required 包含 a、b；函数实现返回 a+b；工具描述要说明用途和参数含义。",
+      "citations": [
+        {
+          "source_id": "ev_c5b211b93fa937c4e3e8e647",
+          "quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "f_flow",
+      "claim": "调用流程：先把用户问题与工具 schema 发给模型；收到工具调用时读取 name、arguments 和 call_id，校验名称和 JSON 参数后执行 add；再把结果与相同 call_id 作为工具消息发回模型取得最终回答；模型请求工具不等于工具已经执行。",
+      "citations": [
+        {
+          "source_id": "ev_c5b211b93fa937c4e3e8e647",
+          "quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "f_safety",
+      "claim": "安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码；参数缺失或类型不符时不运行函数，返回结构化错误（如 code=INVALID_ARGUMENT、message=b is required）；模型可提示用户补齐参数，不得编造计算结果。",
+      "citations": [
+        {
+          "source_id": "ev_c5b211b93fa937c4e3e8e647",
+          "quote": "\n安全与失败：只允许执行已注册的 add 函数，不执行模型输出的任意代码。参数缺失或类型不符时，不运行函数，返回结构化错误，例如 code=INVALID\\_ARGUMENT、message=b is required。模型可提示用户补齐参数，不得编造计算结果。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "f_pseudocode",
+      "claim": "参考伪代码：若 name != add 返回 UNKNOWN_TOOL；若 a 或 b 不是数字返回 INVALID_ARGUMENT；否则执行 add(a,b)，记录结果并交回模型。成功用例期望 42；缺失 b 的用例期望工具未执行且返回错误。",
+      "citations": [
+        {
+          "source_id": "ev_c5b211b93fa937c4e3e8e647",
+          "quote": "\n参考伪代码：若 name != add 则返回 UNKNOWN\\_TOOL；若 a 或 b 不是数字则返回 INVALID\\_ARGUMENT；否则执行 add(a,b)，记录结果并交回模型。成功用例期望结果为 42；缺失 b 的用例期望工具未执行且返回错误。\n\n范围：这份材料只讲模型与工具之间的最小循环，不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例。若需要真实 API 程序，这部分材料还需要补充；不能假装附件已经给出。\n"
+        }
+      ]
+    },
+    {
+      "finding_id": "f_scope",
+      "claim": "材料只讲模型与工具之间的最小循环，不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例；若需要真实 API 程序需补充，不能假装附件已给出。",
+      "citations": [
+        {
+          "source_id": "ev_c5b211b93fa937c4e3e8e647",
+          "quote": "\n参考伪代码：若 name != add 则返回 UNKNOWN\\_TOOL；若 a 或 b 不是数字则返回 INVALID\\_ARGUMENT；否则执行 add(a,b)，记录结果并交回模型。成功用例期望结果为 42；缺失 b 的用例期望工具未执行且返回错误。\n\n范围：这份材料只讲模型与工具之间的最小循环，不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例。若需要真实 API 程序，这部分材料还需要补充；不能假装附件已经给出。\n"
+        }
+      ]
+    }
+  ],
+  "brief": {
+    "required_resource_types": [],
+    "learning_goal": "用两小时，按附件做出一个能调用计算器（add 工具）的命令行助手，并能解释一次工具调用失败该如何处理。先给一个小例子再解释原理。",
+    "prior_knowledge": "会 Python，写过普通函数；没做过 Agent，也没接过工具调用。",
+    "desired_outcomes": [
+      "能按附件做出一个可调用 add(a,b) 计算器工具的命令行助手",
+      "能解释模型与工具之间单次工具调用的最小循环流程",
+      "能说明一次工具调用失败（如参数缺失、未知工具）该如何处理",
+      "能保留用户问题、工具调用参数、工具执行结果、最终回答四项可读日志"
+    ],
+    "depth": "introductory",
+    "source_policy": {
+      "mode": "uploaded_only"
+    },
+    "source_policy_quote": "只根据上传资料，不要联网",
+    "topic": "最小计算器 Agent：模型与工具的最小调用循环",
+    "audience": "会 Python、写过普通函数，但没做过 Agent、也没接过工具调用的学习者",
+    "language": "中文",
+    "total_minutes": 120,
+    "assumptions": [],
+    "exclusions": [
+      "模型训练",
+      "多 Agent 协作",
+      "Web 部署"
+    ],
+    "material_gaps": [
+      "材料明确说明不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例；若用户目标是做出可运行程序，这部分需要补充",
+      "材料只给出伪代码和流程描述，未提供可运行的 Python 代码示例或模型接口调用细节",
+      "未说明如何把工具 schema 与用户问题实际发送给模型（请求体格式、消息角色组织等）"
+    ],
+    "requirements": [
+      {
+        "requirement_id": "req_goal_agent",
+        "text": "学习 Agent，做出一个能调用计算器的命令行助手",
+        "source_quote": "我想学习 Agent。我会 Python，写过普通函数，但没做过 Agent，也没接过工具调用。希望用两小时，按附件做出一个能调用计算器的命令行助手，并能解释一次工具调用失败该怎么处理。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_goal_explain_failure",
+        "text": "能解释一次工具调用失败该怎么处理",
+        "source_quote": "希望用两小时，按附件做出一个能调用计算器的命令行助手，并能解释一次工具调用失败该怎么处理。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_goal_example_first",
+        "text": "先给一个小例子再解释原理",
+        "source_quote": "请用中文，先给一个小例子再解释原理。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_goal_chinese",
+        "text": "用中文讲解",
+        "source_quote": "请用中文，先给一个小例子再解释原理。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_goal_two_hours",
+        "text": "总时长两小时",
+        "source_quote": "希望用两小时，按附件做出一个能调用计算器的命令行助手，并能解释一次工具调用失败该怎么处理。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_goal_uploaded_only",
+        "text": "只根据上传资料，不要联网",
+        "source_quote": "只根据上传资料，不要联网；不学模型训练、多 Agent 协作和 Web 部署。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_exclude_training",
+        "text": "不学模型训练",
+        "source_quote": "不学模型训练、多 Agent 协作和 Web 部署。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_exclude_multiagent",
+        "text": "不学多 Agent 协作",
+        "source_quote": "不学模型训练、多 Agent 协作和 Web 部署。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_exclude_web",
+        "text": "不学 Web 部署",
+        "source_quote": "不学模型训练、多 Agent 协作和 Web 部署。",
+        "source_ref": null,
+        "source_document_id": null
+      },
+      {
+        "requirement_id": "req_doc_goal",
+        "text": "用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户，只需单次工具调用，不要求多轮记忆或自主规划",
+        "source_quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n",
+        "source_ref": "ip_d681e491e54460f56a4a8f31",
+        "source_document_id": "doc-d1314fd6e4834c12ad6e106359407d2d"
+      },
+      {
+        "requirement_id": "req_doc_log",
+        "text": "保留用户问题、模型工具调用参数、工具执行结果、最终回答四项可读日志；成功例为\"计算 12 加 30\"（期望 42），失败例为\"参数 b 缺失\"",
+        "source_quote": "练习要求与参考资料：最小计算器 Agent\n\n练习目标：用 Python 制作命令行助手，让模型选择 add(a,b) 工具并将计算结果回答给用户。只需单次工具调用，不要求多轮记忆或自主规划。\n\n验收要求：保留用户问题、模型工具调用参数、工具执行结果、最终回答这四项可读日志。用“计算 12 加 30”作为成功例，用“参数 b 缺失”作为失败例。\n",
+        "source_ref": "ip_d681e491e54460f56a4a8f31",
+        "source_document_id": "doc-d1314fd6e4834c12ad6e106359407d2d"
+      },
+      {
+        "requirement_id": "req_doc_flow",
+        "text": "先把用户问题与工具 schema 发给模型；收到工具调用时读取 name、arguments 和 call_id，校验名称和 JSON 参数，执行 add；再把结果与相同 call_id 作为工具消息发回模型取得最终回答；模型请求工具不等于工具已经执行",
+        "source_quote": "\n工具定义：add 的输入 schema 是 object，a 和 b 必须为 number，required 包含 a 和 b；函数实现返回 a+b。工具描述要说明用途和参数含义。\n\n调用流程：先把用户问题与工具 schema 发给模型。收到工具调用时读取 name、arguments 和 call\\_id，校验名称和 JSON 参数，执行 add；然后把结果与相同 call\\_id 作为工具消息发回模型，取得最终回答。模型请求工具不等于工具已经执行。\n",
+        "source_ref": "ip_dd2b6ac38160c60057dad9aa",
+        "source_document_id": "doc-d1314fd6e4834c12ad6e106359407d2d"
+      }
+    ]
+  },
+  "path": null,
+  "blocker": {
+    "reason": "上传材料完整覆盖了\"最小计算器 Agent\"的概念、工具定义、调用流程、失败处理与四项日志验收要求，但明确声明不包含真实供应商 SDK 的安装、鉴权或完整可运行接口示例。用户核心目标是\"做出一个能调用计算器的命令行助手\"（可运行程序），而材料只提供流程与伪代码，无法支撑可运行程序。来源策略为 uploaded_only（禁止联网），无法通过检索补充真实 SDK 接口调用依据，因此 req_goal_agent 只能判定为 partial，不能提交明知不充分的路径。",
+    "coverage": [
+      {
+        "requirement_id": "req_goal_agent",
+        "kind": "knowledge",
+        "status": "partial",
+        "finding_ids": [
+          "f_goal",
+          "f_tooldef",
+          "f_flow",
+          "f_scope"
+        ],
+        "reason": "材料给出目标、工具定义、调用流程与伪代码，但明确声明不含真实供应商 SDK 安装/鉴权/可运行接口示例；用户目标是做出可运行命令行助手，仅有流程与伪代码无法支撑可运行程序。"
+      },
+      {
+        "requirement_id": "req_goal_explain_failure",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "f_safety",
+          "f_pseudocode"
+        ],
+        "reason": "材料给出 UNKNOWN_TOOL 与 INVALID_ARGUMENT 两种错误分支、结构化错误格式及'不得编造结果'原则，足以支持解释工具调用失败如何处理。"
+      },
+      {
+        "requirement_id": "req_goal_example_first",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "教学顺序要求，可在路径编排中落实（先成功例再原理）。"
+      },
+      {
+        "requirement_id": "req_goal_chinese",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "语言要求，路径用中文。"
+      },
+      {
+        "requirement_id": "req_goal_two_hours",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "时长要求，总分钟数不超过 120。"
+      },
+      {
+        "requirement_id": "req_goal_uploaded_only",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "来源要求，仅用上传材料。"
+      },
+      {
+        "requirement_id": "req_exclude_training",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "排除项，不涉及模型训练。"
+      },
+      {
+        "requirement_id": "req_exclude_multiagent",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "排除项，不涉及多 Agent 协作。"
+      },
+      {
+        "requirement_id": "req_exclude_web",
+        "kind": "constraint",
+        "status": "covered",
+        "finding_ids": [],
+        "reason": "排除项，不涉及 Web 部署。"
+      },
+      {
+        "requirement_id": "req_doc_goal",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "f_goal"
+        ],
+        "reason": "材料明确给出练习目标。"
+      },
+      {
+        "requirement_id": "req_doc_log",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "f_log"
+        ],
+        "reason": "材料明确给出四项日志验收要求及成功/失败用例。"
+      },
+      {
+        "requirement_id": "req_doc_flow",
+        "kind": "knowledge",
+        "status": "covered",
+        "finding_ids": [
+          "f_flow"
+        ],
+        "reason": "材料明确给出完整调用流程。"
+      }
+    ],
+    "suggested_actions": [
+      "补充一份包含真实供应商 SDK（如 OpenAI/Anthropic 等）安装、鉴权、请求体格式与消息角色组织的可运行接口示例，或允许联网检索官方文档以补齐可运行程序依据。",
+      "若用户可接受'概念与伪代码层面'完成（不要求真正可运行），可明确降级目标后重新提交，但当前原始需求是做出可运行命令行助手，不能擅自降级。",
+      "补充说明如何把工具 schema 与用户问题实际发送给模型（请求体格式、消息角色组织、工具消息回传的具体字段）。"
+    ]
+  },
+  "source_count": 1,
+  "tool_counts": {
+    "save_preparation_brief": 1,
+    "fetch_source": 1,
+    "record_evidence_finding": 7,
+    "finalize_research_summary": 1,
+    "report_research_blocker": 1
+  },
+  "model_usage": [
+    {
+      "action_id": "paction_f7af746ab974476f8a1290e24e67977c",
+      "status": "completed",
+      "usage": {
+        "tokens": 4931,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_2a1fc6a4e9c44a0681ddeb8f303e15c2",
+      "status": "completed",
+      "usage": {
+        "tokens": 4255,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_38f2d73afe724721a806d76918c761ec",
+      "status": "completed",
+      "usage": {
+        "tokens": 7451,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_f6e548cb22dc4edb9d6b6eb53c9e1b14",
+      "status": "completed",
+      "usage": {
+        "tokens": 6187,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_4863e90b0b4e4ae0bd0529bbcbcb7620",
+      "status": "completed",
+      "usage": {
+        "tokens": 7169,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_a9ca126ec0694bc5b6162e476a23e028",
+      "status": "completed",
+      "usage": {
+        "tokens": 5767,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_34ffafe067714b90941ed63f78670f9a",
+      "status": "completed",
+      "usage": {
+        "tokens": 8802,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_bbba4ffb9fe945d1852f3ee2ee8c654b",
+      "status": "completed",
+      "usage": {
+        "tokens": 10614,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_6ca72ab02dc343e8a3ecaba52433e960",
+      "status": "completed",
+      "usage": {
+        "tokens": 13387,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    },
+    {
+      "action_id": "paction_cad9864a9a0347448be7dcf951530f01",
+      "status": "completed",
+      "usage": {
+        "tokens": 15491,
+        "reported_by_provider": true
+      },
+      "runtime": "deepseek-harness"
+    }
+  ],
+  "context_byte_estimates": [
+    {
+      "schema_version": 1,
+      "max_bytes": 48000,
+      "estimated_bytes": 454,
+      "actual_usage": null,
+      "omitted": [
+        "trace",
+        "candidate_snippets",
+        "unselected_evidence_passages"
+      ],
+      "read_tool": "read_research_evidence"
+    },
+    {
+      "schema_version": 1,
+      "max_bytes": 48000,
+      "estimated_bytes": 613,
+      "actual_usage": null,
+      "omitted": [
+        "trace",
+        "candidate_snippets",
+        "unselected_evidence_passages"
+      ],
+      "read_tool": "read_research_evidence"
+    },
+    {
+      "schema_version": 1,
+      "max_bytes": 48000,
+      "estimated_bytes": 6793,
+      "actual_usage": null,
+      "omitted": [
+        "trace",
+        "candidate_snippets",
+        "unselected_evidence_passages"
+      ],
+      "read_tool": "read_research_evidence"
+    }
+  ]
+}

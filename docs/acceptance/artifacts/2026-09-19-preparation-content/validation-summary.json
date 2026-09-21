@@ -1,0 +1,37 @@
+{
+  "code_commits": [
+    "ee818810e6ae50aa9ef005751e6a66eea5947035",
+    "3157cb4f",
+    "3e4d613c3b9a29693745cc2fd7b614cd0662eb5c"
+  ],
+  "dependencies": {
+    "G": "18080783",
+    "A": "c264070f",
+    "F": "debc7960",
+    "B": "native-dependency-snapshot.json; uncommitted code snapshot"
+  },
+  "default_comprehensive": {
+    "passed": 198,
+    "skipped": 28,
+    "seconds": 36.0,
+    "note": "before final narrowly covered refinements"
+  },
+  "final_affected": {
+    "passed": 92,
+    "skipped": 17,
+    "seconds": 26.11
+  },
+  "real_native": {
+    "reports": 2,
+    "quiz": 1,
+    "scope": "native SDK + provider; in-memory usage ledger; separate SQL checkpoint tests"
+  },
+  "real_counterexamples": {
+    "original_audit": "rejected",
+    "new_mixed_claim": "rejected after strengthening separate explanation reasoning"
+  },
+  "pending": [
+    "G final shared-SHA handler/course/browser integration",
+    "isolated PostgreSQL unavailable in D session"
+  ]
+}

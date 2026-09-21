@@ -1,0 +1,169 @@
+{
+  "scope": "real direct-model re-review of exact native false-negative candidate",
+  "content": {
+    "title": "工具调用：职责与缺失参数",
+    "questions": [
+      {
+        "id": "q1",
+        "type": "single_choice",
+        "stem": "模型输出了一次工具调用：add(a=12, b=30)，程序随后返回结果 42。在这次调用里，模型和程序各自负责什么？",
+        "options": [
+          "模型负责执行加法并返回 42，程序负责决定调用哪个工具",
+          "模型负责输出工具名和参数，程序负责校验名称、权限和参数后执行工具",
+          "模型负责校验参数是否齐全，程序负责计算 12 与 30 的和",
+          "模型和程序都负责执行工具，谁先响应谁返回结果"
+        ],
+        "answer": "B",
+        "explanation": "模型只负责决定调用哪个工具并给出参数（这里是工具名 add 和参数 a=12、b=30），它本身不执行加法。程序收到后先校验工具名是否存在、调用方是否有权限、参数是否齐全，校验通过才真正执行 add 并返回 42。选项 A 把执行加法的职责错给了模型，且把“决定调用哪个工具”错给了程序；选项 C 把参数校验错给了模型，把计算错给了程序，方向反了；选项 D 认为双方都执行工具，与“模型只输出、程序才执行”的分工不符。",
+        "difficulty": "easy"
+      },
+      {
+        "id": "q2",
+        "type": "single_choice",
+        "stem": "模型输出了工具调用 add(a=12)，但没有给出参数 b。程序会怎样处理？",
+        "options": [
+          "程序自动把 b 补成 0，然后返回 12",
+          "程序校验发现缺少参数 b，校验失败，工具不执行",
+          "程序忽略缺失的 b，直接返回 a 的值 12",
+          "程序把 b 当作空字符串，返回字符串拼接结果"
+        ],
+        "answer": "B",
+        "explanation": "add 需要两个参数 a 和 b，缺了 b 就无法完成求和。程序在真正执行前会校验参数是否齐全，发现 b 缺失时校验失败，因此工具不会被执行，也不会返回任何计算结果。选项 A 假设程序会自动补默认值 0，但材料没有给出这种默认行为；选项 C 假设程序会忽略缺失参数直接返回 a，这等于跳过校验；选项 D 假设 b 被当作空字符串并做字符串拼接，既没有依据，也混淆了数值加法与字符串拼接。",
+        "difficulty": "medium"
+      }
+    ]
+  },
+  "review": {
+    "checks": [
+      {
+        "criterion": "requirements",
+        "passed": true,
+        "reason": "共两道单选题，每题先给出具体调用例子（q1 为 add(a=12, b=30) 返回 42，q2 为 add(a=12) 缺 b），再问职责或缺失参数；每题均有完整解析，符合 req-order。"
+      },
+      {
+        "criterion": "correctness",
+        "passed": true,
+        "reason": "q1 正确答案 B 与工具调用分工一致：模型输出工具名和参数，程序校验并执行；q2 正确答案 B 与缺失参数时校验失败、工具不执行一致。各干扰项的错误原因均成立。"
+      },
+      {
+        "criterion": "examples",
+        "passed": true,
+        "reason": "两道题均以具体调用例子为题干基础，选项和解析围绕该例子展开，未出现与题目无关的示例。"
+      },
+      {
+        "criterion": "teaching_structure",
+        "passed": true,
+        "reason": "题目顺序符合教学逻辑：先建立模型与程序职责分工，再考察缺失参数时的校验行为；难度从 easy 到 medium，适合无 Agent 基础但会 Python 的入门受众。"
+      },
+      {
+        "criterion": "sources",
+        "passed": true,
+        "reason": "source_policy 为 uploaded_only，但 specification 中未提供任何上传文档，题目内容来自本次要求中的教学目标和活动，未引入外部来源，不构成来源违规。"
+      },
+      {
+        "criterion": "completeness",
+        "passed": true,
+        "reason": "两道题均包含 id、type、stem、options、answer、explanation、difficulty，结构完整；答案和解析齐全，覆盖 desired_outcomes 中的解释工具职责和检查缺失参数。"
+      }
+    ],
+    "blocking_issues": [],
+    "suggestions": [
+      "q1 选项 C 的解析中“把计算错给了程序”表述略显含糊：选项 C 实际是“模型负责校验参数，程序负责计算 12 与 30 的和”，其中“程序负责计算”本身在正确分工中程序确实执行计算，错误在于把参数校验错给了模型。建议改为“选项 C 把参数校验错给了模型；程序执行计算本身没错，但选项把校验职责放错了位置”，避免读者误以为程序计算也是错的。"
+    ],
+    "question_checks": [
+      {
+        "question_index": 0,
+        "question_id": "q1",
+        "independent_solution": "模型输出工具调用 add(a=12, b=30)，说明模型负责决定调用哪个工具并给出参数，不执行加法。程序收到后校验工具名、权限和参数，通过后执行 add 并返回 42。因此正确选项为 B。A 错在把执行加法归给模型、把决定调用归给程序；C 错在把参数校验归给模型；D 错在认为双方都执行工具。",
+        "answer_matches": true,
+        "explanation_valid": true,
+        "option_checks": [
+          {
+            "option_index": 0,
+            "reasoning": "该选项把执行加法并返回 42 归给模型，但模型只输出工具名和参数，不执行加法；同时把决定调用哪个工具归给程序，而决定调用是模型的职责。两项职责都放反了，因此错误。",
+            "explanation_valid": true,
+            "option_text": "模型负责执行加法并返回 42，程序负责决定调用哪个工具",
+            "explanation_excerpt": "选项 A 把执行加法的职责错给了模型，且把“决定调用哪个工具”错给了程序",
+            "independent_correct": false,
+            "explanation_reasoning": "解析摘录准确指出选项 A 的两处错误：执行加法错给模型，决定调用错给程序，与选项内容一致。"
+          },
+          {
+            "option_index": 1,
+            "reasoning": "模型输出工具名 add 和参数 a=12、b=30，程序校验名称、权限和参数后执行 add 并返回 42，符合工具调用的标准分工，因此正确。",
+            "explanation_valid": true,
+            "option_text": "模型负责输出工具名和参数，程序负责校验名称、权限和参数后执行工具",
+            "explanation_excerpt": "模型只负责决定调用哪个工具并给出参数（这里是工具名 add 和参数 a=12、b=30），它本身不执行加法。程序收到后先校验工具名是否存在、调用方是否有权限、参数是否齐全，校验通过才真正执行 add 并返回 42。",
+            "independent_correct": true,
+            "explanation_reasoning": "解析摘录完整描述了模型和程序的正确分工，与选项 B 一致，说明准确。"
+          },
+          {
+            "option_index": 2,
+            "reasoning": "参数校验是程序的职责，不是模型的职责；程序确实负责执行计算，但该选项把校验职责错给了模型，因此整体错误。",
+            "explanation_valid": false,
+            "option_text": "模型负责校验参数是否齐全，程序负责计算 12 与 30 的和",
+            "explanation_excerpt": "选项 C 把参数校验错给了模型，把计算错给了程序，方向反了",
+            "independent_correct": false,
+            "explanation_reasoning": "解析摘录前半句“把参数校验错给了模型”正确，但后半句“把计算错给了程序”不准确：在正确分工中程序确实负责执行计算，选项 C 的错误不在于程序计算，而在于模型校验。解析把程序计算也当作错误，属于过度批评。"
+          },
+          {
+            "option_index": 3,
+            "reasoning": "工具调用中只有程序执行工具，模型只输出调用请求，不存在双方都执行、谁先响应谁返回的机制，因此错误。",
+            "explanation_valid": true,
+            "option_text": "模型和程序都负责执行工具，谁先响应谁返回结果",
+            "explanation_excerpt": "选项 D 认为双方都执行工具，与“模型只输出、程序才执行”的分工不符。",
+            "independent_correct": false,
+            "explanation_reasoning": "解析摘录准确指出选项 D 与正确分工不符，说明成立。"
+          }
+        ]
+      },
+      {
+        "question_index": 1,
+        "question_id": "q2",
+        "independent_solution": "add 需要参数 a 和 b，模型只给出 a=12，缺少 b。程序在执行前校验参数是否齐全，发现 b 缺失则校验失败，工具不执行，也不返回计算结果。因此正确选项为 B。A 假设自动补 0 无依据；C 假设忽略缺失参数直接返回 a，等于跳过校验；D 假设 b 当作空字符串做字符串拼接，无依据且混淆数值加法与字符串拼接。",
+        "answer_matches": true,
+        "explanation_valid": true,
+        "option_checks": [
+          {
+            "option_index": 0,
+            "reasoning": "题目和材料均未给出 b 的默认值为 0 的行为，程序在参数缺失时应校验失败，不会自动补默认值并返回 12，因此错误。",
+            "explanation_valid": true,
+            "option_text": "程序自动把 b 补成 0，然后返回 12",
+            "explanation_excerpt": "选项 A 假设程序会自动补默认值 0，但材料没有给出这种默认行为",
+            "independent_correct": false,
+            "explanation_reasoning": "解析摘录准确指出选项 A 的假设缺乏材料依据，说明成立。"
+          },
+          {
+            "option_index": 1,
+            "reasoning": "add 需要两个参数，缺 b 无法求和；程序执行前校验参数齐全性，发现缺失则校验失败，工具不执行，符合工具调用校验流程，因此正确。",
+            "explanation_valid": true,
+            "option_text": "程序校验发现缺少参数 b，校验失败，工具不执行",
+            "explanation_excerpt": "add 需要两个参数 a 和 b，缺了 b 就无法完成求和。程序在真正执行前会校验参数是否齐全，发现 b 缺失时校验失败，因此工具不会被执行，也不会返回任何计算结果。",
+            "independent_correct": true,
+            "explanation_reasoning": "解析摘录完整说明缺参导致校验失败、工具不执行，与选项 B 一致，说明准确。"
+          },
+          {
+            "option_index": 2,
+            "reasoning": "忽略缺失参数直接返回 a 的值等于跳过参数校验，与工具调用前必须校验参数齐全的流程矛盾，因此错误。",
+            "explanation_valid": true,
+            "option_text": "程序忽略缺失的 b，直接返回 a 的值 12",
+            "explanation_excerpt": "选项 C 假设程序会忽略缺失参数直接返回 a，这等于跳过校验",
+            "independent_correct": false,
+            "explanation_reasoning": "解析摘录准确指出选项 C 等于跳过校验，说明成立。"
+          },
+          {
+            "option_index": 3,
+            "reasoning": "题目未给出 b 会被当作空字符串的行为，且 add 是数值加法，字符串拼接与工具语义不符，因此错误。",
+            "explanation_valid": true,
+            "option_text": "程序把 b 当作空字符串，返回字符串拼接结果",
+            "explanation_excerpt": "选项 D 假设 b 被当作空字符串并做字符串拼接，既没有依据，也混淆了数值加法与字符串拼接。",
+            "independent_correct": false,
+            "explanation_reasoning": "解析摘录准确指出选项 D 缺乏依据且混淆数值加法与字符串拼接，说明成立。"
+          }
+        ]
+      }
+    ]
+  },
+  "feedback": [
+    "第 1 题选项 3 的解析：参数校验是程序的职责，不是模型的职责；程序确实负责执行计算，但该选项把校验职责错给了模型，因此整体错误。"
+  ]
+}

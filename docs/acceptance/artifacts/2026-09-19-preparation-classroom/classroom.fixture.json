@@ -1,0 +1,446 @@
+{
+  "stage": {
+    "id": "classroom-e-contract-fixture-v1",
+    "name": "工具调用：从请求到回执",
+    "createdAt": 1789810911931,
+    "updatedAt": 1789810911931
+  },
+  "scenes": [
+    {
+      "id": "classroom-e-contract-fixture-v1:example",
+      "stageId": "classroom-e-contract-fixture-v1",
+      "title": "追踪一次加法",
+      "order": 0,
+      "createdAt": 1789810911931,
+      "updatedAt": 1789810911931,
+      "type": "slide",
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "classroom-e-contract-fixture-v1:example:canvas",
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625,
+          "theme": {
+            "backgroundColor": "#ffffff",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "fontColor": "#172033",
+            "fontName": "sans-serif"
+          },
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "classroom-e-contract-fixture-v1:example:title",
+              "type": "text",
+              "left": 50,
+              "top": 10,
+              "width": 900,
+              "height": 42,
+              "rotate": 0,
+              "content": "<div style=\"font-size:30px;line-height:1.4\">追踪一次加法</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:summary",
+              "type": "text",
+              "left": 50,
+              "top": 55,
+              "width": 900,
+              "height": 72,
+              "rotate": 0,
+              "content": "<div style=\"font-size:24px;line-height:1.4\">从参数到真实结果</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step1",
+              "type": "shape",
+              "left": 50,
+              "top": 135,
+              "width": 410,
+              "height": 165,
+              "rotate": 0,
+              "fixedRatio": false,
+              "viewBox": [
+                100,
+                100
+              ],
+              "fill": "#eaf2ff",
+              "path": "M0 0 L100 0 L100 100 L0 100 Z"
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step1:label",
+              "type": "text",
+              "left": 66,
+              "top": 143,
+              "width": 378,
+              "height": 60,
+              "rotate": 0,
+              "content": "<div style=\"font-size:26px;line-height:1.4\">1. 请求</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step1:detail",
+              "type": "text",
+              "left": 66,
+              "top": 207,
+              "width": 378,
+              "height": 85,
+              "rotate": 0,
+              "content": "<div style=\"font-size:24px;line-height:1.4\">add(a=12,b=30)</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step1:arrow",
+              "type": "shape",
+              "left": 480,
+              "top": 205,
+              "width": 40,
+              "height": 28,
+              "rotate": 0,
+              "fixedRatio": false,
+              "viewBox": [
+                100,
+                100
+              ],
+              "fill": "#2563eb",
+              "path": "M0 35 L60 35 L60 0 L100 50 L60 100 L60 65 L0 65 Z"
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step2",
+              "type": "shape",
+              "left": 540,
+              "top": 135,
+              "width": 410,
+              "height": 165,
+              "rotate": 0,
+              "fixedRatio": false,
+              "viewBox": [
+                100,
+                100
+              ],
+              "fill": "#eaf2ff",
+              "path": "M0 0 L100 0 L100 100 L0 100 Z"
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step2:label",
+              "type": "text",
+              "left": 556,
+              "top": 143,
+              "width": 378,
+              "height": 60,
+              "rotate": 0,
+              "content": "<div style=\"font-size:26px;line-height:1.4\">2. 校验和执行</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step2:detail",
+              "type": "text",
+              "left": 556,
+              "top": 207,
+              "width": 378,
+              "height": 85,
+              "rotate": 0,
+              "content": "<div style=\"font-size:24px;line-height:1.4\">12 + 30 = 42</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step2:next",
+              "type": "text",
+              "left": 785,
+              "top": 302,
+              "width": 165,
+              "height": 28,
+              "rotate": 0,
+              "content": "<div style=\"font-size:18px;line-height:1.4\">↓ 接第 3 步</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step3",
+              "type": "shape",
+              "left": 50,
+              "top": 330,
+              "width": 410,
+              "height": 165,
+              "rotate": 0,
+              "fixedRatio": false,
+              "viewBox": [
+                100,
+                100
+              ],
+              "fill": "#eaf2ff",
+              "path": "M0 0 L100 0 L100 100 L0 100 Z"
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step3:label",
+              "type": "text",
+              "left": 66,
+              "top": 338,
+              "width": 378,
+              "height": 60,
+              "rotate": 0,
+              "content": "<div style=\"font-size:26px;line-height:1.4\">3. 回传</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step3:detail",
+              "type": "text",
+              "left": 66,
+              "top": 402,
+              "width": 378,
+              "height": 85,
+              "rotate": 0,
+              "content": "<div style=\"font-size:24px;line-height:1.4\">result: 42</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step3:arrow",
+              "type": "shape",
+              "left": 480,
+              "top": 400,
+              "width": 40,
+              "height": 28,
+              "rotate": 0,
+              "fixedRatio": false,
+              "viewBox": [
+                100,
+                100
+              ],
+              "fill": "#2563eb",
+              "path": "M0 35 L60 35 L60 0 L100 50 L60 100 L60 65 L0 65 Z"
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step4",
+              "type": "shape",
+              "left": 540,
+              "top": 330,
+              "width": 410,
+              "height": 165,
+              "rotate": 0,
+              "fixedRatio": false,
+              "viewBox": [
+                100,
+                100
+              ],
+              "fill": "#eaf2ff",
+              "path": "M0 0 L100 0 L100 100 L0 100 Z"
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step4:label",
+              "type": "text",
+              "left": 556,
+              "top": 338,
+              "width": 378,
+              "height": 60,
+              "rotate": 0,
+              "content": "<div style=\"font-size:26px;line-height:1.4\">4. 回答</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:example:step4:detail",
+              "type": "text",
+              "left": 556,
+              "top": 402,
+              "width": 378,
+              "height": 85,
+              "rotate": 0,
+              "content": "<div style=\"font-size:24px;line-height:1.4\">结果为 42</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            }
+          ]
+        }
+      },
+      "actions": [
+        {
+          "id": "classroom-e-contract-fixture-v1:example:speech",
+          "type": "speech",
+          "text": "先观察 add 的实际请求与执行结果。"
+        },
+        {
+          "id": "classroom-e-contract-fixture-v1:example:step1:focus",
+          "type": "spotlight",
+          "elementId": "classroom-e-contract-fixture-v1:example:step1"
+        },
+        {
+          "id": "classroom-e-contract-fixture-v1:example:step1:speech",
+          "type": "speech",
+          "text": "模型提出 add，请求参数是十二和三十。"
+        },
+        {
+          "id": "classroom-e-contract-fixture-v1:example:step2:focus",
+          "type": "spotlight",
+          "elementId": "classroom-e-contract-fixture-v1:example:step2"
+        },
+        {
+          "id": "classroom-e-contract-fixture-v1:example:step2:speech",
+          "type": "speech",
+          "text": "程序校验数字后求和，得到四十二。"
+        },
+        {
+          "id": "classroom-e-contract-fixture-v1:example:step3:focus",
+          "type": "spotlight",
+          "elementId": "classroom-e-contract-fixture-v1:example:step3"
+        },
+        {
+          "id": "classroom-e-contract-fixture-v1:example:step3:speech",
+          "type": "speech",
+          "text": "把真实结果四十二交回模型。"
+        },
+        {
+          "id": "classroom-e-contract-fixture-v1:example:step4:focus",
+          "type": "spotlight",
+          "elementId": "classroom-e-contract-fixture-v1:example:step4"
+        },
+        {
+          "id": "classroom-e-contract-fixture-v1:example:step4:speech",
+          "type": "speech",
+          "text": "模型依据回执回答四十二。"
+        }
+      ]
+    },
+    {
+      "id": "classroom-e-contract-fixture-v1:principle",
+      "stageId": "classroom-e-contract-fixture-v1",
+      "title": "职责分工",
+      "order": 1,
+      "createdAt": 1789810911931,
+      "updatedAt": 1789810911931,
+      "type": "slide",
+      "content": {
+        "type": "slide",
+        "canvas": {
+          "id": "classroom-e-contract-fixture-v1:principle:canvas",
+          "viewportSize": 1000,
+          "viewportRatio": 0.5625,
+          "theme": {
+            "backgroundColor": "#ffffff",
+            "themeColors": [
+              "#2563eb"
+            ],
+            "fontColor": "#172033",
+            "fontName": "sans-serif"
+          },
+          "background": {
+            "type": "solid",
+            "color": "#ffffff"
+          },
+          "elements": [
+            {
+              "id": "classroom-e-contract-fixture-v1:principle:title",
+              "type": "text",
+              "left": 50,
+              "top": 25,
+              "width": 900,
+              "height": 95,
+              "rotate": 0,
+              "content": "<div style=\"font-size:34px;line-height:1.4\">职责分工</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:principle:point1",
+              "type": "text",
+              "left": 60,
+              "top": 150,
+              "width": 880,
+              "height": 115,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\">模型选择工具</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            },
+            {
+              "id": "classroom-e-contract-fixture-v1:principle:point2",
+              "type": "text",
+              "left": 60,
+              "top": 275,
+              "width": 880,
+              "height": 115,
+              "rotate": 0,
+              "content": "<div style=\"font-size:28px;line-height:1.4\">程序校验和执行</div>",
+              "defaultFontName": "sans-serif",
+              "defaultColor": "#172033",
+              "lineHeight": 1.4
+            }
+          ]
+        }
+      },
+      "actions": [
+        {
+          "id": "classroom-e-contract-fixture-v1:principle:speech",
+          "type": "speech",
+          "text": "再归纳原理：模型提出调用，程序负责执行。"
+        }
+      ]
+    },
+    {
+      "id": "classroom-e-contract-fixture-v1:check",
+      "stageId": "classroom-e-contract-fixture-v1",
+      "title": "检查理解",
+      "order": 2,
+      "createdAt": 1789810911931,
+      "updatedAt": 1789810911931,
+      "type": "quiz",
+      "content": {
+        "type": "quiz",
+        "questions": [
+          {
+            "id": "classroom-e-contract-fixture-v1:check:q1",
+            "type": "single",
+            "question": "add 缺少 b 时应怎样处理？",
+            "options": [
+              {
+                "value": "A",
+                "label": "直接求和"
+              },
+              {
+                "value": "B",
+                "label": "返回参数缺失错误"
+              }
+            ],
+            "answer": [
+              "B"
+            ],
+            "analysis": "缺少参数时不能执行工具，应返回参数缺失错误。",
+            "required": true,
+            "points": 1
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "classroom-e-contract-fixture-v1:check:speech",
+          "type": "speech",
+          "text": "add 缺少 b 时应怎样处理？。请选择答案，提交后查看解析。"
+        }
+      ]
+    }
+  ]
+}

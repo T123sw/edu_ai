@@ -140,3 +140,26 @@ def test_upload_api_accepts_mineru_formats_and_rejects_archives(monkeypatch):
             assert saved[-1]['file_data'] == b'original upload'
         assert client.post('/api/course-preparations/uploads', files={'file':('bad.zip',b'zip')}).status_code == 422
     assert len(saved) == 6
+
+
+def test_asset_references_are_owner_version_hash_bound(db_engine):
+    import base64
+    from app.database.models import PreparationDocumentVersion
+    from app.course_preparation.adapters.document_store import DocumentStore
+    from app.course_preparation.schemas import UploadRef
+    from app.integrations.pdf.base import ParsedPdf
+    PreparationDocumentVersion.__table__.create(db_engine)
+    class Reader:
+        def read_bytes(self,*args): return {'filename':'slide.pptx'},b'original presentation bytes'
+    class MinerU:
+        def parse(self,*a,**kw):
+            return ParsedPdf(text='Presentation text with actual diagram and table.',images=['data:image/png;base64,'+base64.b64encode(b'private-image').decode()])
+    store=DocumentStore(db_engine,Reader(),DocumentParser(mineru_factory=MinerU))
+    ref=UploadRef(**store.register('alice','slides'))
+    result=store.asset_refs('alice',ref)
+    asset=result['assets'][0]
+    assert result['status']=='available' and 'data' not in asset
+    assert asset['owner_user_id']=='alice' and asset['version']==1
+    assert store.read_asset('alice',ref,asset_id=asset['asset_id'],content_sha256=asset['content_sha256'])['data'].startswith('data:image/png')
+    with pytest.raises(PermissionError): store.read_asset('bob',ref,asset_id=asset['asset_id'],content_sha256=asset['content_sha256'])
+    with pytest.raises(PermissionError): store.read_asset('alice',ref,asset_id=asset['asset_id'],content_sha256='wrong')

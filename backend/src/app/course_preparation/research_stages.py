@@ -4,7 +4,7 @@ import hashlib
 from .research_contracts import ResearchState, Candidate
 from .runner import StepResult
 from .adapters.sources import upload_url
-from .adapters.documents import DocumentUnreadable
+from .adapters.documents import DocumentUnreadable, controlled_parse
 from .research_agent import ResearchError
 
 
@@ -38,7 +38,8 @@ class ResearchStages:
         agent=self.agent_factory(context,request,checkpoint)
         agent.extra_context = {**agent.extra_context, 'input_documents': checkpoint.get('input_documents', [])}
         def reserve(value):
-            self.repository.checkpoint(context,{**checkpoint,'research_state':value.model_dump(mode='json')})
+            checkpoint['research_state']=value.model_dump(mode='json')
+            self.repository.checkpoint(context,checkpoint)
         remaining=(datetime.fromisoformat(context.deadline)-datetime.now(timezone.utc)).total_seconds()
         if state.blocker is not None:
             checkpoint['research_blocker']=state.blocker.model_dump(mode='json')
@@ -51,8 +52,24 @@ class ResearchStages:
                 self.repository.heartbeat(context)
                 if self.memory:
                     self.memory.validate(context, checkpoint)
-            state=agent.model.run_learning_path(agent,request,state,reserve=reserve,guard=guard,
-                                               timeout=max(1,min(480,remaining)))
+            starting_calls=state.calls
+            try:
+                state=agent.model.run_learning_path(agent,request,state,reserve=reserve,guard=guard,
+                                                   timeout=max(1,min(480,remaining)))
+            except ResearchError as exc:
+                # Reassemble a fresh native session from exact durable evidence;
+                # keep the provider guard and all spent calls. Two bounded
+                # resumptions prevent looping on irreducible hard constraints.
+                latest=ResearchState.model_validate(checkpoint.get('research_state',{}))
+                restarts=checkpoint.get('research_context_restarts',0)
+                if exc.code != 'CONTEXT_BUDGET_EXCEEDED' or restarts>=2 or latest.calls<=starting_calls:
+                    raise
+                checkpoint['research_context_restarts']=restarts+1
+                from .research_context_view import build_research_context_view
+                checkpoint['research_context_estimated_bytes']=build_research_context_view(
+                    latest,required_ids=(),max_bytes=48000)['context_view']['estimated_bytes']
+                self.repository.checkpoint(context,checkpoint)
+                return checkpoint,latest
         else:
             state=agent.step(request,state,timeout=max(1,min(90,remaining)),reserve=reserve)
         if self.memory:
@@ -96,7 +113,8 @@ class ResearchStages:
         completed=list(checkpoint.get('ingested_documents',[]))
         if len(completed)<len(request.uploads):
             ref=request.uploads[len(completed)]
-            parsed=self.documents.parse(context.owner_user_id,ref)
+            parsed=controlled_parse(self.documents, context.owner_user_id, ref,
+                context=context, repository=self.repository, checkpoint=checkpoint)
             if parsed['defects'] and ref.usage in ('auto','primary','coverage'):
                 raise DocumentUnreadable('CORE_SOURCE_UNREADABLE',parsed['defects'])
             metadata=self.documents.authorize(context.owner_user_id,ref)
