@@ -1,6 +1,7 @@
 """Phase-bound native Harness sessions for private preparation candidates."""
 from copy import deepcopy
 from datetime import datetime, timezone
+import json
 import threading
 import time
 
@@ -26,8 +27,9 @@ class ContentTools:
     terminal_on_result = True
     content_submission = True
 
-    def __init__(self, guard):
+    def __init__(self, guard, *, structured=False):
         self.guard = guard
+        self.structured = structured
         self.lock = threading.RLock()
         self.result = None
         self.invalid = False
@@ -38,6 +40,14 @@ class ContentTools:
             'parameters': {'type': 'object', 'properties': {'text': {'type': 'string', 'minLength': 1}},
                            'required': ['text'], 'additionalProperties': False},
         }}
+        if structured:
+            self.tools = {'submit_resource_json': {
+                'name': 'submit_resource_json',
+                'description': '提交本轮结构化结果对象；value 直接放 JSON 对象，不要再次编码为字符串。业务层随后独立校验。',
+                'parameters': {'type': 'object', 'properties': {
+                    'value': {'type': 'object', 'additionalProperties': True}},
+                    'required': ['value'], 'additionalProperties': False},
+            }}
 
     def schemas(self):
         return [{'name': name, 'description': spec['description'], 'inputSchema': spec['parameters']}
@@ -54,7 +64,14 @@ class ContentTools:
                 self.check()
                 if name not in self.tools:
                     raise ValueError('TOOL_NOT_AVAILABLE')
-                text = accept_resource_text(arguments)
+                if self.structured:
+                    if (not isinstance(arguments, dict) or set(arguments) != {'value'}
+                            or not isinstance(arguments['value'], dict)):
+                        from .harness_provider import CompletionFormatError
+                        raise CompletionFormatError('RESOURCE_JSON_OBJECT_REQUIRED')
+                    text = json.dumps(arguments['value'], ensure_ascii=False)
+                else:
+                    text = accept_resource_text(arguments)
                 if self.result is not None and self.result != text:
                     raise ValueError('RESOURCE_TEXT_ALREADY_SUBMITTED')
                 self.result = text
@@ -123,7 +140,7 @@ class PreparationHarnessGateway:
             self.guard()
 
         check()
-        toolset = ContentTools(check)
+        toolset = ContentTools(check, structured=self._phase_context.get('response_format') == 'json')
         adapter = HarnessPreparationAdapter(self.configured, client_factory=self.client_factory,
             context_tokens=self.context_tokens, sdk_factory=self.sdk_factory,
             meter=PreparationModelMeter(self.store, self.context))

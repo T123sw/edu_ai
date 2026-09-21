@@ -25,7 +25,9 @@ def phase_gateway(gateway, payload, phase):
         return gateway
     # B owns phase binding and verifies that the runtime is native Harness.
     from app.course_preparation.harness_generation import scoped_gateway
-    return scoped_gateway(gateway, phase=phase, context=teaching_context(payload) or {}, preparation=True)
+    context = teaching_context(payload)
+    return scoped_gateway(gateway, phase=phase,
+        context={**context, 'response_format': 'json'} if context is not None else {}, preparation=True)
 
 
 def generation_failure(code, message, *, category, phase, retry_scope, content_digest=None):

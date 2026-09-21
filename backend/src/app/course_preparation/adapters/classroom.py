@@ -52,7 +52,7 @@ def _phase_gateway(gateway, phase, phase_context):
         from ..classroom_render_checks import ClassroomFailure
         raise ClassroomFailure('CLASSROOM_HARNESS_REQUIRED', '备课课堂需要 B 的原生 Harness 阶段网关',
                                category='contract', retry_scope='none') from exc
-    return scoped_gateway(gateway, phase=phase, context=phase_context, preparation=True)
+    return scoped_gateway(gateway, phase=phase, context={**phase_context, 'response_format': 'json'}, preparation=True)
 
 
 def _check_canceled(context):
