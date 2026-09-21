@@ -52,7 +52,7 @@ test('fresh upload through workers to exact versions and real playback', async (
     const uploaded = page.waitForResponse(r => r.url().endsWith('/api/course-preparations/uploads') && r.request().method() === 'POST');
     await page.getByLabel('添加资料').setInputFiles(uploadFile!);
     expect((await uploaded).status()).toBe(201);
-    const submitted = page.waitForResponse(r => new URL(r.url()).pathname === '/api/course-preparations' && r.request().method() === 'POST');
+    const submitted = page.waitForResponse(r => new URL(r.url()).pathname.replace(/^\/backend(?=\/)/, '') === '/api/course-preparations' && r.request().method() === 'POST');
     await page.getByRole('button', { name: '开始学习' }).click();
     const response = await submitted;
     expect(response.status()).toBe(202);

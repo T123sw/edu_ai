@@ -304,7 +304,11 @@ def review_content(kind, content, spec, gateway, *, durable=False):
             'content': content, 'resource_contract': resource_contract(kind), 'schema': review_schema.model_json_schema()}, ensure_ascii=False)},
     ]
     for attempt in range(1 if durable else 2):
-        raw = gateway.chat(messages, temperature=0.1, max_tokens=65536 if kind == 'classroom' else 32768)
+        # Prepared classrooms share the 128k window with exact source/context
+        # and rendered scenes. Reserve a bounded review, retaining every input
+        # field and coverage check; truncation remains a protocol failure.
+        output_limit = 32768 if spec.get('teaching_context') else 65536
+        raw = gateway.chat(messages, temperature=0.1, max_tokens=output_limit if kind == 'classroom' else 32768)
         try:
             review = review_schema.model_validate_json(re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip()))
             if kind == 'quiz':
