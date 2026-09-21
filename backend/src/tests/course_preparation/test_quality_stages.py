@@ -12,12 +12,17 @@ def test_full_bodies_are_reviewed_one_node_at_a_time_before_course_gate(monkeypa
     monkeypatch.setattr(module, 'candidate_manifest', lambda *_: SimpleNamespace(model_dump=lambda **_: {'checked':True}))
     specs = [{'node_id':key,'objectives':[key]} for key in ('a','b')]
     artifacts = [{'artifact_id':key, 'spec':spec, 'spec_digest':digest(spec), 'status':'draft', 'content_digest':digest(key),
-                  'resource_type':'report', 'content':{'content':key*60000}} for key,spec in zip(('a','b'),specs)]
+                  'resource_type':'report', 'content':{'content':key*60000, 'generation_state': {'resource_review': {
+                      'decision':'pass','content_sha256':digest(key), 'history':['past audit '*20000]}}}}
+                 for key,spec in zip(('a','b'),specs)]
     checkpoint = {'research_state':{}, 'resource_specs':specs, 'generation_receipts':{digest(spec):{'id':i} for i,spec in enumerate(specs)},
                   'brief':{}, 'plan':{'nodes':[{'node_key':key} for key in ('a','b')]}, 'node_evidence':{'a':[], 'b':[]}}
     calls=[]
     class Model:
         def decide(self, context, tools, **kw):
+            from app.course_preparation.context import context_packet
+            # Stored audit history must not displace complete teaching bodies.
+            context_packet(context, tools, max_tokens=128000, native_skill=True)
             calls.append(context)
             node=context.get('node')
             if node: assert context['artifacts'][0]['content'] == node['node_key']*60000

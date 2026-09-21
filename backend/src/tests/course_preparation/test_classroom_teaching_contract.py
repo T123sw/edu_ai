@@ -310,6 +310,10 @@ def test_v1_checkpoint_keeps_legacy_resource_without_inventing_teaching_context(
 def test_binding_review_does_not_accept_missing_or_semantically_rejected_bindings(generation, fault):
     args, _ = generation; original = args['gateway'].chat
     def chat(messages, **kwargs):
+        request = json.loads(messages[-1]['content'])
+        if 'failed_bindings' in request:
+            return json.dumps({'repairs': [{'binding_type': c['binding_type'], 'binding_id': c['binding_id'],
+                'original_locator': c['locator'], 'locator': c['locator']} for c in request['failed_bindings']]})
         result = json.loads(original(messages, **kwargs))
         if 'preparation_checks' in result:
             if fault == 'missing': result['preparation_checks'].pop()

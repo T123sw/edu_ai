@@ -173,7 +173,13 @@ class QualityStages:
                 'node': unchecked, 'node_evidence': checkpoint['node_evidence'][unchecked['node_key']],
                 'artifacts': [{'artifact_id': r['artifact_id'], 'node_id': r['spec']['node_id'], 'kind': r['resource_type'],
                               'content': r['content']['content'], 'teaching_context':r['spec'].get('teaching_context'),
-                              'preparation':preparation_metadata(r), 'generation_state':r['content'].get('generation_state',{}),
+                              'preparation':preparation_metadata(r),
+                              # Full audits remain persisted and were verified
+                              # by read_result. Repeating their histories here
+                              # crowds out the actual node content and evidence.
+                              'resource_review_receipt':{k:v for k,v in
+                                  r['content'].get('generation_state',{}).get('resource_review',{}).items()
+                                  if k in ('decision','method','content_sha256','preparation_sha256')},
                               'spec_digest':r['spec_digest'], 'content_digest':r['content_digest']} for r in selected_artifacts],
                 'duration_summary':checkpoint['duration_summary']}
         else:
@@ -224,13 +230,22 @@ class QualityStages:
     def repair(self,context):
         checkpoint=dict(context.checkpoint); self.memory.validate(context,checkpoint)
         repairs=checkpoint.get('production_repairs',0)+1
-        if repairs>2: raise ResearchError('QUALITY_GATE_FAILED','两轮局部修复后仍未通过课程门禁')
         affected={key:[] for issue in checkpoint['quality']['issues'] for key in issue['artifact_ids']}
         for issue in checkpoint['quality']['issues']:
             for key in issue['artifact_ids']: affected[key].append(issue['reason'])
         if any(key.startswith('retained:') for key in affected):
             raise ResearchError('RETAINED_CONTENT_REQUIRES_SEPARATE_REVISION','保留资料的内容检查未通过，需要明确修订该资料；不擅自重生成原资料')
         by_spec={r['spec_digest']:r for r in checkpoint['artifacts']}
+        scopes={r['artifact_id']:recovery_scope(r['failure_detail']) if r.get('failure_detail') else 'content'
+                for r in checkpoint['artifacts'] if r['artifact_id'] in affected}
+        # Old checkpoints used one counter; conservatively retain their spent
+        # content allowance. New work distinguishes re-review from rewriting.
+        counts=dict(checkpoint.get('repair_counts',
+                    {'content':checkpoint['production_repairs']} if checkpoint.get('production_repairs') else {}))
+        for scope in set(scopes.values()):
+            counts[scope]=counts.get(scope,0)+1
+            if counts[scope]>2:
+                raise ResearchError('QUALITY_GATE_FAILED',f'{scope} 两轮恢复后仍未通过课程门禁')
         specifications=[]
         receipts=dict(checkpoint.get('generation_receipts',{}))
         for spec in checkpoint['resource_specs']:
@@ -239,7 +254,7 @@ class QualityStages:
                 specifications.append(spec)
                 continue
             detail=artifact.get('failure_detail')
-            scope=recovery_scope(detail) if detail else 'content'
+            scope=scopes[artifact['artifact_id']]
             if scope in ('review','provider'):
                 resume=getattr(self.generation,'resume_review',None)
                 if resume is None:
@@ -248,12 +263,15 @@ class QualityStages:
                     recovery_key=digest([context.preparation_id,digest(spec),repairs]))
                 specifications.append(spec)
             else:
+                reasons=list(affected[artifact['artifact_id']])
+                if detail and detail.get('message') and detail['message'] not in reasons:
+                    reasons.append(detail['message'])
                 specifications.append({**spec,'revision':spec['revision']+1,
-                    'revision_feedback':affected[artifact['artifact_id']],
+                    'revision_feedback':reasons,
                     'original_content':(artifact.get('content') or {}).get('content')
                         or (artifact.get('content') or {}).get('_review_candidate',{}).get('content')
                         or spec.get('original_content')})
-        checkpoint.update(resource_specs=specifications,generation_receipts=receipts,production_repairs=repairs,
+        checkpoint.update(resource_specs=specifications,generation_receipts=receipts,production_repairs=repairs,repair_counts=counts,
             invalidated_drafts=[*checkpoint.get('invalidated_drafts',[]),{'artifacts':[r for r in checkpoint['artifacts'] if r['artifact_id'] in affected]}])
         checkpoint.pop('quality',None); checkpoint.pop('candidate_manifest',None)
         return StepResult(checkpoint,'produce')

@@ -226,7 +226,7 @@ def specification(payload):
         'harness_organization', 'classroom_options', 'harness_interaction_mode', 'research_context', 'source_context', 'research_sources', 'harness_execution_context')}
     spec.update({key: getattr(payload, key, None) for key in (
         'standard_bundle_spec', 'standard_bundle_contract', 'standard_action',
-        'baseline_version', 'baseline_summary', 'approved_version', 'rejection_reason')})
+        'baseline_version', 'baseline_summary', 'approved_version', 'rejection_reason', 'revision_feedback')})
     spec['teaching_context'] = teaching_context(payload)
     return spec
 
@@ -244,7 +244,8 @@ def review_feedback(kind, content, review):
         for check in review.question_checks:
             expected = list(range(len(questions[check.question_index].get('options') or [])))
             if sorted(c.option_index for c in check.option_checks) != expected:
-                raise ValueError('quiz_review_option_coverage_incomplete')
+                raise ValueError(f'quiz_review_option_coverage_incomplete: question_index={check.question_index}, '
+                                 f'expected={expected}, actual={sorted(c.option_index for c in check.option_checks)}')
             independent_mismatch = any(item.independent_correct is not None and item.independent_correct != (chr(65 + item.option_index) in re.sub(r'[\s,，、;；]+', '', questions[check.question_index]['answer']).upper()) for item in check.option_checks)
             if independent_mismatch or not check.answer_matches or not check.explanation_valid:
                 feedback.append(f'第 {check.question_index + 1} 题：{check.independent_solution}')
@@ -273,7 +274,9 @@ def bind_option_reviews(content, review):
     return review
 
 
-def review_content(kind, content, spec, gateway, *, durable=False):
+def review_content(kind, content, spec, gateway, *, durable=False, candidate=None, review_state=None):
+    if review_state and review_state.get('review_format_error'):
+        spec = {**spec, 'review_format_feedback': review_state['review_format_error']}
     review_schema = {'quiz': BoundQuizReview, 'classroom': ClassroomReview}.get(kind, Review)
     if kind == 'quiz' and spec.get('preparation'):
         review_schema = PreparationQuizReview
@@ -293,6 +296,8 @@ def review_content(kind, content, spec, gateway, *, durable=False):
          '需求映射只核验当前位置的真实贡献，完整跨资源满足性由整节点审阅决定。'
          'preparation_checks 对 preparation 每条需求/目标映射给出 binding_type、binding_id、locator、passed、reason；位置存在不等于语义支持。'
          '习题逐选项必须返回 independent_correct 独立真假判断和 explanation_excerpt（从该题原解析逐字摘取对应片段；缺少则为空且 explanation_valid=false）。'
+         'option_checks 严格对应原题 options 数组；数组为空或不存在时必须返回 []，判断题和简答题不得虚构第0个选项。'
+         '没有选项的题仍须在 question_checks 中独立求解、核对答案和解析。review_format_feedback 是上次具体格式错误，修复该错误并保留真实内容缺陷。'
          'option_text 如返回必须逐字匹配原选项；服务器按 question_index/option_index 回填原文。不得把一个选项没有说的话当作其错误理由。'
          'explanation_reasoning 单独逐分句核对解析摘录本身，每个批评是否成立；reasoning 判断选项，二者不能混同。'
          '一个选项可以一半对一半错：例如“模型校验参数，程序计算”只有前半句错，解析若说“把计算错给了程序”也必须判错，不能因选项整体错误就接受解析中的所有批评。'
@@ -318,9 +323,13 @@ def review_content(kind, content, spec, gateway, *, durable=False):
                 feedback += validate_preparation_review(content, kind, spec['preparation'], review.preparation_checks)
             return review, feedback
         except ValueError as exc:
+            error = ('; '.join(f"{'.'.join(map(str, item['loc']))}: {item['msg']}"
+                              for item in exc.errors(include_input=False)) if hasattr(exc, 'errors') else str(exc))[:1500]
+            if candidate is not None:
+                candidate.save(content, {**(review_state or {}), 'review_format_error': error})
             if durable or attempt:
                 if durable or spec.get('teaching_context'):
-                    raise generation_failure('RESOURCE_REVIEW_RESPONSE_INVALID', '资源审阅格式或覆盖不完整',
+                    raise generation_failure('RESOURCE_REVIEW_RESPONSE_INVALID', '资源审阅格式或覆盖不完整：' + error,
                         category='review_format', phase='resource_review', retry_scope='review', content_digest=value_digest(content)) from exc
                 raise
             messages.extend([{'role': 'assistant', 'content': raw}, {'role': 'user', 'content': '审阅响应结构或覆盖不完整：' + str(exc)[:800] + '。请重新核验并输出完整 JSON，逐项覆盖 required_coverage，保留真实不通过项，不降低标准。理由简洁具体，必须包含所有必填字段并正确闭合 JSON。'}])
@@ -353,9 +362,11 @@ class ReviewedResourceGenerator:
         review_only = bool(saved and saved.get('recovery_scope') == 'review')
         previous, feedback, history, metadata = None, [], [], None
         start_version = 1
+        format_error = None
         if saved:
             previous = saved['content']
             state = saved['review_state']
+            format_error = state.get('review_format_error')
             start_version, history, metadata = state.get('version', 1), state.get('history', []), state.get('preparation')
             if context is not None:
                 try:
@@ -423,10 +434,14 @@ class ReviewedResourceGenerator:
                     history.append({'version': version, 'decision': 'revise', 'structural_issues': feedback})
                     continue
             self.progress(25 + (version - 1) * 25, 'reviewing', '正在逐题核对答案与解析' if kind == 'quiz' else '正在核对内容与教学要求')
-            candidate.save(content, {'version':version, 'history':history, 'preparation':metadata})
+            review_state = {'version':version, 'history':history, 'preparation':metadata,
+                            'review_format_error':format_error}
+            candidate.save(content, review_state)
             review_spec = {**spec, **({'preparation':metadata} if metadata else {})}
             reviewer = phase_gateway(self.review_gateway, payload, 'resource_review')
-            review, feedback = review_content(kind, content, review_spec, reviewer, durable=self.checkpoint is not None)
+            review, feedback = review_content(kind, content, review_spec, reviewer, durable=self.checkpoint is not None,
+                                              candidate=candidate, review_state=review_state)
+            format_error = None
             history.append({'version': version, 'content_sha256': digest(kind, content),
                             'decision': 'revise' if feedback else 'pass', 'review': review.model_dump()})
             if feedback:
@@ -473,17 +488,21 @@ def review_classroom(content, config, gateway=None, *, checkpoint=None):
     candidate = ReviewCandidate(checkpoint, config.get('spec_digest') or value_digest(spec), lambda value: digest('classroom', value))
     saved = candidate.load()
     review_only = bool(saved and saved.get('recovery_scope') == 'review')
-    history, start_version = [], 1
+    history, start_version, format_error = [], 1, None
     if saved:
         content = saved['content']
         history = saved['review_state'].get('history', [])
         start_version = saved['review_state'].get('version', 1)
+        format_error = saved['review_state'].get('review_format_error')
     gateway = phase_gateway(gateway, payload, 'resource_review')
     repair_gateway = phase_gateway(repair_gateway, payload, 'classroom_repair')
     for version in range(start_version, 5):
         validate('classroom', content)
-        candidate.save(content, {'version': version, 'history': history})
-        review, feedback = review_content('classroom', content, spec, gateway, durable=checkpoint is not None)
+        review_state = {'version': version, 'history': history, 'review_format_error': format_error}
+        candidate.save(content, review_state)
+        review, feedback = review_content('classroom', content, spec, gateway, durable=checkpoint is not None,
+                                         candidate=candidate, review_state=review_state)
+        format_error = None
         history.append({'version': version, 'review': review.model_dump(), 'decision': 'revise' if feedback else 'pass'})
         if not feedback:
             return content, {'decision': 'pass', 'method': 'model_review', 'resource_type': 'classroom',

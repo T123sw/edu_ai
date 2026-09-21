@@ -74,7 +74,13 @@ def assert_outcome(case, public, evidence):
     if case.get('scenario') == 'network-course':
         assert any(a['kind'] == 'search' and a['status'] == 'completed' for a in network), 'REAL_SEARCH_MISSING'
         assert any(a['kind'] in ('extract', 'source_read') and a['status'] == 'completed' for a in network), 'REAL_EXTRACTION_MISSING'
-    if public['status'] == 'failed':
+    if public['status'] == 'canceled':
+        assert not public.get('result_ref') and not evidence['manifests'], 'CANCELED_TASK_DELIVERED_COURSE'
+        assert not any(public['budget']['reserved'].values()), 'CANCELED_BUDGET_NOT_SETTLED'
+        target = evidence.get('canceled_model_action_id')
+        assert target and any(a.get('action_id') == target and a['kind'] == 'model_completion'
+                              and a['status'] in ('completed', 'failed') for a in evidence['actions']), 'CANCELED_MODEL_NOT_SETTLED'
+    elif public['status'] == 'failed':
         assert public.get('error_code') == case['expected_error_code'], 'WRONG_BUSINESS_FAILURE'
         assert not public.get('result_ref') and not evidence['manifests'], 'FAILED_TASK_DELIVERED_COURSE'
         assert evidence['checkpoint'].get('research_blocker'), 'RESEARCH_GAP_DETAILS_MISSING'
@@ -216,13 +222,26 @@ def run_case(client, engine, owner, case, output, timeout):
     result = {'preparation_id': pid, 'test_status': 'failed', 'input_digest': digest(payload), 'upload_sha256': __import__('hashlib').sha256(data).hexdigest()}
     observed = []
     public = None
+    canceled_at = None
     try:
         while True:
             public = get_json(client, 'GET', f'/api/course-preparations/{pid}')
             observed.append({'elapsed_seconds': round(time.monotonic()-start, 2), 'public': public})
             write_json(output/'public-state.json', observed)
+            if case.get('cancel_inflight_model') and canceled_at is None and public['status'] not in TERMINAL:
+                probe = collect_evidence(engine, owner, pid)
+                pending = next((a for a in probe['actions'] if a['kind'] == 'model_completion' and a['status'] == 'pending'), None)
+                completed = any(a['kind'] == 'model_completion' and a['status'] == 'completed' for a in probe['actions'])
+                if pending and completed:
+                    result['canceled_model_action_id'] = pending['action_id']
+                    write_json(output/'inflight-before-cancel.json', pending)
+                    get_json(client, 'POST', f'/api/course-preparations/{pid}/cancel', json={})
+                    canceled_at = time.monotonic()
             if public['status'] in TERMINAL:
-                break
+                if not (canceled_at is not None and any(public['budget']['reserved'].values())):
+                    break
+                if time.monotonic() - canceled_at > 180:
+                    raise AssertionError('CANCELED_BUDGET_NOT_SETTLED')
             if time.monotonic()-start >= timeout:
                 # Explicitly cancel the isolated task so a timed-out test cannot accrue cost indefinitely.
                 get_json(client, 'POST', f'/api/course-preparations/{pid}/cancel', json={})
@@ -230,6 +249,8 @@ def run_case(client, engine, owner, case, output, timeout):
             time.sleep(2)
         result['business_status'] = public['status']
         evidence = collect_evidence(engine, owner, pid)
+        if case.get('cancel_inflight_model'):
+            evidence['canceled_model_action_id'] = result.get('canceled_model_action_id')
         evidence['stages'] = sorted(set(evidence['stages']) | {p['public']['stage'] for p in observed})
         write_json(output/'evidence.json', evidence)
         write_json(output/'parameters.json', parameter_ledger(evidence))

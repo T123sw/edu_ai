@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "cases": [
+    {"case_id":"R01","scenario":"cancel-inflight-model","expected_business_status":"canceled","cancel_inflight_model":true,"fixture":"tool-calling","goal":"只根据附件做两个节点的工具调用中文入门课，先例后理，每节点包含报告、习题和课堂。","source_mode":"uploaded_only"},
     {"case_id":"E01","scenario":"uploaded-course","expected_business_status":"succeeded","repeats_required":3,"fixture":"tool-calling","goal":"我会 Python，但没学过 Agent。只依据附件做两个节点、共20分钟的中文入门课，每节点需要报告、习题和AI课堂。先用12加30举例再解释原理。目标是手工追踪工具调用伪代码、解释成功与参数缺失日志；不接真实API，不学SDK、鉴权、多Agent或部署。","source_mode":"uploaded_only"},
     {"case_id":"E02","scenario":"network-course","expected_business_status":"succeeded","fixture":"tool-calling","goal":"我会Python。结合附件和DeepSeek官方正文学习真实工具调用API，做两个节点、共20分钟的中文入门课，每节点需要报告、习题和AI课堂，先例子后原理。附件没提供SDK安装和鉴权，请联网补齐并标注来源版本。","source_mode":"uploads_preferred"},
     {"case_id":"E03","scenario":"blocked-course","expected_business_status":"failed","expected_error_code":"RESEARCH_INSUFFICIENT","fixture":"tool-calling","goal":"只根据附件教我接入真实DeepSeek API，提供实际SDK安装、鉴权及可运行接口程序。禁止联网，不接受用伪代码替代真实程序。","source_mode":"uploaded_only"},

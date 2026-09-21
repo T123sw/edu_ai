@@ -66,6 +66,7 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
         'preparation_policy': getattr(payload, 'preparation_policy', None),
         'current_execution': getattr(payload, 'harness_execution_context', {'stage': 'write_and_review_report'}),
         'requirements': getattr(payload, 'focus', ''), 'outline': chapters,
+        'revision_feedback': list(getattr(payload, 'revision_feedback', None) or []),
         'organization': getattr(payload, 'harness_organization', None),
         'evidence': getattr(payload, 'research_context', ''),
         'source_context': getattr(payload, 'source_context', '') if context is not None else getattr(payload, 'source_context', '')[:24000],
@@ -75,7 +76,7 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
     candidate = ReviewCandidate(checkpoint, spec_digest, digest)
     saved = candidate.load()
     review_only = bool(saved and saved.get('recovery_scope') == 'review')
-    body, feedback, audit, metadata = initial_body, list(initial_feedback or []), [], None
+    body, feedback, audit, metadata = initial_body, list(initial_feedback or []) + specification['revision_feedback'], [], None
     external_review = {'previous_content_sha256':digest(initial_body), 'feedback':feedback} if initial_body else None
     start_version = 1
     if saved:

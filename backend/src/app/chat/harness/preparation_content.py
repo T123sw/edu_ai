@@ -54,6 +54,7 @@ requirements 保留整课要求；requirement_ids 是当前节点分工。只标
 习题同时返回 question_time_estimates:[{question_id,thinking_seconds,reason}]，逐题估计独立思考/作答秒数，
 不得把节点时间复制为估算；阅读题干、选项和解析的时间由程序另加。reason 解释所需推演步骤和基础。
 题量按当前节点时间、目标和其他配套资源控制，不机械生成固定数量。
+选择题的 explanation 必须逐项说明每个正确选项和干扰项为何成立或不成立，不能遗漏任何选项。
 '''
 
 

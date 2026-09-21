@@ -13,6 +13,9 @@ applied_requirements 的位置必须真实支持所述贡献，不能把局部�
 需求/目标映射中的 locator 存在只是结构事实，仍要逐条独立判断其内容是否真正支持要求/目标。
 
 习题先独立求解，每个选项按服务端 question_index/option_index 与选项原文对照。
+option_checks 必须与原题 options 数组精确对应。options 为空或不存在时（判断题、简答题）返回 []，
+不得为题干或参考答案虚构一个选项；仍须提供该题的独立求解、答案及解析核验。
+review_format_feedback 是上次结构校验的具体错误；只修复审阅格式，不隐藏真实内容错误。
 返回 independent_correct、reasoning、explanation_excerpt、explanation_reasoning、explanation_valid。
 reasoning 判断选项；explanation_reasoning 单独逐分句核对原解析，不得用选项整体错误替代对解析理由的检查。
 同一选项中可以部分真、部分假。例如“模型校验参数，程序计算”，只有前半句错；

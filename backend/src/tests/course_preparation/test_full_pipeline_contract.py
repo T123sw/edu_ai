@@ -68,6 +68,17 @@ def test_expected_business_failure_is_distinct_from_test_failure():
         assert_outcome(case, public, evidence)
 
 
+def test_canceled_model_scenario_requires_settlement_and_no_delivery():
+    case = {'expected_business_status': 'canceled'}
+    public = {'status': 'canceled', 'result_ref': None, 'budget': {'reserved': {'calls': 0, 'tokens': 0}}}
+    action = {**completion(), 'action_id': 'inflight'}
+    evidence = {'manifests': [], 'actions': [action], 'canceled_model_action_id': 'inflight'}
+    assert_outcome(case, public, evidence)
+    public['budget']['reserved']['tokens'] = 100
+    with pytest.raises(AssertionError, match='CANCELED_BUDGET_NOT_SETTLED'):
+        assert_outcome(case, public, evidence)
+
+
 def test_secrets_are_redacted_without_erasing_usage():
     value = redact({'api_key': 'private', 'config_snapshot': {'provider': 'private'},
                     'usage': {'total_tokens': 42}, 'error': 'Bearer abc postgres://not-a-supported-url'})

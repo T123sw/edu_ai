@@ -108,6 +108,14 @@ def test_external_feedback_is_carried_into_revision_and_recorded():
     assert verified_review({'content':body,'generation_state':state})
 
 
+def test_persisted_preparation_feedback_reaches_report_writer():
+    value = payload()
+    value.revision_feedback = ['补充对错误选项的逐项解释。']
+    gateway = Gateway([review(True)])
+    generate_reviewed_report(value, gateway)
+    assert gateway.writes[0]['feedback'] == value.revision_feedback
+
+
 def test_writer_receives_current_execution_and_confirmed_facts():
     value = payload()
     value.focus = '先只给大纲'

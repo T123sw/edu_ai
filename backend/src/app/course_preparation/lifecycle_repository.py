@@ -266,7 +266,17 @@ class LifecycleRepository(PreparationRepository):
         cost = BudgetCost.model_validate(cost.model_dump())
         with Session(self.engine) as session, session.begin():
             prep, _, _, budget = self._locked(session, context)
-            return self._reserve_action(session, prep, budget, key, kind, payload, cost)
+            result = self._reserve_action(session, prep, budget, key, kind, payload, cost)
+            if kind == 'model_completion' and not result['replay']:
+                action = session.get(Action, result['action_id'])
+                # Keep payload_digest stable for normal idempotent replay. This
+                # server-owned receipt capability is never sent to a provider.
+                action.payload = {**action.payload, '_settlement_fence': self._settlement_fence(context)}
+            return result
+
+    @staticmethod
+    def _settlement_fence(context):
+        return digest([context.preparation_id, context.owner_user_id, context.attempt_no, context.lease_token])
 
     def _reserve_action(self, session, prep, budget, key, kind, payload, cost):
         old = session.scalar(select(Action).where(Action.preparation_id == prep.preparation_id, Action.action_key == key))
@@ -295,7 +305,22 @@ class LifecycleRepository(PreparationRepository):
 
     def finish_action(self, context, action_id, receipt, actual=None, *, failed=False):
         with Session(self.engine) as session, session.begin():
-            prep, attempt, _, budget = self._locked(session, context)
+            prep = session.scalar(select(Prep).where(Prep.preparation_id == context.preparation_id).with_for_update())
+            action = session.get(Action, action_id)
+            fence = (action.payload or {}).get('_settlement_fence') if action is not None else None
+            if action is not None and action.kind == 'model_completion' and fence:
+                if (prep is None or prep.owner_user_id != context.owner_user_id
+                        or action.preparation_id != context.preparation_id
+                        or fence != self._settlement_fence(context)):
+                    raise StaleLease('MODEL_SETTLEMENT_NOT_OWNED')
+                # An already-issued request must settle even after cancel,
+                # expiry or a new attempt. No content/state transition occurs.
+                attempt = session.get(Attempt, (prep.preparation_id, context.attempt_no))
+                budget = session.get(Budget, prep.preparation_id)
+                if attempt is None:
+                    raise StaleLease('MODEL_SETTLEMENT_ATTEMPT_MISSING')
+            else:
+                prep, attempt, _, budget = self._locked(session, context)
             return self._settle_action(session, prep, attempt, budget, action_id, receipt, actual, failed=failed)
 
     def _settle_action(self, session, prep, attempt, budget, action_id, receipt, actual=None, *, failed=False):

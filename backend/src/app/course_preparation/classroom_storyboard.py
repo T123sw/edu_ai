@@ -189,8 +189,8 @@ def storyboard_metadata(board, content):
         if plan.question:
             questions.append({'scene_id': scene['id'], 'question_id': scene['content']['questions'][0]['id'],
                               'objective_ids': list(plan.objective_ids)})
-        else:
-            locator['action_id'] = scene['actions'][0]['id']
+        # Scene-level claims cover the screen and all speech/step actions. The
+        # first speech is often just an introduction, not the claimed teaching.
         role = 'check' if plan.question else 'explanation'
         bindings.extend({'objective_id': oid, 'locator': locator, 'role': role} for oid in plan.objective_ids)
         requirements.extend({'requirement_id': rid, 'locator': locator,
