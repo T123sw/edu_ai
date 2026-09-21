@@ -60,6 +60,12 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                         from .workflow_skills import skill_is_loaded
                         if not skill_is_loaded(payload.get('messages', []), required_skill):
                             raise ResearchError('SKILL_NOT_LOADED', '当前阶段 Skill 未由 Harness 加载，未调用模型')
+                        if getattr(toolset, 'content_submission', False):
+                            # The native slash command has already loaded and
+                            # verified this phase's full Skill. A second load
+                            # duplicates its instructions and consumes the phase.
+                            payload['tools'] = [tool for tool in payload.get('tools', [])
+                                                if tool.get('function', {}).get('name') != 'skill']
                     if state['error'] is not None:
                         raise state['error']
                     if hasattr(toolset, 'check'):

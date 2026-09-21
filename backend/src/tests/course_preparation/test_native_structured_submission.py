@@ -11,6 +11,8 @@ def test_structured_submission_preserves_markdown_quotes_and_metadata_without_ne
     observed=[]
     def complete(request):
         payload=json.loads(request.content);observed.append(payload)
+        assert all(t['function']['name'] != 'skill' for t in payload['tools'])
+        assert '<skill_instructions>' in json.dumps(payload['messages'])
         tool=next(t['function'] for t in payload['tools'] if t['function']['name']!='skill')
         assert tool['name'].endswith('submit_resource_json')
         assert tool['parameters']['properties']['value']['type']=='object'

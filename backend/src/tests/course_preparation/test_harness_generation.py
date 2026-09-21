@@ -159,7 +159,7 @@ def test_real_sdk_and_mcp_submit_report_or_quiz_with_phase_evidence(content_skil
     assert action['actual'].tokens == 70
     assert action['payload']['output_limit'] == requests[0]['max_tokens'] == 10000
     names = [t['function']['name'] for t in requests[0]['tools']]
-    assert len(names) == 2 and 'skill' in names
+    assert len(names) == 1 and 'skill' not in names
 
 
 @pytest.mark.parametrize('case', ['empty', 'arguments', 'unsubmitted', 'truncated', 'skill_unloaded'])

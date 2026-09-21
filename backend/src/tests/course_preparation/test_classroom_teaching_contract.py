@@ -102,7 +102,7 @@ class Gateway:
         self.calls.append(messages)
         request = json.loads(messages[-1]['content'])
         if 'preparation' in request:
-            checks = [{'binding_type': key, 'binding_id': item[key], 'locator': item['locator'],
+            checks = [{'binding_index': item['binding_index'],
                        'passed': True, 'reason': '测试替身确认具体教学位置'}
                       for key, collection in [('requirement_id', 'applied_requirements'), ('objective_id', 'objective_bindings')]
                       for item in request['preparation'][collection]]
@@ -306,7 +306,7 @@ def test_v1_checkpoint_keeps_legacy_resource_without_inventing_teaching_context(
     assert 'preparation' not in result['generation_state']
 
 
-@pytest.mark.parametrize('fault', ['missing', 'rejected'])
+@pytest.mark.parametrize('fault', ['missing', 'duplicate', 'unknown', 'boolean', 'rejected'])
 def test_binding_review_does_not_accept_missing_or_semantically_rejected_bindings(generation, fault):
     args, _ = generation; original = args['gateway'].chat
     def chat(messages, **kwargs):
@@ -317,9 +317,30 @@ def test_binding_review_does_not_accept_missing_or_semantically_rejected_binding
         result = json.loads(original(messages, **kwargs))
         if 'preparation_checks' in result:
             if fault == 'missing': result['preparation_checks'].pop()
+            elif fault == 'duplicate': result['preparation_checks'][1]['binding_index'] = result['preparation_checks'][0]['binding_index']
+            elif fault == 'unknown': result['preparation_checks'][0]['binding_index'] = 999
+            elif fault == 'boolean': result['preparation_checks'][0]['binding_index'] = True
             else: result['preparation_checks'][0]['passed'] = False
         return json.dumps(result, ensure_ascii=False)
     args['gateway'].chat = chat
     with pytest.raises(ClassroomFailure) as failure:
         classroom.generate_classroom_draft(**args)
-    assert failure.value.code == ('CLASSROOM_BINDING_REVIEW_INVALID' if fault == 'missing' else 'CLASSROOM_BINDING_REJECTED')
+    assert failure.value.code == ('CLASSROOM_BINDING_REJECTED' if fault == 'rejected' else 'CLASSROOM_BINDING_REVIEW_INVALID')
+
+
+def test_indexed_binding_review_restores_original_locations_without_mutating_metadata():
+    board = ClassroomStoryboard.model_validate(board_data())
+    content = render_storyboard(board, '课堂', 'long-resource-id')
+    metadata = storyboard_metadata(board, content)
+    original = copy.deepcopy(metadata)
+    class ReverseGateway(Gateway):
+        def chat(self, messages, **kwargs):
+            result = json.loads(super().chat(messages, **kwargs))
+            result['preparation_checks'].reverse()
+            return json.dumps(result)
+    checks = classroom._review_bindings(content, metadata, teaching_context(), gateway=ReverseGateway(), context=None)
+    expected = [(key, item[key], item['locator']) for key, collection in
+                [('requirement_id', 'applied_requirements'), ('objective_id', 'objective_bindings')]
+                for item in metadata[collection]]
+    assert [(c['binding_type'], c['binding_id'], c['locator']) for c in checks] == list(reversed(expected))
+    assert metadata == original
