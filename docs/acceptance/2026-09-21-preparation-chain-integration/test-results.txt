@@ -1,0 +1,42 @@
+regression-885aaf5a.log
+=========================== short test summary info ============================
+SKIPPED [1] backend/src/tests/course_preparation/test_delivery.py:76: PostgreSQL row lock competition
+SKIPPED [2] backend/src/tests/course_preparation/test_generated_content_constraints.py:229: opt-in real model quality experiment; not native B integration
+SKIPPED [3] backend/src/tests/course_preparation/test_generated_content_constraints.py:291: opt-in real native Harness + provider integration
+SKIPPED [1] backend/src/tests/course_preparation/test_lifecycle_guards.py:85: row locks require PostgreSQL
+SKIPPED [1] backend/src/tests/course_preparation/test_local_manifest.py:73: PostgreSQL concurrent version commit
+SKIPPED [1] backend/src/tests/course_preparation/test_repository.py:117: row/unique-conflict concurrency is verified on PostgreSQL
+SKIPPED [1] backend/src/tests/course_preparation/test_research_persistence.py:101: row-lock race requires PostgreSQL
+SKIPPED [1] backend/src/tests/course_preparation/test_review_counterexamples.py:130: opt-in real model quality check; separate from scripted gateway tests
+SKIPPED [1] backend/src/tests/course_preparation/test_review_counterexamples.py:308: subprocess smoke uses an isolated SQLite file; SQL fencing is parametrized separately
+SKIPPED [1] backend/src/tests/course_preparation/test_review_counterexamples.py:406: opt-in real review of the newly observed mixed-claim counterexample
+SKIPPED [1] backend/src/tests/course_preparation/test_review_resume.py:101: PostgreSQL row lock competition
+SKIPPED [1] backend/src/tests/course_preparation/test_review_resume.py:141: PostgreSQL row lock competition
+706 passed, 15 skipped in 664.25s (0:11:04)
+
+
+learning-f0d541ab.log
+=========================== short test summary info ============================
+SKIPPED [1] backend/src/tests/self_learning/test_live_agent.py:8: requires explicit real model acceptance flag
+SKIPPED [1] backend/src/tests/self_learning/test_postgres_concurrency.py:44: requires isolated PostgreSQL
+SKIPPED [1] backend/src/tests/self_learning/test_session_repository.py:150: PostgreSQL process isolation test
+FAILED backend/src/tests/self_learning/test_postgres_concurrency.py::test_two_processes_enter_events_turns_lease_and_outbox[postgresql]
+FAILED backend/src/tests/self_learning/test_session_repository.py::test_postgres_separate_workers[postgresql]
+2 failed, 206 passed, 3 skipped in 1032.52s (0:17:12)
+
+
+learning-spawn-rerun-885aaf5a.log
+..                                                                       [100%]
+2 passed in 9.48s
+
+frontend-tests-final.log
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 516.512977

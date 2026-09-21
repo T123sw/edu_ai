@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "final_acceptance": false,
+  "code_sha": "885aaf5a7f1ceb2513aadf0e3a95bc5af7e711b2",
+  "integration_merge": "e8122048",
+  "source_trees": {
+    "backend/src": "a16bb5a201873232dbe15756e66b3f54995325c2",
+    "frontend/src": "b4aa46fd38eba844191c7754aba6a3e1fcaa1d7b"
+  },
+  "environment": {
+    "database": "dedicated edu_ai_preparation_test_* PostgreSQL; synthetic private identity",
+    "provider_mode": "real native Harness; no mocked final artifacts",
+    "node": "v22.23.2",
+    "pnpm": "10.28.2",
+    "private_evidence_root": "/tmp/preparation-validation-20260921"
+  },
+  "automated": {
+    "preparation_regression": {
+      "sha": "885aaf5a7f1ceb2513aadf0e3a95bc5af7e711b2",
+      "passed": 706,
+      "skipped": 15,
+      "failed": 0,
+      "seconds": 664.25,
+      "paths": [
+        "backend/src/tests/course_preparation",
+        "backend/src/tests/chat/test_reviewed_report.py",
+        "backend/src/tests/chat/test_harness_resources.py",
+        "backend/src/tests/chat/test_report_review_policy.py",
+        "backend/src/tests/test_mineru_cloud_formats.py",
+        "backend/src/tests/test_classroom_validation.py",
+        "backend/src/tests/services/test_classroom_visual_planning.py"
+      ],
+      "pytest_args": [
+        "-q",
+        "-ra",
+        "--tb=short"
+      ],
+      "database_env": [
+        "PREPARATION_TEST_DATABASE_URL",
+        "LEARNING_TEST_DATABASE_URL"
+      ],
+      "dotenv_disabled": true
+    },
+    "learning_initial": {
+      "sha": "f0d541ab",
+      "passed": 206,
+      "failed": 2,
+      "skipped": 3,
+      "seconds": 1032.52,
+      "path": "backend/src/tests/self_learning",
+      "failure_cause": "multiprocessing spawn cannot import stdin test launcher"
+    },
+    "learning_rerun": {
+      "sha": "885aaf5a7f1ceb2513aadf0e3a95bc5af7e711b2",
+      "passed": 2,
+      "failed": 0,
+      "seconds": 9.48,
+      "launcher": "private run_pytest.py with __main__ guard",
+      "tests": [
+        "test_postgres_concurrency.py::test_two_processes_enter_events_turns_lease_and_outbox[postgresql]",
+        "test_session_repository.py::test_postgres_separate_workers[postgresql]"
+      ]
+    },
+    "frontend_units": {
+      "passed": 23,
+      "failed": 0,
+      "command": "node --import tsx --test src/openmaic/{actionEngine,quizScene,QuizScenePlayer,classroomScene,ClassroomSceneRenderer}.test.ts"
+    },
+    "frontend_build": {
+      "sha": "885aaf5a7f1ceb2513aadf0e3a95bc5af7e711b2",
+      "passed": true,
+      "command": "VITE_API_BASE_URL=/backend pnpm build --outDir <isolated output>"
+    }
+  },
+  "scenarios": [
+    {
+      "case_id": "E01",
+      "status": "failed",
+      "natural_completed_runs": 1,
+      "passed": 0,
+      "failed": 1,
+      "canceled": 1,
+      "not_run": 1,
+      "repeats_required": 3,
+      "repetition_requirement_met": false,
+      "run": {
+        "preparation_id": "prep_50d4e5e9824a40c68189f3c386ca74c5",
+        "test_status": "failed",
+        "input_digest": "b418d17791460c1735a2b30b3951e53d88cb2536ea054ecb5085bd8dbf078a23",
+        "upload_sha256": "8324f39c954a93a1ed74ce2eac200f922b41699a681d651f96d473cf3965fe41",
+        "business_status": "failed",
+        "model_attempts": 41,
+        "model_completions": 41,
+        "failed_model_attempts": 0,
+        "source_actions": 0,
+        "phases": {
+          "input_document": {
+            "completed": 3,
+            "failed": 0,
+            "pending": 0
+          },
+          "intent": {
+            "completed": 2,
+            "failed": 0,
+            "pending": 0
+          },
+          "learning_path": {
+            "completed": 5,
+            "failed": 0,
+            "pending": 0
+          },
+          "review": {
+            "completed": 2,
+            "failed": 0,
+            "pending": 0
+          },
+          "research_nodes": {
+            "completed": 4,
+            "failed": 0,
+            "pending": 0
+          },
+          "resource_write": {
+            "completed": 7,
+            "failed": 0,
+            "pending": 0
+          },
+          "resource_review": {
+            "completed": 14,
+            "failed": 0,
+            "pending": 0
+          },
+          "classroom_write": {
+            "completed": 4,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "error": {
+          "type": "AssertionError",
+          "code": "UNEXPECTED_BUSINESS_STATUS"
+        },
+        "budget": {
+          "limits": {
+            "calls": 200,
+            "tokens": 2000000,
+            "seconds": 3600,
+            "cost_micro_usd": 10000000
+          },
+          "reserved": {
+            "calls": 0,
+            "tokens": 0,
+            "cost_micro_usd": 0
+          },
+          "consumed": {
+            "calls": 47,
+            "tokens": 544662,
+            "cost_micro_usd": 5446620
+          }
+        },
+        "elapsed_seconds": 606.21,
+        "evidence_path": "run-01"
+      }
+    },
+    {
+      "case_id": "E02",
+      "status": "incomplete_canceled_diagnostic",
+      "tested_sha": "f0d541ab",
+      "completed_source_actions_before_cancel": 6
+    },
+    {
+      "case_id": "E03",
+      "status": "passed",
+      "run": {
+        "preparation_id": "prep_351940978a3b4806a3494690f9b48685",
+        "test_status": "passed",
+        "input_digest": "d76da14b419f0feff723b6ea0706a968a978725a7b23e11a4a348cc836edd55c",
+        "upload_sha256": "41a96a7653327cacc71d28018acbabd67b93ae0e1b09563d683b70316245db13",
+        "business_status": "failed",
+        "model_attempts": 8,
+        "model_completions": 8,
+        "failed_model_attempts": 0,
+        "source_actions": 0,
+        "phases": {
+          "input_document": {
+            "completed": 2,
+            "failed": 0,
+            "pending": 0
+          },
+          "intent": {
+            "completed": 2,
+            "failed": 0,
+            "pending": 0
+          },
+          "learning_path": {
+            "completed": 4,
+            "failed": 0,
+            "pending": 0
+          }
+        },
+        "budget": {
+          "limits": {
+            "calls": 200,
+            "tokens": 2000000,
+            "seconds": 3600,
+            "cost_micro_usd": 10000000
+          },
+          "reserved": {
+            "calls": 0,
+            "tokens": 0,
+            "cost_micro_usd": 0
+          },
+          "consumed": {
+            "calls": 8,
+            "tokens": 58315,
+            "cost_micro_usd": 583150
+          }
+        },
+        "semantic_review": "not_run",
+        "browser": "not_run",
+        "elapsed_seconds": 206.37,
+        "evidence_path": "run-01"
+      }
+    },
+    {
+      "case_id": "E04",
+      "status": "not_run",
+      "reason": "SCENARIO_DRIVER_PENDING"
+    },
+    {
+      "case_id": "E05",
+      "status": "not_run",
+      "reason": "SCENARIO_DRIVER_PENDING"
+    },
+    {
+      "case_id": "E06",
+      "status": "not_run",
+      "reason": "SCENARIO_DRIVER_PENDING"
+    },
+    {
+      "case_id": "E07",
+      "status": "not_run",
+      "reason": "SCENARIO_DRIVER_PENDING"
+    },
+    {
+      "case_id": "E08",
+      "status": "not_run",
+      "reason": "SCENARIO_DRIVER_PENDING"
+    },
+    {
+      "case_id": "E09",
+      "status": "not_run",
+      "reason": "SCENARIO_DRIVER_PENDING"
+    },
+    {
+      "case_id": "E10",
+      "status": "incomplete_canceled_diagnostic",
+      "tested_sha": "4a0051ca"
+    }
+  ],
+  "browser": {
+    "sha": "885aaf5a7f1ceb2513aadf0e3a95bc5af7e711b2",
+    "config": "frontend/playwright.preparation-chain-real.config.ts",
+    "raw_playwright_passed": 0,
+    "raw_playwright_failed": 2,
+    "desktop": {
+      "business_status": "failed",
+      "error_code": "QUALITY_GATE_FAILED",
+      "duration_seconds": 639.515,
+      "learning_and_playback": "blocked_before_course_delivery"
+    },
+    "narrow": {
+      "business_status": "canceled",
+      "duration_seconds": 84.108,
+      "reason": "operator stopped duplicate generation after confirmed blockers",
+      "learning_and_playback": "not_run"
+    },
+    "console_network_and_traces": "private browser trace/results retained; no successful end-to-end claim"
+  },
+  "completed_positive_courses": {
+    "passed": 0,
+    "failed": 2,
+    "denominator": 2,
+    "excludes_canceled": 2
+  },
+  "negative_expected_failure": {
+    "passed": 1,
+    "denominator": 1
+  },
+  "limitations": [
+    "real media/TTS not wired",
+    "audio decode/playback/listening not_run",
+    "independent resource planning deferred",
+    "canceled model reservations not settled"
+  ],
+  "diagnostics": [
+    {
+      "code_sha": "f0d541ab",
+      "scenario": "uploaded-course",
+      "business_status": "failed",
+      "error_code": "CONTEXT_BUDGET_EXCEEDED",
+      "elapsed_seconds": 346.96,
+      "model_completions": 32,
+      "tokens": 336301
+    },
+    {
+      "code_sha": "f0d541ab",
+      "scenario": "browser desktop/narrow",
+      "test_status": "failed",
+      "reason": "response predicate omitted /backend prefix; fixed in 885aaf5a"
+    }
+  ],
+  "outcomes_observed_at_utc": "2026-09-21T04:30:04.963453+00:00"
+}

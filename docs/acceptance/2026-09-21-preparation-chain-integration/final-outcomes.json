@@ -1,0 +1,517 @@
+[
+  {
+    "preparation_id": "prep_50d4e5e9824a40c68189f3c386ca74c5",
+    "public": {
+      "preparation_id": "prep_50d4e5e9824a40c68189f3c386ca74c5",
+      "attempt_no": 1,
+      "status": "failed",
+      "stage": "repair",
+      "revision": 138,
+      "error_code": "QUALITY_GATE_FAILED",
+      "result_ref": null,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 47,
+          "tokens": 544662,
+          "cost_micro_usd": 5446620
+        },
+        "deadline": "2026-09-21T05:15:03.570732+00:00"
+      }
+    },
+    "model_summary": {
+      "model_attempts": 41,
+      "model_completions": 41,
+      "failed_model_attempts": 0,
+      "source_actions": 0,
+      "phases": {
+        "input_document": {
+          "completed": 3,
+          "failed": 0,
+          "pending": 0
+        },
+        "intent": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "learning_path": {
+          "completed": 5,
+          "failed": 0,
+          "pending": 0
+        },
+        "review": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "research_nodes": {
+          "completed": 4,
+          "failed": 0,
+          "pending": 0
+        },
+        "resource_write": {
+          "completed": 7,
+          "failed": 0,
+          "pending": 0
+        },
+        "resource_review": {
+          "completed": 14,
+          "failed": 0,
+          "pending": 0
+        },
+        "classroom_write": {
+          "completed": 4,
+          "failed": 0,
+          "pending": 0
+        }
+      }
+    },
+    "harness_receipts_valid": 41,
+    "manifest_count": 0,
+    "production_repairs": 2,
+    "quality": {
+      "issues": [
+        {
+          "reason": "RESOURCE_CONTENT_REJECTED",
+          "artifact_ids": [
+            "artifact_8338c05c91768fb639f8b474096dc0d6"
+          ]
+        }
+      ],
+      "decision": "fail"
+    },
+    "artifact_statuses": [
+      {
+        "artifact_id": "artifact_8338c05c91768fb639f8b474096dc0d6",
+        "node_id": "n1_flow_and_roles",
+        "resource_type": "quiz",
+        "status": "failed",
+        "error_code": "RESOURCE_CONTENT_REJECTED",
+        "failure_detail": {
+          "code": "RESOURCE_CONTENT_REJECTED",
+          "phase": "resource_review",
+          "message": "第 3 题选项 3 的解析：解析未对「用户」选项给出说明，缺少对该干扰项的解释，故 explanation_valid 为 false。",
+          "category": "content",
+          "artifact_id": null,
+          "retry_scope": "content",
+          "content_digest": "425afd5281a9803195def78fd71c09117e0c3dc11e62233535c6e4d5a8762ff5"
+        },
+        "candidate_content_digest": "425afd5281a9803195def78fd71c09117e0c3dc11e62233535c6e4d5a8762ff5"
+      },
+      {
+        "artifact_id": "artifact_66da6de8ad077ee683c422f7fd88bd6b",
+        "node_id": "n1_flow_and_roles",
+        "resource_type": "report",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      },
+      {
+        "artifact_id": "artifact_0c64fb754d06d1c37a96c441014377c4",
+        "node_id": "n1_flow_and_roles",
+        "resource_type": "classroom",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      },
+      {
+        "artifact_id": "artifact_d2a3ffd1ba5bb29727be562023abb9f4",
+        "node_id": "n2_branches",
+        "resource_type": "report",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      },
+      {
+        "artifact_id": "artifact_7b685c2b9d1c9861b9efb818d1b9c1d3",
+        "node_id": "n2_branches",
+        "resource_type": "quiz",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      },
+      {
+        "artifact_id": "artifact_434e26b577c06721c305a99eddc9d498",
+        "node_id": "n2_branches",
+        "resource_type": "classroom",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      }
+    ]
+  },
+  {
+    "preparation_id": "prep_ad2cc888e54a47cf92cecd74b927f3d4",
+    "public": {
+      "preparation_id": "prep_ad2cc888e54a47cf92cecd74b927f3d4",
+      "attempt_no": 1,
+      "status": "failed",
+      "stage": "repair",
+      "revision": 155,
+      "error_code": "QUALITY_GATE_FAILED",
+      "result_ref": null,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 50,
+          "tokens": 584982,
+          "cost_micro_usd": 5849820
+        },
+        "deadline": "2026-09-21T05:16:16.794628+00:00"
+      }
+    },
+    "model_summary": {
+      "model_attempts": 44,
+      "model_completions": 44,
+      "failed_model_attempts": 0,
+      "source_actions": 0,
+      "phases": {
+        "input_document": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "intent": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "learning_path": {
+          "completed": 4,
+          "failed": 0,
+          "pending": 0
+        },
+        "review": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "research_nodes": {
+          "completed": 4,
+          "failed": 0,
+          "pending": 0
+        },
+        "resource_write": {
+          "completed": 7,
+          "failed": 0,
+          "pending": 0
+        },
+        "resource_review": {
+          "completed": 19,
+          "failed": 0,
+          "pending": 0
+        },
+        "classroom_write": {
+          "completed": 4,
+          "failed": 0,
+          "pending": 0
+        }
+      }
+    },
+    "harness_receipts_valid": 44,
+    "manifest_count": 0,
+    "production_repairs": 2,
+    "quality": {
+      "issues": [
+        {
+          "reason": "RESOURCE_REVIEW_RESPONSE_INVALID",
+          "artifact_ids": [
+            "artifact_988d273ebcf7a6c3c1b5e6b10fa37666"
+          ]
+        },
+        {
+          "reason": "CLASSROOM_BINDING_REJECTED",
+          "artifact_ids": [
+            "artifact_6d86db55b834de014ae6d520285a9073"
+          ]
+        }
+      ],
+      "decision": "fail"
+    },
+    "artifact_statuses": [
+      {
+        "artifact_id": "artifact_037b71c727b4728232b9634f5f46b860",
+        "node_id": "n1_roles",
+        "resource_type": "report",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      },
+      {
+        "artifact_id": "artifact_1447520e63482be3b056b0102709529b",
+        "node_id": "n1_roles",
+        "resource_type": "classroom",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      },
+      {
+        "artifact_id": "artifact_4aae3885128376f242cbbc3596f439dc",
+        "node_id": "n2_branches",
+        "resource_type": "report",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      },
+      {
+        "artifact_id": "artifact_988d273ebcf7a6c3c1b5e6b10fa37666",
+        "node_id": "n1_roles",
+        "resource_type": "quiz",
+        "status": "failed",
+        "error_code": "RESOURCE_REVIEW_RESPONSE_INVALID",
+        "failure_detail": {
+          "code": "RESOURCE_REVIEW_RESPONSE_INVALID",
+          "phase": "resource_review",
+          "message": "资源审阅格式或覆盖不完整",
+          "category": "review_format",
+          "artifact_id": null,
+          "retry_scope": "review",
+          "content_digest": "ef2a072438502378bf75dfe21b744622e58b44009cd5d3d0d2a7d31910c08f0a"
+        },
+        "candidate_content_digest": "ef2a072438502378bf75dfe21b744622e58b44009cd5d3d0d2a7d31910c08f0a"
+      },
+      {
+        "artifact_id": "artifact_cc09ff49e77ae65302dc2b26ec828a5a",
+        "node_id": "n2_branches",
+        "resource_type": "quiz",
+        "status": "draft",
+        "error_code": null,
+        "failure_detail": null,
+        "candidate_content_digest": null
+      },
+      {
+        "artifact_id": "artifact_6d86db55b834de014ae6d520285a9073",
+        "node_id": "n2_branches",
+        "resource_type": "classroom",
+        "status": "failed",
+        "error_code": "CLASSROOM_BINDING_REJECTED",
+        "failure_detail": {
+          "code": "CLASSROOM_BINDING_REJECTED",
+          "phase": "resource_review",
+          "message": "课堂未落实需求/目标：REQ-7: 该 speech 仅回顾节点1成功例并过渡到'程序校验失败'，未出现 REQ-7 的具体内容（INVALID_ARGUMENT、message=b is required、不执行 add、不把失败当 0）。此处只是指针，不真正支持该要求；REQ-7 的实际落实在 s3/s4/s7/s8。; REQ-8: 该 speech 只提到'伪代码的三个分支'这一短语，未枚举 UNKNOWN_TOOL / INVALID_ARGUMENT / 返回 a+b，也未说明禁止执行模型任意代码，属过渡性提及，不真正支持 REQ-8 的三分支内容。; n2_branches:o1: 该 speech 仅回顾成功例并预告'伪代码的三个分支'，未实际枚举三分支，不足以支持 o1（追踪三分支）的达成，属过渡性提及。",
+          "category": "content",
+          "artifact_id": null,
+          "retry_scope": "content",
+          "content_digest": null
+        },
+        "candidate_content_digest": "49745090ccdb3d4cf8d59c72a14922f91e431de82e78088937f71ee07f6a2568"
+      }
+    ]
+  },
+  {
+    "preparation_id": "prep_bd6ed2e73ebe4ff88782f925ba841a78",
+    "public": {
+      "preparation_id": "prep_bd6ed2e73ebe4ff88782f925ba841a78",
+      "attempt_no": 1,
+      "status": "canceled",
+      "stage": "research_scope",
+      "revision": 33,
+      "error_code": null,
+      "result_ref": null,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 52316,
+          "cost_micro_usd": 523160
+        },
+        "consumed": {
+          "calls": 6,
+          "tokens": 41106,
+          "cost_micro_usd": 411060
+        },
+        "deadline": "2026-09-21T05:25:09.747125+00:00"
+      }
+    },
+    "model_summary": {
+      "model_attempts": 7,
+      "model_completions": 6,
+      "failed_model_attempts": 0,
+      "source_actions": 0,
+      "phases": {
+        "input_document": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "intent": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "learning_path": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "unattributed": {
+          "completed": 0,
+          "failed": 0,
+          "pending": 1
+        }
+      }
+    },
+    "harness_receipts_valid": 6,
+    "manifest_count": 0,
+    "production_repairs": null,
+    "quality": null,
+    "artifact_statuses": []
+  },
+  {
+    "preparation_id": "prep_9fe6e450dd5a459393b8ca3805bcfec0",
+    "public": {
+      "preparation_id": "prep_9fe6e450dd5a459393b8ca3805bcfec0",
+      "attempt_no": 1,
+      "status": "canceled",
+      "stage": "research_scope",
+      "revision": 33,
+      "error_code": null,
+      "result_ref": null,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 1,
+          "tokens": 50820,
+          "cost_micro_usd": 508200
+        },
+        "consumed": {
+          "calls": 6,
+          "tokens": 39533,
+          "cost_micro_usd": 395330
+        },
+        "deadline": "2026-09-21T05:26:59.041392+00:00"
+      }
+    },
+    "model_summary": {
+      "model_attempts": 7,
+      "model_completions": 6,
+      "failed_model_attempts": 0,
+      "source_actions": 0,
+      "phases": {
+        "input_document": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "intent": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "learning_path": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "unattributed": {
+          "completed": 0,
+          "failed": 0,
+          "pending": 1
+        }
+      }
+    },
+    "harness_receipts_valid": 6,
+    "manifest_count": 0,
+    "production_repairs": null,
+    "quality": null,
+    "artifact_statuses": []
+  },
+  {
+    "preparation_id": "prep_351940978a3b4806a3494690f9b48685",
+    "public": {
+      "preparation_id": "prep_351940978a3b4806a3494690f9b48685",
+      "attempt_no": 1,
+      "status": "failed",
+      "stage": "research_scope",
+      "revision": 33,
+      "error_code": "RESEARCH_INSUFFICIENT",
+      "result_ref": null,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 8,
+          "tokens": 58315,
+          "cost_micro_usd": 583150
+        },
+        "deadline": "2026-09-21T05:19:07.264972+00:00"
+      }
+    },
+    "model_summary": {
+      "model_attempts": 8,
+      "model_completions": 8,
+      "failed_model_attempts": 0,
+      "source_actions": 0,
+      "phases": {
+        "input_document": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "intent": {
+          "completed": 2,
+          "failed": 0,
+          "pending": 0
+        },
+        "learning_path": {
+          "completed": 4,
+          "failed": 0,
+          "pending": 0
+        }
+      }
+    },
+    "harness_receipts_valid": 8,
+    "manifest_count": 0,
+    "production_repairs": null,
+    "quality": null,
+    "artifact_statuses": []
+  }
+]
