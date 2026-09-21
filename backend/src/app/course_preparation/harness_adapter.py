@@ -78,8 +78,10 @@ class HarnessPreparationAdapter(ResearchModelAdapter):
 
     def _run(self, context, tools, *, timeout, toolset, output_tokens=6000, temperature=.1):
         self.last_rejected_decision = None
+        self.requested_output_tokens = output_tokens
         packet = context_packet(context, tools, max_tokens=self.context_tokens,
                                 output_tokens=output_tokens, native_skill=True)
+        output_tokens = packet['output_token_limit']
         self.last_packet_metadata = {k: v for k, v in packet.items() if k not in ('messages', 'skill')}
         self.last_packet_metadata['runtime'] = 'deepseek-harness'
         self.required_skill = packet['skill']

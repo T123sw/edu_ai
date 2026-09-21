@@ -11,6 +11,7 @@ from app.course_preparation.tool_registry import digest
 from app.course_preparation.quality import QualityStages
 from tests.course_preparation.test_runtime_foundation import repo, request
 from tests.course_preparation.test_classroom_teaching_contract import generation as classroom_generation
+from app.chat.harness.reviewed_resource import review_classroom as real_classroom_review
 
 
 @pytest.mark.parametrize('terminal', ['canceled', 'failed', 'retried'])
@@ -137,6 +138,36 @@ def test_classroom_content_revision_receives_the_persisted_failure_reason(classr
     generate_classroom_draft(**args)
     request = json.loads(args['gateway'].calls[0][-1]['content'])
     assert request['feedback'] == args['payload'].revision_feedback
+
+
+def test_classroom_review_preserves_sources_without_repeating_old_revision_body(classroom_generation, monkeypatch):
+    from app.course_preparation.adapters.classroom import generate_classroom_draft
+    from tests.course_preparation.test_classroom_teaching_contract import passed_audit
+    args, review_module = classroom_generation
+    monkeypatch.setattr(review_module, 'review_classroom', real_classroom_review)
+    gateway = args['gateway']
+    gateway.preparation_harness = True
+    gateway.for_phase = lambda *a, **k: gateway
+    original = gateway.chat
+    def respond(messages, **kwargs):
+        request = json.loads(messages[-1]['content'])
+        if request.get('resource_type') == 'classroom':
+            gateway.calls.append(messages)
+            audit = passed_audit(request['content'])
+            return json.dumps({'checks': [{**c, 'reason': '根据真实正文逐项核对。'} for c in audit['checks']],
+                'scene_checks': audit['scene_checks'], 'blocking_issues': [], 'suggestions': []})
+        return original(messages, **kwargs)
+    gateway.chat = respond
+    args['payload'].research_context = '完整来源证据\n旧版正文基线'
+    args['payload'].review_research_context = '完整来源证据'
+    args['payload'].original_content = {'baseline': '旧版正文基线'}
+    result = generate_classroom_draft(**args)
+    calls = [json.loads(messages[-1]['content']) for messages in args['gateway'].calls]
+    assert calls[0]['revision_baseline'] == args['payload'].original_content
+    assert calls[0]['evidence'] == '完整来源证据'
+    review = next(c for c in calls if c.get('resource_type') == 'classroom')
+    assert review['specification']['research_context'] == '完整来源证据'
+    assert review['content'] == result['content']
 
 
 @pytest.mark.parametrize('target', ['r:principle', 'missing-scene'])

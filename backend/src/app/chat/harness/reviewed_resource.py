@@ -220,7 +220,7 @@ def verified_resource(artifact, kind):
         return False
 
 
-def specification(payload):
+def specification(payload, *, for_review=False):
     spec = {key: getattr(payload, key, None) for key in (
         'resource_type', 'subject', 'audience', 'focus', 'confirmed_outline', 'harness_chapters', 'preparation_policy',
         'harness_organization', 'classroom_options', 'harness_interaction_mode', 'research_context', 'source_context', 'research_sources', 'harness_execution_context')}
@@ -228,6 +228,8 @@ def specification(payload):
         'standard_bundle_spec', 'standard_bundle_contract', 'standard_action',
         'baseline_version', 'baseline_summary', 'approved_version', 'rejection_reason', 'revision_feedback')})
     spec['teaching_context'] = teaching_context(payload)
+    if for_review and getattr(payload, 'review_research_context', None) is not None:
+        spec['research_context'] = payload.review_research_context
     return spec
 
 
@@ -440,6 +442,8 @@ class ReviewedResourceGenerator:
                             'review_format_error':format_error}
             candidate.save(content, review_state)
             review_spec = {**spec, **({'preparation':metadata} if metadata else {})}
+            if getattr(payload, 'review_research_context', None) is not None:
+                review_spec['research_context'] = payload.review_research_context
             reviewer = phase_gateway(self.review_gateway, payload, 'resource_review')
             review, feedback = review_content(kind, content, review_spec, reviewer, durable=self.checkpoint is not None,
                                               candidate=candidate, review_state=review_state)
@@ -486,7 +490,7 @@ def review_classroom(content, config, gateway=None, *, checkpoint=None):
     repair_gateway = gateway or build_content_gateway()
     gateway = gateway or build_default_gateway()
     payload = SimpleNamespace(**config)
-    spec = specification(payload)
+    spec = specification(payload, for_review=True)
     candidate = ReviewCandidate(checkpoint, config.get('spec_digest') or value_digest(spec), lambda value: digest('classroom', value))
     saved = candidate.load()
     review_only = bool(saved and saved.get('recovery_scope') == 'review')

@@ -116,6 +116,23 @@ def test_persisted_preparation_feedback_reaches_report_writer():
     assert gateway.writes[0]['feedback'] == value.revision_feedback
 
 
+def test_report_review_keeps_new_body_and_sources_without_old_revision_baseline():
+    value = payload()
+    value.research_context = '完整来源证据\n旧版正文基线'
+    value.review_research_context = '完整来源证据'
+    gateway = Gateway([review(True)])
+    original = gateway.chat
+    def respond(messages, **kwargs):
+        request = json.loads(messages[-1]['content'])
+        if 'schema' in request:
+            assert request['specification']['evidence'] == '完整来源证据'
+            assert request['body'] == BODY
+        return original(messages, **kwargs)
+    gateway.chat = respond
+    generate_reviewed_report(value, gateway)
+    assert '旧版正文基线' in gateway.writes[0]['specification']['evidence']
+
+
 def test_durable_report_format_retry_preserves_body_and_exact_error():
     from tests.course_preparation.test_classroom_teaching_contract import Checkpoint
     from app.course_preparation.generation_failures import GenerationFailure

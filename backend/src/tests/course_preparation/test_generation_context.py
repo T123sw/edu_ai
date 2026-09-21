@@ -199,6 +199,9 @@ def test_v2_payload_keeps_full_evidence_revision_and_server_identity():
     assert payload.spec_digest == digest(spec)
     assert payload.teaching_context_digest == digest(spec['teaching_context'])
     assert all(e['quote'] in payload.research_context for e in spec['evidence'])
+    assert '原始正确章节' in payload.research_context
+    assert '原始正确章节' not in payload.review_research_context
+    assert all(e['quote'] in payload.review_research_context for e in spec['evidence'])
     assert all(e['source_hash'] == spec['evidence'][i]['source_hash'] for i,e in enumerate(payload.evidence))
 
 

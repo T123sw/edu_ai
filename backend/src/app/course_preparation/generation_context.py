@@ -18,6 +18,7 @@ def automatic_payload(spec: dict, artifact: dict) -> SimpleNamespace:
     original = deepcopy(value.original_content)
     research_context = '\n\n'.join(
         f"[{e['source_id']}] {e['claim']}\n原文：{e['quote']}\n来源：{e['url']}" for e in evidence)
+    review_research_context = research_context
     if original:
         research_context += '\n现有资料全文（修改基线，不是额外事实来源）：\n' + json.dumps(original, ensure_ascii=False)
     execution = {'stage': 'write_and_review', 'authorization': 'preparation_automatic_policy',
@@ -43,6 +44,7 @@ def automatic_payload(spec: dict, artifact: dict) -> SimpleNamespace:
                      duration_policy='node_budget_shared_resource_target_nullable',
                      revision_policy='preserve_correct_content_outside_requested_changes')
     return SimpleNamespace(**common, schema_version=2, teaching_context=teaching, evidence=evidence,
+        review_research_context=review_research_context,
         spec_digest=spec_digest, teaching_context_digest=teaching_digest,
         language=value.language, objectives=list(value.objectives), objective_ids=list(value.objective_ids),
         node_budget_minutes=teaching['node_budget_minutes'], resource_target_minutes=teaching['resource_target_minutes'],

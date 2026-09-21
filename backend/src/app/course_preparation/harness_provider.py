@@ -85,9 +85,6 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                     if toolset is not None and toolset.result is not None:
                         payload['tool_choice'] = 'none'
                     for protocol_attempt in range(3):
-                        size = encoded_size(payload) + 512
-                        if size + output_tokens > adapter.context_tokens:
-                            raise ResearchError('CONTEXT_BUDGET_EXCEEDED', 'Harness 上下文超过窗口')
                         data = None
                         for candidate in adapter.gateway.candidates:
                             if hasattr(toolset, 'check'):
@@ -95,22 +92,34 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                             remaining = deadline - time.monotonic()
                             if state['calls'] >= max_calls or remaining <= 0:
                                 raise ResearchError('BUDGET_EXHAUSTED', 'Harness 当前决策调用次数或时间已耗尽')
-                            state['calls'] += 1
                             model = candidate['model_name']
                             payload['model'] = model
                             payload.update(adapter.gateway._thinking_params(model))
                             if str(model).startswith('deepseek-v4'):
                                 payload['thinking'] = {'type': 'disabled'}
+                            # Account for the actual native SDK/Skill framing.
+                            # Keep all input and only reduce an output ceiling;
+                            # never admit a request without usable output room.
+                            payload['max_tokens'] = output_tokens
+                            size = encoded_size(payload) + 512
+                            effective_output = min(output_tokens, adapter.context_tokens - size)
+                            if effective_output < min(output_tokens, 8192):
+                                raise ResearchError('CONTEXT_BUDGET_EXCEEDED', 'Harness 输入与最小输出空间超过窗口')
+                            payload['max_tokens'] = effective_output
+                            size = encoded_size(payload) + 512
+                            state['calls'] += 1
                             metadata = getattr(adapter, 'last_packet_metadata', {})
                             audit = {
                                 'runtime': 'deepseek-harness',
                                 'protocol_recovery_attempt': protocol_attempt,
+                                'requested_output_tokens': getattr(adapter, 'requested_output_tokens', output_tokens),
+                                'effective_output_tokens': effective_output,
                                 **{key: metadata[key] for key in ('phase', 'spec_digest', 'context_digest') if key in metadata},
                                 'provider': candidate.get('provider') or candidate.get('provider_name') or 'configured',
                                 'model': model,
                                 **({'skill': {'name': required_skill['name'], 'sha256': required_skill['sha256'], 'loaded': True}} if required_skill else {}),
                             }
-                            action = adapter.meter.start(input_upper_bound=size, output_limit=output_tokens, model=model) if adapter.meter else None
+                            action = adapter.meter.start(input_upper_bound=size, output_limit=effective_output, model=model) if adapter.meter else None
                             try:
                                 with adapter.client_factory(timeout=httpx.Timeout(remaining, connect=min(10, remaining))) as client:
                                     with client.stream('POST', candidate['api_base'].rstrip('/') + '/chat/completions',
@@ -173,7 +182,7 @@ def harness_provider(adapter, *, timeout, toolset=None, max_calls=4, output_toke
                                         'rejected_tool_calls': (data['choices'][0].get('message') or {}).get('tool_calls')},
                                         ensure_ascii=False))
                             else:
-                                feedback = (f'上一轮达到 {output_tokens} 输出上限，响应截断，整批工具均未执行。'
+                                feedback = (f'上一轮达到 {effective_output} 输出上限，响应截断，整批工具均未执行。'
                                     '请在相同上限内重新提交完整工具参数，省去思考过程与重复解释；'
                                     '只保留必要结论和简短具体依据，不省略必需核对项，不降低标准。')
                             payload['messages'] = [*payload.get('messages', []), {'role': 'user', 'content': feedback}]
