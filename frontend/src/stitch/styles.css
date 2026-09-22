@@ -390,6 +390,8 @@ textarea {
 
 .classroom-console__stage-column {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
   min-width: 0;
   min-height: 0;
   align-items: center;
@@ -408,6 +410,7 @@ textarea {
   width: min(100%, calc((100vh - 128px) * 16 / 9));
   max-height: calc(100vh - 128px);
   aspect-ratio: 16 / 9;
+  flex-shrink: 0;
   overflow: hidden;
   border-radius: 12px;
   background: white;
@@ -415,11 +418,9 @@ textarea {
 }
 
 .classroom-subtitle {
-  position: absolute;
-  z-index: 20;
-  right: 7%;
-  bottom: 5%;
-  left: 7%;
+  flex-shrink: 0;
+  width: min(100%, 1000px);
+  box-sizing: border-box;
   border-radius: 10px;
   padding: 9px 14px;
   background: rgba(3, 8, 20, 0.78);

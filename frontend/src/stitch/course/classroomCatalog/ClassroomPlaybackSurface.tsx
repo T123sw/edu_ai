@@ -583,13 +583,13 @@ export function ClassroomPlaybackSurface({
                       }}
                     />
                   ) : null}
-                  {narration &&
-                  playback.status === "playing" ? (
-                    <div className="classroom-subtitle" aria-live="polite">
-                      {narration}
-                    </div>
-                  ) : null}
                 </div>
+                {narration &&
+                playback.status === "playing" ? (
+                  <div className="classroom-subtitle" aria-live="polite">
+                    {narration}
+                  </div>
+                ) : null}
               </section>
             </div>
 

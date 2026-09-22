@@ -1,3 +1,4 @@
+import { reportAnchors } from "./reportAnchors";
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -93,7 +94,7 @@ function MarkdownImage({ src, alt }: { src?: string; alt?: string }) {
 
 const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({ content }) => {
   return (
-    <ReactMarkdown
+    <ReactMarkdown rehypePlugins={[reportAnchors]}
       remarkPlugins={[remarkGfm]}
       components={{
         img({ src, alt }) {

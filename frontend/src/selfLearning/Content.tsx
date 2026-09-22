@@ -1,3 +1,4 @@
+import { reportAnchors } from "../components/shared/reportAnchors";
 import type { ReadingSnapshot } from '../liveLearning/agentTurns';
 import { acceptReadingMessage, resourceRef, refKey } from '../liveLearning/readingContext';
 import { useEffect, useRef, useState } from "react";
@@ -280,7 +281,7 @@ export function LearningContent({
         <span>示例内容</span>
       </div>
       <hr />
-      {resource.content ? <ReactMarkdown>{resource.content.replace(/^#\s+[^\n]+\n?/, "")}</ReactMarkdown> : <>
+      {resource.content ? <ReactMarkdown rehypePlugins={[reportAnchors]}>{resource.content.replace(/^#\s+[^\n]+\n?/, "")}</ReactMarkdown> : <>
       <h2>01 / 从一个问题开始</h2>
       <p>{paragraphs[0]}</p>
       <div className="sl-callout">

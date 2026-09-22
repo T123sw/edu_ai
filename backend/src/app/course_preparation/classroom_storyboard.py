@@ -113,7 +113,7 @@ def validate_teaching_bindings(board, teaching_context, *, max_scenes=MAX_SCENES
 def _text(identity, text, left, top, width, height, size):
     return {'id': identity, 'type': 'text', 'left': left, 'top': top,
             'width': width, 'height': height, 'rotate': 0,
-            'content': f'<div style="font-size:{size}px;line-height:1.4">{html.escape(text)}</div>',
+            'content': f'<div style="font-size:{size}px;line-height:1.4;overflow-wrap:anywhere">{html.escape(text)}</div>',
             'defaultFontName': 'sans-serif', 'defaultColor': '#172033', 'lineHeight': 1.4}
 
 
@@ -156,17 +156,17 @@ def render_storyboard(board, title, resource_id):
                 # Two rows, with enough vertical space for actual text layout.
                 for step_index, step in enumerate(plan.steps):
                     row, col = divmod(step_index, 2)
-                    x, y = 50 + col * 490, 135 + row * 195
+                    x, y = 50 + col * 490, 135 + row * 210
                     eid = f'{sid}:step{step_index + 1}'
                     elements.extend([
-                        _shape(eid, x, y, 410, 165),
-                        _text(eid + ':label', f'{step_index + 1}. {step.label}', x + 16, y + 8, 378, 60, 26),
-                        _text(eid + ':detail', step.detail, x + 16, y + 72, 378, 85, 24),
+                        _shape(eid, x, y, 410, 185),
+                        _text(eid + ':label', f'{step_index + 1}. {step.label}', x + 16, y + 8, 378, 60, 20),
+                        _text(eid + ':detail', step.detail, x + 16, y + 72, 378, 105, 18),
                     ])
                     if col == 0 and step_index + 1 < len(plan.steps):
                         elements.append(_shape(eid + ':arrow', x + 430, y + 70, 40, 28, arrow=True))
                     if step_index == 1 and len(plan.steps) > 2:
-                        elements.append(_text(eid + ':next', '↓ 接第 3 步', x + 245, y + 167, 165, 28, 18))
+                        elements.append(_text(eid + ':next', '↓ 接第 3 步', x + 245, y + 184, 165, 26, 18))
                     actions.extend([
                         {'id': eid + ':focus', 'type': 'spotlight', 'elementId': eid},
                         {'id': eid + ':speech', 'type': 'speech', 'text': step.narration},

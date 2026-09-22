@@ -58,16 +58,16 @@ def test_report_writer_and_independent_reviewer_use_native_object_submissions():
         if len(calls) == len(replies):
             from jsonschema import Draft202012Validator
             parameters = body['tools'][0]['function']['parameters']
-            value_schema = parameters['properties']['value']
+            value_schema = parameters
             assert 'preparation_checks' in value_schema['required']
             Draft202012Validator.check_schema(parameters)
             validator = Draft202012Validator(parameters)
-            validator.validate({'value': replies[-1]})
+            validator.validate(replies[-1])
             missing = {k: v for k, v in replies[-1].items() if k != 'preparation_checks'}
-            assert not validator.is_valid({'value': missing})
+            assert not validator.is_valid(missing)
         return httpx.Response(200,json={'id':'report','object':'chat.completion','created':1,'model':body['model'],
             'choices':[{'index':0,'message':{'role':'assistant','content':None,'tool_calls':[
-                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps({'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
+                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1] if len(calls) == len(replies) else {'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
             'usage':{'prompt_tokens':50,'completion_tokens':20,'total_tokens':70}})
     model,ledger=gateway(complete,sdk_factory=DeepSeekHarness,context={'artifact_id':'report','spec_digest':request.spec_digest})
     body,state=generate_reviewed_report(request,model)
@@ -97,16 +97,16 @@ def test_native_quiz_review_selects_original_explanation_spans_and_persists_cano
         if len(calls) == len(replies):
             from jsonschema import Draft202012Validator
             parameters = body['tools'][0]['function']['parameters']
-            value_schema = parameters['properties']['value']
+            value_schema = parameters
             assert 'preparation_checks' in value_schema['required']
             Draft202012Validator.check_schema(parameters)
             validator = Draft202012Validator(parameters)
-            validator.validate({'value': replies[-1]})
+            validator.validate(replies[-1])
             missing = {k: v for k, v in replies[-1].items() if k != 'preparation_checks'}
-            assert not validator.is_valid({'value': missing})
+            assert not validator.is_valid(missing)
         return httpx.Response(200,json={'id':'quiz','object':'chat.completion','created':1,'model':body['model'],
             'choices':[{'index':0,'message':{'role':'assistant','content':None,'tool_calls':[
-                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps({'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
+                {'id':'c1','type':'function','function':{'name':name,'arguments':json.dumps(replies[len(calls)-1] if len(calls) == len(replies) else {'value':replies[len(calls)-1]},ensure_ascii=False)}}]},'finish_reason':'tool_calls'}],
             'usage':{'prompt_tokens':50,'completion_tokens':20,'total_tokens':70}})
     model,ledger=gateway(complete,sdk_factory=DeepSeekHarness,context={'artifact_id':'quiz','spec_digest':request.spec_digest})
     artifact=ReviewedResourceGenerator(model).generate(request,job_id='j',config_snapshot_id='c')['artifacts'][0]
@@ -128,8 +128,8 @@ def test_review_schema_references_remain_valid_and_are_isolated_per_session():
     Draft202012Validator.check_schema(parameters)
     assert schema == original
     assert parameters['$defs'] == original['$defs']
-    assert 'preparation_checks' in parameters['properties']['value']['required']
-    assert 'question_checks' in parameters['properties']['value']['required']
+    assert 'preparation_checks' in parameters['required']
+    assert 'question_checks' in parameters['required']
     assert parameters['$defs']['IndexedQuestionReview']['additionalProperties'] is False
     parameters['$defs'].clear()
     assert schema == original
@@ -167,7 +167,7 @@ def test_native_review_schema_errors_are_corrected_before_dispatch_with_bounded_
         return httpx.Response(200, json={'id': 'schema', 'object': 'chat.completion', 'created': 1,
             'model': payload['model'], 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': None,
             'tool_calls': [{'id': 'c1', 'type': 'function', 'function': {'name': name,
-            'arguments': json.dumps({'value': value}, ensure_ascii=False)}}]}, 'finish_reason': 'tool_calls'}],
+            'arguments': json.dumps(value, ensure_ascii=False)}}]}, 'finish_reason': 'tool_calls'}],
             'usage': {'prompt_tokens': 50, 'completion_tokens': 20, 'total_tokens': 70}})
     model, ledger = gateway(complete, sdk_factory=DeepSeekHarness)
     reviewer = model.for_phase('resource_review', context={'response_format': 'json'}).with_response_schema(schema)
@@ -177,6 +177,6 @@ def test_native_review_schema_errors_are_corrected_before_dispatch_with_bounded_
     else:
         result = reviewer.chat([{'role': 'user', 'content': '独立审查'}])
         assert json.loads(result) == expected
-        assert dispatched == [{'value': expected}]
+        assert dispatched == [expected]
     assert len(calls) == len(ledger.actions) == 3
     assert all(row['status'] == 'completed' for row in ledger.actions)

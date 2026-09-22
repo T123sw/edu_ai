@@ -127,12 +127,24 @@ test('fresh upload through workers to exact versions and real playback', async (
               await frame.getByRole('button', { name: /^(播放当前页|重新播放当前页|重播当前页)$/ }).click();
               await expect(frame.locator('.classroom-subtitle')).toBeVisible();
               const initial = await frame.locator('.classroom-subtitle').innerText();
+              const stageBox = await frame.locator('.classroom-stage-shell').boundingBox();
+              const captionBox = await frame.locator('.classroom-subtitle').boundingBox();
+              expect(stageBox).toBeTruthy(); expect(captionBox).toBeTruthy();
+              expect(captionBox!.y, 'subtitles must be below the entire slide').toBeGreaterThanOrEqual(stageBox!.y + stageBox!.height - 1);
               // The actual narration/page state must advance, clicking alone never passes.
               await expect.poll(async () => ({
                 narration: await frame.locator('.classroom-subtitle').textContent().catch(() => null),
                 page: await frame.locator('.classroom-page-count').innerText(),
               }), { timeout: 120_000 }).not.toEqual({ narration: initial, page: `${index + 1} / ${material.scenes.length}` });
             }
+            const overflow = await frame.locator('.classroom-stage-shell .base-element-text').evaluateAll(elements =>
+              elements.flatMap(element => {
+                const box = element.getBoundingClientRect();
+                const text = element.querySelector('.text')?.getBoundingClientRect();
+                return text && (text.bottom > box.bottom + 2 || text.right > box.right + 2)
+                  ? [element.textContent] : [];
+              }));
+            expect(overflow, 'slide text must fit its allocated rectangle').toEqual([]);
             const images = frame.locator('img');
             for (const img of await images.all()) await expect.poll(() => img.evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth > 0)).toBe(true);
             expect(await frame.locator('body').evaluate(e => e.scrollWidth <= e.clientWidth + 2), 'horizontal overflow').toBe(true);
@@ -149,7 +161,12 @@ test('fresh upload through workers to exact versions and real playback', async (
             expect(audio.decoded, 'actual media decode required').toBeGreaterThan(0);
             expect(audio.progressed, 'actual media clock progress required').toBeGreaterThan(0);
           }
-        } else await expect(frame.locator('[data-reading-end]')).toBeAttached();
+        } else {
+          await expect(frame.locator('[data-reading-end]')).toBeAttached();
+          const rawAnchors = await frame.locator('body').innerText();
+          expect(rawAnchors, 'report locator tags must not appear as text').not.toMatch(/<a\s+id=["']/);
+          await expect(frame.locator('a[id]').first()).toBeAttached();
+        }
         await page.screenshot({ path: info.outputPath(`${chapter.id}-${kind}-${version}.png`) });
       }
     }

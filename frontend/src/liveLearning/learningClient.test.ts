@@ -17,3 +17,34 @@ test('different session never merges private histories', () => {
   const next = mergeSessionPage(page('a', [0, 1], null), page('b', [0], null));
   assert.deepEqual(next.items.map(m => m.id), ['b:0']);
 });
+
+test('mount refresh and polling wait for the same slow enter; history is read only afterwards', async () => {
+  const { createSessionReader } = await import('./learningClient');
+  const calls: boolean[] = [];
+  let finish!: (value: SessionPage) => void;
+  const pending = new Promise<SessionPage>(resolve => { finish = resolve; });
+  const read = createSessionReader(async enter => {
+    calls.push(enter);
+    return enter ? pending : page('a', [0, 1], null);
+  });
+  const enter = read(true), refresh = read(), poll = read();
+  assert.deepEqual(calls, [true]);
+  finish(page('a', [0], null));
+  assert.equal((await enter).session_id, 'a');
+  await Promise.all([refresh, poll]);
+  assert.deepEqual(calls, [true]);
+  assert.equal((await read()).items.length, 2);
+  assert.deepEqual(calls, [true, false]);
+});
+
+test('failed enter can retry without premature history reads', async () => {
+  const { createSessionReader } = await import('./learningClient');
+  let calls = 0;
+  const read = createSessionReader(async enter => {
+    assert.equal(enter, true);
+    if (++calls === 1) throw new Error('offline');
+    return page('b', [0], null);
+  });
+  await assert.rejects(read(), /offline/);
+  assert.equal((await read()).session_id, 'b');
+});

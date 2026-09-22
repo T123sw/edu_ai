@@ -382,7 +382,7 @@ def review_content(kind, content, spec, gateway, *, durable=False, candidate=Non
          '逐条核对 teaching_context 的实际语言、基础、教学顺序、排除项、活动和本节点目标，不能因为ID齐全就判通过。'
          '当前只审阅 resource_type 指定的资源；requirements 是整课背景，requirement_ids 是本节点分工。'
          '资源组合、节点总数和其他节点内容由整节点/整课门禁核对，不要求本资源包含其他资源类型或重复其他节点。'
-         'resource_repair_target_minutes 是联合修订参考目标，不能仅因超过该参考值就否定内容；resource_target_minutes 显式上限仍须满足，节点/整课实际总用时由最终门禁核验。'
+         'resource_target_minutes 和 resource_repair_target_minutes 均为内容量参考，不是交付门槛，不能仅因学习时长估算超出参考值否定内容。'
          '需求映射只核验当前位置的真实贡献，完整跨资源满足性由整节点审阅决定。'
          f'{binding_instruction}'
          '同一 binding_id 对应多个位置时逐位置分别核对，不按ID去重，不在审阅中改写原定位。'

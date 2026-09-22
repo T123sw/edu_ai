@@ -1,3 +1,4 @@
+import { reportAnchors } from "../../components/shared/reportAnchors";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -30,7 +31,7 @@ export function MarkdownPreview({ content, imageUrls = {} }: MarkdownPreviewProp
     <div className="markdown-preview text-sm leading-7 text-(--app-text)">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[reportAnchors, rehypeKatex]}
         components={{
           img({ src, alt }) {
             const resolved = src ? (imageUrls[src] || src) : "";

@@ -173,7 +173,7 @@ def generate_reviewed_report(payload, gateway=None, *, initial_body="", initial_
                  '核对受众、基础、语言、深度、排除主题和来源限制；实际推演例子与边界，检查概念前提。'
                  '当前只审阅报告。teaching_context.requirements 是整课背景，requirement_ids 是本节点分工。'
                  '跨资源的组合要求由整节点门禁核对，不要求报告内再生成习题资源或课堂场景，也不要求教授其他节点。'
-                 'resource_repair_target_minutes 是联合修订参考目标，不能仅因超过该参考值就否定内容；resource_target_minutes 显式上限仍须满足，节点/整课实际总用时由最终门禁核验。'
+                 'resource_target_minutes 和 resource_repair_target_minutes 均为内容量参考，不是交付门槛，不能仅因学习时长估算超出参考值否定内容。'
                  '需求映射核验该位置对要求的真实贡献，不把局部映射当作整课已全部满足；不得为补齐其他资源类型而要求重写本报告。'
                  '特别核对教学顺序落实在实际章节，而不是正文声称采用某顺序；无用户面试要求不得引入面试模板。'
                  '算法检查成功、失败、相等分支和合法输入域；严格减小不等于精确减半。核对真实引用与主张。'

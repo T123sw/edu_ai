@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import type { Message } from '../selfLearning/model';
 
@@ -14,21 +14,41 @@ export function mergeSessionPage(previous: SessionPage | undefined, incoming: Se
     next_cursor: extendsBack ? incoming.next_cursor : previous.next_cursor };
 }
 
+// Enter and mount-time refresh can arrive together. Share initialization and
+// never read a session until its creation has committed.
+export function createSessionReader(request: (enter: boolean, before?: string, signal?: AbortSignal) => Promise<SessionPage>) {
+  let ready = false;
+  let entering: Promise<SessionPage> | undefined;
+  return async (enter = false, before?: string, signal?: AbortSignal): Promise<SessionPage> => {
+    if (enter || !ready || entering) {
+      entering ??= request(true, undefined, signal).then(page => {
+        ready = true;
+        return page;
+      }).finally(() => { entering = undefined; });
+      const page = await entering;
+      if (!before) return page;
+    }
+    return request(false, before, signal);
+  };
+}
+
 export function useTopicSession(courseId: string, topicId: string, enabled: boolean, owner: string) {
   const [cache, setCache] = useState<Record<string, Cache>>({});
   const key = JSON.stringify([owner, courseId, topicId]);
   const url = `/api/self-learning/courses/${encodeURIComponent(courseId)}/topics/${encodeURIComponent(topicId)}`;
+  const read = useMemo(() => createSessionReader((enter, before, signal) =>
+    apiRequest<SessionPage>(`${url}/${enter ? 'enter' : 'session'}${before ? '?before=' + encodeURIComponent(before) : ''}`,
+      { method: enter ? 'POST' : 'GET', signal })), [key, url]);
   const load = useCallback(async (enter = false, before?: string, signal?: AbortSignal) => {
     setCache(c => ({ ...c, [key]: { ...c[key], loading: true, error: undefined } }));
     try {
-      const page = await apiRequest<SessionPage>(`${url}/${enter ? 'enter' : 'session'}${before ? '?before=' + encodeURIComponent(before) : ''}`,
-        { method: enter ? 'POST' : 'GET', signal });
+      const page = await read(enter, before, signal);
       if (!signal?.aborted) setCache(c => ({ ...c, [key]: { page: mergeSessionPage(c[key]?.page, page), loading: false } }));
     } catch (cause) {
       if (!signal?.aborted) setCache(c => ({ ...c, [key]: { ...c[key], loading: false,
         error: cause instanceof Error ? cause.message : '会话读取失败，请重试' } }));
     }
-  }, [key, url]);
+  }, [key, read]);
   useEffect(() => {
     if (!enabled) return;
     const controller = new AbortController();

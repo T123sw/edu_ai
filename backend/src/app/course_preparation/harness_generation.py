@@ -42,19 +42,17 @@ class ContentTools:
                            'required': ['text'], 'additionalProperties': False},
         }}
         if structured:
-            value_schema = deepcopy(response_schema) if response_schema is not None else {'type': 'object', 'additionalProperties': True}
-            # References are rooted at the tool parameters, not at value.
-            definitions = value_schema.pop('$defs', None)
+            # Known review contracts are the tool arguments themselves. Avoid a
+            # second, conflicting wrapper around the schema shown in messages.
+            parameters = deepcopy(response_schema) if response_schema is not None else {
+                'type': 'object', 'properties': {'value': {'type': 'object', 'additionalProperties': True}},
+                'required': ['value'], 'additionalProperties': False}
             self.tools = {'submit_resource_json': {
                 'name': 'submit_resource_json',
-                'description': '提交本轮结构化结果对象；value 直接放 JSON 对象，不要再次编码为字符串。业务层随后独立校验。',
-                'parameters': {'type': 'object', 'properties': {
-                    'value': value_schema},
-                    'required': ['value'], 'additionalProperties': False},
+                'description': ('直接按工具 schema 提交完整审阅对象，字段放在参数顶层，不增加 value 包装。'
+                    if response_schema is not None else '提交本轮结构化结果对象；value 直接放 JSON 对象，不要再次编码为字符串。'),
+                'parameters': parameters,
             }}
-
-            if definitions is not None:
-                self.tools['submit_resource_json']['parameters']['$defs'] = definitions
 
     def schemas(self):
         return [{'name': name, 'description': spec['description'], 'inputSchema': spec['parameters']}
@@ -83,7 +81,9 @@ class ContentTools:
                 if name not in self.tools:
                     raise ValueError('TOOL_NOT_AVAILABLE')
                 self.validate_arguments(name, arguments)
-                if self.structured:
+                if self.structured and self.response_schema is not None:
+                    text = json.dumps(arguments, ensure_ascii=False)
+                elif self.structured:
                     if (not isinstance(arguments, dict) or set(arguments) != {'value'}
                             or not isinstance(arguments['value'], dict)):
                         from .harness_provider import CompletionFormatError
