@@ -1,0 +1,18 @@
+[
+  {
+    "project": "desktop",
+    "status": "passed",
+    "seconds": 346.74,
+    "preparation_id": "prep_48d755c5c0574fa8bc1b67f15058a8c8",
+    "console_errors": [],
+    "network_errors": []
+  },
+  {
+    "project": "narrow",
+    "status": "passed",
+    "seconds": 348.97,
+    "preparation_id": "prep_5efb692359ce4dd0b6ede3de271e1254",
+    "console_errors": [],
+    "network_errors": []
+  }
+]

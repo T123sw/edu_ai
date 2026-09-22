@@ -1,0 +1,24 @@
+[
+  {
+    "preparation_id": "prep_48d755c5c0574fa8bc1b67f15058a8c8",
+    "resource_review_calls": 8,
+    "malformed_tool_arguments": [
+      {
+        "phase": "learning_path",
+        "tool": "mcp__preparation__finalize_research_summary"
+      }
+    ],
+    "duration_enforcement": "advisory"
+  },
+  {
+    "preparation_id": "prep_5efb692359ce4dd0b6ede3de271e1254",
+    "resource_review_calls": 10,
+    "malformed_tool_arguments": [
+      {
+        "phase": "learning_path",
+        "tool": "mcp__preparation__finalize_research_summary"
+      }
+    ],
+    "duration_enforcement": "advisory"
+  }
+]

@@ -1,0 +1,205 @@
+[
+  {
+    "preparation_id": "prep_48d755c5c0574fa8bc1b67f15058a8c8",
+    "status": "succeeded",
+    "seconds": 221.88,
+    "error_code": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 40,
+        "tokens": 470472,
+        "cost_micro_usd": 4704720
+      }
+    },
+    "models": {
+      "deepseek-v4-flash": 34
+    },
+    "provider_models": {
+      "deepseek-flash": 34
+    },
+    "native_completions": 34,
+    "repair_counts": {},
+    "timeline": [
+      {
+        "event": "accepted",
+        "stage": null,
+        "elapsed_seconds": 0.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "normalize",
+        "elapsed_seconds": 0.62
+      },
+      {
+        "event": "stage_changed",
+        "stage": "ingest",
+        "elapsed_seconds": 35.12
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_scope",
+        "elapsed_seconds": 35.83
+      },
+      {
+        "event": "stage_changed",
+        "stage": "plan",
+        "elapsed_seconds": 70.23
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_nodes",
+        "elapsed_seconds": 78.53
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 97.06
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 197.16
+      },
+      {
+        "event": "stage_changed",
+        "stage": "commit",
+        "elapsed_seconds": 220.58
+      },
+      {
+        "event": "succeeded",
+        "stage": null,
+        "elapsed_seconds": 221.88
+      }
+    ],
+    "course_id": "learn-48d755c5c0574fa8bc1b67f15058a8c8"
+  },
+  {
+    "preparation_id": "prep_5efb692359ce4dd0b6ede3de271e1254",
+    "status": "succeeded",
+    "seconds": 268.31,
+    "error_code": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 43,
+        "tokens": 541062,
+        "cost_micro_usd": 5410620
+      }
+    },
+    "models": {
+      "deepseek-v4-flash": 36
+    },
+    "provider_models": {
+      "deepseek-flash": 36
+    },
+    "native_completions": 36,
+    "repair_counts": {
+      "review": 1,
+      "content": 1
+    },
+    "timeline": [
+      {
+        "event": "accepted",
+        "stage": null,
+        "elapsed_seconds": 0.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "normalize",
+        "elapsed_seconds": 0.36
+      },
+      {
+        "event": "stage_changed",
+        "stage": "ingest",
+        "elapsed_seconds": 41.67
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_scope",
+        "elapsed_seconds": 42.67
+      },
+      {
+        "event": "stage_changed",
+        "stage": "plan",
+        "elapsed_seconds": 73.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_nodes",
+        "elapsed_seconds": 80.72
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 92.54
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 188.34
+      },
+      {
+        "event": "stage_changed",
+        "stage": "repair",
+        "elapsed_seconds": 189.88
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 191.01
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 214.23
+      },
+      {
+        "event": "stage_changed",
+        "stage": "repair",
+        "elapsed_seconds": 215.31
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 216.29
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 245.12
+      },
+      {
+        "event": "stage_changed",
+        "stage": "commit",
+        "elapsed_seconds": 266.7
+      },
+      {
+        "event": "succeeded",
+        "stage": null,
+        "elapsed_seconds": 268.31
+      }
+    ],
+    "course_id": "learn-5efb692359ce4dd0b6ede3de271e1254"
+  }
+]

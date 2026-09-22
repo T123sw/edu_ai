@@ -31,10 +31,35 @@
     "errors": []
   },
   "backend_runtime": {
-    "pid": 1479608,
-    "new_flags_loaded": false,
-    "restart_attempt": "systemd denied: Interactive authentication required"
+    "pid": 1492723,
+    "started_at": "2026-09-22T06:31:55Z",
+    "source_revision": "2e088914b58aa81fae41647cc15ef67711afe1aa",
+    "new_flags_loaded": true,
+    "flags": {
+      "LEARNING_SESSION_V1_ENABLED": "true",
+      "LEARNING_PROGRESS_V1_ENABLED": "true",
+      "LEARNING_AGENT_V1_ENABLED": "true",
+      "LEARNING_ENRICHMENT_V1_ENABLED": "true",
+      "LEARNING_PREPARATION_V1_ENABLED": "true"
+    }
   },
-  "e2e_after_activation": "pending restart",
-  "private_backup_root": "/tmp/edu-ai-learning-enable-20260922"
+  "e2e_after_activation": "passed: fresh desktop and narrow, default Nginx website",
+  "private_backup_root": "/tmp/edu-ai-learning-enable-20260922",
+  "live_api_modes": {
+    "sessionPersistence": true,
+    "progressPersistence": true,
+    "agentRuntime": true,
+    "enrichmentEnabled": true,
+    "preparationEnabled": true,
+    "checks_enabled": true
+  },
+  "learning_answer_smoke": {
+    "turn_id": "answer-72e9dd3f6fa24d40928e0d746aea175c",
+    "status": "succeeded",
+    "seconds": 6.59,
+    "enter_then_read_same_session": true,
+    "answer_persisted_in_history": true,
+    "answer_characters": 126,
+    "committed_effects": []
+  }
 }
