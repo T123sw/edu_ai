@@ -5,6 +5,7 @@ from .runtime_contracts import BudgetCost
 from .tool_registry import digest
 from .runner import StepResult
 from .research_agent import ResearchError
+from .resource_selection import course_resource_types
 
 
 class ProductionStages:
@@ -18,7 +19,7 @@ class ProductionStages:
         request=self.repository.get(owner_user_id=context.owner_user_id,preparation_id=context.preparation_id).request
         specifications=checkpoint.get('resource_specs')
         if specifications is None:
-            kinds=list(dict.fromkeys(['report','quiz',*request.overrides.required_resource_types,*checkpoint['brief'].get('required_resource_types', [])]))
+            kinds=course_resource_types(request, checkpoint['brief'].get('required_resource_types', []))
             if any(k not in ('report','quiz','classroom') for k in kinds):
                 raise ResearchError('RESOURCE_TYPE_UNAVAILABLE','当前完整准备链路支持报告、习题和课堂')
             target = checkpoint.get('target_snapshot')

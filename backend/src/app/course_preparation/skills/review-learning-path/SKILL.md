@@ -22,6 +22,7 @@ description: 独立审阅学习路径是否覆盖用户需求，并检查节点�
 - 区分必要/充分条件、现象/原因、实现默认值/普遍保证，示例标明适用范围。
 - 资料缺口没有变成用户排除项，未将“可运行程序”等原始目标降低为伪代码演示。路径 limitations 不能替代核心目标所需依据；实质缺口应判 fail。
 - 已有课程调整遵守授权节点、目标与版本范围。
+- 新建课程的课堂形式以 `request.overrides.include_classroom` 开关为准（默认开启），其优先级高于需求文字。关闭时不能因未安排课堂判失败，也不能要求通过修订需求重新开启课堂。
 
 checked_requirement_ids 必须逐项包含 brief 的所有 requirement_id。通过时 decision=pass 且 issues 为空；实质缺陷判 fail，issues 给具体问题和所需修正，repair_phase 按原因选择 intent（需求曲解）、research（证据不足）或 plan（路径组织）。不要为措辞偏好反复退回，也不能因修复成本高掩盖缺陷。
 

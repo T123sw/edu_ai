@@ -31,6 +31,7 @@ class SourcePolicy(Contract):
 
 
 class PreparationOverrides(Contract):
+    include_classroom: bool = Field(default=True, strict=True, description='新建课程是否生成 AI 课堂；以此设置为准，不从需求文字推断')
     language: Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=40)] | None = None
     total_minutes: Annotated[int, Field(strict=True, ge=1, le=100000)] | None = None
     depth: Literal['introductory', 'intermediate', 'advanced'] | None = None
@@ -110,6 +111,11 @@ class PreparationRequest(Contract):
 
 def request_digest(request: PreparationRequest) -> str:
     """Hash the entire validated request, including defaults and version references."""
-    encoded = json.dumps(request.model_dump(mode='json'), ensure_ascii=False,
+    payload = request.model_dump(mode='json')
+    # The default-on switch must not invalidate request IDs saved before it existed.
+    # Explicitly disabling it still changes the request identity.
+    if payload['overrides']['include_classroom']:
+        del payload['overrides']['include_classroom']
+    encoded = json.dumps(payload, ensure_ascii=False,
                          sort_keys=True, separators=(',', ':'), allow_nan=False)
     return hashlib.sha256(encoded.encode('utf-8')).hexdigest()

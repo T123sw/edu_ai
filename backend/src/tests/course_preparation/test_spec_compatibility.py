@@ -100,6 +100,20 @@ def test_production_keeps_kinds_and_shares_node_budget_without_resource_allocati
     assert cp == before
 
 
+@pytest.mark.parametrize('enabled', [None, True, False])
+def test_classroom_switch_controls_actual_generation_even_when_brief_disagrees(enabled):
+    request, cp, _ = production_input()
+    # Deliberately make the model contradict the UI choice.
+    cp['brief']['required_resource_types'] = ['classroom'] if enabled is False else ['report', 'quiz']
+    if enabled is not None:
+        request = request.model_copy(update={'overrides': request.overrides.model_copy(update={
+            'include_classroom': enabled, 'required_resource_types': ('classroom',)})})
+    result, actions = production(request, cp)
+    expected = ['report', 'quiz'] + ([] if enabled is False else ['classroom'])
+    assert [s['resource_type'] for s in result.checkpoint['resource_specs']] == expected
+    assert [s['resource_type'] for _, s in actions] == expected
+
+
 def test_production_replays_raw_v1_checkpoint_without_rebuilding():
     request, cp, node = production_input()
     fixture = legacy_fixture()

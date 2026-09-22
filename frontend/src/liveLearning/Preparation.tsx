@@ -4,8 +4,8 @@ import { apiRequest } from '../stitch/api/client';
 import { Icon } from '../selfLearning/ui';
 
 export type UploadRef = { document_id: string; version: number; filename?: string };
-export type PreparationOptions = { uploads: UploadRef[]; overrides: { total_minutes?: number; language?: string; depth?: 'introductory' | 'intermediate' | 'advanced'; required_resource_types?: string[] } };
-export const defaultOptions: PreparationOptions = { uploads: [], overrides: {} };
+export type PreparationOptions = { uploads: UploadRef[]; overrides: { include_classroom?: boolean; total_minutes?: number; language?: string; depth?: 'introductory' | 'intermediate' | 'advanced'; required_resource_types?: string[] } };
+export const defaultOptions: PreparationOptions = { uploads: [], overrides: { include_classroom: true } };
 const base = '/api/course-preparations';
 type Intermediate = { brief?: { topic?: string; learning_goal?: string; prior_knowledge?: string; total_minutes?: number; language?: string; depth?: string; assumptions?: string[]; material_gaps?: string[]; desired_outcomes?: string[]; source_policy?: { mode: string } }; input_documents?: { document_id: string; filename: string; complete: boolean; parts: { kind: string; summary: string }[] }[]; research_summary?: { findings?: { claim: string }[] }; plan?: { title: string; nodes: { node_key: string; title: string; minutes: number; objectives: string[] }[] }; quality?: { decision: string; limitations?: string[] } };
 type Task = { preparation_id: string; status: string; stage: string; revision: number; error_code?: string; result_ref?: { course_ready: boolean; course_id: string } };
@@ -14,8 +14,11 @@ const labels: Record<string, string> = { normalize: '理解学习目标', ingest
 export function PreparationOptionsForm({ value, onChange, onUploadingChange }: { value: PreparationOptions; onChange: Dispatch<SetStateAction<PreparationOptions>>; onUploadingChange?: (value: boolean) => void }) {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
-  return <fieldset disabled={uploading} className="sl-preparation-options"><legend className="sl-intake-sr-only">添加学习资料（可选）</legend>
+  return <fieldset disabled={uploading} className="sl-preparation-options"><legend className="sl-intake-sr-only">课程生成与学习资料</legend>
     <div className="sl-intake-toolbar">
+    <button type="button" role="switch" aria-label="生成 AI 课堂" aria-checked={value.overrides.include_classroom !== false} className="sl-intake-classroom" title="为每个知识点生成讲解与互动课堂" onClick={() => onChange(previous => ({ ...previous, overrides: { ...previous.overrides, include_classroom: previous.overrides.include_classroom === false } }))}>
+      <span>AI 课堂</span><span className="sl-intake-switch" aria-hidden="true"><span /></span><span aria-hidden="true">{value.overrides.include_classroom !== false ? '已开启' : '已关闭'}</span>
+    </button>
     <label className="sl-intake-upload"><Icon name="upload" size={16} /><span>添加资料</span><input aria-label="添加资料" className="sl-intake-sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.png,.jpg,.jpeg,.jp2,.webp,.gif,.bmp,.html,.md,.markdown,.txt" onChange={async e => {
       const files = Array.from(e.target.files || []); e.target.value = '';
       if (!files.length) return;

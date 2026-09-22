@@ -22,6 +22,31 @@ class Documents:
     def parse(self, *args): return {'content':self.text,'source_hash':'sha','parser':'text','defects':[]}
 
 
+@pytest.mark.parametrize('enabled', [True, False])
+def test_saved_brief_uses_classroom_switch_over_model_inference(enabled):
+    req = PreparationRequest(request_id=uuid4(), operation='create_course',
+        goal='理解递归终止条件，需要 AI 课堂', overrides={'include_classroom': enabled})
+    data = {**brief(), 'required_resource_types': [] if enabled else ['classroom']}
+    agent = ResearchAgent(model=Model(), sources=Sources())
+    state = agent._execute('save_preparation_brief', ResearchBrief.model_validate(data),
+        req, ResearchState(), timeout=10, reserve=lambda _: None)
+    assert state.brief.required_resource_types == (('report', 'quiz', 'classroom') if enabled else ('report', 'quiz'))
+
+
+def test_classroom_default_preserves_old_request_identity_and_off_changes_it():
+    import hashlib
+    import json
+    from app.course_preparation.schemas import request_digest
+    req = request()
+    legacy_payload = req.model_dump(mode='json')
+    del legacy_payload['overrides']['include_classroom']
+    legacy_digest = hashlib.sha256(json.dumps(legacy_payload, ensure_ascii=False,
+        sort_keys=True, separators=(',', ':'), allow_nan=False).encode('utf-8')).hexdigest()
+    assert request_digest(req) == legacy_digest
+    disabled = req.model_copy(update={'overrides': req.overrides.model_copy(update={'include_classroom': False})})
+    assert request_digest(disabled) != legacy_digest
+
+
 def test_document_understanding_covers_late_requirements_and_resumes_without_rereading():
     documents=Documents('岗位背景。'*(CHUNK_CHARS//5)+'必须掌握 Agent 评估。')
     calls=[]

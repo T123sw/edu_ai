@@ -1,5 +1,43 @@
 import { test, expect } from 'playwright/test';
 
+for (const width of [1440, 390]) {
+  test(`classroom switch is default on and overrides goal wording (${width}px)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1000 });
+    const requests: any[] = [];
+    await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ token: 'test', user: { username: 'alice', role: 'student' } })));
+    await page.route('**/api/**', async route => {
+      const req = route.request(); const path = new URL(req.url()).pathname;
+      if (!path.startsWith('/api/')) return route.continue();
+      if (path.endsWith('/auth/verify')) return route.fulfill({ json: { valid: true, user: { username: 'alice', role: 'student' } } });
+      if (path.endsWith('/self-learning/state')) return route.fulfill({ json: { version: 1, rooms: [], resources: [], jobs: [], serverJobs: [], shared: [] } });
+      if (path === '/api/course-preparations' && req.method() === 'POST') {
+        requests.push(req.postDataJSON());
+        // A retryable failure keeps the form available for changing the selection.
+        return route.fulfill({ status: 503, json: { detail: '请重试' } });
+      }
+      return route.fulfill({ json: { preparations: [], items: [] } });
+    });
+    await page.goto('/');
+    const toggle = page.getByRole('switch', { name: '生成 AI 课堂' });
+    await expect(toggle).toBeChecked();
+    await page.getByLabel('学习知识点与目标').fill('学习工具调用，需要 AI 课堂');
+    await page.getByRole('button', { name: '开始学习' }).click();
+    await expect(page.getByRole('alert')).toContainText('请重试');
+    expect(requests[0].overrides.include_classroom).toBe(true);
+    await toggle.click();
+    await expect(toggle).not.toBeChecked();
+    await page.getByRole('button', { name: '开始学习' }).click();
+    await expect.poll(() => requests.length).toBe(2);
+    expect(requests[1].overrides.include_classroom).toBe(false);
+    expect(requests[1].goal).toBe(requests[0].goal);
+    expect(requests[1].request_id).not.toBe(requests[0].request_id);
+    await toggle.focus();
+    await page.keyboard.press('Space');
+    await expect(toggle).toBeChecked();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}
+
 test('retry and refresh keep request identity; entry requires committed result', async ({ page }) => {
   const ids: string[] = []; let accepted = false; let ready = false;
   const task = () => ({ preparation_id: 'prep-test', status: ready ? 'succeeded' : 'running', stage: ready ? 'commit' : 'research_scope', revision: 2,
@@ -128,7 +166,7 @@ test('files alone require no classification or settings; understood intent remai
   await page.getByRole('button', { name: '开始学习' }).click();
   await expect.poll(() => requests.length).toBe(1);
   expect(requests[0].uploads).toEqual([{ document_id: 'doc-1', version: 1 }, { document_id: 'doc-2', version: 1 }]);
-  expect(requests[0].overrides).toEqual({});
+  expect(requests[0].overrides).toEqual({ include_classroom: true });
   expect(requests[0].goal).toContain('推断学习目标');
   await page.getByRole('button', { name: '查看资料汇总与路径' }).click();
   await expect(page.getByRole('region', { name: '需求理解' })).toContainText('准备 Agent 面试');
