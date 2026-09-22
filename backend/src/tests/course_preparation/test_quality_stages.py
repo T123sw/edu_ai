@@ -1,3 +1,4 @@
+import pytest
 from types import SimpleNamespace
 from app.course_preparation.quality import QualityStages
 from app.course_preparation.tool_registry import digest
@@ -107,22 +108,42 @@ def test_format_repair_updates_job_receipt_without_spec_revision():
     assert calls and result.next_stage=='produce'
 
 
-def test_unknown_hard_duration_requests_bounded_content_repair_not_a_false_pass(monkeypatch):
+@pytest.mark.parametrize('minutes', [None, 11.41, 30])
+@pytest.mark.parametrize('decision', ['pass', 'fail'])
+def test_advisory_duration_reaches_semantic_review_without_rewriting(monkeypatch, minutes, decision):
     import app.course_preparation.quality as module
-    monkeypatch.setattr(module.ResearchState,'model_validate',lambda _:SimpleNamespace(path={}))
-    monkeypatch.setattr(module.ResearchAgent,'_validate_path',lambda *_:None)
-    monkeypatch.setattr(module,'candidate_manifest',lambda *_:None)
-    spec={'node_id':'n','revision':1}
-    artifact={'artifact_id':'quiz-a','spec':spec,'spec_digest':digest(spec),'status':'draft',
-              'content':{'content':{'questions':[]}},'resource_type':'quiz'}
-    request=PreparationRequest(request_id=uuid4(),operation='create_course',goal='十分钟内完成',overrides={'total_minutes':10})
-    cp={'research_state':{},'resource_specs':[spec],'generation_receipts':{digest(spec):{}},
-        'plan':{'nodes':[{'node_key':'n','minutes':10}]}}
-    def no_model(*_):raise AssertionError('unknown duration cannot reach semantic pass')
-    stages=QualityStages(SimpleNamespace(get=lambda **_:SimpleNamespace(request=request)),
-        SimpleNamespace(read_result=lambda *_:artifact),SimpleNamespace(validate=lambda *_:None),no_model)
-    ctx=SimpleNamespace(checkpoint=cp,owner_user_id='alice',preparation_id='prep')
-    result=stages.review(ctx)
-    assert result.next_stage=='repair'
-    assert result.checkpoint['quality']['issues'][0]['artifact_ids']==['quiz-a']
-    assert result.checkpoint['quality']['issues'][0]['reason'].startswith('HARD_DURATION_UNVERIFIED')
+    from tests.course_preparation.test_resource_alignment import quiz, checkpoint
+    from copy import deepcopy
+    monkeypatch.setattr(module.ResearchState, 'model_validate', lambda _: SimpleNamespace(path={}))
+    monkeypatch.setattr(module.ResearchAgent, '_validate_path', lambda *_: None)
+    artifact = quiz()
+    meta = artifact['content']['generation_state']['preparation']
+    meta['duration'] = {'basis': 'unknown' if minutes is None else 'estimated',
+                        'value_minutes': minutes, 'method': 'uncalibrated estimate'}
+    artifact['content_digest'] = digest(artifact['content'])
+    original = deepcopy(artifact)
+    cp = checkpoint(artifact)
+    cp.update(research_state={}, resource_specs=[artifact['spec']],
+              generation_receipts={artifact['spec_digest']: {}})
+    request = PreparationRequest(request_id=uuid4(), operation='create_course', goal='学习加法',
+                                 overrides={'total_minutes': 10})
+    calls = []
+    class Model:
+        def decide(self, context, tools, **kwargs):
+            calls.append(context)
+            return 'review_course_delivery', {'decision': decision, 'checked_node_ids': ['n'],
+                'issues': [] if decision == 'pass' else [{'artifact_ids': ['a'], 'reason': '答案错误'}]}
+    stages = QualityStages(SimpleNamespace(get=lambda **_: SimpleNamespace(request=request)),
+        SimpleNamespace(read_result=lambda *_: artifact), SimpleNamespace(validate=lambda *_: None),
+        lambda *_: SimpleNamespace(model=Model()))
+    ctx = SimpleNamespace(checkpoint=cp, owner_user_id='alice', preparation_id='prep')
+    result = stages.review(ctx)
+    if decision == 'pass':
+        ctx.checkpoint = result.checkpoint
+        result = stages.review(ctx)
+        assert result.next_stage == 'commit' and len(calls) == 2
+    else:
+        assert result.next_stage == 'repair' and len(calls) == 1
+        assert result.checkpoint['quality']['issues'][0]['reason'] == '答案错误'
+    assert artifact == original
+    assert result.checkpoint['duration_summary']['enforcement'] == 'advisory'

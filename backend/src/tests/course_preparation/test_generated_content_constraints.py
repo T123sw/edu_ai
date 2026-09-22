@@ -64,8 +64,7 @@ def test_repair_duration_cap_checks_actual_content_estimate(kind):
                                                'reason': '追踪请求、执行与回传后选择答案'}]
     teaching = context()
     actual = preparation_metadata(kind, envelope['content'], envelope, teaching, 'spec')['duration']['value_minutes']
-    with pytest.raises(ValueError, match='RESOURCE_DURATION_EXCEEDED'):
-        preparation_metadata(kind, envelope['content'], envelope, {**teaching, 'resource_target_minutes': actual - .1}, 'spec')
+    assert preparation_metadata(kind, envelope['content'], envelope, {**teaching, 'resource_target_minutes': max(.01, actual - .1)}, 'spec')['duration']['value_minutes'] == actual
     assert preparation_metadata(kind, envelope['content'], envelope, {**teaching, 'resource_target_minutes': actual}, 'spec')['duration']['value_minutes'] == actual
 
 
@@ -432,45 +431,6 @@ def test_A_payload_D_content_F_alignment_use_the_same_real_contract(phases,kind)
     assert content['generation_state']['preparation']['spec_digest']==artifact['spec_digest']
 
 
-@pytest.mark.parametrize('kind', ['report', 'quiz'])
-def test_duration_rejection_exposes_actual_draft_and_workload_for_bounded_rewrite(phases, kind):
-    compact = report_envelope() if kind == 'report' else quiz_envelope()
-    if kind == 'quiz':
-        compact['question_time_estimates'] = [{'question_id': 'q-tools', 'thinking_seconds': 45,
-                                               'reason': '追踪两个角色的职责后选择答案'}]
-    oversized = copy.deepcopy(compact)
-    if kind == 'report':
-        oversized['content'] += '\n' + '可删除的重复说明。' * 200
-    else:
-        oversized['content']['questions'].append({**copy.deepcopy(compact['content']['questions'][0]), 'id': 'q-redundant'})
-        oversized['question_time_estimates'].append({'question_id': 'q-redundant', 'thinking_seconds': 45,
-                                                    'reason': '重复追踪已经检查过的两个角色'})
-    value = payload(kind)
-    value.teaching_context['resource_target_minutes'] = preparation_metadata(
-        kind, compact['content'], compact, value.teaching_context, 'spec')['duration']['value_minutes'] + .1
-    class Gateway(CountingGateway):
-        def chat(self, messages, **kwargs):
-            data = json.loads(messages[-1]['content'])
-            if 'schema' in data:
-                self.review_calls += 1
-                assert data.get('content', data.get('body')) == compact['content']
-                return json.dumps(completion_review(data, kind))
-            self.writer_calls += 1
-            if self.writer_calls == 2:
-                assert data['rejected_draft'] == oversized
-                assert 'reading_characters=' in str(data['feedback'])
-                if kind == 'quiz': assert 'thinking_seconds=90' in str(data['feedback'])
-            return json.dumps(oversized if self.writer_calls == 1 else compact)
-    gateway = Gateway(kind)
-    if kind == 'report':
-        body, state = reviewed_report.generate_reviewed_report(value, gateway)
-        assert body == compact['content']
-    else:
-        artifact = reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')['artifacts'][0]
-        assert artifact['content'] == compact['content']
-    assert gateway.writer_calls == 2 and gateway.review_calls == 1
-
-
 @pytest.mark.parametrize('cap', [None, 2.0])
 def test_only_timed_preparation_repair_can_remove_redundant_question(phases, cap):
     value = payload('quiz')
@@ -508,33 +468,10 @@ def test_only_timed_preparation_repair_can_remove_redundant_question(phases, cap
 
 
 @pytest.mark.parametrize('kind', ['report', 'quiz'])
-def test_exhausted_duration_correction_uses_existing_content_repair_budget(phases, kind):
-    from app.course_preparation.generation_failures import GenerationFailure, recovery_scope
+@pytest.mark.parametrize('field', ['resource_target_minutes', 'resource_repair_target_minutes'])
+def test_learning_duration_target_does_not_repeat_writing(phases, kind, field):
     value = payload(kind)
-    value.teaching_context['resource_target_minutes'] = .1
-    oversized = report_envelope() if kind == 'report' else quiz_envelope()
-    if kind == 'quiz':
-        oversized['question_time_estimates'] = [{'question_id': 'q-tools', 'thinking_seconds': 45,
-                                                'reason': '追踪模型与程序的分工后判断答案'}]
-    class Gateway(CountingGateway):
-        def chat(self, messages, **kwargs):
-            self.writer_calls += 1
-            return json.dumps(oversized)
-    gateway = Gateway(kind)
-    with pytest.raises(GenerationFailure) as error:
-        if kind == 'report': reviewed_report.generate_reviewed_report(value, gateway)
-        else: reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c')
-    assert gateway.writer_calls == 3
-    assert error.value.detail.code == 'RESOURCE_DURATION_EXCEEDED'
-    assert error.value.detail.category == 'content'
-    assert recovery_scope(error.value.detail, attempts=1) == 'content'
-    with pytest.raises(GenerationFailure): recovery_scope(error.value.detail, attempts=2)
-
-
-@pytest.mark.parametrize('kind', ['report', 'quiz'])
-def test_provisional_target_exhaustion_keeps_actual_candidate_for_joint_gate(phases, kind):
-    value = payload(kind)
-    value.teaching_context['resource_repair_target_minutes'] = .1
+    value.teaching_context[field] = .1
     oversized = report_envelope() if kind == 'report' else quiz_envelope()
     if kind == 'quiz':
         oversized['question_time_estimates'] = [{'question_id': 'q-tools', 'thinking_seconds': 45,
@@ -551,18 +488,18 @@ def test_provisional_target_exhaustion_keeps_actual_candidate_for_joint_gate(pha
     result = (reviewed_report.generate_reviewed_report(value, gateway) if kind == 'report' else
               reviewed_resource.ReviewedResourceGenerator(gateway).generate(value, job_id='j', config_snapshot_id='c'))
     artifact = {'content': result[0], 'generation_state': result[1]} if kind == 'report' else result['artifacts'][0]
-    assert gateway.writer_calls == 3 and gateway.review_calls >= 1
+    assert gateway.writer_calls == 1 and gateway.review_calls >= 1
     assert artifact['content'] == oversized['content']
     assert artifact['generation_state']['preparation']['duration']['value_minutes'] > .1
     assert reviewed_resource.verified_resource(artifact, kind) if kind == 'quiz' else reviewed_report.verified_review(artifact)
 
 
-def test_advisory_target_does_not_bypass_explicit_resource_limit():
+def test_resource_and_repair_time_targets_preserve_actual_estimate():
     value = context()
     value.update(resource_target_minutes=.1, resource_repair_target_minutes=.05)
     envelope = report_envelope()
-    with pytest.raises(ValueError, match='RESOURCE_DURATION_EXCEEDED'):
-        preparation_metadata('report', envelope['content'], envelope, value, 's')
+    meta = preparation_metadata('report', envelope['content'], envelope, value, 's', enforce_repair_target=True)
+    assert meta['duration']['value_minutes'] > .1
 
 
 @pytest.mark.parametrize('invalid', ['{"questions":[]}', [], {'questions': ['q1']}, {'questions': {}}])

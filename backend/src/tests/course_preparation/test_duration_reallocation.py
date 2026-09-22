@@ -100,14 +100,7 @@ def test_repair_tracks_derived_cap_and_preserves_explicit_origin():
     assert next_result.checkpoint['repair_counts']['content'] == 2
 
 
-def test_joint_gate_uses_actual_duration_not_provisional_slots():
-    rows = [resource('report', 2.8), resource('quiz', 2.6), resource('classroom', 4.5)]
-    for row in rows:
-        row['spec']['teaching_context']['resource_repair_target_minutes'] = 2
-    nodes = [{'node_key': 'n', 'minutes': 10}]
-    assert QualityStages._duration_issues(rows, nodes, 10) == []
-    rows[-1] = resource('classroom', 4.7)
-    assert QualityStages._duration_issues(rows, nodes, 10)
+
 
 
 def test_new_guidance_field_does_not_change_old_context_serialization():

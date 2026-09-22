@@ -84,7 +84,7 @@ class TeachingContext(ContextContract):
 
 
 def resource_time_cap(context, *, include_repair_target=True):
-    """Explicit limits always apply; provisional slots only guide bounded writing."""
+    """Return a content-size suggestion; retained name for stored-context compatibility."""
     fields = ['resource_target_minutes']
     if include_repair_target:
         fields.append('resource_repair_target_minutes')

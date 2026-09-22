@@ -124,17 +124,15 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
                 {'role': 'system', 'content':
                  '根据结构化节点上下文制作一份可执行课堂，不规划课程资源组合。只输出 schema JSON。'
                  '本次要求优先于历史偏好，使用基础、先修、活动和自测；页数取决于教学内容，max_scenes 只是上限。'
-                 'node_budget_minutes 是整节点上限，不是本课堂目标时长。先例后理等要求必须落实在 scenes 顺序。'
-                 'maximum_total_seconds 非空时是本课堂全部 estimated_seconds 之和的写作目标；'
-                 'resource_target_minutes 是显式硬上限，resource_repair_target_minutes 是联合修订目标；最终仍严格核验节点与整课总用时。'
-                 '超时须删减或合并冗余场景和练习，保留目标覆盖、流程图、检查及未受影响ID，不能只调低估算数字。'
+                 'node_budget_minutes、resource_target_minutes、resource_repair_target_minutes 和 suggested_total_seconds 仅指导内容量，不是交付上限。'
+                 '估算超出或未知不要求重写；保留真实估算，优先目标覆盖、正确性及内容可用性，减少冗余。'
                  '要求先例后理时，首个实质讲解场景先完整演示具体输入、步骤和结果，再讲概念或通用伪代码；引入话题不算演示。'
                  '至少一页用 steps 表达有意义的有序过程，同一例子的投屏/步骤/旁白数值必须一致。'
                  '普通页 screen 是投屏要点；步骤页 screen 只有一句概述；题目页 screen 和 narration 只能重复题干。'
                  'screen 最多3条，绝不能返回4条；有4个过程点时用 steps，screen 仍只有一句。'
                  '题目页 screen 必须严格等于 [question.prompt]，narration 必须逐字等于 question.prompt，不加提示语。'
                  '普通总结页用 purpose=explanation、student_action=observe、feedback=none；practice/feedback 页必须带 question。'
-                 '收到 previous_storyboard 时按 feedback 修复；普通字段错误保留其余场景和ID，超时错误需要实际缩减工作量。'
+                 '收到 previous_storyboard 时按 feedback 修复；字段或内容错误保留其余正确场景和ID。'
                  '练习用 question 配 student_action=answer、feedback=on_submit，答案/分析只放 question.answer/analysis。'
                  '不要在其他页或旁白提前揭示待答题答案。预计时长包含阅读、讲解和作答，是估算。'
                  '每页绑定本节点 objective_ids，落实要求则保留 requirement_ids。'
@@ -147,7 +145,7 @@ def generate_classroom_draft(payload, *, gateway, context, artifact, checkpoint=
                     'revision_baseline': getattr(payload, 'original_content', None),
                     'schema': ClassroomStoryboard.model_json_schema(),
                     'max_scenes': max_scenes, 'feedback': feedback,
-                    'maximum_total_seconds': resource_time_cap(teaching) * 60 if resource_time_cap(teaching) else None,
+                    'suggested_total_seconds': resource_time_cap(teaching) * 60 if resource_time_cap(teaching) else None,
                     'previous_storyboard': previous_storyboard}, ensure_ascii=False)}], max_tokens=12000)
             _check_canceled(context)
             try:

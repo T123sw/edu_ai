@@ -6,7 +6,7 @@ description: 独立核验报告、习题和课堂的真实正文及目标定位�
 本阶段只审阅当前 resource_type。requirements 保留整课背景，requirement_ids 是本节点分工；
 不要求报告包含整份习题或课堂，不要求习题教授其他节点。跨资源组合与完整需求满足性由整节点门禁核对。
 applied_requirements 的位置必须真实支持所述贡献，不能把局部贡献伪称整门课已满足。
-resource_target_minutes 是显式单资源硬上限；resource_repair_target_minutes 是本轮联合修订参考目标，不能仅因超过参考目标就否定内容。独立核验估算依据和实际工作量，节点及整课按全部候选实际估算合计核验硬上限；不得替写作者改小估算。
+学习时长（total_minutes、node_budget_minutes、resource_target_minutes、resource_repair_target_minutes）仅指导内容量，不是验收上限。保留真实估算及未知状态；不能仅因估时超出或未知判失败、要求返工或阻断交付。内容正确性、目标覆盖、来源与可用性仍须独立审阅。
 
 只审阅当前实际正文及服务端规格，不接受写作者声称通过。按调用者 schema 返回完整审阅。
 六个维度为 requirements、correctness、examples、teaching_structure、sources、completeness。

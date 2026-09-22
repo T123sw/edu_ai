@@ -348,8 +348,5 @@ class ResearchAgent:
             seen.add(node.node_key)
         if covered != requirements:
             errors.append(f'学习路径缺少需求 {sorted(requirements - covered)}')
-        minutes = sum(n.minutes for n in path.nodes)
-        if minutes > state.brief.total_minutes:
-            errors.append(f'总时间 {minutes} 分钟超过用户约束 {state.brief.total_minutes} 分钟')
         if errors:
             raise ValueError('; '.join(errors))

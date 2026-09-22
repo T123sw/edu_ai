@@ -39,8 +39,6 @@ def validate(request,checkpoint):
             raise ResearchError('REQUIRED_RESOURCE_UNAVAILABLE','保留资料的路径调整不能同时要求尚不存在的新资料类型')
         if n['objectives']!=[o['text'] for o in original['objectives']]:raise ResearchError('TARGET_SCOPE_CHANGED','路径调整不能修改原目标')
         if not any(x in command for x in ('标题','重命名')) and n['title']!=original['title']:raise ResearchError('TARGET_SCOPE_CHANGED','本次没有要求修改节点标题')
-    if request.overrides.total_minutes and sum(n['minutes'] for n in nodes)>request.overrides.total_minutes:
-        raise ResearchError('TIME_BUDGET_EXCEEDED','路径超过明确学习时长')
 
 
 def plan(stages,context):

@@ -89,8 +89,7 @@ def test_more_than_six_scenes_is_not_rejected_and_node_budget_is_not_resource_ta
         data['scenes'].insert(-1, scene)
     board = ClassroomStoryboard.model_validate(data)
     validate_teaching_bindings(board, teaching_context())
-    with pytest.raises(ValueError, match='RESOURCE_DURATION'):
-        validate_teaching_bindings(board, {**teaching_context(), 'resource_target_minutes': 1})
+    validate_teaching_bindings(board, {**teaching_context(), 'resource_target_minutes': 1})
     with pytest.raises(ValueError, match='SCENE_LIMIT'):
         validate_teaching_bindings(board, teaching_context(), max_scenes=8)
 
@@ -346,14 +345,11 @@ def test_indexed_binding_review_restores_original_locations_without_mutating_met
     assert metadata == original
 
 
-def test_classroom_duration_feedback_identifies_actual_seconds_and_required_reduction():
+def test_classroom_learning_target_does_not_reject_or_change_estimate():
     board = ClassroomStoryboard.model_validate(board_data())
-    with pytest.raises(ValueError) as error:
-        validate_teaching_bindings(board, {**teaching_context(), 'resource_target_minutes': 2.5})
-    message = str(error.value)
-    assert 'estimated_seconds=210' in message
-    assert 'maximum_seconds=150' in message
-    assert 'reduce_seconds=60' in message
+    validate_teaching_bindings(board, {**teaching_context(), 'resource_target_minutes': 2.5})
+    assert sum(scene.estimated_seconds for scene in board.scenes) == 210
+
 
 
 def test_classroom_keeps_actual_duration_after_bounded_provisional_target_attempts(generation):
@@ -361,10 +357,9 @@ def test_classroom_keeps_actual_duration_after_bounded_provisional_target_attemp
     args['payload'].teaching_context['resource_repair_target_minutes'] = 2.5
     result = classroom.generate_classroom_draft(**args)
     writing = [json.loads(messages[-1]['content']) for messages in args['gateway'].calls
-               if 'maximum_total_seconds' in json.loads(messages[-1]['content'])]
-    assert len(writing) == 3
+               if 'suggested_total_seconds' in json.loads(messages[-1]['content'])]
+    assert len(writing) == 1
     assert result['generation_state']['preparation']['duration']['value_minutes'] == 3.5
-    # An explicit resource maximum is still enforced on the final attempt.
     args['payload'].teaching_context['resource_target_minutes'] = 2.5
-    with pytest.raises(ClassroomFailure, match='CLASSROOM_RESOURCE_DURATION_EXCEEDED'):
-        classroom.generate_classroom_draft(**args)
+    result = classroom.generate_classroom_draft(**args)
+    assert result['generation_state']['preparation']['duration']['value_minutes'] == 3.5

@@ -82,12 +82,15 @@ def test_no_report_check_is_fabricated_from_a_missing_fixed_heading():
     assert resource_checks(a,'n')==[]
 
 
-def test_hard_time_limit_rejects_unknown_and_overrun():
-    a=quiz();nodes=checkpoint(a)['plan']['nodes']
-    assert duration_summary([a],nodes,hard_limit=4)['required_known_minutes']==3
-    with pytest.raises(ValueError,match='EXCEEDED'):duration_summary([a],nodes,hard_limit=2)
-    a['content']['generation_state']['preparation']['duration']={'basis':'unknown','value_minutes':None,'method':''}
-    with pytest.raises(ValueError,match='UNVERIFIED'):duration_summary([a],nodes,hard_limit=10)
+def test_duration_summary_preserves_overrun_and_unknown_without_blocking():
+    a = quiz(); nodes = checkpoint(a)['plan']['nodes']
+    nodes[0]['minutes'] = 1
+    summary = duration_summary([a], nodes, hard_limit=2)
+    assert summary['required_known_minutes'] == 3
+    assert summary['target_minutes'] == 2 and summary['enforcement'] == 'advisory'
+    a['content']['generation_state']['preparation']['duration'] = {'basis': 'unknown', 'value_minutes': None, 'method': ''}
+    assert duration_summary([a], nodes, hard_limit=1)['unknown_artifact_ids'] == ['a']
+
 
 
 def test_old_pass_digest_changes_for_context_body_and_exact_version():

@@ -108,15 +108,6 @@ def validate_teaching_bindings(board, teaching_context, *, max_scenes=MAX_SCENES
         raise ValueError('CLASSROOM_PROCESS_VISUAL_REQUIRED')
     if not any(s.question for s in board.scenes):
         raise ValueError('CLASSROOM_CHECK_REQUIRED')
-    # Single-resource target is independent of the whole-node ceiling.
-    from .teaching_context import resource_time_cap
-    target = resource_time_cap(teaching_context, include_repair_target=enforce_repair_target)
-    total = sum(s.estimated_seconds for s in board.scenes)
-    if target and total > target * 60:
-        maximum = target * 60
-        raise ValueError(f'CLASSROOM_RESOURCE_DURATION_EXCEEDED: estimated_seconds={total:g}, '
-                         f'maximum_seconds={maximum:g}, reduce_seconds={total-maximum:g}; '
-                         '删减或合并冗余讲解与练习，保留目标、流程图和检查；不能只调低估算数字。')
 
 
 def _text(identity, text, left, top, width, height, size):

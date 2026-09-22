@@ -193,7 +193,7 @@ def validate_manifest_locations(manifest, artifacts):
 
 
 def duration_summary(artifacts, nodes, *, hard_limit=None):
-    """Node budgets are constraints, never an observed resource duration."""
+    """Report estimates honestly without turning learning targets into delivery gates."""
     resources = []
     for artifact in artifacts:
         duration = preparation_metadata(artifact).get('duration') or {'basis':'unknown','value_minutes':None,'method':''}
@@ -205,10 +205,6 @@ def duration_summary(artifacts, nodes, *, hard_limit=None):
     result = {'node_budget_minutes':{n['node_key']:n.get('minutes') for n in nodes},
               'resources':resources, 'required_known_minutes':known, 'unknown_artifact_ids':unknown,
               'interaction_minutes':None, 'interaction_basis':'included in resource estimates when documented; otherwise unknown'}
-    if hard_limit is not None and (unknown or known > hard_limit):
-        raise ValueError('HARD_DURATION_UNVERIFIED' if unknown else 'HARD_DURATION_EXCEEDED')
-    for node in nodes:
-        estimated = sum(r['value_minutes'] for r in required if r['node_id']==node['node_key'] and r['basis']!='unknown')
-        if node.get('minutes') and estimated > node['minutes']:
-            raise ValueError('NODE_DURATION_EXCEEDED:'+node['node_key'])
+    # The legacy argument is retained for callers; learning time is advisory.
+    result.update(target_minutes=hard_limit, enforcement='advisory')
     return result

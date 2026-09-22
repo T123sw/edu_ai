@@ -48,13 +48,10 @@ learning_activities 和 self_check 展开真实内容，教学顺序必须体现
 若要求先例后理，先完整展示一个例子的具体输入、逐步过程和结果，再解释概念或通用伪代码；开头承诺“先看例子”不算已经演示例子。
 遵守 exclusions 和 source_policy，只引用已给 evidence；不足就明确指出，不编造依据。
 不沿用固定面试模板；只有本次用户明确要求面试才安排面试话术。
-node_budget_minutes 是整个节点的时间上限，不是每份资源各自的时长；resource_target_minutes
-为空时不自行宣称获得硬配额，但仍须为同节点其他必需资源留出学习时间。控制篇幅，正文包含可实际学习的例子、解释和检查；各资源合计覆盖节点，不能各自扩写成一套完整课程。
-resource_target_minutes 有值时是本资源必须满足的上限，duration_constraint 给出程序的计算方式。
-resource_repair_target_minutes 是本轮跨资源分配的修订目标，尽量通过实际缩减满足；不等于用户单资源硬上限。
-未达到修订目标的候选也必须接受独立审阅与节点/整课实际总时长门禁，不能自行标为可交付。
-时长修订必须删减真实阅读量和作答工作量；允许减少冗余题，未删除题目保留ID，仍满足明确题量要求和目标覆盖。
-rejected_draft 是上一轮未通过校验的输出，仅供纠错，不是已通过正文；根据实际字数和思考秒数缩减，不只调低估算。
+node_budget_minutes、resource_target_minutes 和 resource_repair_target_minutes 仅用于指导内容规模，
+不是交付上限。优先满足学习目标与内容正确性，避免重复；估算超出或未知不要求返工，也不能据此拒绝交付。
+各资源合计覆盖节点，不能各自扩写成一套完整课程。保留真实估算，不为贴合目标而改小数字。
+rejected_draft 是上一轮未通过内容或结构校验的输出，仅供纠错，不是已通过正文。
 本次写作直接返回 JSON {"content":原生正文,"applied_requirements":[{"requirement_id":"真实ID",
 "locator":定位对象,"explanation":"该位置如何落实要求"}],"objective_bindings":[{"objective_id":"真实ID",
 "locator":定位对象,"role":"explanation|practice|check"}]}，不要增加规划调用。
@@ -76,12 +73,12 @@ def duration_constraint(kind, context):
     cap = resource_time_cap(context)
     if cap is None or kind not in {'report', 'quiz'}:
         return None
-    return {'maximum_minutes': cap,
+    return {'target_minutes': cap, 'enforcement': 'advisory',
             'explicit_resource_limit_minutes': (context or {}).get('resource_target_minutes'),
             'repair_target_minutes': (context or {}).get('resource_repair_target_minutes'),
             'formula': ('non_whitespace_characters / 500' if kind == 'report' else
                         'sum(thinking_seconds) / 60 + stem_options_explanation_non_whitespace_characters / 500'),
-            'reading_character_ceiling_before_thinking': int(cap * 500),
+            'suggested_reading_characters_before_thinking': int(cap * 500),
             'instruction': ('报告所有正文、标题和标记均计入字数。' if kind == 'report' else
                             '先扣除真实作答秒数，剩余时间才能容纳题干、选项和解析。减少冗余题目或简化推演，不能靠低报思考时间。')}
 
@@ -202,13 +199,6 @@ def preparation_metadata(kind, content, envelope, context, spec_digest, *, enfor
     else:
         reading, seconds = 0, 0
         duration = {'value_minutes': None, 'basis': 'unknown', 'method': 'No calibrated learner solving-time estimate'}
-    from app.course_preparation.teaching_context import resource_time_cap
-    cap = resource_time_cap(context, include_repair_target=enforce_repair_target)
-    if cap is not None and (duration['value_minutes'] is None or duration['value_minutes'] > cap):
-        raise ResourceDurationExceeded(f'RESOURCE_DURATION_EXCEEDED: estimated={duration["value_minutes"]}, '
-                         f'maximum={cap}; reading_characters={reading}, thinking_seconds={seconds}; '
-                         f'reading_character_ceiling_after_thinking={max(0, int((cap-seconds/60)*500))}; '
-                         'shorten actual content and workload, preserve objective coverage')
     return {'schema_version': 1, 'spec_digest': spec_digest,
             'teaching_context_digest': value_digest(context), 'applied_requirements': applied,
             'objective_bindings': bindings, 'duration': duration,

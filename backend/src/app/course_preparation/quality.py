@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v9'
+RULE_VERSION='preparation-delivery-v10'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
     validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
@@ -111,64 +111,6 @@ class QualityStages:
     def __init__(self,repository,generation,memory,model_factory):
         self.repository,self.generation,self.memory,self.model_factory=repository,generation,memory,model_factory
 
-    @staticmethod
-    def _duration_issues(artifacts, nodes, hard_limit, *, prefer_local=False):
-        import math
-        required = [a for a in artifacts if a['spec'].get('required', True)]
-        durations = {a['artifact_id']: preparation_metadata(a).get('duration', {}) for a in required}
-        known = {key: value['value_minutes'] for key, value in durations.items()
-                 if value.get('basis', 'unknown') != 'unknown' and value.get('value_minutes') is not None}
-        projected = dict(known)  # Repair guidance only; never alters saved estimates.
-        reasons, issues = {}, []
-        if hard_limit is not None:
-            issues.extend({'artifact_ids': [a['artifact_id']], 'reason':
-                'HARD_DURATION_UNVERIFIED；逐题给出有依据的思考估算，不得复制节点预算。'}
-                for a in required if a['artifact_id'] not in known)
-        # Satisfy each node first. The whole-course pass uses those proposed
-        # reductions, so it never assigns the same global excess to one resource.
-        scopes = [([a for a in required if a['spec']['node_id'] == n['node_key']],
-                   n.get('minutes'), 'NODE_DURATION_EXCEEDED:' + n['node_key']) for n in nodes]
-        if hard_limit is not None:
-            scopes.append((required, hard_limit, 'HARD_DURATION_EXCEEDED'))
-        for rows, budget, code in scopes:
-            if budget is None:
-                continue
-            ids = [a['artifact_id'] for a in rows if a['artifact_id'] in projected]
-            total = sum(projected[key] for key in ids)
-            if total <= budget:
-                continue
-            # Share the reduction across mutable resources. Taking the whole
-            # excess from one classroom can leave it an unusably small slot.
-            selected = [key for key in ids if not key.startswith('retained:') and projected[key] > 0]
-            if prefer_local:
-                # After a joint revision, do not regenerate every reviewed
-                # sibling to remove a small residual excess. Choose the
-                # smallest resource able to absorb it while retaining at
-                # least half its estimated workload. Larger gaps still use
-                # proportional joint repair; actual content must pass all gates.
-                local = [key for key in selected if total - budget <= projected[key] / 2]
-                if local:
-                    selected = [min(local, key=lambda key: (projected[key], key))]
-            untouched = sum(projected[key] for key in ids if key not in selected)
-            available = budget - untouched
-            if not selected or available <= 0:
-                issues.append({'artifact_ids': ids, 'reason': code + '；保留资源已占满时间，需要明确授权修订保留内容。'})
-                continue
-            selected_total = sum(projected[key] for key in selected)
-            for key in selected:
-                target = math.floor(available * projected[key] / selected_total * 100) / 100
-                projected[key] = target
-                reasons.setdefault(key, []).append(f'{code}；本范围原估算 {sum(known[k] for k in ids):.2f} 分钟，上限 {budget} 分钟；'
-                    f'同时修订 {len(selected)} 份资源，保留其余资源')
-        for key, scope_reasons in reasons.items():
-            issues.append({'artifact_ids': [key], 'resource_duration_cap_minutes': projected[key],
-                'reason': '；'.join(scope_reasons) +
-                f'；本资源当前估算 {known[key]:.2f} 分钟，通过实际删减后的本轮修订目标为 {projected[key]:.2f} 分钟。'
-                '缩减冗余正文、场景或练习工作量，保留目标覆盖与稳定ID；全部新正文重新独立审阅、估算并校核。'
-                '最终按全部候选的实际估算合计核验节点和整课硬上限，临时目标不替代最终门禁。'
-                '不得只改小估算数字或复制节点预算。'})
-        return issues
-
     def review(self,context):
         checkpoint=dict(context.checkpoint); self.memory.validate(context,checkpoint)
         request=self.repository.get(owner_user_id=context.owner_user_id,preparation_id=context.preparation_id).request
@@ -206,9 +148,6 @@ class QualityStages:
             if request.operation in ('create_course','adjust_course'):
                 alignment_issues.extend(node_requirement_issues(artifacts,checkpoint['plan']['nodes']))
                 alignment_issues.extend(node_objective_issues(artifacts,checkpoint['plan']['nodes']))
-            # Collect all known deterministic defects in the same round.
-            alignment_issues.extend(self._duration_issues(artifacts, checkpoint['plan']['nodes'], request.overrides.total_minutes,
-                prefer_local=checkpoint.get('repair_counts', {}).get('content', 0) > 0))
         if alignment_issues:
             checkpoint['quality']={'decision':'fail','issues':alignment_issues}
             return StepResult(checkpoint,'repair')

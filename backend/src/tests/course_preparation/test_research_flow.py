@@ -115,7 +115,6 @@ def test_summary_cannot_cite_search_snippet_or_invented_evidence():
 
 @pytest.mark.parametrize('mutation', [
     lambda p: p['nodes'][0].update(prerequisite_keys=['n1']),
-    lambda p: p['nodes'][0].update(minutes=300),
     lambda p: p['nodes'][0].update(requirement_ids=['unknown']),
     lambda p: p['nodes'][0].update(source_ids=['invented']),
     lambda p: p['nodes'][0].update(finding_ids=['invented']),
@@ -209,14 +208,14 @@ def test_validation_feedback_preserves_failed_submission_for_targeted_repair():
         def decide(self, context, tools, **kwargs):
             name, args = super().decide(context, tools, **kwargs)
             if name == 'save_course_plan':
-                args['nodes'][0]['minutes'] = 300
+                args['nodes'][0]['prerequisite_keys'] = ['missing']
             return name, args
     agent = ResearchAgent(model=Invalid(), sources=Sources())
     state = ResearchState()
     for _ in range(5):
         state = agent.step(request(), state)
     assert state.last_error['attempted_tool'] == 'save_course_plan'
-    assert state.last_error['arguments']['nodes'][0]['minutes'] == 300
+    assert state.last_error['arguments']['nodes'][0]['prerequisite_keys'] == ['missing']
     assert state.path is None
 
 
@@ -350,3 +349,18 @@ def test_explicit_node_count_requires_an_exact_user_quote():
     for bad_quote in (None, '三个节点'):
         with pytest.raises(ValueError, match='节点数'):
             validate_brief(value.model_copy(update={'node_count_quote':bad_quote}), req, [])
+
+
+def test_learning_time_guides_plan_without_rejecting_longer_estimate():
+    class Longer(Model):
+        def decide(self, context, tools, **kwargs):
+            name, args = super().decide(context, tools, **kwargs)
+            if name == 'save_course_plan':
+                args['nodes'][0]['minutes'] = 300
+            return name, args
+    agent = ResearchAgent(model=Longer(), sources=Sources())
+    state = ResearchState()
+    for _ in range(6):
+        state = agent.step(request(), state)
+    assert state.phase == 'done'
+    assert state.path.nodes[0].minutes == 300
