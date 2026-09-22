@@ -1,0 +1,29 @@
+{
+  "code_sha": "3d9d2e33",
+  "preparation_id": "prep_ddb020af655944ffafa87a410a52e34f",
+  "scope": "Full native quiz bodies for both nodes, qualitative sample only",
+  "findings": [
+    "Success branch 12+30 returns 42 after validation",
+    "Missing b and nonnumeric arguments return INVALID_ARGUMENT without executing add",
+    "Unregistered multiply returns UNKNOWN_TOOL before argument checking",
+    "Per-option explanations agree with marked answers; missing-parameter feedback does not invent zero results"
+  ],
+  "not_checked": [
+    "Exhaustive independent review of every final course body",
+    "Actual audio synthesis or listening"
+  ],
+  "visual_findings": [
+    {
+      "preparation_id": "prep_02ee3eb9f7634f90963b066512ca25ed",
+      "viewport": "desktop",
+      "issue": "Classroom step diagram bottom explanation partially obscured by subtitle overlay",
+      "screenshot": "desktop-subtitle-overlap.png"
+    },
+    {
+      "preparation_id": "prep_b15ae0362a704af2919e27ae3ec6a556",
+      "viewport": "narrow",
+      "issue": "Markdown report exposes literal <a id=\"sec-success-example\"></a> anchor text to learner",
+      "screenshot": "narrow-report-anchor.png"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "node_id": "node-2-trace-branches",
+  "input_byte_ceiling": 101201,
+  "output_reserve": 6000,
+  "configured_window": 128000,
+  "context_fields_bytes": {
+    "phase": 15,
+    "request": 774,
+    "brief": 7376,
+    "path": 5255,
+    "route_only_adjustment": 5,
+    "last_schema_error": 4,
+    "review_scope": 89,
+    "node": 2032,
+    "node_evidence": 3476,
+    "teaching_contexts": 10450,
+    "artifacts": 55323,
+    "duration_summary": 1845
+  },
+  "artifacts": [
+    {
+      "type": "report",
+      "fields_bytes": {
+        "artifact_id": 43,
+        "node_id": 23,
+        "kind": 8,
+        "content": 5348,
+        "teaching_context_ref": 66,
+        "preparation": 2797,
+        "resource_review_receipt": 2,
+        "spec_digest": 66,
+        "content_digest": 66
+      }
+    },
+    {
+      "type": "quiz",
+      "fields_bytes": {
+        "artifact_id": 43,
+        "node_id": 23,
+        "kind": 6,
+        "content": 4699,
+        "teaching_context_ref": 66,
+        "preparation": 3151,
+        "resource_review_receipt": 215,
+        "spec_digest": 66,
+        "content_digest": 66
+      }
+    },
+    {
+      "type": "classroom",
+      "fields_bytes": {
+        "artifact_id": 43,
+        "node_id": 23,
+        "kind": 11,
+        "content": 28914,
+        "teaching_context_ref": 66,
+        "preparation": 8726,
+        "resource_review_receipt": 215,
+        "spec_digest": 66,
+        "content_digest": 66
+      }
+    }
+  ]
+}

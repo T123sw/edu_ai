@@ -1,0 +1,35 @@
+{
+  "code_sha": "3d9d2e33525a22d2aa2be91d4d56fcc4fde9ecbe",
+  "preparation_shared": {
+    "passed": 842,
+    "skipped": 15,
+    "seconds": 507.69
+  },
+  "browser": {
+    "desktop": {
+      "status": "passed",
+      "seconds": 635.886
+    },
+    "narrow": {
+      "status": "failed",
+      "seconds": 484.439
+    }
+  },
+  "build_seconds": 18.64,
+  "initial_regression": {
+    "failed": 1,
+    "passed": 840,
+    "skipped": 15,
+    "reason": "Old test fixture assumed learning-time overrun was an invalid path; replaced with missing prerequisite"
+  },
+  "corrected_advisory_regression": {
+    "code_sha": "0b1c9af4",
+    "passed": 841,
+    "skipped": 15,
+    "seconds": 554.84
+  },
+  "focused_dedup": {
+    "passed": 31,
+    "seconds": 3.56
+  }
+}

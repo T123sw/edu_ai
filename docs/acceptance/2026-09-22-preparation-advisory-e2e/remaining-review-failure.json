@@ -1,0 +1,62 @@
+{
+  "preparation_id": "prep_0bfa6bad223e40cb8643d20a55d31e2b",
+  "parent_error": "QUALITY_GATE_FAILED",
+  "resource_type": "quiz",
+  "phase": "resource_review",
+  "child_error": "MODEL_RESPONSE_INVALID",
+  "repair_counts": {
+    "review": 1,
+    "provider": 2
+  },
+  "malformed_tool_arguments": [
+    {
+      "action_id": "paction_3f8d8f6f625a442b848e764facc472d6",
+      "protocol_attempt": 0,
+      "error": "Expecting ',' delimiter",
+      "line": 1,
+      "column": 6248,
+      "characters": 6247
+    },
+    {
+      "action_id": "paction_8c2d7ac8f04345c0a57b736164c7aa1a",
+      "protocol_attempt": 1,
+      "error": "Extra data",
+      "line": 1,
+      "column": 7451,
+      "characters": 7451
+    },
+    {
+      "action_id": "paction_0384051cb29f4e08ab559abffa3aeabd",
+      "protocol_attempt": 2,
+      "error": "Extra data",
+      "line": 1,
+      "column": 6431,
+      "characters": 6431
+    },
+    {
+      "action_id": "paction_4bdd4dc6ad6e4c7e92649002d6c8d14a",
+      "protocol_attempt": 1,
+      "error": "Expecting ',' delimiter",
+      "line": 1,
+      "column": 6325,
+      "characters": 6324
+    },
+    {
+      "action_id": "paction_54851b830ca24d47970c0f9fd06f7461",
+      "protocol_attempt": 1,
+      "error": "Expecting ',' delimiter",
+      "line": 1,
+      "column": 5585,
+      "characters": 5584
+    },
+    {
+      "action_id": "paction_761d68e0fa9f4f308186ff8a51d40752",
+      "protocol_attempt": 2,
+      "error": "Extra data",
+      "line": 1,
+      "column": 6409,
+      "characters": 6409
+    }
+  ],
+  "all_resources_rewritten": false
+}

@@ -1,0 +1,944 @@
+[
+  {
+    "preparation_id": "prep_ddb020af655944ffafa87a410a52e34f",
+    "status": "succeeded",
+    "error_code": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 43,
+        "tokens": 544330,
+        "cost_micro_usd": 5443300
+      }
+    },
+    "timeline": [
+      {
+        "event": "accepted",
+        "stage": null,
+        "elapsed_seconds": 0.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "normalize",
+        "elapsed_seconds": 0.27
+      },
+      {
+        "event": "stage_changed",
+        "stage": "ingest",
+        "elapsed_seconds": 30.34
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_scope",
+        "elapsed_seconds": 31.58
+      },
+      {
+        "event": "stage_changed",
+        "stage": "plan",
+        "elapsed_seconds": 58.48
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_nodes",
+        "elapsed_seconds": 67.98
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 87.04
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 239.2
+      },
+      {
+        "event": "stage_changed",
+        "stage": "repair",
+        "elapsed_seconds": 241.75
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 243.14
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 265.29
+      },
+      {
+        "event": "stage_changed",
+        "stage": "commit",
+        "elapsed_seconds": 296.67
+      },
+      {
+        "event": "succeeded",
+        "stage": null,
+        "elapsed_seconds": 300.41
+      }
+    ],
+    "seconds": 300.41,
+    "models": {
+      "deepseek-v4-flash": 37
+    },
+    "provider_models": {
+      "deepseek-flash": 37
+    },
+    "phases": {
+      "input_document": 3,
+      "intent": 3,
+      "learning_path": 4,
+      "review": 2,
+      "research_nodes": 4,
+      "resource_write": 4,
+      "resource_review": 11,
+      "classroom_write": 2,
+      "course_review": 4
+    },
+    "native_completions": 37,
+    "repair_counts": {
+      "review": 1
+    },
+    "course_id": "learn-ddb020af655944ffafa87a410a52e34f",
+    "case": "E01/1",
+    "test_status": "passed",
+    "client_seconds": 307.36,
+    "code_sha": "3d9d2e33525a22d2aa2be91d4d56fcc4fde9ecbe",
+    "quality_decision": "pass",
+    "quality_issues": [],
+    "estimated_learning_minutes": 42.07,
+    "artifacts": [
+      {
+        "artifact_id": "artifact_16b109502e0c47c342012789ca8f7cd3",
+        "node_id": "node-1-division-of-labor",
+        "type": "report",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "3d3a920b223c7cdf64243026e9002b2383e7815f51152a7dd2be76ad6a0eb116",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 4.4
+        }
+      },
+      {
+        "artifact_id": "artifact_2d06e3f4c152fe63bf523922a1a6beac",
+        "node_id": "node-1-division-of-labor",
+        "type": "classroom",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "9880fe32b7f7e1255b0dc22b134d87f13d36e91d186b993dd31a9aa13eb64fa6",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 9.5
+        }
+      },
+      {
+        "artifact_id": "artifact_a7381cb123e29d08c01aaac2ce737d3f",
+        "node_id": "node-1-division-of-labor",
+        "type": "quiz",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "693fc601c8d2a865126bb20e6244d70b8b5da2a14df904b352daf7a68fa8c943",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 5.18
+        }
+      },
+      {
+        "artifact_id": "artifact_e64361413bd6c01972326c19dedc7e40",
+        "node_id": "node-2-trace-branches",
+        "type": "report",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "d6852add9c76460a0e65b85af87c932ab1fa982cfb3ed8a6dd7c4084c25c3b30",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 4.6
+        }
+      },
+      {
+        "artifact_id": "artifact_0ace1be84acdf540f97bb1b379ba9317",
+        "node_id": "node-2-trace-branches",
+        "type": "quiz",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "87766f575a2efd3e63c2edd4e273216627c0df257c8061c6d44e7c6d0e112480",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 7.39
+        }
+      },
+      {
+        "artifact_id": "artifact_fed785d60939fa80122b041452abfefc",
+        "node_id": "node-2-trace-branches",
+        "type": "classroom",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "1f4122446cc66a37f67b2167cd883f5a06eb2d43b72bf57e8ffb4db0da95322b",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 11.0
+        }
+      }
+    ]
+  },
+  {
+    "preparation_id": "prep_02ee3eb9f7634f90963b066512ca25ed",
+    "status": "succeeded",
+    "error_code": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 43,
+        "tokens": 531859,
+        "cost_micro_usd": 5318590
+      }
+    },
+    "timeline": [
+      {
+        "event": "accepted",
+        "stage": null,
+        "elapsed_seconds": 0.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "normalize",
+        "elapsed_seconds": 0.37
+      },
+      {
+        "event": "stage_changed",
+        "stage": "ingest",
+        "elapsed_seconds": 39.61
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_scope",
+        "elapsed_seconds": 42.11
+      },
+      {
+        "event": "stage_changed",
+        "stage": "plan",
+        "elapsed_seconds": 75.75
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_nodes",
+        "elapsed_seconds": 86.75
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 139.69
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 434.02
+      },
+      {
+        "event": "stage_changed",
+        "stage": "commit",
+        "elapsed_seconds": 468.15
+      },
+      {
+        "event": "succeeded",
+        "stage": null,
+        "elapsed_seconds": 470.92
+      }
+    ],
+    "seconds": 470.92,
+    "models": {
+      "deepseek-v4-flash": 37
+    },
+    "provider_models": {
+      "deepseek-flash": 37
+    },
+    "phases": {
+      "input_document": 3,
+      "intent": 3,
+      "learning_path": 4,
+      "review": 2,
+      "research_nodes": 5,
+      "resource_write": 4,
+      "resource_review": 8,
+      "classroom_write": 5,
+      "course_review": 3
+    },
+    "native_completions": 37,
+    "repair_counts": {},
+    "course_id": "learn-02ee3eb9f7634f90963b066512ca25ed",
+    "case": "browser-desktop",
+    "test_status": "passed",
+    "browser_seconds": 635.886,
+    "code_sha": "3d9d2e33525a22d2aa2be91d4d56fcc4fde9ecbe",
+    "quality_decision": "pass",
+    "quality_issues": [],
+    "estimated_learning_minutes": 43.84,
+    "artifacts": [
+      {
+        "artifact_id": "artifact_512f8c79c37ed7af2c991c5dae6c4337",
+        "node_id": "node-1-roles-and-contract",
+        "type": "classroom",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "7f2cee7cbc4bedd21dae21c0943b0bc2038f937afb20b4b3850131f340b0f984",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 12.33
+        }
+      },
+      {
+        "artifact_id": "artifact_696814915ede1da9455b12f1308ecc5d",
+        "node_id": "node-2-trace-branches",
+        "type": "report",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "8443439efafb2ed8eff270750e18b65b00305baaca647ad7fb1d1196878664a4",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 3.0
+        }
+      },
+      {
+        "artifact_id": "artifact_246a5e3e22d8f6f2962a673148f5cede",
+        "node_id": "node-2-trace-branches",
+        "type": "quiz",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "6deb00ad6d2ff5fa53d472ae15a9c95db692578e46fdb6b05074750cd640bb99",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 6.87
+        }
+      },
+      {
+        "artifact_id": "artifact_519aa810eb36e58dd09db1c3489b39e8",
+        "node_id": "node-1-roles-and-contract",
+        "type": "report",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "a6cabb56bc52f132ad5106c0e71a6fe0d79e0ba6136948b5c48763722abda521",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 4.1
+        }
+      },
+      {
+        "artifact_id": "artifact_aeaf5d29032c3413f78238cf78d15441",
+        "node_id": "node-1-roles-and-contract",
+        "type": "quiz",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "ec7ea814b024f243dfee9ea57249cd2ff52f3ae2d50f9992c094d7f44bdcdf24",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 3.04
+        }
+      },
+      {
+        "artifact_id": "artifact_27473f4fa63e0bc620945401d42a6cce",
+        "node_id": "node-2-trace-branches",
+        "type": "classroom",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "e574929a08000ffbd7adfde9927d22e8b6b5f8a5a4daf571babf77f0903b13ac",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 14.5
+        }
+      }
+    ]
+  },
+  {
+    "preparation_id": "prep_d2358f4bbfaa406a87d0f98beda82cf7",
+    "status": "canceled",
+    "error_code": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 2,
+        "tokens": 10752,
+        "cost_micro_usd": 107520
+      }
+    },
+    "timeline": [
+      {
+        "event": "accepted",
+        "stage": null,
+        "elapsed_seconds": 0.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "normalize",
+        "elapsed_seconds": 7.88
+      },
+      {
+        "event": "canceled",
+        "stage": null,
+        "elapsed_seconds": 23.19
+      }
+    ],
+    "seconds": 23.19,
+    "models": {
+      "deepseek-v4-flash": 2
+    },
+    "provider_models": {
+      "deepseek-flash": 2
+    },
+    "phases": {
+      "input_document": 2
+    },
+    "native_completions": 2,
+    "repair_counts": {},
+    "course_id": null,
+    "case": "R01/1",
+    "test_status": "passed",
+    "client_seconds": 30.65,
+    "code_sha": "3d9d2e33525a22d2aa2be91d4d56fcc4fde9ecbe",
+    "quality_decision": null,
+    "quality_issues": [],
+    "estimated_learning_minutes": null,
+    "artifacts": []
+  },
+  {
+    "preparation_id": "prep_0a0a099190b94b0e82745bd76f1c58da",
+    "status": "failed",
+    "error_code": "RESEARCH_INSUFFICIENT",
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 9,
+        "tokens": 86555,
+        "cost_micro_usd": 865550
+      }
+    },
+    "timeline": [
+      {
+        "event": "accepted",
+        "stage": null,
+        "elapsed_seconds": 0.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "normalize",
+        "elapsed_seconds": 20.62
+      },
+      {
+        "event": "stage_changed",
+        "stage": "ingest",
+        "elapsed_seconds": 72.54
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_scope",
+        "elapsed_seconds": 73.59
+      },
+      {
+        "event": "failed",
+        "stage": null,
+        "elapsed_seconds": 108.99
+      }
+    ],
+    "seconds": 108.99,
+    "models": {
+      "deepseek-v4-flash": 9
+    },
+    "provider_models": {
+      "deepseek-flash": 9
+    },
+    "phases": {
+      "input_document": 3,
+      "intent": 2,
+      "learning_path": 4
+    },
+    "native_completions": 9,
+    "repair_counts": {},
+    "course_id": null,
+    "case": "E03/1",
+    "test_status": "passed",
+    "client_seconds": 111.01,
+    "code_sha": "3d9d2e33525a22d2aa2be91d4d56fcc4fde9ecbe",
+    "quality_decision": null,
+    "quality_issues": [],
+    "estimated_learning_minutes": null,
+    "artifacts": []
+  },
+  {
+    "preparation_id": "prep_0bfa6bad223e40cb8643d20a55d31e2b",
+    "status": "failed",
+    "error_code": "QUALITY_GATE_FAILED",
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 49,
+        "tokens": 642283,
+        "cost_micro_usd": 6422830
+      }
+    },
+    "timeline": [
+      {
+        "event": "accepted",
+        "stage": null,
+        "elapsed_seconds": 0.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "normalize",
+        "elapsed_seconds": 0.89
+      },
+      {
+        "event": "stage_changed",
+        "stage": "ingest",
+        "elapsed_seconds": 47.72
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_scope",
+        "elapsed_seconds": 50.86
+      },
+      {
+        "event": "stage_changed",
+        "stage": "plan",
+        "elapsed_seconds": 113.33
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_nodes",
+        "elapsed_seconds": 126.73
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 148.69
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 329.68
+      },
+      {
+        "event": "stage_changed",
+        "stage": "repair",
+        "elapsed_seconds": 331.66
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 333.62
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 399.9
+      },
+      {
+        "event": "stage_changed",
+        "stage": "repair",
+        "elapsed_seconds": 402.27
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 404.77
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 466.21
+      },
+      {
+        "event": "stage_changed",
+        "stage": "repair",
+        "elapsed_seconds": 467.69
+      },
+      {
+        "event": "failed",
+        "stage": null,
+        "elapsed_seconds": 469.46
+      }
+    ],
+    "seconds": 469.46,
+    "models": {
+      "deepseek-v4-flash": 43
+    },
+    "provider_models": {
+      "deepseek-flash": 43
+    },
+    "phases": {
+      "input_document": 3,
+      "intent": 3,
+      "learning_path": 6,
+      "review": 2,
+      "research_nodes": 4,
+      "resource_write": 4,
+      "resource_review": 18,
+      "classroom_write": 3
+    },
+    "native_completions": 43,
+    "repair_counts": {
+      "review": 1,
+      "provider": 2
+    },
+    "course_id": null,
+    "case": "E01/2",
+    "test_status": "failed",
+    "client_seconds": 473.0,
+    "code_sha": "3d9d2e33525a22d2aa2be91d4d56fcc4fde9ecbe",
+    "quality_decision": "fail",
+    "quality_issues": [
+      {
+        "reason": "MODEL_RESPONSE_INVALID",
+        "artifact_ids": [
+          "artifact_effc008cbc8c2f925623ee95537bf4ea"
+        ]
+      }
+    ],
+    "estimated_learning_minutes": null,
+    "artifacts": [
+      {
+        "artifact_id": "artifact_effc008cbc8c2f925623ee95537bf4ea",
+        "node_id": "node-1-roles-success",
+        "type": "quiz",
+        "status": "failed",
+        "revision": 1,
+        "error": "MODEL_RESPONSE_INVALID",
+        "content_digest": "750753cf492357e923c969d25b70cc042d9f7de8498ca2edefe61666a15b63f8",
+        "duration": null
+      },
+      {
+        "artifact_id": "artifact_64e200a13e16ea685a4908859000392e",
+        "node_id": "node-1-roles-success",
+        "type": "classroom",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "ee2ecd352eb6c0d33cad7398bc82a604c217cf5694c531f9cd872d2bc8f11dc6",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 10.83
+        }
+      },
+      {
+        "artifact_id": "artifact_55edaa3558cf8c9d039433a2aae5a28f",
+        "node_id": "node-1-roles-success",
+        "type": "report",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "167eae7174e6fd84484e3b61dec844cab24a0ef2beea11a4e6307dbfc77a4dfb",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 3.3
+        }
+      },
+      {
+        "artifact_id": "artifact_59b34aa555edd37b2b1c35e39306b796",
+        "node_id": "node-2-branches-failure",
+        "type": "report",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "de219019e708d6bde9f64c3a38daccf25e6e69342a23a2def57ac0d2b8e45162",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 4.5
+        }
+      },
+      {
+        "artifact_id": "artifact_27de2b5414d5c209bdc871b051eaa024",
+        "node_id": "node-2-branches-failure",
+        "type": "quiz",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "037190f7835c4a5294d23a2e548fff140fdc3f3422bb234eb3d601e6b5e4ea0f",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 9.61
+        }
+      },
+      {
+        "artifact_id": "artifact_f431491ce80d649cd89fd18188399662",
+        "node_id": "node-2-branches-failure",
+        "type": "classroom",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "a4160749bb18e47274e5b8f5caf5dce6f2bbcf1f3907b83e8955fd408c55ace6",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 11.42
+        }
+      }
+    ]
+  },
+  {
+    "preparation_id": "prep_b15ae0362a704af2919e27ae3ec6a556",
+    "status": "succeeded",
+    "error_code": null,
+    "budget": {
+      "limits": {
+        "calls": 200,
+        "tokens": 2000000,
+        "seconds": 3600,
+        "cost_micro_usd": 10000000
+      },
+      "reserved": {
+        "calls": 0,
+        "tokens": 0,
+        "cost_micro_usd": 0
+      },
+      "consumed": {
+        "calls": 40,
+        "tokens": 507653,
+        "cost_micro_usd": 5076530
+      }
+    },
+    "timeline": [
+      {
+        "event": "accepted",
+        "stage": null,
+        "elapsed_seconds": 0.0
+      },
+      {
+        "event": "stage_changed",
+        "stage": "normalize",
+        "elapsed_seconds": 0.31
+      },
+      {
+        "event": "stage_changed",
+        "stage": "ingest",
+        "elapsed_seconds": 45.7
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_scope",
+        "elapsed_seconds": 47.94
+      },
+      {
+        "event": "stage_changed",
+        "stage": "plan",
+        "elapsed_seconds": 85.13
+      },
+      {
+        "event": "stage_changed",
+        "stage": "research_nodes",
+        "elapsed_seconds": 94.23
+      },
+      {
+        "event": "stage_changed",
+        "stage": "produce",
+        "elapsed_seconds": 110.8
+      },
+      {
+        "event": "stage_changed",
+        "stage": "review",
+        "elapsed_seconds": 270.35
+      },
+      {
+        "event": "stage_changed",
+        "stage": "commit",
+        "elapsed_seconds": 311.03
+      },
+      {
+        "event": "succeeded",
+        "stage": null,
+        "elapsed_seconds": 314.29
+      }
+    ],
+    "seconds": 314.29,
+    "models": {
+      "deepseek-v4-flash": 34
+    },
+    "provider_models": {
+      "deepseek-flash": 34
+    },
+    "phases": {
+      "input_document": 3,
+      "intent": 2,
+      "learning_path": 4,
+      "review": 2,
+      "research_nodes": 4,
+      "resource_write": 5,
+      "resource_review": 8,
+      "classroom_write": 2,
+      "course_review": 4
+    },
+    "native_completions": 34,
+    "repair_counts": {},
+    "course_id": "learn-b15ae0362a704af2919e27ae3ec6a556",
+    "case": "browser-narrow",
+    "test_status": "failed",
+    "browser_seconds": 484.439,
+    "code_sha": "3d9d2e33525a22d2aa2be91d4d56fcc4fde9ecbe",
+    "quality_decision": "pass",
+    "quality_issues": [],
+    "estimated_learning_minutes": 43.75,
+    "artifacts": [
+      {
+        "artifact_id": "artifact_ab5b0493893da7e7f603881c3d66739d",
+        "node_id": "node-2-trace-branches",
+        "type": "classroom",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "80b73b7202191db6bea18a2801d4568f84ff54d75308b2190d9b405ed5aca0da",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 12.0
+        }
+      },
+      {
+        "artifact_id": "artifact_3c86729aac14a0b9ebb02dc9119e3a73",
+        "node_id": "node-2-trace-branches",
+        "type": "quiz",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "14b0694df3e270736ed374a0b8b0464f808f0699f67b1cd2530c9eb801270a68",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 8.48
+        }
+      },
+      {
+        "artifact_id": "artifact_80c85d2c866a2a2232920036e4056ad6",
+        "node_id": "node-1-roles-and-protocol",
+        "type": "report",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "bcabc871363f80e2e532de47c185968592a6bce385c350c46acf2d116dc9f13c",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 2.7
+        }
+      },
+      {
+        "artifact_id": "artifact_95a07c12b166b15cf60900f15752de78",
+        "node_id": "node-1-roles-and-protocol",
+        "type": "quiz",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "309651ce2b29a8a7eaab93c93fd61a4e50511faef01018a71ea0ce6ed3842854",
+        "duration": {
+          "basis": "estimated",
+          "method": "per-question model estimate of thinking/answering + stem/options/feedback non-whitespace characters / 500 per minute; not measured or calibrated",
+          "value_minutes": 6.07
+        }
+      },
+      {
+        "artifact_id": "artifact_712777416bbffef0f50088116fee176f",
+        "node_id": "node-1-roles-and-protocol",
+        "type": "classroom",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "33e8796b427f0aaf0bc3f5de6eade9a2781213309399cebf8aaafa01311c2cae",
+        "duration": {
+          "basis": "estimated",
+          "method": "sum_storyboard_learning_seconds_including_answer_time",
+          "value_minutes": 9.5
+        }
+      },
+      {
+        "artifact_id": "artifact_94fdc578e5d1a60528db16e6a69db043",
+        "node_id": "node-2-trace-branches",
+        "type": "report",
+        "status": "draft",
+        "revision": 1,
+        "error": null,
+        "content_digest": "60f6648684133c52dae019a72c68ef7208c97bdbaead2b76743a128e90a671dc",
+        "duration": {
+          "basis": "estimated",
+          "method": "non_whitespace_characters / 500 per minute; reading only, excludes exercises",
+          "value_minutes": 5.0
+        }
+      }
+    ]
+  }
+]

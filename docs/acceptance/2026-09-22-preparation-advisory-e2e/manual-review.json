@@ -1,0 +1,13 @@
+{
+  "scope": "Qualitative sample, not an independent exhaustive correctness certification",
+  "preparation_id": "prep_10f7f477fc0d427aad8aa7d489f50941",
+  "reviewed": ["Both native reports", "Both native quiz bodies and answer explanations", "Desktop classroom page 6 screenshot"],
+  "findings": [
+    "Reports begin with concrete 12+30 walkthroughs before abstract control flow",
+    "Successful call returns 42; missing b and non-number arguments stop before execution; unregistered tool returns UNKNOWN_TOOL",
+    "Quiz answers and per-option explanations correspond to these branches",
+    "Desktop screenshot shows selected answer, score, feedback and page controls",
+    "Some repeated explanations and lengthy limitations remain; learning-time estimates are advisory"
+  ],
+  "not_checked": ["Every classroom narration independently", "Actual audio synthesis, decode, progression or listening", "All parameter and memory scenarios"]
+}

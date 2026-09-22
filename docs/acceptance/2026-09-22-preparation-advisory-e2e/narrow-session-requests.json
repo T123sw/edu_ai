@@ -1,0 +1,86 @@
+[
+  {
+    "time": "2026-09-22T02:56:22.939Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 404
+  },
+  {
+    "time": "2026-09-22T02:56:27.939Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:56:32.939Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:56:37.939Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:56:42.939Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:56:47.939Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:56:56.880Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:57:01.880Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:57:06.912Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:57:11.880Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:57:16.880Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:57:21.880Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:57:26.880Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  },
+  {
+    "time": "2026-09-22T02:57:31.880Z",
+    "method": "GET",
+    "path": "/backend/api/self-learning/courses/learn-b15ae0362a704af2919e27ae3ec6a556/topics/node-1-roles-and-protocol/session",
+    "status": 200
+  }
+]
