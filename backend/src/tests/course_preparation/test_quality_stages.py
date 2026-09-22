@@ -45,8 +45,13 @@ def test_full_bodies_are_reviewed_one_node_at_a_time_before_course_gate(monkeypa
             context_packet(context, tools, max_tokens=128000, native_skill=True)
             calls.append(context)
             node=context.get('node')
-            if node: assert context['artifacts'][0]['content'] == node['node_key']*60000
-            else: assert len(context['node_reviews'])==2 and all('content' not in a for a in context['artifacts'])
+            if node:
+                assert context['review_mode'] == 'node'
+                assert context['artifacts'][0]['content'] == node['node_key']*60000
+            else:
+                assert context['review_mode'] == 'course'
+                assert len(context['node_reviews']) == 2 and all('content' not in a for a in context['artifacts'])
+                assert '不重复正文审阅' in tools[0]['function']['description']
             return 'review_course_delivery', {'decision':'pass','checked_node_ids':[node['node_key']] if node else ['a','b']}
     request=PreparationRequest(request_id=uuid4(),operation='create_course',goal='学习')
     stages=QualityStages(SimpleNamespace(get=lambda **_:SimpleNamespace(request=request)),

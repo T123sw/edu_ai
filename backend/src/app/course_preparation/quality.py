@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v11'
+RULE_VERSION='preparation-delivery-v12'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
     validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
@@ -185,19 +185,23 @@ class QualityStages:
         tool={'type':'function','function':{'name':'review_course_delivery','description':'审阅资料与学习目标；逐节点检查，阻塞问题指出需要修订的 artifact_ids。',
             'parameters':CourseReview.model_json_schema()}}
         if unchecked:
-            review_context = {'review_scope': '完整节点资源；检查该节点全部目标、引用、练习与跨资料一致性',
+            review_context = {'review_mode': 'node', 'review_scope': '完整节点资源；检查该节点全部目标、引用、练习与跨资料一致性',
                 'node': unchecked, 'node_evidence': checkpoint['node_evidence'][unchecked['node_key']],
                 **node_review_artifacts(selected_artifacts),
                 'duration_summary':checkpoint['duration_summary']}
         else:
             # Every full body has a digest-bound node review. The final pass checks
             # ordering and cross-node coverage using these reviews, not truncated bodies.
-            review_context = {'review_scope': '整课衔接、目标覆盖、先修顺序和重复内容；全部正文已分别审阅',
+            review_context = {'review_mode': 'course', 'review_scope': '整课衔接、目标覆盖、先修顺序和重复内容；全部正文已分别审阅',
                 'node_reviews': reviews,
                 'artifacts': [{'artifact_id': r['artifact_id'], 'node_id': r['spec']['node_id'],
                               'kind': r['resource_type'], 'objectives': r['spec']['objectives'],
                               'content_digest': r['content_digest']} for r in artifacts],
                 'duration_summary':checkpoint['duration_summary']}
+        tool['function']['description'] = (
+            '审阅当前节点全部正文、准确定位和教学目标；只提交该节点的审阅。' if unchecked else
+            '基于已通过且摘要绑定的 node_reviews 核验整课先修顺序、跨节点衔接和目标覆盖；'
+            '本轮不重复正文审阅，不以未重复附带正文或 teaching_contexts 为缺陷。')
         decision,args=model.decide({'phase':'course_review','request':request.model_dump(mode='json'),
             'brief':checkpoint['brief'],'path':checkpoint['plan'],'route_only_adjustment':checkpoint.get('route_only_adjustment',False),
             'last_schema_error':checkpoint.get('review_schema_error'), **review_context},[tool],timeout=90)
