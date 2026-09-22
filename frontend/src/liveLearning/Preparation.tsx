@@ -1,3 +1,4 @@
+import { serialPolling } from './serialPolling';
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import { Icon } from '../selfLearning/ui';
@@ -47,8 +48,8 @@ export function PreparationTasks({ owner, refreshKey }: { owner: string; refresh
   useEffect(() => {
     let active = true; setTasks([]); setDetails({});
     const refresh = async () => { try { const result = await apiRequest<{ preparations: Task[] }>(base); if (active) { setTasks(result.preparations); setError(''); } } catch (c) { if (active) setError(c instanceof Error ? c.message : '任务状态读取失败'); } };
-    void refresh(); const timer = setInterval(() => void refresh(), 3000);
-    return () => { active = false; clearInterval(timer); };
+    const stop = serialPolling(refresh, 3000);
+    return () => { active = false; stop(); };
   }, [owner, refreshKey]);
   const control = async (task: Task, action: 'retry' | 'cancel') => {
     try { const next = await apiRequest<Task>(`${base}/${task.preparation_id}/${action}`, { method: 'POST', body: JSON.stringify(action === 'cancel' ? { expected_revision: task.revision } : {}) }); setTasks(all => all.map(t => t.preparation_id === next.preparation_id ? next : t)); }

@@ -1,3 +1,4 @@
+import { serialPolling } from './serialPolling';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import { uid } from '../selfLearning/model';
@@ -35,9 +36,7 @@ export function useAnswerTurns(course: string, topic: string, enabled: boolean, 
   }, [path, key, authorized]);
   useEffect(() => {
     if (!enabled) return;
-    void load();
-    const timer = setInterval(() => void load(), 1000);
-    return () => clearInterval(timer);
+    return serialPolling(load, 1000);
   }, [enabled, load]);
   const submit = async (question: string, reading: ReadingSnapshot) => {
     if (!authorized()) throw new Error('账号已切换，请刷新页面');

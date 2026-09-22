@@ -1,3 +1,4 @@
+import { serialPolling } from './serialPolling';
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import { Modal } from '../selfLearning/ui';
@@ -9,8 +10,8 @@ export function PreparationNotifications({ owner }: { owner: string }) {
   useEffect(() => {
     let active = true;
     const refresh = async () => { try { const result = await apiRequest<{ items: Notice[] }>('/api/course-preparations/notifications'); if (active) setItems(result.items); } catch { /* Preparation capability may be disabled. */ } };
-    void refresh(); const timer = setInterval(() => void refresh(), 5000);
-    return () => { active = false; clearInterval(timer); };
+    const stop = serialPolling(refresh, 5000);
+    return () => { active = false; stop(); };
   }, [owner]);
   return <><button aria-label="课程更新通知" onClick={() => setOpen(true)}>课程更新 {items.filter(n => !n.read).length || ''}</button>{open && <Modal title="课程更新" onClose={() => setOpen(false)}>
     {error && <p role="alert">{error}</p>}{!items.length && <p>暂无课程更新。</p>}{items.map(item => <article key={item.event_id}><p>课程版本 {item.result_ref.manifest_version} 已准备好。</p>

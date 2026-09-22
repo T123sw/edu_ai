@@ -1,3 +1,4 @@
+import { serialPolling } from './serialPolling';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import type { Message } from '../selfLearning/model';
@@ -52,9 +53,8 @@ export function useTopicSession(courseId: string, topicId: string, enabled: bool
   useEffect(() => {
     if (!enabled) return;
     const controller = new AbortController();
-    void load(true, undefined, controller.signal);
-    const timer = setInterval(() => void load(false, undefined, controller.signal), 5000);
-    return () => { controller.abort(); clearInterval(timer); };
+    const stop = serialPolling(() => load(false, undefined, controller.signal), 5000);
+    return () => { controller.abort(); stop(); };
   }, [enabled, load]);
   const state = cache[key];
   return { messages: state?.page?.items ?? [], sessionId: state?.page?.session_id,

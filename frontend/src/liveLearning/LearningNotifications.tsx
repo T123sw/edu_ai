@@ -1,3 +1,4 @@
+import { serialPolling } from './serialPolling';
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import type { Classroom } from '../selfLearning/model';
@@ -26,8 +27,8 @@ export function LearningNotifications({ room, active, onSelect }: { room: Classr
         if (!controller.signal.aborted && authorized()) { setNotices(notifications.items); setTasks(preparations.items); setError(''); }
       } catch (e) { if (!controller.signal.aborted) setError(e instanceof Error ? e.message : '通知读取失败'); }
     }
-    void load(); const timer = setInterval(() => void load(), 2000);
-    return () => { controller.abort(); clearInterval(timer); };
+    const stop = serialPolling(load, 2000);
+    return () => { controller.abort(); stop(); };
   }, [course, room.sessionOwner]);
   async function open(notice: Notice, ref: Ref) {
     setBusy(true);

@@ -1,3 +1,4 @@
+import { serialPolling } from './serialPolling';
 import { useCallback, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiRequest } from '../stitch/api/client';
@@ -95,13 +96,16 @@ export default function LiveApp() {
   }, [commit, flush]);
   useEffect(() => {
     let active = true;
-    void refresh().catch(c => active && setError(c.message)).finally(() => active && setLoading(false));
-    const interval = setInterval(() => { if (!pending.current.size && !saving.current) void refresh().catch(c => active && setError(c.message)); }, 5000);
+    const stop = serialPolling(async () => {
+      if (!pending.current.size && !saving.current) {
+        await refresh().catch(c => active && setError(c.message)).finally(() => active && setLoading(false));
+      }
+    }, 5000);
     const route = () => setHash(location.hash);
     const leave = () => { void flush().catch(() => undefined); };
     window.addEventListener('pagehide', leave);
     window.addEventListener('hashchange', route);
-    return () => { active = false; clearInterval(interval); window.removeEventListener('pagehide', leave); window.removeEventListener('hashchange', route); void flush().catch(() => undefined); };
+    return () => { active = false; stop(); window.removeEventListener('pagehide', leave); window.removeEventListener('hashchange', route); void flush().catch(() => undefined); };
   }, [refresh, flush]);
   const action = async (fn: () => Promise<unknown>, label = '') => {
     setError(''); setBusy(label);

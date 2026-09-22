@@ -1,3 +1,4 @@
+import { serialPolling } from './serialPolling';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiRequest, ApiError } from '../stitch/api/client';
 import { uid, type Classroom, type LearningResource } from '../selfLearning/model';
@@ -100,11 +101,10 @@ export function useLearningProgress(input: Classroom) {
   }, [enabled, authorized, base, persist, updateProjection, key]);
   useEffect(() => {
     active.current = true;
-    const sync = () => { void flush(); void refresh().catch(() => undefined); };
-    sync();
-    const timer = setInterval(sync, 5000);
+    const sync = async () => { await Promise.all([flush(), refresh().catch(() => undefined)]); };
+    const stop = serialPolling(sync, 5000);
     window.addEventListener('online', sync);
-    return () => { active.current = false; clearInterval(timer); window.removeEventListener('online', sync); };
+    return () => { active.current = false; stop(); window.removeEventListener('online', sync); };
   }, [flush, refresh]);
   useEffect(() => { if (input.learningProjection) updateProjection(input.learningProjection); }, [input.learningProjection, updateProjection]);
   const enqueue = (topic: string, type: string, resource: LearningResource | undefined, payload: Record<string, unknown>) => {
