@@ -18,6 +18,8 @@
 
 ## 发布
 
-后端必须先重启加载新增请求字段，再发布配套前端构建。旧后端会拒绝新字段，不能提前发布新前端。前端构建位于 `/tmp/edu-ai-classroom-toggle-20260922/frontend/dist`。
+用户已重启业务后端：PID `1517161`，启动时间 `2026-09-22 08:00:24 UTC`。直连 8001 与 Nginx `/backend/openapi.json` 均确认 `include_classroom` 布尔字段、默认 true 已加载。
 
-本次调用 `systemctl --no-ask-password restart edu-ai-backend.service` 返回 `Interactive authentication required`，未完成业务后端重启，业务前端仍保留原版本。需用户在终端重启后端后再完成发布与线上验证。
+已发布配套前端 `b9a96424`，frontend tree 为 `4b2d9730a0d9837e08cf652411405baedf755721`。先复制资源、保留旧哈希文件，再原子替换首页；HTTP 首页及入口资源与构建文件一致。旧构建和部署记录位于 `/tmp/edu-ai-classroom-publish-20260922`。
+
+默认网站使用真实登录和真实接口进行 1440px/390px 浏览器冒烟：开关默认开启、关闭/开启切换、页面无横向溢出，未捕获页面异常或 HTTP 错误。此轮没有提交新课程；真实模型生成效果沿用此前明确记录的验收证据，不把本次上线冒烟算作新一轮生成端到端。
