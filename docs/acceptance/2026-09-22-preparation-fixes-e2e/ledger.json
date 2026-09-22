@@ -1,0 +1,866 @@
+{
+  "started_runs": 9,
+  "runs": [
+    {
+      "preparation_id": "prep_23d44017f4014140b12ccca1790bd285",
+      "status": "succeeded",
+      "error_code": null,
+      "seconds": 332.35,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 39,
+          "tokens": 471877,
+          "cost_micro_usd": 4718770
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 33
+      },
+      "provider_models": {
+        "deepseek-flash": 33
+      },
+      "phases": {
+        "input_document": 2,
+        "intent": 3,
+        "learning_path": 4,
+        "review": 2,
+        "research_nodes": 4,
+        "resource_write": 4,
+        "resource_review": 8,
+        "classroom_write": 2,
+        "course_review": 4
+      },
+      "native_completions": 33,
+      "repair_counts": {},
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 0.49
+        },
+        {
+          "event": "stage_changed",
+          "stage": "ingest",
+          "elapsed_seconds": 38.7
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_scope",
+          "elapsed_seconds": 41.19
+        },
+        {
+          "event": "stage_changed",
+          "stage": "plan",
+          "elapsed_seconds": 71.16
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_nodes",
+          "elapsed_seconds": 93.29
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 113.28
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 265.55
+        },
+        {
+          "event": "stage_changed",
+          "stage": "commit",
+          "elapsed_seconds": 328.69
+        },
+        {
+          "event": "succeeded",
+          "stage": null,
+          "elapsed_seconds": 332.35
+        }
+      ],
+      "course_id": "learn-23d44017f4014140b12ccca1790bd285",
+      "case": "E01/1",
+      "test_status": "passed",
+      "code_sha": "0a95243e90ac00210363b1c592377e79fe9bf2a0",
+      "duration_enforcement": "advisory"
+    },
+    {
+      "preparation_id": "prep_588e9c50b93c45539dc9efa9daecf613",
+      "status": "succeeded",
+      "error_code": null,
+      "seconds": 431.09,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 43,
+          "tokens": 515169,
+          "cost_micro_usd": 5151690
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 37
+      },
+      "provider_models": {
+        "deepseek-flash": 37
+      },
+      "phases": {
+        "input_document": 6,
+        "intent": 2,
+        "learning_path": 4,
+        "review": 2,
+        "research_nodes": 4,
+        "resource_write": 4,
+        "resource_review": 8,
+        "classroom_write": 3,
+        "course_review": 4
+      },
+      "native_completions": 37,
+      "repair_counts": {},
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 0.5
+        },
+        {
+          "event": "stage_changed",
+          "stage": "ingest",
+          "elapsed_seconds": 58.12
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_scope",
+          "elapsed_seconds": 59.67
+        },
+        {
+          "event": "stage_changed",
+          "stage": "plan",
+          "elapsed_seconds": 101.71
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_nodes",
+          "elapsed_seconds": 112.98
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 140.47
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 346.85
+        },
+        {
+          "event": "stage_changed",
+          "stage": "commit",
+          "elapsed_seconds": 427.44
+        },
+        {
+          "event": "succeeded",
+          "stage": null,
+          "elapsed_seconds": 431.09
+        }
+      ],
+      "course_id": "learn-588e9c50b93c45539dc9efa9daecf613",
+      "case": "initial-browser-desktop",
+      "test_status": "failed",
+      "code_sha": "0a95243e90ac00210363b1c592377e79fe9bf2a0",
+      "duration_enforcement": "advisory"
+    },
+    {
+      "preparation_id": "prep_5c3ebd3dd50043138a627d9d40cd1d27",
+      "status": "succeeded",
+      "error_code": null,
+      "seconds": 742.92,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 48,
+          "tokens": 598722,
+          "cost_micro_usd": 5987220
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 41
+      },
+      "provider_models": {
+        "deepseek-flash": 41
+      },
+      "phases": {
+        "input_document": 3,
+        "intent": 3,
+        "learning_path": 4,
+        "review": 2,
+        "research_nodes": 4,
+        "resource_write": 5,
+        "resource_review": 10,
+        "classroom_write": 4,
+        "course_review": 5,
+        "resource_repair": 1
+      },
+      "native_completions": 41,
+      "repair_counts": {
+        "content": 1
+      },
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 0.95
+        },
+        {
+          "event": "stage_changed",
+          "stage": "ingest",
+          "elapsed_seconds": 94.37
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_scope",
+          "elapsed_seconds": 98.12
+        },
+        {
+          "event": "stage_changed",
+          "stage": "plan",
+          "elapsed_seconds": 143.97
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_nodes",
+          "elapsed_seconds": 154.72
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 176.24
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 472.87
+        },
+        {
+          "event": "stage_changed",
+          "stage": "repair",
+          "elapsed_seconds": 511.63
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 518.09
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 664.82
+        },
+        {
+          "event": "stage_changed",
+          "stage": "commit",
+          "elapsed_seconds": 740.62
+        },
+        {
+          "event": "succeeded",
+          "stage": null,
+          "elapsed_seconds": 742.92
+        }
+      ],
+      "course_id": "learn-5c3ebd3dd50043138a627d9d40cd1d27",
+      "case": "E01/2",
+      "test_status": "passed",
+      "code_sha": "0a95243e90ac00210363b1c592377e79fe9bf2a0",
+      "duration_enforcement": "advisory"
+    },
+    {
+      "preparation_id": "prep_e656078638f547e7b3386b0bb1d737cd",
+      "status": "succeeded",
+      "error_code": null,
+      "seconds": 540.82,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 40,
+          "tokens": 484508,
+          "cost_micro_usd": 4845080
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 34
+      },
+      "provider_models": {
+        "deepseek-flash": 34
+      },
+      "phases": {
+        "input_document": 2,
+        "intent": 2,
+        "learning_path": 5,
+        "review": 2,
+        "research_nodes": 4,
+        "resource_write": 4,
+        "resource_review": 8,
+        "classroom_write": 3,
+        "course_review": 4
+      },
+      "native_completions": 34,
+      "repair_counts": {},
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 0.57
+        },
+        {
+          "event": "stage_changed",
+          "stage": "ingest",
+          "elapsed_seconds": 39.35
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_scope",
+          "elapsed_seconds": 41.31
+        },
+        {
+          "event": "stage_changed",
+          "stage": "plan",
+          "elapsed_seconds": 80.37
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_nodes",
+          "elapsed_seconds": 93.42
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 143.82
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 457.52
+        },
+        {
+          "event": "stage_changed",
+          "stage": "commit",
+          "elapsed_seconds": 536.82
+        },
+        {
+          "event": "succeeded",
+          "stage": null,
+          "elapsed_seconds": 540.82
+        }
+      ],
+      "course_id": "learn-e656078638f547e7b3386b0bb1d737cd",
+      "case": "initial-browser-narrow",
+      "test_status": "failed",
+      "code_sha": "0a95243e90ac00210363b1c592377e79fe9bf2a0",
+      "duration_enforcement": "advisory"
+    },
+    {
+      "preparation_id": "prep_f127b0d54d244990a9fe3e04a3f78246",
+      "status": "succeeded",
+      "error_code": null,
+      "seconds": 221.69,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 39,
+          "tokens": 464106,
+          "cost_micro_usd": 4641060
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 33
+      },
+      "provider_models": {
+        "deepseek-flash": 33
+      },
+      "phases": {
+        "input_document": 3,
+        "intent": 3,
+        "learning_path": 4,
+        "review": 2,
+        "research_nodes": 4,
+        "resource_write": 4,
+        "resource_review": 8,
+        "classroom_write": 2,
+        "course_review": 3
+      },
+      "native_completions": 33,
+      "repair_counts": {},
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 0.12
+        },
+        {
+          "event": "stage_changed",
+          "stage": "ingest",
+          "elapsed_seconds": 32.37
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_scope",
+          "elapsed_seconds": 33.19
+        },
+        {
+          "event": "stage_changed",
+          "stage": "plan",
+          "elapsed_seconds": 62.15
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_nodes",
+          "elapsed_seconds": 70.05
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 84.43
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 186.85
+        },
+        {
+          "event": "stage_changed",
+          "stage": "commit",
+          "elapsed_seconds": 219.76
+        },
+        {
+          "event": "succeeded",
+          "stage": null,
+          "elapsed_seconds": 221.69
+        }
+      ],
+      "course_id": "learn-f127b0d54d244990a9fe3e04a3f78246",
+      "case": "E01/3",
+      "test_status": "passed",
+      "code_sha": "0a95243e90ac00210363b1c592377e79fe9bf2a0",
+      "duration_enforcement": "advisory"
+    },
+    {
+      "preparation_id": "prep_e89be126e2b74cb69930a80f8b1561b6",
+      "status": "canceled",
+      "error_code": null,
+      "seconds": 19.13,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 2,
+          "tokens": 9211,
+          "cost_micro_usd": 92110
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 2
+      },
+      "provider_models": {
+        "deepseek-flash": 2
+      },
+      "phases": {
+        "input_document": 2
+      },
+      "native_completions": 2,
+      "repair_counts": {},
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 0.28
+        },
+        {
+          "event": "canceled",
+          "stage": null,
+          "elapsed_seconds": 19.13
+        }
+      ],
+      "course_id": null,
+      "case": "R01",
+      "test_status": "passed",
+      "code_sha": "a70ccc37d0e2daf0fd0c1d3a9ceee0978a7ae2ce",
+      "duration_enforcement": null
+    },
+    {
+      "preparation_id": "prep_e4973f39f03e4340b5ea77ea5bd01ba3",
+      "status": "failed",
+      "error_code": "RESEARCH_INSUFFICIENT",
+      "seconds": 78.23,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 14,
+          "tokens": 129394,
+          "cost_micro_usd": 1293940
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 14
+      },
+      "provider_models": {
+        "deepseek-flash": 14
+      },
+      "phases": {
+        "input_document": 3,
+        "intent": 6,
+        "learning_path": 5
+      },
+      "native_completions": 14,
+      "repair_counts": {},
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 0.32
+        },
+        {
+          "event": "stage_changed",
+          "stage": "ingest",
+          "elapsed_seconds": 49.19
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_scope",
+          "elapsed_seconds": 50.15
+        },
+        {
+          "event": "failed",
+          "stage": null,
+          "elapsed_seconds": 78.23
+        }
+      ],
+      "course_id": null,
+      "case": "E03",
+      "test_status": "passed",
+      "code_sha": "a70ccc37d0e2daf0fd0c1d3a9ceee0978a7ae2ce",
+      "duration_enforcement": null
+    },
+    {
+      "preparation_id": "prep_e65e38956c3c44f195c15ecd0d509c62",
+      "status": "succeeded",
+      "error_code": null,
+      "seconds": 291.53,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 43,
+          "tokens": 469628,
+          "cost_micro_usd": 4696280
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 36
+      },
+      "provider_models": {
+        "deepseek-flash": 36
+      },
+      "phases": {
+        "input_document": 3,
+        "intent": 3,
+        "learning_path": 4,
+        "review": 2,
+        "research_nodes": 4,
+        "resource_write": 5,
+        "resource_review": 9,
+        "classroom_write": 3,
+        "course_review": 3
+      },
+      "native_completions": 36,
+      "repair_counts": {
+        "content": 1
+      },
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 1.23
+        },
+        {
+          "event": "stage_changed",
+          "stage": "ingest",
+          "elapsed_seconds": 42.63
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_scope",
+          "elapsed_seconds": 44.32
+        },
+        {
+          "event": "stage_changed",
+          "stage": "plan",
+          "elapsed_seconds": 75.95
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_nodes",
+          "elapsed_seconds": 83.38
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 101.84
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 236.25
+        },
+        {
+          "event": "stage_changed",
+          "stage": "repair",
+          "elapsed_seconds": 237.75
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 240.09
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 270.87
+        },
+        {
+          "event": "stage_changed",
+          "stage": "commit",
+          "elapsed_seconds": 290.41
+        },
+        {
+          "event": "succeeded",
+          "stage": null,
+          "elapsed_seconds": 291.53
+        }
+      ],
+      "course_id": "learn-e65e38956c3c44f195c15ecd0d509c62",
+      "case": "final-browser-desktop",
+      "test_status": "passed",
+      "code_sha": "a70ccc37d0e2daf0fd0c1d3a9ceee0978a7ae2ce",
+      "duration_enforcement": "advisory"
+    },
+    {
+      "preparation_id": "prep_60e365a0617f419ab7ce642ca0e3b291",
+      "status": "succeeded",
+      "error_code": null,
+      "seconds": 270.31,
+      "budget": {
+        "limits": {
+          "calls": 200,
+          "tokens": 2000000,
+          "seconds": 3600,
+          "cost_micro_usd": 10000000
+        },
+        "reserved": {
+          "calls": 0,
+          "tokens": 0,
+          "cost_micro_usd": 0
+        },
+        "consumed": {
+          "calls": 44,
+          "tokens": 497362,
+          "cost_micro_usd": 4973620
+        }
+      },
+      "models": {
+        "deepseek-v4-flash": 38
+      },
+      "provider_models": {
+        "deepseek-flash": 38
+      },
+      "phases": {
+        "input_document": 3,
+        "intent": 7,
+        "learning_path": 4,
+        "review": 2,
+        "research_nodes": 4,
+        "resource_write": 5,
+        "resource_review": 8,
+        "classroom_write": 2,
+        "course_review": 3
+      },
+      "native_completions": 38,
+      "repair_counts": {},
+      "timeline": [
+        {
+          "event": "accepted",
+          "stage": null,
+          "elapsed_seconds": 0.0
+        },
+        {
+          "event": "stage_changed",
+          "stage": "normalize",
+          "elapsed_seconds": 1.08
+        },
+        {
+          "event": "stage_changed",
+          "stage": "ingest",
+          "elapsed_seconds": 56.24
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_scope",
+          "elapsed_seconds": 58.15
+        },
+        {
+          "event": "stage_changed",
+          "stage": "plan",
+          "elapsed_seconds": 85.07
+        },
+        {
+          "event": "stage_changed",
+          "stage": "research_nodes",
+          "elapsed_seconds": 94.77
+        },
+        {
+          "event": "stage_changed",
+          "stage": "produce",
+          "elapsed_seconds": 108.43
+        },
+        {
+          "event": "stage_changed",
+          "stage": "review",
+          "elapsed_seconds": 249.09
+        },
+        {
+          "event": "stage_changed",
+          "stage": "commit",
+          "elapsed_seconds": 268.36
+        },
+        {
+          "event": "succeeded",
+          "stage": null,
+          "elapsed_seconds": 270.31
+        }
+      ],
+      "course_id": "learn-60e365a0617f419ab7ce642ca0e3b291",
+      "case": "final-browser-narrow",
+      "test_status": "passed",
+      "code_sha": "a70ccc37d0e2daf0fd0c1d3a9ceee0978a7ae2ce",
+      "duration_enforcement": "advisory"
+    }
+  ]
+}

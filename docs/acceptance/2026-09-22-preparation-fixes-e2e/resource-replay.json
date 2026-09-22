@@ -1,0 +1,94 @@
+[
+  {
+    "width": 1440,
+    "kind": "report",
+    "chapter": "node-1-roles",
+    "passed": true,
+    "ms": 3358
+  },
+  {
+    "width": 1440,
+    "kind": "quiz",
+    "chapter": "node-1-roles",
+    "passed": true,
+    "ms": 2392
+  },
+  {
+    "width": 1440,
+    "kind": "classroom",
+    "chapter": "node-1-roles",
+    "passed": true,
+    "ms": 1668
+  },
+  {
+    "width": 1440,
+    "kind": "report",
+    "chapter": "node-2-branches",
+    "passed": true,
+    "ms": 1893
+  },
+  {
+    "width": 1440,
+    "kind": "quiz",
+    "chapter": "node-2-branches",
+    "passed": true,
+    "ms": 2389
+  },
+  {
+    "width": 1440,
+    "kind": "classroom",
+    "chapter": "node-2-branches",
+    "passed": true,
+    "ms": 2065
+  },
+  {
+    "width": 1440,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "kind": "report",
+    "chapter": "node-1-roles",
+    "passed": true,
+    "ms": 3748
+  },
+  {
+    "width": 390,
+    "kind": "quiz",
+    "chapter": "node-1-roles",
+    "passed": true,
+    "ms": 2326
+  },
+  {
+    "width": 390,
+    "kind": "classroom",
+    "chapter": "node-1-roles",
+    "passed": true,
+    "ms": 2020
+  },
+  {
+    "width": 390,
+    "kind": "report",
+    "chapter": "node-2-branches",
+    "passed": true,
+    "ms": 2296
+  },
+  {
+    "width": 390,
+    "kind": "quiz",
+    "chapter": "node-2-branches",
+    "passed": true,
+    "ms": 2764
+  },
+  {
+    "width": 390,
+    "kind": "classroom",
+    "chapter": "node-2-branches",
+    "passed": true,
+    "ms": 1484
+  },
+  {
+    "width": 390,
+    "errors": []
+  }
+]

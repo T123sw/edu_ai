@@ -1,0 +1,21 @@
+{
+  "backend_api_sha": "0a95243e90ac00210363b1c592377e79fe9bf2a0",
+  "final_application_sha": "a70ccc37d0e2daf0fd0c1d3a9ceee0978a7ae2ce",
+  "backend_tree_sha": "f3ca6908b071b3fc78c9127eb2d41c4d3b0bc53a",
+  "backend_unchanged_after_api_runs": true,
+  "backend_regression": {
+    "passed": 842,
+    "skipped": 15
+  },
+  "session_report_regression": {
+    "passed": 71,
+    "skipped": 1
+  },
+  "frontend_regression": {
+    "passed": 150
+  },
+  "typecheck": "passed",
+  "build": "passed",
+  "private_evidence_root": "/tmp/preparation-validation-fixes-20260922",
+  "real_audio": "not_checked"
+}

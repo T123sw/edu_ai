@@ -1,0 +1,30 @@
+{
+  "initial": [
+    {
+      "project": "desktop",
+      "preparation_id": "prep_588e9c50b93c45539dc9efa9daecf613",
+      "test_status": "failed",
+      "browser_seconds": 483.37
+    },
+    {
+      "project": "narrow",
+      "preparation_id": "prep_e656078638f547e7b3386b0bb1d737cd",
+      "test_status": "failed",
+      "browser_seconds": 597.83
+    }
+  ],
+  "final": [
+    {
+      "project": "desktop",
+      "preparation_id": "prep_e65e38956c3c44f195c15ecd0d509c62",
+      "test_status": "passed",
+      "browser_seconds": 415.23
+    },
+    {
+      "project": "narrow",
+      "preparation_id": "prep_60e365a0617f419ab7ce642ca0e3b291",
+      "test_status": "passed",
+      "browser_seconds": 402.0
+    }
+  ]
+}
