@@ -1,0 +1,40 @@
+{
+  "configuration": {
+    "LEARNING_SESSION_V1_ENABLED": true,
+    "LEARNING_PROGRESS_V1_ENABLED": true,
+    "LEARNING_AGENT_V1_ENABLED": true,
+    "LEARNING_ENRICHMENT_V1_ENABLED": true,
+    "LEARNING_PREPARATION_V1_ENABLED": true
+  },
+  "other_settings_unchanged": true,
+  "database_revision": "20260918_0036",
+  "service_initialization": {
+    "sessions": true,
+    "progress": true,
+    "answers": true,
+    "checks": true,
+    "memory": true,
+    "summaries": true,
+    "preparation_handoff": true
+  },
+  "frontend": {
+    "source_code_sha": "e000345491a16fe72edc9158238464bb0fc6d511",
+    "frontend_tree_sha": "b725b8f4cc83ad4068a7a0c76a454ea43998b440",
+    "nginx_index_matches": true,
+    "entry_assets_verified": 1,
+    "old_assets_retained": true,
+    "backup": "/tmp/edu-ai-learning-enable-20260922/frontend-dist.before"
+  },
+  "default_site_smoke": {
+    "login": true,
+    "home": true,
+    "errors": []
+  },
+  "backend_runtime": {
+    "pid": 1479608,
+    "new_flags_loaded": false,
+    "restart_attempt": "systemd denied: Interactive authentication required"
+  },
+  "e2e_after_activation": "pending restart",
+  "private_backup_root": "/tmp/edu-ai-learning-enable-20260922"
+}
