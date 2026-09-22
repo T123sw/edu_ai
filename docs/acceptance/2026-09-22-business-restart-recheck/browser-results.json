@@ -1,0 +1,56 @@
+{
+  "fresh": [
+    {
+      "project": "desktop",
+      "status": "failed",
+      "seconds": 277.61,
+      "errors": [
+        {
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('iframe.sl-live-material').contentFrame().getByRole('region', { name: '理解检查', exact: true }).first().locator('input, textarea').first()\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('iframe.sl-live-material').contentFrame().getByRole('region', { name: '理解检查', exact: true }).first().locator('input, textarea').first()\u001b[22m\n\n\n  88 |         if (kind === 'quiz') {\n  89 |           const question = frame.getByRole('region', { name: '理解检查', exact: true }).first();\n> 90 |           await expect(question.locator('input, textarea').first()).toBeVisible({ timeout: 30_000 });\n     |                                                                     ^\n  91 |           const stem = await question.locator(':scope > p').first().innerText();\n  92 |           const shortAnswer = await question.getByRole('textbox', { name: '检查答案' }).count() > 0;\n  93 |           const answerText = '我的理解：模型选择工具，程序校验参数并执行；缺少参数时不执行。';\n    at /tmp/preparation-business-recheck-20260922/business-recheck.spec.ts:90:69"
+        }
+      ],
+      "console_errors": [],
+      "network_errors": []
+    }
+  ],
+  "replay_initial": [
+    {
+      "project": "desktop",
+      "status": "passed",
+      "seconds": 58.83,
+      "errors": [],
+      "console_errors": [],
+      "network_errors": []
+    },
+    {
+      "project": "narrow",
+      "status": "failed",
+      "seconds": 39.39,
+      "errors": [
+        {
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('iframe.sl-live-material').contentFrame().locator('.classroom-page-count')\nExpected: \u001b[32m\"\u001b[7m1\u001b[27m / 5\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m5\u001b[27m / 5\"\u001b[39m\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('iframe.sl-live-material').contentFrame().locator('.classroom-page-count')\u001b[22m\n\u001b[2m    57 × locator resolved to <span class=\"classroom-page-count\">5 / 5</span>\u001b[22m\n\u001b[2m       - unexpected value \"5 / 5\"\u001b[22m\n\n\n  81 |           expect(material.scenes.length).toBeGreaterThan(0);\n  82 |           for (let index = 0; index < material.scenes.length; index++) {\n> 83 |             await expect(frame.locator('.classroom-page-count')).toHaveText(`${index + 1} / ${material.scenes.length}`);\n     |                                                                  ^\n  84 |             const scene = material.scenes[index];\n  85 |             if (scene.type === 'quiz') {\n  86 |               await expect(frame.getByText(/正确答案：/)).toHaveCount(0);\n    at /tmp/preparation-business-recheck-20260922/business-replay.spec.ts:83:66"
+        }
+      ],
+      "console_errors": [],
+      "network_errors": []
+    }
+  ],
+  "replay_final": [
+    {
+      "project": "desktop",
+      "status": "passed",
+      "seconds": 61.22,
+      "errors": [],
+      "console_errors": [],
+      "network_errors": []
+    },
+    {
+      "project": "narrow",
+      "status": "passed",
+      "seconds": 64.52,
+      "errors": [],
+      "console_errors": [],
+      "network_errors": []
+    }
+  ]
+}

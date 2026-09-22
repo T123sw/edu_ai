@@ -1,0 +1,28 @@
+{
+  "feature_flags": {
+    "COURSE_PREPARATION_ENABLED": "true",
+    "LEARNING_SESSION_V1_ENABLED": "(default)",
+    "LEARNING_AGENT_V1_ENABLED": "(default)"
+  },
+  "database_revision": [
+    "20260918_0036"
+  ],
+  "preparation_status_counts": {},
+  "frontend_index_modified": 1789720834.2394993,
+  "code_sha": "e000345491a16fe72edc9158238464bb0fc6d511",
+  "backend_pid": 1479608,
+  "backend_started_at": "2026-09-22T06:00:43Z",
+  "business_backend": "127.0.0.1:8001",
+  "validation_frontend": "127.0.0.1:5202",
+  "default_frontend": "Nginx frontend/dist, 2026-09-18 build, unchanged",
+  "learning_flags": {
+    "LEARNING_SESSION_V1_ENABLED": "unset",
+    "LEARNING_PROGRESS_V1_ENABLED": "unset",
+    "LEARNING_AGENT_V1_ENABLED": "unset",
+    "LEARNING_ENRICHMENT_V1_ENABLED": "unset",
+    "LEARNING_PREPARATION_V1_ENABLED": "unset",
+    "LEARNING_SCOPED_ROLLOUT": "unset"
+  },
+  "feature_configuration_changed": false,
+  "database_migrations_run_by_agent": false
+}

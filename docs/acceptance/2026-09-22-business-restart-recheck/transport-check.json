@@ -1,0 +1,18 @@
+{
+  "models": {
+    "deepseek-v4-flash": 35
+  },
+  "resource_review_calls": 8,
+  "malformed_arguments": [
+    {
+      "phase": "learning_path",
+      "tool": "mcp__preparation__finalize_research_summary"
+    }
+  ],
+  "duration_enforcement": "advisory",
+  "reserved": {
+    "calls": 0,
+    "tokens": 0,
+    "cost_micro_usd": 0
+  }
+}
