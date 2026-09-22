@@ -1,4 +1,5 @@
 import { serialPolling } from './serialPolling';
+import { refreshLearningState, type LiveLearningState as State } from './stateRefresh';
 import { useCallback, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiRequest } from '../stitch/api/client';
@@ -12,12 +13,11 @@ import { uid, type Classroom as Room, type LearningState, type LearningResource 
 import '../selfLearning/styles.css';
 import '../selfLearning/review.css';
 import './live.css';
-import { TaskCenter, TaskLauncher, type LearningJob } from './TaskCenter';
+import { TaskCenter, TaskLauncher } from './TaskCenter';
 
 import { PreparationNotifications } from './PreparationNotifications';
 import { PreparationOptionsForm, PreparationTasks, defaultOptions, submitPreparation } from './Preparation';
 
-type State = LearningState & { shared: Room[]; serverJobs: LearningJob[] };
 const base = '/api/self-learning';
 const pathFor = (id: string) => `${base}/courses/${encodeURIComponent(id)}`;
 const empty: State = { version: 1, rooms: [], resources: [], jobs: [], shared: [], serverJobs: [] };
@@ -48,7 +48,8 @@ export default function LiveApp() {
   const commit = useCallback((value: State) => { current.current = value; update(value); }, []);
   const refresh = useCallback(async () => {
     const started = revision.current;
-    const value = await apiRequest<State>(`${base}/state`);
+    const activeId = location.hash.split('?')[0].replace('#/classroom/', '');
+    const value = await refreshLearningState(current.current, activeId);
     if (started === revision.current && !pending.current.size && !saving.current) {
       const activeId = location.hash.split('?')[0].replace('#/classroom/', '');
       value.rooms = value.rooms.map(next => { const previous = current.current.rooms.find(r => r.id === next.id);
