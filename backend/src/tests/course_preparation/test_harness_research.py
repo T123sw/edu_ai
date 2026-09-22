@@ -37,7 +37,7 @@ def test_real_results_validation_repair_and_checkpoint_resume():
     tools, saved = setup_tools()
     assert research(tools)['ok']
     invalid = path(tools.state.evidence[0].source_id)
-    invalid['nodes'][0]['minutes'] = 31
+    invalid['nodes'][0]['prerequisite_keys'] = ['missing']
     assert not tools.call('save_course_plan', invalid)['ok']
     assert saved[-1].last_error and saved[-1].path is None
     resumed = LearningPathTools(tools.agent, request(), saved[-1], reserve=saved.append, guard=lambda: None, timeout=30)
