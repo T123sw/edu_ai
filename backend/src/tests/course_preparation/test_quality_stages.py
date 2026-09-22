@@ -147,3 +147,27 @@ def test_advisory_duration_reaches_semantic_review_without_rewriting(monkeypatch
         assert result.checkpoint['quality']['issues'][0]['reason'] == '答案错误'
     assert artifact == original
     assert result.checkpoint['duration_summary']['enforcement'] == 'advisory'
+
+
+def test_node_review_shares_context_without_losing_resource_specific_requirements():
+    from copy import deepcopy
+    from app.course_preparation.quality import node_review_artifacts
+    from tests.course_preparation.test_resource_alignment import quiz
+    from app.course_preparation.context import context_packet
+    rows = [quiz() for _ in range(3)]
+    for i, row in enumerate(rows):
+        row['artifact_id'] = str(i)
+        row['spec']['teaching_context']['request_goal'] = '完整教学要求' * 2000
+    rows[-1]['spec']['teaching_context']['resource_target_minutes'] = 2.5
+    original = deepcopy(rows)
+    packet = node_review_artifacts(rows)
+    assert len(packet['teaching_contexts']) == 2
+    assert packet['artifacts'][0]['teaching_context_ref'] == packet['artifacts'][1]['teaching_context_ref']
+    assert packet['artifacts'][2]['teaching_context_ref'] != packet['artifacts'][0]['teaching_context_ref']
+    for row, source in zip(packet['artifacts'], rows):
+        assert row['content'] == source['content']['content']
+        assert row['preparation'] == source['content']['generation_state']['preparation']
+        assert packet['teaching_contexts'][row['teaching_context_ref']] == source['spec']['teaching_context']
+    assert rows == original
+    result = context_packet({'phase': 'course_review', **packet}, [], max_tokens=128000, native_skill=True)
+    assert result['input_token_upper_bound'] + result['output_token_limit'] <= 128000

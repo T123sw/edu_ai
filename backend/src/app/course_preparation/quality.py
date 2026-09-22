@@ -9,7 +9,7 @@ from .research_agent import ResearchAgent,ResearchError
 from .tool_registry import digest
 from .runner import StepResult
 
-RULE_VERSION='preparation-delivery-v10'
+RULE_VERSION='preparation-delivery-v11'
 
 from .resource_alignment import (validate_artifact, resource_objectives, resource_checks,
     validate_manifest_locations, preparation_metadata, duration_summary, node_requirement_issues, node_objective_issues)
@@ -107,6 +107,24 @@ def candidate_manifest(context,checkpoint,request):
     return manifest
 
 
+def node_review_artifacts(artifacts):
+    """Share identical teaching contexts while preserving every native body and binding."""
+    contexts, rows = {}, []
+    for artifact in artifacts:
+        teaching = artifact['spec'].get('teaching_context')
+        reference = digest(teaching)
+        contexts[reference] = teaching
+        rows.append({'artifact_id': artifact['artifact_id'], 'node_id': artifact['spec']['node_id'],
+            'kind': artifact['resource_type'], 'content': artifact['content']['content'],
+            'teaching_context_ref': reference, 'preparation': preparation_metadata(artifact),
+            # Full audit histories stay persisted; review exact bodies and bindings here.
+            'resource_review_receipt': {k: v for k, v in
+                artifact['content'].get('generation_state', {}).get('resource_review', {}).items()
+                if k in ('decision', 'method', 'content_sha256', 'preparation_sha256')},
+            'spec_digest': artifact['spec_digest'], 'content_digest': artifact['content_digest']})
+    return {'teaching_contexts': contexts, 'artifacts': rows}
+
+
 class QualityStages:
     def __init__(self,repository,generation,memory,model_factory):
         self.repository,self.generation,self.memory,self.model_factory=repository,generation,memory,model_factory
@@ -169,16 +187,7 @@ class QualityStages:
         if unchecked:
             review_context = {'review_scope': '完整节点资源；检查该节点全部目标、引用、练习与跨资料一致性',
                 'node': unchecked, 'node_evidence': checkpoint['node_evidence'][unchecked['node_key']],
-                'artifacts': [{'artifact_id': r['artifact_id'], 'node_id': r['spec']['node_id'], 'kind': r['resource_type'],
-                              'content': r['content']['content'], 'teaching_context':r['spec'].get('teaching_context'),
-                              'preparation':preparation_metadata(r),
-                              # Full audits remain persisted and were verified
-                              # by read_result. Repeating their histories here
-                              # crowds out the actual node content and evidence.
-                              'resource_review_receipt':{k:v for k,v in
-                                  r['content'].get('generation_state',{}).get('resource_review',{}).items()
-                                  if k in ('decision','method','content_sha256','preparation_sha256')},
-                              'spec_digest':r['spec_digest'], 'content_digest':r['content_digest']} for r in selected_artifacts],
+                **node_review_artifacts(selected_artifacts),
                 'duration_summary':checkpoint['duration_summary']}
         else:
             # Every full body has a digest-bound node review. The final pass checks
