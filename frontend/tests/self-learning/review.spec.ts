@@ -45,11 +45,12 @@ for (const entry of ["review", "old-preview"] as string[]) test(`original workbe
   await expect(page.getByRole("status")).toContainText("示例资源已准备好", { timeout: 10000 });
   await page.screenshot({ path: info.outputPath("workbench-review.png") });
   await navigation.getByRole("link", { name: "资源中心", exact: true }).click();
+  await expect(page.locator(".sl-library")).toBeVisible();
+  const resourcesUrl = page.url();
   await expect(page.getByRole("tab", { name: /课程资料/ })).toHaveCount(0);
   await expect(page.locator(".sl-library-item").filter({ hasText: "Agent 基础概念 · 讲解" })).toHaveCount(0);
   await page.locator(".sl-library-item").filter({ hasText: "Agent 工具调用补充报告" }).click();
   await expect(page.getByRole("region", { name: "资源预览" })).toContainText("Agent 工具调用补充报告");
-  const resourcesUrl = page.url();
   await expect(page.getByRole("link", { name: "引用到工作台", exact: true })).toHaveAttribute("href", /scopeType=knowledge_point.*reference=/);
   await page.getByRole("button", { name: "置顶资源", exact: true }).click();
   await expect(page.getByRole("button", { name: "取消置顶", exact: true })).toHaveAttribute("aria-pressed", "true");
