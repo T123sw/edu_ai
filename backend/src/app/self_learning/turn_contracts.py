@@ -5,10 +5,26 @@ from pydantic import Field
 from .contracts import Contract, Identifier, Locator, ResourceRef
 
 
+class LecturePosition(Contract):
+    scene_id: Identifier
+    action_id: Identifier
+    speech_action_id: Identifier | None = None
+    sentence_index: int | None = Field(default=None, ge=0, le=10000)
+    sentence_alignment: Literal['estimated', 'sentence'] | None = None
+    speech_completed: bool = False
+    highlighted_element_ids: list[Identifier] = Field(default_factory=list, max_length=20)
+
+
+class ClassroomReadingContext(Contract):
+    status: Literal['idle', 'playing', 'paused', 'interrupted', 'completed']
+    lecture: LecturePosition | None = None
+
+
 class ReadingSnapshot(Contract):
     resource_ref: ResourceRef
     locator: Locator | None = None
     selected_text: Annotated[str, Field(max_length=10000)] = ''
+    classroom: ClassroomReadingContext | None = None
 
 
 class AnswerRequest(Contract):

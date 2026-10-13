@@ -1,6 +1,7 @@
 import type { ReadingSnapshot } from '../liveLearning/agentTurns';
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type Dispatch,
@@ -46,7 +47,8 @@ export function Classroom({
     resources.find((r) => r.id === resourceId) ||
     resources.find((r) => r.id === room.selectedId) ||
     resources[0];
-  const [snapshots, setSnapshots] = useState<Record<string, ReadingSnapshot>>({});
+  const readingScope = useMemo(() => ({ courseId: room.id, resourceId: resource.id, version: resource.remote?.version }), [room.id, resource.id, resource.remote?.version]);
+  const [snapshotState, setSnapshotState] = useState<{ scope: object; snapshot: ReadingSnapshot }>();
   const [panel, setPanel] = useState("learn");
   const [noteOpen, setNoteOpen] = useState(false);
   const [chatActive, setChatActive] = useState(false);
@@ -198,7 +200,7 @@ export function Classroom({
         >
           <LearningContent
             key={`${resource.id}:${resource.remote?.version}`}
-            onReadingSnapshot={room.agentRuntime ? snapshot => setSnapshots(s => ({ ...s, [refKey(snapshot.resource_ref)]: snapshot })) : undefined}
+            onReadingSnapshot={room.agentRuntime ? snapshot => setSnapshotState({ scope: readingScope, snapshot }) : undefined}
             onReading={room.progressPersistence ? (type, payload) => facts.enqueue(chapter.id, type, resource, payload) : undefined}
             resource={resource}
             evidence={evidence}
@@ -255,7 +257,7 @@ export function Classroom({
 
         </footer>
       </section>
-      <LearningAgent readingSnapshot={currentRef ? snapshots[refKey(currentRef)] || { resource_ref: currentRef, selected_text: "", locator: evidence.locator } : undefined} room={room} resource={resource} setState={setState} onSelect={onSelect} onEngage={() => setChatActive(true)} onAsk={onAsk} onSelfAssessment={room.progressPersistence ? (value) => facts.enqueue(chapter.id, 'self_assessment_set', undefined, { value }) : undefined} selfAssessmentPending={facts.pending.some(p => p.topic === chapter.id && p.event.type === 'self_assessment_set')} />
+      <LearningAgent readingSnapshot={currentRef ? (snapshotState?.scope === readingScope ? snapshotState.snapshot : { resource_ref: currentRef, selected_text: "", locator: currentRef.material_type === "classroom" ? undefined : evidence.locator }) : undefined} room={room} resource={resource} setState={setState} onSelect={onSelect} onEngage={() => setChatActive(true)} onAsk={onAsk} onSelfAssessment={room.progressPersistence ? (value) => facts.enqueue(chapter.id, 'self_assessment_set', undefined, { value }) : undefined} selfAssessmentPending={facts.pending.some(p => p.topic === chapter.id && p.event.type === 'self_assessment_set')} />
     </main>
   );
 }

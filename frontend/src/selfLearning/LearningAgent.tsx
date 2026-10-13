@@ -87,6 +87,7 @@ export function LearningAgent({ room, resource, setState, onSelect, onEngage, on
       <small>{resource.kind === "video" ? `讲解位置 00:${String(Math.floor(evidence.position)).padStart(2, "0")}` : kindLabel[resource.kind]} · {evidence.completed ? "已标记完成" : "学习中"}{evidence.answer !== undefined ? ` · 检查${evidence.answer === 1 ? "正确" : "待回顾"}` : ""}</small>
       <small>切换知识点自动保存，同一知识点内继续聊。</small>
       {room.agentRuntime && readingSnapshot?.selected_text && <small>将结合选中文本回答</small>}
+      {room.agentRuntime && readingSnapshot?.classroom && <small>将结合当前页和讲解位置回答</small>}
     </div>
     <div className="sl-learning-memory">
       <button className="sl-memory-toggle" aria-expanded={memoryOpen} onClick={() => setMemoryOpen(!memoryOpen)}><Icon name="book" size={15} /><span>全局学习记忆<small>{memory.filter(m => m.status !== "未开始").length} / {memory.length} 个知识点有记录</small></span><Icon name="chevron" size={14} /></button>

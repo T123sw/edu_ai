@@ -1,3 +1,4 @@
+import type { LecturePosition } from './classroomReading';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   patchInteractiveHtml,
@@ -15,6 +16,7 @@ export interface InteractiveScenePlayerProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onNarrationChange?: (text: string) => void;
+  onLectureChange?: (position: LecturePosition) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onInteraction?: (actionId?: string) => void;
@@ -34,6 +36,7 @@ export function InteractiveScenePlayer({
   autoPlay,
   onComplete,
   onNarrationChange,
+  onLectureChange,
   onModeChange,
   onRuntimeReady,
   onInteraction,
@@ -88,7 +91,8 @@ export function InteractiveScenePlayer({
       widget={widget}
       autoPlay={autoPlay}
       onComplete={onComplete}
-          onNarrationChange={onNarrationChange}
+      onNarrationChange={onNarrationChange}
+      onLectureChange={onLectureChange}
       onModeChange={onModeChange}
       onRuntimeReady={onRuntimeReady}
     >

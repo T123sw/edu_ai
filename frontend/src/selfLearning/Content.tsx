@@ -51,6 +51,7 @@ export function LearningContent({
   const channel = useRef(uid());
   const stream = useRef(uid());
   const sequence = useRef(0);
+  const lastPosition = useRef('');
   const opened = useRef(false);
   const reachedEnd = useRef(false);
   const onSnapshotRef = useRef(onReadingSnapshot);
@@ -104,8 +105,12 @@ export function LearningContent({
           if (!opened.current) { opened.current = true; onReadingRef.current?.('resource_opened', {}); }
         } else if (opened.current && acceptReadingMessage(event.data, channel.current, ref, sequence.current)) {
           sequence.current = event.data.sequence;
-          onSnapshotRef.current?.({ resource_ref: ref, locator: event.data.locator, selected_text: event.data.selected_text || '' });
-          onReadingRef.current?.('reading_position_set', { stream_id: stream.current, sequence: sequence.current, locator: event.data.locator });
+          onSnapshotRef.current?.({ resource_ref: ref, locator: event.data.locator, selected_text: event.data.selected_text || '', classroom: event.data.classroom });
+          const positionKey = JSON.stringify(event.data.locator);
+          if (lastPosition.current !== positionKey) {
+            lastPosition.current = positionKey;
+            onReadingRef.current?.('reading_position_set', { stream_id: stream.current, sequence: sequence.current, locator: event.data.locator });
+          }
           if (event.data.reached_end && !reachedEnd.current) { reachedEnd.current = true; onReadingRef.current?.('resource_end_reached', { locator: event.data.locator }); }
         }
         return;

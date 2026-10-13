@@ -1,3 +1,4 @@
+import type { LecturePosition } from './classroomReading';
 import { useEffect, useMemo, useState } from 'react';
 import type {
   ClassroomQuizQuestion,
@@ -28,6 +29,7 @@ export interface QuizScenePlayerProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onNarrationChange?: (text: string) => void;
+  onLectureChange?: (position: LecturePosition) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onSubmitAnswers?: (answers: QuizAnswers) => Promise<void>;
@@ -43,6 +45,7 @@ export function QuizScenePlayer({
   autoPlay,
   onComplete,
   onNarrationChange,
+  onLectureChange,
   onModeChange,
   onRuntimeReady,
   onSubmitAnswers,
@@ -128,7 +131,8 @@ export function QuizScenePlayer({
       actions={actions}
       autoPlay={autoPlay}
       onComplete={onComplete}
-          onNarrationChange={onNarrationChange}
+      onNarrationChange={onNarrationChange}
+      onLectureChange={onLectureChange}
       onModeChange={onModeChange}
       onRuntimeReady={onRuntimeReady}
     >

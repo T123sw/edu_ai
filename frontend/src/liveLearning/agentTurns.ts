@@ -1,9 +1,10 @@
+import type { ClassroomReadingContext } from '../openmaic/classroomReading';
 import { serialPolling } from './serialPolling';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import { uid } from '../selfLearning/model';
 import type { ResourceRef, Locator } from './readingContext';
-export type ReadingSnapshot = { resource_ref: ResourceRef; locator?: Locator; selected_text: string };
+export type ReadingSnapshot = { resource_ref: ResourceRef; locator?: Locator; selected_text: string; classroom?: ClassroomReadingContext };
 export type AnswerTurn = { turn_id: string; topic_id: string; request_id: string; status: 'accepted' | 'running' | 'succeeded' | 'failed' | 'canceled'; stage: string; error_code?: string; committed_effects?: { kind: string }[] };
 export function answerErrorMessage(code?: string): string {
   if (code === 'MEMORY_CONTEXT_CHANGED') return '学习偏好已变化，本次旧回答未保存。可以按新偏好重试。';

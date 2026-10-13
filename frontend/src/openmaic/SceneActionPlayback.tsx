@@ -1,3 +1,4 @@
+import { LecturePositionTracker, type LecturePosition } from './classroomReading';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Action } from '@openmaic/dsl';
 import { ActionEngine, type ActionWidgetController } from './actionEngine';
@@ -16,6 +17,7 @@ export interface SceneActionPlaybackProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onNarrationChange?: (text: string) => void;
+  onLectureChange?: (position: LecturePosition) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   children: ReactNode;
@@ -32,6 +34,7 @@ export function SceneActionPlayback({
   autoPlay = true,
   onComplete,
   onNarrationChange,
+  onLectureChange,
   onModeChange,
   onRuntimeReady,
   children,
@@ -39,8 +42,8 @@ export function SceneActionPlayback({
   const [mode, setMode] = useState<PlaybackMode>('idle');
   const widgetRef = useRef(widget);
   widgetRef.current = widget;
-  const callbacksRef = useRef({ onComplete, onModeChange, onRuntimeReady, onNarrationChange });
-  callbacksRef.current = { onComplete, onModeChange, onRuntimeReady, onNarrationChange };
+  const callbacksRef = useRef({ onComplete, onModeChange, onRuntimeReady, onNarrationChange, onLectureChange });
+  callbacksRef.current = { onComplete, onModeChange, onRuntimeReady, onNarrationChange, onLectureChange };
 
   useEffect(() => {
     const playableScene: PlayableScene = {
@@ -53,7 +56,11 @@ export function SceneActionPlayback({
         widgetRef.current?.postMessage(type, payload);
       },
     };
-    const actionEngine = new ActionEngine({ onNarrationChange: (text) => callbacksRef.current.onNarrationChange?.(text) }, { widget: widgetController });
+    const lecture = new LecturePositionTracker(sceneId, (position) => callbacksRef.current.onLectureChange?.(position));
+    const actionEngine = new ActionEngine({
+      onNarrationPosition: (id, index, alignment) => lecture.sentence(id, index, alignment),
+      onNarrationChange: (text) => callbacksRef.current.onNarrationChange?.(text),
+    }, { widget: widgetController });
     const engine = new PlaybackEngine(
       [playableScene],
       new WallClockSource(),
@@ -62,21 +69,24 @@ export function SceneActionPlayback({
           setMode(nextMode);
           callbacksRef.current.onModeChange?.(nextMode);
         },
+        onActionStart: (action) => lecture.start(action),
+        onActionEnd: (action) => lecture.end(action),
         onComplete: () => callbacksRef.current.onComplete?.(),
       },
       { actionExecutor: actionEngine },
     );
     const runtime: PlaybackRuntimeHandle = {
-      play: () => engine.start(),
-      suspend: () => engine.suspend(),
-      resume: (checkpoint) => engine.resume(checkpoint),
-      cancel: () => engine.stop(),
-      dispose: () => engine.dispose(),
+      play: () => { lecture.restart(); engine.start(); },
+      suspend: () => { lecture.freeze(); return engine.suspend(); },
+      resume: (checkpoint) => { lecture.resume(); engine.resume(checkpoint); },
+      cancel: () => { lecture.freeze(); engine.stop(); },
+      dispose: () => { lecture.freeze(); engine.dispose(); },
     };
     callbacksRef.current.onRuntimeReady?.(runtime);
     if (autoPlay) engine.start();
     return () => {
       callbacksRef.current.onRuntimeReady?.(null);
+      lecture.freeze();
       engine.dispose();
     };
     // autoPlay is initial mount behavior. Parent playback state changes must

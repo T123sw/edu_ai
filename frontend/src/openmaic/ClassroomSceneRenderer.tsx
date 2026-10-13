@@ -1,3 +1,4 @@
+import type { LecturePosition } from './classroomReading';
 import type { Slide } from '@openmaic/renderer';
 import type {
   ClassroomScene,
@@ -20,6 +21,7 @@ export interface ClassroomSceneRendererProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onNarrationChange?: (text: string) => void;
+  onLectureChange?: (position: LecturePosition) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onQuizSubmitAnswers?: (answers: QuizAnswers) => Promise<void>;
@@ -33,6 +35,7 @@ export function ClassroomSceneRenderer({
   autoPlay = true,
   onComplete,
   onNarrationChange,
+  onLectureChange,
   onModeChange,
   onRuntimeReady,
   onQuizSubmitAnswers,
@@ -54,6 +57,7 @@ export function ClassroomSceneRenderer({
           autoPlay={autoPlay}
           onComplete={onComplete}
           onNarrationChange={onNarrationChange}
+          onLectureChange={onLectureChange}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
           onInteraction={onDemoInteraction}
@@ -69,6 +73,7 @@ export function ClassroomSceneRenderer({
           autoPlay={autoPlay}
           onComplete={onComplete}
           onNarrationChange={onNarrationChange}
+          onLectureChange={onLectureChange}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
           onInteraction={onDemoInteraction}
@@ -86,6 +91,7 @@ export function ClassroomSceneRenderer({
           autoPlay={autoPlay}
           onComplete={onComplete}
           onNarrationChange={onNarrationChange}
+          onLectureChange={onLectureChange}
           onModeChange={onModeChange}
           onRuntimeReady={onRuntimeReady}
           onSubmitAnswers={onQuizSubmitAnswers}

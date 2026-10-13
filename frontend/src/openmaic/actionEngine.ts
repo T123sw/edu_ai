@@ -7,7 +7,7 @@
  */
 
 import type { Action, SpeechAction } from '@openmaic/dsl';
-import { narrationSentences, sentenceAtProgress } from './narrationSentences';
+import { narrationSentences, sentenceAtProgress, sentenceIndexAtProgress } from './narrationSentences';
 import { widgetMessageForAction } from './interactiveScene';
 
 const DEFAULT_EFFECT_AUTO_CLEAR_MS = 5000;
@@ -30,6 +30,7 @@ export interface ActionEffectsState {
 export interface ActionEngineCallbacks {
   onEffectsChange?: (effects: ActionEffectsState) => void;
   onNarrationChange?: (text: string) => void;
+  onNarrationPosition?: (actionId: string, sentenceIndex: number, alignment: 'estimated' | 'sentence') => void;
 }
 
 export type ActionMediaResult = 'ended' | 'failed';
@@ -192,9 +193,18 @@ export class ActionEngine {
     try {
       if (action.audioUrl) {
         this.callbacks.onNarrationChange?.(sentenceAtProgress(action.text, 0));
+        if (action.text.trim()) this.callbacks.onNarrationPosition?.(action.id, 0, 'estimated');
         const audioResult = await this.media.playAudio(action.audioUrl, undefined, (fraction) => {
-          if (!this.disposed && cancellationVersion === this.cancellationVersion) this.callbacks.onNarrationChange?.(sentenceAtProgress(action.text, fraction));
+          if (!this.disposed && cancellationVersion === this.cancellationVersion) {
+            this.callbacks.onNarrationChange?.(sentenceAtProgress(action.text, fraction));
+            const index = sentenceIndexAtProgress(action.text, fraction);
+            if (index >= 0) this.callbacks.onNarrationPosition?.(action.id, index, 'estimated');
+          }
         });
+        if (audioResult === 'ended' && !this.disposed && cancellationVersion === this.cancellationVersion) {
+          const last = narrationSentences(action.text).length - 1;
+          if (last >= 0) this.callbacks.onNarrationPosition?.(action.id, last, 'estimated');
+        }
         if (
           audioResult === 'ended' ||
           this.disposed ||
@@ -202,16 +212,17 @@ export class ActionEngine {
         ) return;
       }
 
-      for (const sentence of narrationSentences(action.text)) {
+      for (const [index, sentence] of narrationSentences(action.text).entries()) {
         if (this.disposed || cancellationVersion !== this.cancellationVersion) return;
         this.callbacks.onNarrationChange?.(sentence);
+        this.callbacks.onNarrationPosition?.(action.id, index, 'sentence');
         const speechResult = await this.media.speak(sentence, action.speed, action.voice);
         if (this.disposed || cancellationVersion !== this.cancellationVersion) return;
         if (speechResult !== 'ended') await this.media.wait(readingTimeMs(sentence));
       }
     } finally {
       if (cancellationVersion === this.cancellationVersion) this.callbacks.onNarrationChange?.('');
-      if (ownsConcurrentFocus) this.clearEffects();
+      if (ownsConcurrentFocus && cancellationVersion === this.cancellationVersion) this.clearEffects();
     }
   }
 }

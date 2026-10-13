@@ -1,3 +1,4 @@
+import type { ClassroomReadingContext } from '../openmaic/classroomReading';
 import { refKey, type ResourceRef, type Locator } from './readingContext';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AuthProvider, useAuth } from '../context/AuthContext';
@@ -19,23 +20,23 @@ function Material() {
   const binding = useRef<{ channel_id: string; resource_ref: ResourceRef; sequence: number }>();
   const loaded = useRef(false);
   const selectedText = useRef('');
-  const lastScene = useRef<{ scene_id: string; reached_end: boolean }>();
+  const lastScene = useRef<{ scene_id: string; reached_end: boolean; classroom: ClassroomReadingContext }>();
   const [material, setMaterial] = useState<CourseMaterial>();
   const [classroom, setClassroom] = useState<ClassroomMaterial>();
   const [error, setError] = useState('');
   const [paused, setPaused] = useState(false);
   const initialPosition = Number(params.get('position')) || 0;
-  const emit = useCallback((locator: Locator, reached_end = false) => {
+  const emit = useCallback((locator: Locator, reached_end = false, classroom?: ClassroomReadingContext) => {
     const context = binding.current;
     if (!context || !loaded.current) return;
-    parent.postMessage({ type: 'learning-reading-context', channel_id: context.channel_id, resource_ref: context.resource_ref, sequence: ++context.sequence, locator, reached_end, selected_text: selectedText.current }, location.origin);
+    parent.postMessage({ type: 'learning-reading-context', channel_id: context.channel_id, resource_ref: context.resource_ref, sequence: ++context.sequence, locator, reached_end, selected_text: selectedText.current, classroom }, location.origin);
   }, []);
-  const onClassroomReading = useCallback((scene_id: string, actualVersion: number, reached_end: boolean) => {
+  const onClassroomReading = useCallback((scene_id: string, actualVersion: number, reached_end: boolean, classroom: ClassroomReadingContext) => {
     if (actualVersion !== version) return;
     loaded.current = true;
-    lastScene.current = { scene_id, reached_end };
+    lastScene.current = { scene_id, reached_end, classroom };
     if (!binding.current) parent.postMessage({ type: 'learning-context-request' }, location.origin);
-    else emit({ kind: 'classroom', scene_id }, reached_end);
+    else emit({ kind: 'classroom', scene_id }, reached_end, classroom);
   }, [version, emit]);
   useEffect(() => {
     const receive = (event: MessageEvent) => {
@@ -45,7 +46,7 @@ function Material() {
       if (typeof data.channel_id !== 'string' || !data.channel_id) return;
       binding.current = { channel_id: data.channel_id, resource_ref: ref, sequence: 0 };
       parent.postMessage({ type: 'learning-context-ready', channel_id: data.channel_id, resource_ref: ref }, location.origin);
-      if (lastScene.current) emit({ kind: 'classroom', scene_id: lastScene.current.scene_id }, lastScene.current.reached_end);
+      if (lastScene.current) emit({ kind: 'classroom', scene_id: lastScene.current.scene_id }, lastScene.current.reached_end, lastScene.current.classroom);
     };
     window.addEventListener('message', receive);
     return () => window.removeEventListener('message', receive);

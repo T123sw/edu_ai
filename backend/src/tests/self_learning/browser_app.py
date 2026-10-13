@@ -132,6 +132,18 @@ if os.getenv('LEARNING_BROWSER_ACCEPTANCE') == '1':
     manager.save_generated_material('learning-fixture','classroom','b-classroom',{'title':'变量交互课堂','learning_course_resource':True,
         'scenes':[{'id':f'scene-{i}','type':'interactive','title':f'变量场景{i}','content':{'type':'interactive','html':f'<h1>变量场景{i}</h1><p>x = {i}</p>'},'actions':[]} for i in (1,2)]},
         owner_user_id='alice',visibility='course',scope_type='knowledge_point',scope_id='b')
+if os.getenv('LEARNING_BROWSER_PPT_CONTEXT') == '1':
+    manager.save_generated_material('learning-fixture', 'classroom', 'b-ppt', {
+        'title': 'PPT 上下文测试', 'learning_course_resource': True,
+        'scenes': [{'id': f'ppt-{i}', 'type': 'slide', 'title': f'赋值第{i}页',
+            'content': {'type': 'slide', 'canvas': {
+                'id': f'canvas-{i}', 'viewportSize': 1000, 'viewportRatio': 0.5625,
+                'theme': {'backgroundColor': '#fff', 'themeColors': ['#333'], 'fontColor': '#333', 'fontName': 'Arial'},
+                'elements': [{'id': f'text-{i}', 'type': 'text', 'left': 40, 'top': 40, 'width': 800, 'height': 100,
+                    'rotate': 0, 'content': f'<p>第{i}页：x = {i}</p>', 'defaultFontName': 'Arial', 'defaultColor': '#333'}]}},
+            'actions': [{'id': f'focus-{i}', 'type': 'spotlight', 'elementId': f'text-{i}'},
+                        {'id': f'speech-{i}', 'type': 'speech', 'text': '首先讲赋值。接着讲变量。最后做总结。', 'audioUrl': '/fixture.mp3'}]}
+                   for i in (1, 2)]}, owner_user_id='alice', visibility='course', scope_type='knowledge_point', scope_id='b')
 if real_model_config:
     from app.chat.bounded_completion import BoundedModelAdapter,answer_json
     import json,time,httpx

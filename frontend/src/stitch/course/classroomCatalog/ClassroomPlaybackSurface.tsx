@@ -1,3 +1,4 @@
+import type { ClassroomReadingContext, LecturePosition } from '../../../openmaic/classroomReading';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ClassroomSceneRenderer } from "../../../openmaic/ClassroomSceneRenderer";
 import { ResourceLearningTracker } from "../../../openmaic/resourceLearningTracker";
@@ -48,7 +49,7 @@ export type ClassroomPlaybackSurfaceProps = {
   initialSceneId?: string;
   externallyPaused?: boolean;
   onPositionChange?: (scene: number) => void;
-  onReadingContext?: (sceneId: string, version: number, reachedEnd: boolean) => void;
+  onReadingContext?: (sceneId: string, version: number, reachedEnd: boolean, classroom: ClassroomReadingContext) => void;
   resourceVersion?: number;
   exactMaterial?: ClassroomMaterial;
   mode: "manage" | "learn";
@@ -111,6 +112,7 @@ export function ClassroomPlaybackSurface({
   const [error, setError] = useState<string | null>(null);
   const [playback, setPlayback] =
     useState<PagePlaybackSnapshot>(INITIAL_PLAYBACK);
+  const [lastLecture, setLastLecture] = useState<{ material: ClassroomMaterial; position: LecturePosition }>();
   const [narration, setNarration] = useState("");
   const [fullscreen, setFullscreen] = useState(false);
   const consoleRef = useRef<HTMLElement | null>(null);
@@ -143,8 +145,8 @@ export function ClassroomPlaybackSurface({
   useEffect(() => { if (playback.sceneIndex >= 0) onPositionChange?.(playback.sceneIndex); }, [playback.sceneIndex, onPositionChange]);
   useEffect(() => {
     const scene = material?.scenes?.[playback.sceneIndex];
-    if (scene && material?.version) onReadingContext?.(scene.id, material.version, playback.status === 'completed' && playback.sceneIndex === (material.scenes?.length ?? 0) - 1);
-  }, [material, playback.sceneIndex, playback.status, onReadingContext]);
+    if (scene && material?.version) onReadingContext?.(scene.id, material.version, playback.status === 'completed' && playback.sceneIndex === (material.scenes?.length ?? 0) - 1, { status: playback.status, lecture: lastLecture?.material === material ? lastLecture.position : undefined });
+  }, [material, playback.sceneIndex, playback.status, lastLecture, onReadingContext]);
   const initialSceneRef = useRef(initialScene);
   const initialSceneIdRef = useRef(initialSceneId);
   const qaLocksPlayback = playback.status === "interrupted";
@@ -554,6 +556,12 @@ export function ClassroomPlaybackSurface({
                       classroomId={classroomId}
                       autoPlay={playback.status === "playing"}
                       onNarrationChange={setNarration}
+                      onLectureChange={(position) => {
+                        const latest = controller.snapshot();
+                        if (material && latest.sceneIndex === currentIndex && latest.revision === playback.revision) {
+                          setLastLecture({ material, position });
+                        }
+                      }}
                       onComplete={() => {
                         learningTrackerRef.current?.completeScene();
                         void learningTrackerRef.current

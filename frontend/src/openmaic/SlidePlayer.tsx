@@ -1,3 +1,4 @@
+import { LecturePositionTracker, type LecturePosition } from './classroomReading';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SlideCanvas, type Slide } from '@openmaic/renderer';
 import type { Action, PPTVideoElement } from '@openmaic/dsl';
@@ -16,6 +17,7 @@ export interface SlidePlayerProps {
   autoPlay?: boolean;
   onComplete?: () => void;
   onNarrationChange?: (text: string) => void;
+  onLectureChange?: (position: LecturePosition) => void;
   onModeChange?: (mode: PlaybackMode) => void;
   onRuntimeReady?: (runtime: PlaybackRuntimeHandle | null) => void;
   onTimelineChange?: (timeline: LessonTimeline) => void;
@@ -49,6 +51,7 @@ export function SlidePlayer({
   autoPlay = true,
   onComplete,
   onNarrationChange,
+  onLectureChange,
   onModeChange,
   onRuntimeReady,
   onTimelineChange,
@@ -62,6 +65,7 @@ export function SlidePlayer({
   const callbacksRef = useRef({
     onComplete,
     onNarrationChange,
+    onLectureChange,
     onModeChange,
     onRuntimeReady,
     onTimelineChange,
@@ -69,6 +73,7 @@ export function SlidePlayer({
   callbacksRef.current = {
     onComplete,
     onNarrationChange,
+    onLectureChange,
     onModeChange,
     onRuntimeReady,
     onTimelineChange,
@@ -102,8 +107,13 @@ export function SlidePlayer({
   useEffect(() => {
     const clock = new WallClockSource();
     const recorder = new TimelineRecorder(timeline);
+    const lecture = new LecturePositionTracker(sceneId ?? slide.id, (position) => callbacksRef.current.onLectureChange?.(position));
     const actionEngine = new ActionEngine(
-      { onEffectsChange: setEffects, onNarrationChange: (text) => callbacksRef.current.onNarrationChange?.(text) },
+      {
+        onEffectsChange: (value) => { setEffects(value); lecture.effects(value); },
+        onNarrationPosition: (id, index, alignment) => lecture.sentence(id, index, alignment),
+        onNarrationChange: (text) => callbacksRef.current.onNarrationChange?.(text),
+      },
       { video: videoRegistry },
     );
     const engine = new PlaybackEngine(scenes, clock, {
@@ -112,9 +122,11 @@ export function SlidePlayer({
         callbacksRef.current.onModeChange?.(nextMode);
       },
       onActionStart: (action, timeMs, currentSceneId) => {
+        lecture.start(action);
         recorder.onActionStart(action.id, currentSceneId, timeMs);
       },
       onActionEnd: (action, timeMs, currentSceneId) => {
+        lecture.end(action);
         recorder.onActionEnd(action.id, currentSceneId, timeMs);
         callbacksRef.current.onTimelineChange?.(recorder.snapshot());
       },
@@ -125,16 +137,17 @@ export function SlidePlayer({
     }, { timeline, actionExecutor: actionEngine });
     engineRef.current = engine;
     const runtime: PlaybackRuntimeHandle = {
-      play: () => engine.start(),
-      suspend: () => engine.suspend(),
-      resume: (checkpoint) => engine.resume(checkpoint),
-      cancel: () => engine.stop(),
-      dispose: () => engine.dispose(),
+      play: () => { lecture.restart(); engine.start(); },
+      suspend: () => { lecture.freeze(); return engine.suspend(); },
+      resume: (checkpoint) => { lecture.resume(); engine.resume(checkpoint); },
+      cancel: () => { lecture.freeze(); engine.stop(); },
+      dispose: () => { lecture.freeze(); engine.dispose(); },
     };
     callbacksRef.current.onRuntimeReady?.(runtime);
     if (autoPlay) engine.start();
     return () => {
       callbacksRef.current.onRuntimeReady?.(null);
+      lecture.freeze();
       engine.dispose();
       engineRef.current = null;
     };

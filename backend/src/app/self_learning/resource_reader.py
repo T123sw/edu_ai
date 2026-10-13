@@ -3,6 +3,7 @@ import hashlib
 import json
 from fastapi import HTTPException
 from .contracts import ResourceRef
+from .classroom_context import find_scene, scene_content
 
 
 def exact_material(learning, owner, ref: ResourceRef):
@@ -35,10 +36,13 @@ def excerpt(material, *, selected_text='', locator=None, query='', max_chars=400
     quality, offset = 'approximate', 0
     resolved = None
     if locator and locator.get('kind') == 'classroom':
-        scene = next((s for s in material.get('scenes', []) if s.get('id') == locator.get('scene_id')), None)
-        if scene:
-            text = json.dumps(scene, ensure_ascii=False)
-            quality, resolved = 'exact', {'kind': 'classroom', 'scene_id': scene['id']}
+        scene = find_scene(material, locator.get('scene_id'))
+        text = json.dumps(scene_content(scene), ensure_ascii=False)
+        quality, resolved = 'exact', {'kind': 'classroom', 'scene_id': scene['id']}
+    elif material.get('scenes'):
+        text = json.dumps([scene_content(scene) for scene in material['scenes']], ensure_ascii=False)
+        if query and query.casefold() in text.casefold():
+            offset = max(0, text.casefold().index(query.casefold()) - 300)
     elif selected_text and text.count(selected_text) == 1:
         offset = max(0, text.index(selected_text) - min(500, max_chars // 4))
         quality = 'exact'

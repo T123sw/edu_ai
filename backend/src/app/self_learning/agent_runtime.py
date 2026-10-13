@@ -62,7 +62,13 @@ class LearningAgentRuntime:
         schemas_size = len(json.dumps(LearningTools(self.learning, claim, {}).schemas(), ensure_ascii=False).encode())
         preparation_enabled = bool(getattr(self.learning, 'preparations', None))
         reserve = 2200 if preparation_enabled else 256
-        context_budget = max(1000, 16000 - schemas_size - reserve) if enrichment else 24000
+        is_classroom = claim['request']['reading_context']['resource_ref']['material_type'] == 'classroom'
+        context_limit = 48000 if is_classroom else 16000
+        # Reserve room for tool results; never chop a current slide in half.
+        if is_classroom:
+            context_budget = max(1000, context_limit - schemas_size - max(reserve, 8000))
+        else:
+            context_budget = max(1000, context_limit - schemas_size - reserve) if enrichment else 24000
         state = copy.deepcopy(claim['checkpoint']) or {'packet': builder.build(claim, budget=context_budget), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
         packet = state['packet']
         tools = LearningTools(self.learning, claim, packet)
@@ -121,14 +127,14 @@ class LearningAgentRuntime:
             state['rounds'] += 1
             self.repository.save(claim, state)
             mounted = tools.schemas() if state['tools'] < 6 and (not state['repair_used'] or state.get('repair_allows_tools')) else []
-            if enrichment:
+            if enrichment or is_classroom:
                 byte_size = lambda schema: len(json.dumps({'messages': packet['messages'], 'tools': schema}, ensure_ascii=False).encode())
-                if byte_size(mounted) > 16000:
+                if byte_size(mounted) > context_limit:
                     mounted = []  # reserve the remaining context for the final answer
                 if not mounted and not state.get('closing_prompt'):
                     packet['messages'].append({'role':'user','content':'本轮工具阶段已结束。根据已有资料和真实收据给出最终 JSON 对象：answer_markdown、citation_ids、suggested_action_ids、observation；不再调用工具，不输出空白。'})
                     state['closing_prompt'] = True
-                if byte_size(mounted) > 16000:
+                if byte_size(mounted) > context_limit:
                     raise AgentFailure('CONTEXT_BUDGET_EXCEEDED')
             try:
                 reply = await model.complete(packet['messages'], mounted, deadline=deadline)
