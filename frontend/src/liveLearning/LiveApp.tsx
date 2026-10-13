@@ -6,6 +6,9 @@ import { apiRequest } from '../stitch/api/client';
 import { courseMaterialToMarkdown } from '../stitch/api/courses';
 import type { CourseMaterial } from '../stitch/api/types';
 import { Home } from '../selfLearning/Home';
+import { SpaceNavigation, InterviewEntry } from '../selfLearning/SpaceNavigation';
+import { Research } from '../selfLearning/Research';
+import { researchHref } from '../selfLearning/research';
 import { Classroom } from '../selfLearning/Classroom';
 import { ResourceCenter } from '../selfLearning/Library';
 import { Brand, Empty, Icon, Modal } from '../selfLearning/ui';
@@ -13,6 +16,7 @@ import { uid, type Classroom as Room, type LearningState, type LearningResource 
 import '../selfLearning/styles.css';
 import '../selfLearning/review.css';
 import './live.css';
+import '../selfLearning/space.css';
 import { TaskCenter, TaskLauncher } from './TaskCenter';
 
 import { PreparationNotifications } from './PreparationNotifications';
@@ -42,6 +46,9 @@ export default function LiveApp() {
   const [path, raw = ''] = hash.replace(/^#/, '').split('?');
   const query = new URLSearchParams(raw);
   const home = !path || path === '/';
+  const research = path === '/research';
+  const interview = path === '/interview';
+  const hub = home || research || interview;
   const library = path === '/resources';
   const roomId = path?.startsWith('/classroom/') ? path.slice(11) : query.get('classroom');
   const room = data.rooms.find(r => r.id === roomId);
@@ -131,12 +138,12 @@ export default function LiveApp() {
   useEffect(() => { if (path === '/studio' && !loading && data.rooms.length) location.replace(workbench()); });
   const materialPath = (resource: LearningResource) => `/api/courses/${encodeURIComponent(resource.remote!.courseId)}/materials/${resource.remote!.materialType}/${encodeURIComponent(resource.remote!.materialId)}`;
   const byId = (id: string) => data.resources.find(r => r.id === id)!;
-  return <div className={`sl-app sl-live frontend-review ${!home ? 'in-course-workspace' : ''} ${room && !library ? 'in-classroom' : ''}`} onClickCapture={e => {
+  return <div className={`sl-app sl-live frontend-review sl-space-shell ${hub ? 'sl-space-index' : 'in-course-workspace'} ${room && path?.startsWith('/classroom/') ? 'in-classroom' : ''}`} onClickCapture={e => {
     const link = (e.target as Element).closest('a');
     if (link && /^\?(liveWorkbench|account)=/.test(link.getAttribute('href') || '')) { e.preventDefault(); void action(async () => { location.assign(link.href); }); }
   }}>
-    <header className={home ? 'sl-home-account' : 'sl-header'}>
-      {!home && <><a href="#/" aria-label="返回首页"><Brand /></a><span className="sl-live-title">{room?.title}</span><nav className="sl-main-nav" aria-label="主导航"><a className={!library ? 'active' : ''} href={room ? `#/classroom/${room.id}` : '#/'}>AI 课堂</a><a href={workbench()}>工作台</a><a className={library ? 'active' : ''} href={`#/resources${room ? '?classroom=' + room.id : ''}`}>资源中心</a></nav></>}
+    <header className={hub ? 'sl-space-header' : 'sl-header'}>
+      {hub ? <SpaceNavigation active={research ? 'research' : interview ? 'interview' : 'home'} /> : <><a href="#/" aria-label="返回首页"><Brand /></a><span className="sl-live-title">{room?.title}</span><nav className="sl-main-nav" aria-label="主导航"><a className={!library ? 'active' : ''} href={room ? `#/classroom/${room.id}` : '#/'}>AI 课堂</a><a href={researchHref(room)}>科研实践</a><a href={workbench()}>工作台</a><a className={library ? 'active' : ''} href={`#/resources${room ? '?classroom=' + room.id : ''}`}>资源中心</a></nav></>}
       <div className="sl-live-account"><PreparationNotifications key={user?.username} owner={user?.username || ''} /><TaskLauncher jobs={data.serverJobs} open={tasks} onClick={() => setTasks(true)} /><a className="sl-avatar" aria-label="个人中心" title={user?.username} href="?account=1#profile">{user?.username.slice(0, 1)}</a></div>
     </header>
     {error && <div className="sl-live-error" role="alert">{error}<button onClick={() => void action(async () => { await flush(); await refresh(); })}>刷新状态</button><button aria-label="关闭提示" onClick={() => setError('')}>×</button></div>}
@@ -145,7 +152,7 @@ export default function LiveApp() {
       if (busy) return;
       if (preparationUploading) { setError('资料仍在上传，请完成后再开始学习'); return; }
       void action(async () => { await submitPreparation(user!.username, text, preparationOptions); setPreparationRevision(v => v + 1); }, '正在提交课程准备任务…');
-    }} /> : library ? <ResourceCenter room={room} classroomId={room?.id} resources={data.resources} resourceId={query.get('resource') || undefined} workbenchHref={workbench()} workbenchForResource={id => workbench(byId(id))}
+    }} /> : research ? <Research key={`${user?.username}:${raw}`} owner={`live:${user?.username}`} rooms={data.rooms} query={query} /> : interview ? <InterviewEntry /> : library ? <ResourceCenter room={room} classroomId={room?.id} resources={data.resources} resourceId={query.get('resource') || undefined} workbenchHref={workbench()} workbenchForResource={id => workbench(byId(id))}
       onRename={(id, title) => resourceAction(() => apiRequest(materialPath(byId(id)), { method: 'PATCH', body: JSON.stringify({ title }) }))}
       onRemove={id => resourceAction(() => apiRequest(materialPath(byId(id)), { method: 'DELETE' }))}
       onPin={id => void action(() => apiRequest(materialPath(byId(id)) + '/pin', { method: 'POST', body: JSON.stringify({ is_pinned: !byId(id).pinned }) }))}

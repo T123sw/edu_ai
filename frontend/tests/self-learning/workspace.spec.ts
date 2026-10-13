@@ -7,6 +7,9 @@ for (const role of ["teacher", "student"] as const) test(`existing course opens 
     });
     await page.route("**/api/auth/verify", route => route.fulfill({ json: { valid: true, user: { username: "student-a", role: "student" } } }));
   }
+  await page.route("**/api/self-learning/state", route => route.fulfill({ json: { version: 1, rooms: [], resources: [], jobs: [], shared: [], serverJobs: [] } }));
+  await page.route("**/api/course-preparations", route => route.fulfill({ json: { preparations: [] } }));
+  await page.route("**/api/course-preparations/notifications", route => route.fulfill({ json: { items: [] } }));
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/");
@@ -35,7 +38,7 @@ for (const role of ["teacher", "student"] as const) test(`existing course opens 
   await expect(nav.getByRole("link", { name: "资源中心" })).toHaveAttribute("aria-current", "page");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole("link", { name: "返回全部课程" }).click();
-  await expect(page.getByRole("heading", { name: "让好奇，成为你的下一堂课。" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /学有所思/ })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "课程工作栏", exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

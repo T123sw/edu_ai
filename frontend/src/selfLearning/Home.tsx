@@ -1,6 +1,6 @@
-import { useState, type FormEvent, type ReactNode } from "react";
-import { type Classroom } from "./model";
-import { Brand, Icon } from "./ui";
+import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import { allResources, completion, type Classroom } from "./model";
+import { Icon } from "./ui";
 
 type Props = {
   rooms: Classroom[];
@@ -61,9 +61,11 @@ export function Cover({ room }: { room: Pick<Classroom, "tone"> }) {
 }
 function ClassroomCard({
   room,
+  shared = false,
   onOpen,
 }: {
   room: Classroom;
+  shared?: boolean;
   onOpen: () => void;
 }) {
   return (
@@ -85,7 +87,9 @@ function ClassroomCard({
         </div>
       </div>
       <div className="sl-card-copy">
+        <span className="sl-course-type">{shared || room.sourceId ? '共享课堂' : '我的课堂'} · {room.chapters.length} 个主题</span>
         <h3>{room.title}</h3>
+        <div className="sl-course-meta"><span>已学完 {completion(room)} / {allResources(room).length} 份资料</span><Icon name="arrow" size={16} /></div>
       </div>
     </button>
   );
@@ -103,6 +107,7 @@ export function Home({
   preparationTasks,
 }: Props) {
   const [prompt, setPrompt] = useState("");
+  const promptRef = useRef<HTMLTextAreaElement>(null);
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -119,13 +124,20 @@ export function Home({
     .filter(r => origin === "all" || (origin === "shared" ? !!r.sourceId : !r.sourceId))
     .sort((a, b) => b.updatedAt - a.updatedAt);
   const sharedMatches = shared.filter(matches);
+  const resume = [...rooms].sort((a, b) => b.updatedAt - a.updatedAt)[0];
+  const resumeChapter = resume?.chapters.find(c => c.resources.some(r => r.id === resume.selectedId));
   return (
-    <main className="sl-home">
+    <main className="sl-home sl-space-home">
       <section className="sl-home-hero">
-        <Brand large />
-        <h1>让好奇，成为你的下一堂课。</h1>
-        <form className={`sl-prompt${preparationOptions ? ' sl-prompt-with-options' : ''}`} onSubmit={submit}>
+        <div className="sl-hero-copy"><span className="sl-kicker">你的学习与探索空间</span>
+          <h1>学有所思，<br /><em>让想法发生。</em></h1>
+          <p>从一堂为你准备的课开始，<br />把理解变成问题，把问题带进实践。</p>
+          <div className="sl-hero-path"><span><Icon name="book" size={17} />理解知识</span><i /><span><Icon name="flask" size={17} />探索问题</span><i /><span><Icon name="folder" size={17} />积累成果</span></div>
+        </div>
+        <form id="course-create" className={`sl-prompt${preparationOptions ? ' sl-prompt-with-options' : ''}`} onSubmit={submit}>
+          <div className="sl-prompt-heading"><span><Icon name="spark" size={18} />从一个学习目标开始</span><small>AI 课程</small></div>
           <textarea
+            ref={promptRef}
             aria-label="学习知识点与目标"
             placeholder={"- 我想学习 Agent\n- 希望能独立做出一个 AI 助手\n- 会一点 Python，Agent 还是零基础"}
             value={prompt}
@@ -144,6 +156,7 @@ export function Home({
           />
           {preparationOptions}
           <div className="sl-prompt-bottom">
+            <span>{live ? '提交后为你研究资料并准备课程' : '体验课程学习流程'}</span>
             <button
               className="sl-primary"
               disabled={!prompt.trim() && !canCreateFromUploads}
@@ -154,6 +167,12 @@ export function Home({
           </div>
         </form>
       </section>
+      <section className="sl-module-grid" aria-label="探索学习方式">
+        <button className="sl-module-card learning" onClick={() => { promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); promptRef.current?.focus({ preventScroll: true }); }}><span className="sl-module-icon"><Icon name="book" size={23} /></span><div><span className="sl-module-tag">现在开始</span><h2>课程学习</h2><p>围绕目标与资料，系统理解一个主题。</p></div><Icon name="arrow" size={19} /></button>
+        <a className="sl-module-card research" href="#/research"><span className="sl-module-icon"><Icon name="flask" size={23} /></span><div><span className="sl-module-tag">先准备项目</span><h2>科研实践</h2><p>带着课程中的问题，整理实践想法。</p></div><Icon name="arrow" size={19} /></a>
+        <a className="sl-module-card interview" href="#/interview"><span className="sl-module-icon"><Icon name="briefcase" size={23} /></span><div><span className="sl-module-tag">独立产品 · 筹备中</span><h2>面试 Agent</h2><p>围绕真实求职，练习下一次面试。</p></div><Icon name="arrow" size={19} /></a>
+      </section>
+      {resume && <section className="sl-resume" aria-label="继续上次学习"><span className="sl-resume-icon"><Icon name="play" size={21} /></span><div><small>接着上次的思路</small><h2>{resume.title}</h2><p>{resumeChapter ? `当前知识点：${resumeChapter.title}` : '回到课堂，继续探索'}</p></div><button className="sl-primary" onClick={() => onOpen(resume)}>继续学习<Icon name="arrow" size={17} /></button></section>}
       {preparationTasks}
       <div className="sl-home-library">
         <section aria-label="最近学习">
@@ -236,6 +255,7 @@ export function Home({
               <ClassroomCard
                 key={r.id}
                 room={r}
+                shared
                 onOpen={() => onOpen(r, true)}
               />
             ))}
@@ -246,7 +266,7 @@ export function Home({
         </section>
       </div>
       <footer className="sl-home-footer">
-        每一次好奇，都值得认真探索。
+        Edu AI · 把每一次好奇，变成下一步探索。
         {!live && <span>本地交互演示 · 示例课堂与学习记录仅保存在此浏览器</span>}
       </footer>
     </main>

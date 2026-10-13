@@ -22,6 +22,7 @@ import { Icon } from "./ui";
 import { useLearningProgress } from '../liveLearning/learningState';
 import { resourceRef, refKey } from '../liveLearning/readingContext';
 import { LearningAgent } from "./LearningAgent";
+import { researchHref } from './research';
 
 export function Classroom({
   room: inputRoom,
@@ -178,6 +179,7 @@ export function Classroom({
           </span>
           </div>
           <div className="sl-reader-tools">
+          <a className="sl-text-button sl-practice-link" href={researchHref(room, resource)} title="把当前知识点与资料引用带入实践项目草稿"><Icon name="flask" size={16} />以本节发起实践</a>
           <button
             className={`sl-text-button ${noteOpen ? "active" : ""}`}
             onClick={() => setNoteOpen(!noteOpen)}

@@ -21,7 +21,7 @@ for (const entry of ["review", "old-preview"] as string[]) test(`original workbe
   await page.goto(entry === "review" ? "/?review=1" : entry === "old-preview" ? "/?preview=student" : "/");
   await page.locator(".sl-class-card").filter({ hasText: "从零开始，理解 Agent" }).click();
   const navigation = page.getByRole("navigation", { name: "主导航" });
-  await expect(navigation.getByRole("link")).toHaveText(["AI 课堂", "工作台", "资源中心"]);
+  await expect(navigation.getByRole("link")).toHaveText(["AI 课堂", "科研实践", "工作台", "资源中心"]);
   await page.screenshot({ path: info.outputPath("classroom-review.png") });
   if (entry === "signed-in-teacher") {
     // The user's existing bookmarked URL used to render the simplified Studio.
