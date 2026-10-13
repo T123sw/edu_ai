@@ -153,15 +153,18 @@
   --surface-elevated: #fffef9;
   --input-surface: #fffef9;
   min-height: 100vh;
-  padding: 20px;
+  padding: 24px 32px;
   background: var(--class-sheet);
   color: #344b35;
+  font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 .sl-editorial-material .edu-rich-preview { background: var(--class-sheet); border-color: var(--sl-line); }
 .sl-editorial-material .markdown-preview { max-width: 800px; margin-inline: auto; font-size: 15px; line-height: 2; }
 .sl-editorial-material .markdown-preview :is(h1, h2, h3, h4) { color: var(--sl-ink); }
-.sl-editorial-material .markdown-preview h1 { font-family: 'Songti SC', 'Noto Serif CJK SC', 'SimSun', serif; font-weight: 500; }
-.sl-editorial-material .markdown-preview blockquote { background: var(--sl-soft); border-color: #98a880; color: #617253; }
+.sl-editorial-material .markdown-preview h1 { font-family: 'Songti SC', 'Noto Serif CJK SC', 'SimSun', serif; font-size: 28px; font-weight: 500; line-height: 1.6; margin-bottom: 20px; }
+.sl-editorial-material .markdown-preview h2 { font-size: 19px; font-weight: 500; margin-top: 28px; }
+.sl-editorial-material .markdown-preview h3 { font-size: 16px; font-weight: 600; }
+.sl-editorial-material .markdown-preview blockquote { background: var(--sl-soft); border-color: #98a880; color: #617253; border-radius: 0 6px 6px 0; }
 .sl-editorial-material .edu-rich-preview a { color: #416b38; }
 .sl-editorial-material :is(.resource-quiz-preview fieldset, .sl-check-card) { background: var(--class-sheet); border: 1px solid #d6ddc7; border-radius: 6px; }
 .sl-editorial-material .resource-quiz-preview input { accent-color: #587742; }
@@ -171,5 +174,6 @@
 @media (max-width: 700px) {
   .sl-app.in-classroom .sl-chat-composer textarea { font-size: 16px; }
   .sl-app.in-classroom .sl-notes textarea { font-size: 16px; }
-  .sl-editorial-material { padding: 12px; }
+  .sl-editorial-material { padding: 18px 20px; }
+  .sl-editorial-material .markdown-preview h1 { font-size: 25px; }
 }
