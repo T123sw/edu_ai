@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-10-13T12:14:51.380Z",
+  "deployment": {
+    "code_sha": "601c306852b44ecaf69a09e01d1ace388df8b54a",
+    "frontend_tree_sha": "6a772815317409473ec3d56dfd770ff252616e4b",
+    "published_at": "20261013T121310Z",
+    "api_base": "/backend"
+  },
+  "backendHealth": 200,
+  "results": [
+    {
+      "viewport": "desktop",
+      "passed": true,
+      "checks": [
+        "real-login-page",
+        "mock-authenticated-home",
+        "course-to-research",
+        "local-draft-reload",
+        "return-to-source",
+        "interview-entry"
+      ],
+      "pageErrors": [],
+      "httpFailures": []
+    },
+    {
+      "viewport": "mobile",
+      "passed": true,
+      "checks": [
+        "real-login-page",
+        "mock-authenticated-home",
+        "course-to-research",
+        "local-draft-reload",
+        "return-to-source",
+        "interview-entry"
+      ],
+      "pageErrors": [],
+      "httpFailures": []
+    }
+  ]
+}
