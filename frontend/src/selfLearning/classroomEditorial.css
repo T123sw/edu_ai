@@ -110,6 +110,25 @@
 .sl-app.in-classroom .sl-chat-composer textarea::placeholder { color: #89917d; }
 .sl-app.in-classroom .sl-send { background: var(--sl-purple); border-radius: 5px; }
 .sl-app.in-classroom .sl-chat-bottom > small { color: #7f8972; }
+/* Give conversation more room while keeping the lesson column's width. */
+@media (min-width: 901px) and (max-width: 1150px) {
+  .sl-app.in-classroom .sl-classroom { grid-template-columns: 190px minmax(0, 1fr) 300px; }
+}
+@media (min-width: 1151px) and (max-width: 1599px) {
+  .sl-app.in-classroom .sl-classroom { grid-template-columns: 220px minmax(0, 1fr) 352px; }
+}
+@media (min-width: 1600px) {
+  .sl-app.in-classroom .sl-classroom { grid-template-columns: 240px minmax(0, 1fr) 390px; }
+}
+.sl-app.in-classroom .sl-agent > .sl-rail-heading { height: 52px; padding-inline: 14px; }
+.sl-app.in-classroom .sl-learning-memory { margin: 6px 12px 0; }
+.sl-app.in-classroom .sl-memory-toggle { padding: 8px; gap: 7px; }
+.sl-app.in-classroom .sl-memory-toggle > span { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sl-app.in-classroom .sl-memory-toggle small { margin-top: 0; }
+.sl-app.in-classroom .sl-chat-history { padding: 12px; }
+.sl-app.in-classroom .sl-chat-bottom { padding: 10px 12px; }
+.sl-app.in-classroom .sl-chat-composer textarea { height: 64px; }
+.sl-app.in-classroom .sl-chat-bottom > small { margin-top: 6px; }
 .sl-app.in-classroom :is(.sl-check-card, .sl-preferences) { background: var(--class-sheet); border-color: #d4ddc5; border-radius: 6px; }
 .sl-app.in-classroom :is(.sl-check-card, .sl-preferences) button { border-color: #c8d2b8; color: #41603b; }
 .sl-app.in-classroom .sl-mobile-panels { background: var(--class-paper); }
