@@ -6,10 +6,11 @@ const themes: ReadonlyArray<{
   preview: string;
   note: string;
 }> = [
-  { id: "ocean", label: "海蓝", preview: "from-[#0b5bd3] to-[#8ec5ff]", note: "清晰明快的默认教学风格" },
-  { id: "forest", label: "森绿", preview: "from-[#1d6b3f] to-[#9dd8b7]", note: "柔和舒展，适合长时间阅读" },
-  { id: "sunset", label: "日落", preview: "from-[#b85a2b] to-[#f6c28b]", note: "温暖醒目，适合内容展示" },
-  { id: "dark", label: "暗色", preview: "from-[#0f172a] to-[#475569]", note: "降低眩光，适合低光环境" },
+  { id: "forest", label: "纸间绿", preview: "from-[#244b38] to-[#e7ebdc]", note: "原有配色 · 米白纸面与柔和森绿" },
+  { id: "ocean", label: "雾海蓝", preview: "from-[#365e80] to-[#e5eef6]", note: "浅灰蓝底色，清爽安静" },
+  { id: "sunset", label: "暖杏", preview: "from-[#8a513b] to-[#f5e6d9]", note: "温暖杏色，柔和舒适" },
+  { id: "dark", label: "石墨夜", preview: "from-[#20262b] to-[#738b98]", note: "深灰底色，适合低光阅读" },
+  { id: "system", label: "跟随系统", preview: "from-[#f5f3eb] from-50% to-[#20262b] to-50%", note: "随设备自动切换纸间绿与石墨夜" },
 ];
 
 export function ThemeAppearanceSettings() {
@@ -17,7 +18,7 @@ export function ThemeAppearanceSettings() {
 
   return (
     <section
-      className="mt-6 rounded-[30px] border border-(--shell-border) bg-white/92 p-6 shadow-[0_16px_40px_var(--panel-shadow)] sm:p-7"
+      className="mt-6 rounded-[30px] border border-(--shell-border) bg-(--panel-surface) p-6 shadow-[0_16px_40px_var(--panel-shadow)] sm:p-7"
       aria-labelledby="appearance-settings-title"
     >
       <div className="flex items-start gap-3">
@@ -31,7 +32,7 @@ export function ThemeAppearanceSettings() {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" role="group" aria-label="界面主题">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5" role="group" aria-label="界面主题">
         {themes.map((item) => {
           const selected = theme === item.id;
           return (
@@ -44,7 +45,7 @@ export function ThemeAppearanceSettings() {
                 "cursor-pointer rounded-[20px] border p-4 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent) focus-visible:ring-offset-2",
                 selected
                   ? "border-(--accent-border) bg-(--accent-soft)"
-                  : "border-(--shell-border) bg-(--surface-subtle) hover:border-(--accent-border) hover:bg-white",
+                  : "border-(--shell-border) bg-(--surface-subtle) hover:border-(--accent-border) hover:bg-(--surface-elevated)",
               )}
             >
               <span className="flex items-start gap-3">
@@ -53,7 +54,7 @@ export function ThemeAppearanceSettings() {
                   <span className="flex items-center justify-between gap-2">
                     <span className="font-bold text-(--app-text)">{item.label}</span>
                     {selected ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold text-(--accent-strong)">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-(--surface-elevated) px-2 py-1 text-[10px] font-bold text-(--accent-strong)">
                         <MaterialIcon name="check_circle" className="text-xs" />
                         <span>当前</span>
                       </span>

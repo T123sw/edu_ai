@@ -1,5 +1,9 @@
 import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
+import { initializeAppearance } from './stitch/theme/appearance';
+import './stitch/theme/appearance.css';
+
+initializeAppearance();
 const legacy =
   new URLSearchParams(location.search).get("legacy") === "1" ||
   /^#\/(video-render|player-smoke)/.test(location.hash) ||

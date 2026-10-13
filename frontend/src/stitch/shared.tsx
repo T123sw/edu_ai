@@ -38,7 +38,8 @@ export const routes = {
 } as const;
 
 export type RouteKey = (typeof routes)[keyof typeof routes];
-export type ThemeName = "ocean" | "forest" | "sunset" | "dark";
+import type { ThemeName } from './theme/appearance';
+export type { ThemeName } from './theme/appearance';
 
 export type CourseSummary = {
   id: string;

@@ -1,4 +1,5 @@
 import { browserStorage } from "./resume/browserStorage";
+import { useAppearance } from './theme/appearance';
 import { ResumeTracker } from "./resume/ResumeTracker";
 import {
   Component,
@@ -161,11 +162,6 @@ function isFixtureVideoRenderRoute(): boolean {
   return new URLSearchParams(query).get("fixture") === "1";
 }
 
-function getStoredTheme(): ThemeName {
-  const stored = browserStorage.getItem("stitch-theme");
-  return stored === "forest" || stored === "sunset" || stored === "dark" ? stored : "ocean";
-}
-
 function getStoredCourse(): CourseSummary | null {
   const raw = browserStorage.getItem("stitch-course");
 
@@ -203,7 +199,7 @@ function resetRouteScrollPosition() {
 export default function App() {
   const [current, setCurrent] = useState<AppRouteKey>(getCurrentRoute);
   const [rememberedCourse, setRememberedCourse] = useState<CourseSummary | null>(getStoredCourse);
-  const [theme, setTheme] = useState<ThemeName>(getStoredTheme);
+  const [theme, setTheme] = useAppearance();
   const [authReady, setAuthReady] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -239,11 +235,6 @@ export default function App() {
       window.location.replace(learningHomeHref());
     }
   }, [current]);
-
-  useEffect(() => {
-    browserStorage.setItem("stitch-theme", theme);
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
 
   useEffect(() => {
     let cancelled = false;

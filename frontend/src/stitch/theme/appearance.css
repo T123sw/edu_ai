@@ -1,0 +1,54 @@
+/* Color tokens only: spacing, typography and classroom geometry stay in their existing stylesheets.
+   Forest leaves the editorial tokens unset so every original color remains its exact fallback. */
+:root[data-theme][data-theme='forest'] {
+  color-scheme: light;
+  --app-bg: #f5f3eb; --app-text: #203d33;
+  --shell-surface: #fffef9; --panel-surface: #fffef9; --shell-border: #dcded2;
+  --accent: #587247; --accent-strong: #244b38; --accent-soft: #edf0e3; --accent-border: #d4ddc5;
+  --muted-text: #727d6e; --surface-elevated: #fffef9; --surface-subtle: #f5f3eb; --input-surface: #fffef9;
+}
+:root[data-theme='ocean'] {
+  --edu-paper: #f0f4f8; --edu-sheet: #fcfdff; --edu-soft: #e5eef6; --edu-selected: #dbe8f3;
+  --edu-ink: #233d53; --edu-secondary: #4c657a; --edu-muted: #596d80; --edu-line: #cfdae5;
+  --edu-accent: #365e80; --edu-on-accent: #ffffff; --edu-decor: #5b7d9a;
+}
+:root[data-theme='sunset'] {
+  --edu-paper: #f8f1e9; --edu-sheet: #fffdf9; --edu-soft: #f3e6d8; --edu-selected: #eddcca;
+  --edu-ink: #533b31; --edu-secondary: #75594a; --edu-muted: #766053; --edu-line: #e3d4c5;
+  --edu-accent: #8a513b; --edu-on-accent: #fffaf3; --edu-decor: #a66a47;
+}
+:root[data-theme='dark'] {
+  --edu-paper: #1b2025; --edu-sheet: #242b31; --edu-soft: #303a41; --edu-selected: #35483f;
+  --edu-ink: #e0e8e6; --edu-secondary: #bdcac5; --edu-muted: #a1b0ae; --edu-line: #46534f;
+  --edu-accent: #a4c6b5; --edu-on-accent: #172b22; --edu-decor: #d3ad88;
+}
+:root[data-theme][data-theme]:not([data-theme='forest']) {
+  color-scheme: light;
+  --app-bg: var(--edu-paper); --app-text: var(--edu-ink); --app-text-muted: var(--edu-muted);
+  --shell-surface: var(--edu-sheet); --panel-surface: var(--edu-sheet); --shell-border: var(--edu-line);
+  --accent: var(--edu-accent); --accent-strong: var(--edu-ink); --accent-soft: var(--edu-soft); --accent-border: var(--edu-line);
+  --muted-text: var(--edu-muted); --surface-elevated: var(--edu-sheet); --surface-subtle: var(--edu-soft); --input-surface: var(--edu-sheet);
+  --track-color: var(--edu-soft);
+  background: var(--edu-paper); color: var(--edu-ink);
+}
+:root[data-theme][data-theme='dark'] { color-scheme: dark; }
+:root[data-theme]:not([data-theme='forest']) .sl-app {
+  --sl-purple: var(--edu-accent); --sl-ink: var(--edu-ink); --sl-muted: var(--edu-muted);
+  --sl-line: var(--edu-line); --sl-soft: var(--edu-soft);
+  background: var(--edu-paper); color: var(--edu-ink);
+}
+/* Dialogs and auxiliary panels use the same palette as the learning surface. */
+:root[data-theme]:not([data-theme='forest']) .sl-app :is(.sl-modal, .sl-task-center, .sl-task-body, .sl-job-card, .sl-prep-progress, .sl-prep-main, .sl-prep-side, .sl-prep-sheet, .sl-prep-goal, .sl-account-menu) {
+  background: var(--edu-sheet); color: var(--edu-ink); border-color: var(--edu-line);
+}
+:root[data-theme]:not([data-theme='forest']) .sl-app :is(.sl-task-center, .sl-modal, .sl-prep-progress) :is(h2, h3, strong) { color: var(--edu-ink); }
+:root[data-theme]:not([data-theme='forest']) .sl-app :is(.sl-task-center, .sl-modal, .sl-prep-progress) :is(p, small, label) { color: var(--edu-muted); }
+:root[data-theme='dark'] .edu-profile :is(.bg-white, .bg-white\/90, .bg-white\/92) { background: var(--edu-sheet); }
+:root[data-theme='dark'] .edu-profile .edu-profile-hero { background: linear-gradient(135deg, #304a41, #405d55); }
+:root[data-theme] .edu-profile .ant-btn-primary { background: var(--accent); color: var(--edu-on-accent, #fffef9); }
+:root[data-theme] .edu-profile .ant-btn-default:not(.ant-btn-background-ghost) { background: var(--surface-elevated); color: var(--app-text); border-color: var(--shell-border); }
+/* Generated PPT pages keep the colors authored in the course; only the player chrome changes. */
+:root[data-theme]:not([data-theme='forest']) .sl-material-playback .classroom-console__controls :is(button, .classroom-page-count) { color: var(--edu-ink); }
+:root[data-theme]:not([data-theme='forest']) .sl-material-playback .classroom-console__controls .classroom-play-button { background: var(--edu-accent); color: var(--edu-on-accent); }
+:root[data-theme]:not([data-theme='forest']) .sl-editorial-material :is(.markdown-preview, .edu-rich-preview) { color: var(--edu-ink); }
+:root[data-theme]:not([data-theme='forest']) .sl-editorial-material .mb-3 > button { background: var(--edu-soft); color: var(--edu-ink); border-color: var(--edu-line); }

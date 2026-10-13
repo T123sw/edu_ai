@@ -168,7 +168,7 @@ export function ProfilePage({ homeHref }: { homeHref?: string } = {}) {
   ];
 
   return (
-    <AppSurface className="min-h-screen bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_26%),var(--app-bg)]">
+    <AppSurface className="edu-profile min-h-screen bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_26%),var(--app-bg)]">
       <main className="mx-auto w-full max-w-[1280px] px-5 py-7 sm:px-8 lg:px-10 lg:py-10">
         <div className="mb-6 flex items-center justify-between gap-4">
           <a href={homeHref ?? homeHashForRole(user?.role)} className="inline-flex items-center gap-2 rounded-full border border-(--shell-border) bg-white/90 px-4 py-2.5 text-sm font-semibold text-(--accent-strong) shadow-sm transition hover:border-(--accent-border) hover:bg-white">
@@ -184,7 +184,7 @@ export function ProfilePage({ homeHref }: { homeHref?: string } = {}) {
           <Alert type="error" showIcon message="个人资料暂时无法加载" action={<Button onClick={() => void refreshProfile()}>重试</Button>} />
         ) : (
           <>
-            <section className="relative overflow-hidden rounded-[30px] border border-(--accent-border) bg-[linear-gradient(135deg,var(--accent-strong)_0%,var(--accent)_100%)] text-white shadow-[0_24px_64px_var(--accent-shadow)]">
+            <section className="edu-profile-hero relative overflow-hidden rounded-[30px] border border-(--accent-border) bg-[linear-gradient(135deg,var(--accent-strong)_0%,var(--accent)_100%)] text-white shadow-[0_24px_64px_var(--accent-shadow)]">
               <div className="absolute -right-16 -top-28 h-72 w-72 rounded-full border border-white/15 bg-white/8" aria-hidden="true" />
               <div className="relative flex flex-col gap-7 p-7 sm:p-9 lg:flex-row lg:items-center lg:justify-between lg:px-11 lg:py-10">
                 <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-center">
