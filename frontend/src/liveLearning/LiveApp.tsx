@@ -13,6 +13,7 @@ import { uid, type Classroom as Room, type LearningState, type LearningResource 
 import '../selfLearning/styles.css';
 import '../selfLearning/review.css';
 import './live.css';
+import '../selfLearning/homeRefresh.css';
 import { TaskCenter, TaskLauncher } from './TaskCenter';
 
 import { PreparationNotifications } from './PreparationNotifications';

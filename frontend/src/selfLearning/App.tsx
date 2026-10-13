@@ -18,6 +18,7 @@ import { useLearningStore } from "./store";
 import { Brand, Empty, Icon } from "./ui";
 import "./styles.css";
 import "./review.css";
+import "./homeRefresh.css";
 
 function useRoute() {
   const [hash, setHash] = useState(window.location.hash);
