@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from "react";
-import { type Classroom } from "./model";
+import { allResources, type Classroom } from "./model";
 import { Brand, Icon } from "./ui";
 
 type Props = {
@@ -58,36 +58,35 @@ export function Cover({ room }: { room: Pick<Classroom, "tone"> }) {
     </div>
   );
 }
-function ClassroomCard({
-  room,
-  onOpen,
-}: {
-  room: Classroom;
-  onOpen: () => void;
-}) {
-  return (
-    <button className="sl-class-card" onClick={onOpen} title={room.title}>
-      <div className={`sl-course-preview ${room.tone}`} aria-hidden="true">
-        <div className="sl-preview-paper">
-          <strong>{room.chapters[0]?.title || room.title}</strong>
-          <div className="sl-preview-rule" />
-          <div className="sl-preview-content">
-            <div className="sl-preview-outline">
-              {room.chapters.slice(0, 3).map((chapter, index) => (
-                <div key={chapter.id}><i>{index + 1}</i><span>{chapter.title}</span></div>
-              ))}
-            </div>
-            <div className="sl-preview-diagram">
-              <span /><div><i /><i /><i /></div><b />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="sl-card-copy">
-        <h3>{room.title}</h3>
-      </div>
-    </button>
-  );
+function LearningIllustration() {
+  return <svg className="sl-editorial-illustration" viewBox="0 0 360 250" fill="none" aria-hidden="true">
+    <circle cx="221" cy="106" r="74" fill="#E6DFCA" />
+    <circle cx="264" cy="50" r="20" fill="#BD693F" />
+    <ellipse cx="186" cy="130" rx="139" ry="61" transform="rotate(-27 186 130)" stroke="#879789" strokeWidth="1" strokeDasharray="3 6" />
+    <path d="M72 175 179 217 299 161 193 124Z" fill="#D9DBCC" />
+    <path d="m77 155 101 39 117-49v15l-117 50-101-40Z" fill="#F8F5EC" stroke="#214B3D" strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M179 194V91c-34-25-70-26-105-17v101c40-7 72-2 105 19Z" fill="#FAF8F1" stroke="#214B3D" strokeWidth="1.7" strokeLinejoin="round" />
+    <path d="M179 194V91c32-20 65-28 105-25v101c-39-1-73 9-105 27Z" fill="#E7EAD9" stroke="#214B3D" strokeWidth="1.7" strokeLinejoin="round" />
+    <path d="M92 93c22-3 43 1 63 10m-63 9c22-3 43 1 63 10m-63 9c22-3 43 1 47 3m60-32c20-9 41-14 65-14m-65 34c20-9 41-14 65-14m-65 33c13-6 26-10 40-12" stroke="#809181" strokeWidth="1.4" strokeLinecap="round" />
+    <path d="m251 68 12-1v56l-6-5-6 8Z" fill="#BD693F" />
+    <path d="M50 83v20m-10-10h20M307 195v14m-7-7h14" stroke="#BD693F" strokeWidth="1.5" />
+    <circle cx="82" cy="47" r="4" fill="#214B3D" />
+    <circle cx="311" cy="105" r="3" fill="#BD693F" />
+    <path d="m109 224 54 1m66-7 24-1" stroke="#B3B8A8" strokeLinecap="round" />
+  </svg>;
+}
+
+function ClassroomCard({ room, onOpen }: { room: Classroom; onOpen: () => void }) {
+  return <button className="sl-class-card" onClick={onOpen} title={room.title}>
+    <div className={`sl-course-preview ${room.tone}`} aria-hidden="true">
+      <span className="sl-jacket-spine" />
+      <div className="sl-jacket-label"><span>EDU AI</span><span>学习手记</span></div>
+      <strong className="sl-jacket-title">{room.chapters[0]?.title || room.title}</strong>
+      <svg className="sl-jacket-art" viewBox="0 0 160 100" fill="none"><ellipse cx="80" cy="51" rx="62" ry="27" transform="rotate(-28 80 51)" /><ellipse cx="80" cy="51" rx="62" ry="27" transform="rotate(28 80 51)" /><circle cx="80" cy="51" r="27" /><circle cx="130" cy="22" r="5" fill="currentColor" stroke="none" /></svg>
+      <div className="sl-jacket-bottom"><span>{String(room.chapters.length).padStart(2, '0')} 个知识点</span><span>LEARN / EXPLORE</span></div>
+    </div>
+    <div className="sl-card-copy"><h3>{room.title}</h3><div className="sl-editorial-card-meta"><span>{allResources(room).length} 份学习资料</span><Icon name="arrow" size={16} /></div></div>
+  </button>;
 }
 export function Home({
   rooms,
@@ -118,11 +117,12 @@ export function Home({
     .sort((a, b) => b.updatedAt - a.updatedAt);
   const sharedMatches = shared.filter(matches);
   return (
-    <main className="sl-home">
+    <main className="sl-home sl-home-editorial">
+      <div className="sl-editorial-masthead"><Brand /><span>一处安静的学习空间</span></div>
       <section className="sl-home-hero">
-        <Brand large />
-        <h1>让好奇，成为你的下一堂课。</h1>
+        <div className="sl-editorial-intro"><div className="sl-editorial-copy"><span className="sl-editorial-eyebrow"><i />为好奇心，留一页空白</span><h1 aria-label="让好奇，成为你的下一堂课。">让好奇，<br /><em>成为你的下一堂课。</em></h1><p>写下想学的，带上你的问题。<br className="sl-editorial-mobile-break" />从这里开始，把知识慢慢读懂。</p></div><LearningIllustration /></div>
         <form className={`sl-prompt${preparationOptions ? ' sl-prompt-with-options' : ''}`} onSubmit={submit}>
+          <div className="sl-editorial-composer-heading"><span><Icon name="spark" size={17} />今天，想探索什么？</span><small>目标 · 基础 · 想解决的问题</small></div>
           <textarea
             aria-label="学习知识点与目标"
             placeholder={"- 我想学习 Agent\n- 希望能独立做出一个 AI 助手\n- 会一点 Python，Agent 还是零基础"}
@@ -140,7 +140,7 @@ export function Home({
               }
             }}
           />
-          {preparationOptions}
+          <div className="sl-editorial-composer-toolbar">{preparationOptions}
           <div className="sl-prompt-bottom">
             <button
               className="sl-primary"
@@ -149,8 +149,9 @@ export function Home({
             >
               开始学习 <Icon name="arrow" size={17} />
             </button>
-          </div>
+          </div></div>
         </form>
+        <div className="sl-editorial-hero-foot"><span>每一次理解，都从一个好问题开始。</span><span>LEARNING, AT YOUR PACE.</span></div>
       </section>
       <div className="sl-home-library">
         <section aria-label="最近学习">
@@ -243,7 +244,7 @@ export function Home({
         </section>
       </div>
       <footer className="sl-home-footer">
-        每一次好奇，都值得认真探索。
+        <span className="sl-editorial-footer-mark">Edu AI <i>／</i> 学无止境</span><p>每一次好奇，都值得认真探索。</p>
         {!live && <span>本地交互演示 · 示例课堂与学习记录仅保存在此浏览器</span>}
       </footer>
     </main>
