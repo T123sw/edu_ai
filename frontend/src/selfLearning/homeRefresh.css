@@ -13,7 +13,7 @@
   --line: #dcded2;
   background: var(--paper);
   color: var(--ink);
-  --home-width: 1440px;
+  --home-width: 1200px;
   --home-gutter: clamp(24px, 4.5vw, 96px);
   padding: 0 var(--home-gutter);
 }
@@ -22,7 +22,7 @@
 .sl-home-editorial .sl-editorial-masthead .sl-brand b { color: var(--ink); font-weight: 400; }
 .sl-home-editorial .sl-editorial-masthead .sl-mark { color: #b06b46; }
 .sl-editorial-masthead > span:last-child { font-size: 11px; color: #8b8f81; letter-spacing: 1px; }
-.sl-app:has(> .sl-home-editorial) > .sl-home-account { top: 25px; right: max(clamp(24px, 4.5vw, 96px), calc((100% - 1440px) / 2)); }
+.sl-app:has(> .sl-home-editorial) > .sl-home-account { top: 25px; right: max(clamp(24px, 4.5vw, 96px), calc((100% - 1200px) / 2)); }
 .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-avatar { background: #e5e8d8; border-color: #e5e8d8; color: #526447; }
 .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-task-launcher { background: transparent; border-color: #d7dccc; color: #64705f; border-radius: 5px; }
 .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-live-account > button { color: #65715e; font-size: 12px; }
