@@ -48,7 +48,6 @@ export function Classroom({
   const readingScope = useMemo(() => ({ courseId: room.id, resourceId: resource.id, version: resource.remote?.version }), [room.id, resource.id, resource.remote?.version]);
   const [snapshotState, setSnapshotState] = useState<{ scope: object; snapshot: ReadingSnapshot }>();
   const [panel, setPanel] = useState("learn");
-  const [noteOpen, setNoteOpen] = useState(false);
   const [chatActive, setChatActive] = useState(false);
   const [closedChapters, setClosedChapters] = useState<string[]>([]);
   const reading = useRef<HTMLDivElement>(null);
@@ -154,28 +153,6 @@ export function Classroom({
         </div>
       </aside>
       <section className="sl-reader">
-        {!isPlayback && <div className="sl-reader-toolbar">
-          <div className="sl-reader-tools">
-          <span>
-            {String(
-              room.chapters.findIndex((c) =>
-                c.resources.some((r) => r.id === resource.id),
-              ) + 1,
-            ).padStart(2, "0")}
-            <i>/</i>
-            {kindLabel[resource.kind]}
-          </span>
-          </div>
-          <div className="sl-reader-tools">
-          <button
-            className={`sl-text-button ${noteOpen ? "active" : ""}`}
-            onClick={() => setNoteOpen(!noteOpen)}
-          >
-            <Icon name="report" size={16} />
-            我的笔记
-          </button>
-          </div>
-        </div>}
         <div
           className="sl-reader-scroll"
           ref={reading}
@@ -193,18 +170,6 @@ export function Classroom({
             onEvidence={patch}
             paused={chatActive || panel === "agent" || panel === "directory"}
           />
-          {noteOpen && !isPlayback && (
-            <section className="sl-notes">
-              <label htmlFor="learning-note">记录你的理解</label>
-              <textarea
-                id="learning-note"
-                value={evidence.note}
-                placeholder="用自己的话记下这一节的收获…"
-                onChange={(e) => patch({ note: e.target.value })}
-              />
-              <small>{room.live ? "自动保存到账号 · 仅自己可见" : "自动保存在此浏览器 · 仅自己可见"}</small>
-            </section>
-          )}
         </div>
         {room.progressPersistence && facts.error && <div role="alert">学习记录未同步：{facts.error}<button onClick={facts.retry}>重试保存</button>{facts.pending.some(p => p.blocked) && <button onClick={facts.discardConflicts}>放弃冲突操作并刷新</button>}<small>可以继续阅读其他资料。</small></div>}
       </section>

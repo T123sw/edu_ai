@@ -129,6 +129,7 @@
 .sl-app.in-classroom .sl-chat-bottom { padding: 10px 12px; }
 .sl-app.in-classroom .sl-chat-composer textarea { height: 64px; }
 .sl-app.in-classroom .sl-chat-bottom > small { margin-top: 6px; }
+.sl-app.in-classroom .sl-reader-toolbar { display: none; }
 .sl-app.in-classroom :is(.sl-check-card, .sl-preferences) { background: var(--class-sheet); border-color: #d4ddc5; border-radius: 6px; }
 .sl-app.in-classroom :is(.sl-check-card, .sl-preferences) button { border-color: #c8d2b8; color: #41603b; }
 .sl-app.in-classroom .sl-mobile-panels { background: var(--class-paper); }
