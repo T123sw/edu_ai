@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyProjection, newerProjection, type Projection } from './learningState';
+import { applyProjection, newerProjection, readingProgress, type Projection } from './learningState';
 import type { Classroom } from '../selfLearning/model';
 const ref = { course_id: 'course', material_type: 'report', material_id: 'doc', version: 1 };
 const room: Classroom = { id: 'course', title: 'course', goal: '', tone: '', selectedId: 'doc', messages: [], updatedAt: 0,
@@ -17,6 +17,17 @@ test('reading and self assessment do not imply completion; old versions never ca
 test('late receipt cannot roll back a newer server projection', () => {
   const latest = { ...projection, facts_revision: 4 };
   assert.equal(newerProjection(latest, projection), latest);
+});
+test('reading progress counts server-confirmed endings without claiming mastery or explicit completion', () => {
+  const persisted = { ...room, progressPersistence: true, learningProjection: projection };
+  assert.deepEqual(readingProgress(persisted), { finishedIds: ['doc'], finished: 1, total: 1, percent: 100 });
+  assert.equal(applyProjection(persisted, projection).progress.doc.completed, false);
+  const unsaved = { ...persisted, learningProjection: undefined, progress: { doc: { completed: true } } } as Classroom;
+  assert.equal(readingProgress(unsaved).finished, 0);
+  const revised = structuredClone(persisted);
+  revised.chapters[0].resources[0].remote!.version = 2;
+  assert.equal(readingProgress(revised).finished, 0);
+  assert.equal(readingProgress({ ...persisted, chapters: [] }).percent, 0);
 });
 test('persisted events are separated by owner and retain identities when reopening', async () => {
   const { readPending } = await import('./learningState');

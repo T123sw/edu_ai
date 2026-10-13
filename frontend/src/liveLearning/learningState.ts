@@ -15,6 +15,21 @@ export type Projection = {
 };
 export type FactEvent = { schema_version: 1; event_id: string; type: string; manifest_ref: { manifest_id: string; version: number } | null; resource_ref: ResourceRef | null; expected_revision: number | null; occurred_at: string; payload: Record<string, unknown> };
 export type PendingFact = { topic: string; event: FactEvent; blocked?: boolean };
+// Reading completion is a persisted observation, separate from the learner's
+// explicit completion mark and any claim about understanding.
+export function readingProgress(room: Classroom) {
+  const resources = room.chapters.flatMap(chapter => chapter.resources);
+  const finishedIds = resources.filter(resource => {
+    if (room.progressPersistence) {
+      const ref = resourceRef(resource);
+      const fact = ref && room.learningProjection?.resources.find(item => refKey(item.resource_ref) === refKey(ref));
+      return !!fact && (fact.reached_end || fact.completed);
+    }
+    return !!room.progress[resource.id]?.completed;
+  }).map(resource => resource.id);
+  return { finishedIds, finished: finishedIds.length, total: resources.length,
+    percent: resources.length ? finishedIds.length / resources.length * 100 : 0 };
+}
 export function coalesceReading(queue: PendingFact[], incoming: PendingFact, inFlight: string): PendingFact[] {
   if (incoming.event.type !== 'reading_position_set') return [...queue, incoming];
   return [...queue.filter(p => p.event.type !== 'reading_position_set' || p.event.event_id === inFlight || p.blocked ||

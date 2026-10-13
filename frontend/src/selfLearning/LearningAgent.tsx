@@ -1,16 +1,12 @@
 import ReactMarkdown from 'react-markdown';
 import { useAnswerTurns, answerErrorMessage, type ReadingSnapshot } from '../liveLearning/agentTurns';
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import { agentReply, resourceEvidence, kindLabel, uid, updateRoom, type Classroom, type LearningResource, type LearningState, type Message } from "./model";
+import { agentReply, uid, updateRoom, type Classroom, type LearningResource, type LearningState, type Message } from "./model";
 import { agentContext, chapterMessages, learningMemory } from "./learningMemory";
 import { Icon } from "./ui";
 import { useTopicSession } from '../liveLearning/learningClient';
-import { LearningNotifications } from '../liveLearning/LearningNotifications';
-import { CheckCard } from '../liveLearning/CheckCard';
-import { TeachingObservations } from '../liveLearning/TeachingObservations';
-import { LearningPreferences } from '../liveLearning/LearningPreferences';
 
-export function LearningAgent({ room, resource, setState, onSelect, onEngage, onAsk, onSelfAssessment, selfAssessmentPending, readingSnapshot }: {
+export function LearningAgent({ room, resource, setState, onEngage, onAsk, onSelfAssessment, selfAssessmentPending, readingSnapshot }: {
   room: Classroom; resource: LearningResource; setState: Dispatch<SetStateAction<LearningState>>;
   onSelect: (id: string) => void; onEngage: () => void;
   readingSnapshot?: ReadingSnapshot;
@@ -25,7 +21,6 @@ export function LearningAgent({ room, resource, setState, onSelect, onEngage, on
   useEffect(() => { if (room.agentRuntime) void session.refresh(); }, [turnStatus, room.agentRuntime]); // eslint-disable-line react-hooks/exhaustive-deps
   const messages = room.sessionPersistence ? session.messages : chapterMessages(room, chapter.id);
   const memory = learningMemory(room);
-  const evidence = resourceEvidence(room, resource);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [memoryOpen, setMemoryOpen] = useState(false);
@@ -81,14 +76,6 @@ export function LearningAgent({ room, resource, setState, onSelect, onEngage, on
   }
   return <aside className="sl-agent" aria-label="知识点对话">
     <div className="sl-rail-heading"><h2><span className="sl-agent-symbol"><Icon name="spark" size={18} /></span>学习 Agent</h2><span className="sl-local-tag">全程陪伴</span></div>
-    <div className="sl-context">
-      <span><i />当前知识点 · 独立会话</span>
-      <select aria-label="对话知识点" value={chapter.id} onChange={e => onSelect(room.chapters.find(c => c.id === e.target.value)!.resources[0].id)}>{room.chapters.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}</select>
-      <small>{resource.kind === "video" ? `讲解位置 00:${String(Math.floor(evidence.position)).padStart(2, "0")}` : kindLabel[resource.kind]} · {evidence.completed ? "已标记完成" : "学习中"}{evidence.answer !== undefined ? ` · 检查${evidence.answer === 1 ? "正确" : "待回顾"}` : ""}</small>
-      <small>切换知识点自动保存，同一知识点内继续聊。</small>
-      {room.agentRuntime && readingSnapshot?.selected_text && <small>将结合选中文本回答</small>}
-      {room.agentRuntime && readingSnapshot?.classroom && <small>将结合当前页和讲解位置回答</small>}
-    </div>
     <div className="sl-learning-memory">
       <button className="sl-memory-toggle" aria-expanded={memoryOpen} onClick={() => setMemoryOpen(!memoryOpen)}><Icon name="book" size={15} /><span>全局学习记忆<small>{memory.filter(m => m.status !== "未开始").length} / {memory.length} 个知识点有记录</small></span><Icon name="chevron" size={14} /></button>
       {memoryOpen && <div className="sl-memory-body" aria-label="全局学习记忆">
@@ -115,9 +102,7 @@ export function LearningAgent({ room, resource, setState, onSelect, onEngage, on
       {pending[chapter.id] && <div className="sl-chat-thinking" role="status">{room.live ? "正在思考…" : "正在整理示例回复"}<span>•••</span></div>}
     </div>
     <div className="sl-chat-bottom">
-      {turns.turns[0]?.committed_effects?.length && ['failed', 'canceled'].includes(turns.turns[0].status) ? <p role="status">本轮已有操作保存，可在“资料准备”或“检查与学习偏好”中查看；答疑未完成不会撤销这些操作。</p> : null}
-      {room.preparationEnabled && <LearningNotifications key={`${room.sessionOwner}:${room.id}`} room={room} active={!!turns.active} onSelect={onSelect} />}
-      {room.enrichmentEnabled && <details><summary>检查与学习偏好</summary><CheckCard key={`${room.sessionOwner}:${room.id}:${chapter.id}`} course={room.id} topic={chapter.id} owner={room.sessionOwner || ''} refreshKey={turnStatus} /><LearningPreferences key={`${room.sessionOwner}:${room.id}`} course={room.id} /><TeachingObservations key={`${room.sessionOwner}:${room.id}:${chapter.id}`} course={room.id} topic={chapter.id} refreshKey={turnStatus} /></details>}
+      {turns.turns[0]?.committed_effects?.length && ['failed', 'canceled'].includes(turns.turns[0].status) ? <p role="status">本轮已有操作已保存；答疑未完成不会撤销这些操作。</p> : null}
       {room.agentRuntime && turns.turns[0]?.status === 'failed' && <p role="alert">{answerErrorMessage(turns.turns[0].error_code)}<button onClick={() => void turns.control(turns.turns[0].turn_id, 'retry')}>重试本次答疑</button></p>}
       {room.agentRuntime && turns.error && <p role="alert">{turns.error}</p>}
       {error && <p className="sl-error" role="alert">{error}</p>}

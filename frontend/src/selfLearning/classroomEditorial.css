@@ -172,6 +172,42 @@
 .sl-editorial-material .classroom-console { background: var(--class-sheet); border-color: var(--sl-line); box-shadow: none; }
 .sl-editorial-material .classroom-console__controls { background: var(--class-paper); border-color: var(--sl-line); }
 .sl-editorial-material .classroom-primary-button { background: #244b38; color: #fffef2; border-color: #244b38; box-shadow: none; }
+/* Keep the player and its controls inside the available classroom viewport. */
+.sl-app.in-classroom .sl-course-heading {
+  height: auto;
+  min-height: 63px;
+  justify-content: flex-start;
+  gap: 9px;
+  padding: 14px;
+}
+.sl-app.in-classroom .sl-course-heading .sl-icon-button { flex-shrink: 0; }
+.sl-app.in-classroom .sl-course-heading h2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.sl-app.in-classroom .is-playback .sl-reader-scroll { display: flex; overflow: hidden; }
+.sl-app.in-classroom .is-playback .sl-live-material { display: block; flex: 1; min-height: 0; height: 100%; }
+.sl-editorial-material.sl-material-playback { height: 100dvh; min-height: 0; padding: 0; overflow: hidden; }
+.sl-material-playback .classroom-console { height: 100%; min-height: 0; padding: 12px; gap: 10px; }
+.sl-material-playback .classroom-console__stage-column {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f0f1e9;
+}
+.sl-material-playback .classroom-console__stage-column:has(.classroom-subtitle) { grid-template-rows: minmax(0, 1fr) auto; }
+.sl-material-playback .classroom-stage-shell { width: 100%; height: 100%; min-height: 0; max-height: none; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+.sl-material-playback .classroom-subtitle { width: 100%; max-height: 5.5em; overflow: auto; border-radius: 0; }
+.sl-material-playback .classroom-console__controls { flex-wrap: wrap; overflow: visible; gap: 8px; }
 @media (max-width: 700px) {
   .sl-app.in-classroom .sl-chat-composer textarea { font-size: 16px; }
   .sl-app.in-classroom .sl-notes textarea { font-size: 16px; }

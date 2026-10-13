@@ -201,7 +201,7 @@ async def lifespan(app):
 
 
 app = FastAPI(lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=['http://127.0.0.1:5196'], allow_methods=['*'], allow_headers=['*'])
+app.add_middleware(CORSMiddleware, allow_origins=[os.getenv('LEARNING_BROWSER_ORIGIN', 'http://127.0.0.1:5196')], allow_methods=['*'], allow_headers=['*'])
 
 
 def fixture_user(authorization: str = Header(default='')):

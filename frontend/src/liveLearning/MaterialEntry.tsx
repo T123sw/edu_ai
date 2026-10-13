@@ -83,7 +83,7 @@ function Material() {
   if (!authReady) return <p>正在读取资料…</p>;
   if (!user) return <p role="alert">登录已过期，请返回首页登录。</p>;
   if (error) return <p role="alert">{error}</p>;
-  return <AuthSessionProvider user={{ ...user, role: user.role === 'teacher' || user.role === 'admin' ? user.role : 'student' }} authenticated><CourseRouteProvider enabled><main className="sl-editorial-material">
+  return <AuthSessionProvider user={{ ...user, role: user.role === 'teacher' || user.role === 'admin' ? user.role : 'student' }} authenticated><CourseRouteProvider enabled><main className={`sl-editorial-material ${kind === 'classroom' ? 'sl-material-playback' : ''}`}>
     {kind === 'classroom' ? classroom ? <ClassroomPlaybackSurface exactMaterial={classroom} initialSceneId={params.get('scene_id') || undefined} resourceVersion={version} onReadingContext={onClassroomReading} initialScene={initialPosition} externallyPaused={paused} onPositionChange={positionChange} courseId={courseId} classroomId={materialId} mode="learn" kind={params.get('visibility') === 'private' ? 'personal_classroom' : 'classroom'} /> : <p>正在读取资料…</p> : material ? kind === 'quiz' ? <LiveQuiz material={material} /> : <CourseMaterialArtifactPreview material={material} /> : <p>正在读取资料…</p>}
   {material && <div data-reading-end aria-label="资料末尾" />}</main></CourseRouteProvider></AuthSessionProvider>;
 }
