@@ -22,3 +22,13 @@ test('classroom snapshot accepts separate viewed/lecture pages and rejects inval
   assert.equal(acceptReadingMessage({ ...ppt, classroom: { status: 'playing', lecture: { ...lecture, sentence_index: -1 } } }, 'channel', pptRef, 1), false);
   assert.equal(acceptReadingMessage({ ...message, classroom: ppt.classroom }, 'channel', ref, 1), false);
 });
+
+test('practice references separate drafts from saved attempts and reject oversized or foreign-format input', () => {
+  const quizRef = { ...ref, material_type: 'quiz' };
+  const quiz = { ...message, resource_ref: quizRef, locator: { kind: 'quiz', question_index: 0 }, practice: { check_id: 'check-1', draft: { option_ids: ['option_2'], text: '' } } };
+  assert.ok(acceptReadingMessage(quiz, 'channel', quizRef, 1));
+  assert.equal(acceptReadingMessage({ ...quiz, practice: { ...quiz.practice, attempt_id: 'attempt-1' } }, 'channel', quizRef, 1), false);
+  assert.equal(acceptReadingMessage({ ...quiz, practice: { check_id: 'check-1', draft: { option_ids: [], text: 'x'.repeat(4001) } } }, 'channel', quizRef, 1), false);
+  assert.equal(acceptReadingMessage({ ...message, practice: quiz.practice }, 'channel', ref, 1), false);
+  assert.equal(acceptReadingMessage({ ...quiz, question_prompt: 'ignored injection without explicit ask' }, 'channel', quizRef, 1), false);
+});

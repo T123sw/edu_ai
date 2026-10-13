@@ -1,0 +1,62 @@
+{
+  "verified_at": "2026-10-13T17:54:43.944900+00:00",
+  "status": "source_integrated_verified_not_deployed",
+  "features": [
+    "version-bound quiz question_index and per-question ask button",
+    "current-report lexical passage retrieval before unlocated questions and through existing read tool",
+    "source links retain versions and navigate to report anchors, quiz questions, classroom scenes",
+    "explicit missing/stale location fallback without guessing"
+  ],
+  "backend": {
+    "passed": 73,
+    "seconds": 121.13,
+    "evidence": "tests.xml",
+    "databases": [
+      "SQLite",
+      "isolated PostgreSQL"
+    ]
+  },
+  "final_focus_recheck": {
+    "passed": 19,
+    "seconds": 40.71,
+    "overlaps_backend_suite": true,
+    "evidence": "final-focus-tests.xml"
+  },
+  "frontend": {
+    "unit_passed": 6,
+    "browser_passed": 4,
+    "typecheck": "passed",
+    "targeted_lint": "passed",
+    "production_build": "passed",
+    "build_output": "/tmp/edu-ai-teaching-navigation-dist",
+    "browser_backend": "disposable test fixtures with deterministic answer provider",
+    "browser_frontend": "current source served by Vite"
+  },
+  "live_model": {
+    "model": "deepseek-v4-flash",
+    "cases_passed": 3,
+    "manual_review": "passed",
+    "evidence": "live.json"
+  },
+  "discovered_and_fixed": {
+    "issue": "On question switch, model used previous multiplication question despite new addition locator.",
+    "fix": "Place authoritative current quiz reading data after history and immediately before user question; retain scope and budget.",
+    "before": "live-before-focus-fix.json",
+    "after": "live.json"
+  },
+  "limits": [
+    "Finite sampled behavior, no all-model quality guarantee",
+    "Keyword retrieval, not embedding search; synonym-only questions can miss",
+    "Unsubmitted quiz draft answers are not automatically included",
+    "Old citations without a locator open the original resource without a jump",
+    "Historical versions must remain available; unavailable versions are not replaced",
+    "No image vision or memory expansion"
+  ],
+  "deployment": {
+    "frontend_published": false,
+    "backend_restarted": false,
+    "database_migration_required": false,
+    "production_courses_or_conversations_modified": false,
+    "git_commit_or_push": false
+  }
+}

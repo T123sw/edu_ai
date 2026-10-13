@@ -1,0 +1,11 @@
+.report-reading [data-report-start] { scroll-margin: 48px; }
+.report-reading [data-report-start]:hover, .report-reading [data-report-start]:focus-visible { outline: 1px solid #b4c5a1; outline-offset: 5px; border-radius: 3px; }
+::highlight(learning-reference) { background: #f7e8a0; color: #283724; }
+.report-reference-fallback { background: #f7e8a0 !important; }
+.report-ai-toolbar { position: fixed; z-index: 1000; }
+.report-ai-toolbar button { border: 1px solid #244b38; border-radius: 7px; background: #244b38; color: #fffef9; padding: 6px 11px; font-size: 13px; line-height: 20px; box-shadow: 0 3px 12px #244b3826; cursor: pointer; }
+.report-ai-toolbar button:focus-visible { outline: 2px solid #8ba777; outline-offset: 3px; }
+.report-selection-error { position: fixed; bottom: 12px; left: 12px; right: 12px; background: #fff8d8; padding: 10px; z-index: 1001; }
+.sl-reference-card { position: relative; border-left: 3px solid #b49b39; background: #faf3d4; color: #344b35; padding: 9px 30px 9px 10px; border-radius: 5px; margin-bottom: 9px; font-size: 12px; }
+.sl-reference-card blockquote { white-space: pre-wrap; max-height: 90px; overflow: auto; margin: 5px 0 0; line-height: 1.6; }
+.sl-reference-card button { position: absolute; right: 6px; top: 5px; background: none; border: 0; cursor: pointer; padding: 3px; }

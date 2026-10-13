@@ -3,15 +3,15 @@ import { serialPolling } from './serialPolling';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../stitch/api/client';
 import { uid } from '../selfLearning/model';
-import type { ResourceRef, Locator } from './readingContext';
-export type ReadingSnapshot = { resource_ref: ResourceRef; locator?: Locator; selected_text: string; classroom?: ClassroomReadingContext };
+import type { ResourceRef, Locator, PracticeContext } from './readingContext';
+export type ReadingSnapshot = { resource_ref: ResourceRef; locator?: Locator; selected_text: string; classroom?: ClassroomReadingContext; practice?: PracticeContext; question_prompt?: string };
 export type AnswerTurn = { turn_id: string; topic_id: string; request_id: string; status: 'accepted' | 'running' | 'succeeded' | 'failed' | 'canceled'; stage: string; error_code?: string; committed_effects?: { kind: string }[] };
 export function answerErrorMessage(code?: string): string {
-  if (code === 'MEMORY_CONTEXT_CHANGED') return '学习偏好已变化，本次旧回答未保存。可以按新偏好重试。';
+  if (code === 'MEMORY_CONTEXT_CHANGED') return '学习偏好或教学记录已更新，本次旧回答未保存。可以按最新记录重试。';
   if (code === 'DEADLINE_EXCEEDED') return '本次回答超时，可以重试或继续阅读。';
   if (code === 'MODEL_UNAVAILABLE' || code === 'MODEL_CONNECTION_INTERRUPTED') return '模型暂时不可用，可以重试或继续阅读。';
   if (code === 'SOURCE_CHANGED' || code === 'CONTEXT_UNAVAILABLE') return '引用资料已变化或不可读取，请重新打开资料后提问。';
-  if (code === 'CONTEXT_BUDGET_EXCEEDED') return '引用内容过长，请缩小选区后重新提问。';
+  if (code === 'CONTEXT_BUDGET_EXCEEDED') return '本次答疑的上下文超出处理容量，可以重试或将问题拆开提问。';
   return '本次答疑未完成，可以重试或继续阅读。';
 }
 export function useAnswerTurns(course: string, topic: string, enabled: boolean, owner: string) {
@@ -41,10 +41,12 @@ export function useAnswerTurns(course: string, topic: string, enabled: boolean, 
   }, [enabled, load]);
   const submit = async (question: string, reading: ReadingSnapshot) => {
     if (!authorized()) throw new Error('账号已切换，请刷新页面');
-    const fingerprint = JSON.stringify([question, reading]);
+    const snapshot = { ...reading };
+    delete snapshot.question_prompt;
+    const fingerprint = JSON.stringify([question, snapshot]);
     let pending = inflight.current.get(key);
     if (!pending || pending.fingerprint !== fingerprint) {
-      pending = { fingerprint, body: JSON.stringify({ request_id: uid(), question, reading_context: reading }) };
+      pending = { fingerprint, body: JSON.stringify({ request_id: uid(), question, reading_context: snapshot }) };
       inflight.current.set(key, pending);
     }
     const turn = await apiRequest<AnswerTurn>(path, { method: 'POST', body: pending.body });

@@ -1,0 +1,142 @@
+{
+  "model": "deepseek-v4-flash",
+  "summary": {
+    "items": [
+      {
+        "kind": "fact",
+        "text": "用户复习变量绑定第0个例子。",
+        "sources": [
+          {
+            "role": "user",
+            "quote": "复习变量绑定第0个例子。",
+            "message_id": "summary-u-0"
+          }
+        ],
+        "category": "discussion",
+        "source_ids": [
+          "summary-u-0"
+        ]
+      },
+      {
+        "kind": "fact",
+        "text": "用户表示贴标签的例子对理解变量绑定很有帮助。",
+        "sources": [
+          {
+            "role": "user",
+            "quote": "贴标签的例子对我理解变量绑定很有帮助。",
+            "message_id": "summary-u-1"
+          }
+        ],
+        "category": "helpful_explanation",
+        "source_ids": [
+          "summary-u-1"
+        ]
+      },
+      {
+        "kind": "fact",
+        "text": "用户仍不理解可变对象的原地修改和重新赋值有什么区别。",
+        "sources": [
+          {
+            "role": "user",
+            "quote": "我仍不理解可变对象的原地修改和重新赋值有什么区别。",
+            "message_id": "summary-u-2"
+          }
+        ],
+        "category": "difficulty",
+        "source_ids": [
+          "summary-u-2"
+        ]
+      },
+      {
+        "kind": "fact",
+        "text": "用户复习变量绑定第3至第11个例子。",
+        "sources": [
+          {
+            "role": "user",
+            "quote": "复习变量绑定第3个例子。",
+            "message_id": "summary-u-3"
+          },
+          {
+            "role": "user",
+            "quote": "复习变量绑定第4个例子。",
+            "message_id": "summary-u-4"
+          },
+          {
+            "role": "user",
+            "quote": "复习变量绑定第5个例子。",
+            "message_id": "summary-u-5"
+          },
+          {
+            "role": "user",
+            "quote": "复习变量绑定第6个例子。",
+            "message_id": "summary-u-6"
+          },
+          {
+            "role": "user",
+            "quote": "复习变量绑定第7个例子。",
+            "message_id": "summary-u-7"
+          },
+          {
+            "role": "user",
+            "quote": "复习变量绑定第8个例子。",
+            "message_id": "summary-u-8"
+          },
+          {
+            "role": "user",
+            "quote": "复习变量绑定第9个例子。",
+            "message_id": "summary-u-9"
+          },
+          {
+            "role": "user",
+            "quote": "复习变量绑定第10个例子。",
+            "message_id": "summary-u-10"
+          }
+        ],
+        "category": "discussion",
+        "source_ids": [
+          "summary-u-3",
+          "summary-u-4",
+          "summary-u-5",
+          "summary-u-6",
+          "summary-u-7",
+          "summary-u-8",
+          "summary-u-9",
+          "summary-u-10"
+        ]
+      }
+    ],
+    "source_refs": [
+      "summary-a-0",
+      "summary-a-1",
+      "summary-a-10",
+      "summary-a-11",
+      "summary-a-2",
+      "summary-a-3",
+      "summary-a-4",
+      "summary-a-5",
+      "summary-a-6",
+      "summary-a-7",
+      "summary-a-8",
+      "summary-a-9",
+      "summary-u-0",
+      "summary-u-1",
+      "summary-u-10",
+      "summary-u-11",
+      "summary-u-2",
+      "summary-u-3",
+      "summary-u-4",
+      "summary-u-5",
+      "summary-u-6",
+      "summary-u-7",
+      "summary-u-8",
+      "summary-u-9"
+    ],
+    "covered_from": 1,
+    "generated_at": 1791914955.7457995,
+    "template_version": "learning-summary-v2",
+    "covered_until": 24,
+    "revision": 1
+  },
+  "status": "passed",
+  "manual_review": "Confirmed difficulty and helpful-explanation categories refer to explicit user statements; grouped discussion ranges are not exhaustively verified."
+}

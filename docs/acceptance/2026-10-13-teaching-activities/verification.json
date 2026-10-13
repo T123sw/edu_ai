@@ -1,0 +1,61 @@
+{
+  "stage": "A: versioned practice answer and tutoring continuation",
+  "status": "source_verified_not_deployed",
+  "database_migration": "20261013_0037",
+  "backend": {
+    "distinct_latest_passing_xml_cases": 69,
+    "evidence_order": [
+      "tests.xml",
+      "final-activities.xml",
+      "context-recheck.xml"
+    ],
+    "dialects": [
+      "SQLite",
+      "PostgreSQL"
+    ],
+    "initial_run": "48 passed, 2 failed; missing test source fixture corrected",
+    "regression_run": "61 passed, 4 failed; active turn detection and report budget regressions corrected",
+    "final_activity_and_budget_run": "22 passed",
+    "final_context_recheck": "4 passed (includes 2 new long draft cases)"
+  },
+  "frontend": {
+    "unit_tests": 7,
+    "browser_cases": 3,
+    "failure_recovery_recheck": "1 passed, including follow-up after submission replaces the previously quoted draft with the saved attempt",
+    "learning_typecheck": "passed",
+    "targeted_lint": "passed",
+    "build": "passed",
+    "whole_repository_typecheck": "failed with errors outside scoped learning check; not claimed clean",
+    "browser_note": "Slow-answer citation initially exceeded 5-second expect timeout; scoped suite now allows 15 seconds, then all cases passed."
+  },
+  "real_model": {
+    "cases": 3,
+    "evidence": "live.json",
+    "review": "manually reviewed final answers; earlier wording failures retained"
+  },
+  "changes": [
+    "Validated current-check draft/saved attempt context",
+    "Opt-in per-check persistent activity with revision and derived stage",
+    "Transactional attempt feedback outbox and stable answer request IDs",
+    "Saved attempt explanation/hint/full solution actions",
+    "Restart, source/version checks and failed feedback retry"
+  ],
+  "remaining": [
+    "B: cross-question guided teaching and persistent graduated hints",
+    "C: evidence repair and review scheduling",
+    "D: broader reading/preparation integration and production rollout"
+  ],
+  "deployment": {
+    "business_database_migrated": false,
+    "backend_restarted_by_this_task": false,
+    "frontend_published": false,
+    "committed_or_pushed": false,
+    "build_path": "/tmp/edu-ai-teaching-activities-dist"
+  },
+  "limitations": [
+    "Versioned checks only; legacy non-check quiz answers are not attached",
+    "Drafts are browser-local, included only when explicitly referenced; never evidence",
+    "Opt-out affects future submissions, not already-requested feedback",
+    "No claim of full DeepTutor migration; upstream design referenced and adapted using existing services"
+  ]
+}

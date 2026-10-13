@@ -106,7 +106,7 @@ class ToolSpec:
 class LearningTools:
     def __init__(self, learning, turn, packet):
         self.learning, self.turn, self.packet = learning, turn, packet
-        specs = [ToolSpec('read_resource_excerpt', '读取已授权资料准确版本的片段；已有片段足够时无需调用', ReadExcerpt, self.read),
+        specs = [ToolSpec('read_resource_excerpt', '读取已授权资料准确版本的片段；query 可检索该文档中的相关段落，locator 可定位段落、习题或课堂页；已有片段足够时无需调用', ReadExcerpt, self.read),
                  ToolSpec('search_course_resources', '搜索当前可读课程资料，结果不代表已读正文', SearchResources, self.resources),
                  ToolSpec('read_course_learning_summary', '读取本人当前课程的学习事实和自评，不推断掌握', ReadSummary, self.summary),
                  ToolSpec('search_learning_history', '搜索本人当前课程对话的短片段', SearchHistory, self.history)]
@@ -267,8 +267,17 @@ class LearningTools:
         if not self.learning.progress_service:
             return ToolResult(ok=True, data={'nodes': [], 'facts_revision': 0}).model_dump()
         projection = self.learning.progress_service.read(Actor(user_id=self.turn['owner']), self.turn['course_id'])
+        notes = []
+        if args.include_open_questions and getattr(self.learning, 'memory', None):
+            from .teaching_continuity import teaching_notes
+            topics = args.topic_ids or [self.turn['topic_id']]
+            allowed = {t['topic_id'] for t in projection['topics']}
+            for topic in topics[:4]:
+                if topic not in allowed:
+                    continue
+                notes.extend(teaching_notes(self.learning, self.turn['owner'], self.turn['course_id'], topic, limit=2, active_only=True))
         return ToolResult(ok=True, data={'nodes': [t for t in projection['topics'] if not args.topic_ids or t['topic_id'] in args.topic_ids],
-                                        'facts_revision': projection['facts_revision']}).model_dump()
+                                        'teaching_notes': notes, 'facts_revision': projection['facts_revision']}).model_dump()
 
     def history(self, args):
         allowed = {t['id'] for t in self.room()['chapters']}

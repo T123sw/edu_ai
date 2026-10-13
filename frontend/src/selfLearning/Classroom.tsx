@@ -47,6 +47,8 @@ export function Classroom({
     resources[0];
   const readingScope = useMemo(() => ({ courseId: room.id, resourceId: resource.id, version: resource.remote?.version }), [room.id, resource.id, resource.remote?.version]);
   const [snapshotState, setSnapshotState] = useState<{ scope: object; snapshot: ReadingSnapshot }>();
+  const [referenceRequest, setReferenceRequest] = useState(0);
+  const [clearReferenceSignal, setClearReferenceSignal] = useState(0);
   const [panel, setPanel] = useState("learn");
   const [chatActive, setChatActive] = useState(false);
   const [closedChapters, setClosedChapters] = useState<string[]>([]);
@@ -163,6 +165,8 @@ export function Classroom({
         >
           <LearningContent
             key={`${resource.id}:${resource.remote?.version}`}
+            clearReferenceSignal={clearReferenceSignal}
+            onReferenceRequest={room.agentRuntime ? snapshot => { setSnapshotState({ scope: readingScope, snapshot }); setReferenceRequest(n => n + 1); setPanel('agent'); } : undefined}
             onReadingSnapshot={room.agentRuntime ? snapshot => setSnapshotState({ scope: readingScope, snapshot }) : undefined}
             onReading={room.progressPersistence ? (type, payload) => facts.enqueue(chapter.id, type, resource, payload) : undefined}
             resource={resource}
@@ -173,7 +177,7 @@ export function Classroom({
         </div>
         {room.progressPersistence && facts.error && <div role="alert">学习记录未同步：{facts.error}<button onClick={facts.retry}>重试保存</button>{facts.pending.some(p => p.blocked) && <button onClick={facts.discardConflicts}>放弃冲突操作并刷新</button>}<small>可以继续阅读其他资料。</small></div>}
       </section>
-      <LearningAgent readingSnapshot={currentRef ? (snapshotState?.scope === readingScope ? snapshotState.snapshot : { resource_ref: currentRef, selected_text: "", locator: currentRef.material_type === "classroom" ? undefined : evidence.locator }) : undefined} room={room} resource={resource} setState={setState} onSelect={onSelect} onEngage={() => setChatActive(true)} onAsk={onAsk} onSelfAssessment={room.progressPersistence ? (value) => facts.enqueue(chapter.id, 'self_assessment_set', undefined, { value }) : undefined} selfAssessmentPending={facts.pending.some(p => p.topic === chapter.id && p.event.type === 'self_assessment_set')} />
+      <LearningAgent referenceRequest={referenceRequest} onClearReference={() => { setClearReferenceSignal(n => n + 1); setSnapshotState(s => s?.scope === readingScope ? { ...s, snapshot: { ...s.snapshot, selected_text: '', practice: undefined, question_prompt: undefined, locator: s.snapshot.locator?.kind === 'document' ? { kind: 'document', scroll_top: s.snapshot.locator.scroll_top } : s.snapshot.locator?.kind === 'quiz' ? undefined : s.snapshot.locator } } : s); }} readingSnapshot={currentRef ? (snapshotState?.scope === readingScope ? snapshotState.snapshot : { resource_ref: currentRef, selected_text: "", locator: currentRef.material_type === "classroom" ? undefined : evidence.locator }) : undefined} room={room} resource={resource} setState={setState} onSelect={onSelect} onEngage={() => setChatActive(true)} onAsk={onAsk} onSelfAssessment={room.progressPersistence ? (value) => facts.enqueue(chapter.id, 'self_assessment_set', undefined, { value }) : undefined} selfAssessmentPending={facts.pending.some(p => p.topic === chapter.id && p.event.type === 'self_assessment_set')} />
     </main>
   );
 }

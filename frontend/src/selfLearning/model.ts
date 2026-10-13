@@ -52,7 +52,7 @@ export type Message = {
   kind?: string;
   position?: number;
   sessionId?: string;
-  answerResult?: { citations: { citation_id: string; title?: string; visibility?: string; resource_ref: import('../liveLearning/readingContext').ResourceRef }[] };
+  answerResult?: { citations: ({ citation_id: string; title?: string } & import('../liveLearning/citationNavigation').Citation)[] };
 };
 export type Classroom = {
   manifestRef?: { manifest_id: string; version: number };

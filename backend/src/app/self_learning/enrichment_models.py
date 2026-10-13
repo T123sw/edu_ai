@@ -85,3 +85,5 @@ class LearningMemoryOutbox(Base):
 
 TABLES = ('learning_checks', 'learning_check_attempts', 'learning_memory_epochs', 'learning_memory_suppressions',
           'learning_memory_dependencies', 'learning_context_summaries', 'learning_enrichment_receipts', 'learning_observations', 'learning_memory_outbox')
+
+from .teaching_activity_models import TABLES as TEACHING_TABLES

@@ -1,0 +1,69 @@
+{
+  "verified_at": "2026-10-13T17:36:15.622859+00:00",
+  "status": "passed_with_documented_limits_after_quiz_rule_fix",
+  "backend_regression": {
+    "passed": 56,
+    "seconds": 118.32,
+    "evidence": "expanded-tests.xml"
+  },
+  "post_fix_recheck": {
+    "passed": 16,
+    "seconds": 60.77,
+    "overlaps_backend_regression": true,
+    "evidence": "expanded-final-recheck.xml"
+  },
+  "browser": {
+    "passed": 3,
+    "report": {
+      "desktop": true,
+      "mobile": true,
+      "frontend": "deployed static assets at local Nginx",
+      "seconds": 23.9
+    },
+    "ppt": {
+      "passed": true,
+      "frontend": "current source via Vite",
+      "seconds": 26.8,
+      "covers": [
+        "pause",
+        "sentence estimate",
+        "highlight",
+        "page different from lecture",
+        "immutable submitted snapshot",
+        "replay",
+        "switch material resets state"
+      ]
+    },
+    "backend": "isolated fixture; deterministic answer provider; PPT audio simulated"
+  },
+  "real_model": {
+    "model": "deepseek-v4-flash",
+    "final_cases_succeeded": 9,
+    "manual_answer_review": "passed",
+    "api_invariants_passed": 3,
+    "evidence": "expanded-live.json"
+  },
+  "found_and_fixed": {
+    "problem": "Multiple questions with ambiguous this question led model to assume first question and reveal other answer.",
+    "change": "Require uniquely established question; otherwise only ask which question, no guessed solution.",
+    "file": "backend/src/app/self_learning/skills/teach-current-topic/references/quiz.md",
+    "before": "expanded-live-before.json",
+    "after": "expanded-live.json",
+    "scope": "prompt instruction, not deterministic enforcement or new question locator"
+  },
+  "harness_correction": "First execution completed 9 model cases and check skip, then assertion used messages instead of API field items. Corrected and reran all 9 cases and API checks.",
+  "deployment": {
+    "backend_pid": 3240552,
+    "backend_start_utc": "2026-10-13 17:13:45",
+    "skill_file_loaded_each_new_turn": true,
+    "checkpoint_resume_preserves_old_skill": true,
+    "production_data_modified": false
+  },
+  "limitations": [
+    "Finite real-model samples, no guarantee for every response or complex subject matter",
+    "PPT uses structured elements and narration; no image pixel vision",
+    "Quiz-specific locator and citation navigation remain deferred",
+    "Existing inaccurate conversation history interference not retested in this round",
+    "This acceptance does not certify course material quality"
+  ]
+}

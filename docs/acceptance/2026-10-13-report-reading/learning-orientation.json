@@ -1,0 +1,54 @@
+{
+  "test_question": "我们现在在学习什么课程，围绕哪个正式知识点？",
+  "learning_context": {
+    "source": "authorized_course_directory",
+    "course": {
+      "id": "course-6acf201ccde848a5bb5c281811ee2ab8",
+      "title": "古诗文鉴赏"
+    },
+    "current_topic": {
+      "id": "topic-29dcdce76bed54bf53af",
+      "title": "1",
+      "position": 1,
+      "total_topics": 1
+    },
+    "route_version": null,
+    "current_resource": {
+      "title": "1学习指南",
+      "resource_ref": {
+        "version": 1,
+        "course_id": "course-6acf201ccde848a5bb5c281811ee2ab8",
+        "material_id": "standard-topic-29dcdce76bed54bf53af-study_guide",
+        "material_type": "report"
+      }
+    }
+  },
+  "input_bytes": 16038,
+  "answer": {
+    "answer_markdown": "**课程**：古诗文鉴赏。\n\n**正式知识点**：目录中当前的知识点标题就是“**1**”（位置 1/1，本课程目前只有这一个知识点）。\n\n需要区分两点：\n\n1. **课程归属是明确的**——来自已授权的课程目录，课程名为“古诗文鉴赏”。\n2. **正式知识点名称本身没有实质含义**——目录里它只写作“1”，没有更具体的名称，也没有挂载节点目标。\n\n我们正在阅读的资料是《1学习指南》（版本 1）。你选中的那段正文讲的是“定义的本质属性”“主体/客体/机制”“特定约束条件下的确定性规律”等内容，这些是**资料正文里的小标题和概念**，属于正文层级，不能当作课程目录中的正式知识点名称。也就是说：课程是“古诗文鉴赏”，正式知识点目前只能按目录称为“1”；至于正文里那个被泛称为“该概念/核心概念”的对象具体指什么，资料本身没有写明，我无法替你补出。",
+    "citation_ids": [],
+    "suggested_action_ids": [],
+    "observation": null
+  },
+  "mode": "read-only context replay and one real model call; no conversation writes or task retries",
+  "tests": {
+    "passed": 64,
+    "databases": [
+      "sqlite",
+      "postgresql"
+    ],
+    "coverage": [
+      "generic report with official topic identity",
+      "entry refresh without duplicate greeting",
+      "topic/resource authorization and late answers",
+      "10000-character quote budget",
+      "report and PPT context",
+      "session and runtime regressions"
+    ]
+  },
+  "deployment": {
+    "backend_restart": "requires_admin_password",
+    "previous_pid": 3158202
+  },
+  "verified_at": "2026-10-13T15:11:57.648647+00:00"
+}

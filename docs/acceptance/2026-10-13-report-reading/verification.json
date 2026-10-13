@@ -1,0 +1,45 @@
+{
+  "index_before": "9b4c3b597cedd9035aefe97959b983ad93a4fe0707ac3a78ce8e2d84bb0b527b",
+  "started": 1791901835.0530171,
+  "deployed_at": "2026-10-13T14:38:51.709304+00:00",
+  "index_after": "2a435f88dcd72d8813dd39eaf9709d98414cfcef319ad8fad0ed81a0be20b4ea",
+  "backend_status": "restart_requires_admin_password",
+  "backup_index": "/tmp/edu-ai-report-reading-before.html",
+  "verified_at": "2026-10-13T14:41:57.928512+00:00",
+  "checks": {
+    "typescript": "passed",
+    "eslint_changed_report_components": "passed",
+    "frontend_unit_tests": {
+      "passed": 4
+    },
+    "backend_report_and_classroom_tests": {
+      "passed": 13
+    },
+    "production_assets_browser_tests": {
+      "passed": 2,
+      "viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "api": "isolated test fixture on port 8019; synthetic model; global job ledger stubbed",
+      "coverage": [
+        "hover paragraph AI entry",
+        "selection highlight",
+        "composer quote and focus",
+        "cancel quote",
+        "immutable sent snapshot",
+        "different anchors for repeated paragraphs"
+      ]
+    }
+  },
+  "backend_health": "ok",
+  "backend_pid_at_verification": 3064851,
+  "screenshots": [
+    "desktop.png",
+    "mobile.png"
+  ],
+  "production_index_matches_deployed": false,
+  "production_index_at_verification": "0069ffedf76fc31e368a6693b4bad13ae5c62f1d0ebe9ea9c711266ab597834e",
+  "production_js_matches_deployed": true,
+  "concurrent_deployment_note": "Another workspace task added classroom-chat-space CSS to index.html; JavaScript entry remains identical to the tested report build. Preserved that stylesheet."
+}

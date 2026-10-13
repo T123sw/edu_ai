@@ -271,6 +271,15 @@ async def offer_check(course_id: str, topic_id: str, payload: OfferCheckRequest,
 def get_check(check_id: str, user=Depends(get_current_user), svc=Depends(service)):
     return enrichment(svc, 'checks').get(user['username'], check_id)
 
+class CheckTeachingRequest(Contract):
+    enabled: bool = Field(strict=True)
+    expected_revision: int = Field(strict=True, ge=0)
+
+
+@router.put('/checks/{check_id}/teaching')
+def configure_check_teaching(check_id: str, payload: CheckTeachingRequest, user=Depends(get_current_user), svc=Depends(service)):
+    return enrichment(svc, 'checks').teaching.configure(user['username'], check_id, payload.enabled, payload.expected_revision)
+
 @router.post('/checks/{check_id}/attempts')
 async def submit_check(check_id: str, payload: CheckSubmission, user=Depends(get_current_user), svc=Depends(service)):
     return await enrichment(svc, 'checks').submit(user['username'], check_id, payload)
@@ -297,27 +306,33 @@ class ObservationUpdate(Contract):
 
 @router.get('/courses/{course_id}/topics/{topic_id}/observations')
 def teaching_observations(course_id: str, topic_id: str, user=Depends(get_current_user), svc=Depends(service)):
-    from sqlalchemy import select
-    from sqlalchemy.orm import Session
-    from app.self_learning.enrichment_models import LearningObservation
+    from app.self_learning.teaching_continuity import teaching_notes
     checks = enrichment(svc, 'checks')
     checks.topic(user['username'], course_id, topic_id)
-    with Session(checks.engine) as db:
-        return {'items':[{'turn_id': r.turn_id, **r.payload, 'status':r.status} for r in db.scalars(select(LearningObservation).where(
-            LearningObservation.owner == user['username'], LearningObservation.course_id == course_id, LearningObservation.topic_id == topic_id))]}
+    session = svc.session_repository.find(user['username'], course_id, topic_id)
+    summary = svc.summaries.read(user['username'], session['session_id']) if session and getattr(svc, 'summaries', None) else None
+    return {'items': teaching_notes(svc, user['username'], course_id, topic_id, limit=20), 'summary': summary}
 
 @router.post('/observations/{turn_id}')
 def update_teaching_observation(turn_id: str, payload: ObservationUpdate, user=Depends(get_current_user), svc=Depends(service)):
-    from app.self_learning.enrichment_models import LearningObservation
+    from app.self_learning.enrichment_models import LearningObservation, LearningMemoryEpoch
     checks = enrichment(svc, 'checks')
-    with checks._write('learning-observations:' + user['username']) as db:
+    with checks._write('learning-memory:' + user['username']) as db:
         row = db.get(LearningObservation, turn_id)
         if row is None or row.owner != user['username']:
             raise HTTPException(404, '教学观察不存在')
         checks.topic(user['username'], row.course_id, row.topic_id)
         if row.status != payload.status:
             row.status = payload.status
+            row.payload = {**row.payload, 'status_changed_at': datetime.now(timezone.utc).timestamp()}
             checks.bump_facts(db, user['username'], row.course_id, row.topic_id, turn_id)
+            # Fence in-flight answers and derived summaries using the same epoch
+            # and lock as preference corrections. Replays do not bump it again.
+            epoch = db.get(LearningMemoryEpoch, user['username'])
+            if epoch is None:
+                epoch = LearningMemoryEpoch(owner=user['username'], epoch=0)
+                db.add(epoch)
+            epoch.epoch += 1
         return {'turn_id':turn_id, 'status':row.status}
 
 @router.get('/courses/{course_id}/preparations')

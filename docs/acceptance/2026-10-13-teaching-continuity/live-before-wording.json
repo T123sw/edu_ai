@@ -1,0 +1,288 @@
+{
+  "model": "deepseek-v4-flash",
+  "storage": "disposable PostgreSQL schema and temporary files",
+  "cases": [
+    {
+      "case": "old_history_course_identity",
+      "question": "我们现在学习哪个课程和哪个知识点？简短回答。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 2.3,
+      "response": {
+        "turn_id": "answer-0eb49b5bba9542af9e4b4e559de39d19",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "20715163-67c8-45f1-a705-5e5f9338e321",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量讲义",
+              "locator": null,
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "5ced561cc06caddf32eaeeb26d4e4554702710486705f33094cc44e2a8c82d3a",
+              "resource_ref": {
+                "version": 2,
+                "course_id": "learning-fixture",
+                "material_id": "a-core",
+                "material_type": "report"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "c860703bae3028542f051675d907e9c7031d9c717c72f43a09ad2bbfee17697a"
+          },
+          "answer_markdown": "课程是 **Python 入门**，当前正式知识点是 **变量与赋值**（本课程 4 个知识点中的第 1 个）。\n\n你正在读的资料是《变量讲义》，其中讲的是：`x = 1` 让 x 绑定整数对象；`y = x` 让 y 绑定同一个对象；之后 `x = 2` 只改变 x 的绑定，y 仍为 1。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "explicit_difficulty",
+      "question": "我现在还是不理解变量重新赋值为什么不影响 y。请在本知识点教学记录里记下这项困惑，并给一个提示。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 2.12,
+      "response": {
+        "turn_id": "answer-57d4b8e21d5642cb9a4d3db2b00a63ef",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "6ab96577-ce26-4e0b-a734-15f217ad38ec",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量讲义",
+              "locator": {
+                "kind": "document",
+                "block_id": "report-v1:0:7:e6fe3f2c"
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "5ced561cc06caddf32eaeeb26d4e4554702710486705f33094cc44e2a8c82d3a",
+              "resource_ref": {
+                "version": 2,
+                "course_id": "learning-fixture",
+                "material_id": "a-core",
+                "material_type": "report"
+              }
+            }
+          ],
+          "observation": {
+            "kind": "open_question",
+            "text": "用户表示仍不理解变量重新赋值为什么不影响 y，需要标签/绑定视角的进一步解释。",
+            "objective_ids": [],
+            "source_message_ids": [
+              "answer-57d4b8e21d5642cb9a4d3db2b00a63ef:user"
+            ]
+          },
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "c860703bae3028542f051675d907e9c7031d9c717c72f43a09ad2bbfee17697a"
+          },
+          "answer_markdown": "已记下你的困惑：**变量重新赋值为什么不影响 y**。\n\n一个提示：把变量名想成贴在对象上的**标签**，而不是装东西的盒子。`y = x` 是给同一个对象再贴一张标签 y；`x = 2` 只是把标签 x 撕下来贴到新对象 2 上，y 那张标签还留在原来的对象 1 上，所以 y 仍是 1。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "after_correction",
+      "question": "以我更新后的教学记录为准，刚才那项困惑现在是什么状态？这能证明我掌握整个知识点了吗？",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 2.34,
+      "response": {
+        "turn_id": "answer-452711b8fb434841b0cbe6c27674cbb9",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "ce02a6e1-8387-43f1-bc6a-60b980083687",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [],
+          "observation": null,
+          "citation_ids": [],
+          "memory_epoch": 1,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "c860703bae3028542f051675d907e9c7031d9c717c72f43a09ad2bbfee17697a"
+          },
+          "answer_markdown": "按你更新后的教学记录，那项困惑（“变量重新赋值为什么不影响 y”）的状态是 **resolved（已解决）**，来源是你自己那条消息。\n\n但这**不能**证明你掌握了整个“变量与赋值”知识点：\n- 记录里只有这一条困惑被标记为已解决，属于局部问题；\n- 你的学习事实显示该知识点进度为 not_started、判断为 unverified、自评为未设置，也没有客观检查证据；\n- 困惑解决只说明当时那个疑问不再挂着，不等于对绑定、重新赋值等全部内容都已掌握。\n\n如果想确认理解程度，可以让我出一道可跳过的理解检查题。",
+          "source_revision": 1,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "helpful_explanation",
+      "question": "用贴标签来解释变量绑定对我很有帮助，请在本知识点记下这个有效讲法，不要设为所有课程的长期偏好。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 1.86,
+      "response": {
+        "turn_id": "answer-dcc1efcd99254793ae0bb6c97f633ec3",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "8493f41b-e9d1-48cf-8395-9acb51b4f6b1",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [],
+          "observation": {
+            "kind": "helpful_explanation",
+            "text": "用户明确反馈“用贴标签来解释变量绑定”这一讲法对自己有帮助。",
+            "objective_ids": [],
+            "source_message_ids": [
+              "answer-dcc1efcd99254793ae0bb6c97f633ec3:user"
+            ]
+          },
+          "citation_ids": [],
+          "memory_epoch": 1,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "c860703bae3028542f051675d907e9c7031d9c717c72f43a09ad2bbfee17697a"
+          },
+          "answer_markdown": "已在本知识点记下：**“贴标签”这个讲法对你理解变量绑定有帮助**。\n\n同时说明两点：\n- 这只是本知识点的一条教学反馈，不代表你已经掌握“变量与赋值”；\n- 按你的要求，没有把它设为所有课程的长期偏好。",
+          "source_revision": 1,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    }
+  ],
+  "api_checks": [
+    {
+      "case": "notes_keep_sources_and_corrections",
+      "notes": [
+        {
+          "turn_id": "answer-dcc1efcd99254793ae0bb6c97f633ec3",
+          "topic_id": "a",
+          "kind": "helpful_explanation",
+          "text": "用户明确反馈“用贴标签来解释变量绑定”这一讲法对自己有帮助。",
+          "status": "hypothesis",
+          "evaluator": "model",
+          "objective_ids": [],
+          "source_message_ids": [
+            "answer-dcc1efcd99254793ae0bb6c97f633ec3:user"
+          ],
+          "created_at": 1791914686.8335817,
+          "resource_ref": {
+            "version": 2,
+            "course_id": "learning-fixture",
+            "material_id": "a-core",
+            "material_type": "report"
+          },
+          "locator": null,
+          "sources": [
+            {
+              "message_id": "answer-dcc1efcd99254793ae0bb6c97f633ec3:user",
+              "quote": "用贴标签来解释变量绑定对我很有帮助，请在本知识点记下这个有效讲法，不要设为所有课程的长期偏好。"
+            }
+          ]
+        },
+        {
+          "turn_id": "answer-57d4b8e21d5642cb9a4d3db2b00a63ef",
+          "topic_id": "a",
+          "kind": "open_question",
+          "text": "用户表示仍不理解变量重新赋值为什么不影响 y，需要标签/绑定视角的进一步解释。",
+          "status": "resolved",
+          "evaluator": "model",
+          "objective_ids": [],
+          "source_message_ids": [
+            "answer-57d4b8e21d5642cb9a4d3db2b00a63ef:user"
+          ],
+          "created_at": 1791914682.0811033,
+          "resource_ref": {
+            "version": 2,
+            "course_id": "learning-fixture",
+            "material_id": "a-core",
+            "material_type": "report"
+          },
+          "locator": null,
+          "sources": [
+            {
+              "message_id": "answer-57d4b8e21d5642cb9a4d3db2b00a63ef:user",
+              "quote": "我现在还是不理解变量重新赋值为什么不影响 y。请在本知识点教学记录里记下这项困惑，并给一个提示。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "no_implicit_long_term_preference",
+      "status": "passed"
+    }
+  ],
+  "semantic_review": "pending",
+  "execution_status": "finished"
+}

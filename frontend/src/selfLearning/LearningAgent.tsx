@@ -1,3 +1,6 @@
+import { TeachingObservations } from '../liveLearning/TeachingObservations';
+import { citationUrl } from '../liveLearning/citationNavigation';
+import '../liveLearning/reportReading.css';
 import ReactMarkdown from 'react-markdown';
 import { useAnswerTurns, answerErrorMessage, type ReadingSnapshot } from '../liveLearning/agentTurns';
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
@@ -6,10 +9,12 @@ import { agentContext, chapterMessages, learningMemory } from "./learningMemory"
 import { Icon } from "./ui";
 import { useTopicSession } from '../liveLearning/learningClient';
 
-export function LearningAgent({ room, resource, setState, onEngage, onAsk, onSelfAssessment, selfAssessmentPending, readingSnapshot }: {
+export function LearningAgent({ room, resource, setState, onEngage, onAsk, onSelfAssessment, selfAssessmentPending, readingSnapshot, referenceRequest = 0, onClearReference }: {
   room: Classroom; resource: LearningResource; setState: Dispatch<SetStateAction<LearningState>>;
   onSelect: (id: string) => void; onEngage: () => void;
   readingSnapshot?: ReadingSnapshot;
+  referenceRequest?: number;
+  onClearReference?: () => void;
   onSelfAssessment?: (value: 'understood' | 'needs_review' | 'unset') => void;
   selfAssessmentPending?: boolean;
   onAsk?: (chapterId: string, resourceId: string, text: string) => Promise<void>;
@@ -30,6 +35,19 @@ export function LearningAgent({ room, resource, setState, onEngage, onAsk, onSel
   const conversation = useRef<HTMLDivElement>(null);
   const olderScrollHeight = useRef<number | null>(null);
   const question = drafts[chapter.id] || "";
+  const composer = useRef<HTMLTextAreaElement>(null);
+  const referenceKind = useRef(readingSnapshot?.locator?.kind);
+  const referencePrompt = useRef(readingSnapshot?.question_prompt);
+  referencePrompt.current = readingSnapshot?.question_prompt;
+  referenceKind.current = readingSnapshot?.locator?.kind;
+  const referenceTopic = useRef(chapter.id);
+  referenceTopic.current = chapter.id;
+  useEffect(() => {
+    if (!referenceRequest) return;
+    const topic = referenceTopic.current;
+    setDrafts(s => ({ ...s, [topic]: referencePrompt.current || s[topic] || (referenceKind.current === 'quiz' ? '请解释这道题。' : '请解释这段内容。') }));
+    composer.current?.focus();
+  }, [referenceRequest]);
   useEffect(() => {
     const el = conversation.current;
     if (el) el.scrollTop = olderScrollHeight.current === null ? el.scrollHeight : el.scrollHeight - olderScrollHeight.current;
@@ -79,7 +97,7 @@ export function LearningAgent({ room, resource, setState, onEngage, onAsk, onSel
     <div className="sl-learning-memory">
       <button className="sl-memory-toggle" aria-expanded={memoryOpen} onClick={() => setMemoryOpen(!memoryOpen)}><Icon name="book" size={15} /><span>全局学习记忆<small>{memory.filter(m => m.status !== "未开始").length} / {memory.length} 个知识点有记录</small></span><Icon name="chevron" size={14} /></button>
       {memoryOpen && <div className="sl-memory-body" aria-label="全局学习记忆">
-        <p>本课堂各知识点的学习摘要会共同提供给 Agent。完成记录与理解程度分别记录。</p>
+        <p>Agent 会按需参考本课程的学习记录，各知识点的对话独立保存。完成记录与理解程度分别记录。</p>
         {memory.map(m => <div className={`sl-memory-item ${m.chapterId === chapter.id ? "current" : ""}`} key={m.chapterId}><strong>{m.title}<span>{m.status}</span></strong><small>{m.facts}</small></div>)}
         <label>当前知识点的理解程度<select aria-label="当前知识点的理解程度" disabled={selfAssessmentPending} value={room.understanding?.[chapter.id] || ""} onChange={e => {
           const value = e.target.value;
@@ -92,13 +110,14 @@ export function LearningAgent({ room, resource, setState, onEngage, onAsk, onSel
           }));
         }}><option value="">尚未自评</option><option value="review">还需巩固</option><option value="understood">我已理解</option></select></label>
         <small>理解程度来自你的自评，练习反馈单独保留。</small>
+        {room.enrichmentEnabled && <TeachingObservations key={`${room.sessionOwner}:${room.id}:${chapter.id}`} owner={room.sessionOwner || ''} course={room.id} topic={chapter.id} refreshKey={turnStatus} />}
       </div>}
     </div>
     <div className="sl-chat-history" ref={conversation} role="log" aria-label="当前知识点对话记录" data-session-id={session.sessionId}>
       {session.hasOlder && <button disabled={session.loading} onClick={() => { olderScrollHeight.current = conversation.current?.scrollHeight ?? null; void session.loadOlder(); }}>加载更早的对话</button>}
       {!room.sessionPersistence && <div className="sl-chat-bubble assistant"><span className="sl-chat-author"><Icon name="spark" size={14} />学习 Agent</span><p>我会一直在这里，陪你学完这堂课。</p><p>现在我们聊「{chapter.title}」。你可以随时提问；回来时，这里的对话会接着保留。</p></div>}
-      {messages.map(m => <div key={m.id} data-message-kind={m.kind} className={`sl-chat-bubble ${m.role}`}><span className="sl-chat-author">{m.role === "user" ? "你" : "学习 Agent"}<small>{m.resourceTitle}</small></span>{m.answerResult ? <ReactMarkdown>{m.text}</ReactMarkdown> : <p>{m.text}</p>}{m.answerResult?.citations?.map(c => <small key={c.citation_id}><a target="_blank" rel="noopener noreferrer" href={`?learningPlayer=1#ai?${new URLSearchParams({ course_id: c.resource_ref.course_id, material_type: c.resource_ref.material_type, material_id: c.resource_ref.material_id, version: String(c.resource_ref.version), visibility: c.visibility || 'private' })}`}>来源：{c.title || c.resource_ref.material_id} · v{c.resource_ref.version}</a></small>)}</div>)}
-      {turns.active && <div role="status">{turns.active.stage === "reading_resources" ? "正在读取资料…" : turns.active.status === "accepted" ? "问题已接收，等待处理…" : "正在组织回答…"}<button onClick={() => void turns.control(turns.active!.turn_id, "cancel")}>取消本次答疑</button></div>}
+      {messages.map(m => <div key={m.id} data-message-kind={m.kind} className={`sl-chat-bubble ${m.role}`}><span className="sl-chat-author">{m.role === "user" ? "你" : "学习 Agent"}<small>{m.resourceTitle}</small></span>{m.answerResult ? <ReactMarkdown>{m.text}</ReactMarkdown> : <p>{m.text}</p>}{m.answerResult?.citations?.map(c => <small key={c.citation_id}><a target="_blank" rel="noopener noreferrer" href={citationUrl(c)}>来源：{c.title || c.resource_ref.material_id} · v{c.resource_ref.version}</a></small>)}</div>)}
+      {turns.active && <div role="status">{turns.active.stage === "reading_resources" ? "正在读取资料…" : turns.active.status === "accepted" ? "问题已接收，等待处理…" : "正在组织回答…"}</div>}
       {pending[chapter.id] && <div className="sl-chat-thinking" role="status">{room.live ? "正在思考…" : "正在整理示例回复"}<span>•••</span></div>}
     </div>
     <div className="sl-chat-bottom">
@@ -108,7 +127,12 @@ export function LearningAgent({ room, resource, setState, onEngage, onAsk, onSel
       {error && <p className="sl-error" role="alert">{error}</p>}
       {room.sessionPersistence && session.error && <p className="sl-error" role="alert">{session.error}<button onClick={() => void session.retry()}>重新读取会话</button></p>}
       <div className="sl-quick-questions">{["举个例子", "接下来学什么？"].map(q => <button key={q} disabled={pending[chapter.id] || !!turns.active} onClick={() => ask(q)}>{q}</button>)}</div>
-      <form className="sl-chat-composer" onSubmit={e => { e.preventDefault(); ask(question); }}><textarea aria-label="向学习 Agent 提问" placeholder="随时提问，一起梳理这个知识点…" value={question} maxLength={1000} onChange={e => setDrafts(s => ({ ...s, [chapter.id]: e.target.value }))} onFocus={onEngage} onKeyDown={e => {
+      {room.agentRuntime && readingSnapshot?.selected_text && <div className="sl-reference-card" role="note" aria-label="已引用报告片段">
+        <strong>{readingSnapshot.practice?.draft ? '已引用未提交的作答草稿' : readingSnapshot.practice?.attempt_id ? '已引用这次提交的作答' : '将结合选中文本回答'}</strong><span> · {resource.title}</span>
+        <button type="button" aria-label="取消引用" onClick={onClearReference}>×</button>
+        <blockquote>{readingSnapshot.selected_text}</blockquote>
+      </div>}
+      <form className="sl-chat-composer" onSubmit={e => { e.preventDefault(); ask(question); }}><textarea ref={composer} aria-label="向学习 Agent 提问" placeholder="随时提问，一起梳理这个知识点…" value={question} maxLength={1000} onChange={e => setDrafts(s => ({ ...s, [chapter.id]: e.target.value }))} onFocus={onEngage} onKeyDown={e => {
         if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); ask(question); }
       }} /><button className="sl-send" aria-label="发送问题" disabled={!question.trim() || pending[chapter.id] || !!turns.active}><Icon name="arrow" size={18} /></button></form>
       <small>{room.live ? "对话自动保存到账号" : "本地示例回复"} · Enter 发送 / Shift + Enter 换行</small>

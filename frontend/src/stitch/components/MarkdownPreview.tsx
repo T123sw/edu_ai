@@ -8,10 +8,12 @@ import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/prism";
 import vscDarkPlus from "react-syntax-highlighter/dist/esm/styles/prism/vsc-dark-plus";
 import { useAuthenticatedBlobUrl } from "../api/useAuthenticatedBlobUrl";
 import { normalizeKnowledgeMarkdown } from "./knowledgeMarkdown";
+import { reportReadingAnchors } from '../../liveLearning/reportReading';
 
 type MarkdownPreviewProps = {
   content: string;
   imageUrls?: Record<string, string>;
+  readingAnchors?: boolean;
 };
 
 function MarkdownImage({ src, alt }: { src: string; alt?: string }) {
@@ -26,19 +28,19 @@ function MarkdownImage({ src, alt }: { src: string; alt?: string }) {
   );
 }
 
-export function MarkdownPreview({ content, imageUrls = {} }: MarkdownPreviewProps) {
+export function MarkdownPreview({ content, imageUrls = {}, readingAnchors = false }: MarkdownPreviewProps) {
   return (
     <div className="markdown-preview text-sm leading-7 text-(--app-text)">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[reportAnchors, rehypeKatex]}
+        rehypePlugins={[reportAnchors, ...(readingAnchors ? [reportReadingAnchors] : []), rehypeKatex]}
         components={{
           img({ src, alt }) {
             const resolved = src ? (imageUrls[src] || src) : "";
             return resolved ? <MarkdownImage src={resolved} alt={alt || undefined} /> : null;
           },
-          table({ children }) {
-            return <div className="my-5 overflow-x-auto"><table className="min-w-full border-collapse">{children}</table></div>;
+          table({ children, node: _node, ...props }) {
+            return <div className="my-5 overflow-x-auto"><table {...props} className="min-w-full border-collapse">{children}</table></div>;
           },
           th({ children }) {
             return <th className="border border-(--app-border) bg-(--surface-subtle) px-3 py-2 text-left">{children}</th>;

@@ -17,6 +17,13 @@ from tests.self_learning.test_session_repository import repository
 
 @pytest.fixture
 def live_service(repository, tmp_path, monkeypatch):
+    # This session fixture creates only session tables. Later fixtures explicitly
+    # install their own agent/progress services; production .env flags must not
+    # auto-wire those services (or connect this fixture to the business database).
+    for key in ('LEARNING_AGENT_V1_ENABLED', 'LEARNING_ENRICHMENT_V1_ENABLED',
+                'LEARNING_PREPARATION_V1_ENABLED', 'LEARNING_PROGRESS_V1_ENABLED',
+                'COURSE_PREPARATION_ENABLED'):
+        monkeypatch.setenv(key, 'false')
     for key in ['APP_STATE', 'MATERIAL', 'KNOWLEDGE', 'COURSE', 'COURSE_MEMBERSHIP']:
         monkeypatch.setenv(key + '_PERSISTENCE_MODE', 'json')
     manager = CourseStorageManager(root_path=str(tmp_path / 'courses'))

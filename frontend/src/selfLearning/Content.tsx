@@ -40,12 +40,16 @@ export function LearningContent({
   paused = false,
   onReading,
   onReadingSnapshot,
+  onReferenceRequest,
+  clearReferenceSignal = 0,
 }: {
   resource: LearningResource;
   evidence?: Evidence;
   onEvidence?: (patch: Partial<Evidence>) => void;
   paused?: boolean;
   onReadingSnapshot?: (snapshot: ReadingSnapshot) => void;
+  onReferenceRequest?: (snapshot: ReadingSnapshot) => void;
+  clearReferenceSignal?: number;
   onReading?: (type: string, payload: Record<string, unknown>) => void;
 }) {
   const channel = useRef(uid());
@@ -56,6 +60,8 @@ export function LearningContent({
   const reachedEnd = useRef(false);
   const onSnapshotRef = useRef(onReadingSnapshot);
   onSnapshotRef.current = onReadingSnapshot;
+  const referenceRequestRef = useRef(onReferenceRequest);
+  referenceRequestRef.current = onReferenceRequest;
   const initialLocator = useRef(evidence.locator);
   const onReadingRef = useRef(onReading);
   onReadingRef.current = onReading;
@@ -92,6 +98,9 @@ export function LearningContent({
     return () => clearTimeout(timer);
   }, [playing, position]);
   useEffect(() => {
+    if (clearReferenceSignal) frame.current?.contentWindow?.postMessage({ type: 'learning-clear-selection', channel_id: channel.current }, location.origin);
+  }, [clearReferenceSignal]);
+  useEffect(() => {
     frame.current?.contentWindow?.postMessage({ type: 'learning-pause', paused }, location.origin);
   }, [paused]);
   useEffect(() => {
@@ -100,12 +109,14 @@ export function LearningContent({
       const ref = resourceRef(resource);
       if ((onReadingRef.current || onSnapshotRef.current) && ref) {
         if (event.data?.type === 'learning-context-request') {
-          frame.current?.contentWindow?.postMessage({ type: 'learning-context-init', channel_id: channel.current, resource_ref: ref, stream_id: stream.current }, location.origin);
+          frame.current?.contentWindow?.postMessage({ type: 'learning-context-init', channel_id: channel.current, resource_ref: ref, stream_id: stream.current, can_reference: !!onSnapshotRef.current && !!referenceRequestRef.current }, location.origin);
         } else if (event.data?.type === 'learning-context-ready' && event.data.channel_id === channel.current && event.data.resource_ref && refKey(event.data.resource_ref) === refKey(ref)) {
           if (!opened.current) { opened.current = true; onReadingRef.current?.('resource_opened', {}); }
         } else if (opened.current && acceptReadingMessage(event.data, channel.current, ref, sequence.current)) {
           sequence.current = event.data.sequence;
-          onSnapshotRef.current?.({ resource_ref: ref, locator: event.data.locator, selected_text: event.data.selected_text || '', classroom: event.data.classroom });
+          const snapshot = { resource_ref: ref, locator: event.data.locator, selected_text: event.data.selected_text || '', classroom: event.data.classroom, practice: event.data.practice, question_prompt: event.data.question_prompt };
+          onSnapshotRef.current?.(snapshot);
+          if (event.data.intent === 'ask') referenceRequestRef.current?.(snapshot);
           const positionKey = JSON.stringify(event.data.locator);
           if (lastPosition.current !== positionKey) {
             lastPosition.current = positionKey;

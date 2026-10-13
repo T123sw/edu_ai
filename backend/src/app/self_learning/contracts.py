@@ -71,7 +71,12 @@ class ClassroomLocator(Contract):
     content_hash: Identifier | None = None
 
 
-Locator = Annotated[DocumentLocator | PdfLocator | VideoLocator | ClassroomLocator, Field(discriminator='kind')]
+class QuizLocator(Contract):
+    kind: Literal['quiz']
+    question_index: Annotated[int, Field(strict=True, ge=0, le=9999)]
+
+
+Locator = Annotated[DocumentLocator | PdfLocator | VideoLocator | ClassroomLocator | QuizLocator, Field(discriminator='kind')]
 
 
 class ReadingContext(Contract):

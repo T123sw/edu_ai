@@ -1,0 +1,6 @@
+[
+  {"material_id":"simple","material_type":"report","content":"# 标题 😀\r\n\r\n第一段 **变量** 是名字。\r\n\r\n相同段落。\r\n\r\n第二部分\r\n\r\n相同段落。"},
+  {"material_id":"imported","material_type":"report","final_markdown":" <u>下划线</u><br>H<sub>2</sub>O 和 x<sup>2</sup>\n\n\\( x = 1 \\)\n\n\\[ y = x \\]\n\n!!! tip \"先看例子\"\n\n<img src=\"a.png\" alt=\"示意\">\n\n\n\n下一段"},
+  {"material_id":"structured","material_type":"report","title":"课程","report":{"title":"结构化报告","summary":"概述","introduction":"导入","mainContent":[{"title":"章节","content":"**重点**内容","subsections":[{"title":"例子","content":"x = 1"}]}],"keyFindings":["结论一","结论二"],"conclusions":"小结","recommendations":["自己尝试"]}},
+  {"material_id":"nested","material_type":"report","content":{"markdown":"# 内嵌正文\n\n[变量](https://example.com)不是值。"}}
+]

@@ -1,0 +1,229 @@
+{
+  "model": "deepseek-v4-flash",
+  "mode": "real model; synthetic materials and isolated learning database",
+  "cases": [
+    {
+      "case": "generic_paragraph",
+      "question": "请解释这段内容。",
+      "status": "succeeded",
+      "seconds": 3.73,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "学习指南",
+            "locator": {
+              "kind": "document",
+              "offset": 20,
+              "content_hash": "3c2046dd7f96ad1fd9a7002d14b579cd4a69a34a2f46501615dbf7573b31f011"
+            },
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "3c2046dd7f96ad1fd9a7002d14b579cd4a69a34a2f46501615dbf7573b31f011",
+            "resource_ref": {
+              "version": 2,
+              "course_id": "learning-fixture",
+              "material_id": "a-core",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v2",
+        "tool_attempts": 0,
+        "teaching_skill": {
+          "mode": "document",
+          "name": "teach-current-topic",
+          "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+        },
+        "answer_markdown": "这段选中的文字本身是一段通用性的“概念定义”表述，但它的内容与当前知识点**“诗歌意象与意境”**并不对应：\n\n- 它说“该概念是由主体、客体、机制构成的多维复合系统”，这是系统论式的抽象说法，并没有指出“该概念”具体指什么；\n- “标准定义是在特定约束条件下，系统内部各要素相互作用所产生的确定性规律”，同样是一句泛化的定义模板，没有涉及诗歌、意象或意境。\n\n也就是说，这段文字的字面意思可以理解为：某个概念被描述为一个由主体、客体、机制三部分组成的复合系统，其规律来自各要素在特定条件下的相互作用。但**它没有给出“该概念”的所指**，也没有说明它与“诗歌意象与意境”的关系。\n\n因此，我无法据此推断它在当前知识点中的作用，也不宜把它当作意象或意境的正式定义来使用。如果你需要的是“意象”“意境”本身的解释，我可以基于本课程资料中真正对应的内容来说明——目前这段选区不足以支撑这一点。",
+        "source_revision": 0,
+        "suggested_action_ids": []
+      },
+      "error_code": null
+    },
+    {
+      "case": "course_followup",
+      "question": "我们现在在围绕着什么在提问",
+      "status": "succeeded",
+      "seconds": 2.01,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "学习指南",
+            "locator": null,
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "3c2046dd7f96ad1fd9a7002d14b579cd4a69a34a2f46501615dbf7573b31f011",
+            "resource_ref": {
+              "version": 2,
+              "course_id": "learning-fixture",
+              "material_id": "a-core",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v2",
+        "tool_attempts": 0,
+        "teaching_skill": {
+          "mode": "document",
+          "name": "teach-current-topic",
+          "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+        },
+        "answer_markdown": "我们当前围绕的是课程**《古诗文鉴赏》**中的正式知识点**“诗歌意象与意境”**（这是本课程 3 个知识点中的第 1 个）。\n\n你刚才让我解释的那段文字，来自当前资料《学习指南》的阅读快照，但它的内容（主体、客体、机制构成的多维复合系统）与“诗歌意象与意境”这个知识点并不对应，所以我没有把它当作意象或意境的正式定义来讲。\n\n本课程相邻的正式知识点还有：**意象的表达作用**、**课堂阅读**。",
+        "source_revision": 0,
+        "suggested_action_ids": []
+      },
+      "error_code": null
+    },
+    {
+      "case": "topic_followup",
+      "question": "围绕着哪个知识点",
+      "status": "succeeded",
+      "seconds": 1.66,
+      "result": {
+        "actions": [],
+        "citations": [],
+        "observation": null,
+        "citation_ids": [],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v2",
+        "tool_attempts": 0,
+        "teaching_skill": {
+          "mode": "document",
+          "name": "teach-current-topic",
+          "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+        },
+        "answer_markdown": "围绕的是正式知识点**“诗歌意象与意境”**（课程《古诗文鉴赏》中的第 1 个知识点）。\n\n需要说明的是：你之前让我解释的那段选区文字（讲“主体、客体、机制构成的多维复合系统”）与这个知识点并不匹配，所以它不能作为“诗歌意象与意境”的定义依据。",
+        "source_revision": 0,
+        "suggested_action_ids": []
+      },
+      "error_code": null
+    },
+    {
+      "case": "direct_explanation",
+      "question": "请简短解释意象与意境的区别，举一个例子，不用检查理解。",
+      "status": "succeeded",
+      "seconds": 2.54,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "学习指南",
+            "locator": null,
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "876f24313806c7f63d931a4c92c7bfb9bf0c31ef1079e01d0b6b58578b5e4ecf",
+            "resource_ref": {
+              "version": 2,
+              "course_id": "learning-fixture",
+              "material_id": "b-core",
+              "material_type": "report"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v2",
+        "tool_attempts": 0,
+        "teaching_skill": {
+          "mode": "document",
+          "name": "teach-current-topic",
+          "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+        },
+        "answer_markdown": "**意象 vs 意境**\n\n- **意象**：寄托诗人情感的**具体物象**，是单个的、可指认的东西，比如“明月”“杨柳”“孤舟”。\n- **意境**：诗中**物象与情感共同形成的整体氛围**，是多个意象加上情感基调后，读者感受到的整片“气氛场”。\n\n一句话概括：意象是**零件**，意境是这些零件和情感拼出来的**整体画面与氛围**。\n\n**例子**：\n\n“明月”本身是一个意象，寄托思乡之情；但如果全诗只有“明月”二字，还谈不上意境。若写成“床前明月光，疑是地上霜。举头望明月，低头思故乡”，月光、霜、举头、低头这些物象与动作，连同思乡的情感一起，构成了清冷、孤寂又绵长的整体氛围——这才是意境。\n\n**一个提醒**：不能仅凭出现“月亮”就断定是思乡。意象的含义要联系全诗来判断，同一个物象在不同诗里可以承载不同情感。",
+        "source_revision": 0,
+        "suggested_action_ids": []
+      },
+      "error_code": null
+    },
+    {
+      "case": "different_example",
+      "question": "换一个不使用月亮的例子。",
+      "status": "succeeded",
+      "seconds": 3.23,
+      "result": {
+        "actions": [],
+        "citations": [],
+        "observation": null,
+        "citation_ids": [],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v2",
+        "tool_attempts": 0,
+        "teaching_skill": {
+          "mode": "document",
+          "name": "teach-current-topic",
+          "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+        },
+        "answer_markdown": "**换用“杨柳”的例子**\n\n- **意象**：“杨柳”（或“柳”）是一个具体物象，古诗中常用来寄托**离别、挽留**之情——“柳”谐音“留”。\n- **意境**：把杨柳和其他物象、情感放在一起，形成的整体氛围。\n\n**例子**：\n\n“杨柳青青江水平，闻郎江上唱歌声。”\n\n单看“杨柳”，它只是一个意象，寄托着离别或相思的情绪；但整句里，青青的柳色、平缓的江水、江上传来的歌声，连同那份若有若无的思念，共同营造出**明媚又略带怅惘**的整体氛围——这就是意境。\n\n**对比着记**：\n\n| | 意象 | 意境 |\n|---|---|---|\n| 是什么 | 单个具体物象 | 整体氛围 |\n| 范围 | 一个点 | 全诗/全句的面 |\n| 例子 | 杨柳、江水、歌声 | 明媚而怅惘的江边氛围 |\n\n**同样的提醒**：不能一看到“柳”就断定是离别。柳也可以写春景、写生机，具体含义要联系全诗来判断。",
+        "source_revision": 0,
+        "suggested_action_ids": []
+      },
+      "error_code": null
+    },
+    {
+      "case": "viewed_vs_spoken",
+      "question": "我当前看的页和刚才讲解的位置分别是什么？你能看到图片细节吗？",
+      "status": "succeeded",
+      "seconds": 3.06,
+      "result": {
+        "actions": [],
+        "citations": [
+          {
+            "title": "变量课件",
+            "locator": {
+              "kind": "classroom",
+              "scene_id": "two"
+            },
+            "visibility": "course",
+            "citation_id": "ctx_01",
+            "content_hash": "aacf9f1810605e047c7ff47f1846438a710e748da28fbb531c6e4c4eb03965da",
+            "resource_ref": {
+              "version": 1,
+              "course_id": "learning-fixture",
+              "material_id": "slides",
+              "material_type": "classroom"
+            }
+          }
+        ],
+        "observation": null,
+        "citation_ids": [
+          "ctx_01"
+        ],
+        "memory_epoch": 0,
+        "model_rounds": 1,
+        "role_version": "learning-role-v2",
+        "tool_attempts": 0,
+        "teaching_skill": {
+          "mode": "classroom",
+          "name": "teach-current-topic",
+          "version": "afb407b151b6f973ad9408a6bc5e0756a8cef0f273533dabac47ef2d82ed1595"
+        },
+        "answer_markdown": "你现在看的是第 2 页「条件」（scene 标题为“条件”），这一页目前没有讲稿文字，页面上只标出了一个文本元素“下一页完整内容”。\n\n刚才的讲解位置在第 1 页「赋值」，高亮的是公式 x=1，当前句是“再试一次。”，整段讲稿还没播完。注意这是最近一次讲解位置，不等于完整播放历史。\n\n图片细节我看不到：当前快照里视觉内容不可用，所以只能依据页面文字、公式和讲稿来讲解，不能描述图片里的具体画面。",
+        "source_revision": 0,
+        "suggested_action_ids": []
+      },
+      "error_code": null
+    }
+  ],
+  "status": "passed",
+  "review_required": "Inspect answers for pedagogy; structural assertions alone do not grade teaching quality."
+}

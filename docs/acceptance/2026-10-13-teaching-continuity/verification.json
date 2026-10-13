@@ -1,0 +1,85 @@
+{
+  "verified_at": "2026-10-13T18:15:03.802606+00:00",
+  "status": "source_integrated_verified_not_deployed",
+  "scope": [
+    "per-topic teaching notes with authenticated user quotes and exact resource references",
+    "resolved/retracted corrections invalidate summaries and fence in-flight answer publication",
+    "categorized long-conversation summaries retaining source excerpts",
+    "authoritative course/topic reminder overrides historical assistant claims",
+    "related-topic notes read only on demand through existing authorized summary tool"
+  ],
+  "backend": {
+    "distinct_tests_passed": 94,
+    "runs": [
+      {
+        "evidence": "tests.xml",
+        "passed": 57,
+        "seconds": "432.205"
+      },
+      {
+        "evidence": "final-checks.xml",
+        "passed": 45,
+        "seconds": "205.672"
+      },
+      {
+        "evidence": "correction-recheck.xml",
+        "passed": 2,
+        "seconds": "28.955"
+      }
+    ],
+    "databases": [
+      "SQLite",
+      "isolated PostgreSQL"
+    ]
+  },
+  "frontend": {
+    "browser_passed": 1,
+    "browser_seconds": 21.9,
+    "covers": [
+      "source quote display",
+      "topic isolation",
+      "return restoration",
+      "correction persistence after reload"
+    ],
+    "typecheck": "passed",
+    "targeted_lint": "passed",
+    "build": "passed",
+    "build_output": "/tmp/edu-ai-teaching-continuity-dist",
+    "browser_environment": "current source frontend and disposable backend with deterministic model"
+  },
+  "real_model": {
+    "model": "deepseek-v4-flash",
+    "conversation_cases_reviewed": 4,
+    "summary_generation_cases": 1,
+    "evidence": [
+      "live.json",
+      "summary-live.json"
+    ],
+    "manual_review": "Target behaviors and key source bindings passed; does not certify every summary sentence or all future answers."
+  },
+  "budget": {
+    "public_selection_limit_chars": 10000,
+    "question_limit_chars": 2000,
+    "regression": "passed with all tools and long objectives",
+    "fix": "When full selection is retained, redundant source excerpt can shrink to zero. Optional notes and summaries remain bounded."
+  },
+  "versions": {
+    "root_role": "learning-role-v3",
+    "summary_template": "learning-summary-v2",
+    "checkpoints": "existing checkpoints retain original prompts"
+  },
+  "deployment": {
+    "frontend_published": false,
+    "backend_restarted": false,
+    "database_migration_required": false,
+    "production_data_modified": false,
+    "committed_or_pushed": false
+  },
+  "limits": [
+    "User can resolve/retract notes, not freely edit their text",
+    "Existing raw chats are preserved; corresponding corrected pairs are omitted from automatic recent context and rebuilt summaries",
+    "Summary runs after at least 12 usable paired turns and preserves recent 4 turns; it is not produced on every entry",
+    "No automatic draft-answer capture, no PPT image vision, no implicit global preferences",
+    "Production integration remains pending for phases 2 and 3"
+  ]
+}

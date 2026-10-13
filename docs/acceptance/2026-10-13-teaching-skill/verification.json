@@ -1,0 +1,64 @@
+{
+  "stage": "phase_1_teaching_workflow",
+  "verified_at": "2026-10-13T16:43:54.835072+00:00",
+  "status": "source_verified_backend_restart_required",
+  "tests": {
+    "focused_passed": 32,
+    "final_loader_and_budget_recheck_passed": 16,
+    "databases": [
+      "sqlite",
+      "postgresql"
+    ],
+    "extended_regression": "passed",
+    "extended_passed": 127,
+    "distinct_tests_passed": 159,
+    "extended_seconds": 612.51,
+    "final_loader_and_budget_recheck_seconds": 114.13
+  },
+  "skill_validation": "passed",
+  "live_model": {
+    "model": "deepseek-v4-flash",
+    "cases_succeeded": 6,
+    "storage": "isolated test database and synthetic materials",
+    "manual_review": [
+      "Current course and official topic identified in follow-ups",
+      "Unrelated generic paragraph is not fabricated into a domain definition",
+      "Direct explanation and a different example without forced checks",
+      "Viewed page and latest lecture position distinguished; no claimed image vision"
+    ],
+    "limitation": "Flow and context checks, not comprehensive subject-matter accuracy or all-model certification"
+  },
+  "skills": [
+    {
+      "name": "teach-current-topic",
+      "mode": "document",
+      "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b",
+      "system_instruction_bytes": 5819
+    },
+    {
+      "name": "teach-current-topic",
+      "mode": "quiz",
+      "version": "050ce3b25e11618cf33815771cc29e4b7cf54fcebbd4f018ec4d40c623125f8d",
+      "system_instruction_bytes": 5564
+    },
+    {
+      "name": "teach-current-topic",
+      "mode": "classroom",
+      "version": "afb407b151b6f973ad9408a6bc5e0756a8cef0f273533dabac47ef2d82ed1595",
+      "system_instruction_bytes": 6181
+    }
+  ],
+  "deployment": {
+    "status": "backend_restart_required",
+    "observed_pid": 3171845,
+    "observed_start_utc": "2026-10-13 15:48:04",
+    "production_conversations_modified": false
+  },
+  "deferred": [
+    "quiz-specific locator contract",
+    "in-document pre-retrieval",
+    "citation jump navigation",
+    "expanded learning memory"
+  ],
+  "diff_check": "passed for changed teaching files; unrelated concurrent changes excluded"
+}

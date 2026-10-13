@@ -1,0 +1,42 @@
+{
+  "selected_chars": 170,
+  "schemas_bytes": 8916,
+  "old_message_budget": 4884,
+  "new_message_budget": 47084,
+  "old_result": "CONTEXT_BUDGET_EXCEEDED",
+  "new_result": "context_built",
+  "input_bytes": 9384,
+  "selected_preserved": true,
+  "frontend_deployed_at": "2026-10-13T14:49:58.091537+00:00",
+  "index_sha256": "298669c1fc03b8d68bd6f54c25db381e93f09efcf3edba4f467a974989ccf856",
+  "backend_restart": "requires_admin_password",
+  "checks": {
+    "typescript": "passed",
+    "eslint": "passed",
+    "production_build": "passed",
+    "backend_tests": {
+      "passed": 50,
+      "databases": [
+        "sqlite",
+        "postgresql"
+      ],
+      "coverage": [
+        "original 170-character quote replay",
+        "10000-character Chinese selection with maximum question",
+        "report anchors",
+        "agent runtime",
+        "classroom context"
+      ]
+    },
+    "deployed_frontend_browser_tests": {
+      "passed": 2,
+      "api": "isolated fixture; synthetic model",
+      "viewports": [
+        "desktop",
+        "mobile"
+      ]
+    }
+  },
+  "model_execution": "Regression tests use a synthetic model; production failure was replayed through context assembly only, without creating or retrying a user turn.",
+  "verified_at": "2026-10-13T14:51:25.414972+00:00"
+}

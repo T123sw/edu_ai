@@ -1,0 +1,276 @@
+{
+  "model": "deepseek-v4-flash",
+  "storage": "disposable PostgreSQL schema and temporary files",
+  "cases": [
+    {
+      "case": "old_history_course_identity",
+      "question": "我们现在学习哪个课程和哪个知识点？简短回答。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 2.04,
+      "response": {
+        "turn_id": "answer-f44b114785d14219b068fbd4c7b89b79",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "02a0a122-2a44-4905-87cc-66eafd986ec5",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [],
+          "observation": null,
+          "citation_ids": [],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "705b1efff99a66721e219c7145dabbc8fdfd596c68a0df9bb65aa26bfa418891"
+          },
+          "answer_markdown": "课程是 **Python 入门**，当前正式知识点是 **变量与赋值**（本课程 4 个知识点中的第 1 个）。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "manual_review": "passed for target behavior; model wording is not a universal quality guarantee"
+    },
+    {
+      "case": "explicit_difficulty",
+      "question": "我现在还是不理解变量重新赋值为什么不影响 y。请在本知识点教学记录里记下这项困惑，并给一个提示。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 2.19,
+      "response": {
+        "turn_id": "answer-c298b3b81c0e4851baf19155ba7647be",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "4d2f89f0-89b3-4092-975c-f27530a3fff5",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量讲义",
+              "locator": {
+                "kind": "document",
+                "block_id": "report-v1:0:7:e6fe3f2c"
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "5ced561cc06caddf32eaeeb26d4e4554702710486705f33094cc44e2a8c82d3a",
+              "resource_ref": {
+                "version": 2,
+                "course_id": "learning-fixture",
+                "material_id": "a-core",
+                "material_type": "report"
+              }
+            }
+          ],
+          "observation": {
+            "kind": "difficulty",
+            "text": "不理解变量重新赋值为什么不影响 y（对“绑定/标签”模型仍有困惑）",
+            "objective_ids": [],
+            "source_message_ids": [
+              "answer-c298b3b81c0e4851baf19155ba7647be:user"
+            ]
+          },
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "705b1efff99a66721e219c7145dabbc8fdfd596c68a0df9bb65aa26bfa418891"
+          },
+          "answer_markdown": "已记下你的困惑：**变量重新赋值为什么不影响 y**。\n\n提示：把变量想成贴在对象上的标签，而不是装东西的盒子。`y = x` 之后，`x` 和 `y` 是两张贴在同一对象上的标签；`x = 2` 只是把 `x` 这张标签撕下来贴到新对象上，`y` 还留在原处。\n\n对照讲义里的例子：`x = 1` 绑定整数对象；`y = x` 让 y 绑定同一对象；`x = 2` 只改变 x 的绑定，y 仍为 1。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "manual_review": "passed for target behavior; model wording is not a universal quality guarantee"
+    },
+    {
+      "case": "after_correction",
+      "question": "以我更新后的教学记录为准，刚才那项困惑现在是什么状态？这能证明我掌握整个知识点了吗？",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 1.76,
+      "response": {
+        "turn_id": "answer-562a41421fbf4dc0839041db09ef18e9",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "960c6518-30e2-40dd-a9ea-45876f788eea",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [],
+          "observation": null,
+          "citation_ids": [],
+          "memory_epoch": 1,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "705b1efff99a66721e219c7145dabbc8fdfd596c68a0df9bb65aa26bfa418891"
+          },
+          "answer_markdown": "按你更新后的教学记录，那项困惑（“变量重新赋值为什么不影响 y”）的状态是**已解决**，不再作为当前困难保留。\n\n但这**不能**证明你掌握了整个知识点。记录里它只是一条教学观察，且本知识点的学习事实仍是“未开始、未验证”，没有客观检查或自评证据。困惑解决只说明这一点讲通了，不等于整个“变量与赋值”都掌握。",
+          "source_revision": 1,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "manual_review": "passed for target behavior; model wording is not a universal quality guarantee"
+    },
+    {
+      "case": "helpful_explanation",
+      "question": "用贴标签来解释变量绑定对我很有帮助，请在本知识点记下这个有效讲法，不要设为所有课程的长期偏好。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 1.85,
+      "response": {
+        "turn_id": "answer-cc5545d8930e4b188365aa682311cc1a",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "1a9a1bb0-af11-469b-aa88-585326fe1936",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [],
+          "observation": {
+            "kind": "helpful_explanation",
+            "text": "用“贴标签”类比解释变量绑定（变量是贴在对象上的标签，重新赋值只是把标签移到新对象）对本知识点学习有帮助",
+            "objective_ids": [],
+            "source_message_ids": [
+              "answer-cc5545d8930e4b188365aa682311cc1a:user"
+            ]
+          },
+          "citation_ids": [],
+          "memory_epoch": 1,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "705b1efff99a66721e219c7145dabbc8fdfd596c68a0df9bb65aa26bfa418891"
+          },
+          "answer_markdown": "已在本知识点记下：**“贴标签”解释变量绑定对你很有帮助**。这只是本知识点的教学观察，没有设为所有课程的长期偏好。\n\n需要说明的是，它记录的是“这个讲法对你有帮助”，不代表你已经掌握整个“变量与赋值”知识点。",
+          "source_revision": 1,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "manual_review": "passed for target behavior; model wording is not a universal quality guarantee"
+    }
+  ],
+  "api_checks": [
+    {
+      "case": "notes_keep_sources_and_corrections",
+      "notes": [
+        {
+          "turn_id": "answer-cc5545d8930e4b188365aa682311cc1a",
+          "topic_id": "a",
+          "kind": "helpful_explanation",
+          "text": "用“贴标签”类比解释变量绑定（变量是贴在对象上的标签，重新赋值只是把标签移到新对象）对本知识点学习有帮助",
+          "status": "hypothesis",
+          "evaluator": "model",
+          "objective_ids": [],
+          "source_message_ids": [
+            "answer-cc5545d8930e4b188365aa682311cc1a:user"
+          ],
+          "created_at": 1791914840.4643228,
+          "resource_ref": {
+            "version": 2,
+            "course_id": "learning-fixture",
+            "material_id": "a-core",
+            "material_type": "report"
+          },
+          "locator": null,
+          "sources": [
+            {
+              "message_id": "answer-cc5545d8930e4b188365aa682311cc1a:user",
+              "quote": "用贴标签来解释变量绑定对我很有帮助，请在本知识点记下这个有效讲法，不要设为所有课程的长期偏好。"
+            }
+          ]
+        },
+        {
+          "turn_id": "answer-c298b3b81c0e4851baf19155ba7647be",
+          "topic_id": "a",
+          "kind": "difficulty",
+          "text": "不理解变量重新赋值为什么不影响 y（对“绑定/标签”模型仍有困惑）",
+          "status": "resolved",
+          "evaluator": "model",
+          "objective_ids": [],
+          "source_message_ids": [
+            "answer-c298b3b81c0e4851baf19155ba7647be:user"
+          ],
+          "created_at": 1791914836.2237113,
+          "resource_ref": {
+            "version": 2,
+            "course_id": "learning-fixture",
+            "material_id": "a-core",
+            "material_type": "report"
+          },
+          "locator": null,
+          "sources": [
+            {
+              "message_id": "answer-c298b3b81c0e4851baf19155ba7647be:user",
+              "quote": "我现在还是不理解变量重新赋值为什么不影响 y。请在本知识点教学记录里记下这项困惑，并给一个提示。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "no_implicit_long_term_preference",
+      "status": "passed"
+    }
+  ],
+  "semantic_review": "passed for four sampled behaviors: authoritative identity despite inaccurate prior replies; source-bound difficulty; resolved state without mastery claim; locally scoped helpful explanation",
+  "execution_status": "finished"
+}

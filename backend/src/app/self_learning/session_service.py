@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import create_engine
 
 from .postgres_repository import SessionRepository, SessionConflict, SessionMissing
+from .learning_orientation import learning_orientation
 
 
 @lru_cache(maxsize=4)
@@ -62,7 +63,7 @@ class SessionService:
             if legacy.get('active_turn'):
                 raise HTTPException(409, '旧会话仍有未结束的提问，请先完成恢复再切换')
             ready = next((r for r in chapter['resources'] if r.get('ready')), None)
-            introduction = f'这一节围绕「{chapter["title"]}」学习。'
+            introduction = f'当前课程是「{room["title"]}」，这一节围绕「{chapter["title"]}」学习。'
             introduction += (f'可以先阅读「{ready["title"]}」。' if ready else '资料尚未就绪时，可以先查看课程目录。')
             introduction += '遇到不清楚的地方随时提问，也可以直接开始阅读。'
             try:
@@ -73,6 +74,7 @@ class SessionService:
         result = self.messages(owner, course_id, topic_id)
         selected = next((r for r in chapter['resources'] if r['id'] == room['selectedId']), chapter['resources'][0])
         result['resume'] = {'resource_id': selected['id'], 'progress': room['progress'].get(selected['id'], {})}
+        result['learning_context'] = learning_orientation(room, topic_id)
         return result
 
     def messages(self, owner, course_id, topic_id, before=None, limit=50):

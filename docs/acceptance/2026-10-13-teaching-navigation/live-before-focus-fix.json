@@ -1,0 +1,181 @@
+{
+  "model": "deepseek-v4-flash",
+  "storage": "disposable PostgreSQL schema and temporary files",
+  "cases": [
+    {
+      "case": "located_second_question",
+      "question": "请解释这道题，给出结果。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "quiz",
+          "material_id": "arithmetic",
+          "version": 1
+        },
+        "locator": {
+          "kind": "quiz",
+          "question_index": 1
+        }
+      },
+      "seconds": 2.79,
+      "response": {
+        "turn_id": "answer-b4984fb042e8473bb9d1eab3545690be",
+        "session_id": "learning-c17ac4317547df121e5f51a4654eb5d4f7b2902c882db49efdc21e73dcb99b05",
+        "request_id": "6be91795-a93f-4cf1-9b49-5b78abf6a8f9",
+        "topic_id": "b",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "算术练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 1
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "48525159d347a5fcf8c7330d1ee71d1483523d4388e021967a3ac83e218c37db",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "arithmetic",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "9c69ca6ae2a77d057aa713646eacc076702cf04851206499a165c2b4080e32d3"
+          },
+          "answer_markdown": "这道题问的是 Python 表达式 `2 * 3` 的结果。\n\n`*` 是乘法运算符，`2 * 3` 就是把 2 和 3 相乘，结果是 **6**，对应选项 B。\n\n易错点：别把 `*` 看成加号或乘方。`2 + 3` 才是 5；`2 ** 3` 是 2 的 3 次方，等于 8。题目里只有一个 `*`，所以是普通乘法。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "located_hint_first_question",
+      "question": "这次只给提示，不要告诉我结果。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "quiz",
+          "material_id": "arithmetic",
+          "version": 1
+        },
+        "locator": {
+          "kind": "quiz",
+          "question_index": 0
+        }
+      },
+      "seconds": 1.48,
+      "response": {
+        "turn_id": "answer-30df7f1bb3ba412183c235bf289ab90f",
+        "session_id": "learning-c17ac4317547df121e5f51a4654eb5d4f7b2902c882db49efdc21e73dcb99b05",
+        "request_id": "8d87bbfe-46e3-4a27-ab3a-7a2eeb55510b",
+        "topic_id": "b",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [],
+          "observation": null,
+          "citation_ids": [],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "9c69ca6ae2a77d057aa713646eacc076702cf04851206499a165c2b4080e32d3"
+          },
+          "answer_markdown": "好，只给提示：\n\n1. 先看清题目里的运算符是 `*`，不是 `+`，也不是 `**`。\n2. 回忆一下：`*` 在 Python 里表示什么运算？\n3. 把 `2 * 3` 按这个运算的含义读出来，再算一遍。\n4. 对照三个选项，选出与你算出的值一致的那个。\n\n注意别把乘法、加法和乘方混在一起——它们的结果各不相同。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "late_passage_retrieval",
+      "question": "这份资料中递归终止条件是什么？满足后返回什么？简短回答。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "long-guide",
+          "version": 2
+        }
+      },
+      "seconds": 1.58,
+      "response": {
+        "turn_id": "answer-9f74c4ef85014f6dbc7cc933dddfe254",
+        "session_id": "learning-2c79eaf17b19c655121c6b44097c8ebe74c2a1300f6eee5dbb254e4c3c2e64b8",
+        "request_id": "4f506d8e-4fa5-4e4f-a163-d5c0c7058bd8",
+        "topic_id": "long",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "递归长文",
+              "locator": {
+                "kind": "document",
+                "block_id": "report-v1:14006:14039:7d8b5168"
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "589e6690ad8f3798c84ddd8f291c6884b3bb488fc807b08eb7d66456498b8790",
+              "resource_ref": {
+                "version": 2,
+                "course_id": "learning-fixture",
+                "material_id": "long-guide",
+                "material_type": "report"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "cb8f22807f2cecf4b94d57d533c63b15d0f41aa0d95aec7255082b02b93dedcd"
+          },
+          "answer_markdown": "这份资料里写的是：递归终止条件是 **n 等于零**；满足这个条件时**返回 1**，并且不再调用自身。\n\n也就是说，当 n 减到 0 时递归停止，直接给出结果 1，而不是继续往下递归。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    }
+  ],
+  "api_checks": [],
+  "semantic_review": "pending",
+  "execution_status": "finished"
+}

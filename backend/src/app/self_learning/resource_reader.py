@@ -4,6 +4,8 @@ import json
 from fastapi import HTTPException
 from .contracts import ResourceRef
 from .classroom_context import find_scene, scene_content
+from .report_document import report_markdown, anchored_report
+from .source_navigation import quiz_question, search_report
 
 
 def exact_material(learning, owner, ref: ResourceRef):
@@ -24,6 +26,8 @@ def exact_material(learning, owner, ref: ResourceRef):
 
 
 def material_text(material):
+    if material.get('material_type') == 'report':
+        return report_markdown(material)
     content = material.get('content')
     if isinstance(content, str):
         return content
@@ -35,6 +39,21 @@ def excerpt(material, *, selected_text='', locator=None, query='', max_chars=400
     content_hash = hashlib.sha256(text.encode()).hexdigest()
     quality, offset = 'approximate', 0
     resolved = None
+    if locator and locator.get('kind') == 'quiz':
+        question = quiz_question(material, locator)
+        body = json.dumps({'question_number': locator['question_index'] + 1, 'question': question}, ensure_ascii=False)
+        return {'excerpt': body[:max_chars], 'resolved_locator': locator, 'location_quality': 'exact',
+                'content_hash': content_hash, 'truncated': len(body) > max_chars}
+    if locator and locator.get('kind') == 'document' and str(locator.get('block_id', '')).startswith('report-v1:'):
+        if material.get('material_type') != 'report':
+            raise HTTPException(409, '段落引用不属于报告资料')
+        return {**anchored_report(material, locator['block_id'], max_chars), 'content_hash': content_hash}
+    if material.get('material_type') == 'report' and query and not selected_text and (locator or {}).get('offset') is None:
+        found = search_report(material, query, max_chars)
+        if found:
+            return {**found, 'content_hash': content_hash}
+        return {'excerpt': '', 'resolved_locator': None, 'location_quality': 'unresolved',
+                'content_hash': content_hash, 'truncated': False, 'search_matched': False}
     if locator and locator.get('kind') == 'classroom':
         scene = find_scene(material, locator.get('scene_id'))
         text = json.dumps(scene_content(scene), ensure_ascii=False)

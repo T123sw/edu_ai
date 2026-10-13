@@ -61,14 +61,14 @@ class LearningAgentRuntime:
         enrichment = bool(getattr(self.learning, 'memory', None))
         schemas_size = len(json.dumps(LearningTools(self.learning, claim, {}).schemas(), ensure_ascii=False).encode())
         preparation_enabled = bool(getattr(self.learning, 'preparations', None))
-        reserve = 2200 if preparation_enabled else 256
         is_classroom = claim['request']['reading_context']['resource_ref']['material_type'] == 'classroom'
-        context_limit = 48000 if is_classroom else 16000
-        # Reserve room for tool results; never chop a current slide in half.
-        if is_classroom:
-            context_budget = max(1000, context_limit - schemas_size - max(reserve, 8000))
-        else:
-            context_budget = max(1000, context_limit - schemas_size - reserve) if enrichment else 24000
+        # These limits count serialized UTF-8 bytes, not tokens. The old 16 KB
+        # cap left less than 5 KB after mounting all tools, barely enough for
+        # the role alone. Allow the public 10,000-character selection and
+        # 2,000-character question intact, including Chinese, with source
+        # metadata and 8 KB reserved for tool results / the final prompt.
+        context_limit = 48000 if is_classroom else 64000
+        context_budget = max(1000, context_limit - schemas_size - 8000)
         state = copy.deepcopy(claim['checkpoint']) or {'packet': builder.build(claim, budget=context_budget), 'rounds': 0, 'tools': 0, 'pending': [], 'repair_used': False}
         packet = state['packet']
         tools = LearningTools(self.learning, claim, packet)
@@ -183,6 +183,7 @@ class LearningAgentRuntime:
                 if hashlib.sha256(material_text(material).encode()).hexdigest() != citation['content_hash']:
                     raise AgentFailure('SOURCE_CHANGED')
             return {**answer.model_dump(), 'citations': citations, 'role_version': packet['role_version'],
+                    **({'teaching_skill': packet['teaching_skill']} if packet.get('teaching_skill') else {}),
                     'actions': [packet['actions'][key] for key in answer.suggested_action_ids],
                     **({'preparation_receipts': list(packet.get('preparation_receipts', {}).values())} if preparation_enabled else {}),
                     **({'memory_epoch': packet['memory_epoch']} if memory else {}),
@@ -228,6 +229,9 @@ class LearningAgentRuntime:
             await asyncio.gather(execution, watcher, return_exceptions=True)
 
     def run_once(self):
+        checks = getattr(self.learning, 'checks', None)
+        if getattr(checks, 'teaching', None):
+            checks.teaching.enqueue_pending()
         claim = self.repository.claim()
         if claim is None:
             return False

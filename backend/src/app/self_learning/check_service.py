@@ -53,6 +53,8 @@ class CheckService(SessionRepository):
     def __init__(self, learning, engine, generator=None, evaluator=None):
         super().__init__(engine)
         self.learning, self.generator, self.evaluator = learning, generator, evaluator
+        from .teaching_activity import TeachingActivityService
+        self.teaching = TeachingActivityService(self)
 
     def bump_facts(self, db, owner, course, topic, attempt_id):
         if self.engine.dialect.name == 'postgresql':
@@ -96,6 +98,7 @@ class CheckService(SessionRepository):
         return {'check_id': row.check_id, 'question_version': 1, 'topic_id': row.topic_id,
                 'public_question': {k: q[k] for k in ('form', 'stem', 'options')},
                 'objective_ids': row.objective_ids, 'source_ref': row.source.get('resource_ref'),
+                'source_locator': {'kind': 'quiz', 'question_index': row.source['question_index']} if 'question_index' in row.source else None,
                 'source_available': getattr(row, '_source_available', True)}
 
     def owned(self, db, owner, check_id, allow_saved=False):
@@ -129,7 +132,9 @@ class CheckService(SessionRepository):
             row = self.owned(db, owner, check_id, allow_saved=True)
             attempts = [a.payload for a in db.scalars(select(LearningCheckAttempt).where(
                 LearningCheckAttempt.check_id == check_id).order_by(LearningCheckAttempt.created_at.desc()))]
-            return {**self.public(row), 'attempts': attempts}
+            result = {**self.public(row), 'attempts': attempts}
+        result['teaching'] = self.teaching.view(owner, check_id)
+        return result
 
     async def model_json(self, owner, system, data, seconds=25):
         from app.services.runtime_config_resolver import runtime_config_resolver
@@ -184,11 +189,13 @@ class CheckService(SessionRepository):
                 row = db.scalar(select(LearningCheck).where(LearningCheck.owner == owner, LearningCheck.request_id == request_id))
                 if row is None:
                     row = LearningCheck(check_id='check-'+uuid4().hex,owner=owner,course_id=course,topic_id=topic,
-                        request_id=request_id,payload_hash=digest([source,i]),question=question.model_dump(),source=source,
+                        request_id=request_id,payload_hash=digest([source,i]),question=question.model_dump(),source={**source, 'question_index': i},
                         objective_ids=[],created_at=time.time())
                     db.add(row)
                 elif row.payload_hash != digest([source,i]):
                     raise HTTPException(409,'同一版本题目内容已变化')
+                elif 'question_index' not in row.source:
+                    row.source = {**row.source, 'question_index': i}
                 ids.append(row.check_id)
         return {'topic_id':topic,'items':[self.get(owner,cid) for cid in ids]}
 
@@ -229,14 +236,14 @@ class CheckService(SessionRepository):
                 candidate_source['activity_id'] = blueprint['check_id']
             sources.append({'text': excerpt(material, max_chars=3000)['excerpt'], **candidate_source})
             if ref.material_type == 'quiz':
-                for raw in material.get('questions') or []:
+                for question_index, raw in enumerate(material.get('questions') or []):
                     question_id = (blueprint or {}).get('locator', {}).get('question_id')
                     if question_id and str(raw.get('id')) != question_id:
                         continue
                     try:
                         candidate = self.bank_question(raw)
                         if candidate.form == preferred_form:
-                            question, source = candidate, candidate_source
+                            question, source = candidate, {**candidate_source, 'question_index': question_index}
                             break
                     except (ValueError, TypeError):
                         continue
@@ -297,8 +304,14 @@ class CheckService(SessionRepository):
                       'evaluator': 'deterministic' if status == 'graded' else None,
                       'feedback': question['explanation'] if status == 'graded' else '', 'evidence_refs': [aid] if status == 'graded' else [],
                       'objective_ids': row.objective_ids, 'source_ref': row.source.get('resource_ref')}
+            if self.teaching.available:
+                from .teaching_activity_models import LearningTeachingActivity
+                activity = db.get(LearningTeachingActivity, check_id)
+                result['teaching_requested'] = bool(activity and activity.enabled)
             db.add(LearningCheckAttempt(attempt_id=aid, owner=owner, check_id=check_id, request_id=body['request_id'],
                 payload_hash=fingerprint, payload=result, created_at=time.time()))
+            db.flush()
+            self.teaching.stage_feedback(db, row, result)
             self.bump_facts(db, owner, row.course_id, row.topic_id, aid)
         return await self.evaluate(owner, check_id, aid) if status == 'pending_evaluation' else result
 
@@ -326,5 +339,6 @@ class CheckService(SessionRepository):
             if attempt.payload['status'] == 'graded':
                 return attempt.payload
             attempt.payload = result
+            self.teaching.stage_feedback(db, row, result)
             self.bump_facts(db, owner, row.course_id, row.topic_id, attempt_id)
         return result

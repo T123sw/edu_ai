@@ -1,0 +1,25 @@
+import { test, expect } from 'playwright/test';
+test('teaching notes retain sources, stay within topic and persist user correction', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('edu-ai-auth', JSON.stringify({ token: 'alice', user: { username: 'alice', role: 'student' } })));
+  await page.goto('/#/classroom/learning-fixture?resource=a-core');
+  const composer = page.getByRole('textbox', { name: '向学习 Agent 提问' });
+  await composer.fill('变量困惑：为什么重新赋值不影响另一个变量？');
+  await page.getByRole('button', { name: '发送问题' }).click();
+  await expect(page.getByRole('log').getByText('变量名像标签，可以重新绑定对象。', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /全局学习记忆/ }).click();
+  const notes = page.getByRole('region', { name: '本知识点教学记录' });
+  await expect(notes).toContainText('用户表达变量绑定方面的困惑');
+  await notes.getByText('查看依据', { exact: true }).click();
+  await expect(notes.locator('blockquote')).toContainText('为什么重新赋值不影响另一个变量');
+  await page.getByRole('button', { name: '节点 B 核心文档', exact: true }).click();
+  await expect(notes).not.toContainText('用户表达变量绑定方面的困惑');
+  await page.getByRole('button', { name: '节点 A 核心文档', exact: true }).click();
+  await expect(notes).toContainText('用户表达变量绑定方面的困惑');
+  await notes.getByRole('button', { name: '已解决', exact: true }).click();
+  await expect(notes).toContainText('你已标记解决');
+  await page.reload();
+  await page.getByRole('button', { name: /全局学习记忆/ }).click();
+  await expect(notes).toContainText('你已标记解决');
+  await expect(notes.getByRole('button', { name: '已解决', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('log').getByText('变量名像标签，可以重新绑定对象。', { exact: true })).toHaveCount(1);
+});

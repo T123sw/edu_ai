@@ -1,0 +1,232 @@
+{
+  "model": "deepseek-v4-flash",
+  "storage": "isolated disposable PostgreSQL schema",
+  "cases": [
+    {
+      "case": "unsubmitted_draft_hint",
+      "turn": {
+        "turn_id": "answer-8d002d65254c4616878394097f1b26e7",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "38f22f4b-05b6-47ae-99f8-ef7d169b43a8",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量和条件练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 0
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "9de3b5b09b855d60f73253b605a1a0a3d46ba2d3b5e4bf4c57382618c38ffe51",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "coaching-quiz",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "8df6351990ff46c2a0ade57fe4f8f623eb3ed8311a6d3fade400fd7f01211098"
+          },
+          "answer_markdown": "你选的是 `x == 3`。提示：注意区分「赋值」和「比较」——题目要的是把 3 存进变量 x 这个动作，而 `==` 在 Python 里是用来判断两边是否相等的。想想哪个符号表示“把右边的值交给左边的变量”。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "wrong_assignment_feedback",
+      "submitted": {
+        "request_id": "3fb6b8a9-50ca-4405-9961-fcb40c0855f9",
+        "question_version": 1,
+        "option_ids": [
+          "option_2"
+        ],
+        "text": "",
+        "skipped": false,
+        "attempt_id": "attempt-3a33dadf68894791abf122d657bdbf86",
+        "check_id": "check-ef3a0aae32d74832a899abd4b0ba22b7",
+        "status": "graded",
+        "correct": false,
+        "evaluator": "deterministic",
+        "feedback": "= 赋值；== 比较。",
+        "evidence_refs": [
+          "attempt-3a33dadf68894791abf122d657bdbf86"
+        ],
+        "objective_ids": [],
+        "source_ref": {
+          "version": 1,
+          "course_id": "learning-fixture",
+          "material_id": "coaching-quiz",
+          "material_type": "quiz"
+        },
+        "teaching_requested": true
+      },
+      "activity": {
+        "enabled": true,
+        "revision": 1,
+        "feedback": {
+          "attempt_id": "attempt-3a33dadf68894791abf122d657bdbf86",
+          "status": "succeeded",
+          "turn_id": "answer-b301703e78fd495b8aedee925a1b9d45",
+          "error": null
+        }
+      },
+      "turn": {
+        "turn_id": "answer-b301703e78fd495b8aedee925a1b9d45",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "dbed4a2d-23b7-5192-9ac0-9cd84f24ab97",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量和条件练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 0
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "9de3b5b09b855d60f73253b605a1a0a3d46ba2d3b5e4bf4c57382618c38ffe51",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "coaching-quiz",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "8df6351990ff46c2a0ade57fe4f8f623eb3ed8311a6d3fade400fd7f01211098"
+          },
+          "answer_markdown": "**本题结果**：你选了 `x == 3`，这道题判为不正确。\n\n**你的思路与偏差**：你抓住了“x 和 3 之间要有个符号”这个结构，但把两个符号的用途弄反了。在 Python 里：\n- `=` 是**赋值**：把右边的值存进左边的变量，`x = 3` 表示“让 x 等于 3”。\n- `==` 是**比较**：判断两边是否相等，结果是 `True` 或 `False`，它不会改变 x 的值。\n\n题目问的是“把整数 3 赋给变量 x”，也就是要一个**动作**，所以应该用 `=`。`x == 3` 更像是在问“x 是不是 3？”，而且如果 x 之前没定义过，这样写还会直接报错。\n\n**需要调整的地方**：看到“赋值 / 存进 / 让……等于”这类说法时，锁定 `=`；看到“判断 / 是否相等 / 比较”时才用 `==`。\n\n**下一步建议**：把这两个符号各造一个句子读出来，比如 `x = 3` 读作“把 3 赋给 x”，`x == 3` 读作“x 等于 3 吗”，用读法来区分写法。之后可以再练一道同类小题巩固。",
+          "source_revision": 1,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "switch_to_correct_comparison",
+      "submitted": {
+        "request_id": "6c94d6fd-a333-4d20-9842-1bb24f49fdc7",
+        "question_version": 1,
+        "option_ids": [
+          "option_2"
+        ],
+        "text": "",
+        "skipped": false,
+        "attempt_id": "attempt-6bccf9d676e54b0ba284c1b04d66f6a9",
+        "check_id": "check-74d899c6a4014ae1abdbb96b6223bf95",
+        "status": "graded",
+        "correct": true,
+        "evaluator": "deterministic",
+        "feedback": "3 不大于 5，因此是 False。",
+        "evidence_refs": [
+          "attempt-6bccf9d676e54b0ba284c1b04d66f6a9"
+        ],
+        "objective_ids": [],
+        "source_ref": {
+          "version": 1,
+          "course_id": "learning-fixture",
+          "material_id": "coaching-quiz",
+          "material_type": "quiz"
+        },
+        "teaching_requested": true
+      },
+      "activity": {
+        "enabled": true,
+        "revision": 1,
+        "feedback": {
+          "attempt_id": "attempt-6bccf9d676e54b0ba284c1b04d66f6a9",
+          "status": "succeeded",
+          "turn_id": "answer-2b2224f1f6204deaadf005663397db3c",
+          "error": null
+        }
+      },
+      "turn": {
+        "turn_id": "answer-2b2224f1f6204deaadf005663397db3c",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "cc0edbaa-6acb-5289-93cd-f011b2c4af9c",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量和条件练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 1
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "9de3b5b09b855d60f73253b605a1a0a3d46ba2d3b5e4bf4c57382618c38ffe51",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "coaching-quiz",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "8df6351990ff46c2a0ade57fe4f8f623eb3ed8311a6d3fade400fd7f01211098"
+          },
+          "answer_markdown": "**本题结果**：你选了 `False`，这道题判为正确。\n\n**你的思路**：题目是 `x = 3` 时求 `x > 5` 的值。你先把 x 代进去，得到 `3 > 5`，再判断这个比较是否成立——3 确实不大于 5，所以整个表达式的值是 `False`。这一步走对了：比较表达式的结果不是数字，而是布尔值 `True` 或 `False`。\n\n**需要留意的地方**：这里有两个容易混的点。一是 `x = 3` 只是给 x 赋值，真正被求值的是后面的 `x > 5`；二是 `>` 和 `>=` 的边界差别——如果题目换成 `x >= 3`，答案就会变成 `True`。判断时先把变量替换成具体数值，再比较，能减少出错。\n\n**下一步建议**：可以自己把 `x > 5` 换成 `x >= 3`、`x < 5`、`x == 3` 各算一遍，体会边界值（等于的情况）对结果的影响。",
+          "source_revision": 2,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    }
+  ],
+  "status": "completed_for_semantic_review"
+}

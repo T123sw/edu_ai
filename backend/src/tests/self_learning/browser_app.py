@@ -67,6 +67,15 @@ class Model:
     async def complete(self, messages, tools, deadline):
         import json
         question = messages[-1]['content']
+        if os.getenv('LEARNING_BROWSER_ACTIVITY_FAILURE') == '1' and question.startswith('请根据我刚提交') and question not in self.failed_once:
+            self.failed_once.add(question)
+            raise AgentFailure('MODEL_UNAVAILABLE')
+        if os.getenv('LEARNING_BROWSER_CONTINUITY') == '1' and '变量困惑' in question:
+            data = next(json.loads(m['content'].split('\n', 1)[1]) for m in messages
+                        if m['role'] == 'user' and '"current_message_id"' in m['content'])
+            return {'calls': [], 'content': json.dumps({'answer_markdown': '变量名像标签，可以重新绑定对象。',
+                'citation_ids': ['ctx_01'], 'observation': {'kind': 'difficulty', 'text': '用户表达变量绑定方面的困惑',
+                'source_message_ids': [data['current_message_id']]}}, ensure_ascii=False)}
         if os.getenv('LEARNING_BROWSER_PREPARATION') == '1':
             if messages[-1]['role'] == 'tool':
                 return {'calls': [], 'content': json.dumps({'answer_markdown':'准备任务已接收，可以继续学习，完成后从资料准备通知打开。','citation_ids':[]})}
@@ -94,12 +103,12 @@ class Model:
 svc = LearningService(manager=manager, store=LearningStore(root), memberships=members,
     model_factory=lambda _: Model(), session_repository=SessionRepository(engine), progress_repository=ProgressRepository(engine), turn_repository=TurnRepository(engine) if os.getenv('LEARNING_BROWSER_AGENT') == '1' else None)
 if os.getenv('LEARNING_BROWSER_ENRICHMENT') == '1':
-    from app.self_learning.enrichment_models import TABLES as ENRICHMENT_TABLES
+    from app.self_learning.enrichment_models import TABLES as ENRICHMENT_TABLES, TEACHING_TABLES
     from app.self_learning.check_service import CheckService
     from app.self_learning.memory_adapter import MemoryAdapter
     from app.self_learning.summary_service import SummaryService
     Base.metadata.create_all(engine, tables=[Base.metadata.tables[n] for n in (
-        'agent_memory_items', 'user_profile_facts', 'agent_memory_audit_events', *ENRICHMENT_TABLES)])
+        'agent_memory_items', 'user_profile_facts', 'agent_memory_audit_events', *ENRICHMENT_TABLES, *TEACHING_TABLES)])
     async def check_generator(data):
         return {'form': 'choice', 'stem': '哪一个是变量赋值？', 'options': [
             {'id':'option_1','text':'x = 1'}, {'id':'option_2','text':'print(x)'}],
@@ -144,6 +153,16 @@ if os.getenv('LEARNING_BROWSER_PPT_CONTEXT') == '1':
             'actions': [{'id': f'focus-{i}', 'type': 'spotlight', 'elementId': f'text-{i}'},
                         {'id': f'speech-{i}', 'type': 'speech', 'text': '首先讲赋值。接着讲变量。最后做总结。', 'audioUrl': '/fixture.mp3'}]}
                    for i in (1, 2)]}, owner_user_id='alice', visibility='course', scope_type='knowledge_point', scope_id='b')
+if os.getenv('LEARNING_BROWSER_NAVIGATION') == '1':
+    manager.save_generated_material('learning-fixture', 'quiz', 'a-quiz', {
+        'title': '定位练习', 'learning_course_resource': True, 'questions': [
+            {'stem': '第一题加法 2 + 3', 'options': ['5', '6'], 'answer': 'A'},
+            {'stem': '第二题乘法 2 * 3', 'options': ['5', '6'], 'answer': 'B'}]},
+        owner_user_id='alice', visibility='course', scope_type='knowledge_point', scope_id='a')
+    manager.save_generated_material('learning-fixture', 'report', 'a-core', {
+        'title': '长篇递归报告', 'learning_course_resource': True,
+        'content': '# 导读\n\n' + ('背景介绍。\n\n' * 1000) + '## 递归\n\n递归终止条件是 n 等于零。'},
+        owner_user_id='alice', visibility='course', scope_type='knowledge_point', scope_id='a')
 if real_model_config:
     from app.chat.bounded_completion import BoundedModelAdapter,answer_json
     import json,time,httpx

@@ -1,7 +1,7 @@
 """P3 public requests and validated model answers."""
 from typing import Annotated, Literal
 from uuid import UUID
-from pydantic import Field
+from pydantic import Field, model_validator
 from .contracts import Contract, Identifier, Locator, ResourceRef
 
 
@@ -20,11 +20,29 @@ class ClassroomReadingContext(Contract):
     lecture: LecturePosition | None = None
 
 
+class PracticeDraft(Contract):
+    option_ids: list[Annotated[str, Field(min_length=1, max_length=80)]] = Field(default_factory=list, max_length=8)
+    text: str = Field(default='', max_length=4000)
+
+
+class PracticeContext(Contract):
+    check_id: Identifier
+    attempt_id: Identifier | None = None
+    draft: PracticeDraft | None = None
+
+    @model_validator(mode='after')
+    def one_answer(self):
+        if self.attempt_id and self.draft is not None:
+            raise ValueError('choose a saved attempt or an unsubmitted draft')
+        return self
+
+
 class ReadingSnapshot(Contract):
     resource_ref: ResourceRef
     locator: Locator | None = None
     selected_text: Annotated[str, Field(max_length=10000)] = ''
     classroom: ClassroomReadingContext | None = None
+    practice: PracticeContext | None = None
 
 
 class AnswerRequest(Contract):

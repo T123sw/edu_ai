@@ -1,0 +1,265 @@
+{
+  "model": "deepseek-v4-flash",
+  "storage": "isolated disposable PostgreSQL schema",
+  "cases": [
+    {
+      "case": "unsubmitted_draft_hint",
+      "turn": {
+        "turn_id": "answer-f02268099aa941f0b48b54384584435f",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "62cb9c45-7f1e-4ac3-a147-d8d4ab4bcd51",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量和条件练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 0
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "9de3b5b09b855d60f73253b605a1a0a3d46ba2d3b5e4bf4c57382618c38ffe51",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "coaching-quiz",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "6db916b541e914258a987cf9b281a5d4ba5466815382e127235849f3b3f264ac"
+          },
+          "answer_markdown": "你选的是 `x == 3`。提示：注意区分「赋值」和「比较」——一个等号是把右边的值放进左边的变量，两个等号是在问「两边相等吗」。题目要的是「把 3 赋给 x」，所以想想哪个符号才是「放进去」的动作。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "wrong_assignment_feedback",
+      "submitted": {
+        "request_id": "56aea58f-c1a2-4898-93bf-05147c13a4b1",
+        "question_version": 1,
+        "option_ids": [
+          "option_2"
+        ],
+        "text": "",
+        "skipped": false,
+        "attempt_id": "attempt-6a4029e5fdfd4a9ea4fb48faa7146c26",
+        "check_id": "check-72ed622bcade4631a3741b75ab523c9e",
+        "status": "graded",
+        "correct": false,
+        "evaluator": "deterministic",
+        "feedback": "= 赋值；== 比较。",
+        "evidence_refs": [
+          "attempt-6a4029e5fdfd4a9ea4fb48faa7146c26"
+        ],
+        "objective_ids": [],
+        "source_ref": {
+          "version": 1,
+          "course_id": "learning-fixture",
+          "material_id": "coaching-quiz",
+          "material_type": "quiz"
+        },
+        "teaching_requested": true
+      },
+      "activity": {
+        "enabled": true,
+        "revision": 1,
+        "feedback": {
+          "attempt_id": "attempt-6a4029e5fdfd4a9ea4fb48faa7146c26",
+          "status": "succeeded",
+          "turn_id": "answer-9594b571f71c43e3b29f524fc81681c7",
+          "error": null
+        },
+        "stage": "feedback_ready",
+        "check_id": "check-72ed622bcade4631a3741b75ab523c9e",
+        "topic_id": "a",
+        "source_ref": {
+          "version": 1,
+          "course_id": "learning-fixture",
+          "material_id": "coaching-quiz",
+          "material_type": "quiz"
+        },
+        "latest_attempt_id": "attempt-6a4029e5fdfd4a9ea4fb48faa7146c26"
+      },
+      "turn": {
+        "turn_id": "answer-9594b571f71c43e3b29f524fc81681c7",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "3c6920da-2f6b-5178-be0c-ed3d9352c97f",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量和条件练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 0
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "9de3b5b09b855d60f73253b605a1a0a3d46ba2d3b5e4bf4c57382618c38ffe51",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "coaching-quiz",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "6db916b541e914258a987cf9b281a5d4ba5466815382e127235849f3b3f264ac"
+          },
+          "answer_markdown": "本题批改结果：你选的 `x == 3` 不正确。\n\n原因：题目要求的是「把整数 3 赋给变量 x」，也就是一次赋值操作。在 Python 里，单个等号 `=` 是赋值运算符，把右边的值存进左边的变量，所以 `x = 3` 才符合题意。你选的 `x == 3` 用的是两个等号，它是比较运算符，作用是判断 x 是否等于 3，得到的是真或假的结果，并不会把 3 存进 x。\n\n一句话区分：`=` 是「放进去」，`==` 是「问相等吗」。\n\n下一步建议：把这两个符号各写一行，分别在心里说出它的作用，再找一道同类小题判断该用哪个符号；如果愿意，我也可以给你一道可跳过的检查题。",
+          "source_revision": 1,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    },
+    {
+      "case": "switch_to_correct_comparison",
+      "submitted": {
+        "request_id": "b25265fb-83e0-4d24-8c83-b29e45489cbc",
+        "question_version": 1,
+        "option_ids": [
+          "option_2"
+        ],
+        "text": "",
+        "skipped": false,
+        "attempt_id": "attempt-55e5e9e0a7c94419b90bd9824f2ab3ad",
+        "check_id": "check-7b16f2aeed4d4ada8f52a93e5df54b2d",
+        "status": "graded",
+        "correct": true,
+        "evaluator": "deterministic",
+        "feedback": "3 不大于 5，因此是 False。",
+        "evidence_refs": [
+          "attempt-55e5e9e0a7c94419b90bd9824f2ab3ad"
+        ],
+        "objective_ids": [],
+        "source_ref": {
+          "version": 1,
+          "course_id": "learning-fixture",
+          "material_id": "coaching-quiz",
+          "material_type": "quiz"
+        },
+        "teaching_requested": true
+      },
+      "activity": {
+        "enabled": true,
+        "revision": 1,
+        "feedback": {
+          "attempt_id": "attempt-55e5e9e0a7c94419b90bd9824f2ab3ad",
+          "status": "succeeded",
+          "turn_id": "answer-4ea5588eb6214bbda12227708588d77c",
+          "error": null
+        },
+        "stage": "feedback_ready",
+        "check_id": "check-7b16f2aeed4d4ada8f52a93e5df54b2d",
+        "topic_id": "a",
+        "source_ref": {
+          "version": 1,
+          "course_id": "learning-fixture",
+          "material_id": "coaching-quiz",
+          "material_type": "quiz"
+        },
+        "latest_attempt_id": "attempt-55e5e9e0a7c94419b90bd9824f2ab3ad"
+      },
+      "turn": {
+        "turn_id": "answer-4ea5588eb6214bbda12227708588d77c",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "168c65fc-bdc2-53ff-8a8b-ee74b7c0c91e",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量和条件练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 1
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "9de3b5b09b855d60f73253b605a1a0a3d46ba2d3b5e4bf4c57382618c38ffe51",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "coaching-quiz",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v3",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "6db916b541e914258a987cf9b281a5d4ba5466815382e127235849f3b3f264ac"
+          },
+          "answer_markdown": "本题批改结果：你选的 `False` 正确。\n\n原因：题目给定 x = 3，问表达式 `x > 5` 的值。`>` 是比较运算符，判断左边的值是否大于右边：3 大于 5 不成立，所以整个表达式的值为 `False`。评价里也说明了这一点：3 不大于 5，因此是 False。\n\n下一步建议：可以对比一下 `x > 5` 和 `x < 5` 在 x = 3 时分别得到什么，体会比较运算符的结果只有 True 和 False 两种；如果愿意，我也可以给你一道可跳过的检查题。",
+          "source_revision": 2,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      }
+    }
+  ],
+  "status": "completed_for_semantic_review",
+  "semantic_review": {
+    "status": "reviewed",
+    "findings": [
+      "草稿提示未声称已经提交或被批改",
+      "错误作答按真实 option_2 讲解赋值与比较",
+      "切题后的正确 False 作答与第一题区分",
+      "最后一次抽样不再代述学生思考过程或使用服务端术语"
+    ],
+    "limits": [
+      "三组基础 Python 题抽样，不能推广为复杂学科质量保证",
+      "二选一题的概念提示可能足以推导答案，本阶段尚未实现持久分级提示"
+    ]
+  }
+}

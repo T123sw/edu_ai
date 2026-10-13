@@ -1,0 +1,685 @@
+{
+  "model": "deepseek-v4-flash",
+  "storage": "disposable PostgreSQL schema and temporary files",
+  "cases": [
+    {
+      "case": "selected_explanation",
+      "question": "请解释这段内容，简短一点，不用检查理解。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        },
+        "selected_text": "执行 x = 1 后，执行 y = x，再执行 x = 2。此时 x 为 2，y 仍为 1。变量名绑定对象，给 x 重新赋值不会自动改变 y 的绑定。"
+      },
+      "seconds": 2.7,
+      "response": {
+        "turn_id": "answer-8903367452284afa9300456399c146de",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "385362f5-0e98-4573-a458-8c6931c0398e",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量学习指南",
+              "locator": {
+                "kind": "document",
+                "offset": 9,
+                "content_hash": "7f86c9198e8ee3acd70ec2e604603765d1e71484bcdae32305ae8f7bcb0a4d78"
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "7f86c9198e8ee3acd70ec2e604603765d1e71484bcdae32305ae8f7bcb0a4d78",
+              "resource_ref": {
+                "version": 2,
+                "course_id": "learning-fixture",
+                "material_id": "a-core",
+                "material_type": "report"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+          },
+          "answer_markdown": "这段讲的是**变量名绑定对象**，而不是变量之间互相“复制后同步”。\n\n- `x = 1`：名字 `x` 绑定到对象 `1`。\n- `y = x`：名字 `y` 也绑定到**同一个对象** `1`，此时 `x` 和 `y` 指向同一处。\n- `x = 2`：这是让 `x` 重新绑定到新对象 `2`，只是改了 `x` 这个名字的指向，并没有动 `y`。\n\n所以最后 `x` 是 2，`y` 仍是 1。关键点：给一个变量重新赋值，只会改变它自己的绑定，不会自动影响其他变量。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    },
+    {
+      "case": "followup_new_example",
+      "question": "用苹果和橘子的例子再解释一次，保持简短。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-core",
+          "version": 2
+        }
+      },
+      "seconds": 1.62,
+      "response": {
+        "turn_id": "answer-e82b68569041463f9d676da24e42318a",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "31fb3351-7c7b-448a-a91f-05c264d53c52",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [],
+          "observation": null,
+          "citation_ids": [],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+          },
+          "answer_markdown": "用水果来类比：\n\n- `x = 1`：把标签 `x` 贴到一个苹果上。\n- `y = x`：再拿一张标签 `y`，贴到**同一个苹果**上。现在两张标签都在这个苹果上。\n- `x = 2`：把标签 `x` 撕下来，改贴到一个橘子上。\n\n结果：`x` 指向橘子（2），`y` 还贴在原来的苹果上（1）。\n\n关键点：重新赋值只是把**某一张标签**换到别的东西上，不会把别的标签一起挪走。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    },
+    {
+      "case": "same_topic_other_resource",
+      "question": "刚才我们用了哪两种水果作例子？只回答水果名。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "a-extra",
+          "version": 1
+        }
+      },
+      "seconds": 1.05,
+      "response": {
+        "turn_id": "answer-efe13eccbd334a0db7e0feb61de1983b",
+        "session_id": "learning-b7e3703e5cbe795d946b303899ea561e04e3a0a8e2f83ec1ddeefdbdf4156bd1",
+        "request_id": "b1710974-abf8-4cbe-9c7a-c522f281c54e",
+        "topic_id": "a",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [],
+          "observation": null,
+          "citation_ids": [],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+          },
+          "answer_markdown": "苹果和橘子。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    },
+    {
+      "case": "quiz_ambiguous",
+      "question": "这道题怎么做？",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "quiz",
+          "material_id": "arithmetic",
+          "version": 1
+        }
+      },
+      "seconds": 1.6,
+      "response": {
+        "turn_id": "answer-b15645776a8e46f99abaa12202e44e83",
+        "session_id": "learning-c17ac4317547df121e5f51a4654eb5d4f7b2902c882db49efdc21e73dcb99b05",
+        "request_id": "5681f7cc-f6d5-4979-aa20-491ae9c22491",
+        "topic_id": "b",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "算术练习",
+              "locator": null,
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "48525159d347a5fcf8c7330d1ee71d1483523d4388e021967a3ac83e218c37db",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "arithmetic",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "24735406dc8910cd8c2adbf0b5f79488d10cc4301f99e21395e88ee505e7f30e"
+          },
+          "answer_markdown": "你指的是哪一道？这份练习里有两道题：\n\n1. `2 + 3` 的结果是什么？\n2. `2 * 3` 的结果是什么？\n\n告诉我是第几题（或把题干发我），我再给你提示或完整解析。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    },
+    {
+      "case": "quiz_hint",
+      "question": "第一题我不会，只给一个提示，不要告诉我结果或选项。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "quiz",
+          "material_id": "arithmetic",
+          "version": 1
+        },
+        "selected_text": "Python 表达式 2 + 3 的结果是什么？"
+      },
+      "seconds": 1.63,
+      "response": {
+        "turn_id": "answer-0de981d628a4449c8b0efe8ef83919dc",
+        "session_id": "learning-c17ac4317547df121e5f51a4654eb5d4f7b2902c882db49efdc21e73dcb99b05",
+        "request_id": "983e0cad-b3a0-4ab0-9929-e58a1f75cada",
+        "topic_id": "b",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "算术练习",
+              "locator": {
+                "kind": "document",
+                "offset": 110,
+                "content_hash": "48525159d347a5fcf8c7330d1ee71d1483523d4388e021967a3ac83e218c37db"
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "48525159d347a5fcf8c7330d1ee71d1483523d4388e021967a3ac83e218c37db",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "arithmetic",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "24735406dc8910cd8c2adbf0b5f79488d10cc4301f99e21395e88ee505e7f30e"
+          },
+          "answer_markdown": "提示：`+` 是加法运算符，它把左右两边的两个整数“合在一起”数。你可以从 2 开始，往后数 3 个数，数到几就是结果。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    },
+    {
+      "case": "quiz_full_solution",
+      "question": "现在给我第一题的完整解析和答案。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "quiz",
+          "material_id": "arithmetic",
+          "version": 1
+        }
+      },
+      "seconds": 1.82,
+      "response": {
+        "turn_id": "answer-e49c50fc8eeb4042a4436f58f03ddd4c",
+        "session_id": "learning-c17ac4317547df121e5f51a4654eb5d4f7b2902c882db49efdc21e73dcb99b05",
+        "request_id": "9d5b5bad-83e6-4a5b-9060-78924163be98",
+        "topic_id": "b",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "算术练习",
+              "locator": null,
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "48525159d347a5fcf8c7330d1ee71d1483523d4388e021967a3ac83e218c37db",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "arithmetic",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "24735406dc8910cd8c2adbf0b5f79488d10cc4301f99e21395e88ee505e7f30e"
+          },
+          "answer_markdown": "第一题：`2 + 3` 的结果是什么？\n\n- 运算符：`+` 是加法运算符，作用是把左右两个操作数相加。\n- 操作数：左边是整数 2，右边是整数 3，都是整数类型。\n- 计算：2 + 3 = 5。\n- 答案：选 5（选项 B）。\n\n易错点：不要把 `+` 和 `*` 混用；`2 * 3` 才是 6。另外这里两个操作数都是整数，结果也是整数，不会出现小数。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    },
+    {
+      "case": "ppt_view_and_narration",
+      "question": "我现在看的哪一页？刚才讲到哪一句？你能看清图片里的细节吗？请简短回答。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "classroom",
+          "material_id": "slides",
+          "version": 1
+        },
+        "locator": {
+          "kind": "classroom",
+          "scene_id": "two"
+        },
+        "classroom": {
+          "status": "paused",
+          "lecture": {
+            "scene_id": "one",
+            "action_id": "speech",
+            "speech_action_id": "speech",
+            "sentence_index": 1,
+            "sentence_alignment": "estimated",
+            "speech_completed": false,
+            "highlighted_element_ids": [
+              "formula"
+            ]
+          }
+        }
+      },
+      "seconds": 1.46,
+      "response": {
+        "turn_id": "answer-55817cc7745d4f53a8749378c2e63b7a",
+        "session_id": "learning-b33a3936a819da1fbf81337ee8f9dff07ddb730d884d58e7e823e316beebf12f",
+        "request_id": "9102a584-d495-4437-ba1f-fc6d6dfd2f06",
+        "topic_id": "ppt",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "变量课件",
+              "locator": {
+                "kind": "classroom",
+                "scene_id": "two"
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "aacf9f1810605e047c7ff47f1846438a710e748da28fbb531c6e4c4eb03965da",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "slides",
+                "material_type": "classroom"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "classroom",
+            "name": "teach-current-topic",
+            "version": "afb407b151b6f973ad9408a6bc5e0756a8cef0f273533dabac47ef2d82ed1595"
+          },
+          "answer_markdown": "你现在看的是第 2 页「条件」。\n\n最近讲解位置在第 1 页「赋值」，停在“再试一次。”这句（该句位置为估算，整段讲稿尚未结束）。\n\n图片细节我看不到——当前没有可用的视觉内容，所以只能依据页面文字、公式和讲稿来讲解，不能描述图片里的具体画面。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    },
+    {
+      "case": "long_selected_text",
+      "question": "引用末尾的验收口令是什么？只回答口令。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "long-guide",
+          "version": 1
+        },
+        "selected_text": "变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。变量名绑定对象。验收口令是蓝鲸。"
+      },
+      "seconds": 1.29,
+      "response": {
+        "turn_id": "answer-3f0fa4f809f04ae581587f863f388d9a",
+        "session_id": "learning-2c79eaf17b19c655121c6b44097c8ebe74c2a1300f6eee5dbb254e4c3c2e64b8",
+        "request_id": "fb72b0f1-5b4d-4030-a28f-5860b000de6a",
+        "topic_id": "long",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "长引用资料",
+              "locator": {
+                "kind": "document",
+                "offset": 0,
+                "content_hash": "2aee21fee287c4b9cb935ae2c135272ed34f74f0c8330919999c5d3671a75a71"
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "2aee21fee287c4b9cb935ae2c135272ed34f74f0c8330919999c5d3671a75a71",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "long-guide",
+                "material_type": "report"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+          },
+          "answer_markdown": "蓝鲸",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    },
+    {
+      "case": "voluntary_check",
+      "question": "请出一道理解检查题让我做，我希望可以跳过。不要先告诉我答案。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "check-guide",
+          "version": 1
+        }
+      },
+      "seconds": 3.48,
+      "response": {
+        "turn_id": "answer-8fc39e7fce40480e96e6cdac1fa655b6",
+        "session_id": "learning-37e6b5c7f27f1faa6fef3258864a4189c2244c6e8bb16c5792c722b1977b2dfb",
+        "request_id": "afde4e63-efdd-4c1d-bf01-79f828a6a8ce",
+        "topic_id": "check",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [
+            {
+              "kind": "understanding_check",
+              "check_id": "check-ca91c01dbe40477a88adb773282d28e8",
+              "topic_id": "check",
+              "source_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "check-guide",
+                "material_type": "report"
+              },
+              "objective_ids": [],
+              "public_question": {
+                "form": "choice",
+                "stem": "执行 x = 1 后，执行 y = x，再执行 x = 2。此时 x 和 y 的值分别是什么？",
+                "options": [
+                  {
+                    "id": "option_1",
+                    "text": "x 为 2，y 为 1"
+                  },
+                  {
+                    "id": "option_2",
+                    "text": "x 为 1，y 为 2"
+                  },
+                  {
+                    "id": "option_3",
+                    "text": "x 为 2，y 为 2"
+                  },
+                  {
+                    "id": "option_4",
+                    "text": "x 为 1，y 为 1"
+                  }
+                ]
+              },
+              "question_version": 1,
+              "source_available": true
+            }
+          ],
+          "citations": [
+            {
+              "title": "变量检查资料",
+              "locator": null,
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "33c86bdac751c99d8150eb2c579951c56dbeca33ce45e8133af58365c7165b8d",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "check-guide",
+                "material_type": "report"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 2,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 1,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "a3b870cf63eeecfa9102dce866d8154dc3a9a7880d4956e4743384874887dd4b"
+          },
+          "answer_markdown": "已为你准备好一道理解检查题，围绕「变量理解检查」这个知识点：\n\n**执行 x = 1 后，执行 y = x，再执行 x = 2。此时 x 和 y 的值分别是什么？**\n\n- A. x 为 2，y 为 1\n- B. x 为 1，y 为 2\n- C. x 为 2，y 为 2\n- D. x 为 1，y 为 1\n\n请在检查卡片上作答；不想做也可以直接跳过，我不会先公布答案。",
+          "source_revision": 0,
+          "suggested_action_ids": [
+            "check-ca91c01dbe40477a88adb773282d28e8"
+          ]
+        },
+        "error_code": null,
+        "committed_effects": [
+          {
+            "kind": "understanding_check",
+            "check_id": "check-ca91c01dbe40477a88adb773282d28e8"
+          }
+        ]
+      },
+      "semantic_review": {
+        "status": "passed",
+        "method": "manual inspection of actual answer and tool actions"
+      }
+    }
+  ],
+  "api_checks": [
+    {
+      "case": "skip_generated_check",
+      "status": "passed",
+      "card": {
+        "check_id": "check-ca91c01dbe40477a88adb773282d28e8",
+        "question_version": 1,
+        "topic_id": "check",
+        "public_question": {
+          "form": "choice",
+          "stem": "执行 x = 1 后，执行 y = x，再执行 x = 2。此时 x 和 y 的值分别是什么？",
+          "options": [
+            {
+              "id": "option_1",
+              "text": "x 为 2，y 为 1"
+            },
+            {
+              "id": "option_2",
+              "text": "x 为 1，y 为 2"
+            },
+            {
+              "id": "option_3",
+              "text": "x 为 2，y 为 2"
+            },
+            {
+              "id": "option_4",
+              "text": "x 为 1，y 为 1"
+            }
+          ]
+        },
+        "objective_ids": [],
+        "source_ref": {
+          "version": 1,
+          "course_id": "learning-fixture",
+          "material_id": "check-guide",
+          "material_type": "report"
+        },
+        "source_available": true,
+        "attempts": []
+      },
+      "attempt": {
+        "request_id": "57b67186-30c3-4081-9e92-945d2f6d2a45",
+        "question_version": 1,
+        "option_ids": [],
+        "text": "",
+        "skipped": true,
+        "attempt_id": "attempt-e74909acd5cb40ccb564eaa350ef0249",
+        "check_id": "check-ca91c01dbe40477a88adb773282d28e8",
+        "status": "skipped",
+        "correct": null,
+        "evaluator": null,
+        "feedback": "",
+        "evidence_refs": [],
+        "objective_ids": [],
+        "source_ref": {
+          "version": 1,
+          "course_id": "learning-fixture",
+          "material_id": "check-guide",
+          "material_type": "report"
+        }
+      }
+    },
+    {
+      "case": "session_restore_topic_and_owner_isolation",
+      "status": "passed"
+    },
+    {
+      "case": "questions_and_skip_do_not_mark_reading_complete",
+      "status": "passed"
+    }
+  ],
+  "semantic_review": "passed for 9 sampled cases after quiz ambiguity rule correction; not an all-model quality guarantee",
+  "execution_status": "finished"
+}

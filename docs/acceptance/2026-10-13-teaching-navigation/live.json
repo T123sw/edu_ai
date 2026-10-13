@@ -1,0 +1,203 @@
+{
+  "model": "deepseek-v4-flash",
+  "storage": "disposable PostgreSQL schema and temporary files",
+  "cases": [
+    {
+      "case": "located_second_question",
+      "question": "请解释这道题，给出结果。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "quiz",
+          "material_id": "arithmetic",
+          "version": 1
+        },
+        "locator": {
+          "kind": "quiz",
+          "question_index": 1
+        }
+      },
+      "seconds": 2.8,
+      "response": {
+        "turn_id": "answer-3c4850566e7c4e73a8c5872b9cfda5b3",
+        "session_id": "learning-c17ac4317547df121e5f51a4654eb5d4f7b2902c882db49efdc21e73dcb99b05",
+        "request_id": "da27d82d-6aba-4051-97cf-ca8b768b1b58",
+        "topic_id": "b",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "算术练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 1
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "48525159d347a5fcf8c7330d1ee71d1483523d4388e021967a3ac83e218c37db",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "arithmetic",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "9c69ca6ae2a77d057aa713646eacc076702cf04851206499a165c2b4080e32d3"
+          },
+          "answer_markdown": "这道题问的是 Python 表达式 `2 * 3` 的结果。\n\n`*` 是乘法运算符，`2 * 3` 就是把 2 和 3 相乘，得到 6。所以正确选项是 **6**（选项 B）。\n\n易错点：不要把 `*` 和 `+` 混淆——`2 + 3` 才是 5；`*` 在 Python 里表示乘法，不是别的含义。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "manual_review": "passed: target question, requested answer depth, and cited source inspected"
+    },
+    {
+      "case": "located_hint_first_question",
+      "question": "这次只给提示，不要告诉我结果。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "quiz",
+          "material_id": "arithmetic",
+          "version": 1
+        },
+        "locator": {
+          "kind": "quiz",
+          "question_index": 0
+        }
+      },
+      "seconds": 1.63,
+      "response": {
+        "turn_id": "answer-ba40b72a35c04853bdcf2dfcb9098976",
+        "session_id": "learning-c17ac4317547df121e5f51a4654eb5d4f7b2902c882db49efdc21e73dcb99b05",
+        "request_id": "5517080b-1835-41c3-8ff7-ce463cd922c7",
+        "topic_id": "b",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "算术练习",
+              "locator": {
+                "kind": "quiz",
+                "question_index": 0
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "48525159d347a5fcf8c7330d1ee71d1483523d4388e021967a3ac83e218c37db",
+              "resource_ref": {
+                "version": 1,
+                "course_id": "learning-fixture",
+                "material_id": "arithmetic",
+                "material_type": "quiz"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "quiz",
+            "name": "teach-current-topic",
+            "version": "9c69ca6ae2a77d057aa713646eacc076702cf04851206499a165c2b4080e32d3"
+          },
+          "answer_markdown": "这道题问的是 `2 + 3` 的结果。\n\n提示：`+` 是加法运算符，把两个整数相加即可。先想清楚 2 和 3 合起来是多少，再对照三个选项，选出与你的计算结果一致的那个。\n\n注意别被 `*`（乘法）干扰——这里用的是 `+`，不是相乘。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "manual_review": "passed: target question, requested answer depth, and cited source inspected"
+    },
+    {
+      "case": "late_passage_retrieval",
+      "question": "这份资料中递归终止条件是什么？满足后返回什么？简短回答。",
+      "reading_context": {
+        "resource_ref": {
+          "course_id": "learning-fixture",
+          "material_type": "report",
+          "material_id": "long-guide",
+          "version": 2
+        }
+      },
+      "seconds": 1.74,
+      "response": {
+        "turn_id": "answer-83070c00146f43ed8b4acf30e7f0ca7d",
+        "session_id": "learning-2c79eaf17b19c655121c6b44097c8ebe74c2a1300f6eee5dbb254e4c3c2e64b8",
+        "request_id": "10813c5c-e075-496d-9210-d2a22be5d671",
+        "topic_id": "long",
+        "status": "succeeded",
+        "stage": "succeeded",
+        "attempt": 1,
+        "result": {
+          "actions": [],
+          "citations": [
+            {
+              "title": "递归长文",
+              "locator": {
+                "kind": "document",
+                "block_id": "report-v1:14006:14039:7d8b5168"
+              },
+              "visibility": "course",
+              "citation_id": "ctx_01",
+              "content_hash": "589e6690ad8f3798c84ddd8f291c6884b3bb488fc807b08eb7d66456498b8790",
+              "resource_ref": {
+                "version": 2,
+                "course_id": "learning-fixture",
+                "material_id": "long-guide",
+                "material_type": "report"
+              }
+            }
+          ],
+          "observation": null,
+          "citation_ids": [
+            "ctx_01"
+          ],
+          "memory_epoch": 0,
+          "model_rounds": 1,
+          "role_version": "learning-role-v2",
+          "tool_attempts": 0,
+          "teaching_skill": {
+            "mode": "document",
+            "name": "teach-current-topic",
+            "version": "cb8f22807f2cecf4b94d57d533c63b15d0f41aa0d95aec7255082b02b93dedcd"
+          },
+          "answer_markdown": "根据当前引用的段落：\n\n- **递归终止条件**：`n` 等于零。\n- **满足后返回**：返回 `1`，并且不再调用自身。\n\n也就是说，当 `n == 0` 时递归停止，函数直接给出结果 `1`，不会继续往下递归。",
+          "source_revision": 0,
+          "suggested_action_ids": []
+        },
+        "error_code": null,
+        "committed_effects": []
+      },
+      "manual_review": "passed: target question, requested answer depth, and cited source inspected"
+    }
+  ],
+  "api_checks": [],
+  "semantic_review": "passed for three sampled cases after current-question context ordering fix",
+  "execution_status": "finished"
+}
