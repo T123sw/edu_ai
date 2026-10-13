@@ -1,0 +1,72 @@
+{
+  "base": "http://127.0.0.1",
+  "apiMode": "mocked browser API; compiled static frontend",
+  "results": [
+    {
+      "width": 1440,
+      "alignment": {
+        "left": 64.796875,
+        "right": 1375.203125,
+        "listLeft": 64.796875,
+        "listRight": 1375.203125,
+        "overflow": false
+      },
+      "passed": true,
+      "pageErrors": [],
+      "httpFailures": []
+    },
+    {
+      "width": 1920,
+      "alignment": {
+        "left": 240,
+        "right": 1680,
+        "listLeft": 240,
+        "listRight": 1680,
+        "overflow": false
+      },
+      "passed": true,
+      "pageErrors": [],
+      "httpFailures": []
+    },
+    {
+      "width": 1024,
+      "alignment": {
+        "left": 32,
+        "right": 992,
+        "listLeft": 32,
+        "listRight": 992,
+        "overflow": false
+      },
+      "passed": true,
+      "pageErrors": [],
+      "httpFailures": []
+    },
+    {
+      "width": 390,
+      "alignment": {
+        "left": 21,
+        "right": 369,
+        "listLeft": 21,
+        "listRight": 369,
+        "overflow": false
+      },
+      "passed": true,
+      "pageErrors": [],
+      "httpFailures": []
+    }
+  ],
+  "deployment": {
+    "code_sha": "e977fabbd01ba24ac338ead6397d540a0d1b40fe",
+    "frontend_tree_sha": "26d6e5eff357ef496d24acc02ff3f40e432ed593",
+    "published_at": "20261013T132906Z",
+    "api_base": "/backend"
+  },
+  "backup": "/home/zxqs_ep/data/edu_ai/backups/frontend/before-classroom-editorial-20261013T132906Z",
+  "validation": {
+    "typescript": "passed",
+    "targeted_eslint": "passed",
+    "existing_frontend_regressions": 18,
+    "build": "passed",
+    "api_scope": "Browser fixtures only; no real generation task was created."
+  }
+}
