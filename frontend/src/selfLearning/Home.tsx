@@ -1,5 +1,5 @@
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { allResources, completion, type Classroom } from "./model";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { type Classroom } from "./model";
 import { Brand, Icon } from "./ui";
 
 type Props = {
@@ -58,28 +58,36 @@ export function Cover({ room }: { room: Pick<Classroom, "tone"> }) {
     </div>
   );
 }
-const startingPoints = [
-  { title: "读懂 AI Agent", tag: "人工智能", icon: "spark", tone: "violet", text: "从基本原理，到搭建一个小助手", prompt: "我想系统学习 AI Agent，会一点 Python。希望理解工具调用与任务规划，并能独立搭建一个简单的助手。" },
-  { title: "用 Python 分析数据", tag: "编程实践", icon: "studio", tone: "mint", text: "从一张表格，发现数据里的规律", prompt: "我想学习用 Python 分析数据，有基础编程经验。希望学会清洗表格数据、绘制图表，并完成一个小型分析项目。" },
-  { title: "直观理解线性代数", tag: "数学基础", icon: "slides", tone: "peach", text: "用图形理解向量、矩阵与变换", prompt: "我想直观地理解线性代数，已有高中数学基础。请结合几何图形和具体例子，帮助我理解向量、矩阵与线性变换。" },
-  { title: "学会阅读学术论文", tag: "研究方法", icon: "report", tone: "blue", text: "找到问题、方法与结论之间的联系", prompt: "我想学习如何阅读学术论文，是科研入门者。希望能辨别研究问题、理解实验设计，并写出有依据的阅读笔记。" },
-];
-
-function ClassroomCard({ room, shared = false, onOpen }: { room: Classroom; shared?: boolean; onOpen: () => void }) {
-  const resources = allResources(room);
-  return <button className="sl-class-card" onClick={onOpen} title={room.title}>
-    <div className={`sl-course-preview ${room.tone}`} aria-hidden="true">
-      <div className="sl-course-cover-heading"><span>课程一览</span><Icon name="book" size={22} /></div>
-      <div className="sl-course-outline">{room.chapters.slice(0, 3).map((chapter, index) => <div key={chapter.id}><span>0{index + 1}</span><strong>{chapter.title}</strong></div>)}</div>
-      {!room.chapters.length && <span className="sl-course-outline-empty">从一个学习目标开始</span>}
-    </div>
-    <div className="sl-card-copy">
-      <span className="sl-course-origin">{shared || room.sourceId ? '共享课堂' : '我的课程'} · {room.chapters.length} 个知识点</span>
-      <h3>{room.title}</h3>
-      <p className="sl-course-goal">{room.goal || '按知识点逐步学习，结合资料与练习加深理解。'}</p>
-      <div className="sl-course-card-footer"><span>{shared ? `${resources.length} 份学习资料` : `已学完 ${completion(room)} / ${resources.length} 份资料`}</span><Icon name="arrow" size={16} /></div>
-    </div>
-  </button>;
+function ClassroomCard({
+  room,
+  onOpen,
+}: {
+  room: Classroom;
+  onOpen: () => void;
+}) {
+  return (
+    <button className="sl-class-card" onClick={onOpen} title={room.title}>
+      <div className={`sl-course-preview ${room.tone}`} aria-hidden="true">
+        <div className="sl-preview-paper">
+          <strong>{room.chapters[0]?.title || room.title}</strong>
+          <div className="sl-preview-rule" />
+          <div className="sl-preview-content">
+            <div className="sl-preview-outline">
+              {room.chapters.slice(0, 3).map((chapter, index) => (
+                <div key={chapter.id}><i>{index + 1}</i><span>{chapter.title}</span></div>
+              ))}
+            </div>
+            <div className="sl-preview-diagram">
+              <span /><div><i /><i /><i /></div><b />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="sl-card-copy">
+        <h3>{room.title}</h3>
+      </div>
+    </button>
+  );
 }
 export function Home({
   rooms,
@@ -93,7 +101,6 @@ export function Home({
   preparationOptions,
 }: Props) {
   const [prompt, setPrompt] = useState("");
-  const promptRef = useRef<HTMLTextAreaElement>(null);
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -110,28 +117,13 @@ export function Home({
     .filter(r => origin === "all" || (origin === "shared" ? !!r.sourceId : !r.sourceId))
     .sort((a, b) => b.updatedAt - a.updatedAt);
   const sharedMatches = shared.filter(matches);
-  const resume = [...rooms].sort((a, b) => b.updatedAt - a.updatedAt)[0];
-  const currentChapter = resume?.chapters.find(c => c.resources.some(r => r.id === resume.selectedId)) || resume?.chapters[0];
-  const currentResource = currentChapter?.resources.find(r => r.id === resume?.selectedId) || currentChapter?.resources[0];
-  const resourceCount = resume ? allResources(resume).length : 0;
-  const completedCount = resume ? completion(resume) : 0;
-  const chapterIndex = resume?.chapters.findIndex(c => c.id === currentChapter?.id) ?? 0;
-  function chooseStartingPoint(value: string) {
-    setPrompt(value);
-    promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    promptRef.current?.focus({ preventScroll: true });
-  }
   return (
-    <main className="sl-home sl-home-refresh">
+    <main className="sl-home">
       <section className="sl-home-hero">
-        <div className="sl-learning-start">
-        <div className="sl-home-identity"><Brand large /><span>你的 AI 学习空间</span></div>
+        <Brand large />
         <h1>让好奇，成为你的下一堂课。</h1>
-        <p className="sl-home-intro">带着问题来，沿着清晰的知识路径，学到真正理解。</p>
         <form className={`sl-prompt${preparationOptions ? ' sl-prompt-with-options' : ''}`} onSubmit={submit}>
-          <div className="sl-composer-label"><Icon name="spark" size={17} /><span>今天，你想学会什么？</span></div>
           <textarea
-            ref={promptRef}
             aria-label="学习知识点与目标"
             placeholder={"- 我想学习 Agent\n- 希望能独立做出一个 AI 助手\n- 会一点 Python，Agent 还是零基础"}
             value={prompt}
@@ -150,7 +142,6 @@ export function Home({
           />
           {preparationOptions}
           <div className="sl-prompt-bottom">
-            <span className="sl-composer-hint">告诉我目标和基础，或添加学习资料</span>
             <button
               className="sl-primary"
               disabled={!prompt.trim() && !canCreateFromUploads}
@@ -160,27 +151,6 @@ export function Home({
             </button>
           </div>
         </form>
-        <div className="sl-learning-formats"><span><Icon name="book" size={15} />知识点讲解</span><span><Icon name="quiz" size={15} />练习巩固</span><span><Icon name="chat" size={15} />随时提问</span></div>
-        </div>
-        {resume ? <aside className="sl-home-companion" aria-label="继续上次学习">
-          <div className="sl-companion-top"><span><Icon name="clock" size={15} />继续上次学习</span><span className="sl-companion-dot" /></div>
-          <h2>{resume.title}</h2>
-          <p className="sl-companion-description">接着上次的思路，再向前一步。</p>
-          <div className="sl-resume-location"><small>当前学习位置</small><strong>{currentChapter?.title || '打开课程开始学习'}</strong>{currentResource && <span>{currentResource.title}</span>}</div>
-          <div className="sl-resume-outline" aria-label="课程知识点预览">{resume.chapters.slice(Math.max(0, chapterIndex - 1), Math.max(0, chapterIndex - 1) + 3).map(c => <div key={c.id} className={c.id === currentChapter?.id ? 'current' : ''}><i /><span>{c.title}</span>{c.id === currentChapter?.id && <small>当前</small>}</div>)}</div>
-          <div className="sl-resume-progress"><span>已标记学完 <b>{completedCount}</b> / {resourceCount} 份资料</span><progress aria-label="已标记学完的资料" value={completedCount} max={resourceCount || 1} /></div>
-          <button className="sl-primary" onClick={() => onOpen(resume)}>继续学习<Icon name="arrow" size={17} /></button>
-        </aside> : <aside className="sl-home-companion sl-home-onboarding" aria-label="如何开始学习">
-          <div className="sl-companion-top"><span><Icon name="book" size={15} />从好奇到理解</span><span className="sl-companion-dot" /></div>
-          <h2>一个想学的主题，<br />一条清晰的学习路径。</h2>
-          <p className="sl-companion-description">从你的目标出发，把知识一点点串起来。</p>
-          <ol>{[['spark', '说说想学什么', '告诉我你的目标、已有基础，也可以带上自己的资料。'], ['book', '沿着知识点学习', '结合讲解与学习资料，逐步理解一个主题。'], ['chat', '在练习和提问中理解', '遇到卡点随时问，用练习检查自己的理解。']].map(([icon, title, text]) => <li key={title}><Icon name={icon} size={20} /><div><strong>{title}</strong><p>{text}</p></div></li>)}</ol>
-          <span className="sl-onboarding-note">从下方选一个方向，也可以写下自己的目标。</span>
-        </aside>}
-      </section>
-      <section className="sl-starting-points" aria-label="学习方向示例">
-        <div className="sl-starting-heading"><h2>从一个感兴趣的方向开始</h2><span>选择后可修改目标，再开始学习</span></div>
-        <div className="sl-starting-grid">{startingPoints.map(point => <button key={point.title} className={`sl-starting-card ${point.tone}`} onClick={() => chooseStartingPoint(point.prompt)} aria-label={`试试：${point.title}`}><span className="sl-starting-icon"><Icon name={point.icon} size={21} /></span><span className="sl-starting-copy"><small>{point.tag}</small><strong>{point.title}</strong><span>{point.text}</span></span><Icon name="arrow" size={16} /></button>)}</div>
       </section>
       <div className="sl-home-library">
         <section aria-label="最近学习">
@@ -263,7 +233,6 @@ export function Home({
               <ClassroomCard
                 key={r.id}
                 room={r}
-                shared
                 onOpen={() => onOpen(r, true)}
               />
             ))}
