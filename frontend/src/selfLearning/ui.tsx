@@ -6,8 +6,6 @@ import {
 } from "react";
 
 const paths: Record<string, ReactNode> = {
-  flask: <><path d="M9 3h6M10 3v6l-6 10a1.4 1.4 0 0 0 1.2 2h13.6a1.4 1.4 0 0 0 1.2-2L14 9V3M7 15h10" /><path d="M10 18h1m3-1h1" /></>,
-  briefcase: <><rect x="3" y="7" width="18" height="14" rx="3" /><path d="M8 7V4h8v3M3 12c5 4 13 4 18 0M12 12v4" /></>,
   spark: (
     <>
       <path d="m12 3 2.6 6.4L21 12l-6.4 2.6L12 21l-2.6-6.4L3 12l6.4-2.6Z" />

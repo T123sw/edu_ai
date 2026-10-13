@@ -1,9 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { Home } from "./Home";
-import { SpaceNavigation, InterviewEntry } from './SpaceNavigation';
-import { Research } from './Research';
-import { researchHref } from './research';
 import { LoginPage } from "../stitch/pages/LoginPage";
 import { Classroom } from "./Classroom";
 import { ResourceCenter } from "./Library";
@@ -21,7 +18,6 @@ import { useLearningStore } from "./store";
 import { Brand, Empty, Icon } from "./ui";
 import "./styles.css";
 import "./review.css";
-import "./space.css";
 
 function useRoute() {
   const [hash, setHash] = useState(window.location.hash);
@@ -64,11 +60,9 @@ function LearningApp({
     : query.get("classroom") || "";
   const room = state.rooms.find((r) => r.id === roomId);
   const home = path === "/";
-  const research = path === '/research';
-  const interview = path === '/interview';
-  const hub = home || research || interview;
   const studio = path === "/studio";
   const resources = path === "/resources";
+  const PageHeader = home ? "div" : "header";
   const workbenchRoom = room || state.rooms[0];
   const workbenchHref = workbenchRoom ? reviewWorkbenchHref(workbenchRoom, undefined, workbenchSession) : "#/";
   useEffect(() => {
@@ -87,15 +81,14 @@ function LearningApp({
     }
   }
   return (
-    <div className={`sl-app sl-space-shell ${review ? "frontend-review" : ""} ${room && !studio && !resources && !hub ? "in-classroom" : ""} ${hub ? "sl-space-index" : "in-course-workspace"}`}>
-      <header className={hub ? "sl-space-header" : "sl-header"}>
-        {hub && <SpaceNavigation active={research ? 'research' : interview ? 'interview' : 'home'} />}
-        {!hub && (
+    <div className={`sl-app ${review ? "frontend-review" : ""} ${room && !studio && !resources ? "in-classroom" : ""} ${!home ? "in-course-workspace" : ""}`}>
+      <PageHeader className={home ? "sl-home-account" : "sl-header"}>
+        {!home && (
           <a className="sl-home-link" href="#/" aria-label="Edu AI 首页">
             <Brand />
           </a>
         )}
-        {room && !hub ? (
+        {room ? (
           <div className="sl-class-title">
             <a href="#/" aria-label="返回首页">
               <Icon name="back" size={17} />
@@ -104,7 +97,7 @@ function LearningApp({
             <small>自主学习课堂</small>
           </div>
         ) : null}
-        {!hub && (
+        {!home && (
           <nav className="sl-main-nav" aria-label="主导航">
             <a
               href={room ? `#/classroom/${room.id}` : "#/"}
@@ -113,7 +106,6 @@ function LearningApp({
             >
               AI 课堂
             </a>
-            <a href={researchHref(room)}>科研实践</a>
             <a
               href={workbenchHref}
               className={studio ? "active" : ""}
@@ -160,7 +152,7 @@ function LearningApp({
             </div>
           )}
         </div>
-      </header>
+      </PageHeader>
       {storageError && (
         <div className="sl-storage-alert" role="alert">
           浏览器存储不可用，本次学习记录可能无法在刷新后保留。
@@ -179,10 +171,6 @@ function LearningApp({
           onOpen={open}
           onPublish={() => setPublish(true)}
         />
-      ) : research ? (
-        <Research key={`${owner}:${query.toString()}`} owner={owner} rooms={state.rooms} query={query} />
-      ) : interview ? (
-        <InterviewEntry />
       ) : room && !studio && !resources ? (
         <Classroom
           key={room.id}

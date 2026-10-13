@@ -92,7 +92,7 @@ async function noOverflow(page: Page) {
   ).toBe(true);
 }
 
-test("learning space homepage, student permissions and direct classroom generation", async ({
+test("minimal homepage, student permissions and direct classroom generation", async ({
   page,
 }, info) => {
   // Exercise ID generation for LAN HTTP previews without secure-context randomUUID.
@@ -103,7 +103,7 @@ test("learning space homepage, student permissions and direct classroom generati
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/?preview=student");
   await expect(
-    page.getByRole("heading", { name: /学有所思/ }),
+    page.getByRole("heading", { name: "让好奇，成为你的下一堂课。" }),
   ).toBeVisible();
   await expect(
     page.getByRole("navigation", { name: "主导航" }),
