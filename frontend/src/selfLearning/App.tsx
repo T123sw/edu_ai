@@ -107,20 +107,6 @@ function LearningApp({
             >
               AI 课堂
             </a>
-            <a
-              href={workbenchHref}
-              className={studio ? "active" : ""}
-              aria-current={studio ? "page" : undefined}
-            >
-              工作台
-            </a>
-            <a
-              href={room ? `#/resources?classroom=${room.id}` : "#/resources"}
-              className={resources ? "active" : ""}
-              aria-current={resources ? "page" : undefined}
-            >
-              资源中心
-            </a>
           </nav>
         )}
         <div className="sl-account">

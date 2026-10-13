@@ -21,12 +21,16 @@ for (const entry of ["review", "old-preview"] as string[]) test(`original workbe
   await page.goto(entry === "review" ? "/?review=1" : entry === "old-preview" ? "/?preview=student" : "/");
   await page.locator(".sl-class-card").filter({ hasText: "从零开始，理解 Agent" }).click();
   const navigation = page.getByRole("navigation", { name: "主导航" });
-  await expect(navigation.getByRole("link")).toHaveText(["AI 课堂", "工作台", "资源中心"]);
+  await expect(navigation.getByRole("link")).toHaveText(["AI 课堂"]);
   await page.screenshot({ path: info.outputPath("classroom-review.png") });
   if (entry === "signed-in-teacher") {
     // The user's existing bookmarked URL used to render the simplified Studio.
     await page.goto("/#/studio?classroom=sample-agent");
-  } else await navigation.getByRole("link", { name: "工作台", exact: true }).click();
+  } else {
+    const panels = page.getByRole("navigation", { name: "课堂面板" });
+    if (await panels.isVisible()) await panels.getByRole("button", { name: "目录", exact: true }).click();
+    await page.locator(".sl-rail-studio").click();
+  }
   await expect(page.locator(".ai-studio-page")).toBeVisible({ timeout: 25000 });
   await expect(page.locator(".review-reference")).toHaveCount(0);
   expect(page.url()).not.toContain("reference=");
@@ -45,6 +49,7 @@ for (const entry of ["review", "old-preview"] as string[]) test(`original workbe
   await expect(page.locator(".sl-library-item").filter({ hasText: "Agent 基础概念 · 讲解" })).toHaveCount(0);
   await page.locator(".sl-library-item").filter({ hasText: "Agent 工具调用补充报告" }).click();
   await expect(page.getByRole("region", { name: "资源预览" })).toContainText("Agent 工具调用补充报告");
+  const resourcesUrl = page.url();
   await expect(page.getByRole("link", { name: "引用到工作台", exact: true })).toHaveAttribute("href", /scopeType=knowledge_point.*reference=/);
   await page.getByRole("button", { name: "置顶资源", exact: true }).click();
   await expect(page.getByRole("button", { name: "取消置顶", exact: true })).toHaveAttribute("aria-pressed", "true");
@@ -61,7 +66,7 @@ for (const entry of ["review", "old-preview"] as string[]) test(`original workbe
   await page.reload();
   await expect(page.locator(".sl-reader")).toContainText("Agent 工具调用 · 我的补充报告");
   const classroomUrl = page.url();
-  await navigation.getByRole("link", { name: "资源中心", exact: true }).click();
+  await page.goto(resourcesUrl);
   await page.getByRole("textbox", { name: "搜索资源" }).fill("不存在的资源名称");
   await expect(page.getByText("没有匹配的资源，试试其他筛选条件。")).toBeVisible();
   await page.getByRole("textbox", { name: "搜索资源" }).fill("我的补充报告");
