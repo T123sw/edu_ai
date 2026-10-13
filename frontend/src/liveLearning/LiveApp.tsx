@@ -16,7 +16,7 @@ import './live.css';
 import { TaskCenter, TaskLauncher } from './TaskCenter';
 
 import { PreparationNotifications } from './PreparationNotifications';
-import { PreparationOptionsForm, PreparationTasks, defaultOptions, submitPreparation } from './Preparation';
+import { PreparationOptionsForm, defaultOptions, submitPreparation } from './Preparation';
 
 const base = '/api/self-learning';
 const pathFor = (id: string) => `${base}/courses/${encodeURIComponent(id)}`;
@@ -37,7 +37,6 @@ export default function LiveApp() {
   const revision = useRef(0);
   const questions = useRef(new Map<string, string>());
   const [preparationOptions, setPreparationOptions] = useState(defaultOptions);
-  const [preparationRevision, setPreparationRevision] = useState(0);
   const [preparationUploading, setPreparationUploading] = useState(false);
   const [path, raw = ''] = hash.replace(/^#/, '').split('?');
   const query = new URLSearchParams(raw);
@@ -141,10 +140,10 @@ export default function LiveApp() {
     </header>
     {error && <div className="sl-live-error" role="alert">{error}<button onClick={() => void action(async () => { await flush(); await refresh(); })}>刷新状态</button><button aria-label="关闭提示" onClick={() => setError('')}>×</button></div>}
     {busy && <div className="sl-live-busy" role="status">{busy}</div>}
-    {loading ? <p className="sl-auth-loading" role="status">正在读取学习空间…</p> : home ? <Home live canCreateFromUploads={preparationOptions.uploads.length > 0 || preparationUploading} preparationOptions={<PreparationOptionsForm value={preparationOptions} onChange={setPreparationOptions} onUploadingChange={setPreparationUploading} />} preparationTasks={<PreparationTasks key={user?.username} owner={user?.username || ''} refreshKey={preparationRevision} />} rooms={data.rooms} shared={data.shared} canPublish={user?.role === 'teacher' || user?.role === 'admin'} onOpen={(r, shared) => void open(r, shared)} onPublish={() => setPublish(true)} onCreate={text => {
+    {loading ? <p className="sl-auth-loading" role="status">正在读取学习空间…</p> : home ? <Home live canCreateFromUploads={preparationOptions.uploads.length > 0 || preparationUploading} preparationOptions={<PreparationOptionsForm value={preparationOptions} onChange={setPreparationOptions} onUploadingChange={setPreparationUploading} />} rooms={data.rooms} shared={data.shared} canPublish={user?.role === 'teacher' || user?.role === 'admin'} onOpen={(r, shared) => void open(r, shared)} onPublish={() => setPublish(true)} onCreate={text => {
       if (busy) return;
       if (preparationUploading) { setError('资料仍在上传，请完成后再开始学习'); return; }
-      void action(async () => { await submitPreparation(user!.username, text, preparationOptions); setPreparationRevision(v => v + 1); }, '正在提交课程准备任务…');
+      void action(() => submitPreparation(user!.username, text, preparationOptions), '正在提交课程准备任务…');
     }} /> : library ? <ResourceCenter room={room} classroomId={room?.id} resources={data.resources} resourceId={query.get('resource') || undefined} workbenchHref={workbench()} workbenchForResource={id => workbench(byId(id))}
       onRename={(id, title) => resourceAction(() => apiRequest(materialPath(byId(id)), { method: 'PATCH', body: JSON.stringify({ title }) }))}
       onRemove={id => resourceAction(() => apiRequest(materialPath(byId(id)), { method: 'DELETE' }))}

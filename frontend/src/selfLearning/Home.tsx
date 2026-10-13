@@ -12,7 +12,6 @@ type Props = {
   live?: boolean;
   canCreateFromUploads?: boolean;
   preparationOptions?: ReactNode;
-  preparationTasks?: ReactNode;
 };
 export function Cover({ room }: { room: Pick<Classroom, "tone"> }) {
   const python = room.tone === "mint";
@@ -100,7 +99,6 @@ export function Home({
   live,
   canCreateFromUploads = false,
   preparationOptions,
-  preparationTasks,
 }: Props) {
   const [prompt, setPrompt] = useState("");
   const [query, setQuery] = useState("");
@@ -154,7 +152,6 @@ export function Home({
           </div>
         </form>
       </section>
-      {preparationTasks}
       <div className="sl-home-library">
         <section aria-label="最近学习">
           <div className="sl-section-heading">
