@@ -17,15 +17,15 @@
   --home-gutter: clamp(24px, 4.5vw, 96px);
   padding: 0 var(--home-gutter);
 }
-.sl-editorial-masthead { width: 100%; max-width: var(--home-width); margin: 0 auto; height: 86px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 22px; }
-.sl-home-editorial .sl-editorial-masthead .sl-brand { font-size: 23px; letter-spacing: -.7px; color: var(--ink); }
+.sl-editorial-masthead { width: calc(100% + 2 * var(--home-gutter)); max-width: none; margin: 0 calc(-1 * var(--home-gutter)); padding: 0 28px; height: 68px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 22px; }
+.sl-home-editorial .sl-editorial-masthead .sl-brand { font-size: 23px; letter-spacing: -1px; color: var(--ink); }
 .sl-home-editorial .sl-editorial-masthead .sl-brand b { color: var(--ink); font-weight: 400; }
 .sl-home-editorial .sl-editorial-masthead .sl-mark { color: #b06b46; }
 .sl-editorial-masthead > span:last-child { font-size: 11px; color: #8b8f81; letter-spacing: 1px; }
-.sl-app:has(> .sl-home-editorial) > .sl-home-account { top: 25px; right: max(clamp(24px, 4.5vw, 96px), calc((100% - 1200px) / 2)); }
-.sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-avatar { background: #e5e8d8; border-color: #e5e8d8; color: #526447; }
+.sl-app:has(> .sl-home-editorial) > .sl-home-account { top: 0; right: 28px; height: 68px; border-bottom: 1px solid transparent; display: flex; align-items: center; }
+.sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-avatar { width: 34px; height: 34px; background: #e5e8d8; border-color: #e5e8d8; color: #526447; }
 .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-task-launcher { background: transparent; border-color: #d7dccc; color: #64705f; border-radius: 5px; }
-.sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-live-account > button { color: #65715e; font-size: 12px; }
+.sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-live-account > button { color: #65715e; }
 .sl-home.sl-home-editorial .sl-home-hero { max-width: var(--home-width); display: block; padding: 32px 0 30px; text-align: left; }
 .sl-editorial-intro { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 0 5px 30px; }
 .sl-editorial-copy { min-width: 0; }
@@ -98,9 +98,7 @@
 .sl-home.sl-home-editorial .sl-home-footer > p { font-size: 10px; margin: 0; }
 .sl-home.sl-home-editorial .sl-home-footer > span:last-child:not(.sl-editorial-footer-mark) { flex-basis: 100%; font-size: 9px; }
 @media (max-width: 1050px) {
-  .sl-home.sl-home-editorial { padding: 0 32px; }
-  .sl-editorial-masthead { height: 78px; }
-  .sl-app:has(> .sl-home-editorial) > .sl-home-account { right: 32px; top: 21px; }
+  .sl-home.sl-home-editorial { --home-gutter: 32px; }
   .sl-home.sl-home-editorial .sl-home-hero { padding: 34px 0 30px; }
   .sl-editorial-illustration { width: 240px; }
   .sl-home.sl-home-editorial .sl-card-grid { gap: 20px; }
@@ -110,14 +108,14 @@
   .sl-jacket-bottom > span:last-child { display: none; }
 }
 @media (max-width: 700px) {
-  .sl-home.sl-home-editorial { padding: 0 21px; }
-  .sl-editorial-masthead { height: 72px; }
-  .sl-home-editorial .sl-editorial-masthead .sl-brand { font-size: 20px; gap: 7px; }
+  .sl-home.sl-home-editorial { --home-gutter: 21px; }
+  .sl-editorial-masthead { height: 60px; padding-inline: 16px; border-bottom: 0; box-shadow: inset 0 -1px var(--line); }
+  .sl-home-editorial .sl-editorial-masthead .sl-brand { font-size: 0; gap: 0; }
+  .sl-home-editorial .sl-editorial-masthead .sl-brand > b { display: none; }
+  .sl-home-editorial .sl-editorial-masthead .sl-mark { width: 25px; }
   .sl-editorial-masthead > span:last-child { display: none; }
-  .sl-app:has(> .sl-home-editorial) > .sl-home-account { top: 18px; right: 21px; }
-  .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-avatar { width: 31px; height: 31px; }
-  .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-live-account > button { font-size: 10px; }
-  .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-task-launcher { padding: 6px 8px; font-size: 10px; min-height: 29px; }
+  .sl-app:has(> .sl-home-editorial) > .sl-home-account { right: 16px; height: 60px; border-bottom: 0; }
+  .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-avatar { width: 29px; height: 29px; }
   .sl-home.sl-home-editorial .sl-home-hero { padding: 29px 0 26px; }
   .sl-editorial-intro { padding: 0 0 25px; gap: 0; position: relative; }
   .sl-editorial-illustration { width: 116px; max-width: none; position: absolute; top: -10px; right: -12px; opacity: .3; z-index: 0; }
