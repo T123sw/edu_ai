@@ -22,6 +22,7 @@ import { Icon } from "./ui";
 import { useLearningProgress } from '../liveLearning/learningState';
 import { resourceRef, refKey } from '../liveLearning/readingContext';
 import { LearningAgent } from "./LearningAgent";
+import "./classroomEditorial.css";
 
 export function Classroom({
   room: inputRoom,

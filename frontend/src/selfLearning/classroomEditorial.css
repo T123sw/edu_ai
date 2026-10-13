@@ -1,0 +1,175 @@
+/* Scoped to the learning classroom and its embedded material reader. */
+.sl-app.in-classroom,
+.sl-editorial-material {
+  --sl-purple: #244b38;
+  --sl-ink: #203d33;
+  --sl-muted: #727d6e;
+  --sl-line: #dcded2;
+  --sl-soft: #edf0e3;
+  --class-paper: #f5f3eb;
+  --class-sheet: #fffef9;
+  --class-sage: #e7ebdc;
+  --class-terra: #aa6847;
+  background: var(--class-paper);
+  color: var(--sl-ink);
+  accent-color: var(--sl-purple);
+}
+.sl-app.in-classroom :is(button, a, input, textarea, select):focus-visible,
+.sl-editorial-material :is(button, a, input, textarea, select):focus-visible {
+  outline-color: #789065;
+}
+.sl-app.in-classroom ::selection,
+.sl-editorial-material ::selection { background: #dce5cd; }
+.sl-app.in-classroom .sl-header {
+  background: var(--class-paper);
+  border-color: var(--sl-line);
+  box-shadow: none;
+}
+.sl-app.in-classroom :is(.sl-brand, .sl-brand b) { color: var(--sl-ink); }
+.sl-app.in-classroom .sl-brand b { font-weight: 400; }
+.sl-app.in-classroom .sl-mark { color: var(--class-terra); }
+.sl-app.in-classroom :is(.sl-live-title, .sl-class-title, .sl-main-nav a) { color: #65715e; }
+.sl-app.in-classroom .sl-main-nav a.active { color: var(--sl-ink); }
+.sl-app.in-classroom .sl-main-nav a.active::after { background: var(--sl-purple); width: 24px; height: 2px; }
+.sl-app.in-classroom .sl-avatar { background: var(--class-sage); border-color: var(--class-sage); color: #526447; }
+.sl-app.in-classroom .sl-task-launcher { background: transparent; border-color: #d1d8c5; color: #536647; border-radius: 5px; }
+.sl-app.in-classroom .sl-classroom { background: var(--class-paper); }
+.sl-app.in-classroom :is(.sl-directory, .sl-agent) { background: var(--class-paper); border-color: var(--sl-line); }
+.sl-app.in-classroom .sl-reader { background: var(--class-sheet); }
+.sl-app.in-classroom :is(.sl-rail-heading, .sl-reader-toolbar) { border-color: var(--sl-line); }
+.sl-app.in-classroom .sl-rail-heading h2 { color: var(--sl-ink); font-size: 14px; letter-spacing: .4px; }
+.sl-app.in-classroom .sl-rail-heading > span { color: var(--sl-muted); }
+.sl-app.in-classroom .sl-route-progress > div:first-child { color: var(--sl-muted); }
+.sl-app.in-classroom .sl-route-progress strong { color: var(--sl-ink); }
+.sl-app.in-classroom .sl-route-progress small { color: var(--sl-muted); }
+.sl-app.in-classroom .sl-progress-track { background: #e2e5d8; height: 3px; }
+.sl-app.in-classroom .sl-progress-track i { background: #71845d; }
+.sl-app.in-classroom :is(.sl-directory-scroll, .sl-reader-scroll, .sl-chat-history) { scrollbar-color: #cdd3c1 transparent; }
+.sl-app.in-classroom .sl-chapter-heading { color: #3c513c; line-height: 1.7; }
+.sl-app.in-classroom .sl-chapter-heading > span { color: var(--class-terra); font-family: Georgia, serif; font-size: 12px; }
+.sl-app.in-classroom .sl-resource-row { color: #6e7965; border-radius: 5px; }
+.sl-app.in-classroom .sl-resource-row small { color: #7c8472; }
+.sl-app.in-classroom .sl-resource-row:hover { background: #eceee2; }
+.sl-app.in-classroom .sl-resource-row.active { background: #e1e8d5; color: #294d37; box-shadow: inset 2px 0 #607b50; }
+.sl-app.in-classroom .sl-current-dot { background: #6f8256; }
+.sl-app.in-classroom .sl-done { color: #54734e; }
+.sl-app.in-classroom .sl-rail-studio { color: var(--sl-muted); }
+.sl-app.in-classroom .sl-rail-studio small { color: #486140; }
+.sl-app.in-classroom :is(.sl-reader-toolbar, .sl-reader-toolbar .sl-text-button) { color: #78826d; }
+.sl-app.in-classroom .sl-reader-toolbar i { color: #b1b8a1; }
+.sl-app.in-classroom .sl-reader-footer { background: var(--class-sheet); }
+.sl-app.in-classroom .sl-reading-fact { color: #748168; }
+.sl-app.in-classroom .sl-primary { background: var(--sl-purple); color: #fffef2; border-radius: 5px; box-shadow: none; }
+.sl-app.in-classroom .sl-primary:not(:disabled):hover { background: #193c2b; }
+.sl-app.in-classroom .sl-secondary-button { background: var(--class-sheet); border-color: #cdd6bf; color: #516447; border-radius: 5px; }
+.sl-app.in-classroom .sl-text-button { color: #667950; }
+.sl-app.in-classroom .sl-icon-button { color: #748467; }
+.sl-app.in-classroom .sl-icon-button:hover { background: var(--class-sage); }
+.sl-app.in-classroom .sl-class-title > small { color: var(--sl-muted); }
+.sl-app.in-classroom .sl-article { color: #485345; font-size: 14px; line-height: 2.05; }
+.sl-app.in-classroom .sl-article :is(h1, h2, h3) { color: var(--sl-ink); }
+.sl-app.in-classroom .sl-article h1 { font-family: 'Songti SC', 'Noto Serif CJK SC', 'SimSun', serif; font-weight: 500; letter-spacing: .5px; }
+.sl-app.in-classroom .sl-article :is(.sl-article-lead, .sl-article-meta) { color: #7a826f; }
+.sl-app.in-classroom .sl-eyebrow { color: var(--class-terra); }
+.sl-app.in-classroom .sl-callout { background: #edf0e3; border-color: #849363; color: #6f835a; border-radius: 0 5px 5px 0; }
+.sl-app.in-classroom .sl-callout strong { color: #4d6541; }
+.sl-app.in-classroom .sl-callout p { color: #6e7962; }
+.sl-app.in-classroom .sl-article blockquote { border-color: #c4ccb3; color: #748267; }
+.sl-app.in-classroom .sl-demo-note { color: #858b78 !important; }
+.sl-app.in-classroom .sl-notes { border-color: #d7dac7; background: #f7f6ed; border-radius: 6px; }
+.sl-app.in-classroom .sl-notes label { color: #567047; }
+.sl-app.in-classroom .sl-notes small { color: var(--sl-muted); }
+.sl-app.in-classroom .sl-agent-symbol { color: var(--class-terra); }
+.sl-app.in-classroom .sl-rail-heading > .sl-local-tag { color: #6e8058 !important; background: #e8eddb; }
+.sl-app.in-classroom .sl-context { background: #eaeede; border-color: #dce2cf; border-radius: 6px; }
+.sl-app.in-classroom .sl-context :is(select, strong) { color: #3b5939; }
+.sl-app.in-classroom .sl-context :is(span, small) { color: #6e7e60; }
+.sl-app.in-classroom .sl-learning-memory { background: var(--class-sheet); border-color: #dce0d0; border-radius: 6px; }
+.sl-app.in-classroom .sl-memory-toggle { color: #60734e; }
+.sl-app.in-classroom .sl-memory-toggle small { color: #78846c; }
+.sl-app.in-classroom .sl-memory-body { border-color: var(--sl-line); }
+.sl-app.in-classroom .sl-memory-body :is(p, label, small) { color: #758168; }
+.sl-app.in-classroom .sl-memory-item { border-color: #e9eadd; }
+.sl-app.in-classroom .sl-memory-item strong { color: #4c6243; }
+.sl-app.in-classroom .sl-memory-item strong span { color: #73845d; }
+.sl-app.in-classroom .sl-memory-body select { color: #526b43; background: #f2f4e9; border-color: #dce1d0; }
+.sl-app.in-classroom .sl-chat-author { color: #627752; }
+.sl-app.in-classroom .sl-chat-author small { color: #7d8671; }
+.sl-app.in-classroom .sl-chat-bubble { font-size: 12px; }
+.sl-app.in-classroom .sl-chat-bubble p { color: #5f6b56; }
+.sl-app.in-classroom .sl-chat-bubble.user { background: #e3e9d7; border-radius: 8px 8px 2px 8px; }
+.sl-app.in-classroom .sl-chat-bubble.user p { color: #3f5837; }
+.sl-app.in-classroom .sl-chat-thinking { color: #7a8b64; }
+.sl-app.in-classroom .sl-chat-bottom { border-color: var(--sl-line); }
+.sl-app.in-classroom .sl-quick-questions button { color: #6d7d5c; background: var(--class-sheet); border-color: #d7ddc9; border-radius: 4px; }
+.sl-app.in-classroom .sl-quick-questions button:hover { background: #e9eedc; }
+.sl-app.in-classroom .sl-chat-composer { background: var(--class-sheet); border-color: #cdd6bd; border-radius: 7px; box-shadow: 0 3px 0 -1px #e3e5d7; }
+.sl-app.in-classroom .sl-chat-composer:focus-within { border-color: #81956b; }
+.sl-app.in-classroom .sl-chat-composer textarea { color: #354e34; font-size: 12px; }
+.sl-app.in-classroom .sl-chat-composer textarea::placeholder { color: #89917d; }
+.sl-app.in-classroom .sl-send { background: var(--sl-purple); border-radius: 5px; }
+.sl-app.in-classroom .sl-chat-bottom > small { color: #7f8972; }
+.sl-app.in-classroom :is(.sl-check-card, .sl-preferences) { background: var(--class-sheet); border-color: #d4ddc5; border-radius: 6px; }
+.sl-app.in-classroom :is(.sl-check-card, .sl-preferences) button { border-color: #c8d2b8; color: #41603b; }
+.sl-app.in-classroom .sl-mobile-panels { background: var(--class-paper); }
+.sl-app.in-classroom .sl-mobile-panels button { color: #79866b; }
+.sl-app.in-classroom .sl-mobile-panels button.active { color: #244b38; background: #e6ebd9; border-radius: 4px; }
+.sl-app.in-classroom .sl-lecture-top { color: #7d886f; }
+.sl-app.in-classroom .sl-slide { background: linear-gradient(125deg, #f0f1e5, #e2e8d3); border-color: #d8dfc9; color: var(--sl-ink); }
+.sl-app.in-classroom .sl-slide > p { color: #758265; }
+.sl-app.in-classroom .sl-concept-flow > div { background: #fffef9b5; border-color: #fffef9; border-radius: 5px; }
+.sl-app.in-classroom .sl-concept-flow :is(strong, div > span, i) { color: #617b4d; }
+.sl-app.in-classroom .sl-slide-note { color: #6d7b60; }
+.sl-app.in-classroom .sl-player { background: #e9eddd; border-color: #d8dfc9; color: #687b54; }
+.sl-app.in-classroom .sl-play-button { background: #d9e2c8; color: #3f6136; }
+.sl-app.in-classroom .sl-player input { accent-color: #718957; }
+.sl-app.in-classroom .sl-lecture-summary { color: #657359; }
+.sl-app.in-classroom .sl-lecture-summary h3 { color: #3c5435; }
+.sl-app.in-classroom .sl-quiz legend { color: #3e5537; }
+.sl-app.in-classroom .sl-quiz label { border-color: #dbe1cf; }
+.sl-app.in-classroom .sl-quiz label.selected { background: #e9efdc; border-color: #99ac80; }
+.sl-app.in-classroom .sl-quiz input { accent-color: #587742; }
+.sl-app.in-classroom .sl-preparing h2 { color: var(--sl-ink); }
+.sl-app.in-classroom .sl-preparing :is(p, small) { color: var(--sl-muted); }
+.sl-app.in-classroom .sl-orbit { color: #7d9065; border-color: #d3dcc2; background: #eef2e4; box-shadow: 0 0 0 15px #f4f5eb; animation-name: sl-editorial-breathe; }
+@keyframes sl-editorial-breathe { 50% { box-shadow: 0 0 0 25px #f4f5eb; opacity: .65; } }
+.sl-app.in-classroom .sl-live-material { background: var(--class-sheet); }
+
+/* The material is a separate document: theme its chrome, not generated slides. */
+.sl-editorial-material {
+  --app-text: #344b35;
+  --app-text-muted: #738166;
+  --app-border: #dcded2;
+  --app-bg: #fffef9;
+  --shell-border: #dcded2;
+  --shell-surface: #fffef9;
+  --panel-surface: #fffef9;
+  --accent: #587247;
+  --accent-strong: #244b38;
+  --accent-soft: #edf0e3;
+  --accent-border: #d4ddc5;
+  --muted-text: #738166;
+  --surface-subtle: #f5f3eb;
+  --surface-elevated: #fffef9;
+  --input-surface: #fffef9;
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--class-sheet);
+  color: #344b35;
+}
+.sl-editorial-material .edu-rich-preview { background: var(--class-sheet); border-color: var(--sl-line); }
+.sl-editorial-material .markdown-preview { max-width: 800px; margin-inline: auto; font-size: 15px; line-height: 2; }
+.sl-editorial-material .markdown-preview :is(h1, h2, h3, h4) { color: var(--sl-ink); }
+.sl-editorial-material .markdown-preview h1 { font-family: 'Songti SC', 'Noto Serif CJK SC', 'SimSun', serif; font-weight: 500; }
+.sl-editorial-material .markdown-preview blockquote { background: var(--sl-soft); border-color: #98a880; color: #617253; }
+.sl-editorial-material .edu-rich-preview a { color: #416b38; }
+.sl-editorial-material :is(.resource-quiz-preview fieldset, .sl-check-card) { background: var(--class-sheet); border: 1px solid #d6ddc7; border-radius: 6px; }
+.sl-editorial-material .resource-quiz-preview input { accent-color: #587742; }
+.sl-editorial-material .classroom-console { background: var(--class-sheet); border-color: var(--sl-line); box-shadow: none; }
+.sl-editorial-material .classroom-console__controls { background: var(--class-paper); border-color: var(--sl-line); }
+.sl-editorial-material .classroom-primary-button { background: #244b38; color: #fffef2; border-color: #244b38; box-shadow: none; }
+@media (max-width: 700px) {
+  .sl-app.in-classroom .sl-chat-composer textarea { font-size: 16px; }
+  .sl-app.in-classroom .sl-notes textarea { font-size: 16px; }
+  .sl-editorial-material { padding: 12px; }
+}

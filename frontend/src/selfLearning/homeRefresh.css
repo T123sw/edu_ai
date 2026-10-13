@@ -13,18 +13,20 @@
   --line: #dcded2;
   background: var(--paper);
   color: var(--ink);
-  padding: 0 40px;
+  --home-width: 1440px;
+  --home-gutter: clamp(24px, 4.5vw, 96px);
+  padding: 0 var(--home-gutter);
 }
-.sl-editorial-masthead { width: 100%; max-width: 1120px; margin: 0 auto; height: 86px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 22px; }
+.sl-editorial-masthead { width: 100%; max-width: var(--home-width); margin: 0 auto; height: 86px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 22px; }
 .sl-home-editorial .sl-editorial-masthead .sl-brand { font-size: 23px; letter-spacing: -.7px; color: var(--ink); }
 .sl-home-editorial .sl-editorial-masthead .sl-brand b { color: var(--ink); font-weight: 400; }
 .sl-home-editorial .sl-editorial-masthead .sl-mark { color: #b06b46; }
 .sl-editorial-masthead > span:last-child { font-size: 11px; color: #8b8f81; letter-spacing: 1px; }
-.sl-app:has(> .sl-home-editorial) > .sl-home-account { top: 25px; right: max(40px, calc((100vw - 1120px) / 2)); }
+.sl-app:has(> .sl-home-editorial) > .sl-home-account { top: 25px; right: max(clamp(24px, 4.5vw, 96px), calc((100% - 1440px) / 2)); }
 .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-avatar { background: #e5e8d8; border-color: #e5e8d8; color: #526447; }
 .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-task-launcher { background: transparent; border-color: #d7dccc; color: #64705f; border-radius: 5px; }
 .sl-app:has(> .sl-home-editorial) > .sl-home-account .sl-live-account > button { color: #65715e; font-size: 12px; }
-.sl-home.sl-home-editorial .sl-home-hero { max-width: 1000px; display: block; padding: 40px 0 34px; text-align: left; }
+.sl-home.sl-home-editorial .sl-home-hero { max-width: var(--home-width); display: block; padding: 32px 0 30px; text-align: left; }
 .sl-editorial-intro { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 0 5px 30px; }
 .sl-editorial-copy { min-width: 0; }
 .sl-editorial-eyebrow { display: flex; align-items: center; gap: 9px; font-size: 11px; color: #8a8c78; letter-spacing: 2px; }
@@ -56,7 +58,7 @@
 .sl-home.sl-home-editorial .sl-intake-file { background: #f5f5ec; border-color: #e4e6d9; color: #6d7d5e; }
 .sl-editorial-hero-foot { margin-top: 18px; display: flex; justify-content: space-between; gap: 15px; color: #949a89; font-size: 10px; }
 .sl-editorial-hero-foot > span:last-child { font-family: Georgia, serif; letter-spacing: 1.7px; font-size: 9px; }
-.sl-home.sl-home-editorial .sl-home-library { width: 100%; max-width: 1120px; padding: 0; }
+.sl-home.sl-home-editorial .sl-home-library { width: 100%; max-width: var(--home-width); padding: 0; }
 .sl-home.sl-home-editorial .sl-home-library > section { padding: 29px 0 27px; border-top: 1px solid var(--line); background: transparent; }
 .sl-home.sl-home-editorial .sl-home-library > section + section { margin-top: 0; }
 .sl-home.sl-home-editorial .sl-section-heading { justify-content: flex-start; gap: 22px; margin: 0 0 22px; min-height: 32px; }
@@ -74,7 +76,7 @@
 .sl-home.sl-home-editorial .sl-class-card { background: transparent; border: 0; border-radius: 3px; box-shadow: none; overflow: visible; text-align: left; }
 .sl-home.sl-home-editorial .sl-class-card:hover { transform: translateY(-4px); box-shadow: none; }
 .sl-home.sl-home-editorial .sl-class-card:focus-visible { outline-color: #75895f; outline-offset: 6px; }
-.sl-home.sl-home-editorial .sl-course-preview { --jacket: #214637; --jacket-text: #e7e7ce; height: 196px; padding: 18px 20px 16px 25px; background: var(--jacket); color: var(--jacket-text); border: 0; border-radius: 3px 7px 7px 3px; position: relative; overflow: hidden; box-shadow: 3px 4px 0 -1px #e1e0d3, 5px 9px 12px #21382e09; }
+.sl-home.sl-home-editorial .sl-course-preview { --jacket: #214637; --jacket-text: #e7e7ce; height: clamp(196px, 16vw, 238px); padding: 18px 20px 16px 25px; background: var(--jacket); color: var(--jacket-text); border: 0; border-radius: 3px 7px 7px 3px; position: relative; overflow: hidden; box-shadow: 3px 4px 0 -1px #e1e0d3, 5px 9px 12px #21382e09; }
 .sl-home.sl-home-editorial .sl-course-preview.mint { --jacket: #dfe4c8; --jacket-text: #44583d; }
 .sl-home.sl-home-editorial .sl-course-preview.peach { --jacket: #b96f4b; --jacket-text: #f8edce; }
 .sl-jacket-spine { position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: currentColor; opacity: .15; }
@@ -90,7 +92,7 @@
 .sl-editorial-card-meta { display: flex; align-items: center; justify-content: space-between; color: #919a84; font-size: 10px; }
 .sl-editorial-card-meta svg { color: #8e9b7c; }
 .sl-home.sl-home-editorial .sl-inline-empty { padding: 30px 0; border: 0; color: #969e8b; font-size: 12px; background: transparent; }
-.sl-home.sl-home-editorial .sl-home-footer { width: 100%; max-width: 1120px; margin: 15px auto 0; padding: 24px 0 28px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; color: #969e8b; text-align: left; }
+.sl-home.sl-home-editorial .sl-home-footer { width: 100%; max-width: var(--home-width); margin: 15px auto 0; padding: 24px 0 28px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; color: #969e8b; text-align: left; }
 .sl-home.sl-home-editorial .sl-home-footer .sl-editorial-footer-mark { font-size: 12px; letter-spacing: .7px; margin: 0; color: #536647; }
 .sl-editorial-footer-mark i { margin: 0 9px; font-style: normal; color: #bdc4ad; }
 .sl-home.sl-home-editorial .sl-home-footer > p { font-size: 10px; margin: 0; }
